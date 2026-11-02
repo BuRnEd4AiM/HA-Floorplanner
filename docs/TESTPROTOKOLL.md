@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.53.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.54.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.53.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.54.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.54.0: 🏠 ein L-förmiges Dach: ein weiteres Dach „wie das Hauptdach“, auch auf dem Kniestock** (Abschnitt 143, gefragt von Mario in der Q&A-Diskussion #621): Claude hat 143.1 und 143.2 im Browser-Test geprüft; für dich in der Demo 143.3 bis 143.5, nach dem Update das Video 143.6.
 1. **Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes (nur als Fingerabdruck) und auf Wunsch die Aufzeichnungen und die CallMeBot-Schlüssel** (Abschnitt 142): Claude hat 142.1 geprüft; für dich im Add-on 142.2 bis 142.5, nach dem Update die Videos 142.6 (Backup) und 142.7 (Messen: Wände verschieben und Winkel).
 1. **Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video zum Durchsuchen** (Abschnitt 141): 141.1 bis 141.5 ✅; 141.6 am Handy war abgeschnitten (#619), ist repariert: bitte noch einmal am Handy ein Video öffnen; im Add-on 141.7 und 141.8; neu: 141.9 (Liste aller Funktionen) und 141.10 (die neuen Videos).
 1. **Neu in 4.51.0: 📅 besondere Tage in Abläufen (z. B. an Heiligabend und Feiertagen den Rollladen nur auf 50 %) und feste Stufen 0 / 50 / 75 / 100 % auf der Rollladen-Karte** (Abschnitt 140): Claude hat 140.1 bis 140.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on 140.7 bis 140.10.
@@ -382,7 +383,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 140. Neu in 4.51.0: 📅 besondere Tage in Abläufen, feste Stufen auf der Rollladen-Karte | 6 | 0 | 4 | 0 | 140.7 bis 140.10 |
 | 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video | 5 | 1 | 4 | 0 | ❌ 141.6, 141.7 bis 141.10 |
 | 142. Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes und die Aufzeichnungen | 1 | 0 | 6 | 0 | 142.2 bis 142.7 |
-| **Zusammen** | **858** | **2** | **114** | **92** | |
+| 143. Neu in 4.54.0: 🏠 ein L-förmiges Dach, ein weiteres Dach wie das Hauptdach | 2 | 0 | 4 | 0 | 143.3 bis 143.6 |
+| **Zusammen** | **860** | **2** | **118** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2178,3 +2180,15 @@ Der Besitzer am 2026-11-02: „ein Backup sollte ja immer alles sein“; seine W
 | 142.5 | Im Add-on: nach 142.4 oben „🛡️ Sicherheit“ öffnen | Alle aufgezeichneten Tage sind noch da, auch der heutige läuft weiter | ❓ |
 | 142.6 | Nach dem Update auf der Seite der Anleitung das Video „Backup: alles sichern und zurückholen“ ansehen | Es zeigt die zwei Häkchen und sagt, was in der Datei steht | ❓ |
 | 142.7 | Nach dem Update das Video „Messen, Wände genau verschieben und drehen“ ansehen | Erst zwei Punkte gemessen; dann zwei Wände angeklickt, das Innenmaß 5 m eingetippt: die Wand rückt, die Küche wird größer; dann zwei Wände an einer Ecke auf 75° gedreht, Strg+Z nimmt es zurück | ❓ |
+
+## 143. Neu in 4.54.0: 🏠 ein L-förmiges Dach, ein weiteres Dach wie das Hauptdach
+Mario (LoggieXC81) in der Q&A-Diskussion #621: Fügt er ein zweites Dach hinzu, wird der Kniestock vom Hauptdach nicht übernommen; beide Dächer kamen nicht auf die gleiche Höhe (Issue #625). Jetzt hat „Sitzt auf“ eines weiteren Dachs die Wahl „wie das Hauptdach“, und die Wände unter dem zweiten Dach folgen seinen Schrägen.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 143.1 | Dach-Etage mit „Ausgebauter Dachstuhl“ (Kniestock 1 m) und „Größe selbst festlegen“ über einem Teil des Hauses; „+ Weiteres Dach“ | Ein Satteldach „Sitzt auf: wie das Hauptdach“ über dem Rest des Hauses, bis zum First des Hauptdachs; in „Sitzt auf“ steht „wie das Hauptdach“ ganz oben | ✅ (2026-11-02, Claude im Browser-Test 10_roofs) |
+| 143.2 | Wie 143.1, dann „Sitzt auf“ zwischen „wie das Hauptdach“ und „ganz oben“ wechseln | „wie das Hauptdach“: beide Dächer gleich hoch, die Wände des Geschosses darunter an beiden Dächern abgeschnitten; „ganz oben“: das zweite Dach höher | ✅ (2026-11-02, Claude im Browser-Test 10_roofs) |
+| 143.3 | Demo: „Bearbeiten“, links die Etage „Dach“, rechts „Etage verwalten“: „Ausgebauter Dachstuhl“ anhaken, „Größe selbst festlegen“ anhaken und die „Breite“ halbieren (10 → 5); dann unten „+ Weiteres Dach“ | Das Hauptdach liegt nur noch über der linken Hälfte; das neue „Dach 1“ liegt quer dazu über dem Rest, mit der gleichen Traufhöhe, „Sitzt auf: wie das Hauptdach“; beide Dächer treffen sich | ❓ |
+| 143.4 | Nach 143.3 die Etage unter dem Dach (z. B. Dachgeschoss) antippen | Die Wände unter dem zweiten Flügel sind da: niedrig (Kniestock) an den langen Seiten, ein Giebel am Ende; nicht mehr ganz weg | ❓ |
+| 143.5 | Nach 143.3 bei „Dach 1“ „Sitzt auf“ auf „ganz oben (auf dem Haus)“ und zurück auf „wie das Hauptdach“ stellen | „ganz oben“: das zweite Dach springt höher; „wie das Hauptdach“: wieder gleich hoch | ❓ |
+| 143.6 | Nach dem Update auf der Seite der Anleitung das Video „Ein L-förmiges Dach (zweiter Flügel)“ ansehen | Ein L-Haus, das Dach nur über einem Flügel; „+ Weiteres Dach“ legt das zweite darüber; „wie das Hauptdach“; im Dachgeschoss folgen die Wände beiden Schrägen | ❓ |

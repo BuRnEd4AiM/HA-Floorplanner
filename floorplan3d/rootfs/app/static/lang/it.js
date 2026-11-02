@@ -408,6 +408,7 @@ export default {
   'roof.partAdd': '+ Altro tetto',
   'roof.partName': 'Nome',
   'roof.partLevel': 'Poggia su',
+  'roof.partMain': 'come il tetto principale (stessa altezza, anche sul muretto)',
   'roof.partTop': 'in cima (sopra la casa)',
   'roof.partRemove': 'Rimuovi il tetto',
   'heat.title': 'RISCALDAMENTO',

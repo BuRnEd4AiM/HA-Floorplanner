@@ -1587,7 +1587,7 @@ const props = initProps({
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type, dev) => baseSize(type, dev), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
   uploadPicture: (f, d) => uploadPicture(f, d), floorH: FLOOR_H, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
-  closetRoof: (d) => { const clip = roofsUi.wallClip(floorIdx); return clip ? { planes: clip.planes, baseY: elev(floorIdx) + (d.y || 0) } : null; },   // a cabinet fits under the roof (closet.js)
+  closetRoof: (d) => { const planes = roofsUi.slopesAt(floorIdx, d.x, d.z); return planes ? { planes, baseY: elev(floorIdx) + (d.y || 0) } : null; },   // a cabinet fits under the roof over it (closet.js; an L-shaped house: the wing's roof, #621)
 });
 function renderObjList() { objList.render(); }
 function renderRoomEntities() { roomEnts.render(); }

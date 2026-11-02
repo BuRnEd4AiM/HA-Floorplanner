@@ -408,6 +408,7 @@ export default {
   'roof.partAdd': '+ Extra dak',
   'roof.partName': 'Naam',
   'roof.partLevel': 'Rust op',
+  'roof.partMain': 'zoals het hoofddak (zelfde hoogte, ook op het knieschot)',
   'roof.partTop': 'bovenaan (op het huis)',
   'roof.partRemove': 'Dak verwijderen',
   'heat.title': 'VERWARMING',

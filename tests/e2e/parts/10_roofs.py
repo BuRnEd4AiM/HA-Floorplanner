@@ -1,4 +1,4 @@
-"""Roofs and selecting: solar panels on the roof (#176), moving and sizing roofs (#255, #259), lived-in attic (#260), a long shed dormer (#339) with the windows of the rooms under it (#341), flush to the gable (#345), several things at once (#211, #247), the turning 2D plan (#212).
+"""Roofs and selecting: solar panels on the roof (#176), moving and sizing roofs (#255, #259), lived-in attic (#260), a long shed dormer (#339) with the windows of the rooms under it (#341), flush to the gable (#345), several things at once (#211, #247), the turning 2D plan (#212), an L-shaped roof: a further roof like the main roof (#621).
 """
 # a house of its own: four storeys with walls and no roof yet (the checks below add the roof). The test house of base.py has a roof already,
 # so the roof would come on top of it and the attic checks would find no walls below. The test house comes back at the end.
@@ -152,6 +152,28 @@ pgSol.fill(".dormerCard .dormerStart", "0"); pgSol.press(".dormerCard .dormerSta
 dparts = {m["part"]: m["box"] for m in pgSol.evaluate("window.__fp.roofMeshes()") if m["part"] in ("wall", "roof")}
 check("shed dormer (#345): with distance 0 from the gable its walls and roof end exactly at the edge of the roof",
       len(dparts) == 2 and all(abs(b[2] + 0.4) < 0.01 for b in dparts.values()), dparts)
+# --- an L-shaped house (#621): with the main roof over one part "+ Further roof" offers the other wing "like the main roof": the same height, and the walls
+# under it follow its slopes (before, it sat on top of the house and the walls of the storey under the slopes were cut at the main roof)
+lsh_from = len(sol_errs)
+pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, ri = L.length - 1, r = L[ri].roof;
+  Object.assign(r, { type: 'gable', pitch: 35, overhang: 0.4, knee: 1, ridge: 'x', box: { x0: 0, x1: 4, z0: 0, z1: 3 } }); delete r.dormers; r.parts = [];
+  fp.rebuild(); fp.switchFloor(ri - 1); fp.switchFloor(ri); document.querySelector('#floorPanel').open = true; }""")
+pgSol.wait_for_timeout(500)
+pgSol.click("#addRoofPart"); pgSol.wait_for_timeout(400)
+new_part = pgSol.evaluate("window.__fp.layout.floors.at(-1).roof.parts.at(-1)")
+lvl_opts = pgSol.locator(".roofPartCard .roofPartLevel").last.locator("option").evaluate_all("(os) => os.map((o) => o.value)")
+lsh = pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, ri = L.length - 1, p = L[ri].roof.parts.at(-1), wid = L[ri - 1].walls[1].id;
+  Object.assign(p, { box: { x0: 0, x1: 4, z0: 2, z1: 6 }, ridge: 'z' });   // wing B over the back half, joined to the main roof up to its ridge
+  const y = (tag) => Math.min(...fp.roofMeshes().filter((m) => m.tag === tag && !m.part).map((m) => m.y));
+  const look = () => { fp.rebuild(); fp.switchFloor(ri); const out = { main: y('main'), wing: y(p.id) }; fp.switchFloor(ri - 1); out.cut = fp.roofCut(wid); fp.switchFloor(ri); return out; };
+  const same = look(); delete p.level; const top = look(); delete L[ri].roof.parts; delete L[ri].roof.box; delete L[ri].roof.ridge; const none = look();
+  return { same, top, none }; }""")
+check("L-shaped roof (#621): the main roof over a part of the house, '+ Further roof' puts a gable 'like the main roof' over the rest, up to the main ridge",
+      new_part.get("level") == "main" and new_part.get("type") == "gable" and new_part.get("ridge") == "z" and new_part.get("box") == {"x0": 0, "x1": 4, "z0": 1.5, "z1": 6}
+      and lvl_opts[:2] == ["main", ""], (new_part, lvl_opts))
+check("L-shaped roof (#621): 'like the main roof' sits on the same knee wall (on top of the house it is higher); the storey's walls are cut at both roofs",
+      abs(lsh["same"]["wing"] - lsh["same"]["main"]) < 0.01 and lsh["same"]["cut"] == 4 and lsh["top"]["wing"] > lsh["top"]["main"] + 0.5 and lsh["none"]["cut"] == 2
+      and not [e for e in sol_errs[lsh_from:] if "Shader" in e or "WebGL" in e], (lsh, sol_errs[lsh_from:][:3]))
 pgSol.evaluate("() => { const r = window.__fp.layout.floors.at(-1).roof; delete r.knee; delete r.dormers; window.__fp.rebuild(); }")
 pgSol.wait_for_timeout(2500)                                  # the autosave has run: put the layout back as it was for the next tests
 pgSol.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", sol_saved); pgSol.wait_for_timeout(400)

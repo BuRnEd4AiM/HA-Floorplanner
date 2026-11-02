@@ -76,3 +76,24 @@ test('a new step (#342): side A, in the middle of the house, 50 cm out', () => {
   assert.deepEqual(F.newStep({ x0: 0, x1: 6, z0: 0, z1: 9 }, { type: 'gable' }), { side: 0, at: 4.5, out: 0.5 }, 'ridge along z: along z');
   assert.equal(F.newStep(null, {}).at, 2);
 });
+test('the second wing of an L-shaped house (#621): the rooms outside the main roof, up to the main ridge, its ridge across', () => {
+  const room = (pts) => ({ points: pts });
+  const L = { walls: [], rooms: [room([[0, 0], [12, 0], [12, 8], [0, 8]]), room([[0, 8], [7, 8], [7, 15], [0, 15]])] };
+  const mb = { x0: 0, x1: 12, z0: 0, z1: 8 };
+  assert.deepEqual(F.wingBox(L, mb, true), { x0: 0, x1: 7, z0: 4, z1: 15, ridge: 'z' }, 'behind the main roof: from its ridge (z 4) to the end of the wing');
+  const front = { walls: [], rooms: [room([[0, 0], [12, 0], [12, 8], [0, 8]]), room([[5, -6], [12, -6], [12, 0], [5, 0]])] };
+  assert.deepEqual(F.wingBox(front, mb, true), { x0: 5, x1: 12, z0: -6, z1: 4, ridge: 'z' }, 'in front of it');
+  const side = { walls: [], rooms: [room([[0, 0], [8, 0], [8, 12], [0, 12]]), room([[8, 0], [15, 0], [15, 7], [8, 7]])] };
+  assert.deepEqual(F.wingBox(side, { x0: 0, x1: 8, z0: 0, z1: 12 }, false), { x0: 4, x1: 15, z0: 0, z1: 7, ridge: 'x' }, 'ridge along z, the wing to the right');
+  const walls = { rooms: [], walls: [[[0, 0], [12, 0]], [[12, 0], [12, 8]], [[12, 8], [7, 8]], [[7, 8], [7, 15]], [[7, 15], [0, 15]], [[0, 15], [0, 0]]].map(([a, b]) => ({ a, b })) };
+  assert.deepEqual(F.wingBox(walls, mb, true), { x0: 0, x1: 7, z0: 4, z1: 15, ridge: 'z' }, 'no rooms: the walls outside');
+  assert.equal(F.wingBox({ walls: [], rooms: [room([[1, 1], [11, 1], [11, 7], [1, 7]])] }, mb, true), null, 'everything under the main roof');
+  assert.equal(F.wingBox(null, mb, true), null);
+  const end = { walls: [], rooms: [room([[0, 0], [12, 0], [12, 8], [0, 8]]), room([[12, 0], [18, 0], [18, 14], [12, 14]])] };
+  assert.deepEqual(F.wingBox(end, mb, true), { x0: 12, x1: 18, z0: 0, z1: 14 }, 'beyond its gable end: no ridge given (along its longer side)');
+  // rooms across the edge of the main roof: only what lies beyond it counts; `limit` leaves out a garage under a roof terrace
+  const split = { walls: [], rooms: [room([[0, 0], [8, 0], [8, 7], [0, 7]]), room([[8, 0], [15, 0], [15, 7], [8, 7]])] };
+  assert.deepEqual(F.wingBox(split, { x0: 0, x1: 5, z0: 0, z1: 7 }, false, { x0: 0, x1: 10, z0: 0, z1: 7 }), { x0: 2.5, x1: 10, z0: 0, z1: 7, ridge: 'x' });
+  const apart = { walls: [], rooms: [room([[0, 0], [12, 0], [12, 8], [0, 8]]), room([[2, 10], [6, 10], [6, 14], [2, 14]])] };
+  assert.deepEqual(F.wingBox(apart, mb, true), { x0: 2, x1: 6, z0: 10, z1: 14 }, 'a building standing apart: not joined to the main roof');
+});

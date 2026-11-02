@@ -369,6 +369,60 @@ def _(r):
         r.wait(2000)
 
 
+def l_house(r):
+    """prep: an empty house made into an L-shaped one with a Dachgeschoss: the roof on a knee wall of 1 m over the long wing only (#621)"""
+    empty_house()(r)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, L = fp.layout;
+      const wall = (id, a, b, ops = []) => ({ id, a, b, thickness: 0.3, height: 2.6, openings: ops });
+      const win = (id, pos) => ({ id, type: 'window', style: 'double', pos, width: 1.2, height: 1.1, sill: 0.9 });
+      const ring = (p) => [wall(p + 1, [0, 0], [12, 0], [win(p + 'a', 3), win(p + 'b', 9)]), wall(p + 2, [12, 0], [12, 8], [win(p + 'c', 4)]),
+        wall(p + 3, [12, 8], [7, 8], [win(p + 'd', 2.5)]), wall(p + 4, [7, 8], [7, 15], [win(p + 'e', 3.5)]), wall(p + 5, [7, 15], [0, 15], [win(p + 'f', 3.5)]),
+        wall(p + 6, [0, 15], [0, 0], [win(p + 'g', 4), win(p + 'h', 11)])];
+      const rooms = (p, a, b) => [{ id: p + 'r1', name: a, color: '#d8c3a5', points: [[0, 0], [12, 0], [12, 8], [0, 8]] },
+                                  { id: p + 'r2', name: b, color: '#a9c4d8', points: [[0, 8], [7, 8], [7, 15], [0, 15]] }];
+      const de = document.documentElement.lang !== 'en';
+      const fl = (id, name, kind, walls, rs) => ({ id, name, kind, holes: [], rooms: rs, walls, devices: [], blocks: [], stairs: [] });
+      L.floors.splice(0, L.floors.length,
+        fl('lEG', de ? 'Erdgeschoss' : 'Ground floor', 'floor', ring('le'), rooms('le', de ? 'Wohnen' : 'Living', de ? 'Küche' : 'Kitchen')),
+        fl('lDG', de ? 'Dachgeschoss' : 'Attic floor', 'floor', ring('ld'), rooms('ld', de ? 'Schlafen' : 'Bedroom', de ? 'Kinder' : 'Kids')),
+        Object.assign(fl('lDach', de ? 'Dach' : 'Roof', 'roof', [], []),
+          { roof: { type: 'gable', pitch: 40, overhang: 0.4, knee: 1, ridge: 'x', box: { x0: 0, x1: 12, z0: 0, z1: 8 } } }));
+      fp.rebuild(); fp.switchFloor(2);
+    }""")
+    r.pg.click("#view3d")
+    r.pg.wait_for_timeout(800)
+    r.pg.evaluate("window.__fp.camAt(21, 15, 25, 5, 7)")          # from the south-east: both wings in view
+    if r.pg.locator("#addRoofPart").count() == 0 or not r.pg.locator("#addRoofPart").is_visible():
+        r.pg.click("#floorPanel > summary")
+    r.pg.locator("#addRoofPart").scroll_into_view_if_needed()
+    r.pg.wait_for_timeout(800)
+
+
+@clip("roof-wing", "edit",
+      {"de": "Ein L-förmiges Dach (zweiter Flügel)", "en": "An L-shaped roof (the second wing)"},
+      {"de": "Liegt das Dach nur über einem Flügel, legt „＋ Weiteres Dach“ das zweite Dach über den anderen. „Wie das Hauptdach“ hält beide gleich hoch, auch auf dem Kniestock; die Wände darunter folgen beiden Schrägen.",
+       "en": "When the roof covers one wing only, “+ Further roof” puts the second roof over the other one. “Like the main roof” keeps both at the same height, on the knee wall too; the walls below follow both slopes."},
+      "Dach L-Form Winkelhaus Flügel zweites Dach weiteres Dach Kniestock Drempel Dachgeschoss Kehle Anbau roof L-shaped wing second roof further roof knee wall attic valley annex",
+      query="mode=edit", prep=l_house)
+def _(r):
+    r.say("Ein L-Haus mit Kniestock: das Dach liegt nur über einem Flügel.", "An L-shaped house on a knee wall: the roof covers one wing only.")
+    r.wait(2200)
+    r.say("„＋ Weiteres Dach“ legt ein Dach über den zweiten Flügel.", "“+ Further roof” puts a roof over the second wing.")
+    r.click("#addRoofPart")
+    r.wait(2200)
+    r.poster()
+    r.say("„Sitzt auf: wie das Hauptdach“: gleich hoch, auch auf dem Kniestock.", "“Sits on: like the main roof”: the same height, on the knee wall too.")
+    r.move(".roofPartCard .roofPartLevel")
+    r.wait(2200)
+    r.say("Im Dachgeschoss folgen die Wände beiden Dachschrägen.", "On the attic floor the walls follow both roof slopes.")
+    r.click("#floorRail .floorThumb[data-floor='1']")
+    r.wait(2600)
+    r.say("„Ganzes Haus“: beide Dächer auf gleicher Höhe.", "“Whole house”: both roofs at the same height.")
+    r.click("#floorRail .railHouse")
+    r.wait(2600)
+
+
 @clip("stairs", "edit",
       {"de": "Eine Treppe setzen", "en": "Place a staircase"},
       {"de": "„Treppe“: gerade, mit Kurve, Wendeltreppe oder an der Wand, für eine oder mehrere Etagen; das Loch im Boden darüber kommt dazu.",

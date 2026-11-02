@@ -408,6 +408,7 @@ export default {
   'roof.partAdd': '+ Otro tejado',
   'roof.partName': 'Nombre',
   'roof.partLevel': 'Se apoya en',
+  'roof.partMain': 'como el tejado principal (misma altura, también sobre el murete)',
   'roof.partTop': 'arriba del todo (sobre la casa)',
   'roof.partRemove': 'Quitar el tejado',
   'heat.title': 'CALEFACCIÓN',

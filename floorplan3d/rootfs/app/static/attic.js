@@ -30,6 +30,15 @@ export function roofY0(floors, r, elev) {
   return b < 0 ? 0 : elev(b) + k - elev(r);
 }
 
+/** how high a further roof (#125) of roof floor r sits over the floor of roof floor r: `level` 'main' on the height of the main roof (on
+ *  its knee wall too: the second wing of an L-shaped house, #621), the id of a storey: on top of that storey (an annex), else on top of
+ *  the house (0) */
+export function partY0(floors, r, part, elev) {
+  if (part?.level === 'main') return roofY0(floors, r, elev);
+  const lv = part?.level ? floors.findIndex((x) => x.id === part.level) : -1;
+  return lv >= 0 && floors[lv].kind !== 'roof' ? elev(lv + 1) - elev(r) : 0;
+}
+
 /** which roof floor cuts the walls of floor i: the roof floor itself, or the next roof floor above it when its roof starts (on a knee
  *  wall) at floor i or below; -1 for none */
 export function clipRoofFloor(floors, i) {
@@ -114,11 +123,33 @@ export function dormerRooms(bb, spec, y0 = 0) {
   return out;
 }
 
-/** is the point (x, y, z) kept: under the roof (all planes, see roofPlanes) or inside a dormer room (see dormerRooms). The wall shader in
- *  atticclip.js does the same per pixel */
-export function keptAt(planes, rooms, x, y, z) {
-  const counts = (p) => p.length < 7 || ((u) => u >= p[5] && u <= p[6])(p[4] ? x : z);   // a plane of a slope piece: only along its stretch
-  if (planes.every((p) => !counts(p) || p[0] * x + p[1] * y + p[2] * z + p[3] >= -1e-9)) return true;
+/** where a roof counts when several roofs cut the walls together (see joinCuts): its base box and the overhang all round */
+export function roofReach(bb, spec) {
+  const F = roofFrame(bb, spec);
+  return { x0: F.x0, x1: F.x1, z0: F.z0, z1: F.z1 };
+}
+
+/** several roofs cut the walls together (#621: an L-shaped house, the main roof over one wing and a further roof over the other, on the
+ *  same knee wall): cuts = [{ planes (roofPlanes), rooms (dormerRooms), box (roofReach: where this roof counts; null: everywhere) }], the
+ *  main roof first. Returns { planes (all of them, roof after roof), rooms, groups: [{ n: how many of the planes are this roof's, box }] }:
+ *  a point is kept when it lies under one of the roofs (inside its box) or in a dormer room. null when nothing is cut: a roof without
+ *  slopes (flat) that counts everywhere keeps every wall whole, as before */
+export function joinCuts(cuts) {
+  if (!cuts.length || cuts.some((c) => !c.planes.length && !c.box) || cuts.every((c) => !c.planes.length)) return null;
+  return { planes: cuts.flatMap((c) => c.planes), rooms: cuts.flatMap((c) => c.rooms || []), groups: cuts.map((c) => ({ n: c.planes.length, box: c.box || null })) };
+}
+const inBox = (b, x, z) => !b || (x >= b.x0 && x <= b.x1 && z >= b.z0 && z <= b.z1);
+const counts = (p, x, z) => p.length < 7 || ((u) => u >= p[5] && u <= p[6])(p[4] ? x : z);   // a plane of a slope piece: only along its stretch
+/** the planes of each roof of a cut (see joinCuts), with its box; one roof everywhere when there are no groups */
+function eachRoof(planes, groups) {
+  let k = 0;
+  return (groups || [{ n: planes.length, box: null }]).map(({ n, box }) => ({ own: planes.slice(k, (k += n)), box }));
+}
+
+/** is the point (x, y, z) kept: under the roof (all planes, see roofPlanes; with several roofs, groups from joinCuts: under one of them)
+ *  or inside a dormer room (see dormerRooms). The wall shader in atticclip.js does the same per pixel */
+export function keptAt(planes, rooms, x, y, z, groups = null) {
+  if (eachRoof(planes, groups).some(({ own, box }) => inBox(box, x, z) && own.every((p) => !counts(p, x, z) || p[0] * x + p[1] * y + p[2] * z + p[3] >= -1e-9))) return true;
   return rooms.some((q) => {
     if (x < q.x0 || x > q.x1 || z < q.z0 || z > q.z1) return false;
     const u = q.alongX ? x : z, hw = q.alongX ? (q.x1 - q.x0) / 2 : (q.z1 - q.z0) / 2, b = q.alongX ? z : x;
@@ -127,6 +158,19 @@ export function keptAt(planes, rooms, x, y, z) {
 }
 /** is the point under the roof planes only (no dormers) */
 export const underRoof = (planes, x, y, z) => keptAt(planes, [], x, y, z);
+
+/** the slopes over the point (x, z) of a cut (see joinCuts; a cabinet under the roof, closet.js): those of the roof that is highest there,
+ *  among the roofs whose box holds the point; null when no roof with slopes is over it */
+export function planesAt(clip, x, z) {
+  let best = null, top = -Infinity;
+  if (clip) eachRoof(clip.planes, clip.groups).forEach(({ own, box }) => {
+    const here = own.filter((p) => counts(p, x, z) && p[1] < -1e-9);
+    if (!here.length || !inBox(box, x, z)) return;
+    const y = Math.min(...here.map((p) => (p[0] * x + p[2] * z + p[3]) / -p[1]));   // the lowest of its planes is the roof there
+    if (y > top) { top = y; best = own; }
+  });
+  return best;
+}
 
 /** the height of the ridge over the top of the walls it stands on (the base box edge; with a knee wall: over the knee wall), set by the
  *  pitch; 0 for a flat roof */
