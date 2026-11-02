@@ -66,3 +66,12 @@ test('where the lawn is cut open the house stands on ground, not over a black ho
   assert.ok(Math.abs(E.padLevel(true, 3.4) - -3.415) < 1e-9);                     // with one: the bottom of the pit, under the basement floor
   assert.ok(E.padLevel(true, 3.4) < -3);
 });
+
+test('on a slope (#629): the cut opens a facade only where the ground in front lies higher than the basement floor', () => {
+  const info = { cx: 5, cz: 3.5, corners: [[0, 0], [10, 0], [10, 7], [0, 7]] };
+  const hf = (x, z) => (z <= 0 ? -3 : z >= 7 ? 0 : -3 * (7 - z) / 7);   // the street in front (-z) one storey lower
+  const front = E.cutPlane({ x: 5, z: -20 }, info), back = E.cutPlane({ x: 5, z: 30 }, info), side = E.cutPlane({ x: 30, z: 3.5 }, info);
+  assert.equal(E.cutShows(front, info, hf, -3), false);
+  assert.equal(E.cutShows(back, info, hf, -3), true);
+  assert.equal(E.cutShows(side, info, hf, -3), true);
+});

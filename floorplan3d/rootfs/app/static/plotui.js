@@ -3,11 +3,13 @@
  * plot's size, its sides and how long each one is, its width and depth when it is a rectangle, "Rechteck ums Haus" in one tap; the list
  * of the areas (a tap selects one) and how much of every surface there is. The side panel of a selected area: its name, surface, size
  * and the length of each side (typed in: yard.js setEdgeLength); of the plot: the same and its width x depth. The plot and the areas are
- * stored in layout.plot ({ boundary, areas }); plan2d.js draws and edits them like rooms, yard3d.js lays them on the ground. */
+ * stored in layout.plot ({ boundary, areas }); plan2d.js draws and edits them like rooms, yard3d.js lays them on the ground. The mode
+ * "⛰ Gelände" (#629): the spot heights of a plot on a slope, terrainui.js. */
 import { SURFACES, SURFACE_KEYS, DEFAULT_SURFACE, MAX_AREAS, polyArea, perimeter, edgeList, rectSize, setEdgeLength, setRectSize, rectAround, houseBox,
   surfaceTotals, surfaceColor } from './yard.js';
 import { fmtNum, fmtArea } from './i18n.js';
 import { initPlateauUi } from './plateauui.js';
+import { initTerrainUi } from './terrainui.js';
 
 /** ctx: $, t, layout(), snapshot(), changed(), setStatus(txt), select(sel), selection(), uid(), fmtLen(m), imperial(), toDisp(m), fromDisp(v),
  *  fields ({ field, inp, lenInput } of propfields.js), deleteItem(sel), hint(txt) (the line under the tools) */
@@ -26,6 +28,7 @@ export function initPlotUi(ctx) {
   const nameOf = (a) => a.name || surfName(a.surface);
   const curMode = () => mode || (boundary() ? 'area' : 'plot');
   const plateau = initPlateauUi({ ...ctx, maxAreas: MAX_AREAS, render: () => render() });   // a plateau under a building, its fields (#566)
+  const terrain = initTerrainUi({ ...ctx, render: () => render() });                       // the spot heights of a slope (#629)
   /** a segmented choice: [[value, text]]; mark(el, value) marks the one chosen */
   function seg(id, items, on) {
     const w = make('div', 'plotSeg'); w.id = id;
@@ -38,7 +41,10 @@ export function initPlotUi(ctx) {
   /* ---------- the palette: built once when the tool is chosen, then only marked and filled in (a button never changes under the pointer) ---------- */
   let ui = null;
   function build() {
-    const modeSeg = seg('plotMode', [['plot', t('plot.mode.plot')], ['area', t('plot.mode.area')]], (v) => { mode = v; ctx.cancelDraft?.(); render(); hint(); });
+    const modeSeg = seg('plotMode', [['plot', t('plot.mode.plot')], ['area', t('plot.mode.area')], ['terrain', t('plot.mode.terrain')]], (v) => {
+      if (curMode() === 'terrain' && v !== 'terrain') terrain.leave();
+      mode = v; ctx.cancelDraft?.(); render(); hint(); ctx.planRender?.();
+    });
     const surfHead = make('p', 'plotHead', t('plot.surface')), grid = make('div', 'yardGrid'); grid.id = 'yardSurfaces';
     SURFACE_KEYS.forEach((k) => {
       const b = btn('', '', () => { surface = k; render(); });
@@ -64,8 +70,9 @@ export function initPlotUi(ctx) {
     info.append(make('p', 'plotHead', t('plot.title')), size, none, wd.row, row);
     const list = make('div', 'yardList'); list.id = 'yardList';
     const plat = make('div', 'plateauPal'); plat.id = 'plateauPal';
-    body.replaceChildren(modeSeg, surfHead, grid, shapeSeg, how, info, plat, list);
-    ui = { modeSeg, surfHead, grid, shapeSeg, how, size, none, wd, list, plat, platKey: null };
+    const ter = make('div', 'terrainPal'); ter.id = 'terrainPal';
+    body.replaceChildren(modeSeg, surfHead, grid, shapeSeg, how, info, plat, list, ter);
+    ui = { modeSeg, surfHead, grid, shapeSeg, how, info, size, none, wd, list, plat, ter, platKey: null };
   }
   function render() {
     if (!body || body.closest('[hidden]')) return;
@@ -82,6 +89,10 @@ export function initPlotUi(ctx) {
     const key = JSON.stringify((ctx.layout().buildings || []).map((x) => [x.id, x.name]));   // built again only when the buildings change
     if (key !== ui.platKey) { ui.platKey = key; ui.plat.replaceChildren(...plateau.palette()); }
     ui.plat.hidden = m !== 'area';
+    const ter = m === 'terrain';                                   // the mode "Gelände": only its own fields (#629)
+    [ui.shapeSeg, ui.how, ui.info, ui.list].forEach((e) => { e.hidden = ter; });
+    ui.ter.hidden = !ter;
+    if (ter) terrain.palette(ui.ter);
     $('#plotHelp').hidden = m !== 'plot';
   }
   /** a number field for a length in the unit shown; set(m) shows a new value (not while it is being typed in) */
@@ -113,7 +124,10 @@ export function initPlotUi(ctx) {
     if (tot.length > 1) out.push(make('p', 'sub yardTotals', t('plot.total', { list: tot.map((x) => `${surfName(x.surface)} ${fmtNum(x.m2, 0)} m²`).join(' · ') })));
     return out;
   }
-  function hint() { ctx.hint?.(t(curMode() === 'area' ? (shape === 'rect' ? 'hint.yardRect' : 'hint.yard') : (shape === 'rect' ? 'hint.plotRect' : 'hint.plot'))); }
+  function hint() {
+    if (curMode() === 'terrain') { terrain.hint(); return; }
+    ctx.hint?.(t(curMode() === 'area' ? (shape === 'rect' ? 'hint.yardRect' : 'hint.yard') : (shape === 'rect' ? 'hint.plotRect' : 'hint.plot')));
+  }
 
   /* ---------- changes ---------- */
   function setPlotPoints(points) {
@@ -191,10 +205,12 @@ export function initPlotUi(ctx) {
   }
 
   return {
-    render, drawn, remove, pointsOf, props, areas, hint,
+    render, drawn, remove, pointsOf, props, areas, hint, terrain,
+    /** the mode of the palette: 'plot', 'area' or 'terrain' (a tap in the plan sets a spot height, #629) */
+    mode: () => curMode(),
     /** rectangle drawing (two clicks) is chosen */
     rect: () => shape === 'rect',
     /** the palette opens: the plot first when there is none, else the areas */
-    open() { mode = null; ui = null; render(); hint(); },             // built again: the language may have changed
+    open() { mode = null; ui = null; terrain.leave(); render(); hint(); },   // built again: the language may have changed
   };
 }

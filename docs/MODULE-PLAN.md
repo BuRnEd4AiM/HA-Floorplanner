@@ -280,6 +280,10 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `levels.js` | ~270 | Höhen in einer Etage (#566): Plateau im Gelände (`groundAt`), Boden eines Raums höher oder tiefer (`raiseAt`), was um wie viel nach oben geht (`lifter`), Türen und Fenster neben einem höheren Raum, Stufen an den Türen, das Plateau unter einem Gebäude (`plateauRing`), die Außentreppe (`stepsAtDoor`, `stepsParts`) (rein, `tests/levels.test.mjs`) |
 | `plateau3d.js` | ~110 | Der Rand eines Plateaus in 3D: Stützmauer (Naturstein, Beton, Klinker, Gabionen) mit Abdecksteinen oder Böschung aus Rasen |
 | `plateauui.js` | ~140 | Die Felder: „▲ Plateau unter [Gebäude]“ im Werkzeug „Grundstück“, Höhe, Rand und Mauer eines Plateaus, „＋ Außentreppe an die Haustür“, die Felder der Außentreppe, „Boden höher als die Etage“ bei einem Raum |
+| `terrain.js` | ~230 | ⛰ Gelände am Hang (#629): die Höhe des Bodens aus den Höhenpunkten (`heightField`: einer, zwei = gleichmäßiger Hang, ab drei Delaunay-Dreiecke), Dreiecke klein teilen (`splitTris`), Höhenlinien (`contourLines`), „Hang in einem Schritt“ (`slopePoints`, `mainAxis`), was auf dem Boden steht (`onTerrain`, `standsOn`) (rein, `tests/terrain.test.mjs`) |
+| `terrain3d.js` | ~110 | Der Boden am Hang in 3D: Rasen, Seiten der Erde und Schnitt dem Boden nach, Sockel unter Teilen ohne Keller, Flächen und Plateaumauern am Hang |
+| `terrain2d.js` | ~60 | Höhenlinien und Höhenpunkte im 2D-Plan, das Treffen eines Höhenpunkts |
+| `terrainui.js` | ~150 | Der Modus „⛰ Gelände“ im Werkzeug „Grundstück“: Höhenpunkte setzen, eintippen, ziehen, entfernen, „Hang in einem Schritt“, Höhenlinien, „Gelände entfernen“ |
 | `hamanage.js` | ~55 | Szenen und Automationen von Home Assistant löschen, mit Frage und „↶ Wiederherstellen“ (`api/ha-restore`, #564) |
 | `trains.js` | ~60 | 🚆 Zug-Karte: „mein Zug“, pünktlich / verspätet / fällt aus, Minuten bis zur Abfahrt (rein, `tests/trains.test.mjs`, #550) |
 | `traincard.js` | ~140 | Die Zug-Karte und ihre Felder in „Karte einstellen“ |
