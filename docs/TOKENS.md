@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-02 · 94 Sitzungen
+Stand: 2026-11-02 · 96 Sitzungen
 
-**Insgesamt: 6,58 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 6,59 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 19,0 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 66,2 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 6,49 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Neu gelesen | 66,4 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 6,50 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 8 | 451,7 Mio. | 1,3 Mio. |
+| 2026-11 | 10 | 458,7 Mio. | 1,3 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,8 +26,10 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-02 | [018pwcmy…](https://claude.ai/code/session_018pwcmyzUzu2pz8MrkhyZiS) | claude/busy-mendel-19uyc6 | 6,1 Mio. | 22 Tsd. | gezählt |
 | 2026-11-02 | [018pwcmz…](https://claude.ai/code/session_018pwcmzDhExLRrCtejBrUkM) | claude/laughing-johnson-ywzr01 | 57,2 Mio. | 211 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3N…](https://claude.ai/code/session_012p9z3NNfVZMCshSxFvk3am) | claude/friendly-volta-zr81od | 12,8 Mio. | 38 Tsd. | gezählt |
+| 2026-11-02 | [012p9z3P…](https://claude.ai/code/session_012p9z3PGPEY664oMRVqvxeC) | claude/vibrant-rubin-u6bl4t | 995 Tsd. | 12 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3L…](https://claude.ai/code/session_012p9z3LHsTF7PVeeqgiY9eQ) | claude/focused-bohr-hqiye4 | 25,0 Mio. | 86 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3K…](https://claude.ai/code/session_012p9z3KHPevDmhRg73m49xE) | claude/github-issue-628-p6mfc1 | 61,5 Mio. | 189 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3N…](https://claude.ai/code/session_012p9z3NqajFvYzgPkCU1W4T) | claude/ecstatic-fermat-2nup12 | 65,9 Mio. | 165 Tsd. | gezählt |
