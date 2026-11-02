@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.56.0] - 2026-11-02
+### Added
+- **Several cars on 🧺 Household** (#631, asked by Zelos001: "I have two electric vehicles … add the option to add multiple cars (e.g., via a "+" button or a list)"): ⚙ → *🗂 Tabs at the bottom* → *🧺 Household* → *🚗 Car* has the new button **＋ Another car** (up to 4 more). Each further car gets its own box "🚗 Car 2", "🚗 Car 3" … with its charge, range, charging, charging power, full at and "Charge with the sun only", its name and × to remove it; there you choose the entities yourself (finding them by name would find the first car again). Household shows a card of its own for every car with a charge or a range, named after it ("Car 2" without a name); every card can be hidden and moved like the others. The settings keep them in `cars` (a list, like `car`). Video "Several cars on Household" in the guide; the demo has a second car's charge to try it.
+
 ## [4.55.0] - 2026-11-02
 ### Added
 - **Gable walls** (#628, asked by christinloehner: "Mein Haus hat an den Stirnseiten jeweils eine Giebelwand … das Satteldach … auch an der Giebelseite die Wand überdeckt"): the gable of a gable roof was a triangle in the roof's colour out at the edge of the overhang, in front of the wall. Now the wall under each gable goes on up to the roof, on the wall and as thick as the walls under it, in their colour (or the facade's finish), down to the top of the walls under it (on a knee wall from the walls of the attic storey up). The roof panel has the box **Gable wall (the wall goes on up to the roof)** (on; off: the triangle as before, e.g. for an open carport). Where the gable of a roof stands inside another roof (the inner end of the second wing of an L-shaped house) it has none.

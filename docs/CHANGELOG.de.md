@@ -4,6 +4,10 @@ Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`
 
 ## [Unreleased]
 
+## [4.56.0] - 2026-11-02
+### Neu
+- **Mehrere Autos im 🧺 Haushalt** (#631, gefragt von Zelos001: „I have two electric vehicles … add the option to add multiple cars (e.g., via a "+" button or a list)“): ⚙ → *🗂 Reiter unten* → *🧺 Haushalt* → *🚗 Auto* hat den neuen Knopf **＋ Weiteres Auto** (bis zu 4 mehr). Jedes weitere Auto bekommt einen eigenen Kasten „🚗 Auto 2“, „🚗 Auto 3“ … mit Ladestand, Reichweite, Lädt, Ladeleistung, Voll um und „Nur mit Sonne laden“, seinem Namen und × zum Entfernen; dort wählst du die Werte selbst (am Namen gesucht würde wieder das erste Auto gefunden). Der Haushalt zeigt für jedes Auto mit Ladestand oder Reichweite eine eigene Karte mit seinem Namen („Auto 2“ ohne Namen); jede Karte lässt sich wie die anderen ausblenden und verschieben. Die Einstellungen heben sie in `cars` auf (eine Liste, wie `car`). Video „Mehrere Autos im Haushalt“ in der Anleitung; die Demo hat den Ladestand eines zweiten Autos zum Ausprobieren.
+
 ## [4.55.0] - 2026-11-02
 ### Neu
 - **Giebelwände** (#628, gefragt von christinloehner: „Mein Haus hat an den Stirnseiten jeweils eine Giebelwand … das Satteldach … auch an der Giebelseite die Wand überdeckt“): Der Giebel eines Satteldachs war ein Dreieck in Dachfarbe außen am Überstand, vor der Wand. Jetzt geht die Wand unter jedem Giebel bis unters Dach, auf der Wand und so dick wie die Wände darunter, in ihrer Farbe (oder der Fassade), herunter bis auf die Wände darunter (auf einem Kniestock ab den Wänden des Dachgeschosses). Im Dach-Panel gibt es das Häkchen **Giebelwand (die Wand geht bis unters Dach)** (an; aus: das Dreieck wie bisher, z. B. für einen offenen Carport). Wo der Giebel eines Dachs in einem anderen Dach steht (das innere Ende des zweiten Flügels eines L-Hauses), hat er keine.

@@ -149,6 +149,7 @@ DEFAULT_SETTINGS = {
     "appliances": {},          # the machines of 🧺 Haushalt an admin chose (#490): {washer|dryer|dishwasher: {"power", "status"}}; the rest by name
     "householdTell": False,    # 🔔 a message whenever a machine is done, not only when somebody tapped "Sag mir Bescheid" (#531)
     "car": {},                 # 🚗 the car's entities an admin chose (#533, garden.clean_car): battery, range, charging, power, ends, mode, name
+    "cars": [],                # 🚗 more cars (#631, garden.clean_cars): each like "car", only the entities chosen (nothing found by name)
     "garden": {"zones": [], "minutes": 10},   # 🌱 the watering zones an admin chose and how long "💧 gießen" waters (#533, garden.clean_garden)
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
@@ -810,6 +811,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = pages.clean_doorbell(val)
         elif key == "car":
             out[key] = gn.clean_car(val)
+        elif key == "cars":
+            out[key] = gn.clean_cars(val)
         elif key == "garden":
             out[key] = gn.clean_garden(val)
         elif isinstance(default, dict):

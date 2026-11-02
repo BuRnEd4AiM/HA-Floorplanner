@@ -7,6 +7,7 @@ ENTITY = re.compile(r"^[a-z_]+\.[a-z0-9_]{1,200}$")
 ZONE = re.compile(r"^(valve|switch)\.[a-z0-9_]{1,200}$")
 CAR_ROLES = ("battery", "range", "charging", "power", "ends", "mode")
 MAX_ZONES = 6
+MAX_CARS = 4                # more cars besides the first (#631)
 MINUTES = (5, 10, 15, 20, 30, 45, 60)
 MAX_MINUTES = 120
 
@@ -17,6 +18,16 @@ def clean_car(val) -> dict:
     out = {r: v[r] for r in CAR_ROLES if isinstance(v.get(r), str) and ENTITY.match(v[r])}
     if isinstance(v.get("name"), str) and v["name"].strip():
         out["name"] = v["name"].strip()[:40]
+    return out
+
+
+def clean_cars(val) -> list:
+    """more cars (#631): a list of clean_car, the empty ones left out, at most MAX_CARS (static/car.js cleanCars does the same)"""
+    out = []
+    for c in val if isinstance(val, list) else []:
+        x = clean_car(c)
+        if x and len(out) < MAX_CARS:
+            out.append(x)
     return out
 
 

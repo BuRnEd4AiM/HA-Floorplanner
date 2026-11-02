@@ -2217,4 +2217,5 @@ export default {
   'dormer.noShed': 'Un tetto a una falda non ha abbaini.', 'roof.partDy': 'Alzare (meno: abbassare)', 'roof.canopy': 'Pensilina',
   'roof.canopyAdd': '+ Pensilina (tetto a una falda davanti alla casa)',
   'roof.canopyHelp': '«+ Pensilina» mette un tetto a una falda davanti al lato lungo della casa, subito sotto la gronda. Nella sua scheda imposti dimensioni, lato alto, pendenza e «Alzare»; «Poggia su» sceglie il piano.',
+  'car.add': '＋ Altra auto', 'car.remove': 'Rimuovi auto', 'car.moreHelp': 'Più auto: «＋ Altra auto», lì scegli tu i valori.',
 };

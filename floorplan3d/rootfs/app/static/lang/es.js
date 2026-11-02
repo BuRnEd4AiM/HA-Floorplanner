@@ -2221,4 +2221,5 @@ export default {
   'dormer.noShed': 'Un tejado a un agua no tiene buhardillas.', 'roof.partDy': 'Subir (menos: bajar)', 'roof.canopy': 'Marquesina',
   'roof.canopyAdd': '+ Marquesina (tejado a un agua delante de la casa)',
   'roof.canopyHelp': '«+ Marquesina» pone un tejado a un agua delante del lado largo de la casa, justo bajo el alero. En su tarjeta ajustas tamaño, lado alto, pendiente y «Subir»; «Se apoya en» elige la planta.',
+  'car.add': '＋ Otro coche', 'car.remove': 'Quitar coche', 'car.moreHelp': 'Más coches: «＋ Otro coche», allí eliges los valores tú mismo.',
 };

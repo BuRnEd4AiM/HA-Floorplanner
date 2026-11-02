@@ -4,6 +4,8 @@
  * outdoorcards.js draws. */
 
 export const CAR_ROLES = ['battery', 'range', 'charging', 'power', 'ends', 'mode'];
+/** more cars besides the first (#631, settings.cars; garden.MAX_CARS) */
+export const MAX_CARS = 4;
 const ID = /^[a-z_]+\.[a-z0-9_]+$/;
 /** words of a car in an entity id or name (folded: lower case, no accents) */
 const CAR = /(^|[^a-z])(auto|car|cars|pkw|fahrzeug|vehicle|elektroauto|e_?auto|evcc|tesla|model_?[3ysx]|id_?[3457]|enyaq|zoe|ioniq|polestar|kona|leaf|e_?golf|skoda|volkswagen|vw|bmw|i[34x]|renault|hyundai|kia|niro|ev[69]|mg4|byd|cupra|mustang|taycan|e_?tron|wallbox|charger|ladestation|loadpoint)([^a-z]|$)/;
@@ -75,4 +77,16 @@ export function cleanCar(v) {
   CAR_ROLES.forEach((r) => { if (typeof v[r] === 'string' && ID.test(v[r])) out[r] = v[r]; });
   if (typeof v.name === 'string' && v.name.trim()) out.name = v.name.trim().slice(0, 40);
   return out;
+}
+/** more cars (#631, settings.cars): each like cleanCar, the empty ones left out, at most MAX_CARS (the server: garden.clean_cars) */
+export function cleanCars(v) {
+  return (Array.isArray(v) ? v : []).map(cleanCar).filter((c) => Object.keys(c).length).slice(0, MAX_CARS);
+}
+/** every car for 🧺 Haushalt: the first one (settings.car, found by its names where nothing is chosen) and the more cars (settings.cars,
+ *  only what is chosen: finding by name would find the first car again); [{ key ('car', 'car:2' …), ...findCar }] of those with a charge
+ *  or a range */
+export function findCars(entities, first = {}, more = []) {
+  const out = [{ key: 'car', ...findCar(entities, first) }];
+  cleanCars(more).forEach((c, i) => out.push({ key: `car:${i + 2}`, ...findCar([], c) }));
+  return out.filter(hasCar);
 }

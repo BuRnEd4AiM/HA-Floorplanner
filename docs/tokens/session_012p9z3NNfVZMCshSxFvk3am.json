@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3NNfVZMCshSxFvk3am",
+ "start": "2026-11-02",
+ "updated": "2026-11-02T20:30:53Z",
+ "branch": "claude/friendly-volta-zr81od",
+ "source": "counted",
+ "input": 117,
+ "cache_write": 133326,
+ "cache_read": 8599695,
+ "output": 30129,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 117,
+   "cache_write": 133326,
+   "cache_read": 8599695,
+   "output": 30129,
+   "requests": 61
+  }
+ }
+}

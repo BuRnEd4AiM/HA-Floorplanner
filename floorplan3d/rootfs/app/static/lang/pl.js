@@ -2184,4 +2184,5 @@ export default {
   'dormer.noShed': 'Dach jednospadowy nie ma lukarn.', 'roof.partDy': 'Podnieś (minus: obniż)', 'roof.canopy': 'Daszek',
   'roof.canopyAdd': '+ Daszek (dach jednospadowy przed domem)',
   'roof.canopyHelp': '„+ Daszek” stawia dach jednospadowy przed dłuższą stroną domu, tuż pod okapem. W jego karcie ustawiasz rozmiar, wysoką stronę, nachylenie i „Podnieś”; „Spoczywa na” wybiera kondygnację.',
+  'car.add': '＋ Kolejny samochód', 'car.remove': 'Usuń samochód', 'car.moreHelp': 'Więcej samochodów: „＋ Kolejny samochód”, tam sam wybierasz wartości.',
 };

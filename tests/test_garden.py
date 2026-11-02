@@ -37,3 +37,10 @@ def test_watering_requests_services_and_timers():
     t = gn.clean_timers({"valve.rasen": now - 5, "switch.beet": now + 300, "light.x": now, "valve.weit": now + 99999, "valve.b": True}, now)
     assert t == {"valve.rasen": now - 5, "switch.beet": now + 300}
     assert gn.due(t, now) == ["valve.rasen"]
+
+
+def test_more_cars_are_cleaned():
+    assert gn.clean_cars([{"battery": "sensor.zoe_soc", "name": " Zoe "}, {}, "junk", {"range": "light.x y"}, {"range": "sensor.id3_range"}]) == \
+        [{"battery": "sensor.zoe_soc", "name": "Zoe"}, {"range": "sensor.id3_range"}]
+    assert len(gn.clean_cars([{"battery": f"sensor.c{i}"} for i in range(9)])) == gn.MAX_CARS
+    assert gn.clean_cars("junk") == []

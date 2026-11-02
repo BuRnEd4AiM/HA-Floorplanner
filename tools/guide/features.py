@@ -125,3 +125,4 @@ f("roofwing", "edit", "L-förmiges Dach: ein weiteres Dach wie das Hauptdach, au
   ["roof-wing"], since="4.54.0")
 f("roofgable", "edit", "Giebelwand, Überstand am Giebel, Pultdach und Vordach", "Gable wall, overhang at the gables, shed roof and canopy",
   ["roof-gable"], since="4.55.0")
+f("cars", "pages", "🚗 Mehrere Autos im Haushalt", "🚗 Several cars on Household", ["cars"], since="4.56.0")
