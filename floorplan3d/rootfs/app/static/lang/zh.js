@@ -3841,6 +3841,7 @@ export default {
   'roof.highH': '高侧高度（高于墙或矮墙）', 'roof.gableOver': '山墙处挑檐', 'roof.sideOver': '两侧挑檐', 'roof.gableWall': '山墙（墙一直砌到屋顶下）', 'roof.gableWallShed': '墙砌到屋顶下（两侧和高侧）',
   'roof.stepsShed': '单坡屋顶没有错台（只有双坡和平屋顶有）。', 'dormer.noShed': '单坡屋顶没有老虎窗。', 'roof.partDy': '抬高（负数：降低）', 'roof.canopy': '雨棚', 'roof.canopyAdd': '+ 雨棚（房前单坡屋顶）',
   'roof.canopyHelp': '“+ 雨棚”会在房子长边前、屋檐下方放一个单坡屋顶。在它的卡片里设置大小、高侧、坡度和“抬高”；“位于”选择楼层。',
+  'car.add': '＋ 添加车辆', 'car.remove': '移除车辆', 'car.moreHelp': '更多车辆：点“＋ 添加车辆”，在那里自行选择各项数值。',
   'plot.mode.terrain': '⛰ 地形', 'terrain.title': '地形', 'terrain.help': '你的地块是斜坡吗？点击平面图放置高程点并输入高度。点之间地面均匀变化。0 = 一楼地面，负数 = 更低。', 'terrain.slope': '一步创建斜坡',
   'terrain.drop': '下降', 'terrain.slopeGo': '点击较低的一侧', 'terrain.slopeHelp': '地面从房屋后面的一楼高度降到你点击的一侧（例如街道）。3 米 = 一层：那里地下室露出地面。',
   'hint.terrainSlope': '在平面图上点击地面较低的一侧（例如街道）。', 'hint.terrain': '地形：点击平面图放置高程点；拖动点可移动它。', 'terrain.slopeFar': '请点击离房屋稍远的位置。',

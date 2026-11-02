@@ -49,3 +49,14 @@ test('the choices kept in the settings', () => {
   assert.deepEqual(C.cleanCar({ battery: 'sensor.a', range: 'x', fridge: 'sensor.b', name: '  Auto  ' }), { battery: 'sensor.a', name: 'Auto' });
   assert.deepEqual(C.cleanCar(null), {});
 });
+
+test('more cars (#631): each with its own entities and name, nothing found by name for them, at most MAX_CARS', () => {
+  assert.deepEqual(C.cleanCars([{ battery: 'sensor.zoe_soc', name: ' Zoe ' }, {}, 'junk', { range: 'light.x y' }, { range: 'sensor.id3_range' }]),
+    [{ battery: 'sensor.zoe_soc', name: 'Zoe' }, { range: 'sensor.id3_range' }]);
+  assert.equal(C.cleanCars(Array.from({ length: 9 }, (_, i) => ({ battery: `sensor.c${i}` }))).length, C.MAX_CARS);
+  assert.deepEqual(C.cleanCars('junk'), []);
+  const all = C.findCars(ents, {}, [{ battery: 'sensor.zoe_soc', name: 'Zoe' }, { name: 'nur ein Name' }, { range: 'sensor.id3_range' }]);
+  assert.deepEqual(all.map((c) => [c.key, c.battery, c.name]), [['car', 'sensor.auto_ladestand', ''], ['car:2', 'sensor.zoe_soc', 'Zoe'], ['car:4', '', '']]);   // a car with only a name shows nothing; the numbers stay those of ⚙
+  assert.equal(all[1].range, '');                                     // the second car does not take the first car's range
+  assert.deepEqual(C.findCars([], {}, [{ battery: 'sensor.zoe_soc' }]).map((c) => c.key), ['car:2']);   // no first car: the second alone
+});

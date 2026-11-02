@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3LHsTF7PVeeqgiY9eQ",
+ "start": "2026-11-02",
+ "updated": "2026-11-02T20:03:51Z",
+ "branch": "claude/focused-bohr-hqiye4",
+ "source": "counted",
+ "input": 237,
+ "cache_write": 254761,
+ "cache_read": 24641838,
+ "output": 86111,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 237,
+   "cache_write": 254761,
+   "cache_read": 24641838,
+   "output": 86111,
+   "requests": 122
+  }
+ }
+}

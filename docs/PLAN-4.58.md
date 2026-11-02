@@ -1,6 +1,6 @@
-# Plan 4.56: Gelände am Hang (#629)
+# Plan 4.58: Gelände am Hang (#629)
 
-**Stand: gebaut in 4.56.0** (2026-11-02, Branch `claude/laughing-johnson-ywzr01`; die Wahl des Besitzers: „1 und 3“ = so bauen, mit Höhenpunkten, und die Antwort im Issue posten). Beispielbilder vorher: `docs/ideen-4.56/` (`make_pictures.py`, `mockup.js`). Der Plan bleibt als Beschreibung; was anders kam, steht unter „So gebaut“.
+**Stand: gebaut in 4.58.0** (2026-11-02, Branch `claude/laughing-johnson-ywzr01`; die Wahl des Besitzers: „1 und 3“ = so bauen, mit Höhenpunkten, und die Antwort im Issue posten). Beispielbilder vorher: `docs/ideen-4.58/` (`make_pictures.py`, `mockup.js`). Der Plan bleibt als Beschreibung; was anders kam, steht unter „So gebaut“.
 
 ## Der Wunsch (#629 von christinloehner, gekürzt)
 
@@ -40,7 +40,7 @@
 - An den Besitzer: so bauen (Höhenpunkte) oder nur „ein gleichmäßiger Hang“? Antwort an christinloehner im Issue posten?
 - An christinloehner: wie viele Meter es ungefähr fällt und in welche Richtung; gleichmäßig oder in Stufen (Mauern)? Ist der Balkon im Plan des Erdgeschosses gezeichnet? Hat der Weg Stufen?
 
-## So gebaut (4.56.0)
+## So gebaut (4.58.0)
 
 - Wie oben, mit diesen Abweichungen: ein Plateau behält seine Bedeutung (`rise` über 0 = Erdgeschoss, mindestens 1 cm, nach unten geht es noch nicht); eine Terrasse auf Höhe des Erdgeschosses ist ein Plateau mit 0,05 m. Der Rasen hat am Hang ein Loch unter jedem Plateau und unter dem ganzen Haus (nicht nur unter dem Keller).
 - „Hang in einem Schritt“ läuft rechtwinklig zum Haus (`mainAxis`: die längste Hauswand), auch wenn man etwas schräg tippt.

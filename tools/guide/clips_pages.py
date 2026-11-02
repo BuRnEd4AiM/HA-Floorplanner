@@ -191,6 +191,46 @@ def _(r):
     r.wait(1600)
 
 
+@clip("cars", "pages",
+      {"de": "🚗 Mehrere Autos im Haushalt", "en": "🚗 Several cars on Household"},
+      {"de": "Das erste Auto findet das Programm an seinem Namen. Jedes weitere kommt über ⚙ → Reiter unten → „＋ Weiteres Auto“: "
+             "Ladestand, Reichweite, Laden und einen Namen wählen, dann hat es im Haushalt eine eigene Karte.",
+       "en": "The add-on finds the first car by its name. Every further car comes through ⚙ → Tabs at the bottom → “＋ Another car”: "
+             "choose its charge, range, charging and a name, and it gets a card of its own on Household."},
+      "Auto Autos zweites Auto Elektroauto Ladestand Reichweite Wallbox mehrere weiteres Auto car cars second car electric charge range several another car")
+def _(r):
+    r.say("Im Haushalt steht das erste Auto: Ladestand, Laden, Reichweite.", "Household shows the first car: charge, charging, range.")
+    tab(r, "household")
+    r.move("[data-page=household] .hhCar")
+    r.wait(1400)
+    r.say("Ein zweites Auto kommt über ⚙ → „Reiter unten“.", "A second car comes through ⚙ → “Tabs at the bottom”.")
+    r.click("#settingsBtn")
+    r.wait(900)
+    r.click("#sgNav button[data-group=tabs]")
+    r.wait(900)
+    r.js("document.querySelector('#addCar').scrollIntoView({ block: 'center' })")
+    r.wait(700)
+    r.say("„＋ Weiteres Auto“ …", "“＋ Another car” …")
+    r.click("#addCar")
+    r.wait(900)
+    r.say("… dort seinen Ladestand und einen Namen wählen.", "… there choose its charge and a name.")
+    sel = r.loc("#setCars .odCar select[data-role=battery]")
+    r.click(sel)
+    sel.select_option("sensor.zweitwagen_ladestand")
+    r.wait(900)
+    r.click("#setCars .odCar input[data-role=name]")
+    r.type("Zweitwagen" if r.lang == "de" else "Second car")
+    r.key("Tab")
+    r.wait(1200)
+    r.key("Escape")
+    r.wait(600)
+    r.say("Jetzt hat jedes Auto im Haushalt seine eigene Karte.", "Now every car has a card of its own on Household.")
+    tab(r, "household")
+    r.move("[data-page=household] .hhCar", nth=1)
+    r.poster()
+    r.wait(2200)
+
+
 @clip("routines", "pages",
       {"de": "▶ Abläufe: Knöpfe, Szenen, Automationen", "en": "▶ Routines: buttons, scenes, automations"},
       {"de": "Große Knöpfe für „Ich gehe“ und „Gute Nacht“, deine Szenen und alle Automationen, nach Räumen sortiert.",

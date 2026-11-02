@@ -1,4 +1,4 @@
-"""4.56.0 (#629, asked by christinloehner): a plot on a slope. The tool "Grundstück", mode "⛰ Gelände": "Hang in einem Schritt" (the
+"""4.58.0 (#629, asked by christinloehner): a plot on a slope. The tool "Grundstück", mode "⛰ Gelände": "Hang in einem Schritt" (the
 ground falls one storey from the far face of the house to the side tapped), spot heights set by a tap, typed in, dragged and removed, the
 contour lines of the plan; in 3D the lawn and the earth follow the ground (the basement stands free in front), the part without a basement
 gets a plinth, garden things and areas follow the ground, a lamp on the facade and the furniture inside stay, a plateau stays level.

@@ -2184,6 +2184,7 @@ export default {
   'dormer.noShed': 'Dach jednospadowy nie ma lukarn.', 'roof.partDy': 'Podnieś (minus: obniż)', 'roof.canopy': 'Daszek',
   'roof.canopyAdd': '+ Daszek (dach jednospadowy przed domem)',
   'roof.canopyHelp': '„+ Daszek” stawia dach jednospadowy przed dłuższą stroną domu, tuż pod okapem. W jego karcie ustawiasz rozmiar, wysoką stronę, nachylenie i „Podnieś”; „Spoczywa na” wybiera kondygnację.',
+  'car.add': '＋ Kolejny samochód', 'car.remove': 'Usuń samochód', 'car.moreHelp': 'Więcej samochodów: „＋ Kolejny samochód”, tam sam wybierasz wartości.',
   'plot.mode.terrain': '⛰ Teren', 'terrain.title': 'Teren',
   'terrain.help': 'Twoja działka jest pochyła? Dotknij planu, aby postawić punkt wysokościowy, i wpisz jego wysokość. Między punktami teren opada równomiernie. 0 = podłoga parteru, minus = niżej.',
   'terrain.slope': 'Zbocze jednym krokiem', 'terrain.drop': 'Opada o', 'terrain.slopeGo': 'Dotknij niższej strony',

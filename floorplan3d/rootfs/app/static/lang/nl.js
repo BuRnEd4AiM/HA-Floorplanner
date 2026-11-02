@@ -2190,6 +2190,7 @@ export default {
   'roof.stepsShed': 'Een lessenaarsdak heeft geen verspringingen (alleen zadel- en platte daken).', 'dormer.noShed': 'Een lessenaarsdak heeft geen dakkapellen.',
   'roof.partDy': 'Hoger zetten (min: lager)', 'roof.canopy': 'Luifel', 'roof.canopyAdd': '+ Luifel (lessenaarsdak voor het huis)',
   'roof.canopyHelp': '„+ Luifel” zet een lessenaarsdak voor de lange zijde van het huis, net onder de dakgoot. In de kaart stel je de grootte, hoge zijde, helling en „Hoger zetten” in; „Rust op” kiest de verdieping.',
+  'car.add': '＋ Nog een auto', 'car.remove': 'Auto verwijderen', 'car.moreHelp': 'Meer auto\'s: ‘＋ Nog een auto’, daar kies je de waarden zelf.',
   'plot.mode.terrain': '⛰ Terrein', 'terrain.title': 'Terrein',
   'terrain.help': 'Ligt je perceel op een helling? Tik op de plattegrond om een hoogtepunt te zetten en vul de hoogte in. Tussen de punten loopt de grond gelijkmatig. 0 = vloer van de begane grond, min = lager.',
   'terrain.slope': 'Een helling in één stap', 'terrain.drop': 'Daalt met', 'terrain.slopeGo': 'Tik op de lage kant',

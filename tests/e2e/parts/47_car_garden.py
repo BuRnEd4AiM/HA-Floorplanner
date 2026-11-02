@@ -2,6 +2,7 @@
 the range, "☀ Nur mit Sonne laden" (evcc's mode: pv / now). The garden: every valve and the switches named like watering, "💧 … 10 min
 gießen" opens a zone and the add-on keeps a timer (api/garden), "■ Stopp" closes it; a zone whose time is up is closed by the add-on itself;
 a user locked out of switching gets no buttons and the server refuses. The zones chosen in ⚙ replace the ones found.
+4.57.0 (#631): "＋ Weiteres Auto" in ⚙ gives a second car with its own entities and name, a card of its own; × takes it away again.
 """
 import datetime as _dt
 st_cg = api("api/settings")
@@ -18,6 +19,7 @@ EXTRA_CG = {
     "binary_sensor.e2e_auto_laedt": {"state": "on", "attributes": {"friendly_name": "Auto lädt", "device_class": "battery_charging"}},
     "sensor.e2e_wallbox_leistung": {"state": "3200", "attributes": {"friendly_name": "Wallbox Leistung", "unit_of_measurement": "W", "device_class": "power"}},
     "select.e2e_evcc_mode": {"state": "now", "attributes": {"friendly_name": "Wallbox Modus", "options": ["off", "now", "minpv", "pv"]}},
+    "sensor.e2e_zoe_soc": {"state": "41", "attributes": {"friendly_name": "Zoe SoC", "unit_of_measurement": "%"}},
     "valve.e2e_rasen": {"state": "closed", "attributes": {"friendly_name": "Rasen"}},
     "switch.e2e_bewaesserung_beet": {"state": "off", "attributes": {"friendly_name": "Bewässerung Beet"}},
     "switch.e2e_kaffee": {"state": "off", "attributes": {"friendly_name": "Kaffeemaschine"}},
@@ -73,8 +75,32 @@ set_setting("garden", {"zones": ["switch.e2e_kaffee"], "minutes": 15})
 open_cg()
 check("garden: the zones chosen in ⚙ replace the ones found, with the minutes chosen", pgC.locator(f"{garden} [data-zone]").count() == 1
       and "15 min" in pgC.inner_text(f"{garden} [data-zone='switch.e2e_kaffee']"), pgC.inner_text(garden) if pgC.locator(garden).count() else "")
+# --- #631: more cars: "＋ Weiteres Auto" in ⚙, its own card
+pgC.click("#settingsBtn"); pgC.wait_for_timeout(400)
+open_setting(pgC, "#setCars"); pgC.wait_for_timeout(300)
+pgC.click("#addCar"); pgC.wait_for_timeout(200)
+head = pgC.inner_text("#setCars .odCar .odCarHead b") if pgC.locator("#setCars .odCar").count() == 1 else ""
+pgC.select_option("#setCars .odCar select[data-role=battery]", "sensor.e2e_zoe_soc")
+pgC.fill("#setCars .odCar input[data-role=name]", "Zoe"); pgC.keyboard.press("Tab"); pgC.wait_for_timeout(1500)
+def cars_saved(want):
+    for _ in range(10):
+        if api("api/settings").get("cars") == want: return True
+        time.sleep(0.5)
+    return False
+check("cars: '＋ Weiteres Auto' gives 'Auto 2' with its own entities and name, saved", "Auto 2" in head
+      and cars_saved([{"battery": "sensor.e2e_zoe_soc", "name": "Zoe"}]), (head, api("api/settings").get("cars")))
+pgC.keyboard.press("Escape"); pgC.wait_for_timeout(300)
+open_cg()
+cards = pgC.locator(car).all_inner_texts()
+check("cars: two car cards: the first found by its names, 'Zoe' with 41 % (not the first car's range)", len(cards) == 2 and "64 %" in cards[0]
+      and "Zoe" in cards[1] and "41 %" in cards[1] and "km" not in cards[1], cards)
+pgC.click("#settingsBtn"); pgC.wait_for_timeout(400)
+open_setting(pgC, "#setCars"); pgC.wait_for_timeout(300)
+pgC.click("#setCars .odCar .odCarHead button"); pgC.wait_for_timeout(1500)
+check("cars: × takes the second car away again", cars_saved([]) and pgC.locator("#setCars .odCar").count() == 0, api("api/settings").get("cars"))
+pgC.keyboard.press("Escape")
 check("car and garden: no errors on the page", not own_cg, own_cg[:3])
 pgC.close()
-for k in ("userLocks", "garden", "language"):
-    set_setting(k, st_cg.get(k, {} if k == "userLocks" else ""))
+for k in ("userLocks", "garden", "cars", "language"):
+    set_setting(k, st_cg.get(k, {} if k == "userLocks" else [] if k == "cars" else ""))
 post_cg(HA + "/_extra", {})

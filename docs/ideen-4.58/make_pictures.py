@@ -1,6 +1,6 @@
 """The example pictures of this folder (#629 by christinloehner, "Schräges Grundstück": the plot falls one storey to the street, the
 basement stands free there with its garage door): the demo (built locally: cd demo && node build.mjs) with mockup.js injected.
-    python3 docs/ideen-4.56/make_pictures.py <output folder> [picture names]      (Playwright, see docs/UEBERGABE.md)"""
+    python3 docs/ideen-4.58/make_pictures.py <output folder> [picture names]      (Playwright, see docs/UEBERGABE.md)"""
 import asyncio, os, sys
 from pathlib import Path
 from playwright.async_api import async_playwright

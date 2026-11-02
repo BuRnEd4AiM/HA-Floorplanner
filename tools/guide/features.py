@@ -125,5 +125,8 @@ f("roofwing", "edit", "L-förmiges Dach: ein weiteres Dach wie das Hauptdach, au
   ["roof-wing"], since="4.54.0")
 f("roofgable", "edit", "Giebelwand, Überstand am Giebel, Pultdach und Vordach", "Gable wall, overhang at the gables, shed roof and canopy",
   ["roof-gable"], since="4.55.0")
+f("phoneedit", "phone", "Am Handy bearbeiten: Werkzeuge als Leiste, Plan mit dem Finger", "Edit on the phone: the tools as a strip, the plan with the finger",
+  ["phone-edit"], since="4.56.0")
+f("cars", "pages", "🚗 Mehrere Autos im Haushalt", "🚗 Several cars on Household", ["cars"], since="4.57.0")
 f("terrain", "edit", "Gelände am Hang: Höhenpunkte, Hang in einem Schritt, Höhenlinien, Keller frei", "Terrain on a slope: spot heights, a slope in one step, contour lines, basement free",
-  ["plot-terrain"], since="4.56.0")
+  ["plot-terrain"], since="4.58.0")

@@ -2221,6 +2221,7 @@ export default {
   'dormer.noShed': 'Un tejado a un agua no tiene buhardillas.', 'roof.partDy': 'Subir (menos: bajar)', 'roof.canopy': 'Marquesina',
   'roof.canopyAdd': '+ Marquesina (tejado a un agua delante de la casa)',
   'roof.canopyHelp': '«+ Marquesina» pone un tejado a un agua delante del lado largo de la casa, justo bajo el alero. En su tarjeta ajustas tamaño, lado alto, pendiente y «Subir»; «Se apoya en» elige la planta.',
+  'car.add': '＋ Otro coche', 'car.remove': 'Quitar coche', 'car.moreHelp': 'Más coches: «＋ Otro coche», allí eliges los valores tú mismo.',
   'plot.mode.terrain': '⛰ Terreno', 'terrain.title': 'Terreno',
   'terrain.help': '¿Tu parcela está en pendiente? Toca el plano para poner un punto de cota e introduce su altura. Entre los puntos el terreno baja de forma uniforme. 0 = suelo de la planta baja, menos = más bajo.',
   'terrain.slope': 'Una pendiente de un paso', 'terrain.drop': 'Baja', 'terrain.slopeGo': 'Toca el lado bajo',
