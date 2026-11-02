@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-10-31 · 86 Sitzungen
+Stand: 2026-11-02 · 87 Sitzungen
 
-**Insgesamt: 6,13 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 6,18 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 17,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 63,1 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 6,05 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 17,9 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 63,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 6,10 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,6 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
+| 2026-11 | 1 | 50,9 Mio. | 143 Tsd. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -25,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-01 | [012p9z3M…](https://claude.ai/code/session_012p9z3M7Hjd5FgQH9PAcgZ7) | claude/besondere-tage | 50,9 Mio. | 143 Tsd. | gezählt |
 | 2026-10-31 | [012p9z3P…](https://claude.ai/code/session_012p9z3PwGpSQUTnQwfP7meT) | claude/fenster-vorhaenge | 30,0 Mio. | 96 Tsd. | gezählt |
 | 2026-10-30 | [018pwcmx…](https://claude.ai/code/session_018pwcmxZAxkAymAbButeKpY) | claude/affectionate-cray-4wiii6 | 7,3 Mio. | 42 Tsd. | gezählt |
 | 2026-10-30 | [018pwcmw…](https://claude.ai/code/session_018pwcmwU8ZobHhKBxttE6Wc) | claude/exciting-ride-totxku | 41,4 Mio. | 164 Tsd. | gezählt |
