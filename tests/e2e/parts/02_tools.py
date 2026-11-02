@@ -115,8 +115,10 @@ check("start view: 'Automatic' removes it", "*" not in api("api/settings")["star
 pgS.close()
 # --- version pill: version and checksum in the top bar, green when add-on files and browser files match the manifest
 pgV2 = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
-pgV2.goto(BASE + "?mode=edit"); pgV2.wait_for_timeout(2500)
 ver = api("api/version")
+# GitHub answers "same" here: the real main may already be a newer version than the branch under test (#634 failed so)
+pgV2.route("**/api/version/remote", lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps({"state": "same", "version": ver["version"], "short": ver["short"]})))
+pgV2.goto(BASE + "?mode=edit"); pgV2.wait_for_timeout(2500)
 check("version: the add-on knows its manifest and its files match", ver["known"] and ver["server"]["ok"], ver.get("server"))
 check("version: the pill shows version and short checksum", ver["version"] in pgV2.inner_text("#versionPill") and ver["short"] in pgV2.inner_text("#versionPill"), pgV2.inner_text("#versionPill"))
 check("version: the pill is green when everything matches", "ver-ok" in (pgV2.get_attribute("#versionPill", "class") or ""), pgV2.get_attribute("#versionPill", "class"))
