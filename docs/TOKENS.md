@@ -2,14 +2,14 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-03 · 100 Sitzungen
+Stand: 2026-11-03 · 101 Sitzungen
 
-**Insgesamt: 6,68 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 6,69 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 19,4 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 67,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Neu gelesen | 67,4 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
 | Wieder gelesen | 6,60 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 14 | 554,9 Mio. | 1,6 Mio. |
+| 2026-11 | 15 | 559,2 Mio. | 1,7 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-03 | [012p9z3L…](https://claude.ai/code/session_012p9z3LxbrqiTg4TzkYTboN) | claude/adoring-davinci-ml5253 | 4,3 Mio. | 32 Tsd. | gezählt |
 | 2026-11-03 | [012p9z3L…](https://claude.ai/code/session_012p9z3L8go8MUhKbRZwa3tK) | claude/magical-babbage-yqlota | 2,6 Mio. | 24 Tsd. | gezählt |
 | 2026-11-03 | [012p9z3M…](https://claude.ai/code/session_012p9z3MNdj67CXLjPuxCcwf) | claude/affectionate-ramanujan-zuoyk1 | 14,7 Mio. | 111 Tsd. | gezählt |
 | 2026-11-03 | [012p9z3L…](https://claude.ai/code/session_012p9z3LxG2D9unSS3STHLrM) | claude/l-shape-roof-requests-rdsr3n | 21,3 Mio. | 79 Tsd. | gezählt |
