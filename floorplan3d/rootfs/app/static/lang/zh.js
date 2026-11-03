@@ -3851,6 +3851,8 @@ export default {
   'terrain.houseStays': '房屋保持原位。草坪、小路、花坛和花园物品随地面变化；地面较低处地下室露出，没有地下室的部分立在基座上。平台保持水平（例如露台）。',
   'state.tilted': '内倒', 'prop.tiltContact': '内倒触点', 'prop.tiltContactHint': '内开内倒窗的第二个触点：它报告“内倒”。上面的触点则报告“打开”。',
   'prop.tiltContactSub': '可选，用于可内倒也可打开的窗户：内倒时窗户变黄并在 3D 中倾斜，打开时变红。',
+  'prop.tiltDeg': '内倒角度 (°)', 'prop.tiltDegHint': '窗户内倒时窗扇在 3D 中向内倾斜的角度（5° 到 45°，默认 14°）。修改时窗户会短暂倾斜，方便查看。',
+  'prop.tiltDegAll': '此角度用于所有窗户', 'prop.tiltDegAllHint': '将此内倒角度用于房屋的所有窗户', 'prop.tiltDegAllDone': '已为全部 {n} 扇窗户设置内倒角度 {deg}°',
   'stair.corner': '转角', 'stair.cornerLanding': '平台', 'stair.cornerWinder': '扇形踏步', 'stair.winders': '扇形踏步数', 'stair.split': '第一段踏步数',
   'stair.splitHint': '转角前有多少级：越多，第一段越长、第二段越短。', 'stair.solid': '实心（踏步到地面）',
   'skylight.title': '屋顶窗', 'skylight.help': '嵌在屋顶斜面上的窗户，不带老虎窗。点“+ 屋顶窗”，然后选择哪一面、位置和尺寸。', 'skylight.noFlat': '平屋顶没有屋顶窗。', 'skylight.one': '屋顶窗', 'skylight.roof': '屋顶', 'skylight.mainRoof': '主屋顶', 'skylight.startTip': '屋顶窗从哪里开始：从平面图左侧（或上方）的山墙到窗户侧边的距离。', 'skylight.size': '常用尺寸', 'skylight.ownSize': '自定义尺寸', 'skylight.height': '高度（沿斜面）', 'skylight.heightTip': '窗户的高度，沿屋顶斜面测量（与常用尺寸一致，例如 78 × 118 cm）。', 'skylight.eaveTip': '窗户下边缘到屋顶边缘（檐口）的距离，在平面图上水平测量。', 'skylight.low': '下边缘高出下方地面 {y} m', 'skylight.remove': '删除屋顶窗', 'skylight.add': '+ 屋顶窗', 'skylight.noFit': '放不进屋顶斜面（太大或离屋脊太近）。', 'skylight.tip': '传感器、名称、卷帘：像普通窗户一样在 3D 中点击屋顶窗。打开时它会变红，窗扇向外打开。', 'skylight.winHint': '屋顶窗：尺寸和位置在屋顶上设置（屋顶楼层 → 管理楼层 → 屋顶窗）。',

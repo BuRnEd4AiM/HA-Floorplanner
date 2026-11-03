@@ -2256,6 +2256,8 @@ export default {
   'state.tilted': 'Basculé', 'prop.tiltContact': 'Contact basculé',
   'prop.tiltContactHint': 'Un second contact pour une fenêtre oscillo-battante : il signale « basculé ». Le contact au-dessus signale alors « ouvert ».',
   'prop.tiltContactSub': 'Facultatif, pour une fenêtre que l’on peut basculer et ouvrir : basculée, elle devient jaune et bascule en 3D ; ouverte, elle devient rouge.',
+  'prop.tiltDeg': 'Angle de basculement (°)', 'prop.tiltDegHint': 'De combien le vantail penche vers l’intérieur en 3D quand la fenêtre est basculée (5° à 45°, sinon 14°). Pendant le réglage, la fenêtre bascule un instant pour qu’on le voie.',
+  'prop.tiltDegAll': 'Cet angle pour toutes les fenêtres', 'prop.tiltDegAllHint': 'Appliquer cet angle à toutes les fenêtres de la maison', 'prop.tiltDegAllDone': 'Angle de {deg}° appliqué aux {n} fenêtres',
   'stair.corner': 'Angle', 'stair.cornerLanding': 'Palier', 'stair.cornerWinder': 'Balancée (marches dansantes)', 'stair.winders': 'Marches dansantes',
   'stair.split': 'Marches de la 1re volée', 'stair.splitHint': 'Combien de marches avant l’angle : plus donne une longue première volée et une courte seconde.',
   'stair.solid': 'Massif (marches jusqu’au sol)',

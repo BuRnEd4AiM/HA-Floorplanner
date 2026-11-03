@@ -3,7 +3,7 @@ import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
 import { hasShutter, curtainStyle, curtainSide, shutterSlats, curtainDepth, curtainHangDepth, SHUTTER_UP, SHUTTER_SPEED, CURTAIN_GATHER, CURTAIN_SPEED } from './shutters.js';
 import { mergeParts } from './meshmerge.js';
 import { windowPanes, paneHinge } from './windowpanes.js';
-import { TILT_ANGLE } from './windowtilt.js';
+import { tiltAngle } from './windowtilt.js';
 
 /* Wall geometry with real openings (doors/windows).
  * Wall data: { id, a:[x,z], b:[x,z], thickness, height, openings:[{id,type,pos,width,height,sill}] }
@@ -228,7 +228,7 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
         tg.position.set(0, s + ft, 0);
         pv.position.y -= s + ft;
         tg.add(pv); g.add(tg);
-        tg.userData = { dir: flip * -side, axis: 'x', max: TILT_ANGLE, target: 0 };
+        tg.userData = { dir: flip * -side, axis: 'x', max: tiltAngle(o), target: 0 };   // its own angle (o.tiltDeg, 14° without one)
         tilts[i] = tg;
       } else g.add(pv);
       return pv;

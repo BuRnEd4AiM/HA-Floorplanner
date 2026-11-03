@@ -19,6 +19,7 @@ import { TV_SIZES, ARM, armPose } from './tvmount.js';
 import { initFinishUi } from './finishui.js';
 import { roomLevelFields, stepsFields } from './plateauui.js';
 import { balconyFields } from './balconyui.js';
+import { tiltAngleField } from './tiltui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -42,7 +43,8 @@ export function stretchValue(n) {
  *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH, power(), stairTool(), fmtLen(m), toDisp(m), imperial(),
  *  defaultLightColor() (settings: the colour of a lamp that reports none), yardProps(body, box, sel) (the plot and its areas, plotui.js),
  *  closetRoof(d) (the roof slopes over a cabinet's floor and the height of its bottom: { planes, baseY } or null), balconyFree(id) (the room
- *  hangs free: a balcony, #646) */
+ *  hangs free: a balcony, #646), previewTilt(id) (a window leans in for a moment: its tilt angle changed), allOpenings() (every door and
+ *  window of the house) */
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
@@ -191,7 +193,7 @@ export function initProps(ctx) {
       fixed.checked = (it.style || 'double') === 'fixed';
       fixed.addEventListener('change', () => {
         ctx.snapshot();
-        if (fixed.checked) { it.style = 'fixed'; delete it.panes; delete it.paneHinges; delete it.paneEntities; delete it.tiltEntity; }
+        if (fixed.checked) { it.style = 'fixed'; delete it.panes; delete it.paneHinges; delete it.paneEntities; delete it.tiltEntity; delete it.tiltDeg; }
         else it.style = 'single';
         ctx.changed(); render();
       });
@@ -265,6 +267,8 @@ export function initProps(ctx) {
       tf.id = 'tiltContact'; tf.title = t('prop.tiltContactHint');
       const hint = document.createElement('p'); hint.className = 'sub'; hint.id = 'tiltContactHint'; hint.textContent = t('prop.tiltContactSub');
       body.append(tf, hint);
+      tiltAngleField({ t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), preview: (id) => ctx.previewTilt(id),   // how far it tilts in 3D
+        windows: () => ctx.allOpenings(), setStatus: (x) => ctx.setStatus(x) }, body, it);
     }
     if (it.type === 'window') { rainProps(body, it); shutterProps(body, it, entities, room); }   // right under the contact: the rain warning (#419), the roller shutter (#331)
     const count = paneCount(it);

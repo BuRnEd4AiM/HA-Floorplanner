@@ -4,7 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.64.0] - 2026-11-03
+### Added
+- **Tilt angle of a window** (#624, asked again by biggilottecassi: "Kann man die Kippstellung von dem Fenster grafisch noch ein bisschen mehr als Kippstellung anzeigen lassen?"): a window that opens has the field **Kippwinkel (°)** (tilt angle) under "Kontakt gekippt": how far its pane leans into the room in 3D when it is tilted, **5° to 45°** (14° when not set, as before). After a change the window leans in for a moment, also when it is shut, so you see the angle while you set it. **"Diesen Winkel für alle Fenster"** gives every window of the house the same angle (one step back with undo).
+- **JSON import and export**: `"tiltDeg"` on a window (5 to 45; 14 is not written); the schema describes it.
+- New module `tiltui.js` (the field and the button); the rules (`tiltDeg`, `setTiltDeg`, `tiltAll`) are in `windowtilt.js` with its unit test. Browser test part `69_window_tilt` checks the field, the angle in 3D, the short tilt of a shut window, "for all windows" and saving.
 ### Changed
+- **Video guide**: the video "A window with two contacts: tilted and open" also shows the tilt angle (35° instead of 14°) and "This angle for all windows"; new search words (*Kippwinkel*, *Fenster weiter kippen*, *tilt angle* …).
 - **Video guide: three new videos and a longer one** (the owner, 2026-11-03: "kannst du noch eine Anleitung für den Strom-Rechner machen … wie man den benutzt und auch für mehrere Häuser und der Nanoleaf-Editor fehlt glaube ich auch"): **"⚡ The power bookkeeping: which sensor is what"** (clip `energy-calc`: "Power" → "Bookkeeping", take it over from the energy dashboard, the check list, how it is counted, one or two sensors and "turn the sign round", "Suggest" for the rooms and the rest, "Power now"), **"⚡ Power of several houses: own meters, compare"** (clip `energy-houses`: the second house gets its own sensor, meters and electricity price; on "Energy" one house, "All together" and "⚖ Compare" with a colour, the costs and the charge of the battery per house) and **"Nanoleaf: draw the shape of the panels"** (clip `nanoleaf-edit`: "✎ Edit layout", the five shapes, snapping, rotate, undo, apply). The video **"Several houses"** is now **"Several houses and the neighbour house"**: "+ New house", "Duplicate", "Rename", and a neighbour house beside this one, turned by 30°. With their features in the list "Every feature from A to Z" and their search words (*Strom-Rechner*, *Vorzeichen falsch*, *zwei Häuser Strom vergleichen*, *Nanoleaf Form ändern* …). Only the guide changed, not the add-on.
 
 ## [4.63.0] - 2026-11-03

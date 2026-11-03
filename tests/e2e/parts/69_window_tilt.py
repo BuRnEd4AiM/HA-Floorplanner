@@ -2,6 +2,8 @@
 second contact, „Kontakt gekippt“. Tilted (only that one open) the window is yellow, its pane leans in round the bottom edge and every list
 says „Gekippt“; open (the contact „offen“, also with both) it is red and swings round its hinge; a handle sensor that says „tilted“ itself
 needs no second contact; fixed glazing has no such field. The add-on's window rule counts a tilted window: the heating goes off.
+4.64.0 (#624, biggilottecassi: „die Kippstellung … grafisch noch ein bisschen mehr“): the field „Kippwinkel (°)“ (5 to 45, 14 without a
+value), a shut window leans in for a moment after a change, „Für alle Fenster“, saved as tiltDeg.
 """
 saved_wt = api_admin("api/layout")              # put back at the end
 st_wt = api("api/settings")
@@ -56,7 +58,8 @@ pgW.evaluate("window.__fp.select('opening', 'wt_o')"); pgW.wait_for_timeout(300)
 check("tilt (#624): a window has the field „Kontakt gekippt“ with a short hint", pgW.locator("#tiltContact").count() == 1 and pgW.locator("#tiltContactHint").is_visible()
       and "gekippt" in pgW.locator("#tiltContact").inner_text())
 pgW.evaluate("window.__fp.select('opening', 'wt_f')"); pgW.wait_for_timeout(300)
-check("tilt: fixed glazing has no such field", pgW.locator("#tiltContact").count() == 0 and pgW.locator("#winFixed").is_checked())
+check("tilt: fixed glazing has no such field (and no tilt angle)", pgW.locator("#tiltContact").count() == 0 and pgW.locator("#tiltDeg").count() == 0
+      and pgW.locator("#winFixed").is_checked())
 
 check("tilt: both contacts shut: the window is closed (green frame), nothing leans in", wait_wt(lambda: look_wt() == "closed") and tilt_wt() == [0] and pane_wt() == [0], (look_wt(), tilt_wt()))
 set_wt("binary_sensor.wt_kipp", "on")
@@ -79,6 +82,34 @@ check("tilt: a handle sensor that says „tilted“ itself tilts its window with
       wait_wt(lambda: look_wt("wt_g") == "tilted") and abs(tilt_wt("wt_g")[0]) > 0.1, (look_wt("wt_g"), tilt_wt("wt_g")))
 set_wt("sensor.wt_griff", "closed")
 wait_wt(lambda: look_wt("wt_g") == "closed")
+
+# the tilt angle (biggilottecassi in #624: „Kann man die Kippstellung … grafisch noch ein bisschen mehr als Kippstellung anzeigen lassen?“)
+DEG_wt = 3.141592653589793 / 180
+lean_wt = lambda deg, i="wt_o": abs(abs((tilt_wt(i) or [0])[0]) - deg * DEG_wt) < 0.01
+check("tilt angle: the tilted pane leans in by 14° without a value of its own", wait_wt(lambda: lean_wt(14)), tilt_wt())
+pgW.evaluate("window.__fp.select('opening', 'wt_o')"); pgW.wait_for_timeout(300)
+check("tilt angle: a window has the field „Kippwinkel (°)“ with 14 and the button „Für alle Fenster“",
+      pgW.locator("#tiltDeg").input_value() == "14" and "Kippwinkel" in pgW.locator("#tiltDegField").inner_text()
+      and "alle Fenster" in pgW.locator("#tiltDegAll").inner_text(), pgW.locator("#tiltDegField").inner_text())
+pgW.fill("#tiltDeg", "30"); pgW.press("#tiltDeg", "Enter"); pgW.wait_for_timeout(300)
+check("tilt angle 30°: the tilted window leans in by 30°", wait_wt(lambda: lean_wt(30)), tilt_wt())
+pgW.fill("#tiltDeg", "80"); pgW.press("#tiltDeg", "Enter"); pgW.wait_for_timeout(300)
+check("tilt angle: more than 45° becomes 45°", pgW.locator("#tiltDeg").input_value() == "45" and wait_wt(lambda: lean_wt(45)), (pgW.locator("#tiltDeg").input_value(), tilt_wt()))
+pgW.evaluate("window.__fp.select('opening', 'wt_g')"); pgW.wait_for_timeout(300)
+check("tilt angle: a shut window does not lean in", tilt_wt("wt_g") == [0], tilt_wt("wt_g"))
+pgW.fill("#tiltDeg", "20"); pgW.press("#tiltDeg", "Enter")
+check("tilt angle: after a change a shut window leans in for a moment by its new angle, so you see it", wait_wt(lambda: lean_wt(20, "wt_g"), n=10, ms=100), tilt_wt("wt_g"))
+check("tilt angle: … and then it is shut again", wait_wt(lambda: tilt_wt("wt_g") == [0], n=20, ms=300) and look_wt("wt_g") == "closed", tilt_wt("wt_g"))
+pgW.click("#tiltDegAll"); pgW.wait_for_timeout(400)
+check("tilt angle: „Für alle Fenster“ gives every window 20°, the tilted one leans in by 20° now, the status line says so",
+      wait_wt(lambda: lean_wt(20)) and "20°" in pgW.locator("#status").inner_text(), (tilt_wt(), pgW.locator("#status").inner_text()))
+ops_wt = lambda lay: {o["id"]: o for f in lay["floors"] for w in f.get("walls", []) for o in w.get("openings", [])}
+saved_deg_wt = wait_wt(lambda: (lambda ops: ops.get("wt_o", {}).get("tiltDeg") == 20 and ops.get("wt_g", {}).get("tiltDeg") == 20 and ops)(ops_wt(api_admin("api/layout"))), n=40, ms=300)
+check("tilt angle: it is saved on the windows (tiltDeg), fixed glazing has none", saved_deg_wt and "tiltDeg" not in saved_deg_wt["wt_f"],
+      {k: v.get("tiltDeg") for k, v in ops_wt(api_admin("api/layout")).items() if k.startswith("wt_")})
+pgW.evaluate("window.__fp.select('opening', 'wt_o')"); pgW.wait_for_timeout(300)
+pgW.fill("#tiltDeg", "14"); pgW.press("#tiltDeg", "Enter"); pgW.wait_for_timeout(300)
+check("tilt angle: back to 14: nothing stored", wait_wt(lambda: "tiltDeg" not in ops_wt(api_admin("api/layout"))["wt_o"]) and lean_wt(14), tilt_wt())
 
 pgW.click("#modeSwitch button[data-mode=live]"); pgW.wait_for_timeout(1200)
 status_open(pgW)

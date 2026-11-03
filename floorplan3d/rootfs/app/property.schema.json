@@ -817,6 +817,12 @@
      "type": "string",
      "description": "Windows only: a second contact that reports the pane tilted (\"gekippt\"); the entity then reports it turned open"
     },
+    "tiltDeg": {
+     "type": "number",
+     "minimum": 5,
+     "maximum": 45,
+     "description": "Windows only: how far a tilted pane leans into the room in 3D, in degrees (default 14)"
+    },
     "paneEntities": {
      "type": "array",
      "items": {
