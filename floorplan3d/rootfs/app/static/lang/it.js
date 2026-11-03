@@ -2235,4 +2235,7 @@ export default {
   'state.tilted': 'A ribalta', 'prop.tiltContact': 'Contatto a ribalta',
   'prop.tiltContactHint': 'Un secondo contatto per una finestra anta-ribalta: segnala «a ribalta». Il contatto sopra segnala allora «aperta».',
   'prop.tiltContactSub': 'Facoltativo, per una finestra che si può aprire a ribalta e ad anta: a ribalta diventa gialla e si inclina in 3D; aperta diventa rossa.',
+  'stair.corner': 'Angolo', 'stair.cornerLanding': 'Pianerottolo', 'stair.cornerWinder': 'Gradini a ventaglio', 'stair.winders': 'Gradini a ventaglio',
+  'stair.split': 'Gradini della 1ª rampa', 'stair.splitHint': 'Quanti gradini prima dell’angolo: di più dà una prima rampa lunga e una seconda corta.',
+  'stair.solid': 'Massiccia (gradini fino al pavimento)',
 };

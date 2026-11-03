@@ -6,6 +6,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { mergeParts } from './meshmerge.js';
 import { stairDefaults, stairBounds, stairLocal, splitStoreys, POLE_R, stairCounts, stairLength, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD, RAIL_H, MAX_LANDING, landingLength, FLOOR_LANDING } from './stairs.js';
 import { OPENING_DEFAULTS, wallLength } from './walls.js';
+import { hasWinders, winderCount, WINDER_RANGE } from './winders.js';
 
 const snap = (v) => Math.round(v / 0.05) * 0.05;
 
@@ -32,8 +33,12 @@ export function shaftPlan(base, H, wallThickness, rot, cx, cz) {
  *  ui: { field, inp, lenInput } (the helpers of the properties panel) */
 export function initStairTool(ctx) {
   const { $, t } = ctx;
-  let type = 'straight', dir = 'up', turn = 'right', rot = 0, floors = 1, landing = 0;
-  const tpl = () => ({ ...stairDefaults(type === 'shaft' ? 'U' : type), type: type === 'shaft' ? 'U' : type, dir, turn, rot, floors, ...(landing > 0 && type !== 'straight' && type !== 'spiral' ? { landing } : {}) });
+  let type = 'straight', dir = 'up', turn = 'right', rot = 0, floors = 1, landing = 0, corner = 'landing';
+  const turns = (ty) => ty === 'L' || ty === 'U';                     // the stairs with a corner: a landing or winder steps (#623)
+  const tpl = () => {
+    const ty = type === 'shaft' ? 'U' : type, wind = corner === 'winder' && turns(ty);
+    return { ...stairDefaults(ty), type: ty, dir, turn, rot, floors, ...(landing > 0 && ty !== 'straight' && ty !== 'spiral' && !wind ? { landing } : {}), ...(wind ? { corner: 'winder' } : {}) };
+  };
 
   /** stair mesh in the stair's local frame (origin = bottom start), steps as solid blocks. Of a stair over several floors the storeys after
    *  `upTo` (0 = the first one; storeysShown in stairs.js) go into a group of their own (g.userData.upper): see-through in the editor, so
@@ -140,8 +145,32 @@ export function initStairTool(ctx) {
       body.append(field(it.type === 'wall' ? t('stair.side') : t('stair.turn'), sel([['right', t('stair.right')], ['left', t('stair.left')]], it.turn || 'right', (v) => { ctx.snapshot(); it.turn = v; ctx.changed(); })));
     }
     body.append(field(it.type === 'spiral' ? t('stair.radius') : t('bg.width'), lenInput(() => it.w, (v) => (it.w = Math.max(0.5, v)), { min: 0.5 })));
-    if (it.type === 'wall' || it.type === 'L' || it.type === 'U') {   // wall stair: flat round every bend for this long (#210); L / U: a deeper landing at the turn (#229)
+    if (turns(it.type)) {                                             // the corner: a landing or winder steps (#623, winders.js)
+      const cs = sel([['landing', t('stair.cornerLanding')], ['winder', t('stair.cornerWinder')]], hasWinders(it) ? 'winder' : 'landing', (v) => {
+        ctx.snapshot(); if (v === 'winder') { it.corner = 'winder'; delete it.landing; } else { delete it.corner; delete it.winders; } ctx.changed(); ctx.renderProps?.();
+      });
+      cs.id = 'stairCornerProp';
+      body.append(field(t('stair.corner'), cs));
+      if (hasWinders(it)) {
+        const [lo, hi] = WINDER_RANGE[it.type];
+        const wi = inp('number', winderCount(it, 0.1), (v) => { const k = Math.round(+v); if (k >= lo && k <= hi) it.winders = k; else delete it.winders; }, { step: 1, min: lo, max: hi });
+        wi.id = 'stairWinders';
+        body.append(field(t('stair.winders'), wi));
+      }
+      const { T, n1, c } = stairCounts(it, ctx.floorH);
+      const sp = inp('number', n1, (v) => { const k = Math.round(+v); if (k >= 1 && k <= T - c) it.split = k; else delete it.split; }, { step: 1, min: 1, max: Math.max(1, T - c) });
+      sp.id = 'stairSplit';
+      const sf = field(t('stair.split'), sp); sf.title = t('stair.splitHint');
+      body.append(sf);
+    }
+    if (it.type === 'wall' || (turns(it.type) && !hasWinders(it))) {  // wall stair: flat round every bend for this long (#210); L / U: a deeper landing at the turn (#229)
       body.append(field(t('stair.landing'), lenInput(() => landingLength(it), (v) => { const l = Math.min(MAX_LANDING, Math.max(0, v)); if (l > 0) it.landing = +l.toFixed(2); else delete it.landing; }, { min: 0, step: 0.1 })));
+    }
+    if (it.type === 'wall') {                                         // solid steps down to the floor instead of thin plates (#623)
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'stairSolid'; cb.checked = !!it.solid;
+      cb.addEventListener('change', () => { ctx.snapshot(); if (cb.checked) it.solid = true; else delete it.solid; ctx.changed(); });
+      const lb = document.createElement('label'); lb.className = 'chk'; lb.append(cb, document.createTextNode(' ' + t('stair.solid')));
+      body.append(lb);
     }
     if (it.type !== 'spiral' && it.type !== 'wall') {
       const cnt = stairCounts(it, ctx.floorH)[it.type === 'straight' ? 'T' : 'n1'];
@@ -155,7 +184,7 @@ export function initStairTool(ctx) {
   document.querySelectorAll('#stairTypes button').forEach((b) => b.addEventListener('click', () => {
     type = b.dataset.stair;
     document.querySelectorAll('#stairTypes button').forEach((x) => x.classList.toggle('active', x === b));
-    const lp = $('#stairLanding')?.closest('.prop'); if (lp) lp.hidden = type === 'straight' || type === 'spiral';   // only stairs with a turn have a landing
+    showCorner();
     ctx.plan()?.cancel();                                           // a path that was being drawn is dropped
     ctx.plan()?.render();
   }));
@@ -163,6 +192,13 @@ export function initStairTool(ctx) {
   $('#stairTurn').addEventListener('change', (e) => { turn = e.target.value; ctx.plan()?.render(); });
   $('#stairRot').addEventListener('change', (e) => { rot = ((+e.target.value % 360) + 360) % 360 || 0; ctx.plan()?.render(); });
   $('#stairFloors').addEventListener('change', (e) => { floors = Math.max(1, Math.min(MAX_FLOORS, Math.round(+e.target.value) || 1)); e.target.value = floors; ctx.plan()?.render(); });
+  /** only stairs with a turn have a landing; L and U stairs (also the stairwell) can turn with winders instead (#623) */
+  function showCorner() {
+    const cp = $('#stairCorner')?.closest('.prop'), lp = $('#stairLanding')?.closest('.prop');
+    if (cp) cp.hidden = !(turns(type) || type === 'shaft');
+    if (lp) lp.hidden = type === 'straight' || type === 'spiral' || ((turns(type) || type === 'shaft') && corner === 'winder');
+  }
+  $('#stairCorner')?.addEventListener('change', (e) => { corner = e.target.value === 'winder' ? 'winder' : 'landing'; showCorner(); ctx.plan()?.render(); });
   $('#stairLanding').addEventListener('change', (e) => { landing = +Math.max(0, Math.min(MAX_LANDING, +e.target.value || 0)).toFixed(2); e.target.value = landing; ctx.plan()?.render(); });
   return { build, showUpper, place, template: tpl, placeWall, wallDraft, wallPath, renderProps };
 }

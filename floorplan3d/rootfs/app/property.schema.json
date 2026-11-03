@@ -228,6 +228,25 @@
      },
      "description": "Only for type 'wall': the line along the wall in metres, relative to (x, z); the first point is [0, 0] (another start is moved there). Every bend between two stretches becomes a landing, and so does a point in the middle of a straight stretch."
     },
+    "corner": {
+     "enum": ["landing", "winder"],
+     "description": "Types 'L' and 'U': how the stair turns: a landing (default) or winder steps (wedge-shaped steps, 'viertelgewendelt' / 'halbgewendelt')."
+    },
+    "winders": {
+     "type": "integer",
+     "minimum": 2,
+     "maximum": 10,
+     "description": "With corner 'winder': how many winder steps turn the corner (L 2 to 6, U 3 to 10; default: about as deep as the straight steps on the walking line)."
+    },
+    "split": {
+     "type": "integer",
+     "minimum": 1,
+     "description": "Types 'L' and 'U': treads in the first flight (default about half), e.g. a long first and a short second flight."
+    },
+    "solid": {
+     "type": "boolean",
+     "description": "Type 'wall': solid steps down to the floor instead of thin plates."
+    },
     "landing": {
      "type": "number",
      "minimum": 0,

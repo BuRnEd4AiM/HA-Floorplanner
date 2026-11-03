@@ -2201,4 +2201,7 @@ export default {
   'state.tilted': 'Uchylone', 'prop.tiltContact': 'Kontakt uchylenia',
   'prop.tiltContactHint': 'Drugi kontakt dla okna rozwierno-uchylnego: zgłasza „uchylone”. Kontakt powyżej zgłasza wtedy „otwarte”.',
   'prop.tiltContactSub': 'Opcjonalnie, dla okna, które można uchylić i otworzyć: uchylone robi się żółte i uchyla się w 3D, otwarte robi się czerwone.',
+  'stair.corner': 'Narożnik', 'stair.cornerLanding': 'Spocznik', 'stair.cornerWinder': 'Zabiegowe (stopnie klinowe)', 'stair.winders': 'Stopnie zabiegowe',
+  'stair.split': 'Stopnie w 1. biegu', 'stair.splitHint': 'Ile stopni jest przed narożnikiem: więcej daje długi pierwszy i krótki drugi bieg.',
+  'stair.solid': 'Pełne (stopnie do podłogi)',
 };

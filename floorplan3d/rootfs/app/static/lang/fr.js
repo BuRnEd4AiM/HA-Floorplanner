@@ -2256,4 +2256,7 @@ export default {
   'state.tilted': 'Basculé', 'prop.tiltContact': 'Contact basculé',
   'prop.tiltContactHint': 'Un second contact pour une fenêtre oscillo-battante : il signale « basculé ». Le contact au-dessus signale alors « ouvert ».',
   'prop.tiltContactSub': 'Facultatif, pour une fenêtre que l’on peut basculer et ouvrir : basculée, elle devient jaune et bascule en 3D ; ouverte, elle devient rouge.',
+  'stair.corner': 'Angle', 'stair.cornerLanding': 'Palier', 'stair.cornerWinder': 'Balancée (marches dansantes)', 'stair.winders': 'Marches dansantes',
+  'stair.split': 'Marches de la 1re volée', 'stair.splitHint': 'Combien de marches avant l’angle : plus donne une longue première volée et une courte seconde.',
+  'stair.solid': 'Massif (marches jusqu’au sol)',
 };

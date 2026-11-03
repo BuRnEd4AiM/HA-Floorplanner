@@ -160,6 +160,10 @@ Pro Etage (nicht beim Dach), alle Maße in Metern. Die Treppe gehört zu der Eta
 | `floors` | über wie viele Etagen die Treppe geht (1 bis 6, Standard 1); in jeder Etage, durch die sie geht, entsteht eine Aussparung. Gerade, L- und U-Treppen wiederholen sich Etage für Etage, sodass man auf jeder Etage ankommt und aussteigen kann; eine Wendel macht eine Umdrehung pro Etage |
 | `path` | **nur bei `wall`:** der Weg entlang der Wand als Punkte `[x, z]` relativ zu `x`/`z`, der erste Punkt ist `[0, 0]` (ein anderer Start wird dorthin verschoben). Jeder Knick ist ein Podest, ein Punkt mitten auf einer geraden Strecke ebenso. 2 bis 30 Punkte |
 | `landing` | **bei `wall`:** nach jedem Knick bleibt die Treppe so viele Meter flach (0 bis 3, Standard 0 = nur die Ecke). **Bei `L` und `U`:** das Podest an der Wende wird so viele Meter tiefer (0 bis 3, Standard 0 = so tief wie die Treppe breit) |
+| `corner` | **bei `L` und `U`:** `"landing"` (Podest, Standard) oder `"winder"` (Keilstufen in der Ecke, 4.60.0) |
+| `winders` | **bei `corner: "winder"`:** wie viele Keilstufen (L 2 bis 6, U 3 bis 10; Standard: etwa so tief wie die geraden Stufen) |
+| `split` | **bei `L` und `U`:** Stufen im 1. Lauf (Standard etwa die Hälfte), z. B. ein langer erster und ein kurzer zweiter Lauf |
+| `solid` | **bei `wall`:** `true` = massive Stufen bis zum Boden statt dünner Platten |
 
 Wandtreppe mit Podest in der Ecke (läuft an der oberen Wand entlang, dann an der rechten Wand hinunter; die Stufen stehen nach rechts in den Raum):
 `{ "type": "wall", "x": 1.6, "z": 0.1, "turn": "right", "floors": 2, "path": [[0, 0], [2.3, 0], [2.3, 4.9]] }`

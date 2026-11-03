@@ -158,6 +158,10 @@ Per floor (not for the roof), all sizes in metres. A stair belongs to the floor 
 | `floors` | how many floors the stair climbs (1 to 6, default 1); an opening is cut into every floor it goes through. Straight, L and U stairs repeat storey by storey, so they arrive on every floor and you can step off there; a spiral makes one turn per floor |
 | `path` | **only for `wall`:** the line along the wall as points `[x, z]` relative to `x`/`z`; the first point is `[0, 0]` (another start is moved there). Every bend is a landing, and so is a point in the middle of a straight stretch. 2 to 30 points |
 | `landing` | **for `wall`:** after every bend the stair stays flat for this many metres (0 to 3, default 0 = only the corner). **For `L` and `U`:** the landing at the turn is this many metres deeper (0 to 3, default 0 = as deep as the stair is wide) |
+| `corner` | **for `L` and `U`:** `"landing"` (default) or `"winder"` (wedge steps in the corner, 4.60.0) |
+| `winders` | **with `corner: "winder"`:** how many wedge steps (L 2 to 6, U 3 to 10; default: about as deep as the straight steps) |
+| `split` | **for `L` and `U`:** steps in the first flight (default about half), e.g. a long first and a short second flight |
+| `solid` | **for `wall`:** `true` = solid steps down to the floor instead of thin plates |
 
 A wall stair with a landing in the corner (along the top wall, then down the right wall; the steps stick out to the right, into the room):
 `{ "type": "wall", "x": 1.6, "z": 0.1, "turn": "right", "floors": 2, "path": [[0, 0], [2.3, 0], [2.3, 4.9]] }`
