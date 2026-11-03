@@ -207,7 +207,7 @@ def dolly(r, to, k, ms):
     r.pg.evaluate(f"({DOLLY_JS})({json.dumps({'to': to, 'k': k, 'ms': ms})})")
 
 
-@shot("light", "ui", 16, sky="19:40", settings=tiles_off(), prep=_light_prep,
+@shot("light", "ui", 16, sky="19:40", settings=tiles_off(), prep=_light_prep, up=(0.53, 0.42),
       focus=[(0, 0.5, 0.5, 1.0), (0.25, 0.62, 0.46, 1.32), (1, 0.62, 0.46, 1.38)],
       caption=cap(("Bedienen", "Antippen, schalten, dimmen, färben", ""),
                   ("Control", "Tap, switch, dim, colour", "")))
