@@ -166,7 +166,7 @@ export default {
   'tool.opening': 'Puerta/Ventana',
   'tool.erase': 'Borrar',
   'tool.dormer': 'Tejado',
-  'tip.dormer': 'Ir al tejado: forma, buhardillas y otros tejados (crea un tejado si no hay)',
+  'tip.dormer': 'Ir al tejado: forma, buhardillas, ventanas de tejado y otros tejados (crea un tejado si no hay)',
   'tool.import': 'Importar casa',
   'tip.import': 'Crear una casa a partir de una descripción JSON',
   'tool.more': 'Más ▾',
@@ -2242,4 +2242,5 @@ export default {
   'stair.corner': 'Esquina', 'stair.cornerLanding': 'Rellano', 'stair.cornerWinder': 'Compensada (peldaños en abanico)', 'stair.winders': 'Peldaños en abanico',
   'stair.split': 'Peldaños del 1.er tramo', 'stair.splitHint': 'Cuántos peldaños hay antes de la esquina: más da un primer tramo largo y un segundo corto.',
   'stair.solid': 'Maciza (peldaños hasta el suelo)',
+  'skylight.title': 'Ventanas de tejado', 'skylight.help': 'Una ventana en la pendiente del tejado, sin buhardilla. Pulsa «+ Ventana de tejado» y elige el lado, el sitio y el tamaño.', 'skylight.noFlat': 'Un tejado plano no tiene ventanas de tejado.', 'skylight.one': 'Ventana de tejado', 'skylight.roof': 'Tejado', 'skylight.mainRoof': 'Tejado principal', 'skylight.startTip': 'Dónde empieza la ventana: distancia desde el hastial a la izquierda (o arriba) del plano hasta el lado de la ventana.', 'skylight.size': 'Tamaño habitual', 'skylight.ownSize': 'tamaño propio', 'skylight.height': 'Altura (en la pendiente)', 'skylight.heightTip': 'La altura de la ventana, medida en la pendiente del tejado (como los tamaños habituales, p. ej. 78 × 118 cm).', 'skylight.eaveTip': 'Distancia del borde inferior de la ventana al borde del tejado (alero), medida en plano.', 'skylight.low': 'Borde inferior a {y} m sobre el suelo de abajo', 'skylight.remove': 'Quitar ventana de tejado', 'skylight.add': '+ Ventana de tejado', 'skylight.noFit': 'No cabe en la pendiente (demasiado grande o demasiado cerca de la cumbrera).', 'skylight.tip': 'Contacto, nombre, persiana: toca la ventana de tejado en 3D, como una ventana normal. Abierta, se pone roja y la hoja se abre hacia fuera.', 'skylight.winHint': 'Ventana de tejado: su tamaño y sitio se ajustan en el tejado (planta Tejado → Gestionar planta → Ventanas de tejado).',
 };

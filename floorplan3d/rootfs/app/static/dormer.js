@@ -11,6 +11,7 @@
 
 import { sectionsOf, outAt, intervals, sectionFrame } from './roofsteps.js';
 import { roofFrame, gableWallOn, shedSurface } from './roofshape.js';
+import { skylightHoles } from './skylight.js';
 
 export const DORMER_DEFAULT = { side: 0, pos: 0.5, w: 1.6, hw: 1.2, eave: 0.8, type: 'gable', win: true };
 export const DORMER_TYPES = ['gable', 'flat', 'shed'];
@@ -149,12 +150,12 @@ export function dormerParts(bb, r, d, holes = []) {
 
 /** the main roof (gable, hip or shed, not flat) as triangles ([x, y, z] points, 3 per triangle), as roofGeometry in roofs.js draws it: the
  *  two long slopes with a hole where a dormer stands (from its front back to where it meets the slope; its walls and roof close the hole,
- *  so the slope does not run through the room under a dormer), and the two ends (hip ends; gable triangles in the roof's colour only when
+ *  so the slope does not run through the room under a dormer) and where a roof window lies (#643, skylight.js), and the two ends (hip ends; gable triangles in the roof's colour only when
  *  the gable wall is switched off, #628). A shed roof is its one slope (roofshape.js). The slopes are cut into a grid
  *  at the dormers' edges, so neighbouring pieces share their corners. On a roof with steps (#342) every piece of a slope has its own eave
  *  and pitch up to the same ridge, and an upright triangle closes each step. */
 export function roofSurface(bb, r) {
-  if (r.type === 'shed') return shedSurface(bb, r);                                  // one slope (#628)
+  if (r.type === 'shed') return shedSurface(bb, r, skylightHoles(bb, r, roofFrame(bb, r).hi ? 0 : 1));   // one slope (#628), roof windows (#643)
   const F = roofFrame(bb, r), h = F.half * F.tan, bc = F.bc, k = F.half > 0 ? F.ins / F.half : 0;
   const tris = [];
   const quad = (p, q, u, v) => tris.push(p, q, u, p, u, v);
@@ -166,8 +167,9 @@ export function roofSurface(bb, r) {
     secs.forEach((sec, si) => {
       const G = sectionFrame(F, side, sec.out), P = (a, e) => XYZ(a, side === 0 ? G.b0 + e : G.b1 - e, e * G.tan);
       const last = si === secs.length - 1;
-      const hs = ns.filter((n) => n.side === side && n.at >= sec.a0 && (n.at < sec.a1 || last))
-        .map((n) => ({ a0: n.at + n.u0, a1: n.at + n.u1, e0: n.eave, e1: n.eT }));
+      const inSec = (n) => n.at >= sec.a0 && (n.at < sec.a1 || last);
+      const hs = [...ns.filter((n) => n.side === side && inSec(n)).map((n) => ({ a0: n.at + n.u0, a1: n.at + n.u1, e0: n.eave, e1: n.eT })),
+        ...skylightHoles(bb, r, side).filter(inSec)];                                    // the roof windows lying in this piece (#643)
       const as = cuts(hs.flatMap((q) => [q.a0, q.a1]), sec.a0, sec.a1), es = cuts(hs.flatMap((q) => [q.e0, q.e1]), 0, G.half);
       for (let i = 0; i + 1 < as.length; i++) {
         const lo = (e) => (i === 0 ? sec.a0 + (si === 0 ? e * k : 0) : as[i]);                          // a hip slope leans in at its ends

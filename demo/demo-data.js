@@ -210,7 +210,8 @@ const layout = {
       { id: 'schrank_dach', type: 'closet', x: 4.7, z: 1.75, y: 0, rot: 0, scale: 1, name: 'Schrank unter der Schräge', entity: 'light.schrank_dach',   // the cabinet builder: fitted under the slope
         cab: { cols: [{ w: 0.6, fill: 'drawers', n: 3 }, { w: 0.6, fill: 'shelves', n: 2, front: 'glass' }, { w: 0.6, fill: 'rail', front: 'door', hinge: 'r' }], h: 1.67, d: 0.6, plinth: 0.08,
           slopes: [{ side: 'back', low: 1.25, deg: 35 }], body: '#f1efe9', front: '#b48a5c', handle: 'long', metal: 'black', doors: 'hinged', led: true } }],
-    roof: { type: 'gable', pitch: 35, overhang: 0.4, dormers: [{ side: 'a', pos: 0.3, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } }, { side: 'b', pos: 0.7, w: 2.0, type: 'flat' }] },   // #331: a dormer window with a roller shutter
+    roof: { type: 'gable', pitch: 35, overhang: 0.4, dormers: [{ side: 'a', pos: 0.3, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } }, { side: 'b', pos: 0.7, w: 2.0, type: 'flat' }],
+      skylights: [{ id: 'sky1', side: 0, pos: 0.5, w: 0.78, h: 1.18, eave: 1.3, window: { id: 'dfw1', type: 'window', style: 'single', hinge: 'top', openOutward: true, name: 'Dachfenster', entity: 'binary_sensor.dachfenster' } }] },   // #643: a roof window without a dormer   // #331: a dormer window with a roller shutter
   }],
 };
 
@@ -342,6 +343,7 @@ const entities = {
   'sensor.wohnzimmer_leistung': { name: 'Wohnzimmer Leistung',   state: '168', unit: 'W' },
   'binary_sensor.fenster_wohnzimmer': { name: 'Fenster Wohnzimmer', state: 'on' },
   'binary_sensor.fenster_kueche': { name: 'Fenster Küche', state: 'off' },
+  'binary_sensor.dachfenster': { name: 'Dachfenster', state: 'off' },                     // #643: the roof window over the studio
   'binary_sensor.fenster_wz_offen': { name: 'Fenster Terrasse offen', state: 'off' },       // #624: one pane, two contacts: it is tilted
   'binary_sensor.fenster_wz_gekippt': { name: 'Fenster Terrasse gekippt', state: 'on' },
   'binary_sensor.tuer_buero': { name: 'Bürotür', state: 'off' },

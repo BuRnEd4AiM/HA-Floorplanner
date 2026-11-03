@@ -468,7 +468,7 @@ def _(r):
       {"de": "Dach und Gauben", "en": "Roof and dormers"},
       {"de": "„Dach“ legt ein Dach über das Haus: Satteldach, Walmdach, Flachdach oder Pultdach, die Neigung, dazu Gauben.",
        "en": "“Roof” puts a roof over the house: gable, hip, flat or shed roof, the pitch, and dormers."},
-      "Dach Satteldach Walmdach Flachdach Pultdach Neigung Gaube Dachgeschoss Dachfenster roof gable hip flat shed pitch dormer attic roof window",
+      "Dach Satteldach Walmdach Flachdach Pultdach Neigung Gaube Dachgeschoss roof gable hip flat shed pitch dormer attic",
       query="mode=edit", prep=empty_house(walls=True, rooms=True))
 def _(r):
     r.click("#viewSplit")
@@ -606,6 +606,47 @@ def _(r):
     r.pg.keyboard.press("Control+A")
     r.type("10")
     r.key("Enter")
+    r.wait(2800)
+
+
+def skylight_house(r):
+    """prep: the house of wide_house, the roof panel scrolled to its roof windows (#643)"""
+    wide_house(r)
+    r.pg.locator("#addSkylight").scroll_into_view_if_needed()
+    r.pg.wait_for_timeout(600)
+
+
+@clip("skylight", "edit",
+      {"de": "Dachfenster ohne Gaube", "en": "Roof windows without a dormer"},
+      {"de": "Auf der Etage Dach setzt „＋ Dachfenster“ ein ganz normales Fenster in die Dachschräge, ohne Gaube. Seite, Platz und Größe (übliche Größen wie 78 × 118 cm) stellst du dort ein; Kontakt, Name und Rollladen wie bei jedem Fenster: das Fenster antippen. Ist es offen, wird es rot und die Scheibe klappt nach außen.",
+       "en": "On the roof floor “＋ Roof window” puts a plain window into the slope of the roof, without a dormer. Set its side, place and size there (usual sizes like 78 × 118 cm); contact, name and roller shutter as for any window: tap the window. When it is open it turns red and its pane opens outwards."},
+      "Dachfenster Dachflächenfenster Schrägfenster Fenster im Dach ohne Gaube Velux Roto Größe 78 118 Kontakt skylight roof window rooflight Velux size contact",
+      query="mode=edit", prep=skylight_house)
+def _(r):
+    r.say("Etage Dach, „Etage verwalten“: der Abschnitt „Dachfenster“.", "Roof floor, “Manage floor”: the section “Roof windows”.")
+    r.move("#skylightHead")
+    r.wait(1600)
+    r.say("„＋ Dachfenster“ setzt ein Fenster in die Dachschräge, ohne Gaube.", "“＋ Roof window” puts a window into the slope of the roof, without a dormer.")
+    r.click("#addSkylight")
+    r.wait(2200)
+    r.poster()
+    r.say("„Position am First“ schiebt es entlang des Dachs.", "“Position along the ridge” moves it along the roof.")
+    r.slide(".skylightCard .skylightPos", 0.25)
+    r.wait(1800)
+    r.say("„Übliche Größe“: zum Beispiel 114 × 140 cm. Oder Breite und Höhe selbst eintragen.", "“Usual size”: for example 114 × 140 cm. Or type width and height yourself.")
+    r.click(".skylightCard .skylightSize")
+    r.loc(".skylightCard .skylightSize").select_option("114x140")
+    r.wait(2000)
+    r.say("Noch eins daneben.", "Another one beside it.")
+    r.click("#addSkylight")
+    r.wait(800)
+    r.loc(".skylightCard >> nth=1").locator(".skylightSide").select_option("0")
+    r.wait(600)
+    r.slide(".skylightCard >> nth=1 >> .skylightPos", 0.75)
+    r.wait(1800)
+    r.say("Kontakt, Name, Rollladen: das Dachfenster antippen, wie jedes Fenster. Offen wird es rot, die Scheibe klappt nach außen.",
+          "Contact, name, roller shutter: tap the roof window, like any window. Open it turns red, its pane opens outwards.")
+    r.js("() => { const s = window.__fp.layout.floors[1].roof.skylights[0]; if (s?.window) window.__fp.select('opening', s.window.id); }")
     r.wait(2800)
 
 

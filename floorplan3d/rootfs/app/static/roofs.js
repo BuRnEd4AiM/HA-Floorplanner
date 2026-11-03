@@ -1,9 +1,10 @@
 /* Roofs (#137, step 19): the roof box of a roof floor, the roof surfaces with dormers (gable, flat, shed; a hole in the slope under each,
- * #339), steps in the eaves (#342) and further roofs, the gable walls in the colour of the walls and the shed roof (#628, roofshape.js), the railing round a roof terrace,
+ * #339) and roof windows (a hole and a flashing round it, #643, skylight.js; the window itself is drawn with the floor it belongs to), steps in the eaves (#342) and further roofs, the gable walls in the colour of the walls and the shed roof (#628, roofshape.js), the railing round a roof terrace,
  * solar panels lying on the roof (#176), roofs cut into each other where they meet (the wing of an L-shaped house, #621, roofcut.js) and the fading of the roofs when the camera comes close. The boxes are pure (unit test:
  * tests/roofs.test.mjs), the rest draws with three.js. */
 import * as THREE from './vendor/three.module.min.js';
 import { dormerParts, roofSurface, fitDormer } from './dormer.js';
+import { skylightParts, skylightsAllowed } from './skylight.js';
 import { frontHoles } from './dormerwin.js';
 import { intervals } from './roofsteps.js';
 import { onBridge } from './bridge.js';
@@ -141,23 +142,31 @@ export function initRoofs(ctx) {
       wm.position.y = y0; wm.userData.roofPart = tag; wm.userData.gableWall = true;
       g.add(wm); fade(wm, wms);
     }
+    /** one part of a dormer or a roof window as its own mesh (key: dormerPart or skylightPart, name: what it is) */
+    const part = (tris, material, edgeAngle, name, key = 'dormerPart') => {
+      if (!tris.length) return;
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
+      geo.computeVertexNormals();
+      const pm = new THREE.Mesh(geo, material), ms = [material];
+      if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); pm.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), em)); ms.push(em); }
+      pm.position.y = y0; pm.userData.roofPart = tag; pm.userData[key] = name;
+      g.add(pm); fade(pm, ms);
+    };
+    const hm = (opacity) => new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : opacity, side: THREE.DoubleSide, depthWrite: false });
+    const glassMat = () => new THREE.MeshBasicMaterial({ color: holo ? 0x3df2ff : 0x9fd4ff, transparent: true, opacity: ghost ? 0.2 : 0.75, side: THREE.DoubleSide, depthWrite: false });
     (spec.dormers || []).forEach((d) => {                                 // dormers (Gauben): wall, little roof and window out of one slope
       const parts = dormerParts(bb, spec, d, holesOf(d));
       if (!parts) return;
-      const part = (tris, material, edgeAngle, name) => {
-        if (!tris.length) return;
-        const geo = new THREE.BufferGeometry();
-        geo.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
-        geo.computeVertexNormals();
-        const pm = new THREE.Mesh(geo, material), ms = [material];
-        if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); pm.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), em)); ms.push(em); }
-        pm.position.y = y0; pm.userData.roofPart = tag; pm.userData.dormerPart = name;
-        g.add(pm); fade(pm, ms);
-      };
-      const hm = (opacity) => new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : opacity, side: THREE.DoubleSide, depthWrite: false });
       part(parts.wall, holo ? hm(0.5) : mat('#d9d3c6', ghost, { side: THREE.DoubleSide }), 20, 'wall');
       part(parts.roof, holo ? hm(0.45) : mat('#8f3b2f', ghost, { side: THREE.DoubleSide }), 20, 'roof');
-      if (!d.window || d.hostWall) part(parts.glass, new THREE.MeshBasicMaterial({ color: holo ? 0x3df2ff : 0x9fd4ff, transparent: true, opacity: ghost ? 0.2 : 0.75, side: THREE.DoubleSide, depthWrite: false }), 90, 'glass');
+      if (!d.window || d.hostWall) part(parts.glass, glassMat(), 90, 'glass');
+    });
+    (skylightsAllowed(spec) ? spec.skylights || [] : []).forEach((s) => {   // roof windows (#643): the flashing round the hole in the slope
+      const parts = skylightParts(bb, spec, s);
+      if (!parts) return;
+      part(parts.flashing, holo ? hm(0.6) : mat('#4a4f55', ghost, { side: THREE.DoubleSide, roughness: 0.5, metalness: 0.4 }), 20, 'flashing', 'skylightPart');
+      if (!s.window) part(parts.glass, glassMat(), 90, 'glass', 'skylightPart');   // the real window (with the floor it belongs to) is not there yet
     });
   }
   /** the roofs of roof floor i: the main one and further roofs, each with its base box and lift (also where solar panels lie, #176) */

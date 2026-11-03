@@ -189,3 +189,13 @@ def test_run_watch_sends_what_goes_off():
     asyncio.run(go())
     assert out == ["🔥 Rauch erkannt: Rauch Küche\n18:22"]
     assert ws.sent[0] == {"id": 1, "type": "subscribe_events", "event_type": "state_changed"}
+
+
+def test_where_a_roof_window_is():
+    """#643: a roof window's contact is in the room under it (the editor keeps where the window lies)"""
+    lay = {"floors": [
+        {"id": "og", "name": "OG", "walls": [], "rooms": [{"name": "Studio", "points": [[0, 0], [10, 0], [10, 6], [0, 6]]}]},
+        {"id": "dach", "name": "Dach", "kind": "roof", "walls": [], "rooms": [],
+         "roof": {"type": "gable", "skylights": [{"window": {"type": "window", "entity": "binary_sensor.dachfenster", "at": [5, 1.5], "floor": "og"}}]}},
+    ]}
+    assert an.where_of([("Haus", lay)], "binary_sensor.dachfenster") == "OG · Studio"

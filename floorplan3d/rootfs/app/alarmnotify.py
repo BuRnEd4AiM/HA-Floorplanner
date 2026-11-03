@@ -19,6 +19,8 @@ import logging
 import re
 import time
 
+from roommap import roof_windows
+
 log = logging.getLogger("floorplan3d.alarmnotify")
 
 KINDS = ("alarm", "smoke", "gas", "co", "water")
@@ -225,8 +227,12 @@ def _inside(x, z, pts):
     return hit
 
 
-def _spots(f, eid):
-    """the points where entity eid is on floor f: a device, or a door / window with it as contact (then a point on either side of the wall)"""
+def _spots(f, eid, extra=()):
+    """the points where entity eid is on floor f: a device, or a door / window with it as contact (then a point on either side of the wall);
+    extra: [(x, z, window)], the windows of the dormers and the roof windows on f (roommap.roof_windows)"""
+    for x, z, o in extra:
+        if eid in [o.get("entity"), *(o.get("paneEntities") or []), o.get("tiltEntity")]:
+            yield [(x, z)]
     for d in f.get("devices") or []:
         if isinstance(d, dict) and d.get("entity") == eid:
             yield [(d.get("x", 0), d.get("z", 0))]
@@ -247,8 +253,9 @@ def where_of(houses, eid) -> str:
     """where entity eid is placed in the plans: 'house · floor · room' (the house only when there are several), '' when not placed. A door
     or window contact (#456) is in the room on either side of its wall. houses: [(house name, layout)]"""
     for hname, lay in houses:
+        roofwin = roof_windows((lay or {}).get("floors") or [])
         for f in (lay or {}).get("floors") or []:
-            for pts in _spots(f, eid):
+            for pts in _spots(f, eid, roofwin.get(f.get("id"), []) if isinstance(f, dict) else []):
                 room = next((r.get("name") for x, z in pts for r in f.get("rooms") or [] if isinstance(r, dict) and r.get("name")
                              and len(r.get("points") or []) >= 3 and _inside(x, z, r["points"])), "")
                 parts = ([hname] if len(houses) > 1 and hname else []) + [f.get("name") or "", room or ""]

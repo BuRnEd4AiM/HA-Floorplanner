@@ -80,6 +80,8 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
     // "roof": { "type": "gable", "steps": [ { "side": "a", "at": 0, "out": -0.5 }, { "side": "a", "at": 6, "out": 0 } ] },
     // Dachgauben (optional, nicht bei flat): side 0|1 oder "a"|"b", pos 0..1 am First, w/hw/eave in m, type gable|flat|shed (Schleppgaube, mit sp = Neigung in Grad, bis 30 m lang), win true|false
     // "roof": { "type": "gable", "dormers": [ { "side": "a", "pos": 0.3, "w": 1.6, "hw": 1.2, "eave": 0.8, "type": "gable", "win": true } ] },
+    // Dachfenster ohne Gaube (optional, nicht bei flat): side 0|1 oder "a"|"b", pos 0..1 am First, w = Breite, h = Höhe in der Schräge (m), eave = Abstand der Unterkante zur Traufe (m, ohne: 1 m über dem Boden)
+    // "roof": { "type": "gable", "skylights": [ { "side": "b", "pos": 0.5, "w": 0.78, "h": 1.18 } ] },
     "floors": [
       {
         "name": "Erdgeschoss", "kind": "floor",         // floor | basement | roof

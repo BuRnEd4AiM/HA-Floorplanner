@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3P9DdqJbm5cNXuF1sT",
+ "start": "2026-11-03",
+ "updated": "2026-11-03T08:22:53Z",
+ "branch": "claude/cool-cerf-lkll8w",
+ "source": "counted",
+ "input": 352,
+ "cache_write": 407254,
+ "cache_read": 54289688,
+ "output": 151866,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 352,
+   "cache_write": 407254,
+   "cache_read": 54289688,
+   "output": 151866,
+   "requests": 174
+  }
+ }
+}

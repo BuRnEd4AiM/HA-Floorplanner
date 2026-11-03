@@ -166,7 +166,7 @@ export default {
   'tool.opening': 'Deur/Raam',
   'tool.erase': 'Wissen',
   'tool.dormer': 'Dak',
-  'tip.dormer': 'Naar het dak: vorm, dakkapellen en extra daken (maakt een dak als er nog geen is)',
+  'tip.dormer': 'Naar het dak: vorm, dakkapellen, dakramen en extra daken (maakt een dak als er nog geen is)',
   'tool.import': 'Huis importeren',
   'tip.import': 'Een huis maken uit een JSON-beschrijving',
   'tool.more': 'Meer ▾',
@@ -2210,4 +2210,5 @@ export default {
   'stair.corner': 'Hoek', 'stair.cornerLanding': 'Bordes', 'stair.cornerWinder': 'Verdreven (wigtreden)', 'stair.winders': 'Wigtreden',
   'stair.split': 'Treden in de 1e trap', 'stair.splitHint': 'Hoeveel treden vóór de hoek liggen: meer geeft een lange eerste en een korte tweede trap.',
   'stair.solid': 'Massief (treden tot op de vloer)',
+  'skylight.title': 'Dakramen', 'skylight.help': 'Een raam dat in het dakvlak ligt, zonder dakkapel. Druk op „+ Dakraam”, kies dan de kant, de plek en de maat.', 'skylight.noFlat': 'Een plat dak heeft geen dakramen.', 'skylight.one': 'Dakraam', 'skylight.roof': 'Dak', 'skylight.mainRoof': 'Hoofddak', 'skylight.startTip': 'Waar het dakraam begint: afstand van de gevel links (of boven) in de plattegrond tot de zijkant van het raam.', 'skylight.size': 'Gangbare maat', 'skylight.ownSize': 'eigen maat', 'skylight.height': 'Hoogte (in het dakvlak)', 'skylight.heightTip': 'De hoogte van het raam, gemeten in het dakvlak (zoals de gangbare maten, bijv. 78 × 118 cm).', 'skylight.eaveTip': 'Hoe ver de onderkant van het raam van de dakrand (goot) af ligt, plat gemeten in de plattegrond.', 'skylight.low': 'Onderkant {y} m boven de vloer eronder', 'skylight.remove': 'Dakraam verwijderen', 'skylight.add': '+ Dakraam', 'skylight.noFit': 'Past niet in het dakvlak (te groot of te dicht bij de nok).', 'skylight.tip': 'Contact, naam, rolluik: tik het dakraam in 3D aan, zoals een gewoon raam. Open wordt het rood en klapt het glas naar buiten.', 'skylight.winHint': 'Dakraam: maat en plek stel je in bij het dak (verdieping Dak → Verdieping beheren → Dakramen).',
 };

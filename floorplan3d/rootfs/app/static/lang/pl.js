@@ -166,7 +166,7 @@ export default {
   'tool.opening': 'Drzwi/okno',
   'tool.erase': 'Usuń',
   'tool.dormer': 'Dach',
-  'tip.dormer': 'Przejdź do dachu: kształt, lukarny i dalsze dachy (tworzy dach, jeśli go nie ma)',
+  'tip.dormer': 'Przejdź do dachu: kształt, lukarny, okna dachowe i dalsze dachy (tworzy dach, jeśli go nie ma)',
   'tool.import': 'Importuj dom',
   'tip.import': 'Utwórz dom z opisu JSON',
   'tool.more': 'Więcej ▾',
@@ -2204,4 +2204,5 @@ export default {
   'stair.corner': 'Narożnik', 'stair.cornerLanding': 'Spocznik', 'stair.cornerWinder': 'Zabiegowe (stopnie klinowe)', 'stair.winders': 'Stopnie zabiegowe',
   'stair.split': 'Stopnie w 1. biegu', 'stair.splitHint': 'Ile stopni jest przed narożnikiem: więcej daje długi pierwszy i krótki drugi bieg.',
   'stair.solid': 'Pełne (stopnie do podłogi)',
+  'skylight.title': 'Okna dachowe', 'skylight.help': 'Okno leżące w połaci dachu, bez lukarny. Naciśnij „+ Okno dachowe”, potem wybierz stronę, miejsce i rozmiar.', 'skylight.noFlat': 'Dach płaski nie ma okien dachowych.', 'skylight.one': 'Okno dachowe', 'skylight.roof': 'Dach', 'skylight.mainRoof': 'Dach główny', 'skylight.startTip': 'Gdzie zaczyna się okno: odległość od szczytu po lewej (lub u góry) na planie do boku okna.', 'skylight.size': 'Typowy rozmiar', 'skylight.ownSize': 'własny rozmiar', 'skylight.height': 'Wysokość (w połaci)', 'skylight.heightTip': 'Wysokość okna mierzona w połaci dachu (jak typowe rozmiary, np. 78 × 118 cm).', 'skylight.eaveTip': 'Jak daleko dolna krawędź okna jest od krawędzi dachu (okapu), mierzone poziomo na planie.', 'skylight.low': 'Dolna krawędź {y} m nad podłogą poniżej', 'skylight.remove': 'Usuń okno dachowe', 'skylight.add': '+ Okno dachowe', 'skylight.noFit': 'Nie mieści się w połaci (za duże lub za blisko kalenicy).', 'skylight.tip': 'Kontakt, nazwa, roleta: dotknij okna dachowego w 3D, jak zwykłego okna. Otwarte robi się czerwone, a skrzydło otwiera się na zewnątrz.', 'skylight.winHint': 'Okno dachowe: rozmiar i miejsce ustawiasz przy dachu (piętro Dach → Zarządzaj piętrem → Okna dachowe).',
 };

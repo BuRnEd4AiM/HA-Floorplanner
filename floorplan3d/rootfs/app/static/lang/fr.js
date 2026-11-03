@@ -166,7 +166,7 @@ export default {
   'tool.opening': 'Porte/Fenêtre',
   'tool.erase': 'Effacer',
   'tool.dormer': 'Toit',
-  'tip.dormer': 'Aller au toit : forme, lucarnes et autres toits (crée un toit s’il n’y en a pas)',
+  'tip.dormer': 'Aller au toit : forme, lucarnes, fenêtres de toit et autres toits (crée un toit s’il n’y en a pas)',
   'tool.import': 'Importer une maison',
   'tip.import': 'Créer une maison à partir d’une description JSON',
   'tool.more': 'Plus ▾',
@@ -2259,4 +2259,5 @@ export default {
   'stair.corner': 'Angle', 'stair.cornerLanding': 'Palier', 'stair.cornerWinder': 'Balancée (marches dansantes)', 'stair.winders': 'Marches dansantes',
   'stair.split': 'Marches de la 1re volée', 'stair.splitHint': 'Combien de marches avant l’angle : plus donne une longue première volée et une courte seconde.',
   'stair.solid': 'Massif (marches jusqu’au sol)',
+  'skylight.title': 'Fenêtres de toit', 'skylight.help': 'Une fenêtre posée dans le pan du toit, sans lucarne. Appuyer sur « + Fenêtre de toit », puis choisir le côté, la place et la taille.', 'skylight.noFlat': 'Un toit plat n’a pas de fenêtres de toit.', 'skylight.one': 'Fenêtre de toit', 'skylight.roof': 'Toit', 'skylight.mainRoof': 'Toit principal', 'skylight.startTip': 'Où commence la fenêtre de toit : distance du pignon à gauche (ou en haut) du plan jusqu’au côté de la fenêtre.', 'skylight.size': 'Taille courante', 'skylight.ownSize': 'taille libre', 'skylight.height': 'Hauteur (dans la pente)', 'skylight.heightTip': 'La hauteur de la fenêtre, mesurée dans la pente du toit (comme les tailles courantes, p. ex. 78 × 118 cm).', 'skylight.eaveTip': 'Distance entre le bord bas de la fenêtre et le bord du toit (l’égout), mesurée à plat dans le plan.', 'skylight.low': 'Bord bas à {y} m au-dessus du sol en dessous', 'skylight.remove': 'Supprimer la fenêtre de toit', 'skylight.add': '+ Fenêtre de toit', 'skylight.noFit': 'Ne tient pas dans la pente (trop grande ou trop près du faîtage).', 'skylight.tip': 'Contact, nom, volet roulant : toucher la fenêtre de toit en 3D, comme une fenêtre normale. Ouverte, elle devient rouge et son vantail s’ouvre vers l’extérieur.', 'skylight.winHint': 'Fenêtre de toit : sa taille et sa place se règlent sur le toit (étage Toit → Gérer l’étage → Fenêtres de toit).',
 };
