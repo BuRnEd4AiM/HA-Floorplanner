@@ -13,7 +13,10 @@
  * does. It asks the Supervisor for the add-on's Ingress address (/addons/<slug>/info) and an Ingress session (a cookie), and checks the
  * session every minute so it stays valid. The page reads the card's options from its address (?card=1&floor=..., cardmode.js in the
  * add-on): a live view like a wall tablet, the look for this screen only. The parts without the page (finding the add-on, the address,
- * the size, the editor's fields) are static methods of the card class (unit test: tests/card.test.mjs). */
+ * the size, the editor's fields) are static methods of the card class (unit test: tests/card.test.mjs).
+ *
+ * Copyright (C) 2026 BuRnEd4AiM and contributors. SPDX-License-Identifier: GPL-3.0-or-later (versions up to 4.61.0: MIT).
+ * https://github.com/BuRnEd4AiM/HA-Floorplanner (LICENSE, NOTICE.md) */
 (() => {
   const TAG = 'floorplan3d-card';
   const SLUG = 'floorplan3d';                       // the add-on's slug (floorplan3d/config.yaml)
