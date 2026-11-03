@@ -1,9 +1,10 @@
 /* Floor panel ("Manage floor"): name and kind of the open floor, move it up or down, add a basement or a roof, delete it; for a roof floor the
  * roof (shape, pitch, its own base, overhang, ridge; the overhang at the gables and the gable wall, a shed roof's high side, #628), steps in
- * its eaves (#342), its dormers (gable, flat or a long shed dormer, #339, placed by its distance from the gable) and further roofs (e.g. a
+ * its eaves (#342), its dormers (gable with its own pitch, flat or a long shed dormer, #339, placed by its distance from the gable) and further roofs
+ * (with their ridge kept at 0° or 90°, #621; e.g. a
  * flat roof over an annex, a canopy as a shed roof, #628). The rules for the base
  * boxes, new floors, moving floors and placing new dormers are pure functions (tested); initFloorPanel draws the panel. */
-import { dormerParts, dormerStart, posForStart, DORMER_DEFAULT, DORMER_TYPES, SHED_PITCH } from './dormer.js';
+import { dormerParts, dormerStart, posForStart, DORMER_DEFAULT, DORMER_TYPES, SHED_PITCH, GABLE_PITCH } from './dormer.js';
 import { ridgeHeight, pitchFor } from './attic.js';
 import { stepsAllowed, alongXOf, MAX_STEPS } from './roofsteps.js';
 import { ROOF_TYPES, SHED_HIGH, SHED_PITCH as SHED_ROOF_PITCH, hasGables, gableOverOf, shedHigh, shedHighToward, newCanopy, roofFrame } from './roofshape.js';
@@ -102,6 +103,16 @@ export function newStep(bb, r) {
 }
 /** a pitch typed for the roof of a shed dormer: 2° to 60° (it also stays 3° flatter than the main roof, see fitDormer) */
 export const clampShedPitch = (v) => Math.max(2, Math.min(60, +v || SHED_PITCH));
+/** a pitch typed for the little roof of a gable dormer (#621): 5° to 60° (a wide one gets flatter by itself, see fitDormer) */
+export const clampGablePitch = (v) => Math.max(5, Math.min(60, +v || GABLE_PITCH));
+/** the ridge direction chosen for a roof (#621): '' automatic (along the longer side), 'x' (0°) or 'z' (90°); a number typed in degrees
+ *  counts too (0 / 180: x, 90 / 270: z) */
+export function ridgeOf(v) {
+  if (v === 'x' || v === 'z') return v;
+  const n = Number(v);
+  if (v === '' || v == null || !Number.isFinite(n)) return '';
+  return Math.round((((n % 180) + 180) % 180) / 90) % 2 ? 'z' : 'x';
+}
 
 /** ctx: $, t, layout(), floor(), floorIdx(), setFloorIdx(i), fields: { field, inp, lenInput }, snapshot(), build(), fitCamera(), buildNav(force),
  *  renderObjList(), scheduleSave(), switchFloor(i), clearSelection(), roofBox(i), autoRoofBox(i), groundIdx(), uid(),
@@ -158,6 +169,14 @@ export function initFloorPanel(ctx) {
     const s = select(SHED_HIGH.map((v) => [v, t(`roof.high.${v}`)]), shedHigh(r), (v) => { r.high = v; });
     s.id = id; s.classList.add('roofHigh');
     return field(t('roof.high'), s);
+  };
+  /** the direction of the ridge (#621): automatic (the longer side: the roof turns by 90° when the other side gets longer), 0° along x or
+   *  90° along z; for the main roof and every further roof */
+  const ridgeField = (r, id) => {
+    const s = select([['', t('roof.auto')], ['x', t('roof.ridge0')], ['z', t('roof.ridge90')]], ridgeOf(r.ridge), (v) => { if (ridgeOf(v)) r.ridge = ridgeOf(v); else delete r.ridge; });
+    s.id = id; s.classList.add('roofRidge'); s.title = t('roof.ridgeTip');
+    const fl = field(t('roof.ridge'), s); fl.title = t('roof.ridgeTip');
+    return fl;
   };
   /** the overhang at the gables (Ortgang) and the gable wall of a gable or shed roof (#628) */
   const gableFields = (into, r, pre) => {
@@ -240,13 +259,7 @@ export function initFloorPanel(ctx) {
       box.append(field(t('roof.base'), bsel));
     }
     const ahelp = document.createElement('p'); ahelp.className = 'sub'; ahelp.id = 'roofAtticHelp'; ahelp.textContent = t('roof.atticHelp'); box.append(ahelp);
-    if (r.type !== 'shed') {                                       // a shed roof has its high side instead (#628)
-      const rsel = document.createElement('select'); rsel.id = 'roofRidge';
-      [['', t('roof.auto')], ['x', 'X'], ['z', 'Z']].forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; rsel.append(o); });
-      rsel.value = r.ridge || '';
-      rsel.addEventListener('change', () => { ctx.snapshot(); r.ridge = rsel.value || undefined; ctx.build(); ctx.scheduleSave(); });
-      box.append(field(t('roof.ridge'), rsel));
-    }
+    if (r.type !== 'shed') box.append(ridgeField(r, 'roofRidge'));   // a shed roof has its high side instead (#628)
     renderSteps(box, f, r);
     renderDormers(box, f, r);
     renderRoofParts(box, r);
@@ -290,6 +303,7 @@ export function initFloorPanel(ctx) {
       tsel.className = 'roofPartType';
       card.append(field(t('roof.type'), tsel));
       if (p.type === 'shed') card.append(highField(p, `roofPartHigh${i}`));   // which side is high (#628)
+      else if (p.type !== 'flat') card.append(ridgeField(p, `roofPartRidge${i}`));   // its ridge kept at 0° or 90° (#621)
       card.append(field(t('roof.pitch'), inp('number', p.pitch ?? 35, (v) => (p.pitch = clampPitch(v)), { step: 1 })));
       const lsel = select([['main', t('roof.partMain')], ['', t('roof.partTop')], ...levels.map((x) => [x.id, x.name])], p.level || '', (v) => { if (v) p.level = v; else delete p.level; });
       lsel.className = 'roofPartLevel';                            // 'main': as high as the main roof, on its knee wall too (an L-shaped house, #621)
@@ -313,7 +327,8 @@ export function initFloorPanel(ctx) {
       const wing = r.box && mb ? wingBox(lv, mb, alongXOf(mb, r), ctx.autoRoofBox(ri)) : null;   // the main roof covers only a part of the house: the other wing of an L (#621)
       if (wing) {
         const { ridge, ...box } = wing;
-        r.parts.push({ id: `rp${ctx.uid()}`, type: r.type === 'flat' ? 'gable' : r.type || 'gable', pitch: r.pitch ?? 35, overhang: r.overhang ?? 0.4, box, ...(ridge ? { ridge } : {}), level: 'main' });
+        const along = ridge || (box.x1 - box.x0 >= box.z1 - box.z0 ? 'x' : 'z');   // kept: it no longer turns when its size changes (#621)
+        r.parts.push({ id: `rp${ctx.uid()}`, type: r.type === 'flat' ? 'gable' : r.type || 'gable', pitch: r.pitch ?? 35, overhang: r.overhang ?? 0.4, box, ridge: along, level: 'main' });
       } else r.parts.push({ id: `rp${ctx.uid()}`, type: 'flat', pitch: 35, overhang: 0.4, box: boxOf(lv), ...(lv ? { level: lv.id } : {}) });   // an annex
       redo();
     });
@@ -358,6 +373,11 @@ export function initFloorPanel(ctx) {
         sp.className = 'dormerShedPitch';
         card.append(field(t('dormer.shedPitch'), sp));
         const hint = document.createElement('p'); hint.className = 'sub dormerShedHint'; hint.textContent = t('dormer.shedHint'); card.append(hint);
+      } else if ((d.type || 'gable') === 'gable') {                // the pitch of its little roof (#621), flatter by itself when it is wide
+        const gp = inp('number', fit?.fit.gp ?? d.gp ?? GABLE_PITCH, (v) => { d.gp = clampGablePitch(v); queueMicrotask(render); }, { step: 1, min: 5, max: 60 });
+        gp.className = 'dormerGablePitch';
+        card.append(field(t('dormer.gablePitch'), gp));
+        if (fit && fit.fit.gp < clampGablePitch(d.gp) - 0.05) { const hint = document.createElement('p'); hint.className = 'sub dormerGableHint'; hint.textContent = t('dormer.gableHint'); card.append(hint); }
       }
       const win = document.createElement('input'); win.type = 'checkbox'; win.checked = d.win !== false;
       win.addEventListener('change', () => { ctx.snapshot(); d.win = win.checked; ctx.build(); ctx.scheduleSave(); });

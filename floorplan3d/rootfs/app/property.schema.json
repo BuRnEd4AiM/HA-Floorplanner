@@ -345,7 +345,8 @@
      "enum": [
       "x",
       "z"
-     ]
+     ],
+     "description": "Direction of the ridge: x (0°, along x) or z (90°, along z); without it along the longer side of the box, so a roof turns by 90° when its other side gets longer."
     },
     "high": {
      "enum": [
@@ -412,7 +413,7 @@
         "minimum": 0.6,
         "maximum": 30,
         "default": 1.6,
-        "description": "Width in metres (a gable dormer is kept at most 5 m wide, a shed or flat dormer can run along the roof up to 30 m)."
+        "description": "Width in metres, up to 30 m along the roof (a wide gable dormer gets a flatter roof by itself, so that it stays under the ridge)."
        },
        "hw": {
         "type": "number",
@@ -443,6 +444,13 @@
         "maximum": 60,
         "default": 15,
         "description": "Only for a shed dormer: pitch of its roof in degrees."
+       },
+       "gp": {
+        "type": "number",
+        "minimum": 5,
+        "maximum": 60,
+        "default": 28,
+        "description": "Only for a gable dormer: pitch of its little roof in degrees (flatter by itself when the dormer is too wide for it)."
        },
        "win": {
         "type": "boolean",

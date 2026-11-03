@@ -2218,7 +2218,7 @@ export default {
   'roof.gableOver': 'Vuelo en el hastial', 'roof.sideOver': 'Vuelo en los lados', 'roof.gableWall': 'Muro hastial (el muro sube hasta el tejado)',
   'roof.gableWallShed': 'Muros hasta el tejado (lados y lado alto)',
   'roof.stepsShed': 'Un tejado a un agua no tiene escalones (solo los tejados a dos aguas y planos).',
-  'dormer.noShed': 'Un tejado a un agua no tiene buhardillas.', 'roof.partDy': 'Subir (menos: bajar)', 'roof.canopy': 'Marquesina',
+  'dormer.noShed': 'Un tejado a un agua no tiene buhardillas.', 'roof.partDy': 'Subir (menos: bajar)', 'roof.ridge0': '0° (a lo largo de X)', 'roof.ridge90': '90° (a lo largo de Z)', 'roof.ridgeTip': 'La dirección de la cumbrera: 0° = a lo largo de X (horizontal en el plano), 90° = a lo largo de Z (vertical en el plano). «Automático» la pone en el lado más largo: entonces el tejado gira 90° en cuanto el otro lado es más largo.', 'dormer.gablePitch': 'Inclinación de la buhardilla (°)', 'dormer.gableHint': 'Una buhardilla ancha recibe sola un tejado más plano (hasta 5°) para quedar bajo la cumbrera.', 'roof.canopy': 'Marquesina',
   'roof.canopyAdd': '+ Marquesina (tejado a un agua delante de la casa)',
   'roof.canopyHelp': '«+ Marquesina» pone un tejado a un agua delante del lado largo de la casa, justo bajo el alero. En su tarjeta ajustas tamaño, lado alto, pendiente y «Subir»; «Se apoya en» elige la planta.',
   'car.add': '＋ Otro coche', 'car.remove': 'Quitar coche', 'car.moreHelp': 'Más coches: «＋ Otro coche», allí eliges los valores tú mismo.',

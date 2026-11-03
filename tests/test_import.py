@@ -403,6 +403,8 @@ def test_a_long_shed_dormer_keeps_its_length_and_pitch():
     assert d[0] == {"id": "dm1", "side": 0, "type": "shed", "win": False, "pos": 0.6, "w": 7.0, "hw": 2.2, "eave": 0.4, "sp": 12.0}
     assert d[1]["sp"] == 15 and any(w["path"].endswith("[1].sp") for w in rep.warnings)    # too steep: the default
     assert "sp" not in d[2]                                                                 # only a shed dormer has its own pitch
+    g = importer._dormers(rep, "x", [{"type": "gable", "w": 12, "gp": 40}, {"type": "gable", "gp": 2}, {"type": "flat", "gp": 40}])
+    assert g[0]["gp"] == 40 and g[0]["w"] == 12 and g[1]["gp"] == 28 and "gp" not in g[2]   # a gable dormer's own pitch (#621), up to 30 m wide
 
 
 def test_roof_steps_are_imported_and_cleaned():

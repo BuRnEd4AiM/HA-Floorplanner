@@ -1,4 +1,5 @@
-/* Roof dormers (Dachgauben): a box with its own roof that stands out of one slope of the roof: a gable or flat dormer, or a shed dormer
+/* Roof dormers (Dachgauben): a box with its own roof that stands out of one slope of the roof: a gable dormer (its pitch gp, up to 30 m
+ * wide, #621) or a flat dormer, or a shed dormer
  * (Schleppgaube, #339) whose roof runs up at its own, flatter pitch into the main roof below the ridge; a shed or flat dormer can be as long
  * as the roof, and with "distance from the gable" 0 it goes flush up to the edge of the roof (#345). The slopes of the main roof get a hole
  * where a dormer stands (roofSurface). On a roof with steps (#342, roofsteps.js) a
@@ -14,9 +15,11 @@ import { roofFrame, gableWallOn, shedSurface } from './roofshape.js';
 export const DORMER_DEFAULT = { side: 0, pos: 0.5, w: 1.6, hw: 1.2, eave: 0.8, type: 'gable', win: true };
 export const DORMER_TYPES = ['gable', 'flat', 'shed'];
 export const SHED_PITCH = 15;                                      // the roof of a shed dormer (degrees), unless set (d.sp)
-const MAX_W = { gable: 5, flat: 30, shed: 30 };                    // a gable dormer's own gable grows with its width
+const MAX_W = 30;                                                  // as long as the roof allows (a gable dormer was 5 m at most until 4.61, #621)
 const SHED_WIN = 1.2;                                              // the window of a (long) shed dormer is no wider than this (m)
-const GABLE_PITCH = Math.tan((28 * Math.PI) / 180);               // the little roof of a gable dormer
+export const GABLE_PITCH = 28;                                     // the little roof of a gable dormer (degrees), unless set (d.gp, #621)
+const MIN_GABLE = 5;                                               // ... it gets no flatter than this to fit under the main ridge
+const KEEP_WALL = 1;                                               // the front wall of a gable dormer keeps this much (m) before its roof gets flatter
 const OVER = 0.1;                                                  // overhang of the dormer roof (m)
 
 /** the frame of the main roof (roofshape.js, also used by roofGeometry in roofs.js) */
@@ -40,7 +43,7 @@ export function fitDormer(bb, r, d) {
   const n = { ...DORMER_DEFAULT, ...d };
   n.side = n.side === 1 ? 1 : 0;
   n.type = DORMER_TYPES.includes(n.type) ? n.type : 'gable';
-  n.w = Math.max(0.6, Math.min(MAX_W[n.type], +n.w || DORMER_DEFAULT.w));
+  n.w = Math.max(0.6, Math.min(MAX_W, +n.w || DORMER_DEFAULT.w));
   const [lo, hi] = span(F, n.w, bb, n.type);
   if (hi < lo) return null;                                        // longer than the roof
   n.pos = Math.max(0, Math.min(1, Number.isFinite(+n.pos) ? +n.pos : 0.5));
@@ -63,9 +66,17 @@ export function fitDormer(bb, r, d) {
     const eR = n.eave + n.hw / (F.tan - ts);
     return Object.assign(n, { yF, yT: yF + n.hw, gh: 0, ts, eT: eR, eR, F });
   }
-  const gh = n.type === 'gable' ? (n.w / 2) * GABLE_PITCH : 0;
-  const room = F.half * F.tan - yF - gh - 0.05;                    // the little roof must stay below the ridge of the main roof
-  n.hw = Math.max(0.4, Math.min(+n.hw || DORMER_DEFAULT.hw, room, 3));
+  // a gable dormer's own gable grows with its width (its pitch gp, #621); the little roof must stay below the ridge of the main roof: the
+  // wall gets lower first, but keeps KEEP_WALL (or less when it is set lower), then the little roof gets flatter (a wide dormer)
+  const rad = Math.PI / 180, avail = F.half * F.tan - yF - 0.05, hwW = Math.max(0.4, Math.min(+n.hw || DORMER_DEFAULT.hw, 3));
+  let gh = 0;
+  if (n.type === 'gable') {
+    const half = n.w / 2, want = half * Math.tan(Math.max(MIN_GABLE, Math.min(60, +n.gp > 0 ? +n.gp : GABLE_PITCH)) * rad);
+    gh = Math.max(half * Math.tan(MIN_GABLE * rad), Math.min(want, avail - Math.min(hwW, KEEP_WALL)));
+    n.gp = Math.round((Math.atan(gh / half) / rad) * 10) / 10;
+  }
+  const room = avail - gh;
+  n.hw = Math.max(0.4, Math.min(hwW, room));
   if (room < 0.4) return null;
   n.win = n.win !== false && n.hw >= 0.7;
   Object.assign(n, { yF, yT: yF + n.hw, gh, ts: 0, eT: (yF + n.hw) / F.tan, eR: (yF + n.hw + gh) / F.tan, F });
@@ -123,8 +134,9 @@ export function dormerParts(bb, r, d, holes = []) {
     const y0 = yT - OVER * n.ts;
     quad(roof, P(u0 - o0, eave - OVER, y0), P(u1 + o1, eave - OVER, y0), P(u1 + o1, eR, yB), P(u0 - o0, eR, yB));
   } else {
+    const tg = gh / hw2;                                           // the pitch of its little roof
     wall.push(P(-hw2, eave, yT), P(hw2, eave, yT), P(0, eave, yT + gh));                                         // gable above the front wall
-    for (const s of [-1, 1]) quad(roof, P(s * (hw2 + OVER), eave - OVER, yT - OVER * GABLE_PITCH), P(s * (hw2 + OVER), eT, yT - OVER * GABLE_PITCH),
+    for (const s of [-1, 1]) quad(roof, P(s * (hw2 + OVER), eave - OVER, yT - OVER * tg), P(s * (hw2 + OVER), eT, yT - OVER * tg),
       P(0, eR, yT + gh), P(0, eave - OVER, yT + gh));                                                            // the two roof planes meet in the ridge
   }
   const win = dormerWindow(n);

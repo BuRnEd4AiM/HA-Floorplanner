@@ -103,11 +103,29 @@ test('shed dormer: stays below the ridge, its pitch stays flatter than the main 
   assert.ok(top.sp === 2 && top.hw < 3 && top.eR * tan35 < ridge);
 });
 
-test('shed and flat dormers may be long, a gable dormer stays at most 5 m wide', () => {
+test('every dormer may be long, a gable dormer too (up to 30 m, #621)', () => {
   assert.equal(D.fitDormer(bb, roof, { type: 'shed', w: 7 }).w, 7);
   assert.equal(D.fitDormer(bb, roof, { type: 'flat', w: 7 }).w, 7);
-  assert.equal(D.fitDormer(bb, roof, { type: 'gable', w: 7 }).w, 5);
-  assert.equal(D.fitDormer(bb, roof, { type: 'shed', w: 12 }), null, 'longer than the roof');
+  assert.equal(D.fitDormer(bb, roof, { type: 'gable', w: 7 }).w, 7);
+  assert.equal(D.fitDormer({ x0: 0, x1: 40, z0: 0, z1: 10 }, roof, { type: 'gable', w: 99 }).w, 30);
+});
+test('the pitch of a gable dormer (#621): 28° unless set; a wide one gets flatter to stay under the ridge, its wall stays', () => {
+  const big = { x0: 0, x1: 16, z0: 0, z1: 10 }, ridge = 5.4 * tan35;
+  const n0 = D.fitDormer(big, roof, { type: 'gable', w: 2 });
+  assert.equal(n0.gp, 28);
+  assert.ok(Math.abs(n0.gh - Math.tan((28 * Math.PI) / 180)) < 1e-9);
+  const n1 = D.fitDormer(big, roof, { type: 'gable', w: 2, gp: 45 });
+  assert.ok(n1.gp === 45 && Math.abs(n1.gh - 1) < 1e-9, 'its own pitch');
+  assert.equal(D.fitDormer(big, roof, { type: 'gable', w: 2, gp: 1 }).gp, 5, 'no flatter than 5°');
+  const wide = D.fitDormer(big, roof, { type: 'gable', w: 10, hw: 1.2 });          // at 28° its gable would be 2.66 m high
+  assert.ok(wide && wide.w === 10 && wide.gp < 28 && wide.hw >= 1, `${wide?.gp} ${wide?.hw}`);
+  assert.ok(wide.yT + wide.gh < ridge, 'under the main ridge');
+  const p = D.dormerParts(big, roof, { type: 'gable', w: 10, hw: 1.2 });
+  assert.ok(maxY([...p.wall, ...p.roof]) < ridge && p.glass.length === 6, 'drawn with its window');
+  const tg = Math.tan((wide.gp * Math.PI) / 180), top = maxY(p.roof);
+  assert.ok(Math.abs(top - (wide.yT + wide.gh)) < 1e-9 && Math.abs(wide.gh - 5 * tg) < 0.01, 'its little roof at that pitch');
+  const old = D.fitDormer(bb, roof, { side: 1, pos: 0.2, hw: 99, eave: 0.2 });       // a high wall on a normal dormer: the wall gets lower, the pitch stays
+  assert.ok(old.gp === 28 && old.hw < 3);
 });
 
 test('the window of a long shed dormer stays window-sized and in the middle of its front', () => {

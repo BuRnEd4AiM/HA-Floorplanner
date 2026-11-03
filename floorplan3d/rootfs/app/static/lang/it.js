@@ -2214,7 +2214,7 @@ export default {
   'roof.high.x0': 'a sinistra nella pianta', 'roof.high.x1': 'a destra nella pianta', 'roof.highH': 'Altezza del lato alto (sopra il muro o il muretto)',
   'roof.gableOver': 'Sporgenza al timpano', 'roof.sideOver': 'Sporgenza ai lati', 'roof.gableWall': 'Muro del timpano (il muro sale fino al tetto)',
   'roof.gableWallShed': 'Muri fino al tetto (lati e lato alto)', 'roof.stepsShed': 'Un tetto a una falda non ha gradini (solo i tetti a capanna e piani).',
-  'dormer.noShed': 'Un tetto a una falda non ha abbaini.', 'roof.partDy': 'Alzare (meno: abbassare)', 'roof.canopy': 'Pensilina',
+  'dormer.noShed': 'Un tetto a una falda non ha abbaini.', 'roof.partDy': 'Alzare (meno: abbassare)', 'roof.ridge0': '0° (lungo X)', 'roof.ridge90': '90° (lungo Z)', 'roof.ridgeTip': 'La direzione del colmo: 0° = lungo X (orizzontale nella pianta), 90° = lungo Z (verticale nella pianta). «Automatico» lo mette sul lato più lungo: allora il tetto ruota di 90° appena l’altro lato diventa più lungo.', 'dormer.gablePitch': 'Pendenza dell’abbaino (°)', 'dormer.gableHint': 'Un abbaino largo riceve da solo un tetto più piatto (fino a 5°) per restare sotto il colmo.', 'roof.canopy': 'Pensilina',
   'roof.canopyAdd': '+ Pensilina (tetto a una falda davanti alla casa)',
   'roof.canopyHelp': '«+ Pensilina» mette un tetto a una falda davanti al lato lungo della casa, subito sotto la gronda. Nella sua scheda imposti dimensioni, lato alto, pendenza e «Alzare»; «Poggia su» sceglie il piano.',
   'car.add': '＋ Altra auto', 'car.remove': 'Rimuovi auto', 'car.moreHelp': 'Più auto: «＋ Altra auto», lì scegli tu i valori.',

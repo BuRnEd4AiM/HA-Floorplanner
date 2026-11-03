@@ -2234,7 +2234,7 @@ export default {
   'roof.gableOver': 'Débord au pignon (rive)', 'roof.sideOver': 'Débord sur les côtés', 'roof.gableWall': 'Mur pignon (le mur monte jusqu\'au toit)',
   'roof.gableWallShed': 'Murs jusqu\'au toit (côtés et côté haut)',
   'roof.stepsShed': 'Un toit en appentis n\'a pas de décrochements (seulement les toits à deux pans et plats).',
-  'dormer.noShed': 'Un toit en appentis n\'a pas de lucarnes.', 'roof.partDy': 'Monter (moins : descendre)', 'roof.canopy': 'Auvent',
+  'dormer.noShed': 'Un toit en appentis n\'a pas de lucarnes.', 'roof.partDy': 'Monter (moins : descendre)', 'roof.ridge0': '0° (le long de X)', 'roof.ridge90': '90° (le long de Z)', 'roof.ridgeTip': 'La direction du faîtage : 0° = le long de X (horizontal sur le plan), 90° = le long de Z (vertical sur le plan). « Automatique » le met sur le côté le plus long : le toit tourne alors de 90° dès que l’autre côté devient plus long.', 'dormer.gablePitch': 'Pente de la lucarne (°)', 'dormer.gableHint': 'Une lucarne large reçoit d’elle-même un toit plus plat (jusqu’à 5°) pour rester sous le faîtage.', 'roof.canopy': 'Auvent',
   'roof.canopyAdd': '+ Auvent (toit en appentis devant la maison)',
   'roof.canopyHelp': '« + Auvent » place un toit en appentis devant le long côté de la maison, juste sous l\'avant-toit. Dans sa carte, réglez la taille, le côté haut, la pente et « Monter » ; « Repose sur » choisit l\'étage.',
   'car.add': '＋ Autre voiture', 'car.remove': 'Retirer la voiture',
