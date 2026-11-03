@@ -42,8 +42,19 @@ test('terrace railing: also along edges that are open from corner to corner (no 
   const ui = R.initRoofs({ layout: () => ({ floors: [] }), elev: () => 0, mat: () => new T.MeshBasicMaterial(), HOLO: {}, camera: () => null, settings: () => ({}), wallSee: 0.3, editingRoof: () => false });
   const g = new T.Group();
   ui.railing(g, { points: sq(0, 0, 6, 5), terrace: true }, { walls: [] }, false, false);
-  assert.ok(g.children.length >= 4 * 3, String(g.children.length));            // every edge: two rails and posts
+  assert.equal(g.children.length, 1);                                          // the rails and posts of all edges in one mesh (balcony3d.js, #646)
+  const bb = new T.Box3().setFromObject(g);
+  assert.ok(bb.min.x < 0.01 && bb.max.x > 5.99 && bb.min.z < 0.01 && bb.max.z > 4.99 && bb.max.y > 1, JSON.stringify(bb));   // every edge fenced
+  assert.ok(g.children[0].geometry.getAttribute('position').count >= 24 * (4 * 2 + 4 * 5), 'two rails and the posts on each edge');
   const g2 = new T.Group();
   ui.railing(g2, { points: sq(0, 0, 6, 5), terrace: true }, { walls: [[0, 0, 6, 0], [6, 0, 6, 5], [6, 5, 0, 5], [0, 5, 0, 0]].map(([a, b, c, d]) => ({ a: [a, b], b: [c, d], thickness: 0.2 })) }, false, false);
   assert.equal(g2.children.length, 0);                                         // walls all round: nothing to fence
+});
+test('balcony railing: glass panes and wood are their own meshes (#646)', async () => {
+  const T = await import(`${dir}/vendor/three.module.min.js`);
+  const ui = R.initRoofs({ layout: () => ({ floors: [] }), elev: () => 0, mat: () => new T.MeshBasicMaterial(), HOLO: {}, camera: () => null, settings: () => ({}), wallSee: 0.3, editingRoof: () => false });
+  const kinds = (rail) => { const g = new T.Group(); ui.railing(g, { points: sq(0, 0, 4, 2), terrace: true, rail }, { walls: [] }, false, false); return g.children.map((m) => m.userData.railing).sort(); };
+  assert.deepEqual(kinds(undefined), ['metal']);
+  assert.deepEqual(kinds('glass'), ['glass', 'metal']);
+  assert.deepEqual(kinds('wood'), ['wood']);
 });

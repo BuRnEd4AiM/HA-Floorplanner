@@ -5,6 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { rangeOver } from './terrain.js';
 import { plateausOf } from './levels.js';
+import { freeBalconies, withoutRooms } from './balcony.js';
 import { drapeGeometry, earthSides, cutFace, plinthGeometry } from './terrain3d.js';
 
 /** outline of the house at ground level: walls (with their thickness) and rooms / blocks of the floors up to the ground floor (or of the
@@ -97,7 +98,8 @@ export function initEarth(ctx) {
   const keepTint = (m) => { if (m.color) { tinted.push([m, m.color.clone()]); if (tint) m.color.multiply(new THREE.Color(...tint)); } return m; };
   function build(world, holo) {
     const layout = ctx.layout(), settings = ctx.settings(), nb = ctx.groundIdx();
-    const foot = houseFootprint(layout.floors, nb);
+    const hf = ctx.terrain?.() || null;                   // on a slope (#629): the ground has its own height everywhere
+    const foot = houseFootprint(hf ? withoutRooms(layout.floors, nb, freeBalconies(layout.floors, nb, nb, hf)) : layout.floors, nb);   // a balcony over the slope: the ground goes on under it (#646)
     if (!foot.length) return;
     const xs = foot.flat().map((p) => p[0]), zs = foot.flat().map((p) => p[1]);
     const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
@@ -108,7 +110,6 @@ export function initEarth(ctx) {
     const outline = layout.plot?.boundary?.length >= 3 ? layout.plot.boundary
       : [[hx0 - margin, hz0 - margin], [hx1 + margin, hz0 - margin], [hx1 + margin, hz1 + margin], [hx0 - margin, hz1 + margin]];
     const depth = nb > 0 ? nb * ctx.floorH + 0.4 : 0.4;   // without a basement: a slab of ground the house stands on
-    const hf = ctx.terrain?.() || null;                   // on a slope (#629): the ground has its own height everywhere
     const cellar = nb > 0 ? houseFootprint(layout.floors, nb, true) : [];
     let holes = nb > 0 && !hf ? cellar : foot;            // only the basement is cut out of the earth: parts without one (garage ...) stand on the ground; on a slope the whole house (they get a plinth)
     if (layout.plot?.boundary?.length >= 3) {                     // a plot smaller than the house: only cut out what lies on it

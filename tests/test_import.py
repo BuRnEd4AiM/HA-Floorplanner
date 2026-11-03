@@ -886,6 +886,20 @@ def test_a_roof_terrace_gets_a_railing_not_walls():
         assert shared["thickness"] == 0.3                                                                     # the wall to the terrace is an outer wall
 
 
+def test_a_balcony_keeps_its_railing_and_supports():                                  # #646
+    rooms = [{"name": "Zimmer", "points": [[0, 0], [4, 0], [4, 3], [0, 3]]},
+             {"name": "Balkon", "points": [[4, 0], [6, 0], [6, 3], [4, 3]], "terrace": True, "rail": "glass", "posts": True},
+             {"name": "Dach", "points": [[0, 3], [4, 3], [4, 5], [0, 5]], "terrace": True, "rail": "gold"},
+             {"name": "Flur", "points": [[0, 5], [4, 5], [4, 6], [0, 6]], "rail": "wood", "posts": True}]
+    layout, _, rep, _ = importer.build_layout(square_flat(rooms=rooms))
+    by = {r["name"]: r for r in layout["floors"][0]["rooms"]}
+    assert by["Balkon"]["rail"] == "glass" and by["Balkon"]["posts"] is True
+    assert "rail" not in by["Dach"] and any(w["path"].endswith(".rail") for w in rep.warnings)   # unknown: metal, with a warning
+    assert "rail" not in by["Flur"] and "posts" not in by["Flur"]                        # only an open room has a railing
+    again = {r["name"]: r for r in importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["rooms"]}
+    assert again["Balkon"]["rail"] == "glass" and again["Balkon"]["posts"] is True
+
+
 def test_the_floor_covering_of_a_room_survives_import_and_export():                    # parquet, tiles, concrete (#427)
     rooms = [{"name": "Wohnen", "points": [[0, 0], [4, 0], [4, 3], [0, 3]], "covering": "parquet"},
              {"name": "Bad", "points": [[4, 0], [7, 0], [7, 3], [4, 3]], "covering": "marmor"}]

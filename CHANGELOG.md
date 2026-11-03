@@ -4,6 +4,16 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.63.0] - 2026-11-03
+### Added
+- **Balconies** (#646, asked by christinloehner: "Aber ich finde gar keine Möglichkeit, einen Balkon hinzuzufügen, also mit Geländer, etc.... Es scheint noch keine Balkone zu geben"): the tick of a room is now called **"Balcony / roof terrace (open, with railing)"**. Draw a room in front of the door and tick it. Where it reaches out beyond the floor below (on the ground floor of a house on a slope, #629: where the ground under it lies at least 30 cm lower and it is not over the basement) it **hangs free**: it stands on a thin plate of its own (18 cm) instead of the house's ceiling, and on a slope the grey plinth under it is gone, the ground goes on under it. On level ground it stays a terrace on the ground, over a garage a roof terrace.
+- **Railing**: metal bars (as before, the default), **glass** panes with a hand rail, or **wooden** slats. **"Supports down to the ground"**: posts at the outer corners of a balcony that hangs free (and in between on an edge longer than 4.5 m), down to the slope, a plateau or the lawn. A line under the fields says whether the room hangs free ("Hangs free (balcony): a plate carries it") or lies on the house or the ground.
+- **JSON import and export**: `"rail": "metal" | "glass" | "wood"` and `"posts": true` on a room with `"terrace": true`; the schema describes them.
+- **The demo** has a balcony with a glass railing and a balcony door in front of the guest room on the upper floor.
+- New modules `balcony.js` (pure: which open room hangs free, where the railing runs and of which parts it is made, where the supports stand; unit test `tests/balcony.test.mjs`, a new CI step), `balcony3d.js` (the railing, before in `roofs.js`, the plate and the supports) and `balconyui.js` (the fields of the room, before in `props.js`). New browser test part `73_balcony`, new video "A balcony with a railing".
+### Changed
+- The railing of a roof terrace is one mesh per material instead of one per post and rail (fewer things to draw).
+
 ## [4.62.0] - 2026-11-03
 ### Added
 - **Roof windows without a dormer** (#643, asked by christinloehner: "Bin ich doof oder finde ich wirklich keine ganz einfachen, ordinären Dachfenster, ohne Gauben?"): on the roof floor "Manage floor" has the new section **Roof windows** under the dormers. **"+ Roof window"** puts a plain window into the slope of the roof (the slope gets a hole for it and a dark flashing round it): **side** A or B, **position along the ridge** (slider or "distance from the gable"), a **usual size** from the list (55 × 78 cm to 134 × 140 cm, 78 × 118 cm to start with) or **width** and **height** (measured in the slope, as the sizes of roof windows are given) and the **distance from the eave**; a new one sits with its lower edge 1 m over the floor below (the card says how high it is). On a gable, hip or shed roof (a shed roof: in its one slope), on the main roof and on further roofs (the card has **Roof**); a flat roof has none. The 2D plan of the roof floor shows them.

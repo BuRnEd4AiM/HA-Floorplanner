@@ -17,6 +17,7 @@ import { openingBallAt, BALL } from './tapballs.js';
 import { pillFinger } from './labels.js';
 import { isHeater } from './heating.js';
 import { houseFootprint } from './earth.js';
+import { withoutRooms } from './balcony.js';
 import { slabDepth, wallUpTo, wallUnder, inRoom, shutterLabelIn } from './housefloors.js';
 import { patternOf, floorHex } from './floorcover.js';
 import { facadeOf, facadeFinish } from './facade.js';
@@ -44,7 +45,8 @@ export function roomLabel(r, topView, imperial) {
 export const roomCenter = (points) => points.reduce((a, p) => [a[0] + p[0] / points.length, a[1] + p[1] / points.length], [0, 0]);
 
 /** ctx: settings(), floorIdx(), topView(), imperial(), belowVis(), fast() (the "fast" performance mode), mat(color, ghost, extra), roomLightMat(kind, alpha, ghost), textSprite(text),
- *  railing(g, room, f, holo, ghost) (roof terrace), lowWalls(), roomMeshes (Map), alerts ({ hasRoom(id), pulses }), registry (Map), pickables (Array), floorOpenings(i), floorH, holoEdge,
+ *  railing(g, room, f, holo, ghost) (roof terrace, balcony), balcony(g, room, f, o, lift) and freeBalconies(i) (a balcony that hangs free,
+ *  balcony3d.js, #646), lowWalls(), roomMeshes (Map), alerts ({ hasRoom(id), pulses }), registry (Map), pickables (Array), floorOpenings(i), floorH, holoEdge,
  *  houseMode(), halfCut(), elev(i), stairMesh(st, holo, ghost, edge, upTo) (stairtool.js), cutawayInfo(w, group), openingHandle(w, o, g),
  *  cutawayWalls() (the list of the open floor's walls for the cutaway), makeModel(type, onLoad, d, pose) (models.js), setPicture(model, d),
  *  placeSolar(model, d, roofs), tapBalls, cams, labelSprites (Map), modelLoaded(), roomName(f, id, sprite) (the name of a room on a floor
@@ -63,8 +65,9 @@ export function initFloorBuild(ctx) {
     if (!o.stack?.slab) return;
     const d = slabDepth(ctx.floorH, ctx.settings().wallHeight);
     if (!d) return;
-    let rings = houseFootprint([f], 0);
-    if (!rings.length) rings = [...f.rooms, ...(f.blocks || [])].filter((r) => r.points.length >= 3).map((r) => r.points);
+    const fl = withoutRooms([f], 0, ctx.freeBalconies?.(i))[0];     // a balcony that hangs free has a plate of its own (balcony3d.js, #646)
+    let rings = houseFootprint([fl], 0);
+    if (!rings.length) rings = [...fl.rooms, ...(fl.blocks || [])].filter((r) => r.points.length >= 3).map((r) => r.points);
     const up = upOf(f), byLift = new Map();                       // a building on a plateau: its ceiling goes up with it (#566)
     rings.forEach((ring) => { const h = up.any ? up.ground(...innerPoint(ring)) : 0; byLift.set(h, [...(byLift.get(h) || []), ring]); });
     byLift.forEach((list, lift) => {
@@ -138,7 +141,11 @@ export function initFloorBuild(ctx) {
       m.receiveShadow = true;
       g.add(m);
       if (raise) podium(g, shape, raise, lift, holo, ghost);
-      if (r.terrace && !ctx.lowWalls()) ctx.railing(liftGroup(g, lift), r, f, holo, ghost);   // roof terrace: railing along the open edges
+      if (r.terrace) {                                              // a balcony or a roof terrace (#646, balcony3d.js)
+        const tg = liftGroup(g, lift);
+        if (!ctx.lowWalls()) ctx.railing(tg, r, f, holo, ghost);    // the railing along the open edges
+        ctx.balcony?.(tg, r, f, o, lift);                          // hanging free: a plate under it, perhaps supports
+      }
       let wash = null, glow = null;
       if (!holo) {                                   // solid themes: the light pool lies on the floor as a separate layer
         glow = new THREE.Mesh(geo, ctx.roomLightMat('glow'));

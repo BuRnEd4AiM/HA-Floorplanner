@@ -177,6 +177,7 @@ Admins arrange every page like a Home Assistant dashboard: drag cards, hide them
 | **Whole-house view** | See all floors, basement and roof stacked as one building |
 | **Plateau and raised rooms** | A second house on a raised **plateau** in the plot (retaining wall of stone, concrete, clinker or gabions, or a bank of lawn) with **outdoor steps** up to the front door; a room's floor higher or lower than its storey, with steps at the doors |
 | **Terrain on a slope** | **Spot heights** in the plot (or *a slope in one step*: one storey down to the street): the lawn, earth, paths and garden things follow the ground, the **basement stands free** where it lies lower, parts without a basement get a plinth, terraces stay level; **contour lines** in the 2D plan |
+| **Balconies** | Tick a room in front of a door as *Balcony / roof terrace*: a railing of **metal, glass or wood**, **supports** down to the ground if you like. Reaching out beyond the floor below (or over a slope) it hangs free on a thin plate of its own; over a garage it is a roof terrace (#646) |
 | **Cabinets made to measure** | A **cabinet editor**: columns, rails, shelves, drawers, doors, handles and finishes, also **under a sloping roof** (*fit under the slope* reads the roof above it) |
 | **Clear object list** | Everything grouped by room (the room, its doors / windows and furniture), with a search field; the side panel can be dragged wider |
 | **Detect rooms** | Draw the walls, press *Räume erkennen*: every closed loop of walls becomes a room |

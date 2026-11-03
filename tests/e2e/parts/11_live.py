@@ -19,8 +19,10 @@ pgNB.click("#nbAdd"); pgNB.wait_for_timeout(500)
 pgNB.select_option("#neighborBody .nbHouse", nb_house); pgNB.wait_for_timeout(1500)     # earlier tests may have left more houses
 check("neighbour (#220): added, its house is drawn next to this one", pgNB.evaluate("window.__fp.layout.neighbors?.[0]?.house") == nb_house and pgNB.evaluate("window.__fp.neighborCount()") == 1, pgNB.evaluate("window.__fp.layout.neighbors"))
 pgNB.click("#floorRail .railHouse"); pgNB.wait_for_timeout(1000)                         # whole house: every floor of the neighbour too
-nb_rail = pgNB.evaluate("""(() => { let n = 0; window.__fp.scene.traverse(o => { if (o.userData.neighbor) n = o.children.map(g => g.children.length); }); return n; })()""")
-check("neighbour (#220): its roof terrace has a railing all round (open edges too)", isinstance(nb_rail, list) and len(nb_rail) == 2 and nb_rail[1] > 10, nb_rail)
+nb_rail = pgNB.evaluate("""(() => { let r = null; window.__fp.scene.traverse(o => { if (o.userData.neighbor) { const b = { x0: 1e9, x1: -1e9, z0: 1e9, z1: -1e9 }; let n = 0;
+  o.traverse(m => { if (m.isMesh && m.userData.railing) { n++; m.geometry.computeBoundingBox(); const bb = m.geometry.boundingBox; b.x0 = Math.min(b.x0, bb.min.x); b.x1 = Math.max(b.x1, bb.max.x); b.z0 = Math.min(b.z0, bb.min.z); b.z1 = Math.max(b.z1, bb.max.z); } });
+  r = [n, +(b.x1 - b.x0).toFixed(2), +(b.z1 - b.z0).toFixed(2)]; } }); return r; })()""")
+check("neighbour (#220): its roof terrace has a railing all round (open edges too)", isinstance(nb_rail, list) and nb_rail[0] >= 1 and nb_rail[1] > 5.9 and nb_rail[2] > 4.9, nb_rail)
 gi = pgNB.evaluate("window.__fp.layout.floors.findIndex(f => f.kind !== 'basement')")
 pgNB.evaluate(f"window.__fp.switchFloor({gi})"); pgNB.wait_for_timeout(400)
 check("neighbour (#220): the 2D plan gets its outline on the same level", pgNB.evaluate("window.__fp.neighborOutlines()") >= 4, pgNB.evaluate("window.__fp.neighborOutlines()"))

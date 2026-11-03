@@ -166,9 +166,10 @@ const layout = {
       { id: 'q1', name: 'Kinderzimmer', covering: 'parquetLight', wallLook: { pattern: 'wpDots' }, color: '#a0b8d8', points: [[0, 0], [5, 0], [5, 4], [0, 4]] },
       { id: 'q2', name: 'Gästezimmer', covering: 'chevron', wallLook: { pattern: 'wpStripes' }, color: '#c8b0a0', points: [[5, 0], [10, 0], [10, 4], [5, 4]] },
       { id: 'q3', name: 'Dachterrasse', covering: 'deck', color: '#a58a63', terrace: true, points: [[10, 0], [15, 0], [15, 6], [10, 6]] },
+      { id: 'q4', name: 'Balkon', covering: 'deck', color: '#a58a63', terrace: true, rail: 'glass', points: [[5.8, -1.5], [9.2, -1.5], [9.2, -0.12], [5.8, -0.12]] },   // a balcony with a glass railing (#646)
     ],
     walls: [
-      W('u1', [0, 0], [10, 0], 0.24, [Win('u5', 2.5), Win('u6', 7.5)]),
+      W('u1', [0, 0], [10, 0], 0.24, [Win('u5', 2.5), Win('u6', 7.5, { style: 'double', width: 1.8, height: 2.1, sill: 0, name: 'Balkontür' })]),
       W('u2', [10, 0], [10, 4], 0.24, [D('u7', 2, { width: 1.8, height: 2.1, style: 'sliding', name: 'Terrassentür' })]),
       W('u3', [10, 4], [0, 4], 0.24, [D('u8', 2.5), D('u9', 7.5)]),
       W('u4', [0, 4], [0, 0], 0.24, [Win('u10', 2)]),

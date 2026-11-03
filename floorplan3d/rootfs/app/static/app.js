@@ -82,6 +82,7 @@ import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
+import { initBalconies } from './balcony3d.js';
 import { syncDormerWindows, openingWalls, dormerWindows, eaveOntoWall } from './dormerwin.js';
 import { coverRoofFloor } from './attic.js';
 import { initPlanRotate } from './planview.js';
@@ -456,12 +457,16 @@ const neighbors = initNeighbors({
   camera: () => camera, settings: () => settings, wallSee: WALL_SEE, snapshot: () => snapshot(), changed: () => changed(), build: () => build(), fields: { field, lenInput, inp },
 });
 
+/* a balcony that hangs free (#646): its plate and supports; the code lives in balcony3d.js (rules: balcony.js) */
+const balconies = initBalconies({ layout: () => shownLayout(), groundIdx: () => groundIdx(), terrain: () => terrainHere(), elev: (i) => elev(i), mat: (...a) => mat(...a),
+  groundAt: (x, z) => groundAt(plateausOf(plotUi.areas()), x, z) });
 /* a floor in 3D: room floors, floor opening rims, blocks, stairs, walls and devices; the code lives in floorbuild.js */
 const floorBuild = initFloorBuild({
   plotAreas: () => plotUi.areas(),                                // a plateau lifts what stands on it (levels.js, #566)
   terrainFor: (f) => standsOn(terrainHere(), f, layout.floors[groundIdx()], GARDEN),   // on a slope the garden things stand on the ground (#629)
   settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(), fast: () => LOW,
   mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (...a) => textSprite(...a), railing: (...a) => roofsUi.railing(...a),
+  balcony: (...a) => balconies.build(...a), freeBalconies: (i) => balconies.free(i),
   lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
   registry, pickables, floorOpenings: (i) => floorOpenings(i), floorH: FLOOR_H, holoEdge: HOLO.edge,
   houseMode: () => houseMode, halfCut: () => halfCut, elev: (i) => elev(i), stairMesh: (...a) => stairTool.build(...a),
@@ -1600,6 +1605,7 @@ const props = initProps({
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type, dev) => baseSize(type, dev), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
   uploadPicture: (f, d) => uploadPicture(f, d), floorH: FLOOR_H, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
+  balconyFree: (id) => balconies.free(floorIdx).has(id),        // a balcony that hangs free (#646): its fields say so
   closetRoof: (d) => { const planes = roofsUi.slopesAt(floorIdx, d.x, d.z); return planes ? { planes, baseY: elev(floorIdx) + (d.y || 0) } : null; },   // a cabinet fits under the roof over it (closet.js; an L-shaped house: the wing's roof, #621)
 });
 function renderObjList() { objList.render(); }

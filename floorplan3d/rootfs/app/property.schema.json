@@ -592,7 +592,16 @@
        },
        "terrace": {
         "type": "boolean",
-        "description": "Roof terrace / open area: no roof above it, a railing along every edge without a wall. Its edges that no other room shares get no wall."
+        "description": "Balcony / roof terrace / open area: no roof above it, a railing along every edge without a wall. Its edges that no other room shares get no wall. Where it reaches out beyond the floor below (on the ground floor: over a slope) it is a balcony on a plate of its own."
+       },
+       "rail": {
+        "type": "string",
+        "enum": ["metal", "glass", "wood"],
+        "description": "With terrace: how its railing looks: metal bars (the default), glass panes or wooden slats."
+       },
+       "posts": {
+        "type": "boolean",
+        "description": "With terrace: a balcony that hangs free gets supports from its outer corners down to the ground."
        },
        "raise": {
         "type": "number",

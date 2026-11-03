@@ -50,7 +50,7 @@ export default {
   'op.doorOpen': 'Doorgang',
   'op.doorGap': 'Opening (zonder kozijn)',
   'op.doorGarage': 'Garagedeur',
-  'prop.terrace': 'Dakterras (open, met hekwerk)',
+  'prop.terrace': 'Balkon / dakterras (open, met hekwerk)',
   'prop.terraceHint': 'Open gebied zonder dak: houten vloer en hekwerk op elke rand zonder muur. Het dak van het huis laat dit weg, en wat eronder ligt (bijv. de garage).',
   'rp.doors': 'DEUREN',
   'rp.windows': 'RAMEN',
@@ -2211,4 +2211,8 @@ export default {
   'stair.split': 'Treden in de 1e trap', 'stair.splitHint': 'Hoeveel treden vóór de hoek liggen: meer geeft een lange eerste en een korte tweede trap.',
   'stair.solid': 'Massief (treden tot op de vloer)',
   'skylight.title': 'Dakramen', 'skylight.help': 'Een raam dat in het dakvlak ligt, zonder dakkapel. Druk op „+ Dakraam”, kies dan de kant, de plek en de maat.', 'skylight.noFlat': 'Een plat dak heeft geen dakramen.', 'skylight.one': 'Dakraam', 'skylight.roof': 'Dak', 'skylight.mainRoof': 'Hoofddak', 'skylight.startTip': 'Waar het dakraam begint: afstand van de gevel links (of boven) in de plattegrond tot de zijkant van het raam.', 'skylight.size': 'Gangbare maat', 'skylight.ownSize': 'eigen maat', 'skylight.height': 'Hoogte (in het dakvlak)', 'skylight.heightTip': 'De hoogte van het raam, gemeten in het dakvlak (zoals de gangbare maten, bijv. 78 × 118 cm).', 'skylight.eaveTip': 'Hoe ver de onderkant van het raam van de dakrand (goot) af ligt, plat gemeten in de plattegrond.', 'skylight.low': 'Onderkant {y} m boven de vloer eronder', 'skylight.remove': 'Dakraam verwijderen', 'skylight.add': '+ Dakraam', 'skylight.noFit': 'Past niet in het dakvlak (te groot of te dicht bij de nok).', 'skylight.tip': 'Contact, naam, rolluik: tik het dakraam in 3D aan, zoals een gewoon raam. Open wordt het rood en klapt het glas naar buiten.', 'skylight.winHint': 'Dakraam: maat en plek stel je in bij het dak (verdieping Dak → Verdieping beheren → Dakramen).',
+  'balc.rail': 'Hekwerk', 'balc.metal': 'Metaal (stangen)', 'balc.glass': 'Glas', 'balc.wood': 'Hout (latten)', 'balc.posts': 'Steunen tot op de grond',
+  'balc.postsHint': 'Alleen voor een balkon dat vrij hangt: steunen op de buitenhoeken tot op de grond.',
+  'balc.free': 'Hangt vrij (balkon): een plaat draagt het.',
+  'balc.onTop': 'Ligt op het huis of op de grond (dakterras, terras): geen plaat, geen steunen. Een balkon steekt uit over de verdieping eronder, op de begane grond boven de helling (Perceel → ⛰ Terrein).',
 };
