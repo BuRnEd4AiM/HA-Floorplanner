@@ -10,6 +10,7 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu nach 4.63.0: 🎬 Videos zum Strom-Rechner, zum Strom mehrerer Häuser und zum Nanoleaf-Editor** (Abschnitt 154, dein Wunsch: „eine Anleitung für den Strom-Rechner … auch für mehrere Häuser und der Nanoleaf-Editor“): Claude hat 154.1 und 154.2 geprüft; für dich nach dem Merge auf der Seite der Anleitung 154.3 bis 154.6, im Add-on 154.7.
 1. **Neu in 4.63.0: 🏗 Balkon mit Geländer** (Abschnitt 153, gefragt von christinloehner in #646): Claude hat 153.1 bis 153.5 im Browser-Test geprüft; für dich in der Demo 153.6 bis 153.8, im Add-on 153.9, nach dem Merge das Video 153.10.
 1. **Neu in 4.62.0: 🪟 Dachfenster ohne Gaube** (Abschnitt 152, gefragt von christinloehner in #643): Claude hat 152.1 bis 152.6 im Browser-Test geprüft; für dich in der Demo 152.7 und 152.8, im Add-on 152.9 und 152.10, nach dem Merge das Video 152.11.
 1. **Neu nach 4.61.0: 🎬 die Suche der Video-Anleitung findet mehr** (Abschnitt 151, dein Wunsch: „wenn Leute ein anderes Wort verwenden … trotzdem das richtige Video“): Claude hat 151.1 und 151.2 geprüft; für dich nach dem Merge auf der Seite der Anleitung 151.3 bis 151.5, im Add-on 151.6, und 151.7 mit deinen eigenen Wörtern.
@@ -404,7 +405,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 151. 🎬 Video-Anleitung: die Suche findet mehr (nach 4.61.0, nur die Seite der Anleitung) | 2 | 0 | 5 | 0 | 151.3 bis 151.7 |
 | 152. Neu in 4.62.0: 🪟 Dachfenster ohne Gaube | 6 | 0 | 5 | 0 | 152.7 bis 152.11 |
 | 153. Neu in 4.63.0: 🏗 Balkon mit Geländer | 5 | 0 | 5 | 0 | 153.6 bis 153.10 |
-| **Zusammen** | **905** | **2** | **161** | **92** | |
+| 154. 🎬 Video-Anleitung: Strom-Rechner, Strom mehrerer Häuser, Nanoleaf (nach 4.63.0, nur die Anleitung) | 2 | 0 | 5 | 0 | 154.3 bis 154.7 |
+| **Zusammen** | **907** | **2** | **166** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2360,3 +2362,16 @@ christinloehner in #646: „Aber ich finde gar keine Möglichkeit, einen Balkon 
 | 153.8 | Demo: die „Dachterrasse“ über der Garage antippen | Die Zeile sagt „Liegt auf …“ (sie liegt auf der Garage); das Geländer lässt sich auch hier ändern | ❓ |
 | 153.9 | Im Add-on mit deinem Haus (oder christinloehner mit ihrem am Hang): einen Balkon vor die Tür zeichnen und ankreuzen | Er hängt frei vor dem Haus, mit dem gewählten Geländer; kein Block bis zum Boden | ❓ |
 | 153.10 | Nach dem Update auf der Seite der Anleitung das Video „Balkon mit Geländer“ ansehen (oder „Balkon“ / „Glasgeländer“ suchen) | Haken setzen, Glas wählen, Stützen, dann der Balkon am Hang im 3D-Bild | ❓ |
+
+## 154. 🎬 Video-Anleitung: Strom-Rechner, Strom mehrerer Häuser, Nanoleaf (nach 4.63.0, nur die Anleitung)
+Der Besitzer am 2026-11-03: „kannst du noch eine antleitung für den strom rechner machen weil das fehlt glaube ich wie man den benutzt und auch für mehrere Häuser und der nano leave editor fehlt glaube ich auch“. Neu: die Videos „⚡ Der Strom-Rechner: welcher Sensor ist was“ (Clip `energy-calc`), „⚡ Strom von mehreren Häusern: eigene Zähler, vergleichen“ (`energy-houses`) und „Nanoleaf: die Form der Panels zeichnen“ (`nanoleaf-edit`); „Mehrere Häuser“ heißt jetzt „Mehrere Häuser und das Nachbarhaus“ und zeigt mehr. Das Add-on selbst ist unverändert.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 154.1 | Die vier Videos in der Demo aufnehmen (Deutsch, `tools/make_guide.py --slow 1`) und Bild für Bild ansehen | Jeder Schritt zeigt, was der Untertitel sagt; der Nanoleaf ist ohne Schilder gut zu sehen, die Panels rasten ein, die neue Form hängt danach an der Wand | ✅ (2026-11-03, Claude) |
+| 154.2 | 18 neue typische Suchen, z. B. „Strom Rechner“, „Vorzeichen falsch“, „zwei Häuser Strom vergleichen“, „Nanoleaf Form ändern“, „Haus duplizieren“ | Jede findet das richtige Video unter den ersten drei; „Nanoleaf“ findet weiter auch „Effekte“ | ✅ (2026-11-03, Claude, tests/test_guide_search.py) |
+| 154.3 | Nach dem Merge (wenn der Workflow „Video guide“ fertig ist) auf der Seite der Anleitung (https://burned4aim.github.io/HA-Floorplanner/guide/, neu laden) „Strom-Rechner“ suchen und das Video ansehen | „Strom“, „Rechnung“, „Aus dem Energie-Dashboard übernehmen“, „✓ Übernehmen“, die Checkliste, die Rechnung, „Vorschlagen“ mit Raum und Rest, „Strom jetzt“ | ❓ |
+| 154.4 | Das Video „⚡ Strom von mehreren Häusern: eigene Zähler, vergleichen“ | Das Nachbarhaus mit eigenem Sensor, eigenen Zählern und Strompreis; dann „Energie“: ein Haus, „Alle zusammen“, „⚖ Vergleichen“, die Woche mit den Kosten je Haus | ❓ |
+| 154.5 | Das Video „Nanoleaf: die Form der Panels zeichnen“ (oder „Nanoleaf“ suchen) | Den Nanoleaf finden, „✎ Layout bearbeiten“, Dreiecke und ein Sechseck rasten ein, „Drehen“, „Zurück“, „Übernehmen“: die neue Form an der Wand | ❓ |
+| 154.6 | Das Video „Mehrere Häuser und das Nachbarhaus“ | Haus wechseln, „+ Neues Haus“, „Duplizieren“, „Umbenennen“, das Nachbarhaus um 30° gedreht und wieder zurück | ❓ |
+| 154.7 | Im Add-on: 🎬 Anleitung öffnen (eine gespeicherte Kopie „📥 Für ohne Internet speichern“ vorher neu speichern), „Nanoleaf“ suchen | Die Videos „Nanoleaf: die Form der Panels zeichnen“ und „Effekte: Nanoleaf, WLED und Co.“ | ❓ |

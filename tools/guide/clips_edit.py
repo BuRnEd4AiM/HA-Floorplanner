@@ -1021,10 +1021,13 @@ def _(r):
 
 
 @clip("houses", "edit",
-      {"de": "Mehrere Häuser", "en": "Several houses"},
-      {"de": "Ein Plan für jedes Haus (Haupthaus, Ferienhaus, Nachbarhaus): oben umschalten, unter „Häuser“ anlegen, kopieren, umbenennen.",
-       "en": "One plan per house (main house, holiday home, neighbour): switch at the top, create, copy and rename under “Houses”."},
-      "Häuser mehrere Haus Ferienhaus Nachbarhaus wechseln anlegen kopieren houses several house holiday home neighbour switch create copy",
+      {"de": "Mehrere Häuser und das Nachbarhaus", "en": "Several houses and the neighbour house"},
+      {"de": "Ein Plan für jedes Haus (Haupthaus, Ferienhaus, Gartenhaus): oben umschalten; unter „Häuser“ ein neues anlegen, duplizieren, "
+             "umbenennen, löschen; unter „Nachbarhaus“ ein anderes Haus daneben zeigen, verschoben und gedreht.",
+       "en": "One plan per house (main house, holiday home, garden house): switch at the top; under “Houses” create a new one, duplicate, "
+             "rename, delete; under “Neighbour house” show another house beside this one, moved and turned."},
+      "Häuser mehrere Haus Ferienhaus Nachbarhaus wechseln anlegen duplizieren umbenennen daneben Lage Drehung "
+      "houses several house holiday home neighbour house switch create duplicate rename beside position rotation",
       query="mode=edit")
 def _(r):
     r.say("Oben steht, welches Haus du siehst.", "At the top it says which house you see.")
@@ -1032,15 +1035,195 @@ def _(r):
     opts = r.loc("#houseSelect").evaluate("(s) => [...s.options].map((o) => o.value)")
     r.loc("#houseSelect").select_option(opts[-1])
     r.wait(2200)
-    r.poster()
-    r.say("Ein anderes Haus, mit eigenen Etagen und Geräten.", "Another house, with its own floors and devices.")
-    r.wait(1500)
-    r.say("Unter „Häuser“: ein neues Haus, eine Kopie, umbenennen.", "Under “Houses”: a new house, a copy, rename.")
+    r.say("Ein anderes Haus, mit eigenen Etagen, Geräten und eigenem Strom.", "Another house, with its own floors, devices and power.")
+    r.wait(1600)
+    r.say("Rechts unter „Häuser“: „+ Neues Haus“ fängt mit einem leeren Plan an.", "On the right under “Houses”: “+ New house” starts with an empty plan.")
     r.click("#housePanel > summary")
-    r.wait(1500)
+    r.wait(700)
+    r.move("#houseNew")
+    r.wait(1300)
+    r.say("„Duplizieren“ macht eine Kopie, „Umbenennen“ gibt ihm einen neuen Namen.", "“Duplicate” makes a copy, “Rename” gives it a new name.")
+    r.move("#houseCopy")
+    r.wait(900)
+    r.move("#houseRename")
+    r.wait(1200)
+    r.say("Zurück zum ersten Haus.", "Back to the first house.")
     r.click("#houseSelect")
     r.loc("#houseSelect").select_option(opts[0])
+    r.wait(2200)
+    r.say("„Nachbarhaus“: ein anderes Haus der Liste steht daneben, hier rechts vorne.", "“Neighbour house”: another house of the list stands beside it, here at the front right.")
+    r.move("#neighborBody .nbCard")
+    r.wait(1600)
+    r.poster()
+    r.say("Lage, Drehung und Höhe stellst du hier ein, zum Beispiel 30° gedreht.", "Set its position, rotation and height here, for example turned by 30°.")
+    rot = r.loc("#neighborBody .nbRot")
+    r.click(rot)
+    r.key("Control+a")
+    r.type("30")
+    r.key("Enter")
+    r.wait(2200)
+    r.say("Bearbeiten kannst du es, wenn du oben zu ihm wechselst.", "To edit it, switch to it at the top.")
+    r.click(r.loc("#neighborBody .nbRot"))
+    r.key("Control+a")
+    r.type("0")
+    r.key("Enter")
+    r.wait(1200)
+    r.move("#houseSelect")
+    r.wait(1400)
+
+
+def spot(r, sel, text=None, center=False):
+    """the middle of a thing of the page, asked from the page itself (scrolled into view at once). Playwright's own way waits for
+    two quiet frames, which takes seconds while a 3D room is drawn behind it (the video would wait that long), and misses a thing
+    that is drawn anew with every state of Home Assistant (the check list and the sum of ⚡ Bookkeeping). center: scrolled into the
+    middle of a window that scrolls (at its top edge it would hide under the window's title)."""
+    x, y = r.js("""([s, t, c]) => {
+      const e = [...document.querySelectorAll(s)].find((x) => !t || new RegExp(t).test(x.textContent));
+      e.scrollIntoView({ block: c ? 'center' : 'nearest' });
+      const b = e.getBoundingClientRect();
+      return [b.x + b.width / 2, b.y + b.height / 2];
+    }""", [sel, text, center])
+    return x, y
+
+
+@clip("energy-calc", "edit",
+      {"de": "⚡ Der Strom-Rechner: welcher Sensor ist was", "en": "⚡ The power bookkeeping: which sensor is what"},
+      {"de": "Im Strom-Editor legt „Rechnung“ fest, welcher Sensor das Netz, die Solaranlage, die Batterie, das Haus und die Räume misst: "
+             "aus dem Energie-Dashboard übernehmen, die Checkliste sagt, was fehlt, die Rechnung zeigt, ob alles aufgeht.",
+       "en": "In the power editor “Bookkeeping” sets which sensor measures the grid, the solar panels, the battery, the house and the rooms: "
+             "take it over from the energy dashboard, the check list says what is missing, the sum shows whether it adds up."},
+      "Strom Rechnung Rechner Sensor Netz Solar Batterie Hausverbrauch Räume Vorzeichen Checkliste Energie-Dashboard "
+      "power bookkeeping calculator sensor grid solar battery house consumption rooms sign check list energy dashboard",
+      query="mode=edit")
+def _(r):
+    r.say("Oben im Bearbeiten: „Strom“. Jetzt siehst du nur die Stromgeräte und „Strom jetzt“.", "At the top while editing: “Power”. Now you see only the power devices and “Power now”.")
+    r.click("#powerEditBtn")
+    r.wait(2000)
+    r.say("Daneben: „Rechnung“, der Strom-Rechner.", "Next to it: “Bookkeeping”, the power calculator.")
+    r.click("#energyBtn")
+    r.wait(1300)
+    r.say("Hier legst du fest, welcher Sensor aus Home Assistant was misst.", "Here you set which sensor of Home Assistant measures what.")
+    r.wait(1200)
+    r.say("Am schnellsten: „⤵ Aus dem Energie-Dashboard übernehmen“.", "The quickest way: “⤵ Take over from the energy dashboard”.")
+    r.click("#enHaLoad")
+    r.wait(1600)
+    r.say("Es zeigt, was es gefunden hat. „✓ Übernehmen“ trägt alles ein.", "It shows what it found. “✓ Take over” fills it all in.")
+    r.move(*spot(r, "#energySetup .enHaList", center=True))
+    r.wait(1500)
+    r.click("#enHaApply")
+    r.wait(1300)
+    r.say("Die Checkliste sagt, was fertig ist und was noch fehlt.", "The check list says what is done and what is still missing.")
+    r.move(*spot(r, "#enChecklist", center=True))
     r.wait(1800)
+    r.poster()
+    r.say("„So wird gerade gerechnet“: Solar + Netz − Batterie = was das Haus braucht.", "“How it is counted right now”: solar + grid − battery = what the house uses.")
+    r.move(*spot(r, "#energyResult .enRow.sum", center=True))
+    r.wait(2200)
+    r.say("Darunter jeder Teil einzeln: ein Sensor oder zwei, und „Vorzeichen umdrehen“, wenn er andersherum zählt.",
+          "Below, every part on its own: one sensor or two, and “turn the sign round” when it counts the other way.")
+    r.move("#enGridInvert")
+    r.wait(2200)
+    r.say("Bei „Räume“ ordnet „Vorschlagen“ die Zwischenstecker den Räumen zu.", "Under “Rooms”, “Suggest” puts the smart plugs into their rooms.")
+    r.click("#enSuggest")
+    r.wait(2000)
+    r.say("Oben stehen dann die Räume und der „Rest“, den kein Raum misst.", "At the top you then see the rooms and the “rest” that no room measures.")
+    r.move(*spot(r, "#energyResult .enRow.room", text="Rest", center=True))
+    r.wait(2000)
+    r.say("Zählt ein Sensor falsch herum oder doppelt, steht dort eine Warnung, mit einem Knopf zum Umdrehen.",
+          "When a sensor counts the wrong way or twice, a warning comes up there, with a button to turn it round.")
+    r.wait(2000)
+    r.say("Fertig: „Strom jetzt“ rechnet so, auch in der Live-Ansicht.", "Done: “Power now” counts like this, in the live view too.")
+    r.click("#energyClose")
+    r.wait(900)
+    r.move("#energyCard")
+    r.wait(2000)
+
+
+# the canvas of the Nanoleaf editor: the outermost point of the panels drawn now (their cyan edges) to each side, in CSS px of the page
+NANO_EDGE = """() => {
+  const c = document.querySelector('#nanoCanvas'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, pts = [];
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i] > 90 || d[i + 1] < 190 || d[i + 2] < 230) continue;
+    const p = i / 4, x = p % c.width;
+    pts.push([x, (p - x) / c.width]);
+  }
+  if (!pts.length) return null;
+  const r = c.getBoundingClientRect(), sx = r.width / c.width, sy = r.height / c.height;
+  const far = (k, sign) => {                       // the pixels within 3 px of the extreme on axis k, their middle on the other axis
+    const m = Math.max(...pts.map((q) => sign * q[k])), near = pts.filter((q) => sign * q[k] >= m - 3);
+    const o = near.reduce((s, q) => s + q[1 - k], 0) / near.length, e = sign * m;
+    return k === 0 ? [r.left + e * sx, r.top + o * sy] : [r.left + o * sx, r.top + e * sy];
+  };
+  return { right: far(0, 1), left: far(0, -1), bottom: far(1, 1), top: far(1, -1) };
+}"""
+NANO_CAM = "3.0, 2.0, 2.2, -6, -1.2"     # in the living room, the Nanoleaf on the wall in the middle, over the plant
+
+
+def nano_at(r, side, gap=14):
+    """a point just beyond the outermost panel on that side (right, left, top or bottom): a click there snaps a panel onto it"""
+    x, y = r.js(NANO_EDGE)[side]
+    dx, dy = {"right": (gap, 0), "left": (-gap, 0), "top": (0, -gap), "bottom": (0, gap)}[side]
+    return x + dx, y + dy
+
+
+@clip("nanoleaf-edit", "edit",
+      {"de": "Nanoleaf: die Form der Panels zeichnen", "en": "Nanoleaf: draw the shape of the panels"},
+      {"de": "„Layout bearbeiten“ am Nanoleaf: Dreiecke, Sechsecke, Quadrate oder Linien ins Feld klicken, sie rasten an den Nachbarn ein; "
+             "drehen, löschen, zurück. An der Wand hängt dann genau deine Form und leuchtet in ihren Farben.",
+       "en": "“Edit layout” on the Nanoleaf: click triangles, hexagons, squares or lines into the field, they snap onto their neighbours; "
+             "rotate, erase, undo. Then your very shape hangs on the wall and glows in its colours."},
+      "Nanoleaf Layout Form Panels Dreieck Sechseck Quadrat Linie zeichnen einrasten drehen Shapes "
+      "Nanoleaf layout shape panels triangle hexagon square line draw snap rotate Shapes",
+      query="mode=edit", sky="20:30", settings={"labelMode": "none"})
+def _(r):
+    r.say("Rechts unter „Objekte“ den Nanoleaf suchen und antippen.", "On the right under “Objects”, search for the Nanoleaf and tap it.")
+    r.click(*spot(r, "#objList .objfilter"))
+    r.type("Nanoleaf")
+    r.wait(700)
+    r.click(*spot(r, "#objList .obj", text="Nanoleaf"))
+    r.wait(500)
+    r.js(f"window.__fp.camAt({NANO_CAM})")
+    r.say("Er hängt an der Wand im Wohnzimmer.", "It hangs on the wall of the living room.")
+    r.wait(1800)
+    r.say("Rechts: „✎ Layout bearbeiten“.", "On the right: “✎ Edit layout”.")
+    r.click(*spot(r, "#nanoEdit"))
+    r.wait(1300)
+    r.say("Oben die Form: Dreieck, kleines Dreieck, Sechseck, Quadrat oder Linie.", "At the top the shape: triangle, small triangle, hexagon, square or line.")
+    for s in ("tri2", "hex", "sq", "bar"):
+        r.move(*spot(r, f"#nanoDialog [data-shape={s}]"), ms=450)
+        r.wait(300)
+    r.click(*spot(r, "#nanoDialog [data-shape=tri]"))
+    r.wait(500)
+    r.say("Ins Feld klicken: gelb zeigt, wo es hinkommt, die Kante rastet am Nachbarn ein.", "Click into the field: yellow shows where it goes, the edge snaps onto its neighbour.")
+    r.move(*nano_at(r, "right"))
+    r.wait(1200)
+    r.click(*nano_at(r, "right"))
+    r.wait(900)
+    r.click(*nano_at(r, "bottom"))
+    r.wait(900)
+    r.say("Ein Sechseck dazu.", "Add a hexagon.")
+    r.click(*spot(r, "#nanoDialog [data-shape=hex]"))
+    r.wait(400)
+    r.click(*nano_at(r, "left"))
+    r.wait(1200)
+    r.poster()
+    r.say("„Drehen“ (oder die Taste R) dreht das nächste Panel, ein Rechtsklick löscht eins.", "“Rotate” (or the key R) turns the next panel, a right click erases one.")
+    r.click(*spot(r, "#nanoDialog [data-shape=sq]"))
+    r.click(*spot(r, "#nanoRot"))
+    r.wait(400)
+    r.click(*nano_at(r, "top"))
+    r.wait(1100)
+    r.say("„Zurück“ nimmt den letzten Schritt zurück.", "“Undo” takes the last step back.")
+    r.click(*spot(r, "#nanoUndo"))
+    r.wait(1100)
+    r.say("Unten: wie viele Panels es sind; über der Form: wie groß sie wird.", "At the bottom: how many panels there are; above the shape: how big it gets.")
+    r.move(*spot(r, "#nanoCount"))
+    r.wait(1600)
+    r.say("„Übernehmen“: an der Wand hängt die neue Form. Dann „Speichern“.", "“Apply”: the new shape hangs on the wall. Then “Save”.")
+    r.click(*spot(r, "#nanoOk"))
+    r.wait(2600)
+    r.move(*spot(r, "#saveBtn"))
+    r.wait(1200)
 
 
 @clip("objlist", "edit",
