@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-03 · 97 Sitzungen
+Stand: 2026-11-03 · 98 Sitzungen
 
-**Insgesamt: 6,64 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 6,67 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 19,2 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 66,7 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 6,56 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 19,3 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 67,0 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 6,58 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 11 | 516,3 Mio. | 1,4 Mio. |
+| 2026-11 | 12 | 537,6 Mio. | 1,5 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-03 | [012p9z3L…](https://claude.ai/code/session_012p9z3LxG2D9unSS3STHLrM) | claude/l-shape-roof-requests-rdsr3n | 21,3 Mio. | 79 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3K…](https://claude.ai/code/session_012p9z3KTuffmiV9y4d2t3zQ) | claude/treppe-gewendelt | 57,5 Mio. | 138 Tsd. | gezählt |
 | 2026-11-02 | [018pwcmy…](https://claude.ai/code/session_018pwcmyzUzu2pz8MrkhyZiS) | claude/busy-mendel-19uyc6 | 6,1 Mio. | 22 Tsd. | gezählt |
 | 2026-11-02 | [018pwcmz…](https://claude.ai/code/session_018pwcmzDhExLRrCtejBrUkM) | claude/laughing-johnson-ywzr01 | 57,2 Mio. | 211 Tsd. | gezählt |
