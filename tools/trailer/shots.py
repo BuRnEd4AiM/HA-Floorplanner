@@ -51,7 +51,7 @@ ORBIT_JS = """(o) => {
 
 class Shot(Clip):
     """one shot of the trailer: a clip of the guide's engine plus its kind, length, caption and part"""
-    def __init__(self, sid, kind, fn, beats, caption=None, part="live", speed=1.0, slow=None, keep=False, focus=None, up=None, **kw):
+    def __init__(self, sid, kind, fn, beats, caption=None, part="live", speed=1.0, slow=None, keep=False, focus=None, up=None, beat=None, **kw):
         super().__init__(sid, "trailer", {"de": sid, "en": sid}, {"de": "", "en": ""}, "", fn, **kw)
         self.kind, self.beats, self.caption, self.part = kind, beats, caption, part
         self.speed = speed               # how fast the recording is played in the film (1.5: half again as fast)
@@ -61,6 +61,7 @@ class Shot(Clip):
         # zoom 1.33 shows the app pixel for pixel in the window, the upright film crops around (x, y)
         self.focus = focus
         self.up = up                     # (x, y) for the upright film's card instead of focus (a page with its content on the left)
+        self.beat = beat                 # the moment the shot marks with r.say("@beat", …) comes this many seconds into the shot (on a beat)
 
     @property
     def seconds(self):
@@ -163,13 +164,14 @@ def _hero_prep(r):
 
 
 # the first shot: the house from outside (solid walls), then on the beat its walls turn to glass and the lit rooms show
-@shot("hero", "cine", 14, part="hero", slow=9, sky="20:30", settings={"roomTiles": False, "seeThrough": False}, prep=_hero_prep,
+@shot("hero", "cine", 14, part="hero", slow=16, beat=2.0, sky="20:30", settings={"roomTiles": False, "seeThrough": False}, prep=_hero_prep,
       caption=cap(("3D Floorplan · Home Assistant", "Dein Zuhause. In 3D. Live.", ""),
                   ("3D Floorplan · Home Assistant", "Your home. In 3D. Live.", "")))
 def _(r):
     r.hide()
     orbit(r, 2.25, 3.55, 25.5, 21.5, 12, 9.5, 7.6, wait=False)
-    r.wait(2280)                                         # 2 s into the shot of the film: on a beat
+    r.wait(2280)
+    r.say("@beat", "@beat")                              # this moment lies on a beat of the film (shot.beat seconds into the shot)
     r.js("document.querySelector('#seeToggle').click()")  # see-through: the walls facing the camera and the roof turn to glass
     r.wait(7600 - 2280)
 
@@ -537,7 +539,7 @@ def _outro_prep(r):
     cam(r, 3.0, 26, 13)
 
 
-@shot("outro", "cine", 16, part="outro", slow=9, sky="16:50", settings={"roomTiles": False, "seeThrough": False}, prep=_outro_prep)
+@shot("outro", "cine", 16, part="outro", slow=16, sky="16:50", settings={"roomTiles": False, "seeThrough": False}, prep=_outro_prep)
 def _(r):
     r.hide()
     orbit(r, 3.0, 4.1, 26, 23, 13, 11.5, 8.6)

@@ -302,6 +302,11 @@ def render(cues, end):
             add(dry, cu["t0"] - 0.3, wh, 0.12, pan=-0.4)
             add(wet, cu["t0"] - 0.3, wh, 0.08)
         prev = e
+    for cu in cues:                                             # a moment of a shot on a beat (the walls turn to glass): a swell and a soft hit
+        if cu.get("accent"):
+            add(dry, cu["accent"] - 1.0, riser(1.0), 0.3)
+            add(dry, cu["accent"], imp, 0.45)
+            add(wet, cu["accent"], imp, 0.4)
     out_c = next((cu for cu in cues if cu["id"] == "outro"), None)
     if out_c:                                                   # the logo of the end
         add(dry, out_c["t0"] + 0.5, imp, 0.6)
@@ -347,7 +352,7 @@ def plan_cues():
     out, t = [], 0.0
     for sid in S.ORDER:
         sh = S.SHOTS[sid]
-        out.append({"t0": t, "t1": t + sh.seconds, "part": sh.part, "hard": bool(sh.keep), "id": sid})
+        out.append({"t0": t, "t1": t + sh.seconds, "part": sh.part, "hard": bool(sh.keep), "id": sid, "accent": t + sh.beat if sh.beat is not None else None})
         t += sh.seconds
     return out
 

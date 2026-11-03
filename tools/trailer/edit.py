@@ -363,6 +363,11 @@ class Item:
         if self.film:
             have = self.film.end - 0.3 - 0.8                   # without the moment before the start and the last picture held
             self.speed = clamp(have / shot.seconds, min(1.0, shot.speed), MAX_SPEED)
+            mark = next((st["t"] for st in take.get("steps", []) if st.get("de") == "@beat"), None)
+            if mark is not None and shot.beat is not None:               # that moment exactly shot.beat seconds into the shot: on a beat
+                self.src0 = max(0.0, mark - shot.beat * self.speed)
+                self.speed = clamp((self.film.end - 0.8 - self.src0) / shot.seconds, min(1.0, shot.speed), MAX_SPEED)
+                self.src0 = max(0.0, mark - shot.beat * self.speed)
 
     def src(self, t):
         """the second of the recording at t of the film"""
@@ -604,7 +609,8 @@ def zoomed(img, s):
 
 def cues(items):
     """what the music needs to know: where every shot begins, its part and if it is a hard cut"""
-    return [{"t0": it.t0, "t1": it.t1, "part": it.shot.part, "hard": bool(it.shot.keep), "id": it.shot.id} for it in items]
+    return [{"t0": it.t0, "t1": it.t1, "part": it.shot.part, "hard": bool(it.shot.keep), "id": it.shot.id,
+             "accent": it.t0 + it.shot.beat if it.shot.beat is not None and it.film else None} for it in items]
 
 
 def make(takes, lang, fmt, mp4, music=True, poster_at=None):
