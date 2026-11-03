@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3LxbrqiTg4TzkYTboN",
+ "start": "2026-11-03",
+ "updated": "2026-11-03T08:07:47Z",
+ "branch": "claude/adoring-davinci-ml5253",
+ "source": "counted",
+ "input": 86,
+ "cache_write": 94152,
+ "cache_read": 4189802,
+ "output": 32092,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 86,
+   "cache_write": 94152,
+   "cache_read": 4189802,
+   "output": 32092,
+   "requests": 38
+  }
+ }
+}

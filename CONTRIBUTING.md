@@ -8,6 +8,10 @@ Thanks for helping! Small, focused pull requests are easiest to review.
 4. Add a line to the `[Unreleased]` section of `CHANGELOG.md` and copy the file to `floorplan3d/CHANGELOG.md` (Home Assistant shows that copy in the update dialog; a test checks both are identical). When a version is released, its entry also goes into `docs/CHANGELOG.de.md` (German, same sections and bullets) for the [timeline](https://burned4aim.github.io/HA-Floorplanner/timeline.html); a test checks that too.
 5. Open the pull request and describe what changed and how you tested it.
 
+## License of contributions
+
+3D Floorplan is licensed under the GNU GPL v3 or later (see [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md); versions up to 4.61.0 were MIT). By opening a pull request you agree that your contribution is licensed under the same terms. A new bundled library must be compatible with GPL-3.0 (e.g. MIT, BSD, Apache-2.0; not GPL-2.0-only) and gets a row in NOTICE.md.
+
 ## Reporting bugs
 
 Please include the add-on version, your browser, and the browser console output. Attach the layout (`/data/layout.json`) if it is layout related and contains nothing private.
