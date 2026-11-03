@@ -66,6 +66,17 @@ QUERIES = [
     ("Draufsicht", "de", "views"), ("Wände durchsichtig", "de", "viewmenu"), ("Dach ausblenden", "de", "viewmenu"),
     ("Raum öffnen", "de", "room"), ("Stehlampe finden", "de", "search"), ("Stromfluss", "de", "power"),
     ("Sonnenuntergang", "de", "sky"), ("Mond", "de", "sky"),
+    # the power bookkeeping, several houses, the Nanoleaf layout (the owner, 2026-11-03: "eine Anleitung für den Strom-Rechner …
+    # wie man den benutzt und auch für mehrere Häuser und der Nanoleaf-Editor")
+    ("Strom Rechner", "de", "energy-calc"), ("Stromrechner einrichten", "de", "energy-calc"),
+    ("welcher Sensor ist das Netz", "de", "energy-calc"), ("Vorzeichen falsch", "de", "energy-calc"),
+    ("Balkonkraftwerk Sensor", "de", "energy-calc"), ("Zwischenstecker Raum zuordnen", "de", "energy-calc"),
+    ("power bookkeeping", "en", "energy-calc"), ("which sensor is the grid", "en", "energy-calc"),
+    ("zwei Häuser Strom vergleichen", "de", "energy-houses"), ("Strompreis Ferienhaus", "de", "energy-houses"),
+    ("Stromverbrauch mehrere Häuser", "de", "energy-houses"), ("compare houses", "en", "energy-houses"),
+    ("Nanoleaf Form ändern", "de", "nanoleaf-edit"), ("Nanoleaf Dreiecke anordnen", "de", "nanoleaf-edit"),
+    ("Nanoleaf Layout", "de", "nanoleaf-edit"), ("nanoleaf shape", "en", "nanoleaf-edit"),
+    ("Nachbarhaus daneben stellen", "de", "houses"), ("Haus duplizieren", "de", "houses"),
     # other forms of a word
     ("Lampen", "de", "light lightgroups devices-place"), ("Treppen", "de", "stairs stairs-winder"), ("Rollläden", "de", "shutter"),
     ("Tuer", "de", "openings open doorbell"), ("Fenstern", "de", "openings open window-setup window-tilt"),

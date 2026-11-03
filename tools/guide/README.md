@@ -30,7 +30,7 @@ in the same order as in a clip count more). Clips with every word first; if none
 - **`tags.py`**: for every clip more words in German and in English: everyday words, what you would ask, brands, typing mistakes.
   `SYN`: groups of words with the same meaning (a word in one group only). Changing it needs no new videos: the workflow "Demo"
   puts it on the page.
-- **`tests/test_guide_search.py`** runs 135 typical searches (other words, forms, typing mistakes, questions) with the real clips:
+- **`tests/test_guide_search.py`** runs more than 160 typical searches (other words, forms, typing mistakes, questions) with the real clips:
   each must find its clip among the first three. Someone did not find a video with their word? Add the word to the clip's line in
   `tags.py` (or to a group of `SYN`) and the search as a line in `QUERIES` there. `tests/guidesearch.test.mjs`: the rules of
   `search.js` alone.

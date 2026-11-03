@@ -162,6 +162,11 @@ t("energy",
   "Solaranlage Eigenverbrauch Einspeisung Netz Batteriespeicher Statistik Diagramm Balken Woche Monat Jahr Energie",
   "electricity cost cost price power consumption usage meter kWh kilowatt hours photovoltaic PV solar self-consumption "
   "feed-in grid home battery statistics chart bars week month year energy")
+t("energy-houses",
+  "zweites Haus mehrere Häuser Ferienhaus Einliegerwohnung Mieter Eltern Häuser vergleichen Vergleich nebeneinander "
+  "alle zusammen Summe eigene Zähler Strompreis pro Haus Kosten je Haus Verbrauch je Haus welches Haus braucht wie viel",
+  "second house several houses holiday home granny flat tenant parents compare houses comparison side by side all "
+  "together sum own meters electricity price per house cost per house usage per house which house uses how much")
 t("climate",
   "Raumklima alle Thermostate Temperaturen Übersicht Heizung Klimaanlage Luftfeuchtigkeit CO2 Luftqualität lüften "
   "Hinweis kalt warm Grad",
@@ -354,9 +359,24 @@ t("closet",
   "drawers doors clothes rail shelf storage")
 t("houses",
   "zweites Haus mehrere Häuser Ferienhaus Ferienwohnung Wohnung Gartenhaus Nachbarhaus Eltern Haus wechseln "
-  "Haus kopieren Haus umbenennen Haus löschen neues Haus",
+  "Haus kopieren Haus umbenennen Haus löschen neues Haus Haus daneben nebeneinander Doppelhaus zwei Häuser auf einem "
+  "Grundstück Anbau Brücke Lage verschieben drehen",
   "second house several houses holiday home holiday flat apartment garden house neighbour's house parents switch house "
-  "copy a house rename a house delete a house new house")
+  "copy a house rename a house delete a house new house house beside side by side semi-detached two houses on one plot "
+  "annex bridge position move turn")
+t("energy-calc",
+  "Strom-Rechner Stromrechner Stromrechnung Rechnung einrichten Sensoren zuordnen welcher Sensor ist was Netzbezug "
+  "Hausanschluss Stromzähler Smartmeter Wechselrichter Balkonkraftwerk Batteriespeicher Ladestand Hausverbrauch "
+  "Zwischenstecker Unterzähler Vorzeichen falsch negativ Minus stimmt nicht geht nicht auf Energie-Dashboard übernehmen "
+  "Strom-Editor Autarkie Shelly",
+  "power calculator power bookkeeping set up assign sensors which sensor is what grid import house connection "
+  "electricity meter smart meter inverter balcony solar home battery charge level house consumption smart plug sub-meter "
+  "wrong sign negative minus does not add up energy dashboard take over power editor autarky Shelly")
+t("nanoleaf-edit",
+  "Nanoleaf Shapes Canvas Lines Elements Lichtpanels Lichtpaneele Wandpanels Wandleuchte Dreiecke Sechsecke Hexagon "
+  "Quadrate Linien Form zeichnen Anordnung Layout ändern einrasten Panel hinzufügen Panel löschen Govee Glide Hexa",
+  "Nanoleaf Shapes Canvas Lines Elements light panels wall panels wall light triangles hexagons hexagon squares lines "
+  "draw the shape arrangement change the layout snap add a panel delete a panel Govee Glide Hexa")
 t("objlist",
   "Objektliste alle Objekte Liste aller Geräte Liste aller Möbel finden auswählen markieren sperren gesperrt "
   "versteckt wiederfinden Übersicht",

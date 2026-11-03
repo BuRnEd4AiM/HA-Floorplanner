@@ -58,6 +58,61 @@ def _(r):
     r.wait(1800)
 
 
+@clip("energy-houses", "pages",
+      {"de": "⚡ Strom von mehreren Häusern: eigene Zähler, vergleichen", "en": "⚡ Power of several houses: own meters, compare"},
+      {"de": "Jedes Haus bekommt im Strom-Rechner seine eigenen Sensoren, Zähler und den Strompreis. Auf der Seite „Energie“ dann ein Haus, "
+             "alle zusammen oder „⚖ Vergleichen“: jedes Haus in seiner Farbe, mit Verbrauch, Leistung jetzt und Kosten.",
+       "en": "In the power bookkeeping every house gets its own sensors, meters and electricity price. On the page “Energy” then one house, "
+             "all together or “⚖ Compare”: every house in its colour, with its use, its power now and its costs."},
+      "mehrere Häuser zweites Haus Strom Zähler Strompreis vergleichen alle zusammen Ferienhaus Energie "
+      "several houses second house power meters electricity price compare all together holiday home energy",
+      query="mode=edit")
+def _(r):
+    r.say("Ein zweites Haus: oben wählen, hier das Nachbarhaus.", "A second house: choose it at the top, here the neighbour house.")
+    r.click("#houseSelect")
+    opts = r.loc("#houseSelect").evaluate("(s) => [...s.options].map((o) => o.value)")
+    r.loc("#houseSelect").select_option(opts[-1])
+    r.wait(2000)
+    r.say("„Strom“ und „Rechnung“: jedes Haus hat seinen eigenen Strom-Rechner.", "“Power” and “Bookkeeping”: every house has its own power bookkeeping.")
+    r.click("#powerEditBtn")
+    r.wait(1000)
+    r.click("#energyBtn")
+    r.wait(1300)
+    r.say("„Eigener Sensor für den Hausverbrauch“: was dieses Haus gerade braucht.", "“Own sensor for the house consumption”: what this house uses right now.")
+    r.move("#enHouse")
+    r.wait(2000)
+    r.say("Ganz unten „Zähler für den Verlauf“: seine eigenen Zähler in kWh …", "At the very bottom “Meters for the history”: its own meters in kWh …")
+    r.move("#energyBody .emKind")
+    r.wait(1800)
+    r.say("… und sein Strompreis. Das Energie-Dashboard von Home Assistant gibt es nur einmal, darum braucht jedes weitere Haus hier seine eigenen.",
+          "… and its electricity price. Home Assistant has only one energy dashboard, so every further house needs its own ones here.")
+    r.move("#emPrice_buy")
+    r.wait(2600)
+    r.click("#energyClose")
+    r.wait(600)
+    r.click("#powerEditBtn")
+    r.wait(500)
+    r.say("In der Live-Ansicht: unten „Energie“.", "In the live view: “Energy” at the bottom.")
+    r.click("#modeSwitch [data-mode=live]")
+    r.wait(1500)
+    tab(r, "energy")
+    r.say("Oben ein Knopf je Haus.", "At the top a button per house.")
+    r.click("[data-page=energy] .tpChip[data-house=main]")
+    r.wait(1500)
+    r.say("„Alle zusammen“ zählt alle Häuser zusammen.", "“All together” adds up every house.")
+    r.click("[data-page=energy] .tpChip[data-house='*']")
+    r.wait(1800)
+    r.say("„⚖ Vergleichen“: jedes Haus in seiner Farbe, daneben die Leistung jetzt.", "“⚖ Compare”: every house in its colour, beside it the power now.")
+    r.click("[data-page=energy] .tpChip[data-house=cmp]")
+    r.wait(2200)
+    r.poster()
+    r.say("Mit „Woche“, „Monat“ oder „Jahr“: ein Balken je Haus, und was jedes gekostet hat.", "With “Week”, “Month” or “Year”: a bar per house, and what each cost.")
+    r.click("[data-page=energy] .tpChip", text="^(Woche|Week)$")
+    r.wait(2000)
+    scroll(r, 600)
+    r.wait(1600)
+
+
 @clip("climate", "pages",
       {"de": "🌡 Klima: alle Räume und Thermostate", "en": "🌡 Climate: every room and thermostat"},
       {"de": "Jeder Raum mit Temperatur und Luft. Am Thermostat drehen, Heizen oder Aus wählen, eine Vorwahl tippen.",

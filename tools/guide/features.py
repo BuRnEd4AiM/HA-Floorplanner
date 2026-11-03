@@ -53,6 +53,8 @@ f("renames", "live", "Umbenannt in Home Assistant, umbenannt im Plan", "Renamed 
 # ---------- the pages ----------
 f("today", "pages", "☀ Heute: Uhr, Wetter, Zug, Müll, Termine", "☀ Today: clock, weather, train, bins, appointments", ["today"])
 f("energy", "pages", "⚡ Energie: Verbrauch, Solar, Kosten", "⚡ Energy: usage, solar, costs", ["energy"])
+f("energyhouses", "pages", "⚡ Strom mehrerer Häuser: eigene Zähler und Preise je Haus, alle zusammen, ⚖ Vergleichen",
+  "⚡ Power of several houses: own meters and prices per house, all together, ⚖ Compare", ["energy-houses"])
 f("climate", "pages", "🌡 Klima: alle Räume und Thermostate", "🌡 Climate: every room and thermostat", ["climate"])
 f("heatplan", "pages", "📅 Heizplan je Raum", "📅 Heating schedule per room", ["heatplan"])
 f("heatrules", "pages", "📋 Heiz-Regeln, Raumfühler, Zu warm", "📋 Heating rules, room sensors, too warm", ["heatrules"])
@@ -85,7 +87,10 @@ f("floorsadd", "edit", "Etagen und Keller anlegen", "Add floors and a basement",
 f("finishes", "edit", "Böden, Wände, Farben je Raum", "Floors, walls, colours per room", ["finishes"])
 f("library", "edit", "Möbel-Bibliothek, Größe, sperren", "Furniture library, size, lock", ["library"])
 f("closet", "edit", "Schrank nach Maß", "Made-to-measure closet", ["closet"])
-f("houses", "edit", "Mehrere Häuser", "Several houses", ["houses"])
+f("houses", "edit", "Mehrere Häuser, ein Nachbarhaus daneben zeigen", "Several houses, a neighbour house beside this one", ["houses"])
+f("energycalc", "edit", "⚡ Strom-Rechner (Rechnung): welcher Sensor ist Netz, Solar, Batterie, Haus und Räume; Checkliste, Vorzeichen",
+  "⚡ Power bookkeeping: which sensor is grid, solar, battery, house and rooms; check list, signs", ["energy-calc"])
+f("nanoleaf", "edit", "Nanoleaf: die Form der Panels zeichnen (Layout-Editor)", "Nanoleaf: draw the shape of the panels (layout editor)", ["nanoleaf-edit"])
 f("objlist", "edit", "Liste aller Objekte", "List of all objects", ["objlist"])
 f("toolbar", "edit", "Werkzeugleiste anpassen", "Customise the tool bar", ["toolbar"])
 f("import", "edit", "Haus aus einer Beschreibung bauen (Import, KI)", "Build a house from a description (import, AI)", ["import"])
