@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-03 · 103 Sitzungen
+Stand: 2026-11-03 · 104 Sitzungen
 
-**Insgesamt: 6,75 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 6,78 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 19,6 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 67,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 6,66 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 19,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 68,2 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 6,69 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 17 | 623,3 Mio. | 1,9 Mio. |
+| 2026-11 | 18 | 654,9 Mio. | 2,0 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-03 | [018pwcmv…](https://claude.ai/code/session_018pwcmvwnSiNfkpVvVDjQDT) | claude/inspiring-davinci-m53387 | 31,6 Mio. | 111 Tsd. | gezählt |
 | 2026-11-03 | [018pwcmw…](https://claude.ai/code/session_018pwcmwrRFv9UuMWqRUy2gA) | claude/determined-hypatia-sa2b2n | 4,1 Mio. | 33 Tsd. | gezählt |
 | 2026-11-03 | [012p9z3P…](https://claude.ai/code/session_012p9z3P9DdqJbm5cNXuF1sT) | claude/cool-cerf-lkll8w | 59,9 Mio. | 159 Tsd. | gezählt |
 | 2026-11-03 | [012p9z3L…](https://claude.ai/code/session_012p9z3LxbrqiTg4TzkYTboN) | claude/adoring-davinci-ml5253 | 4,3 Mio. | 32 Tsd. | gezählt |
