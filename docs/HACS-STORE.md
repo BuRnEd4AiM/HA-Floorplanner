@@ -7,8 +7,8 @@ Heute findet man die Karte „3D Floorplan Card“ in HACS nur, wenn man dieses 
 | Was | Stand |
 |---|---|
 | Öffentliches Repository auf GitHub, nicht archiviert, Issues eingeschaltet | ✅ |
-| Beschreibung des Repositorys (HACS zeigt sie im Store an) | ✅ seit 2026-10-28 die neue Beschreibung (Schritt 1) |
-| Stichwörter (Topics) | ✅ (addons, dashboard, floorplan, home-assistant, json-api, kioskbrowser) |
+| Beschreibung des Repositorys (HACS zeigt sie im Store an) | ✅ seit 2026-11-03 die neue Beschreibung (Schritt 1) |
+| Stichwörter (Topics) | ✅ (addons, dashboard, docker, floorplan, hacs, home-assistant, homeassistant-addons, json-api, kioskbrowser, lovelace-card, smart-home, threejs) |
 | README mit Anleitung und Bildern | ✅ |
 | `hacs.json` mit Name und Datei der Karte | ✅ (`3D Floorplan Card`, `floorplan3d-card.js`) |
 | Die Karte als Datei in `dist/` | ✅ `dist/floorplan3d-card.js` |
@@ -21,12 +21,14 @@ Heute findet man die Karte „3D Floorplan Card“ in HACS nur, wenn man dieses 
 ## Schritt 1: die Beschreibung verbessern (2 Minuten)
 
 1. https://github.com/BuRnEd4AiM/HA-Floorplanner öffnen.
-2. Rechts bei „About“ auf das Zahnrad ⚙ tippen.
+2. Rechts bei „About“ auf das Zahnrad ⚙ tippen. (Am Handy in Safari: wenn „About“ fehlt, unten links „aA“ → „Desktop-Website anfordern“.)
 3. Bei „Description“ eintragen (HACS zeigt den Text auf Englisch an, so wie die anderen Karten):
 
-   `3D floor plan for Home Assistant: draw your home, see it in 3D and control your devices right where they are (add-on and dashboard card)`
+   `Your home in 3D for Home Assistant: draw it or let an AI build it from a description, then control lights, windows, heating and scenes right where they are. With dashboard pages for energy, climate, cameras and more. Add-on, Docker and dashboard card – try the demo in your browser.`
 
-4. Bei „Topics“ dazu schreiben (hilft bei der Suche): `hacs`, `lovelace`, `lovelace-card`, `home-assistant-addon`
+   (So steht es seit 2026-11-03 da. Die alte Beschreibung vom 2026-10-28 kannte die Dashboard-Seiten, die Heizung, den Bau aus einer Beschreibung, die Docker-Version und die Demo noch nicht. Höchstens 350 Zeichen.)
+
+4. Bei „Topics“ stehen (hilft bei der Suche): `addons`, `dashboard`, `docker`, `floorplan`, `hacs`, `home-assistant`, `homeassistant-addons`, `json-api`, `kioskbrowser`, `lovelace-card`, `smart-home`, `threejs`
 5. „Save changes“.
 
 ## Schritt 2: warten, bis „Validate“ grün ist und ein neues Release da ist

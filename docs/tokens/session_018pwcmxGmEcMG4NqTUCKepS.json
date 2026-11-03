@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmxGmEcMG4NqTUCKepS",
+ "start": "2026-11-03",
+ "updated": "2026-11-03T16:41:01Z",
+ "branch": "claude/repo-beschreibung",
+ "source": "counted",
+ "input": 19,
+ "cache_write": 34878,
+ "cache_read": 768718,
+ "output": 5791,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 19,
+   "cache_write": 34878,
+   "cache_read": 768718,
+   "output": 5791,
+   "requests": 10
+  }
+ }
+}
