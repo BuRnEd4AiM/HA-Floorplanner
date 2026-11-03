@@ -51,7 +51,7 @@ ORBIT_JS = """(o) => {
 
 class Shot(Clip):
     """one shot of the trailer: a clip of the guide's engine plus its kind, length, caption and part"""
-    def __init__(self, sid, kind, fn, beats, caption=None, part="live", speed=1.0, slow=None, keep=False, focus=None, **kw):
+    def __init__(self, sid, kind, fn, beats, caption=None, part="live", speed=1.0, slow=None, keep=False, focus=None, up=None, **kw):
         super().__init__(sid, "trailer", {"de": sid, "en": sid}, {"de": "", "en": ""}, "", fn, **kw)
         self.kind, self.beats, self.caption, self.part = kind, beats, caption, part
         self.speed = speed               # how fast the recording is played in the film (1.5: half again as fast)
@@ -60,6 +60,7 @@ class Shot(Clip):
         # what the film shows of the screen: (x, y) 0…1 of the screen, or keyframes [(u, x, y, zoom), …] (u 0…1 of the shot);
         # zoom 1.33 shows the app pixel for pixel in the window, the upright film crops around (x, y)
         self.focus = focus
+        self.up = up                     # (x, y) for the upright film's card instead of focus (a page with its content on the left)
 
     @property
     def seconds(self):
@@ -428,7 +429,7 @@ def _pages_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("pages", "ui", 12, part="pages", sky="15:49", prep=_pages_prep, focus=[(0, 0.38, 0.42, 1.3), (1, 0.38, 0.42, 1.36)],
+@shot("pages", "ui", 12, part="pages", sky="15:49", prep=_pages_prep, up=(0.27, 0.45), focus=[(0, 0.38, 0.42, 1.3), (1, 0.38, 0.42, 1.36)],
       caption=cap(("Seiten", "Fertige Seiten für alles", "Heute · Energie · Klima · Kameras · Familie …"),
                   ("Pages", "Ready-made pages for everything", "Today · Energy · Climate · Cameras · Family …")))
 def _(r):

@@ -474,6 +474,8 @@ class Cutter:
             return self.footer(put_phone(out, it.film, s, W / 2, UP_CARD[1] + UP_CARD[3] / 2, 1240))
         src = it.film.frame(s, cursor=sh.kind != "cine")
         fx, fy, z = it.view(t)
+        if sh.up:
+            fx, fy = sh.up
         cw, chh = UP_CARD[2], UP_CARD[3]
         card = src.resize((cw, chh), Image.LANCZOS, box=crop(src, fx, fy, max(1.0, z * 0.8), aspect=cw / chh))
         out = put_window(out, card, UP_CARD, r=30)

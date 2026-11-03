@@ -3,6 +3,8 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Changed
+- **Trailer** (the owner, 2026-11-03: "ein cooles Kurzvideo, wo alle Funktionen zeigt, in einem coolen Zusammenschnitt … schick und modern … dass wenn man jetzt irgendwo einen Post macht … das hinschicken kann"): the best of the add-on in about 90 seconds, to share. `tools/make_trailer.py` films its own shots in the demo (camera flights around the house without bars, the app close up in a floating window), cuts them on the beat of music it makes itself (`tools/trailer/music.py`, no licence of anybody else needed), with captions word by word, 16:9 and 9:16 (Reels, Shorts), German and English. The workflow "Trailer" makes it, the page https://burned4aim.github.io/HA-Floorplanner/trailer/ shows it with a download button.
 
 ## [4.64.0] - 2026-11-03
 ### Added

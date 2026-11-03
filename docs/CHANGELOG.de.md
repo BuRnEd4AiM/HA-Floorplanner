@@ -3,6 +3,8 @@
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
 ## [Unreleased]
+### Verbessert
+- **Trailer** (der Besitzer, 2026-11-03: „ein cooles Kurzvideo, wo alle Funktionen zeigt, in einem coolen Zusammenschnitt … schick und modern … dass wenn man jetzt irgendwo einen Post macht … das hinschicken kann“): das Beste des Add-ons in gut 90 Sekunden, zum Teilen. `tools/make_trailer.py` filmt eigene Szenen in der Demo (Kamerafahrten ums Haus ohne Leisten, die App nah im schwebenden Fenster), schneidet sie auf den Takt einer selbst erzeugten Musik (`tools/trailer/music.py`, keine fremde Lizenz nötig), mit Titeln Wort für Wort, 16:9 und 9:16 (Reels, Shorts), Deutsch und Englisch. Der Workflow „Trailer“ macht ihn, die Seite https://burned4aim.github.io/HA-Floorplanner/trailer/ zeigt ihn mit Download-Knopf.
 
 ## [4.64.0] - 2026-11-03
 ### Neu
