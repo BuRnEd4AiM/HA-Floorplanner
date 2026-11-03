@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-03 · 106 Sitzungen
+Stand: 2026-11-03 · 107 Sitzungen
 
-**Insgesamt: 6,82 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 6,87 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 19,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 68,6 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 6,73 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 20,0 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 69,0 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 6,79 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 20 | 693,0 Mio. | 2,1 Mio. |
+| 2026-11 | 21 | 746,7 Mio. | 2,2 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-03 | [018pwcmx…](https://claude.ai/code/session_018pwcmxVVTnezr3eQr4cvDx) | claude/kippwinkel | 53,7 Mio. | 143 Tsd. | gezählt |
 | 2026-11-03 | [018pwcmx…](https://claude.ai/code/session_018pwcmxGmEcMG4NqTUCKepS) | claude/repo-beschreibung | 809 Tsd. | 6 Tsd. | gezählt |
 | 2026-11-03 | [018pwcmv…](https://claude.ai/code/session_018pwcmvaeTwnswbN4bTaHMg) | claude/stoic-davinci-zy4wnz | 37,3 Mio. | 97 Tsd. | gezählt |
 | 2026-11-03 | [018pwcmv…](https://claude.ai/code/session_018pwcmvwnSiNfkpVvVDjQDT) | claude/inspiring-davinci-m53387 | 31,6 Mio. | 111 Tsd. | gezählt |
