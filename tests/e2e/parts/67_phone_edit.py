@@ -36,7 +36,11 @@ check("phone edit: a wall is drawn with the finger (tap, tap, double tap)", n1 =
 pgPE.tap("#undoBtn"); pgPE.wait_for_timeout(400)
 check("phone edit: ↶ takes it back", walls_pe() == n0, walls_pe())
 pgPE.tap("#tools [data-tool=select]"); pgPE.wait_for_timeout(200)
-wid = pgPE.evaluate("(() => { const w = window.__fp.layout.floors[window.__fp.floorIdx()].walls[0]; window.__fp.select('wall', w.id); return w.id; })()")
+# the floor the phone opens on („Ground floor“) has a wall only when base.py's edit with the wall 'wstop' was saved in time: with none,
+# the part puts one there (it is not saved), so a wall can be selected either way
+wid = pgPE.evaluate("""(() => { const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()];
+  if (!(f.walls || []).length) { (f.walls ||= []).push({ id: 'pe_w', a: [0, 0], b: [3, 0], thickness: 0.2, height: 2.6, openings: [] }); fp.rebuild(); }
+  const w = f.walls[0]; fp.select('wall', w.id); return w.id; })()""")
 pgPE.wait_for_timeout(400)
 pp, ph, pn = box_pe("#props"), box_pe("#hint"), box_pe("#panel")
 check("phone edit: the panel is a sheet at the bottom, what is selected comes first", pp and pn and pn["y"] > 844 * 0.45 and pp["y"] < (ph["y"] if ph else 9999) and pp["y"] < pn["y"] + 30, (pp, ph, pn))
