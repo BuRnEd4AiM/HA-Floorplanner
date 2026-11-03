@@ -1072,16 +1072,17 @@ def _(r):
     r.wait(1400)
 
 
-def spot(r, sel, text=None):
+def spot(r, sel, text=None, center=False):
     """the middle of a thing of the page, asked from the page itself (scrolled into view at once). Playwright's own way waits for
     two quiet frames, which takes seconds while a 3D room is drawn behind it (the video would wait that long), and misses a thing
-    that is drawn anew with every state of Home Assistant (the check list and the sum of ⚡ Bookkeeping)."""
-    x, y = r.js("""([s, t]) => {
+    that is drawn anew with every state of Home Assistant (the check list and the sum of ⚡ Bookkeeping). center: scrolled into the
+    middle of a window that scrolls (at its top edge it would hide under the window's title)."""
+    x, y = r.js("""([s, t, c]) => {
       const e = [...document.querySelectorAll(s)].find((x) => !t || new RegExp(t).test(x.textContent));
-      e.scrollIntoView({ block: 'nearest' });
+      e.scrollIntoView({ block: c ? 'center' : 'nearest' });
       const b = e.getBoundingClientRect();
       return [b.x + b.width / 2, b.y + b.height / 2];
-    }""", [sel, text])
+    }""", [sel, text, center])
     return x, y
 
 
@@ -1107,16 +1108,16 @@ def _(r):
     r.click("#enHaLoad")
     r.wait(1600)
     r.say("Es zeigt, was es gefunden hat. „✓ Übernehmen“ trägt alles ein.", "It shows what it found. “✓ Take over” fills it all in.")
-    r.move(*spot(r, "#energySetup .enHaList"))
+    r.move(*spot(r, "#energySetup .enHaList", center=True))
     r.wait(1500)
     r.click("#enHaApply")
     r.wait(1300)
     r.say("Die Checkliste sagt, was fertig ist und was noch fehlt.", "The check list says what is done and what is still missing.")
-    r.move(*spot(r, "#enChecklist"))
+    r.move(*spot(r, "#enChecklist", center=True))
     r.wait(1800)
     r.poster()
     r.say("„So wird gerade gerechnet“: Solar + Netz − Batterie = was das Haus braucht.", "“How it is counted right now”: solar + grid − battery = what the house uses.")
-    r.move(*spot(r, "#energyResult .enRow.sum"))
+    r.move(*spot(r, "#energyResult .enRow.sum", center=True))
     r.wait(2200)
     r.say("Darunter jeder Teil einzeln: ein Sensor oder zwei, und „Vorzeichen umdrehen“, wenn er andersherum zählt.",
           "Below, every part on its own: one sensor or two, and “turn the sign round” when it counts the other way.")
@@ -1126,7 +1127,7 @@ def _(r):
     r.click("#enSuggest")
     r.wait(2000)
     r.say("Oben stehen dann die Räume und der „Rest“, den kein Raum misst.", "At the top you then see the rooms and the “rest” that no room measures.")
-    r.move(*spot(r, "#energyResult .enRow.room", text="Rest"))
+    r.move(*spot(r, "#energyResult .enRow.room", text="Rest", center=True))
     r.wait(2000)
     r.say("Zählt ein Sensor falsch herum oder doppelt, steht dort eine Warnung, mit einem Knopf zum Umdrehen.",
           "When a sensor counts the wrong way or twice, a warning comes up there, with a button to turn it round.")
