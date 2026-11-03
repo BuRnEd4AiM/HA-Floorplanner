@@ -61,11 +61,12 @@
   @keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.18); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } }
 
   .card {
-    background: var(--card);
+    /* no backdrop-filter: blur here: the twinkling stars behind the card made the phone blur it again in every frame (it lagged).
+       Instead the card is mostly covered with the colours of the sky behind it (darker at the top): it looks the same, and the stars behind it stay faint. */
+    background: linear-gradient(var(--card), var(--card)), linear-gradient(rgba(16, 20, 44, .7), rgba(31, 34, 84, .7));
     border: 1px solid var(--card-line);
     border-radius: 28px;
     padding: 34px 26px 28px;
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 30px 80px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .08);
     animation: rise .9s cubic-bezier(.2, .8, .2, 1) both .2s;
   }
@@ -221,38 +222,64 @@
   const wins = [...document.querySelectorAll('.win')];
   wins.forEach((w, i) => setTimeout(() => w.classList.add('on'), still ? 0 : 500 + i * 380));
 
-  // twinkling stars
+  // Smooth on phones (the owner, 2026-11-03: "der Effekt laggt ein wenig"): the canvases at most at 2x pixels (a phone has 3x:
+  // more than twice the pixels to clear in every frame, nobody sees the difference), the stars only about 30 times a second,
+  // the emoji drawn once into small pictures, and everything moves by the time that passed (a slow frame does not slow it down).
+  const DPR = Math.min(devicePixelRatio || 1, 2);
+
+  // twinkling stars (their place is kept as a share of the screen: the phone's address bar coming and going keeps them still)
   const sc = document.getElementById('stars'), sx = sc.getContext('2d');
-  let stars = [];
+  let stars = [], starsW = 0, starsAt = -1e9;
   function sizeStars() {
-    const d = devicePixelRatio || 1;
-    sc.width = innerWidth * d; sc.height = innerHeight * d; sx.setTransform(d, 0, 0, d, 0, 0);
-    stars = Array.from({ length: Math.round(innerWidth * innerHeight / 5000) }, () => ({
-      x: Math.random() * innerWidth, y: Math.random() * innerHeight * .85,
-      r: Math.random() * 1.3 + .3, p: Math.random() * Math.PI * 2, s: .6 + Math.random() * 1.6,
-    }));
+    sc.width = innerWidth * DPR; sc.height = innerHeight * DPR; sx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    if (!stars.length || Math.abs(innerWidth - starsW) > 40) {
+      starsW = innerWidth;
+      stars = Array.from({ length: Math.round(innerWidth * innerHeight / 5000) }, () => ({
+        x: Math.random(), y: Math.random() * .85,
+        r: Math.random() * 1.3 + .3, p: Math.random() * Math.PI * 2, s: .6 + Math.random() * 1.6,
+      }));
+    }
+    paintStars(performance.now());   // setting the size empties the canvas: paint at once (also when nothing moves)
   }
-  function drawStars(t) {
+  function paintStars(t) {
+    starsAt = t;
     sx.clearRect(0, 0, innerWidth, innerHeight);
+    sx.fillStyle = '#fff';
     for (const s of stars) {
       sx.globalAlpha = still ? .7 : .35 + .65 * (0.5 + 0.5 * Math.sin(t / 1000 * s.s + s.p));
-      sx.fillStyle = '#fff';
-      sx.beginPath(); sx.arc(s.x, s.y, s.r, 0, Math.PI * 2); sx.fill();
+      sx.beginPath(); sx.arc(s.x * innerWidth, s.y * innerHeight, s.r, 0, Math.PI * 2); sx.fill();
     }
-    if (!still) requestAnimationFrame(drawStars);
   }
-  sizeStars(); requestAnimationFrame(drawStars);
+  function starLoop(t) {             // they twinkle slowly: about 30 pictures a second are enough
+    if (t - starsAt >= 32) paintStars(t);
+    requestAnimationFrame(starLoop);
+  }
+  sizeStars();
+  if (!still) requestAnimationFrame(starLoop);
   addEventListener('resize', sizeStars);
 
   // confetti: hearts, stars and little paper strips
   const cc = document.getElementById('confetti'), cx = cc.getContext('2d');
   const colors = ['#ffcf6b', '#ff8f70', '#ff6f9a', '#c79bff', '#7fd8ff', '#9df2c0'];
   const shapes = ['💛', '✨', '🏠', '❤️'];
-  let bits = [], running = false;
-  function sizeConfetti() { const d = devicePixelRatio || 1; cc.width = innerWidth * d; cc.height = innerHeight * d; cx.setTransform(d, 0, 0, d, 0, 0); }
+  const ES = 28;                 // size of an emoji picture (css px)
+  const sprites = {};
+  function sprite(e) {           // an emoji is slow to draw as text in every frame: draw it once, then only copy the picture
+    if (!sprites[e]) {
+      const c = document.createElement('canvas'), g = c.getContext('2d');
+      c.width = c.height = ES * DPR; g.scale(DPR, DPR);
+      g.font = '18px serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(e, ES / 2, ES / 2 + 1);
+      sprites[e] = c;
+    }
+    return sprites[e];
+  }
+  let bits = [], running = false, last = 0;
+  function sizeConfetti() { cc.width = innerWidth * DPR; cc.height = innerHeight * DPR; }
   sizeConfetti(); addEventListener('resize', sizeConfetti);
   function burst(n = 160) {
     if (still) return;
+    n = Math.round(n * Math.min(1, .55 + innerWidth / 1400));   // a bit fewer on a narrow phone screen
     for (let i = 0; i < n; i++) {
       const fromLeft = i % 2 === 0;
       bits.push({
@@ -261,22 +288,34 @@
         rot: Math.random() * 6, vr: (Math.random() - .5) * .3,
         w: 6 + Math.random() * 6, h: 10 + Math.random() * 8,
         c: colors[i % colors.length], e: Math.random() < .14 ? shapes[i % shapes.length] : null,
-        life: 0,
+        life: Math.random() * 40, fs: 5 + Math.random() * 3,   // each strip turns in its own rhythm (all at once flickered)
       });
     }
-    if (!running) { running = true; requestAnimationFrame(step); }
+    if (!running) { running = true; last = 0; requestAnimationFrame(step); }
   }
-  function step() {
+  function step(t) {
+    // k = how many 1/60 s passed since the last picture: the same speed on a 60 Hz, a 120 Hz and a slow phone
+    const k = last ? Math.min((t - last) / (1000 / 60), 3) : 1, f = Math.pow(.99, k);
+    last = t;
+    cx.setTransform(DPR, 0, 0, DPR, 0, 0);
     cx.clearRect(0, 0, innerWidth, innerHeight);
+    let n = 0;
     for (const b of bits) {
-      b.vy += .28; b.vx *= .99; b.vy *= .99; b.x += b.vx; b.y += b.vy; b.rot += b.vr; b.life++;
-      cx.save(); cx.translate(b.x, b.y); cx.rotate(b.rot);
-      if (b.e) { cx.font = '18px serif'; cx.textAlign = 'center'; cx.fillText(b.e, 0, 6); }
-      else { cx.fillStyle = b.c; cx.scale(1, Math.cos(b.life / 6)); cx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h); }
-      cx.restore();
+      b.vy += .28 * k; b.vx *= f; b.vy *= f; b.x += b.vx * k; b.y += b.vy * k; b.rot += b.vr * k; b.life += k;
+      if (b.y >= innerHeight + 40) continue;   // fell out at the bottom
+      bits[n++] = b;
+      // one setTransform instead of save / translate / rotate / scale / restore for every piece
+      const c = Math.cos(b.rot) * DPR, s = Math.sin(b.rot) * DPR;
+      if (b.e) { cx.setTransform(c, s, -s, c, b.x * DPR, b.y * DPR); cx.drawImage(sprite(b.e), -ES / 2, -ES / 2, ES, ES); }
+      else {
+        const flip = Math.cos(b.life / b.fs);   // the paper strip turns over
+        cx.setTransform(c, s, -s * flip, c * flip, b.x * DPR, b.y * DPR);
+        cx.fillStyle = b.c; cx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h);
+      }
     }
-    bits = bits.filter(b => b.y < innerHeight + 40);
-    if (bits.length) requestAnimationFrame(step); else { running = false; cx.clearRect(0, 0, innerWidth, innerHeight); }
+    bits.length = n;
+    if (n) requestAnimationFrame(step);
+    else { running = false; cx.setTransform(DPR, 0, 0, DPR, 0, 0); cx.clearRect(0, 0, innerWidth, innerHeight); }
   }
   setTimeout(() => burst(), 650);
   document.getElementById('again').onclick = () => burst(120);
