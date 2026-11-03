@@ -3839,7 +3839,7 @@ export default {
   'ab.testRec': '另有 {days} 天的记录。', 'ab.testKeys': '包含 CallMeBot 密钥。',
   'roof.shed': '单坡屋顶', 'roof.high': '高的一侧', 'roof.high.z0': '平面图上方', 'roof.high.z1': '平面图下方', 'roof.high.x0': '平面图左侧', 'roof.high.x1': '平面图右侧',
   'roof.highH': '高侧高度（高于墙或矮墙）', 'roof.gableOver': '山墙处挑檐', 'roof.sideOver': '两侧挑檐', 'roof.gableWall': '山墙（墙一直砌到屋顶下）', 'roof.gableWallShed': '墙砌到屋顶下（两侧和高侧）',
-  'roof.stepsShed': '单坡屋顶没有错台（只有双坡和平屋顶有）。', 'dormer.noShed': '单坡屋顶没有老虎窗。', 'roof.partDy': '抬高（负数：降低）', 'roof.canopy': '雨棚', 'roof.canopyAdd': '+ 雨棚（房前单坡屋顶）',
+  'roof.stepsShed': '单坡屋顶没有错台（只有双坡和平屋顶有）。', 'dormer.noShed': '单坡屋顶没有老虎窗。', 'roof.partDy': '抬高（负数：降低）', 'roof.ridge0': '0°（沿 X）', 'roof.ridge90': '90°（沿 Z）', 'roof.ridgeTip': '屋脊方向：0° = 沿 X（平面图中水平），90° = 沿 Z（平面图中竖直）。“自动”沿较长的一边：另一边变长时屋顶会转 90°。', 'dormer.gablePitch': '老虎窗坡度（°）', 'dormer.gableHint': '很宽的老虎窗会自动变得更平（最低 5°），以保持在屋脊之下。', 'roof.canopy': '雨棚', 'roof.canopyAdd': '+ 雨棚（房前单坡屋顶）',
   'roof.canopyHelp': '“+ 雨棚”会在房子长边前、屋檐下方放一个单坡屋顶。在它的卡片里设置大小、高侧、坡度和“抬高”；“位于”选择楼层。',
   'car.add': '＋ 添加车辆', 'car.remove': '移除车辆', 'car.moreHelp': '更多车辆：点“＋ 添加车辆”，在那里自行选择各项数值。',
   'plot.mode.terrain': '⛰ 地形', 'terrain.title': '地形', 'terrain.help': '你的地块是斜坡吗？点击平面图放置高程点并输入高度。点之间地面均匀变化。0 = 一楼地面，负数 = 更低。', 'terrain.slope': '一步创建斜坡',

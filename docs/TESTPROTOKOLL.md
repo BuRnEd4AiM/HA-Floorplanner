@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.60.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.61.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.60.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.61.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich in den Kehlen, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung** (Abschnitt 150, gefragt von LoggieXC81 in #621, Issue #639): Claude hat 150.1 bis 150.4 im Browser-Test geprüft; für dich in der Demo 150.5 und 150.6, im Add-on 150.7, nach dem Merge die Videos 150.8.
 1. **Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen statt Podest, Stufen im 1. Lauf, massive Wandtreppe** (Abschnitt 149, gefragt von Miicki in #623): Claude hat 149.1 bis 149.5 im Browser-Test geprüft; für dich in der Demo 149.6 und 149.7, im Add-on 149.8, nach dem Merge das Video 149.9.
 1. **Neu in 4.59.0: 🪟 Fenster mit zwei Kontakten: gekippt und offen** (Abschnitt 148, gefragt von biggilottecassi in #624): Claude hat 148.1 bis 148.5 im Browser-Test geprüft; für dich in der Demo 148.6, im Add-on mit deinem Fenster 148.7, nach dem Merge das Video 148.8.
 1. **Neu in 4.58.0: ⛰ Gelände am Hang: Höhenpunkte, „Hang in einem Schritt“, Höhenlinien, der Keller steht frei** (Abschnitt 147, gefragt von christinloehner in #629): Claude hat 147.1 bis 147.4 im Browser-Test geprüft; für dich in der Demo 147.5 und 147.6, im Add-on 147.7, nach dem Update das Video 147.8.
@@ -396,7 +397,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 147. Neu in 4.58.0: ⛰ Gelände am Hang | 4 | 0 | 4 | 0 | 147.5 bis 147.8 |
 | 148. Neu in 4.59.0: 🪟 Fenster mit zwei Kontakten: gekippt und offen | 5 | 0 | 3 | 0 | 148.6 bis 148.8 |
 | 149. Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen in der Ecke, Stufen im 1. Lauf | 5 | 0 | 4 | 0 | 149.6 bis 149.9 |
-| **Zusammen** | **888** | **2** | **142** | **92** | |
+| 150. Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung | 4 | 0 | 4 | 0 | 150.5 bis 150.8 |
+| **Zusammen** | **892** | **2** | **146** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2292,3 +2294,17 @@ Miicki in #623: seine Kellertreppe ist viertelgewendelt, ein langer Lauf an der 
 | 149.7 | Eine U-Treppe mit „Gewendelt“ | Die halbe Drehung mit Keilstufen statt Podest | ❓ |
 | 149.8 | Im Add-on (oder Miicki mit seiner Kellertreppe: 1,0 m breit, „Stufen im 1. Lauf“ 10, 3 Wendelstufen) | Sieht aus wie die echte Treppe | ❓ |
 | 149.9 | Nach dem Update auf der Seite der Anleitung das Video „Gewendelte Treppe: Keilstufen in der Ecke“ ansehen | L-Treppe, „Gewendelt“, Stufen im 1. Lauf 9, Wendelstufen 4, das 3D-Bild | ❓ |
+
+## 150. Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung
+LoggieXC81 (Mario) in #621 zum L-Dach von 4.54.0, Issue #639: das zweite Dach lief im Hauptdach weiter (keine Kehlen), es drehte sich um 90°, wenn eine Seite länger wurde, und eine Satteldachgaube war höchstens 5 m breit, immer mit 28°. Jetzt schneiden sich die Dächer in den Kehlen, ein weiteres Dach hat „Firstrichtung“ (Automatisch, 0°, 90°), eine Gaube darf bis 30 m breit sein und hat „Neigung der Gaube“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 150.1 | Ein L-Haus, ein weiteres Dach „wie das Hauptdach“ über dem zweiten Flügel bis zum First des Hauptdachs | Das zweite Dach endet in den Kehlen am Hauptdach, das Hauptdach hat unter dem Flügel keine Schräge mehr | ✅ (2026-11-03, Claude im Browser-Test 71_roof_cut) |
+| 150.2 | Im weiteren Dach „Firstrichtung“ 0°, dann „Automatisch“, dann 90° und die Größe ändern | 0° legt den First entlang X; „Automatisch“ nimmt die längere Seite; 90° bleibt, auch wenn das Dach breiter als lang wird | ✅ (2026-11-03, Claude im Browser-Test 71_roof_cut) |
+| 150.3 | „+ Gaube“, „Breite“ 8 | Die Gaube passt (keine Warnung), ihr Dach wird von selbst flacher, das Feld „Neigung der Gaube“ zeigt die Neigung und sagt es dazu | ✅ (2026-11-03, Claude im Browser-Test 71_roof_cut) |
+| 150.4 | „Breite“ 2, „Neigung der Gaube“ 35 | 35° wird gespeichert und gezeigt, kein Hinweis mehr | ✅ (2026-11-03, Claude im Browser-Test 71_roof_cut) |
+| 150.5 | Demo: „Bearbeiten“, Etage „Dach“, „Etage verwalten“, „+ Weiteres Dach“ (oder ein eigenes L-Haus), dann „3D“ und von nah oder „Durchsichtig“ ansehen | Keine Dachflächen, die ineinander laufen; saubere Kehlen | ❓ |
+| 150.6 | Demo: eine Gaube 6 m breit, „Neigung der Gaube“ 35, dann 10 m breit | Steileres Gaubendach; bei 10 m wird es von selbst flacher und bleibt unter dem First | ❓ |
+| 150.7 | Im Add-on mit deinem Haus (oder Mario mit seinem L-Haus) | Das Dach sieht aus wie das echte, das zweite Dach dreht sich nicht mehr | ❓ |
+| 150.8 | Nach dem Update auf der Seite der Anleitung die Videos „Ein L-förmiges Dach (zweiter Flügel)“ und „Breite Gaube mit eigener Neigung“ ansehen | Kehlen, „Firstrichtung“, eine Gaube 6 m und 10 m breit mit ihrer Neigung | ❓ |

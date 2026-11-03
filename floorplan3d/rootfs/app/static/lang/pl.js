@@ -2181,7 +2181,7 @@ export default {
   'roof.high.x0': 'po lewej na planie', 'roof.high.x1': 'po prawej na planie', 'roof.highH': 'Wysokość wysokiej strony (nad ścianą lub ścianką kolankową)',
   'roof.gableOver': 'Okap przy szczycie', 'roof.sideOver': 'Okap po bokach', 'roof.gableWall': 'Ściana szczytowa (ściana sięga pod dach)',
   'roof.gableWallShed': 'Ściany pod dach (boki i wysoka strona)', 'roof.stepsShed': 'Dach jednospadowy nie ma uskoków (tylko dwuspadowy i płaski).',
-  'dormer.noShed': 'Dach jednospadowy nie ma lukarn.', 'roof.partDy': 'Podnieś (minus: obniż)', 'roof.canopy': 'Daszek',
+  'dormer.noShed': 'Dach jednospadowy nie ma lukarn.', 'roof.partDy': 'Podnieś (minus: obniż)', 'roof.ridge0': '0° (wzdłuż X)', 'roof.ridge90': '90° (wzdłuż Z)', 'roof.ridgeTip': 'Kierunek kalenicy: 0° = wzdłuż X (poziomo na planie), 90° = wzdłuż Z (pionowo na planie). „Automatycznie” kładzie ją wzdłuż dłuższego boku: wtedy dach obraca się o 90°, gdy tylko drugi bok staje się dłuższy.', 'dormer.gablePitch': 'Nachylenie lukarny (°)', 'dormer.gableHint': 'Szeroka lukarna sama dostaje bardziej płaski dach (do 5°), aby zostać pod kalenicą.', 'roof.canopy': 'Daszek',
   'roof.canopyAdd': '+ Daszek (dach jednospadowy przed domem)',
   'roof.canopyHelp': '„+ Daszek” stawia dach jednospadowy przed dłuższą stroną domu, tuż pod okapem. W jego karcie ustawiasz rozmiar, wysoką stronę, nachylenie i „Podnieś”; „Spoczywa na” wybiera kondygnację.',
   'car.add': '＋ Kolejny samochód', 'car.remove': 'Usuń samochód', 'car.moreHelp': 'Więcej samochodów: „＋ Kolejny samochód”, tam sam wybierasz wartości.',

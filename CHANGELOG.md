@@ -4,6 +4,16 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.61.0] - 2026-11-03
+### Added
+- **The roofs of an L-shaped house cut into each other** (#639, asked by LoggieXC81 in the Q&A discussion #621: "The second roof should be cut internally also by the first roof, similar to what it looks like at the Gaube"): the slopes of the second wing no longer run on inside the main roof up to its ridge, and the main roof no longer runs on under the wing. Where a roof lies inside another roof of the roof floor it is cut away, as a dormer cuts a hole into its slope: the two roofs meet in the valleys (also see-through, up close and on hip, shed and stepped roofs; a flat roof is cut but cuts nothing). Roofs that only touch, or whose slopes lie in one plane (the house goes on along the ridge), keep everything.
+- **"Ridge direction" for a further roof** (#639: "The orientation/rotation should be set by a number. The second roof rotates 90° if the dimensions are too short on one side"): a gable or hip further roof has the field **Ridge direction**: *Automatic* (along the longer side, as before: it turns by 90° when the other side gets longer), **0° (along X)** or **90° (along Z)**, which keep it whatever its size. The main roof's field says 0° and 90° too. A wing put in by "+ Further roof" gets its direction fixed. (Only 0° and 90°: the walls, the roof boxes and the plan are square to each other.)
+- **Wide gable dormers with their own pitch** (#639: "The Gaube has a maximum width of around 5m … also the roof pitch should be set individually for the Gaube"): a gable dormer may be up to 30 m wide (as long as the roof allows; it was 5 m at most), and has the field **Dormer pitch (°)** (5° to 60°, 28° as before). When a dormer is too wide for its pitch, its little roof gets flatter by itself (down to 5°) so that it stays under the ridge, its wall keeps at least 1 m; the field then shows the pitch it has and says so.
+- **JSON import and export**: `"gp"` for a gable dormer (its pitch), `"w"` up to 30 m for every dormer; the schema describes `"ridge"` (also for further roofs).
+- New module `roofcut.js` (pure: a roof as a solid, cutting triangles at it; unit test `tests/roofcut.test.mjs`, a new CI step). New browser test part `71_roof_cut`.
+### Changed
+- **Video guide**: the video "An L-shaped roof (the second wing)" shows the valleys and "Ridge direction"; **a new video "A wide dormer with its own pitch"** (clip `dormer-pitch`).
+
 ## [4.60.0] - 2026-11-02
 ### Added
 - **Winder stairs** (#623, asked by Miicki: "Ich möchte meine Kellertreppe nachbilden. Sie ist **viertelgewendelt**: ein langer gerader Lauf an der Wand entlang, in der Ecke drehen die Stufen als **Keilstufen** … danach folgt nur noch ein kurzer Lauf"): an **L** or **U** stair has the new field **Ecke** (corner): *Podest* (landing, as before) or **Gewendelt (Keilstufen)**: the corner square (L, a quarter turn) or the half turn (U) is cut into wedge steps round the inner corner, at even heights with the rest of the stair. **Wendelstufen** sets how many (L 2 to 6, U 3 to 10); without it as many as make them about as deep as the straight steps on the walking line (a 1 m wide L stair: 3). The tool panel offers *Ecke* before an L or U stair (and the stairwell) is placed.

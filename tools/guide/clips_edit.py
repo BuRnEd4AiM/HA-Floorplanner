@@ -525,9 +525,9 @@ def l_house(r):
 
 @clip("roof-wing", "edit",
       {"de": "Ein L-förmiges Dach (zweiter Flügel)", "en": "An L-shaped roof (the second wing)"},
-      {"de": "Liegt das Dach nur über einem Flügel, legt „＋ Weiteres Dach“ das zweite Dach über den anderen. „Wie das Hauptdach“ hält beide gleich hoch, auch auf dem Kniestock; die Wände darunter folgen beiden Schrägen.",
-       "en": "When the roof covers one wing only, “+ Further roof” puts the second roof over the other one. “Like the main roof” keeps both at the same height, on the knee wall too; the walls below follow both slopes."},
-      "Dach L-Form Winkelhaus Flügel zweites Dach weiteres Dach Kniestock Drempel Dachgeschoss Kehle Anbau roof L-shaped wing second roof further roof knee wall attic valley annex",
+      {"de": "Liegt das Dach nur über einem Flügel, legt „＋ Weiteres Dach“ das zweite Dach über den anderen. „Wie das Hauptdach“ hält beide gleich hoch, auch auf dem Kniestock; die beiden Dächer schneiden sich in den Kehlen, die Wände darunter folgen beiden Schrägen. „Firstrichtung“ 0° oder 90° hält den First fest.",
+       "en": "When the roof covers one wing only, “+ Further roof” puts the second roof over the other one. “Like the main roof” keeps both at the same height, on the knee wall too; the two roofs cut into each other in the valleys, the walls below follow both slopes. “Ridge direction” 0° or 90° keeps the ridge."},
+      "Dach L-Form Winkelhaus Flügel zweites Dach weiteres Dach Kniestock Drempel Dachgeschoss Kehle Kehlen schneiden Verschneidung Firstrichtung Drehung drehen 90 Grad Anbau roof L-shaped wing second roof further roof knee wall attic valley valleys cut intersect ridge direction rotate turn 90 degrees annex",
       query="mode=edit", prep=l_house)
 def _(r):
     r.say("Ein L-Haus mit Kniestock: das Dach liegt nur über einem Flügel.", "An L-shaped house on a knee wall: the roof covers one wing only.")
@@ -539,12 +539,74 @@ def _(r):
     r.say("„Sitzt auf: wie das Hauptdach“: gleich hoch, auch auf dem Kniestock.", "“Sits on: like the main roof”: the same height, on the knee wall too.")
     r.move(".roofPartCard .roofPartLevel")
     r.wait(2200)
+    r.say("Die beiden Dächer schneiden sich in den Kehlen, wie eine Gaube im Dach.", "The two roofs cut into each other in the valleys, like a dormer in the roof.")
+    r.js("window.__fp.camAt(17, 9, 22, 6, 9)")
+    r.wait(2600)
+    r.say("„Firstrichtung“: 0° oder 90° hält den First fest, auch wenn sich die Größe ändert.", "“Ridge direction”: 0° or 90° keeps the ridge, also when the size changes.")
+    r.move(".roofPartCard .roofRidge")
+    r.wait(2400)
+    r.js("window.__fp.camAt(21, 15, 25, 5, 7)")
     r.say("Im Dachgeschoss folgen die Wände beiden Dachschrägen.", "On the attic floor the walls follow both roof slopes.")
     r.click("#floorRail .floorThumb[data-floor='1']")
     r.wait(2600)
     r.say("„Ganzes Haus“: beide Dächer auf gleicher Höhe.", "“Whole house”: both roofs at the same height.")
     r.click("#floorRail .railHouse")
     r.wait(2600)
+
+
+def wide_house(r):
+    """prep: an empty house made into a house 12 x 9 m with a gable roof of 40°, seen in 3D, the roof panel open (#621: a wide dormer)"""
+    empty_house()(r)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, L = fp.layout, de = document.documentElement.lang !== 'en';
+      const wall = (id, a, b, ops = []) => ({ id, a, b, thickness: 0.3, height: 2.6, openings: ops });
+      const win = (id, pos) => ({ id, type: 'window', style: 'double', pos, width: 1.2, height: 1.1, sill: 0.9 });
+      const fl = (id, name, kind, walls, rs) => ({ id, name, kind, holes: [], rooms: rs, walls, devices: [], blocks: [], stairs: [] });
+      L.floors.splice(0, L.floors.length,
+        fl('wEG', de ? 'Erdgeschoss' : 'Ground floor', 'floor', [wall('w1', [0, 0], [12, 0], [win('wa', 3), win('wb', 9)]), wall('w2', [12, 0], [12, 9], [win('wc', 4.5)]),
+          wall('w3', [12, 9], [0, 9], [win('wd', 6)]), wall('w4', [0, 9], [0, 0], [win('we', 4.5)])],
+          [{ id: 'wr1', name: de ? 'Wohnen' : 'Living', color: '#d8c3a5', points: [[0, 0], [12, 0], [12, 9], [0, 9]] }]),
+        Object.assign(fl('wDach', de ? 'Dach' : 'Roof', 'roof', [], []), { roof: { type: 'gable', pitch: 40, overhang: 0.4, ridge: 'x' } }));
+      fp.rebuild(); fp.switchFloor(1);
+    }""")
+    r.pg.click("#view3d")
+    r.pg.wait_for_timeout(800)
+    r.pg.evaluate("window.__fp.camAt(6, 11, -14, 6, 4)")           # from the front (side A of the roof)
+    if r.pg.locator("#addDormer").count() == 0 or not r.pg.locator("#addDormer").is_visible():
+        r.pg.click("#floorPanel > summary")
+    r.pg.locator("#addDormer").scroll_into_view_if_needed()
+    r.pg.wait_for_timeout(800)
+
+
+@clip("dormer-pitch", "edit",
+      {"de": "Breite Gaube mit eigener Neigung", "en": "A wide dormer with its own pitch"},
+      {"de": "Eine Satteldachgaube darf so breit sein wie das Dach (bis 30 m). „Neigung der Gaube“ stellt ihr Dach ein; ist sie zu breit dafür, wird ihr Dach von selbst flacher und bleibt unter dem First.",
+       "en": "A gable dormer may be as wide as the roof (up to 30 m). “Dormer pitch” sets its roof; when it is too wide for it, its roof gets flatter by itself and stays under the ridge."},
+      "Gaube breit Satteldachgaube Zwerchgiebel Zwerchhaus Neigung Gaubenneigung Dachneigung Breite 5 m dormer wide gable dormer pitch width",
+      query="mode=edit", prep=wide_house)
+def _(r):
+    r.say("„＋ Gaube“ setzt eine Gaube ins Dach.", "“＋ Dormer” puts a dormer into the roof.")
+    r.click("#addDormer")
+    r.wait(1800)
+    r.say("„Breite“: diese Gaube wird 6 m breit.", "“Width”: this dormer gets 6 m wide.")
+    r.click(".dormerCard .dormerWidth")
+    r.pg.keyboard.press("Control+A")
+    r.type("6")
+    r.key("Enter")
+    r.wait(2200)
+    r.say("„Neigung der Gaube“: 35° macht ihr Dach steiler.", "“Dormer pitch”: 35° makes its roof steeper.")
+    r.click(".dormerCard .dormerGablePitch")
+    r.pg.keyboard.press("Control+A")
+    r.type("35")
+    r.key("Tab")
+    r.wait(2400)
+    r.poster()
+    r.say("10 m breit: zu breit für 35°, ihr Dach wird von selbst flacher und bleibt unter dem First.", "10 m wide: too wide for 35°, its roof gets flatter by itself and stays under the ridge.")
+    r.click(".dormerCard .dormerWidth")
+    r.pg.keyboard.press("Control+A")
+    r.type("10")
+    r.key("Enter")
+    r.wait(2800)
 
 
 def gable_house(r):

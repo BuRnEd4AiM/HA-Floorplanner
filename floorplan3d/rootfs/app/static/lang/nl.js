@@ -2188,7 +2188,7 @@ export default {
   'roof.gableOver': 'Overstek bij de gevel', 'roof.sideOver': 'Overstek aan de zijkanten', 'roof.gableWall': 'Gevelmuur (de muur loopt door tot onder het dak)',
   'roof.gableWallShed': 'Muren tot onder het dak (zijkanten en hoge zijde)',
   'roof.stepsShed': 'Een lessenaarsdak heeft geen verspringingen (alleen zadel- en platte daken).', 'dormer.noShed': 'Een lessenaarsdak heeft geen dakkapellen.',
-  'roof.partDy': 'Hoger zetten (min: lager)', 'roof.canopy': 'Luifel', 'roof.canopyAdd': '+ Luifel (lessenaarsdak voor het huis)',
+  'roof.partDy': 'Hoger zetten (min: lager)', 'roof.ridge0': '0° (langs X)', 'roof.ridge90': '90° (langs Z)', 'roof.ridgeTip': 'De richting van de nok: 0° = langs X (horizontaal in het plan), 90° = langs Z (verticaal in het plan). „Automatisch” legt hem op de langere zijde: dan draait het dak 90° zodra de andere zijde langer wordt.', 'dormer.gablePitch': 'Helling van de dakkapel (°)', 'dormer.gableHint': 'Een brede dakkapel krijgt vanzelf een vlakker dak (tot 5°), zodat hij onder de nok blijft.', 'roof.canopy': 'Luifel', 'roof.canopyAdd': '+ Luifel (lessenaarsdak voor het huis)',
   'roof.canopyHelp': '„+ Luifel” zet een lessenaarsdak voor de lange zijde van het huis, net onder de dakgoot. In de kaart stel je de grootte, hoge zijde, helling en „Hoger zetten” in; „Rust op” kiest de verdieping.',
   'car.add': '＋ Nog een auto', 'car.remove': 'Auto verwijderen', 'car.moreHelp': 'Meer auto\'s: ‘＋ Nog een auto’, daar kies je de waarden zelf.',
   'plot.mode.terrain': '⛰ Terrein', 'terrain.title': 'Terrein',

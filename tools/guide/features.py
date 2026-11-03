@@ -132,4 +132,6 @@ f("terrain", "edit", "Gelände am Hang: Höhenpunkte, Hang in einem Schritt, Hö
   ["plot-terrain"], since="4.58.0")
 f("stairwinder", "edit", "Gewendelte Treppe: Keilstufen statt Podest, Stufen im 1. Lauf, massive Wandtreppe", "Winder stairs: wedge steps instead of a landing, steps in flight 1, solid wall stair",
   ["stairs-winder"], since="4.60.0")
+f("roofcut", "edit", "L-Dach: Dächer schneiden sich in den Kehlen, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung", "L-shaped roof: roofs cut into each other in the valleys, ridge direction 0°/90°, a wide dormer with its own pitch",
+  ["roof-wing", "dormer-pitch"], since="4.61.0")
 f("windowtilt", "edit", "Fenster mit zwei Kontakten: gekippt und offen", "A window with two contacts: tilted and open", ["window-tilt"], since="4.59.0")

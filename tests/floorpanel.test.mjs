@@ -70,11 +70,16 @@ test('dormer type (#339): a shed dormer goes onto the outer wall, a shed pitch s
   F.setDormerType(d, 'shed', { overhang: 0 });
   assert.equal(d.eave, 0.2);
   assert.deepEqual([F.clampShedPitch(12), F.clampShedPitch(0), F.clampShedPitch(99), F.clampShedPitch('x'), F.clampShedPitch(1)], [12, 15, 60, 15, 2]);
+  assert.deepEqual([F.clampGablePitch(40), F.clampGablePitch(0), F.clampGablePitch(99), F.clampGablePitch('x'), F.clampGablePitch(2)], [40, 28, 60, 28, 5], 'a gable dormer (#621)');
 });
 test('a new step (#342): side A, in the middle of the house, 50 cm out', () => {
   assert.deepEqual(F.newStep({ x0: 0, x1: 12, z0: 0, z1: 9 }, { type: 'gable' }), { side: 0, at: 6, out: 0.5 });
   assert.deepEqual(F.newStep({ x0: 0, x1: 6, z0: 0, z1: 9 }, { type: 'gable' }), { side: 0, at: 4.5, out: 0.5 }, 'ridge along z: along z');
   assert.equal(F.newStep(null, {}).at, 2);
+});
+test('the ridge direction (#621): automatic, 0° (along x) or 90° (along z); degrees typed count too', () => {
+  assert.deepEqual(['', 'x', 'z', null, undefined, 'nonsense'].map(F.ridgeOf), ['', 'x', 'z', '', '', '']);
+  assert.deepEqual([0, 90, 180, 270, -90, 85, 44, 46, '90'].map(F.ridgeOf), ['x', 'z', 'x', 'z', 'z', 'z', 'x', 'z', 'z']);
 });
 test('the second wing of an L-shaped house (#621): the rooms outside the main roof, up to the main ridge, its ridge across', () => {
   const room = (pts) => ({ points: pts });
