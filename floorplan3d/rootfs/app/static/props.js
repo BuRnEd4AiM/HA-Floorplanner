@@ -18,6 +18,7 @@ import { zoneKeys, setZone, fitZones } from './ledzones.js';
 import { TV_SIZES, ARM, armPose } from './tvmount.js';
 import { initFinishUi } from './finishui.js';
 import { roomLevelFields, stepsFields } from './plateauui.js';
+import { balconyFields } from './balconyui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -40,7 +41,8 @@ export function stretchValue(n) {
  *  renderObjList(), renderRoomEntities(), stateText(id), roomAt(x, z), pointInPoly, controlsTarget() ({x, z}), wallTypes, ledLike, catOf, baseDims(type, dev),
  *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH, power(), stairTool(), fmtLen(m), toDisp(m), imperial(),
  *  defaultLightColor() (settings: the colour of a lamp that reports none), yardProps(body, box, sel) (the plot and its areas, plotui.js),
- *  closetRoof(d) (the roof slopes over a cabinet's floor and the height of its bottom: { planes, baseY } or null) */
+ *  closetRoof(d) (the roof slopes over a cabinet's floor and the height of its bottom: { planes, baseY } or null), balconyFree(id) (the room
+ *  hangs free: a balcony, #646) */
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
@@ -163,16 +165,7 @@ export function initProps(ctx) {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     // the floor (#427, #448): one colour, or parquet, herringbone, tiles, stone, carpet ... with its colour, size and angle (the walls below)
     finishUi.floorFields(body, it, () => field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v), { id: 'roomColor' })));
-    {                                                          // roof terrace / open area: no roof above it, railing on the edges without a wall
-      const tc = document.createElement('input'); tc.type = 'checkbox'; tc.checked = !!it.terrace; tc.id = 'roomTerrace';
-      tc.addEventListener('change', () => {
-        ctx.snapshot();
-        if (tc.checked) { it.terrace = true; if (!it.color || it.color === '#8a7f70') it.color = '#a58a63'; } else { delete it.terrace; if (it.color === '#a58a63') it.color = '#8a7f70'; }
-        ctx.changed(); render();
-      });
-      const tl = document.createElement('label'); tl.className = 'chk'; tl.title = t('prop.terraceHint'); tl.append(tc, document.createTextNode(' ' + t('prop.terrace')));
-      body.append(tl);
-    }
+    balconyFields(body, it, { t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), free: (id) => ctx.balconyFree?.(id) });   // a balcony / roof terrace (#646)
     roomLevelFields(body, it, levelUi);                         // its floor higher or lower than the storey (#566)
     const asel = document.createElement('select');
     asel.add(new Option(t('area.none'), ''));

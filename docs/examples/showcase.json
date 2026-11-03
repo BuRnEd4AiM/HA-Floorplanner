@@ -406,7 +406,7 @@
           { "name": "Kinderzimmer",  "points": [[3.5, 5.5], [7, 5.5], [7, 10], [3.5, 10]], "area": "kinderzimmer" },
           { "name": "Ankleide",      "points": [[0, 7], [3.5, 7], [3.5, 10], [0, 10]] },
           { "name": "Galerie",       "points": [[7, 4], [12, 4], [12, 10], [7, 10]] },
-          { "name": "Dachterrasse",  "points": [[12, 3], [17, 3], [17, 10], [12, 10]], "terrace": true, "color": "#b9a58a" }
+          { "name": "Dachterrasse",  "points": [[12, 3], [17, 3], [17, 10], [12, 10]], "terrace": true, "rail": "glass", "color": "#b9a58a" }
         ],
         "openings": [
           { "type": "window", "style": "single", "width": 0.8, "height": 1.0, "sill": 1.0, "at": [0, 1.8], "name": "Flurfenster" },

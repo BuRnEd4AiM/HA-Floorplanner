@@ -38,6 +38,8 @@ QUERIES = [
     ("Parkett", "de", "finishes"), ("Wandfarbe", "de", "finishes"), ("Satteldach", "de", "roof"), ("Dachgaube", "de", "roof dormer-pitch"),
     ("Winkelhaus Dach", "de", "roof-wing"), ("Carport", "de", "roof-gable"), ("Wandlänge messen", "de", "measure"),
     ("Dachfenster", "de", "skylight"), ("Velux", "de", "skylight"), ("Dachfenster ohne Gaube", "de", "skylight"),
+    ("Balkon", "de", "balcony"), ("Balkongeländer aus Glas", "de", "balcony"), ("wie mache ich einen Balkon", "de", "balcony"),
+    ("Balkon mit Stützen", "de", "balcony"), ("add a balcony", "en", "balcony"), ("glass railing", "en", "balcony"),
     ("Fenster in der Dachschräge", "de", "skylight"), ("skylight", "en", "skylight"), ("roof window", "en", "skylight"),
     ("rückgängig", "de", "move"), ("löschen", "de", "move"), ("Ferienwohnung", "de", "houses"), ("ChatGPT", "de", "import"),
     ("Haus mit KI bauen", "de", "import"), ("Symbolleiste", "de", "toolbar"),

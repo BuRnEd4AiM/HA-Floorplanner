@@ -136,4 +136,6 @@ f("roofcut", "edit", "L-Dach: Dächer schneiden sich in den Kehlen, Firstrichtun
   ["roof-wing", "dormer-pitch"], since="4.61.0")
 f("skylight", "edit", "Dachfenster ohne Gaube: in der Dachschräge, übliche Größen, ein echtes Fenster mit Kontakt", "Roof windows without a dormer: in the slope, usual sizes, a real window with a contact",
   ["skylight"], since="4.62.0")
+f("balcony", "edit", "Balkon und Dachterrasse: Geländer aus Metall, Glas oder Holz, Stützen bis zum Boden, frei hängend auf einer Platte (auch am Hang)", "Balcony and roof terrace: a railing of metal, glass or wood, supports down to the ground, hanging free on a plate (also on a slope)",
+  ["balcony"], since="4.63.0")
 f("windowtilt", "edit", "Fenster mit zwei Kontakten: gekippt und offen", "A window with two contacts: tilted and open", ["window-tilt"], since="4.59.0")

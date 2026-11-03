@@ -50,7 +50,7 @@ export default {
   'op.doorOpen': 'Przejście',
   'op.doorGap': 'Otwór (bez ramy)',
   'op.doorGarage': 'Brama garażowa',
-  'prop.terrace': 'Taras na dachu (otwarty, z balustradą)',
+  'prop.terrace': 'Balkon / taras na dachu (otwarty, z balustradą)',
   'prop.terraceHint': 'Otwarty obszar bez dachu: drewniana podłoga i balustrada na każdej krawędzi bez ściany. Dach domu go pomija, tak samo jak to, co pod nim (np. garaż).',
   'rp.doors': 'DRZWI',
   'rp.windows': 'OKNA',
@@ -2205,4 +2205,8 @@ export default {
   'stair.split': 'Stopnie w 1. biegu', 'stair.splitHint': 'Ile stopni jest przed narożnikiem: więcej daje długi pierwszy i krótki drugi bieg.',
   'stair.solid': 'Pełne (stopnie do podłogi)',
   'skylight.title': 'Okna dachowe', 'skylight.help': 'Okno leżące w połaci dachu, bez lukarny. Naciśnij „+ Okno dachowe”, potem wybierz stronę, miejsce i rozmiar.', 'skylight.noFlat': 'Dach płaski nie ma okien dachowych.', 'skylight.one': 'Okno dachowe', 'skylight.roof': 'Dach', 'skylight.mainRoof': 'Dach główny', 'skylight.startTip': 'Gdzie zaczyna się okno: odległość od szczytu po lewej (lub u góry) na planie do boku okna.', 'skylight.size': 'Typowy rozmiar', 'skylight.ownSize': 'własny rozmiar', 'skylight.height': 'Wysokość (w połaci)', 'skylight.heightTip': 'Wysokość okna mierzona w połaci dachu (jak typowe rozmiary, np. 78 × 118 cm).', 'skylight.eaveTip': 'Jak daleko dolna krawędź okna jest od krawędzi dachu (okapu), mierzone poziomo na planie.', 'skylight.low': 'Dolna krawędź {y} m nad podłogą poniżej', 'skylight.remove': 'Usuń okno dachowe', 'skylight.add': '+ Okno dachowe', 'skylight.noFit': 'Nie mieści się w połaci (za duże lub za blisko kalenicy).', 'skylight.tip': 'Kontakt, nazwa, roleta: dotknij okna dachowego w 3D, jak zwykłego okna. Otwarte robi się czerwone, a skrzydło otwiera się na zewnątrz.', 'skylight.winHint': 'Okno dachowe: rozmiar i miejsce ustawiasz przy dachu (piętro Dach → Zarządzaj piętrem → Okna dachowe).',
+  'balc.rail': 'Balustrada', 'balc.metal': 'Metal (pręty)', 'balc.glass': 'Szkło', 'balc.wood': 'Drewno (listwy)', 'balc.posts': 'Słupy do ziemi',
+  'balc.postsHint': 'Tylko dla balkonu, który wisi swobodnie: słupy w zewnętrznych narożnikach aż do ziemi.',
+  'balc.free': 'Wisi swobodnie (balkon): niesie go płyta.',
+  'balc.onTop': 'Leży na domu lub na ziemi (taras na dachu, taras): bez płyty, bez słupów. Balkon wystaje poza piętro poniżej, na parterze nad zboczem (Działka → ⛰ Teren).',
 };

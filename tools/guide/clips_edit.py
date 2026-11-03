@@ -853,6 +853,54 @@ def _(r):
     r.poster()
 
 
+def balcony_view(r):
+    """prep: the demo house on a slope (3 m lower in front, #629) with a balcony door in the living room and a room in front of it, not yet
+    ticked; its ground floor in the 2D plan (#646)"""
+    pg = r.pg
+    pg.evaluate("""() => { const fp = window.__fp, L = fp.layout, gi = L.floors.findIndex((f) => f.kind !== 'basement'), eg = L.floors[gi];
+      L.plot = L.plot || {}; L.plot.terrain = { points: [{ id: 'cb1', x: 5, z: 7.15, h: 0 }, { id: 'cb2', x: 5, z: -0.15, h: -3 }] };
+      const w = eg.walls.find((x) => x.a[0] === 0 && x.a[1] === 0 && x.b[1] === 0);
+      if (w) w.openings = [{ id: 'clipBalDoor', type: 'window', style: 'double', pos: 2.5, width: 1.8, height: 2.1, sill: 0 }];
+      eg.rooms.push({ id: 'clipBal', name: 'Balkon', points: [[0.8, -1.8], [4.2, -1.8], [4.2, -0.12], [0.8, -0.12]], color: '#8a7f70' });
+      fp.rebuild(); fp.switchFloor(gi); }""")
+    pg.click("#view2d")
+    pg.wait_for_timeout(1200)
+
+
+@clip("balcony", "edit",
+      {"de": "Balkon mit Geländer", "en": "A balcony with a railing"},
+      {"de": "Einen Raum vor die Tür zeichnen und „Balkon / Dachterrasse“ ankreuzen: Geländer aus Metall, Glas oder Holz, auf Wunsch Stützen bis zum Boden. Ragt er hinaus oder liegt der Hang tiefer, hängt er frei auf einer Platte.",
+       "en": "Draw a room in front of the door and tick “Balcony / roof terrace”: a railing of metal, glass or wood, supports down to the ground if you like. Where it reaches out or the slope lies lower, it hangs free on a plate."},
+      "Balkon Geländer Balkongeländer Glasgeländer Holzgeländer Stützen Dachterrasse Hang Platte balcony railing glass railing wooden railing supports posts roof terrace slope plate",
+      query="mode=edit", prep=balcony_view)
+def _(r):
+    r.say("Vor der Balkontür liegt schon ein Raum (Werkzeug „Raum“). Antippen.", "In front of the balcony door there is a room already (tool “Room”). Tap it.")
+    x, y = r.pg.evaluate("window.__fp.plan().toClient(2.5, -1)")
+    r.click(x, y)
+    r.wait(1200)
+    r.say("In den Eigenschaften: „Balkon / Dachterrasse“ ankreuzen.", "In its properties: tick “Balcony / roof terrace”.")
+    r.click("#roomTerrace")
+    r.wait(1400)
+    r.say("Hier liegt der Hang vorne 3 m tiefer: der Balkon hängt frei, eine Platte trägt ihn.", "Here the slope lies 3 m lower in front: the balcony hangs free, a plate carries it.")
+    r.move("#balconyHint")
+    r.wait(2200)
+    r.say("„Geländer“: Metall, Glas oder Holz.", "“Railing”: metal, glass or wood.")
+    r.click("#roomRail")
+    r.loc("#roomRail").select_option("glass")
+    r.wait(1200)
+    r.say("„Stützen bis zum Boden“ stellt Pfosten an die äußeren Ecken.", "“Supports down to the ground” puts posts at the outer corners.")
+    r.click("#roomPosts")
+    r.wait(1200)
+    r.say("Im 3D-Bild: Glasgeländer, Platte und Stützen, der Hang geht darunter weiter.", "In 3D: a glass railing, the plate and the supports, the slope goes on under it.")
+    r.js("(() => { const s = window.__fp.settings(); s.houseFloors = 'stacked'; s.seeThrough = false; })()")
+    r.click("#view3d")
+    r.js("window.__fp.setHouseMode(true)")
+    r.wait(1600)
+    r.js("window.__fp.camAt(-7, 1, -12, 3, -1)")
+    r.wait(3800)
+    r.poster()
+
+
 @clip("floors-add", "edit",
       {"de": "Etagen und Keller anlegen", "en": "Add floors and a basement"},
       {"de": "„＋ Etage“ legt eine neue Etage oben drauf, „Etage verwalten“ einen Keller darunter; links stehen sie alle.",

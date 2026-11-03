@@ -4,6 +4,16 @@ Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`
 
 ## [Unreleased]
 
+## [4.63.0] - 2026-11-03
+### Neu
+- **Balkone** (#646, gefragt von christinloehner: „Aber ich finde gar keine Möglichkeit, einen Balkon hinzuzufügen, also mit Geländer, etc.... Es scheint noch keine Balkone zu geben“): der Haken eines Raums heißt jetzt **„Balkon / Dachterrasse (offen, mit Geländer)“**. Einen Raum vor die Tür zeichnen und ankreuzen. Ragt er über die Etage darunter hinaus (im Erdgeschoss eines Hauses am Hang, #629: wo der Boden darunter mindestens 30 cm tiefer liegt und er nicht über dem Keller ist), **hängt er frei**: er steht auf einer eigenen dünnen Platte (18 cm) statt auf der Decke des Hauses, und am Hang ist der graue Sockel darunter weg, der Boden geht unter ihm weiter. Auf ebenem Boden bleibt er eine Terrasse am Boden, über einer Garage eine Dachterrasse.
+- **Geländer**: Metallstäbe (wie bisher, die Grundeinstellung), **Glas**scheiben mit Handlauf oder **Holz**latten. **„Stützen bis zum Boden“**: Pfosten an den äußeren Ecken eines frei hängenden Balkons (und dazwischen an einer Kante über 4,5 m), bis auf den Hang, ein Plateau oder den Rasen. Eine Zeile unter den Feldern sagt, ob der Raum frei hängt („Hängt frei (Balkon): eine Platte trägt ihn.“) oder auf dem Haus bzw. dem Boden liegt.
+- **JSON-Import und -Export**: `"rail": "metal" | "glass" | "wood"` und `"posts": true` an einem Raum mit `"terrace": true`; das Schema beschreibt sie.
+- **Die Demo** hat vor dem Gästezimmer im Obergeschoss einen Balkon mit Glasgeländer und eine Balkontür.
+- Neue Module `balcony.js` (rein: welcher offene Raum frei hängt, wo das Geländer läuft und aus welchen Teilen es besteht, wo die Stützen stehen; Unit-Test `tests/balcony.test.mjs`, ein neuer CI-Schritt), `balcony3d.js` (das Geländer, vorher in `roofs.js`, die Platte und die Stützen) und `balconyui.js` (die Felder des Raums, vorher in `props.js`). Neuer Teil des Browser-Tests `73_balcony`, neues Video „Balkon mit Geländer“.
+### Verbessert
+- Das Geländer einer Dachterrasse ist ein Teil je Material statt eines je Pfosten und Stange (weniger zu zeichnen).
+
 ## [4.62.0] - 2026-11-03
 ### Neu
 - **Dachfenster ohne Gaube** (#643, gefragt von christinloehner: „Bin ich doof oder finde ich wirklich keine ganz einfachen, ordinären Dachfenster, ohne Gauben?“): auf der Etage Dach hat „Etage verwalten“ unter den Gauben den neuen Abschnitt **Dachfenster**. **„+ Dachfenster“** setzt ein ganz normales Fenster in die Dachschräge (die Schräge bekommt ein Loch dafür und einen dunklen Eindeckrahmen drumherum): **Dachseite** A oder B, **Position am First** (Schieber oder „Abstand vom Giebel“), eine **übliche Größe** aus der Liste (55 × 78 cm bis 134 × 140 cm, zu Beginn 78 × 118 cm) oder **Breite** und **Höhe** (in der Schräge gemessen, wie man die Größen von Dachfenstern angibt) und der **Abstand zur Traufe**; ein neues sitzt mit seiner Unterkante 1 m über dem Boden darunter (die Karte sagt, wie hoch). Auf einem Sattel-, Walm- oder Pultdach (beim Pultdach in seiner einen Schräge), auf dem Hauptdach und auf weiteren Dächern (die Karte hat **Dach**); ein Flachdach hat keine. Der 2D-Plan der Dach-Etage zeigt sie.

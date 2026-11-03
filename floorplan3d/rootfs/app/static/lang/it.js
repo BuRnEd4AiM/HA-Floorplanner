@@ -50,7 +50,7 @@ export default {
   'op.doorOpen': 'Passaggio',
   'op.doorGap': 'Apertura (senza telaio)',
   'op.doorGarage': 'Portone del garage',
-  'prop.terrace': 'Terrazza sul tetto (aperta, con parapetto)',
+  'prop.terrace': 'Balcone / terrazza sul tetto (aperta, con parapetto)',
   'prop.terraceHint': 'Area aperta senza tetto: pavimento in legno e parapetto su ogni bordo senza muro. Il tetto della casa la esclude, come ciò che sta sotto (p. es. il garage).',
   'rp.doors': 'PORTE',
   'rp.windows': 'FINESTRE',
@@ -2239,4 +2239,8 @@ export default {
   'stair.split': 'Gradini della 1ª rampa', 'stair.splitHint': 'Quanti gradini prima dell’angolo: di più dà una prima rampa lunga e una seconda corta.',
   'stair.solid': 'Massiccia (gradini fino al pavimento)',
   'skylight.title': 'Finestre da tetto', 'skylight.help': 'Una finestra nella falda del tetto, senza abbaino. Premi «+ Finestra da tetto», poi scegli il lato, il posto e la misura.', 'skylight.noFlat': 'Un tetto piano non ha finestre da tetto.', 'skylight.one': 'Finestra da tetto', 'skylight.roof': 'Tetto', 'skylight.mainRoof': 'Tetto principale', 'skylight.startTip': 'Dove inizia la finestra: distanza dal timpano a sinistra (o in alto) nella pianta fino al lato della finestra.', 'skylight.size': 'Misura comune', 'skylight.ownSize': 'misura libera', 'skylight.height': 'Altezza (nella falda)', 'skylight.heightTip': 'L’altezza della finestra, misurata nella falda del tetto (come le misure comuni, es. 78 × 118 cm).', 'skylight.eaveTip': 'Quanto dista il bordo inferiore della finestra dal bordo del tetto (gronda), misurato in pianta.', 'skylight.low': 'Bordo inferiore a {y} m sopra il pavimento sotto', 'skylight.remove': 'Rimuovi finestra da tetto', 'skylight.add': '+ Finestra da tetto', 'skylight.noFit': 'Non entra nella falda (troppo grande o troppo vicina al colmo).', 'skylight.tip': 'Contatto, nome, tapparella: tocca la finestra da tetto in 3D, come una finestra normale. Aperta diventa rossa e l’anta si apre verso l’esterno.', 'skylight.winHint': 'Finestra da tetto: misura e posto si impostano sul tetto (piano Tetto → Gestisci piano → Finestre da tetto).',
+  'balc.rail': 'Parapetto', 'balc.metal': 'Metallo (sbarre)', 'balc.glass': 'Vetro', 'balc.wood': 'Legno (listelli)', 'balc.posts': 'Pilastri fino a terra',
+  'balc.postsHint': 'Solo per un balcone che sporge libero: pilastri agli angoli esterni fino a terra.',
+  'balc.free': 'Sporge libero (balcone): lo regge una soletta.',
+  'balc.onTop': 'Poggia sulla casa o sul terreno (terrazza sul tetto, terrazza): niente soletta, niente pilastri. Un balcone sporge oltre il piano sotto; al piano terra, sopra il pendio (Terreno → ⛰ Terreno).',
 };

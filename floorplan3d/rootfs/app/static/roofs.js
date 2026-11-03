@@ -1,5 +1,5 @@
 /* Roofs (#137, step 19): the roof box of a roof floor, the roof surfaces with dormers (gable, flat, shed; a hole in the slope under each,
- * #339) and roof windows (a hole and a flashing round it, #643, skylight.js; the window itself is drawn with the floor it belongs to), steps in the eaves (#342) and further roofs, the gable walls in the colour of the walls and the shed roof (#628, roofshape.js), the railing round a roof terrace,
+ * #339) and roof windows (a hole and a flashing round it, #643, skylight.js; the window itself is drawn with the floor it belongs to), steps in the eaves (#342) and further roofs, the gable walls in the colour of the walls and the shed roof (#628, roofshape.js), the railing round a roof terrace (built in balcony3d.js),
  * solar panels lying on the roof (#176), roofs cut into each other where they meet (the wing of an L-shaped house, #621, roofcut.js) and the fading of the roofs when the camera comes close. The boxes are pure (unit test:
  * tests/roofs.test.mjs), the rest draws with three.js. */
 import * as THREE from './vendor/three.module.min.js';
@@ -7,7 +7,7 @@ import { dormerParts, roofSurface, fitDormer } from './dormer.js';
 import { skylightParts, skylightsAllowed } from './skylight.js';
 import { frontHoles } from './dormerwin.js';
 import { intervals } from './roofsteps.js';
-import { onBridge } from './bridge.js';
+import { buildRailing } from './balcony3d.js';   // the railing of a roof terrace or a balcony (#646)
 import { roofFrame, solarPose } from './solarroof.js';
 import { roofY0, partY0, wallTopOf, clipRoofFloor, roofPlanes, dormerRooms, roofOverRoom, roofReach, joinCuts, planesAt } from './attic.js';
 import { gableWalls, wallTris, wallThickness, wallHeightOf } from './roofshape.js';
@@ -54,48 +54,6 @@ export function initRoofs(ctx) {
   const liftOf = (R) => ctx.groundAt?.((R.bb.x0 + R.bb.x1) / 2, (R.bb.z0 + R.bb.z1) / 2) || 0;
   const roofs = [];                  // roofs that thin out when the camera comes close
   const mat = (...a) => ctx.mat(...a), HOLO = ctx.HOLO;
-  /** Railing round a roof terrace: posts and two rails along every edge that is not a wall and where no bridge arrives (the bridges of
-   *  this floor, and `bridges`: more bridge devices in this floor's frame, e.g. the one coming over from the next house) */
-  function buildRailing(g, room, f, holo, ghost, bridges = []) {
-    const pts = room.points, H = 1.0, step = 0.2;
-    const mat = holo ? new THREE.MeshBasicMaterial({ color: 0x3df2ff, transparent: true, opacity: ghost ? 0.12 : 0.85 })
-      : new THREE.MeshStandardMaterial({ color: '#8d949b', roughness: 0.45, metalness: 0.6, transparent: ghost, opacity: ghost ? 0.25 : 1 });
-    const landing = [...(f.devices || []).filter((d) => d.type === 'bridge'), ...bridges];
-    const covered = (x, z) => landing.some((d) => onBridge(d, x, z)) || f.walls.some((w) => {                          // a wall (also in a doorway) already closes this spot
-      const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], l2 = dx * dx + dz * dz || 1;
-      const k = Math.max(0, Math.min(1, ((x - w.a[0]) * dx + (z - w.a[1]) * dz) / l2));
-      return Math.hypot(x - (w.a[0] + k * dx), z - (w.a[1] + k * dz)) < (w.thickness || 0.2) / 2 + 0.12;
-    });
-    const bar = (x0, z0, x1, z1, y, th) => {
-      const len = Math.hypot(x1 - x0, z1 - z0);
-      const m = new THREE.Mesh(new THREE.BoxGeometry(len, th, th), mat);
-      m.position.set((x0 + x1) / 2, y, (z0 + z1) / 2);
-      m.rotation.y = -Math.atan2(z1 - z0, x1 - x0);
-      g.add(m);
-    };
-    const post = (x, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.05, H, 0.05), mat); m.position.set(x, H / 2, z); g.add(m); };
-    for (let i = 0; i < pts.length; i++) {
-      const [ax, az] = pts[i], [bx, bz] = pts[(i + 1) % pts.length], len = Math.hypot(bx - ax, bz - az);
-      if (len < 0.1) continue;
-      const n = Math.max(1, Math.ceil(len / step)), at = (u) => [ax + (bx - ax) * u, az + (bz - az) * u];
-      let run = null;
-      const flush = (end) => {
-        if (run === null) return;                                       // a stretch that starts at the corner starts at 0 (was skipped before)
-        const [x0, z0] = at(run), [x1, z1] = at(end);
-        if (Math.hypot(x1 - x0, z1 - z0) > 0.15) {
-          bar(x0, z0, x1, z1, H, 0.05); bar(x0, z0, x1, z1, H * 0.5, 0.035);
-          const posts = Math.max(1, Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 1.2));
-          for (let p = 0; p <= posts; p++) post(x0 + ((x1 - x0) * p) / posts, z0 + ((z1 - z0) * p) / posts);
-        }
-        run = null;
-      };
-      for (let k = 0; k < n; k++) {
-        const [mx, mz] = at((k + 0.5) / n);
-        if (covered(mx, mz)) flush(k / n); else if (run === null) run = k / n;
-      }
-      flush(1);
-    }
-  }
   /** roof surface as triangles; pitch in degrees, ridge along the longer side unless set; the slopes have a hole under each dormer (#339);
    *  without what lies inside another roof of the floor (cut: its solids in this roof's frame, roofcut.js; the wing of an L-shaped house) */
   function roofGeometry(bb, r, cut = []) {

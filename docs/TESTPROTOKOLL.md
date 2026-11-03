@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.62.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.63.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.62.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.63.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.63.0: 🏗 Balkon mit Geländer** (Abschnitt 153, gefragt von christinloehner in #646): Claude hat 153.1 bis 153.5 im Browser-Test geprüft; für dich in der Demo 153.6 bis 153.8, im Add-on 153.9, nach dem Merge das Video 153.10.
 1. **Neu in 4.62.0: 🪟 Dachfenster ohne Gaube** (Abschnitt 152, gefragt von christinloehner in #643): Claude hat 152.1 bis 152.6 im Browser-Test geprüft; für dich in der Demo 152.7 und 152.8, im Add-on 152.9 und 152.10, nach dem Merge das Video 152.11.
 1. **Neu nach 4.61.0: 🎬 die Suche der Video-Anleitung findet mehr** (Abschnitt 151, dein Wunsch: „wenn Leute ein anderes Wort verwenden … trotzdem das richtige Video“): Claude hat 151.1 und 151.2 geprüft; für dich nach dem Merge auf der Seite der Anleitung 151.3 bis 151.5, im Add-on 151.6, und 151.7 mit deinen eigenen Wörtern.
 1. **Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich in den Kehlen, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung** (Abschnitt 150, gefragt von LoggieXC81 in #621, Issue #639): Claude hat 150.1 bis 150.4 im Browser-Test geprüft; für dich in der Demo 150.5 und 150.6, im Add-on 150.7, nach dem Merge die Videos 150.8.
@@ -402,7 +403,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 150. Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung | 4 | 0 | 4 | 0 | 150.5 bis 150.8 |
 | 151. 🎬 Video-Anleitung: die Suche findet mehr (nach 4.61.0, nur die Seite der Anleitung) | 2 | 0 | 5 | 0 | 151.3 bis 151.7 |
 | 152. Neu in 4.62.0: 🪟 Dachfenster ohne Gaube | 6 | 0 | 5 | 0 | 152.7 bis 152.11 |
-| **Zusammen** | **900** | **2** | **156** | **92** | |
+| 153. Neu in 4.63.0: 🏗 Balkon mit Geländer | 5 | 0 | 5 | 0 | 153.6 bis 153.10 |
+| **Zusammen** | **905** | **2** | **161** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2342,3 +2344,19 @@ christinloehner in #643: „Bin ich doof oder finde ich wirklich keine ganz einf
 | 152.9 | Im Add-on: in dein Dach ein Dachfenster setzen, antippen, einen Fensterkontakt wählen | Geht der Kontakt auf, wird es rot und klappt nach außen, „1 offen“ | ❓ |
 | 152.10 | Im Add-on mit „Fenster-Regel“ der Heizung und einem Thermostat im Raum unter dem Dachfenster (oder unter einer Gaube): das Fenster öffnen | Die Heizung in diesem Raum geht aus wie bei jedem Fenster | ❓ |
 | 152.11 | Nach dem Update auf der Seite der Anleitung das Video „Dachfenster ohne Gaube“ ansehen (oder „Dachfenster“ / „Velux“ suchen) | „+ Dachfenster“, Position, Größe 114 × 140 cm, ein zweites daneben | ❓ |
+
+## 153. Neu in 4.63.0: 🏗 Balkon mit Geländer
+christinloehner in #646: „Aber ich finde gar keine Möglichkeit, einen Balkon hinzuzufügen, also mit Geländer, etc.... Es scheint noch keine Balkone zu geben.“ Es gab nur den Haken „Dachterrasse“; am Hang stand unter einem solchen Raum im Erdgeschoss ein grauer Block bis zum Boden. Jetzt heißt der Haken „Balkon / Dachterrasse (offen, mit Geländer)“; dazu „Geländer“ (Metall, Glas, Holz), „Stützen bis zum Boden“ und eine Zeile, ob er frei hängt. Ein Balkon, der über die Etage darunter hinausragt (im Erdgeschoss über den Hang), steht auf einer eigenen dünnen Platte; der Hang geht unter ihm weiter. Die Demo hat einen Balkon mit Glasgeländer vor dem Gästezimmer im Obergeschoss.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 153.1 | Einen Raum vor die Tür zeichnen und antippen | Der Haken heißt „Balkon / Dachterrasse (offen, mit Geländer)“; angekreuzt kommen „Geländer“ (Metall, Glas, Holz) und „Stützen bis zum Boden“ | ✅ (2026-11-03, Claude im Browser-Test 73_balcony) |
+| 153.2 | Am Hang (vorne 3 m tiefer) ein Balkon im Erdgeschoss vor der Tür | Die Zeile sagt „Hängt frei (Balkon)“; kein grauer Block mehr darunter, eine dünne Platte, der Hang geht darunter weiter | ✅ (2026-11-03, Claude im Browser-Test 73_balcony) |
+| 153.3 | „Geländer“ Glas, dann Holz, dann wieder Metall | Glasscheiben mit Handlauf, dann Holzlatten, dann Metallstäbe wie bisher | ✅ (2026-11-03, Claude im Browser-Test 73_balcony) |
+| 153.4 | „Stützen bis zum Boden“ ankreuzen, dann den Haken „Balkon / Dachterrasse“ weg | Stützen an den äußeren Ecken bis zum Boden; ohne Haken ist es ein normaler Raum ohne Geländer, Platte und Stützen | ✅ (2026-11-03, Claude im Browser-Test 73_balcony) |
+| 153.5 | Derselbe Balkon auf ebenem Boden; Import und Export mit `rail` und `posts` | Die Zeile sagt „Liegt auf …“, keine Platte (eine Terrasse am Boden); Import und Export behalten Geländer und Stützen | ✅ (2026-11-03, Claude, Browser-Test 73_balcony und tests/test_import.py) |
+| 153.6 | Demo: „Ganzes Haus“, das Haus von vorne ansehen | Vor dem Gästezimmer im Obergeschoss ein Balkon mit Glasgeländer auf einer Platte, dahinter eine Balkontür | ❓ |
+| 153.7 | Demo: „Bearbeiten“, Obergeschoss, den Balkon antippen, „Geländer“ Holz, „Stützen bis zum Boden“ ankreuzen | Das Geländer wird Holz, zwei Stützen gehen bis zum Rasen | ❓ |
+| 153.8 | Demo: die „Dachterrasse“ über der Garage antippen | Die Zeile sagt „Liegt auf …“ (sie liegt auf der Garage); das Geländer lässt sich auch hier ändern | ❓ |
+| 153.9 | Im Add-on mit deinem Haus (oder christinloehner mit ihrem am Hang): einen Balkon vor die Tür zeichnen und ankreuzen | Er hängt frei vor dem Haus, mit dem gewählten Geländer; kein Block bis zum Boden | ❓ |
+| 153.10 | Nach dem Update auf der Seite der Anleitung das Video „Balkon mit Geländer“ ansehen (oder „Balkon“ / „Glasgeländer“ suchen) | Haken setzen, Glas wählen, Stützen, dann der Balkon am Hang im 3D-Bild | ❓ |

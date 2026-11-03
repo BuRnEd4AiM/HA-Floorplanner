@@ -802,8 +802,14 @@ def build_layout(data):
             if isinstance(r.get("area"), str) and r["area"]:
                 room["area"] = r["area"][:80]
             if r.get("terrace") is True:
-                room["terrace"] = True                          # roof terrace: open area with a railing
+                room["terrace"] = True                          # balcony / roof terrace: open area with a railing
                 open_rooms.add(len(rooms))
+                if r.get("rail") in ("glass", "wood"):
+                    room["rail"] = r["rail"]                    # its railing: glass panes or wooden slats (metal when unset, #646)
+                elif r.get("rail") not in (None, "metal"):
+                    rep.warn(f"{rp}.rail", "rail must be \"metal\", \"glass\" or \"wood\": metal used")
+                if r.get("posts") is True:
+                    room["posts"] = True                        # a balcony that hangs free: supports down to the ground (#646)
             if _num(r.get("raise"), -ROOM_MAX_RAISE, ROOM_MAX_RAISE) and abs(float(r["raise"])) >= 0.01:
                 room["raise"] = round(float(r["raise"]), 2)     # its floor higher (or lower) than the storey (#566)
                 if r.get("steps") is False:
@@ -1257,7 +1263,7 @@ def layout_to_property(layout, name="Haus"):
             if not (f.get("rooms") or f.get("walls") or f.get("devices")):      # a plain roof; otherwise also its solar panels, a loft's rooms
                 floors.append(item)
                 continue
-        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace", "raise", "steps", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
+        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace", "rail", "posts", "raise", "steps", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
         item["walls"] = []
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}

@@ -320,6 +320,13 @@ t("plot",
   "Zaun Hecke Außenbereich Hof Außenanlage",
   "create a plot draw a garden lawn grass terrace patio path walkway driveway paving flower bed pond pool fence hedge "
   "outdoor area yard landscaping")
+t("balcony",
+  "Balkon Balkone Balkon anlegen Balkon hinzufügen Balkongeländer Geländer Brüstung Glasgeländer Glasbalkon Holzgeländer "
+  "Holzbalkon Stahlbalkon Vorstellbalkon Stützen Pfosten Säulen Balkonplatte Kragplatte Loggia Austritt Dachterrasse "
+  "Terrasse oben wie mache ich einen Balkon Balkon am Hang Balkontür",
+  "balcony balconies add a balcony balcony railing railing balustrade glass railing glass balcony wooden railing "
+  "wooden balcony steel balcony supported balcony supports posts columns balcony slab cantilever loggia roof terrace "
+  "deck upstairs how do I add a balcony balcony on a slope balcony door")
 t("plot-terrain",
   "Hang Hanglage Gefälle abschüssig schräges Grundstück Gelände Höhe Höhenunterschied Höhenlinien Geländemodell "
   "Hanghaus Souterrain Keller frei Böschung Sockel Straße tiefer",
@@ -528,6 +535,8 @@ zoomen zoom vergrößern
 ki chatgpt gpt ai claude gemini copilot
 code pin passwort kennwort password
 terrasse patio terrace
+balkon balkone loggia balcony balconies
+geländer brüstung balustrade railing railings
 luftfeuchtigkeit luftfeuchte feuchtigkeit feuchte humidity
 co2 luftqualität air
 sprachsteuerung sprachsuche spracheingabe mikrofon voice microphone mic alexa siri
