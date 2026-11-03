@@ -445,7 +445,7 @@ The object list in the side panel is grouped by room: the room itself, its doors
 
 ## About this project
 
-3D Floorplan is an AI-assisted project: developed together with Claude (Anthropic), directed, tested and used daily by its author. It is open source (MIT); bug reports and ideas are very welcome.
+3D Floorplan is an AI-assisted project: developed together with Claude (Anthropic), directed, tested and used daily by its author. It is open source under the GNU GPL v3 or later (versions up to 4.61.0: MIT); bug reports and ideas are very welcome.
 
 
 ## Import (Grundstück / Grundriss per JSON)

@@ -6,7 +6,7 @@
 
 [![CI](https://github.com/BuRnEd4AiM/HA-Floorplanner/actions/workflows/ci.yml/badge.svg)](https://github.com/BuRnEd4AiM/HA-Floorplanner/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FBuRnEd4AiM%2FHA-Floorplanner%2Fmain%2Ffloorplan3d%2Fconfig.yaml&query=%24.version&prefix=v&label=release&color=blue&cacheSeconds=3600)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 ![Home Assistant add-on](https://img.shields.io/badge/Home%20Assistant-add--on-41BDF5?logo=homeassistant&logoColor=white)
 ![Ingress](https://img.shields.io/badge/Ingress-yes-success)
 ![No build step](https://img.shields.io/badge/frontend-no%20build%20step-lightgrey)
@@ -47,7 +47,7 @@ It is made with a lot of love for my own smart home, and it is used every day. I
 
 This is an **AI-assisted project**: the code is written together with an AI (Claude by Anthropic). The idea, the design, every feature request, the decisions and the testing in my own smart home come from me, and a lot of time and care went into it: hundreds of iterations, screenshots, bug reports and fixes, tested on real wall tablets. The AI is my pair programmer, not an autopilot.
 
-What that means for you: the code is automatically tested (backend and browser tests run on every change), everything is open source under the MIT license, and you are welcome to read, question and improve it. If you find a bug, please open an issue, I take it seriously and will fix it.
+What that means for you: the code is automatically tested (backend and browser tests run on every change), everything is open source under the GNU GPL v3 (see [License](#-license)), and you are welcome to read, question and improve it. If you find a bug, please open an issue, I take it seriously and will fix it.
 
 ## ⚡ Highlights
 
@@ -463,6 +463,10 @@ Bug reports, ideas and pull requests are welcome, see [CONTRIBUTING.md](CONTRIBU
 
 ## 📄 License
 
-[MIT](LICENSE) © 2026 BuRnEd4AiM. Bundles [three.js](https://threejs.org) (MIT).
+[GNU GPL v3 or later](LICENSE) © 2026 BuRnEd4AiM and contributors.
+
+In plain words: use it for free, read it, change it and share it. If you share a changed version or build its code into your own project, that must be GPL and open source too, and must keep the copyright notices.
+
+Versions **up to and including 4.61.0** were released under the MIT License and stay so; the GPL applies to every later version. The old MIT notice and the bundled libraries ([three.js](https://threejs.org) MIT, polygon-clipping MIT, hls.js Apache-2.0, 3D models by Kenney CC0) are listed in [NOTICE.md](NOTICE.md).
 
 <div align="center"><sub>Made with ❤️ for the Home Assistant community</sub></div>
