@@ -161,19 +161,25 @@ const layout = {
       { id: 'gd13', type: 'sun_lounger', x: -1, z: 10.6, y: 0, rot: 200, scale: 1, name: 'Liege', entity: '' },
     ],
   }, {
-    id: 'og', name: 'Obergeschoss',
+    id: 'og', name: 'Obergeschoss',   // over the whole house like a real one (the owner, 2026-11-03: "dass es nach einem richtigen Haus aussieht")
     rooms: [
       { id: 'q1', name: 'Kinderzimmer', covering: 'parquetLight', wallLook: { pattern: 'wpDots' }, color: '#a0b8d8', points: [[0, 0], [5, 0], [5, 4], [0, 4]] },
       { id: 'q2', name: 'Gästezimmer', covering: 'chevron', wallLook: { pattern: 'wpStripes' }, color: '#c8b0a0', points: [[5, 0], [10, 0], [10, 4], [5, 4]] },
+      { id: 'q5', name: 'Bad oben', covering: 'hexFloor', wallLook: { pattern: 'paint', color: '#f4f2ee' }, wallBelow: { pattern: 'wTiles', color: '#7f9db0', height: 1.2 }, color: '#8fb1c2', points: [[0, 4], [4, 4], [4, 7], [0, 7]] },
+      { id: 'q6', name: 'Flur', covering: 'parquetLight', color: '#b3aca0', points: [[4, 4], [6.5, 4], [6.5, 7], [4, 7]] },
+      { id: 'q7', name: 'Arbeitszimmer', covering: 'parquetDark', wallLook: { pattern: 'plaster', color: '#e9e3d6' }, color: '#9db39a', points: [[6.5, 4], [10, 4], [10, 7], [6.5, 7]] },
       { id: 'q3', name: 'Dachterrasse', covering: 'deck', color: '#a58a63', terrace: true, points: [[10, 0], [15, 0], [15, 6], [10, 6]] },
       { id: 'q4', name: 'Balkon', covering: 'deck', color: '#a58a63', terrace: true, rail: 'glass', points: [[5.8, -1.5], [9.2, -1.5], [9.2, -0.12], [5.8, -0.12]] },   // a balcony with a glass railing (#646)
     ],
     walls: [
       W('u1', [0, 0], [10, 0], 0.24, [Win('u5', 2.5), Win('u6', 7.5, { style: 'double', width: 1.8, height: 2.1, sill: 0, name: 'Balkontür' })]),
-      W('u2', [10, 0], [10, 4], 0.24, [D('u7', 2, { width: 1.8, height: 2.1, style: 'sliding', name: 'Terrassentür' })]),
-      W('u3', [10, 4], [0, 4], 0.24, [D('u8', 2.5), D('u9', 7.5)]),
-      W('u4', [0, 4], [0, 0], 0.24, [Win('u10', 2)]),
+      W('u2', [10, 0], [10, 7], 0.24, [D('u7', 2, { width: 1.8, height: 2.1, style: 'sliding', name: 'Terrassentür' }), Win('u15', 5.5)]),
+      W('u12', [10, 7], [0, 7], 0.24, [Win('u16', 1.75), Win('u17', 4.75, { width: 0.9 }), Win('u18', 8, { width: 0.8, height: 0.9, sill: 1.2 })]),
+      W('u4', [0, 7], [0, 0], 0.24, [Win('u10', 5)]),
+      W('u3', [10, 4], [0, 4], 0.12, [D('u8', 4.2), D('u9', 5.5)]),
       W('u11', [5, 0], [5, 4], 0.12, []),
+      W('u13', [4, 4], [4, 7], 0.12, [D('u19', 1.5)]),
+      W('u14', [6.5, 4], [6.5, 7], 0.12, [D('u20', 1.5)]),
     ],
     devices: [
       { id: 'e1', type: 'bed', x: 2.5, z: 1.6, y: 0, rot: 0, scale: 1, name: 'Bett', entity: '' },
@@ -182,37 +188,48 @@ const layout = {
       { id: 'e5', type: 'sensor', x: 5.2, z: 1, y: 1.6, rot: 270, scale: 1, name: 'Temperatur Gästezimmer', entity: 'sensor.gast_temp' },
       { id: 'e4c', type: 'sensor', x: 0.2, z: 3, y: 1.6, rot: 270, scale: 1, name: 'CO₂ Kinderzimmer', entity: 'sensor.kinder_co2' },
       { id: 'e3', type: 'table', x: 7.5, z: 1.5, y: 0, rot: 0, scale: 0.8, name: 'Schreibtisch', entity: '' },
+      { id: 'e6', type: 'shower', x: 0.7, z: 6.3, y: 0, rot: 0, scale: 1, name: 'Dusche', entity: '' },
+      { id: 'e7', type: 'sink', x: 2.6, z: 6.7, y: 0, rot: 180, scale: 1, name: 'Waschbecken', entity: '' },
+      { id: 'e8', type: 'toilet', x: 3.6, z: 6.6, y: 0, rot: 180, scale: 1, name: 'WC oben', entity: '' },
+      { id: 'e9', type: 'desk', x: 8.3, z: 6.5, y: 0, rot: 180, scale: 1, name: 'Schreibtisch Arbeitszimmer', entity: '' },
+      { id: 'e10', type: 'officechair', x: 8.3, z: 5.8, y: 0, rot: 0, scale: 1, name: 'Bürostuhl', entity: '' },
+      { id: 'e11', type: 'plant', x: 6.9, z: 4.4, y: 0, rot: 0, scale: 1, name: 'Pflanze', entity: '' },
+      { id: 'e12', type: 'dresser', x: 5.25, z: 6.75, y: 0, rot: 180, scale: 1, name: 'Kommode', entity: '' },
       { id: 'te1', type: 'diningtable', x: 12.8, z: 2.6, y: 0, rot: 0, scale: 0.8, name: 'Terrassentisch', entity: '' },
       { id: 'te2', type: 'plant', x: 14.5, z: 0.6, y: 0, rot: 0, scale: 1.3, name: 'Pflanze', entity: '' },
       { id: 'te3', type: 'plant', x: 10.6, z: 5.4, y: 0, rot: 0, scale: 1.3, name: 'Pflanze', entity: '' },
       { id: 'br1', type: 'bridge', x: 17, z: 3, y: 0, rot: 0, scale: 1, len: 4, w: 1.4, rise: 0.4, name: 'Brücke zum Nachbarhaus', entity: '' },
     ],
   }, {
-    id: 'dg', name: 'Dachgeschoss',
+    id: 'dg', name: 'Dachgeschoss',   // under the slopes of the roof (a knee wall of 1 m, roof.knee): the whole house, as a real one
     holes: [{ id: 'h1', points: [[3.6, 0.9], [5.4, 0.9], [5.4, 1.9], [3.6, 1.9]] }],
     rooms: [
-      { id: 'p1', name: 'Studio', covering: 'plankWide', wallLook: { pattern: 'brickWhite' }, color: '#b0c8a0', points: [[1, 0.5], [6, 0.5], [6, 3.5], [1, 3.5]] },
+      { id: 'p1', name: 'Studio', covering: 'plankWide', wallLook: { pattern: 'brickWhite' }, color: '#b0c8a0', points: [[0, 0], [6, 0], [6, 7], [0, 7]] },
+      { id: 'p2', name: 'Atelier', covering: 'plankWide', wallLook: { pattern: 'paint', color: '#efe9de' }, color: '#c8bfa8', points: [[6, 0], [10, 0], [10, 7], [6, 7]] },
     ],
     walls: [
-      W('t1', [1, 0.5], [6, 0.5], 0.24, [Win('t5', 2.5)]),
-      W('t2', [6, 0.5], [6, 3.5], 0.24, []),
-      W('t3', [6, 3.5], [1, 3.5], 0.24, [D('t6', 2.5)]),
-      W('t4', [1, 3.5], [1, 0.5], 0.24, []),
+      W('t1', [0, 0], [10, 0], 0.24, []),
+      W('t2', [10, 0], [10, 7], 0.24, [Win('t8', 3.5)]),
+      W('t3', [10, 7], [0, 7], 0.24, []),
+      W('t4', [0, 7], [0, 0], 0.24, [Win('t5', 3.5)]),
+      W('t7', [6, 0], [6, 7], 0.12, [D('t6', 4.5)]),
     ],
     devices: [
-      { id: 'g3', type: 'sensor', x: 1.3, z: 3.2, y: 1.6, rot: 0, scale: 1, name: 'Temperatur Studio', entity: 'sensor.studio_temp' },
-      { id: 'g1', type: 'sofa', x: 3.5, z: 2.6, y: 0, rot: 180, scale: 1, name: 'Sofa', entity: '' },
-      { id: 'g2', type: 'lamp', x: 1.8, z: 1.2, y: 0, rot: 0, scale: 1, name: 'Stehlampe Studio', entity: 'light.stehlampe' },
+      { id: 'g3', type: 'sensor', x: 0.2, z: 5, y: 1.6, rot: 270, scale: 1, name: 'Temperatur Studio', entity: 'sensor.studio_temp' },
+      { id: 'g1', type: 'sofa', x: 3, z: 4.2, y: 0, rot: 180, scale: 1, name: 'Sofa', entity: '' },
+      { id: 'g2', type: 'lamp', x: 1.2, z: 2.6, y: 0, rot: 0, scale: 1, name: 'Stehlampe Studio', entity: 'light.stehlampe' },
+      { id: 'g4', type: 'armchair', x: 8, z: 3.5, y: 0, rot: 270, scale: 1, name: 'Sessel', entity: '' },
+      { id: 'schrank_dach', type: 'closet', x: 2.2, z: 0.66, y: 0, rot: 0, scale: 1, name: 'Schrank unter der Schräge', entity: 'light.schrank_dach',   // the cabinet builder: fitted under the slope
+        cab: { cols: [{ w: 0.6, fill: 'drawers', n: 3 }, { w: 0.6, fill: 'shelves', n: 2, front: 'glass' }, { w: 0.6, fill: 'rail', front: 'door', hinge: 'r' }], h: 1.67, d: 0.6, plinth: 0.08,
+          slopes: [{ side: 'back', low: 1.25, deg: 35 }], body: '#f1efe9', front: '#b48a5c', handle: 'long', metal: 'black', doors: 'hinged', led: true } },
     ],
   }, {
     id: 'dach', name: 'Dach', kind: 'roof', walls: [], blocks: [], stairs: [],
-    rooms: [{ id: 'r_dachboden', name: 'Dachboden', color: '#9a8f7a', points: [[1, 0.5], [6, 0.5], [6, 3.5], [1, 3.5]] }],   // the loft over the studio, with the cabinet under the slope
-    devices: [{ id: 'pv_dach', type: 'solarpanel', x: 5, z: 5.45, y: 0, rot: 0, scale: 1, cols: 5, rows: 2, name: 'PV Dach', entity: 'sensor.pv_dach' },
-      { id: 'schrank_dach', type: 'closet', x: 4.7, z: 1.75, y: 0, rot: 0, scale: 1, name: 'Schrank unter der Schräge', entity: 'light.schrank_dach',   // the cabinet builder: fitted under the slope
-        cab: { cols: [{ w: 0.6, fill: 'drawers', n: 3 }, { w: 0.6, fill: 'shelves', n: 2, front: 'glass' }, { w: 0.6, fill: 'rail', front: 'door', hinge: 'r' }], h: 1.67, d: 0.6, plinth: 0.08,
-          slopes: [{ side: 'back', low: 1.25, deg: 35 }], body: '#f1efe9', front: '#b48a5c', handle: 'long', metal: 'black', doors: 'hinged', led: true } }],
-    roof: { type: 'gable', pitch: 35, overhang: 0.4, dormers: [{ side: 'a', pos: 0.3, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } }, { side: 'b', pos: 0.7, w: 2.0, type: 'flat' }],
-      skylights: [{ id: 'sky1', side: 0, pos: 0.5, w: 0.78, h: 1.18, eave: 1.3, window: { id: 'dfw1', type: 'window', style: 'single', hinge: 'top', openOutward: true, name: 'Dachfenster', entity: 'binary_sensor.dachfenster' } }] },   // #643: a roof window without a dormer   // #331: a dormer window with a roller shutter
+    rooms: [],                                            // no loft room: the roof starts in the attic floor below (knee), its outline comes from the floors below
+    devices: [{ id: 'pv_dach', type: 'solarpanel', x: 3.6, z: 5.3, y: 0, rot: 0, scale: 1, cols: 5, rows: 2, name: 'PV Dach', entity: 'sensor.pv_dach' }],
+    roof: { type: 'gable', pitch: 35, overhang: 0.5, knee: 1, ridge: 'x',   // over the whole house, starting on a knee wall of the attic floor below (#260)
+      dormers: [{ side: 'a', pos: 0.3, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } }, { side: 'b', pos: 0.82, w: 2.0, type: 'flat' }],
+      skylights: [{ id: 'sky1', side: 0, pos: 0.7, w: 0.78, h: 1.18, eave: 1.3, window: { id: 'dfw1', type: 'window', style: 'single', hinge: 'top', openOutward: true, name: 'Dachfenster', entity: 'binary_sensor.dachfenster' } }] },   // #643: a roof window without a dormer   // #331: a dormer window with a roller shutter
   }],
 };
 
@@ -506,6 +523,7 @@ const DEMO_TRAIN = (() => {
 let settings = {
   language: 'auto', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', belowMode: 'dim', cameraImages: true,
+  houseFloors: 'stacked',                                  // the owner, 2026-11-03: a real house, the floors on top of each other, no gap
   cutaway: false, seeThrough: true,                         // 4.54: walls facing the camera turn see-through instead of sinking (the owner: "sieht geiler aus")
   windowFrames: 'anthracite',                               // 3.99: the demo shows the dark window frames (#428)
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)

@@ -29,7 +29,7 @@ from compose import Film  # noqa: E402  (the video guide's pictures of a recordi
 
 FPS = 30
 SIZES = {"16x9": (1920, 1080), "9x16": (1080, 1920)}
-UP_CARD = (60, 470, 960, 1280)    # the upright film: where the card with the shot is (x, y, w, h), 3:4
+UP_CARD = (60, 470, 960, 1080)    # the upright film: where the card with the shot is (x, y, w, h), 8:9 (half the app's width)
 UP_TITLE = 255                    # … and the middle of the caption above it
 TR = 0.4                          # seconds of the zoom from one shot to the next (half before the cut, half after it)
 MAX_SPEED = 2.4
@@ -372,7 +372,7 @@ class Item:
         """(x, y, zoom) of the screen the film shows at t: the shot's keyframes (shots.Shot.focus), softly from one to the next"""
         f = self.shot.focus
         if not f:
-            keys = [(0, 0.5, 0.5, 1.1 if self.shot.kind == "ui" else 1.0)]
+            keys = [(0, 0.5, 0.5, 1.0), (1, 0.5, 0.5, 1.04 if self.shot.kind == "ui" else 1.0)]   # the whole app, a slow push in
         elif len(f) == 2 and not isinstance(f[0], (tuple, list)):
             keys = [(0, f[0], f[1], 1.25)]
         else:

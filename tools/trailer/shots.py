@@ -103,11 +103,13 @@ def cam(r, a, d, h, mid=MID):
     r.pg.evaluate(f"window.__fp.camAt({x}, {h}, {z}, {mid[0]}, {mid[1]})")
 
 
-def orbit(r, a0, a1, d0, d1, h0, h1, seconds, mid=MID):
-    """the camera flies from one place to another around the house in this many seconds of the film (and the clip waits for it)"""
+def orbit(r, a0, a1, d0, d1, h0, h1, seconds, mid=MID, wait=True):
+    """the camera flies from one place to another around the house in this many seconds of the film (and the clip waits for it,
+    unless wait=False)"""
     o = {"a0": a0, "a1": a1, "d0": d0, "d1": d1, "h0": h0, "h1": h1, "cx": mid[0], "cz": mid[1], "ms": seconds * 1000}
     r.pg.evaluate(f"({ORBIT_JS})({json.dumps(o)})")
-    r.wait(seconds * 1000)
+    if wait:
+        r.wait(seconds * 1000)
 
 
 
@@ -160,12 +162,16 @@ def _hero_prep(r):
     cam(r, 2.25, 25.5, 12)
 
 
-@shot("hero", "cine", 14, part="hero", slow=9, sky="20:30", settings=tiles_off(), prep=_hero_prep,
+# the first shot: the house from outside (solid walls), then on the beat its walls turn to glass and the lit rooms show
+@shot("hero", "cine", 14, part="hero", slow=9, sky="20:30", settings={"roomTiles": False, "seeThrough": False}, prep=_hero_prep,
       caption=cap(("3D Floorplan · Home Assistant", "Dein Zuhause. In 3D. Live.", ""),
                   ("3D Floorplan · Home Assistant", "Your home. In 3D. Live.", "")))
 def _(r):
     r.hide()
-    orbit(r, 2.25, 3.55, 25.5, 21.5, 12, 9.5, 7.6)
+    orbit(r, 2.25, 3.55, 25.5, 21.5, 12, 9.5, 7.6, wait=False)
+    r.wait(2280)                                         # 2 s into the shot of the film: on a beat
+    r.js("document.querySelector('#seeToggle').click()")  # see-through: the walls facing the camera and the roof turn to glass
+    r.wait(7600 - 2280)
 
 
 def _close_prep(r):
@@ -208,7 +214,6 @@ def dolly(r, to, k, ms):
 
 
 @shot("light", "ui", 16, sky="19:40", settings=tiles_off(), prep=_light_prep, up=(0.53, 0.42),
-      focus=[(0, 0.5, 0.5, 1.0), (0.25, 0.62, 0.46, 1.32), (1, 0.62, 0.46, 1.38)],
       caption=cap(("Bedienen", "Antippen, schalten, dimmen, färben", ""),
                   ("Control", "Tap, switch, dim, colour", "")))
 def _(r):
@@ -229,7 +234,7 @@ def _scene_prep(r):
     ui_cam(r, a=1.0, d=11, h=9, mid=(3, 2.5))
 
 
-@shot("scenes", "ui", 8, sky="20:30", settings=tiles_off(), prep=_scene_prep, focus=[(0, 0.5, 0.55, 1.1), (1, 0.5, 0.55, 1.16)],
+@shot("scenes", "ui", 8, sky="20:30", settings=tiles_off(), prep=_scene_prep,
       caption=cap(("Szenen", "Ein Tipp – das ganze Haus in Stimmung", ""),
                   ("Scenes", "One tap sets the mood for the whole house", "")))
 def _(r):
@@ -264,7 +269,7 @@ def _colors_prep(r):
     ui_cam(r, a=1.2, d=14, h=12)
 
 
-@shot("colors", "ui", 8, sky="13:00", settings=tiles_off(), prep=_colors_prep, focus=[(0, 0.5, 0.5, 1.12), (1, 0.5, 0.5, 1.2)],
+@shot("colors", "ui", 8, up=(0.38, 0.5), sky="13:00", settings=tiles_off(), prep=_colors_prep,
       caption=cap(("Klima", "Temperatur, Feuchte und CO₂ als Farbe", ""),
                   ("Climate", "Temperature, humidity and CO₂ as colour", "")))
 def _(r):
@@ -276,8 +281,7 @@ def _(r):
     r.wait(1500)
 
 
-@shot("power", "ui", 8, sky="12:30", settings=tiles_off(), prep=_colors_prep,
-      focus=[(0, 0.5, 0.5, 1.05), (0.3, 0.6, 0.42, 1.3), (1, 0.62, 0.42, 1.36)],
+@shot("power", "ui", 8, up=(0.68, 0.45), sky="12:30", settings=tiles_off(), prep=_colors_prep,
       caption=cap(("Energie", "Sieh, wo dein Strom gerade fließt", "Solar, Netz, Batterie und jedes Gerät"),
                   ("Energy", "See where your power flows right now", "Solar, grid, battery and every device")))
 def _(r):
@@ -287,8 +291,7 @@ def _(r):
     r.wait(3200)
 
 
-@shot("warnings", "ui", 8, sky="15:30", query="mode=live&weather=rainy", settings=tiles_off(), prep=_room_prep,
-      focus=[(0, 0.42, 0.4, 1.3), (1, 0.45, 0.42, 1.36)],
+@shot("warnings", "ui", 8, up=(0.36, 0.4), sky="15:30", query="mode=live&weather=rainy", settings=tiles_off(), prep=_room_prep,
       caption=cap(("Warnungen", "Regen – und das Fenster ist offen?", "Du siehst es sofort, und wo."),
                   ("Warnings", "Rain – and the window is open?", "You see it at once, and where.")))
 def _(r):
@@ -314,7 +317,6 @@ def _security_prep(r):
 
 
 @shot("security", "ui", 8, sky="19:35", settings=tiles_off(), answers=_security_day, prep=_security_prep,
-      focus=[(0, 0.5, 0.6, 1.12), (1, 0.5, 0.62, 1.2)],
       caption=cap(("Sicherheit", "Den ganzen Tag zurückspulen", "Wann war welches Licht an, welches Fenster offen?"),
                   ("Security", "Rewind the whole day", "When was which light on, which window open?")))
 def _(r):
@@ -326,8 +328,7 @@ def _(r):
     r.wait(700)
 
 
-@shot("voice", "ui", 8, sky="17:30", settings=tiles_off(), prep=_room_prep,
-      focus=[(0, 0.45, 0.5, 1.1), (0.4, 0.3, 0.58, 1.38), (1, 0.3, 0.58, 1.44)],
+@shot("voice", "ui", 8, up=(0.26, 0.55), sky="17:30", settings=tiles_off(), prep=_room_prep,
       caption=cap(("Sprache", "Frag dein Haus", "„Welche Fenster sind offen?“"),
                   ("Voice", "Ask your house", "“Which windows are open?”")))
 def _(r):
@@ -380,7 +381,7 @@ def _empty_split(walls=False):
 L_HOUSE = [(-170, -120), (90, -120), (90, 10), (170, 10), (170, 130), (-170, 130)]
 
 
-@shot("build", "ui", 12, part="plan", query="mode=edit", prep=_empty_split(), focus=[(0, 0.42, 0.52, 1.12), (1, 0.44, 0.52, 1.2)],
+@shot("build", "ui", 12, up=(0.38, 0.5), part="plan", query="mode=edit", prep=_empty_split(),
       caption=cap(("Planen", "Zeichne deinen Grundriss", "Das 3D-Haus entsteht beim Zeichnen."),
                   ("Plan", "Draw your floor plan", "The 3D house grows while you draw.")))
 def _(r):
@@ -399,7 +400,7 @@ def _(r):
     r.wait(2000)
 
 
-@shot("roof", "ui", 8, part="plan", query="mode=edit", prep=_empty_split(walls=True), focus=[(0, 0.6, 0.5, 1.28), (1, 0.62, 0.5, 1.36)],
+@shot("roof", "ui", 8, up=(0.6, 0.5), part="plan", query="mode=edit", prep=_empty_split(walls=True),
       caption=cap(("Planen", "Dach, Gauben, Treppen, Balkon und Garten", ""),
                   ("Plan", "Roof, dormers, stairs, balcony and garden", "")))
 def _(r):
@@ -418,6 +419,20 @@ def _(r):
         r.wait(1500)
 
 
+@shot("power-edit", "ui", 8, part="plan", query="mode=edit", sky="12:30", prep=_room_prep, up=(0.62, 0.45),
+      caption=cap(("Strom-Editor", "Strom einrichten: Netz, Solar, Batterie", "Aus dem Energie-Dashboard übernehmen, mit einem Klick."),
+                  ("Power editor", "Set up power: grid, solar, battery", "Take it over from the energy dashboard in one click.")))
+def _(r):
+    tap(r, "#powerEditBtn")
+    r.wait(1300)
+    tap(r, "#energyBtn")
+    r.wait(800)
+    tap(r, "#enHaLoad")
+    r.wait(1000)
+    tap(r, "#enHaApply")
+    r.wait(1300)
+
+
 def tab(r, name, ms=1500):
     tap(r, f"#tabBar [data-tab={name}]")
     r.wait(ms)
@@ -429,7 +444,7 @@ def _pages_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("pages", "ui", 12, part="pages", sky="15:49", prep=_pages_prep, up=(0.27, 0.45), focus=[(0, 0.38, 0.42, 1.3), (1, 0.38, 0.42, 1.36)],
+@shot("pages", "ui", 12, part="pages", sky="15:49", prep=_pages_prep, up=(0.27, 0.45),
       caption=cap(("Seiten", "Fertige Seiten für alles", "Heute · Energie · Klima · Kameras · Familie …"),
                   ("Pages", "Ready-made pages for everything", "Today · Energy · Climate · Cameras · Family …")))
 def _(r):
@@ -438,6 +453,68 @@ def _(r):
     tab(r, "climate", 1300)
     tab(r, "cameras", 1300)
     tab(r, "family", 1200)
+
+
+def _climate_prep(r):
+    ui_cam(r)
+    r.pg.click("#tabBar [data-tab=climate]")
+    r.pg.wait_for_timeout(1500)
+
+
+@shot("heat", "ui", 8, part="pages", sky="15:49", prep=_climate_prep,
+      caption=cap(("Heizung", "Heizplan und Heiz-Regeln", "Fenster auf, Heizung aus: fertig zum Einschalten."),
+                  ("Heating", "Heating schedule and rules", "Window open, heating off: ready to switch on.")))
+def _(r):
+    tap(r, "[data-page=climate] [data-view=plan]")
+    r.wait(700)
+    tap(r, "[data-page=climate] .hpRooms [data-room]", text="Wohnzimmer|Living")
+    r.wait(1500)
+    tap(r, "[data-page=climate] [data-view=rules]")
+    r.wait(1600)
+
+
+def _routines_prep(r):
+    ui_cam(r)
+    r.pg.click("#tabBar [data-tab=routines]")
+    r.pg.wait_for_timeout(1500)
+
+
+@shot("flow", "ui", 8, part="pages", sky="15:49", prep=_routines_prep,
+      caption=cap(("Abläufe", "Eigene Abläufe aus Bausteinen", "Wenn – dann, wie in Node-RED. Ohne YAML."),
+                  ("Routines", "Build your own routines from blocks", "When – then, like in Node-RED. No YAML.")))
+def _(r):
+    tap(r, "[data-page=routines] .bdBtn.primary", text="Neuer|New")
+    r.wait(900)
+    tap(r, ".feDlg [data-add=time]")
+    r.wait(800)
+    tap(r, ".feDlg [data-add=cover]")
+    r.wait(700)
+    tap(r, ".feDlg label", text="Wohnzimmer|Living")
+    r.wait(1500)
+
+
+def _dash_prep(r):
+    ui_cam(r)
+    r.pg.click("#tabBar [data-tab=today]")
+    r.pg.wait_for_timeout(1100)
+    r.pg.click("#tabBar .tbEdit")
+    r.pg.wait_for_timeout(1000)
+
+
+@shot("dash", "ui", 8, part="pages", sky="15:49", prep=_dash_prep,
+      caption=cap(("Dashboards", "Seiten selbst gestalten", "Karten hinzufügen, ausblenden, frei anordnen."),
+                  ("Dashboards", "Design your own pages", "Add cards, hide them, arrange them freely.")))
+def _(r):
+    tap(r, "[data-page=today] .bdAdd")
+    r.wait(600)
+    tap(r, ".ceDlg [data-type=thermostat]")
+    r.wait(600)
+    tap(r, ".ceDlg .ceItem[data-entity='climate.wohnzimmer']")
+    r.wait(500)
+    tap(r, ".ceDlg [data-act=save]")
+    r.wait(900)
+    tap(r, "[data-page=today] .bdStrip [data-act=free]")
+    r.wait(1300)
 
 
 @shot("phone", "phone", 12, part="pages", device="phone", sky="18:40",
@@ -460,7 +537,7 @@ def _outro_prep(r):
     cam(r, 3.0, 26, 13)
 
 
-@shot("outro", "cine", 16, part="outro", slow=9, sky="16:50", settings=tiles_off(), prep=_outro_prep)
+@shot("outro", "cine", 16, part="outro", slow=9, sky="16:50", settings={"roomTiles": False, "seeThrough": False}, prep=_outro_prep)
 def _(r):
     r.hide()
     orbit(r, 3.0, 4.1, 26, 23, 13, 11.5, 8.6)
@@ -468,7 +545,7 @@ def _(r):
 
 # the film, in this order
 ORDER = ["intro", "hero", "close", "light", "scenes", "sky-day", "sky-dusk", "sky-night", "sky-snow", "colors", "power", "warnings",
-         "security", "voice", "inside", "build", "roof", "pages", "phone", "outro"]
+         "security", "voice", "inside", "build", "roof", "power-edit", "pages", "heat", "flow", "dash", "phone", "outro"]
 
 # the address of the demo, shown at the end
 DEMO_URL = "burned4aim.github.io/HA-Floorplanner"
