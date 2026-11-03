@@ -1,0 +1,96 @@
+name: Trailer
+
+# Makes the trailer (tools/make_trailer.py, the owner's wish 2026-11-03: "ein cooles Kurzvideo, wo alle Funktionen zeigt, in einem coolen
+# Zusammenschnitt … schick und modern … dass wenn man jetzt irgendwo einen Post macht … das hinschicken kann"): every shot of
+# tools/trailer/shots.py is filmed in the demo, cut to its own music, as a landscape (16:9) and an upright (9:16) film, German and English.
+# Runs when the trailer's tools change on main and by hand (Actions → Trailer → Run workflow; after a big new version, so it shows it).
+# The films go to the branch "trailer-video" (one commit, replaced every time), then the workflow "Demo" puts them on GitHub Pages:
+# https://burned4aim.github.io/HA-Floorplanner/trailer/
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/trailer/**"
+      - "tools/make_trailer.py"
+      - "!tools/trailer/page.html"            # only the page: the workflow "Demo" puts it on GitHub Pages
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: trailer
+  cancel-in-progress: true
+
+jobs:
+  make:
+    name: make ${{ matrix.lang }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: [de, en]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the demo
+        run: cd demo && npm ci && npm run build
+      - name: Install Chromium, ffmpeg and the fonts (emoji, Inter)
+        timeout-minutes: 20
+        run: |
+          printf 'Acquire::http::Timeout "30";\nAcquire::https::Timeout "30";\nAcquire::Retries "3";\n' | sudo tee /etc/apt/apt.conf.d/99timeouts
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          pip install playwright pillow numpy
+          for i in 1 2 3; do timeout --kill-after=15 300 playwright install chromium && break; echo "Chromium download attempt $i failed, trying again"; done
+          for i in 1 2 3; do
+            timeout --kill-after=15 600 sudo apt-get update -q && timeout --kill-after=15 600 sudo apt-get install -y -q ffmpeg fonts-noto-color-emoji fonts-inter && break
+            echo "apt attempt $i failed, trying again"; sudo pkill -f "apt-get" || true; sleep 20
+          done
+          python -c "from playwright.sync_api import sync_playwright as s; p = s().start(); p.chromium.launch().close(); p.stop()" || timeout 600 playwright install-deps chromium
+          ffmpeg -hide_banner -encoders 2>/dev/null | grep -q libx264
+      - name: Film and cut (${{ matrix.lang }})
+        run: python -u tools/make_trailer.py --lang ${{ matrix.lang }} --out trailer-out --work /tmp/trailer-work
+      - uses: actions/upload-artifact@v4
+        with:
+          name: trailer-${{ matrix.lang }}
+          path: trailer-out
+          retention-days: 3
+
+  publish:
+    needs: make
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: trailer-*
+          path: new
+          merge-multiple: true
+      - name: The new films over the last ones (branch trailer-video)
+        run: |
+          mkdir -p vids
+          if git fetch -q --depth 1 origin trailer-video; then git archive FETCH_HEAD | tar -x -C vids; fi
+          [ -d new ] && cp -r new/. vids/ || echo "nothing new made"
+          ls -la vids
+      - name: Push the branch trailer-video (one commit)
+        run: |
+          cd vids
+          git init -q -b trailer-video
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          printf '# The trailer\n\nMade by the workflow "Trailer" (tools/make_trailer.py) from the demo; replaced at every run. The page: https://burned4aim.github.io/HA-Floorplanner/trailer/\n' > README.md
+          git add -A
+          git commit -q -m "Trailer of ${GITHUB_SHA::7}"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" trailer-video
+      - name: Put them on GitHub Pages (workflow "Demo")
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run demo.yml --ref main --repo "${{ github.repository }}"

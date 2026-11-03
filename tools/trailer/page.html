@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Floorplan Trailer</title>
+<meta name="description" content="3D Floorplan für Home Assistant in anderthalb Minuten: dein Zuhause in 3D, live. 3D Floorplan for Home Assistant in a minute and a half: your home in 3D, live.">
+<meta property="og:title" content="3D Floorplan für Home Assistant – Trailer">
+<meta property="og:description" content="Dein Zuhause in 3D, live aus Home Assistant. Kostenlos und Open Source.">
+<meta property="og:image" content="trailer-de.jpg">
+<meta property="og:video" content="trailer-de.mp4">
+<meta property="og:video:type" content="video/mp4">
+<meta name="twitter:card" content="summary_large_image">
+<!-- The page of the trailer (tools/make_trailer.py). The workflow "Demo" copies it next to the films of the branch trailer-video:
+     trailer-<lang>.mp4 (landscape), trailer-<lang>-9x16.mp4 (upright), trailer-<lang>.jpg (picture). -->
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #080b16; --surface: #121726; --line: #232a3d; --text: #eef0f5; --text-2: #b9bfcc; --muted: #868d9c; --accent: #56a8ff;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) { color-scheme: light; --bg: #f4f5f8; --surface: #ffffff; --line: #dfe2ea; --text: #12141a; --text-2: #454a57; --muted: #767c8a; --accent: #2a78d6; }
+}
+:root[data-theme="light"] { color-scheme: light; --bg: #f4f5f8; --surface: #ffffff; --line: #dfe2ea; --text: #12141a; --text-2: #454a57; --muted: #767c8a; --accent: #2a78d6; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 28px 16px 48px; }
+h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 0 0 6px; letter-spacing: -0.02em; }
+p.lead { color: var(--text-2); margin: 0 0 20px; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.seg button { border: 0; background: none; color: var(--text-2); padding: 6px 14px; border-radius: 999px; font: inherit; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.stage { background: #000; border-radius: 18px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, .35); margin: 0 auto; }
+.stage video { display: block; width: 100%; height: auto; background: #000; }
+.stage.up { max-width: 420px; }
+.links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.links a { display: inline-flex; gap: 8px; align-items: center; padding: 10px 16px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line);
+  color: var(--text); text-decoration: none; }
+.links a.main { background: var(--accent); border-color: var(--accent); color: #fff; }
+.note { color: var(--muted); font-size: 14px; margin-top: 14px; }
+.missing { padding: 60px 20px; text-align: center; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="h">3D Floorplan für Home Assistant</h1>
+  <p class="lead" id="lead">Dein Zuhause in 3D, live – in anderthalb Minuten.</p>
+  <div class="bar">
+    <div class="seg" role="group" aria-label="Sprache / language">
+      <button type="button" data-lang="de">Deutsch</button><button type="button" data-lang="en">English</button>
+    </div>
+    <div class="seg" role="group" aria-label="Format">
+      <button type="button" data-fmt="">16:9</button><button type="button" data-fmt="-9x16">9:16</button>
+    </div>
+  </div>
+  <div class="stage" id="stage"><video id="v" controls playsinline preload="metadata"></video></div>
+  <div class="links">
+    <a class="main" id="dl" download>⬇ <span id="dlt">Video herunterladen</span></a>
+    <a href="../" id="demo">▶ <span id="demot">Live-Demo ausprobieren</span></a>
+    <a href="../guide/" id="guide">🎬 <span id="guidet">Video-Anleitung</span></a>
+    <a href="https://github.com/BuRnEd4AiM/HA-Floorplanner">GitHub</a>
+  </div>
+  <p class="note" id="note"></p>
+</div>
+<script>
+const T = {
+  de: { h: '3D Floorplan für Home Assistant', lead: 'Dein Zuhause in 3D, live – in anderthalb Minuten.', dl: 'Video herunterladen', demo: 'Live-Demo ausprobieren',
+        guide: 'Video-Anleitung', note: '16:9 für YouTube, Foren und Reddit, 9:16 für Instagram, TikTok und Shorts. Die Musik ist selbst gemacht: frei zum Teilen.',
+        missing: 'Dieses Video ist noch nicht da.' },
+  en: { h: '3D Floorplan for Home Assistant', lead: 'Your home in 3D, live – in a minute and a half.', dl: 'Download the video', demo: 'Try the live demo',
+        guide: 'Video guide', note: '16:9 for YouTube, forums and Reddit, 9:16 for Instagram, TikTok and Shorts. The music is our own: free to share.',
+        missing: 'This video is not there yet.' },
+};
+const q = new URLSearchParams(location.search);
+let lang = q.get('lang') || ((navigator.language || 'de').startsWith('de') ? 'de' : 'en');
+let fmt = q.get('fmt') === '9x16' ? '-9x16' : '';
+const $ = (s) => document.querySelector(s);
+function show() {
+  const t = T[lang] || T.de, name = `trailer-${lang}${fmt}`;
+  document.documentElement.lang = lang;
+  $('#h').textContent = t.h; $('#lead').textContent = t.lead; $('#dlt').textContent = t.dl; $('#demot').textContent = t.demo;
+  $('#guidet').textContent = t.guide; $('#note').textContent = t.note;
+  document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  document.querySelectorAll('[data-fmt]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.fmt === fmt));
+  $('#stage').classList.toggle('up', fmt !== '');
+  const v = $('#v');
+  v.poster = `trailer-${lang}.jpg`;
+  v.src = `${name}.mp4`;
+  v.onerror = () => { $('#stage').innerHTML = `<div class="missing">${t.missing}</div>`; };
+  $('#dl').href = `${name}.mp4`;
+  $('#dl').setAttribute('download', `3D-Floorplan-${name}.mp4`);
+}
+document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('click', () => { lang = b.dataset.lang; location.replace(`?lang=${lang}${fmt ? '&fmt=9x16' : ''}`); }));
+document.querySelectorAll('[data-fmt]').forEach((b) => b.addEventListener('click', () => { fmt = b.dataset.fmt; location.replace(`?lang=${lang}${fmt ? '&fmt=9x16' : ''}`); }));
+show();
+</script>
+</body>
+</html>

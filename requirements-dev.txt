@@ -3,3 +3,5 @@ pytest>=9.2.0
 pytest-aiohttp>=1.0
 pytest-asyncio>=1.4.1
 jsonschema>=4.26.0
+numpy>=2.0
+pillow>=11.0

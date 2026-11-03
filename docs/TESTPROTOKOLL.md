@@ -408,7 +408,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 153. Neu in 4.63.0: 🏗 Balkon mit Geländer | 5 | 0 | 5 | 0 | 153.6 bis 153.10 |
 | 154. 🎬 Video-Anleitung: Strom-Rechner, Strom mehrerer Häuser, Nanoleaf (nach 4.63.0, nur die Anleitung) | 2 | 0 | 5 | 0 | 154.3 bis 154.7 |
 | 155. Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff | 5 | 0 | 3 | 0 | 155.5 bis 155.7 |
-| **Zusammen** | **912** | **2** | **169** | **92** | |
+| 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge) | 2 | 0 | 3 | 0 | 156.3 bis 156.5 |
+| **Zusammen** | **914** | **2** | **172** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2391,3 +2392,14 @@ biggilottecassi in #624: „Kann man die Kippstellung von dem Fenster grafisch n
 | 155.5 | Demo: „Bearbeiten“, Erdgeschoss, im Wohnzimmer das rechte Fenster („Fenster Terrasse“, gekippt) anklicken, „Kippwinkel“ auf 35 | Das gelbe Fenster kippt mit seinem Rahmen und Griff deutlich weiter nach innen | ❓ |
 | 155.6 | Im Add-on mit deinem Kippfenster (oder biggilottecassi mit seinem): einen Winkel wählen, der dir gefällt, „Diesen Winkel für alle Fenster“ | Jedes gekippte Fenster kippt so weit wie eingestellt | ❓ |
 | 155.7 | Nach dem Update auf der Seite der Anleitung das Video „Fenster mit zwei Kontakten: gekippt und offen“ ansehen (oder „Kippwinkel“ suchen) | Nach dem gelben, gekippten Fenster: „Kippwinkel (°)“ auf 35, der Flügel kippt weiter, dann „Diesen Winkel für alle Fenster“ | ❓ |
+
+## 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge)
+Der Besitzer am 2026-11-03: „ein cooles Kurzvideo, wo alle Funktionen zeigt, in einem coolen Zusammenschnitt, wo auch wirklich qualitativ gut aussieht … dass wenn man jetzt irgendwo einen Post macht … das hinschicken kann“. Neu: `tools/make_trailer.py` (Szenen in `tools/trailer/shots.py`, Schnitt `edit.py`, eigene Musik `music.py`), der Workflow „Trailer“ und die Seite https://burned4aim.github.io/HA-Floorplanner/trailer/.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 156.1 | `python3 -m pytest tests/test_make_trailer.py` | Jede Szene hat deutsche und englische Texte, jeder Teil beginnt auf einem ganzen Takt, die Titel passen ins Bild (quer und hochkant), die Musik ist so lang wie der Film, laut genug und übersteuert nie | ✅ (2026-11-03, Claude) |
+| 156.2 | Den deutschen Trailer machen (16:9 und 9:16) und Bild für Bild ansehen | Titel mit Haus-Logo, Kamerafahrt ums ganze Haus bei Nacht, dann Licht, Szenen, Himmel und Wetter, Farben, Strom, Warnungen, Sicherheit, Sprache, Innenräume, Zeichnen, Dach, Möbel, Seiten, Handy, am Ende die Adresse der Demo; die Schnitte liegen auf dem Takt | ✅ (2026-11-03, Claude) |
+| 156.3 | Das Video aus dem Chat am Handy und am PC ansehen, mit Ton | Es sieht modern aus, man versteht in 90 Sekunden, was das Add-on kann; die Musik passt | ❓ |
+| 156.4 | Nach dem Merge: Actions → „Trailer“ läuft durch (etwa eine halbe Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen | Das Video spielt, „Deutsch/English“ und „16:9/9:16“ wechseln, „Video herunterladen“ speichert die MP4 | ❓ |
+| 156.5 | Das 9:16-Video in eine Instagram-Story / WhatsApp-Status / TikTok laden (nur Vorschau, nicht posten) | Es füllt den Bildschirm hochkant, die Titel sind lesbar | ❓ |

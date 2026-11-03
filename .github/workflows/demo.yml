@@ -20,6 +20,7 @@ on:
       - "tools/guide/search.js"         # its search
       - "tools/guide/tags.py"           # more search words and words with the same meaning
       - "tools/make_guide.py"
+      - "tools/trailer/page.html"       # the page of the trailer (its films come from the branch trailer-video, workflow "Trailer")
       - "tools/danke.html"              # hidden thank-you page for donations (return URL in PayPal), not linked anywhere
       - "!demo/floorplan3d-demo.html"
   workflow_dispatch:
@@ -68,6 +69,11 @@ jobs:
           mkdir -p /tmp/guide-videos
           if git fetch -q --depth 1 origin guide-videos; then git archive FETCH_HEAD | tar -x -C /tmp/guide-videos; fi
           python3 tools/make_guide.py --site _site/guide --videos /tmp/guide-videos
+      - name: The trailer next to the demo (trailer/, films from the branch trailer-video)
+        run: |
+          mkdir -p _site/trailer
+          if git fetch -q --depth 1 origin trailer-video; then git archive FETCH_HEAD | tar -x -C _site/trailer; rm -f _site/trailer/README.md; fi
+          cp tools/trailer/page.html _site/trailer/index.html
       - name: Upload the Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
