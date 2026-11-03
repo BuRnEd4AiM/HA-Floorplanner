@@ -307,6 +307,30 @@ def test_tilt_contact_is_imported_and_exported():
     assert any("tiltEntity" in d.get("properties", {}) for d in schema["$defs"].values())
 
 
+def test_tilt_angle_is_imported_and_exported():
+    """#624 (biggilottecassi: "die Kippstellung … grafisch noch ein bisschen mehr"): a window's tilt angle (tiltDeg, 5 to 45 degrees)
+    survives import and export; 14 (the default) is not stored, a wrong number and a door are warned about, fixed glazing has none"""
+    room = [{"points": [[0, 0], [8, 0], [8, 3], [0, 3]]}]
+    f = square_flat(rooms=room, openings=[
+        {"preset": "window", "at": [1.5, 0], "entity": "binary_sensor.a", "tiltDeg": 30},
+        {"preset": "window", "at": [3.0, 0], "entity": "binary_sensor.b", "tiltDeg": 14},
+        {"preset": "window", "at": [6.5, 0], "entity": "binary_sensor.c", "tiltDeg": 90},
+        {"preset": "windowFixed", "at": [4.5, 0], "entity": "binary_sensor.d", "tiltDeg": 20},
+        {"preset": "door", "at": [3, 3], "entity": "binary_sensor.e", "tiltDeg": 20}])
+    layout, _, rep, _ = importer.build_layout(f)
+    assert not rep.errors
+    ops = {o.get("entity"): o for w in layout["floors"][0]["walls"] for o in w["openings"]}
+    assert ops["binary_sensor.a"]["tiltDeg"] == 30
+    assert not any("tiltDeg" in ops[e] for e in ("binary_sensor.b", "binary_sensor.c", "binary_sensor.d", "binary_sensor.e"))
+    warned = [w["path"] for w in rep.warnings if w["path"].endswith(".tiltDeg")]
+    assert len(warned) == 2, warned                                   # 90 degrees and the door
+    again, _, rep2, _ = importer.build_layout(importer.layout_to_property(layout, "x"))
+    ops2 = {o.get("entity"): o for w in again["floors"][0]["walls"] for o in w["openings"]}
+    assert ops2["binary_sensor.a"]["tiltDeg"] == 30 and not rep2.errors
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    assert any(d.get("properties", {}).get("tiltDeg", {}).get("maximum") == 45 for d in schema["$defs"].values())
+
+
 def test_schema_describes_covers_and_per_pane_hinges():
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     props = next(d["properties"] for d in schema["$defs"].values() if "paneEntities" in d.get("properties", {}))

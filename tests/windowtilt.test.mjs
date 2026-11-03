@@ -111,3 +111,33 @@ test('the pill "n offen" counts a tilt-and-turn pane once, also with both contac
   const panes = { type: 'window', entity: 'binary_sensor.a', paneEntities: ['binary_sensor.a', 'binary_sensor.b'] };
   assert.equal(O.openCount(panes, env({ 'binary_sensor.a': 'on', 'binary_sensor.b': 'on' }).isOpen), 2, 'two panes open are two, as before');
 });
+
+test('the tilt angle of a window (biggilottecassi: "noch ein bisschen mehr"): 14° without one, whole degrees from 5 to 45', () => {
+  assert.equal(T.tiltDeg(win), 14);
+  assert.equal(T.tiltDeg({ ...win, tiltDeg: 30 }), 30);
+  assert.equal(T.tiltDeg({ ...win, tiltDeg: 99 }), 45, 'not more than 45');
+  assert.equal(T.tiltDeg({ ...win, tiltDeg: 2 }), 5, 'not less than 5');
+  assert.equal(T.tiltDeg({ ...win, tiltDeg: 22.6 }), 23);
+  for (const bad of ['', 'abc', null, -10, 0, NaN]) assert.equal(T.tiltDeg({ ...win, tiltDeg: bad }), 14, String(bad));
+  assert.equal(T.tiltDeg(null), 14);
+  assert.ok(Math.abs(T.tiltAngle({ ...win, tiltDeg: 30 }) - Math.PI / 6) < 1e-9);
+  assert.ok(Math.abs(T.tiltAngle(win) - T.TILT_ANGLE) < 1e-9 && Math.abs(T.TILT_ANGLE - 0.2443) < 0.001, 'about 14°, as before');
+});
+
+test('set the tilt angle typed in: kept in 5..45, 14 is not stored', () => {
+  const o = { ...win };
+  assert.equal(T.setTiltDeg(o, '30'), 30); assert.equal(o.tiltDeg, 30);
+  assert.equal(T.setTiltDeg(o, 80), 45); assert.equal(o.tiltDeg, 45);
+  assert.equal(T.setTiltDeg(o, 14), 14); assert.equal('tiltDeg' in o, false);
+  o.tiltDeg = 20; assert.equal(T.setTiltDeg(o, ''), 14, 'an empty field: back to 14'); assert.equal('tiltDeg' in o, false);
+});
+
+test('"Für alle Fenster": the angle for every window that opens, not for doors and fixed glazing', () => {
+  const list = [{ type: 'window', style: 'single' }, { type: 'window' }, { type: 'window', style: 'fixed' }, { type: 'door' }, { type: 'window', tiltDeg: 40 }];
+  assert.equal(T.tiltAll(list, 25), 3);
+  assert.deepEqual(list.map((o) => o.tiltDeg), [25, 25, undefined, undefined, 25]);
+  assert.equal(T.tiltAll(list, 14), 3);
+  assert.ok(list.every((o) => !('tiltDeg' in o)), 'back to 14: nothing stored');
+  assert.equal(T.canTilt({ type: 'window', style: 'fixed' }), false);
+  assert.equal(T.canTilt({ type: 'door' }), false);
+});

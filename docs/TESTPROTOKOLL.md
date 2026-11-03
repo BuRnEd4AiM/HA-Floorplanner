@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.63.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.64.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.63.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.64.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff** (Abschnitt 155, gefragt von biggilottecassi in #624: „die Kippstellung … grafisch noch ein bisschen mehr“): Claude hat 155.1 bis 155.5a im Browser-Test geprüft; für dich in der Demo 155.5, im Add-on 155.6, nach dem Merge das Video 155.7.
 1. **Neu nach 4.63.0: 🎬 Videos zum Strom-Rechner, zum Strom mehrerer Häuser und zum Nanoleaf-Editor** (Abschnitt 154, dein Wunsch: „eine Anleitung für den Strom-Rechner … auch für mehrere Häuser und der Nanoleaf-Editor“): Claude hat 154.1 und 154.2 geprüft; für dich nach dem Merge auf der Seite der Anleitung 154.3 bis 154.6, im Add-on 154.7.
 1. **Neu in 4.63.0: 🏗 Balkon mit Geländer** (Abschnitt 153, gefragt von christinloehner in #646): Claude hat 153.1 bis 153.5 im Browser-Test geprüft; für dich in der Demo 153.6 bis 153.8, im Add-on 153.9, nach dem Merge das Video 153.10.
 1. **Neu in 4.62.0: 🪟 Dachfenster ohne Gaube** (Abschnitt 152, gefragt von christinloehner in #643): Claude hat 152.1 bis 152.6 im Browser-Test geprüft; für dich in der Demo 152.7 und 152.8, im Add-on 152.9 und 152.10, nach dem Merge das Video 152.11.
@@ -406,7 +407,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 152. Neu in 4.62.0: 🪟 Dachfenster ohne Gaube | 6 | 0 | 5 | 0 | 152.7 bis 152.11 |
 | 153. Neu in 4.63.0: 🏗 Balkon mit Geländer | 5 | 0 | 5 | 0 | 153.6 bis 153.10 |
 | 154. 🎬 Video-Anleitung: Strom-Rechner, Strom mehrerer Häuser, Nanoleaf (nach 4.63.0, nur die Anleitung) | 2 | 0 | 5 | 0 | 154.3 bis 154.7 |
-| **Zusammen** | **907** | **2** | **166** | **92** | |
+| 155. Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff | 5 | 0 | 3 | 0 | 155.5 bis 155.7 |
+| **Zusammen** | **912** | **2** | **169** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2375,3 +2377,17 @@ Der Besitzer am 2026-11-03: „kannst du noch eine antleitung für den strom rec
 | 154.5 | Das Video „Nanoleaf: die Form der Panels zeichnen“ (oder „Nanoleaf“ suchen) | Den Nanoleaf finden, „✎ Layout bearbeiten“, Dreiecke und ein Sechseck rasten ein, „Drehen“, „Zurück“, „Übernehmen“: die neue Form an der Wand | ❓ |
 | 154.6 | Das Video „Mehrere Häuser und das Nachbarhaus“ | Haus wechseln, „+ Neues Haus“, „Duplizieren“, „Umbenennen“, das Nachbarhaus um 30° gedreht und wieder zurück | ❓ |
 | 154.7 | Im Add-on: 🎬 Anleitung öffnen (eine gespeicherte Kopie „📥 Für ohne Internet speichern“ vorher neu speichern), „Nanoleaf“ suchen | Die Videos „Nanoleaf: die Form der Panels zeichnen“ und „Effekte: Nanoleaf, WLED und Co.“ | ❓ |
+
+## 155. Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff
+biggilottecassi in #624: „Kann man die Kippstellung von dem Fenster grafisch noch ein bisschen mehr als Kippstellung anzeigen lassen?“ Der Besitzer am 2026-11-03: „vielleicht, dass man einstellen kann, wie viel Grad das Fenster aufkippen soll“. Ein Fenster hat jetzt unter „Kontakt gekippt“ das Feld „Kippwinkel (°)“ (5° bis 45°, ohne Angabe 14° wie bisher) und den Knopf „Diesen Winkel für alle Fenster“. Nach den Beispielbildern (`docs/ideen-4.64/`) der Besitzer: „Ja, mit Griff“: jeder Flügel, der aufgeht, hat einen Flügelrahmen mit Griff.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 155.1 | ✎ Bearbeiten, ein Fenster mit Kontakt gekippt anklicken; bei einer Festverglasung nachsehen | Unter „Kontakt gekippt“ steht „Kippwinkel (°)“ mit 14 und darunter „Diesen Winkel für alle Fenster“; die Festverglasung hat beides nicht | ✅ (2026-11-03, Claude im Browser-Test 69_window_tilt) |
+| 155.2 | Das Fenster ist gekippt, „Kippwinkel“ 30, dann 80 eintippen | Der Flügel kippt 30° nach innen; 80 wird zu 45 | ✅ (2026-11-03, Claude im Browser-Test 69_window_tilt) |
+| 155.3 | Bei einem Fenster, das zu ist, den Kippwinkel ändern | Es kippt kurz (gut 2 Sekunden) mit dem neuen Winkel, dann ist es wieder zu | ✅ (2026-11-03, Claude im Browser-Test 69_window_tilt) |
+| 155.4 | „Diesen Winkel für alle Fenster“, dann neu laden; zurück auf 14 | Alle Fenster des Hauses haben den Winkel, unten steht „Kippwinkel 20° für alle … Fenster übernommen“, er bleibt nach dem Speichern; 14 wird nicht gespeichert; Import und Export behalten `tiltDeg` | ✅ (2026-11-03, Claude im Browser-Test 69_window_tilt und tests/test_import.py) |
+| 155.5a | Ein Fenster mit einem Flügel, eins mit zwei Flügeln, eine Festverglasung ansehen; im ganzen Haus nachzählen (dein Wunsch: „für alle Fenster, nicht dass welche vergessen wird“) | Jeder Flügel hat einen Rahmen mit Griff in der Farbe des Fensterrahmens, gegenüber dem Anschlag; die Festverglasung hat keinen; gekippt kippt der Rahmen mit, offen dreht er sich mit; alle Fenster haben ihn (Demo: 14 von 14, mit 2 Gaubenfenstern und dem Dachfenster; jede Art Fenster im Unit-Test); die Zahl der Zeichenaufrufe im Musterhaus bleibt unter 2000 | ✅ (2026-11-03, Claude im Browser-Test 69_window_tilt und 14_showcase, tests/sash.test.mjs, Demo) |
+| 155.5 | Demo: „Bearbeiten“, Erdgeschoss, im Wohnzimmer das rechte Fenster („Fenster Terrasse“, gekippt) anklicken, „Kippwinkel“ auf 35 | Das gelbe Fenster kippt mit seinem Rahmen und Griff deutlich weiter nach innen | ❓ |
+| 155.6 | Im Add-on mit deinem Kippfenster (oder biggilottecassi mit seinem): einen Winkel wählen, der dir gefällt, „Diesen Winkel für alle Fenster“ | Jedes gekippte Fenster kippt so weit wie eingestellt | ❓ |
+| 155.7 | Nach dem Update auf der Seite der Anleitung das Video „Fenster mit zwei Kontakten: gekippt und offen“ ansehen (oder „Kippwinkel“ suchen) | Nach dem gelben, gekippten Fenster: „Kippwinkel (°)“ auf 35, der Flügel kippt weiter, dann „Diesen Winkel für alle Fenster“ | ❓ |

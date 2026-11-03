@@ -2235,6 +2235,8 @@ export default {
   'state.tilted': 'A ribalta', 'prop.tiltContact': 'Contatto a ribalta',
   'prop.tiltContactHint': 'Un secondo contatto per una finestra anta-ribalta: segnala «a ribalta». Il contatto sopra segnala allora «aperta».',
   'prop.tiltContactSub': 'Facoltativo, per una finestra che si può aprire a ribalta e ad anta: a ribalta diventa gialla e si inclina in 3D; aperta diventa rossa.',
+  'prop.tiltDeg': 'Angolo a ribalta (°)', 'prop.tiltDegHint': 'Quanto l’anta si inclina verso l’interno in 3D quando la finestra è a ribalta (da 5° a 45°, altrimenti 14°). Mentre lo cambi la finestra si inclina per un momento, così lo vedi.',
+  'prop.tiltDegAll': 'Questo angolo per tutte le finestre', 'prop.tiltDegAllHint': 'Usa questo angolo per tutte le finestre della casa', 'prop.tiltDegAllDone': 'Angolo di {deg}° impostato per tutte le {n} finestre',
   'stair.corner': 'Angolo', 'stair.cornerLanding': 'Pianerottolo', 'stair.cornerWinder': 'Gradini a ventaglio', 'stair.winders': 'Gradini a ventaglio',
   'stair.split': 'Gradini della 1ª rampa', 'stair.splitHint': 'Quanti gradini prima dell’angolo: di più dà una prima rampa lunga e una seconda corta.',
   'stair.solid': 'Massiccia (gradini fino al pavimento)',

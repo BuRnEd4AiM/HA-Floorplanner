@@ -339,6 +339,13 @@ def _opening_from(rep: Report, path: str, spec: dict):
             rep.warn(f"{path}.tiltEntity", "only windows have a tilt contact, ignored")
         else:
             o["tiltEntity"] = spec["tiltEntity"][:120]
+    if "tiltDeg" in spec:                                         # how far a tilted pane leans in, in 3D (5 to 45 degrees, 14 is the default)
+        if o["type"] != "window":
+            rep.warn(f"{path}.tiltDeg", "only windows tilt, ignored")
+        elif not _num(spec["tiltDeg"], 5, 45):
+            rep.warn(f"{path}.tiltDeg", "tiltDeg must be a number between 5 and 45 (degrees), ignored")
+        elif round(float(spec["tiltDeg"])) != 14:
+            o["tiltDeg"] = int(round(float(spec["tiltDeg"])))
     shutter_entity = spec.get("shutterEntity") if isinstance(spec.get("shutterEntity"), str) else ""
     cover = spec.get("shutter") is True or bool(shutter_entity)
     if cover:                                                     # cover of a window (#331), with its own entity
@@ -389,6 +396,7 @@ def _opening_from(rep: Report, path: str, spec: dict):
         if o.get("style") == "fixed":
             o.pop("paneEntities", None)                           # fixed glazing has no contact per pane
             o.pop("tiltEntity", None)                             # and does not tilt
+            o.pop("tiltDeg", None)
         if "panes" in spec:
             panes = spec["panes"]
             whole = isinstance(panes, (int, float)) and not isinstance(panes, bool) and float(panes).is_integer()
@@ -1268,7 +1276,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "tiltEntity", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "rainWarn", "heat") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "rainWarn", "heat") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []

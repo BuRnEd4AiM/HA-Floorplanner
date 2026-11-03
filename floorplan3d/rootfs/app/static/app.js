@@ -1606,6 +1606,7 @@ const props = initProps({
   uploadPicture: (f, d) => uploadPicture(f, d), floorH: FLOOR_H, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
   balconyFree: (id) => balconies.free(floorIdx).has(id),        // a balcony that hangs free (#646): its fields say so
+  previewTilt: (id) => openings.preview(id), allOpenings: () => layout.floors.flatMap((f) => openingWalls(f).flatMap((w) => w.openings || [])),   // "Kippwinkel" (tiltui.js)
   closetRoof: (d) => { const planes = roofsUi.slopesAt(floorIdx, d.x, d.z); return planes ? { planes, baseY: elev(floorIdx) + (d.y || 0) } : null; },   // a cabinet fits under the roof over it (closet.js; an L-shaped house: the wing's roof, #621)
 });
 function renderObjList() { objList.render(); }
@@ -1900,6 +1901,7 @@ if (params.get('debug')) {
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData?.target ?? 0),   // a fixed pane has no target: 0
     tiltTargets: (id) => (registry.get(id)?.userData.tiltPivots || []).map((p) => p?.userData?.target ?? 0),   // a tilted pane (#624), its angle
+    sashes: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.children.some((c) => c.userData?.sash)),   // a pane with a sash (sash.js)
     openLook: (id) => registry.get(id)?.userData.look ?? null,                                                 // 'open', 'tilted', 'closed' …
     shutterScale: (id) => { const sh = registry.get(id)?.userData.shutter; const p = Array.isArray(sh) ? sh[0] : sh; return p?.userData.target ?? null; },   // how far a window's cover closes (#331)
     liveOk: () => liveChan.ok(),

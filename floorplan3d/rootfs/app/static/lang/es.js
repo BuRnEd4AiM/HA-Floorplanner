@@ -2239,6 +2239,8 @@ export default {
   'state.tilted': 'Abatida', 'prop.tiltContact': 'Contacto abatida',
   'prop.tiltContactHint': 'Un segundo contacto para una ventana oscilobatiente: indica «abatida». El contacto de arriba indica entonces «abierta».',
   'prop.tiltContactSub': 'Opcional, para una ventana que se puede abatir y abrir: abatida, se vuelve amarilla y se inclina en 3D; abierta, se vuelve roja.',
+  'prop.tiltDeg': 'Ángulo de abatimiento (°)', 'prop.tiltDegHint': 'Cuánto se inclina la hoja hacia dentro en 3D cuando la ventana está abatida (5° a 45°, si no 14°). Al cambiarlo, la ventana se inclina un momento para que se vea.',
+  'prop.tiltDegAll': 'Este ángulo para todas las ventanas', 'prop.tiltDegAllHint': 'Usar este ángulo para todas las ventanas de la casa', 'prop.tiltDegAllDone': 'Ángulo de {deg}° aplicado a las {n} ventanas',
   'stair.corner': 'Esquina', 'stair.cornerLanding': 'Rellano', 'stair.cornerWinder': 'Compensada (peldaños en abanico)', 'stair.winders': 'Peldaños en abanico',
   'stair.split': 'Peldaños del 1.er tramo', 'stair.splitHint': 'Cuántos peldaños hay antes de la esquina: más da un primer tramo largo y un segundo corto.',
   'stair.solid': 'Maciza (peldaños hasta el suelo)',

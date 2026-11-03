@@ -30,6 +30,7 @@ QUERIES = [
     ("Wand malen", "de", "walls"), ("Haus zeichnen", "de", "walls"), ("draw walls", "en", "walls"),
     ("Bauplan hochladen", "de", "background"), ("Foto vom Grundriss abzeichnen", "de", "background"),
     ("Tür einbauen", "de", "openings"), ("Terrassentür", "de", "openings"), ("Fenster gekippt", "de", "window-tilt"),
+    ("Kippwinkel", "de", "window-tilt"), ("Fenster weiter kippen", "de", "window-tilt"), ("tilt angle", "en", "window-tilt"),
     ("Fenstergriff Sensor", "de", "window-tilt"), ("zweiflügeliges Fenster", "de", "window-setup"),
     ("Sofa", "de", "library devices-place move"), ("Möbel einfügen", "de", "library"), ("add furniture", "en", "library"),
     ("Kleiderschrank Dachschräge", "de", "closet"), ("Wendeltreppe", "de", "stairs"), ("Treppe mit Kurve", "de", "stairs-winder stairs"),

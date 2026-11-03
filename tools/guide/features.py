@@ -144,3 +144,5 @@ f("skylight", "edit", "Dachfenster ohne Gaube: in der Dachschräge, übliche Gr�
 f("balcony", "edit", "Balkon und Dachterrasse: Geländer aus Metall, Glas oder Holz, Stützen bis zum Boden, frei hängend auf einer Platte (auch am Hang)", "Balcony and roof terrace: a railing of metal, glass or wood, supports down to the ground, hanging free on a plate (also on a slope)",
   ["balcony"], since="4.63.0")
 f("windowtilt", "edit", "Fenster mit zwei Kontakten: gekippt und offen", "A window with two contacts: tilted and open", ["window-tilt"], since="4.59.0")
+f("tiltangle", "edit", "Kippwinkel eines Fensters (5° bis 45°, auch für alle Fenster) und Flügelrahmen mit Griff", "Tilt angle of a window (5° to 45°, also for every window) and a sash with a handle",
+  ["window-tilt"], since="4.64.0")

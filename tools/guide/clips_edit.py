@@ -221,9 +221,9 @@ def _(r):
 
 @clip("window-tilt", "edit",
       {"de": "Fenster mit zwei Kontakten: gekippt und offen", "en": "A window with two contacts: tilted and open"},
-      {"de": "Ein Dreh-Kipp-Fenster mit einem Flügel bekommt zwei Kontakte: „Kontakt“ meldet offen, „Kontakt gekippt“ meldet gekippt. Gekippt wird das Fenster gelb und kippt nach innen, offen wird es rot und geht auf, zu hat es einen grünen Rahmen.",
-       "en": "A tilt-and-turn window with one pane gets two contacts: “Contact” reports open, “Tilt contact” reports tilted. Tilted, the window turns yellow and tilts in; open, it turns red and swings open; shut, it has a green frame."},
-      "Fenster gekippt kippen Kipp Dreh-Kipp Drehkipp zwei Kontakte zweiter Kontakt Fensterkontakt offen geschlossen gelb Griff Fenstergriff window tilted tilt turn two contacts second contact handle sensor open closed yellow",
+      {"de": "Ein Dreh-Kipp-Fenster mit einem Flügel bekommt zwei Kontakte: „Kontakt“ meldet offen, „Kontakt gekippt“ meldet gekippt. Gekippt wird das Fenster gelb und kippt nach innen (wie weit: „Kippwinkel“), offen wird es rot und geht auf, zu hat es einen grünen Rahmen.",
+       "en": "A tilt-and-turn window with one pane gets two contacts: “Contact” reports open, “Tilt contact” reports tilted. Tilted, the window turns yellow and tilts in (how far: “Tilt angle”); open, it turns red and swings open; shut, it has a green frame."},
+      "Fenster gekippt kippen Kipp Dreh-Kipp Drehkipp zwei Kontakte zweiter Kontakt Fensterkontakt offen geschlossen gelb Griff Fenstergriff Kippwinkel Winkel Grad window tilted tilt turn two contacts second contact handle sensor open closed yellow tilt angle degrees",
       query="mode=edit", prep=window_room)
 def _(r):
     r.say("Klicke das Fenster an: es hat einen Flügel.", "Click the window: it has one pane.")
@@ -248,13 +248,25 @@ def _(r):
     r.wait(500)
     r.click("#tiltContact .entItem[data-id='binary_sensor.fenster_wz_gekippt']")
     r.wait(1200)
-    r.say("Er ist gerade auf: das Fenster ist gekippt. Es wird gelb und kippt nach innen.", "It is on right now: the window is tilted. It turns yellow and tilts in.")
+    r.say("Er ist gerade auf: das Fenster ist gekippt. Es wird gelb, der Flügel mit Rahmen und Griff kippt nach innen.",
+          "It is on right now: the window is tilted. It turns yellow, the pane with its sash and handle tilts in.")
     r.wait(1400)
     r.js("""(() => { const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f);
       const mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2;
       fp.camAt(mx + 2.4, 1.9, mz - 2.2, mx - 1.2, mz + 3); })()""" % FRONT_WALL)          # a little from the side: the pane leans in
     r.wait(2200)
     r.poster()
+    r.say("Zu wenig zu sehen? „Kippwinkel (°)“ sagt, wie weit der Flügel im Bild kippt: normal 14°, hier 35°.",
+          "Hard to see? “Tilt angle (°)” says how far the pane tilts in the picture: 14° normally, 35° here.")
+    r.click("#tiltDeg")
+    r.pg.keyboard.press("Control+A")
+    r.type("35")
+    r.key("Enter")
+    r.wait(2600)
+    r.say("„Diesen Winkel für alle Fenster“ nimmt ihn für jedes Fenster im Haus. Ist ein Fenster zu, kippt es beim Ändern kurz, damit man den Winkel sieht.",
+          "“This angle for all windows” uses it for every window of the house. A shut window tilts for a moment when you change it, so you see the angle.")
+    r.move("#tiltDegAll")
+    r.wait(3000)
     r.say("Meldet der Kontakt „offen“, ist es offen: rot, der Flügel geht auf. „Offen“ gewinnt, auch wenn beide melden.",
           "When the contact reports “open”, it is open: red, the pane swings open. “Open” wins, also when both report.")
     r.js("""clearInterval(window.__guideHold); window.__guideHold = setInterval(() => window.__fp.fakeState('binary_sensor.fenster_wz_offen', 'on'), 150)""")

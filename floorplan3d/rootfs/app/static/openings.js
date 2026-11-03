@@ -113,6 +113,13 @@ export function initOpenings(ctx) {
     if (sp) { sp.visible = ctx.labelsOn?.() ?? true; sp.userData.setText(shutterLabel(st, t, o)); }
     ctx.tapBalls?.update(o.id, ctx.onStates.has(st?.state), null, !!ctx.isLive?.(), fi <= (ctx.floorIdx?.() ?? Infinity));
   }
+  /** window id → timer: after its tilt angle changed (tiltui.js) the window leans in for a moment, also when it is shut, so you see the angle */
+  const previews = new Map();
+  function preview(id, ms = 2500) {
+    clearTimeout(previews.get(id));
+    previews.set(id, setTimeout(() => { previews.delete(id); apply(); }, ms));
+    apply();
+  }
   /** tint and leaf targets of every opening, and the pill */
   function apply() {
     let n = 0, any = false;
@@ -138,7 +145,9 @@ export function initOpenings(ctx) {
         if (pv.userData?.dir == null) return;                         // a fixed pane does not move
         pv.userData.target = opens[i] ? pv.userData.dir * pv.userData.max : 0;
       });
-      tps.forEach((tg, i) => { if (tg?.userData) tg.userData.target = words[i] === 'tilted' ? tg.userData.dir * tg.userData.max : 0; });
+      const shown = previews.has(o.id);                               // its tilt angle just changed: the panes that tilt lean in (not an open one)
+      const leans = (i) => words[i] === 'tilted' || (shown && words[i] !== 'open' && (!tilting.size || tilting.has(i)));
+      tps.forEach((tg, i) => { if (tg?.userData) tg.userData.target = leans(i) ? tg.userData.dir * tg.userData.max : 0; });
     })));
     const pill = $('#openPill');
     pill.hidden = !any;
@@ -185,5 +194,5 @@ export function initOpenings(ctx) {
   }
   /** what is open now (the page ☀ Heute, #481) */
   const items = () => openItems(ctx.layout().floors, { isOpen, stateOf, t, pointInPoly: ctx.pointInPoly, distToPoly: ctx.distToPoly });
-  return { isOpen, openText, contactText, windowText, isTilted, apply, renderList, animate, items };
+  return { isOpen, openText, contactText, windowText, isTilted, apply, preview, renderList, animate, items };
 }
