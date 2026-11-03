@@ -3,6 +3,8 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Changed
+- **Video guide: the search finds much more** (the owner, 2026-11-03: "dass man die besser findet, wenn man oben was sucht … pro Video mehr Tags … wenn Leute ein anderes Wort verwenden als es ist, dass dann trotzdem das richtige Video kommt"): every video has many more search words in German and English (other words people use, questions, brands, common typing mistakes; `tools/guide/tags.py`), and the search (`tools/guide/search.js`) also finds words with the same meaning (*Rollo*, *Jalousie* → the shutter video), other forms (*Lampen*, *Türen*, *Tuer*), long words (*Deckenleuchte*, *Wohnzimmerfenster*), small typing mistakes (*Heizng*: "also searched for “Heizung”") and whole questions (*wer hat das Licht angemacht*: the little words are left out, words in the same order as in a video count more). If no video has every word, the ones with the most come, and "Might also fit" below; a card found only by a search word says which ("found by …"). Of 135 typical searches, 63 found the right video among the first three before (68 found nothing at all), now all 135 (`tests/test_guide_search.py`, unit test `tests/guidesearch.test.mjs`, a new CI step). Only the page of the guide changed, not the add-on; changing the search words needs no new videos.
 
 ## [4.61.0] - 2026-11-03
 ### Added

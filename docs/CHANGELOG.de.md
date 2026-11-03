@@ -3,6 +3,8 @@
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
 ## [Unreleased]
+### Verbessert
+- **Video-Anleitung: die Suche findet viel mehr** (der Besitzer, 2026-11-03: „dass man die besser findet, wenn man oben was sucht … pro Video mehr Tags … wenn Leute ein anderes Wort verwenden als es ist, dass dann trotzdem das richtige Video kommt“): jedes Video hat viele weitere Suchwörter auf Deutsch und Englisch (andere Wörter, die Leute benutzen, Fragen, Marken, häufige Tippfehler; `tools/guide/tags.py`), und die Suche (`tools/guide/search.js`) findet auch Wörter mit gleicher Bedeutung (*Rollo*, *Jalousie* → das Video zum Rollladen), andere Formen (*Lampen*, *Türen*, *Tuer*), lange Wörter (*Deckenleuchte*, *Wohnzimmerfenster*), kleine Tippfehler (*Heizng*: „auch gesucht nach „Heizung““) und ganze Fragen (*wer hat das Licht angemacht*: die kleinen Wörter zählen nicht, Wörter in derselben Reihenfolge wie im Video zählen mehr). Hat kein Video alle Wörter, kommen die mit den meisten, darunter „Passt vielleicht auch“; eine Karte, die nur über ein Suchwort gefunden wurde, sagt welches („gefunden über …“). Von 135 typischen Suchen fanden vorher 63 das richtige Video unter den ersten drei (68 gar nichts), jetzt alle 135 (`tests/test_guide_search.py`, Unit-Test `tests/guidesearch.test.mjs`, ein neuer CI-Schritt). Nur die Seite der Anleitung hat sich geändert, nicht das Add-on; neue Suchwörter brauchen keine neuen Videos.
 
 ## [4.61.0] - 2026-11-03
 ### Neu

@@ -17,6 +17,8 @@ on:
       - "docs/tokens/**"              # every merge brings its token count: the timeline adds it up to that day
       - "docs/img/3d.jpg"
       - "tools/guide/page.html"         # the page of the video guide (its videos come from the branch guide-videos, workflow "Video guide")
+      - "tools/guide/search.js"         # its search
+      - "tools/guide/tags.py"           # more search words and words with the same meaning
       - "tools/make_guide.py"
       - "tools/danke.html"              # hidden thank-you page for donations (return URL in PayPal), not linked anywhere
       - "!demo/floorplan3d-demo.html"
