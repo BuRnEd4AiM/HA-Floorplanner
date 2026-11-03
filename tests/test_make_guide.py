@@ -39,7 +39,11 @@ def test_the_site_has_every_recorded_clip(tmp_path):
     v = data["clips"][0]["v"]
     assert list(v) == ["de"] and v["de"]["duration"] == 12.5 and v["de"]["kb"] == 2 and v["de"]["steps"][0]["en"] == "Tap …"
     site = tmp_path / "site"
-    assert (site / "index.html").read_text() == mg.PAGE.read_text()
+    page = (site / "index.html").read_text()
+    assert page == mg.page_html() and "<!-- search.js -->" not in page                              # the search is in the page,
+    assert page.index("root.GuideSearch = api") < page.index("GuideSearch.index(")                  # before the page uses it
+    it = data["clips"][0]
+    assert it["tags"]["de"] and it["tags"]["en"] and it["feat"]["de"] and data["syn"]            # more search words, words with the same meaning
     assert all((site / "de" / f"light{ext}").exists() for ext in mg.EXTS)
     assert json.loads((site / "guide.json").read_text())["clips"][0]["title"]["de"]
 

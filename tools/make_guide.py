@@ -9,7 +9,8 @@ Record (needs the demo: cd demo && npm ci && node build.mjs; pip install playwri
   python3 tools/make_guide.py --slow 1 lights             a quick try (choppier video: the page is filmed in real time)
 Build the page (GitHub Pages, workflow "Video guide" and "Demo"):
   python3 tools/make_guide.py --site _site/guide --videos DIR
-      writes DIR's videos, guide.json (titles, steps, search words of every clip that has a video) and index.html there.
+      writes DIR's videos, guide.json (titles, steps, search words of every clip that has a video) and index.html there
+      (page.html with the search, search.js; more search words and words with the same meaning: tools/guide/tags.py).
 
 A clip is a function in tools/guide/clips_*.py (see tools/guide/README.md): it says what happens (r.say), moves and clicks
 (r.click, r.drag, r.type ...). Every new feature of the add-on gets a clip there (.claude/CLAUDE.md).
@@ -33,6 +34,7 @@ sys.path.insert(0, str(ROOT / "tools" / "guide"))
 import recorder  # noqa: E402  (after the path above)
 
 PAGE = ROOT / "tools" / "guide" / "page.html"
+SEARCH = ROOT / "tools" / "guide" / "search.js"     # the search of the page, put into index.html (one file, works without internet)
 EXTS = (".mp4", ".jpg", ".prev.mp4", ".small.mp4")     # the files of a clip: the video, its picture, the preview, the copy for the add-on
 LANGS = ("de", "en")
 
@@ -64,6 +66,29 @@ def load_features():
     """every feature of the add-on and its clips (tools/guide/features.py)"""
     import features
     return features.F
+
+
+def load_tags():
+    """more search words for every clip and the words with the same meaning (tools/guide/tags.py)"""
+    import tags
+    return tags.TAGS, tags.SYN
+
+
+def search_meta(clips=None):
+    """what the search knows of every clip besides its title and description: its search words (keys, tags.py) and the names of
+    the features it shows (features.py), in both languages"""
+    clips = clips or load_clips()
+    tg, _ = load_tags()
+    feats = load_features()
+    return {c.id: {"tags": tg.get(c.id, {"de": "", "en": ""}),
+                   "feat": {lang: [x[lang] for x in feats if c.id in x["clips"]] for lang in LANGS}} for c in clips.values()}
+
+
+def page_html():
+    """index.html of the site: page.html with the search (search.js) in it"""
+    page = PAGE.read_text()
+    assert page.count("<!-- search.js -->") == 1, "page.html needs the line <!-- search.js --> where the search goes"
+    return page.replace("<!-- search.js -->", "<script>\n" + SEARCH.read_text() + "</script>")
 
 
 def version():
@@ -118,8 +143,9 @@ def build_site(site, videos):
     site, videos = Path(site), Path(videos) if videos else None
     site.mkdir(parents=True, exist_ok=True)
     items = []
+    more = search_meta(clips)
     for c in sorted(clips.values(), key=lambda c: ([x["id"] for x in CATS].index(c.cat), c.order)):
-        it = {**c.meta(), "v": {}}
+        it = {**c.meta(), **more[c.id], "v": {}}
         for lang in LANGS:
             j = videos / lang / f"{c.id}.json" if videos else None
             if j and j.exists() and (videos / lang / f"{c.id}.mp4").exists():
@@ -137,10 +163,10 @@ def build_site(site, videos):
     have = {it["id"] for it in items}
     feats = [{"id": x["id"], "group": x["group"], "de": x["de"], "en": x["en"], "clips": [c for c in x["clips"] if c in have], "why": x["why"]}
              for x in load_features()]
-    data = {"cats": CATS, "clips": items, "features": feats,
+    data = {"cats": CATS, "clips": items, "features": feats, "syn": load_tags()[1],
             "built": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="minutes"), "version": version()}
     (site / "guide.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
-    shutil.copyfile(PAGE, site / "index.html")
+    (site / "index.html").write_text(page_html())
     print(f"{site}: {len(items)} of {len(clips)} clips have a video")
     return data
 

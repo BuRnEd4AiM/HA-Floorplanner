@@ -13,8 +13,27 @@ Every feature as a short video, recorded automatically in the demo. The page: ht
 3. **The video** (`compose.py`): every picture (Full HD, 30 a second) is put together from the screen recording, a smooth pointer
    on an eased curve, a ring at each click, ⏩ while `r.fast()` runs, the phone around a phone clip; ffmpeg makes H.264. Also a
    picture for the list, a small fast preview and a 960 × 540 copy for the add-on (📥 *Für ohne Internet speichern*, `guide.py`).
-4. **The page** (`page.html`): search over titles, descriptions, search words and every step, groups, the player with subtitles
-   and chapters. It reads `guide.json`, which `make_guide.py --site` writes from the clips and the recorded steps.
+4. **The page** (`page.html`): the search (`search.js`, see below), groups, the player with subtitles and chapters. It reads
+   `guide.json`, which `make_guide.py --site` writes from the clips, `tags.py`, `features.py` and the recorded steps, and puts
+   `search.js` into `index.html` (one file: it also works as the add-on's copy without internet).
+
+## The search (search.js) and the search words (tags.py)
+
+The owner, 2026-11-03: "dass man die besser findet, wenn man oben was sucht … wenn Leute ein anderes Wort verwenden als es ist, dass
+dann trotzdem das richtige Video kommt". The search looks at the title, the description, the `keys` of the clip, its line in
+`tags.py`, the names of its features and every step, in both languages, and also finds other forms (Lampen → Lampe, Tuer → Tür),
+words with the same meaning (`SYN` in `tags.py`: Rollo → Rollladen), long words (Deckenleuchte, Fensterkontakt), small typing
+mistakes (Heizng → Heizung, the page says "auch gesucht nach „Heizung“") and whole questions (the little words are left out, words
+in the same order as in a clip count more). Clips with every word first; if none has every word, the ones with the most, and
+"Passt vielleicht auch" below.
+
+- **`tags.py`**: for every clip more words in German and in English: everyday words, what you would ask, brands, typing mistakes.
+  `SYN`: groups of words with the same meaning (a word in one group only). Changing it needs no new videos: the workflow "Demo"
+  puts it on the page.
+- **`tests/test_guide_search.py`** runs 135 typical searches (other words, forms, typing mistakes, questions) with the real clips:
+  each must find its clip among the first three. Someone did not find a video with their word? Add the word to the clip's line in
+  `tags.py` (or to a group of `SYN`) and the search as a line in `QUERIES` there. `tests/guidesearch.test.mjs`: the rules of
+  `search.js` alone.
 
 ## Every feature (features.py)
 
@@ -62,4 +81,7 @@ python3 tools/make_guide.py --lang en my-feature         # the English one, as t
 python3 tools/make_guide.py --site /tmp/site --videos /tmp/guide-videos && (cd /tmp/site && python3 -m http.server)
 ```
 
-`tests/test_make_guide.py` checks every clip has both languages, a group, search words, at least two steps and a picture.
+And give it a line in `tags.py` (at least 12 more words in each language: other words people use for it, questions, brands).
+
+`tests/test_make_guide.py` checks every clip has both languages, a group, search words, at least two steps and a picture;
+`tests/test_guide_search.py` that it has a line in `tags.py`.

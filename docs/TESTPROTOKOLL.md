@@ -10,6 +10,7 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu nach 4.61.0: 🎬 die Suche der Video-Anleitung findet mehr** (Abschnitt 151, dein Wunsch: „wenn Leute ein anderes Wort verwenden … trotzdem das richtige Video“): Claude hat 151.1 und 151.2 geprüft; für dich nach dem Merge auf der Seite der Anleitung 151.3 bis 151.5, im Add-on 151.6, und 151.7 mit deinen eigenen Wörtern.
 1. **Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich in den Kehlen, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung** (Abschnitt 150, gefragt von LoggieXC81 in #621, Issue #639): Claude hat 150.1 bis 150.4 im Browser-Test geprüft; für dich in der Demo 150.5 und 150.6, im Add-on 150.7, nach dem Merge die Videos 150.8.
 1. **Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen statt Podest, Stufen im 1. Lauf, massive Wandtreppe** (Abschnitt 149, gefragt von Miicki in #623): Claude hat 149.1 bis 149.5 im Browser-Test geprüft; für dich in der Demo 149.6 und 149.7, im Add-on 149.8, nach dem Merge das Video 149.9.
 1. **Neu in 4.59.0: 🪟 Fenster mit zwei Kontakten: gekippt und offen** (Abschnitt 148, gefragt von biggilottecassi in #624): Claude hat 148.1 bis 148.5 im Browser-Test geprüft; für dich in der Demo 148.6, im Add-on mit deinem Fenster 148.7, nach dem Merge das Video 148.8.
@@ -398,7 +399,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 148. Neu in 4.59.0: 🪟 Fenster mit zwei Kontakten: gekippt und offen | 5 | 0 | 3 | 0 | 148.6 bis 148.8 |
 | 149. Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen in der Ecke, Stufen im 1. Lauf | 5 | 0 | 4 | 0 | 149.6 bis 149.9 |
 | 150. Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung | 4 | 0 | 4 | 0 | 150.5 bis 150.8 |
-| **Zusammen** | **892** | **2** | **146** | **92** | |
+| 151. 🎬 Video-Anleitung: die Suche findet mehr (nach 4.61.0, nur die Seite der Anleitung) | 2 | 0 | 5 | 0 | 151.3 bis 151.7 |
+| **Zusammen** | **894** | **2** | **151** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2308,3 +2310,16 @@ LoggieXC81 (Mario) in #621 zum L-Dach von 4.54.0, Issue #639: das zweite Dach li
 | 150.6 | Demo: eine Gaube 6 m breit, „Neigung der Gaube“ 35, dann 10 m breit | Steileres Gaubendach; bei 10 m wird es von selbst flacher und bleibt unter dem First | ❓ |
 | 150.7 | Im Add-on mit deinem Haus (oder Mario mit seinem L-Haus) | Das Dach sieht aus wie das echte, das zweite Dach dreht sich nicht mehr | ❓ |
 | 150.8 | Nach dem Update auf der Seite der Anleitung die Videos „Ein L-förmiges Dach (zweiter Flügel)“ und „Breite Gaube mit eigener Neigung“ ansehen | Kehlen, „Firstrichtung“, eine Gaube 6 m und 10 m breit mit ihrer Neigung | ❓ |
+
+## 151. 🎬 Video-Anleitung: die Suche findet mehr (nach 4.61.0, nur die Seite der Anleitung)
+Der Besitzer am 2026-11-03: „dass man die besser findet, wenn man oben was sucht … pro Video mehr Tags … wenn Leute ein anderes Wort verwenden als es ist, dass dann trotzdem das richtige Video kommt“. Jedes Video hat jetzt viele weitere Suchwörter (`tools/guide/tags.py`), und die Suche (`tools/guide/search.js`) findet auch Wörter mit gleicher Bedeutung (Rollo → Rollladen), andere Formen (Lampen, Türen), Teile langer Wörter (Deckenleuchte), kleine Tippfehler (Heizng) und ganze Fragen. Vorher fanden von 135 typischen Suchen 63 das richtige Video unter den ersten drei, 68 gar nichts; jetzt alle 135.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 151.1 | 135 typische Suchen (andere Wörter, Mehrzahl, Tippfehler, ganze Fragen, Deutsch und Englisch) mit allen 83 Videos | Jede findet das richtige Video unter den ersten drei, auch ohne die Untertitel | ✅ (2026-11-03, Claude, tests/test_guide_search.py) |
+| 151.2 | Die Seite der Anleitung in Chromium (PC und Handy, hell und dunkel): „Rollo runter“, „Heizng“, „Jalosie“ tippen, „wer hat das Licht angemacht“, Suche leeren | Die richtigen Videos, die Wörter markiert, „gefunden über …“, „auch gesucht nach „Heizung““, „Passt vielleicht auch“; leer wieder alle Videos; keine Fehler | ✅ (2026-11-03, Claude) |
+| 151.3 | Nach dem Merge die Seite der Anleitung öffnen (https://burned4aim.github.io/HA-Floorplanner/guide/, neu laden), oben „Rollo runter“ suchen | Zuerst „Rollladen auf und zu“, „Rollladen“ ist gelb markiert | ❓ |
+| 151.4 | „Heizng“ suchen (mit Tippfehler) | Die Videos zur Heizung; oben steht „auch gesucht nach „Heizung““ | ❓ |
+| 151.5 | Eine ganze Frage: „wer hat das Licht angemacht“ | Zuerst „📜 Protokoll“, darunter „Passt vielleicht auch“ mit den Licht-Videos | ❓ |
+| 151.6 | Im Add-on: 🎬 Anleitung öffnen, „Jalousie“ suchen (eine gespeicherte Kopie „📥 Für ohne Internet speichern“ vorher neu speichern) | Das Video „Rollladen auf und zu“ | ❓ |
+| 151.7 | Eigene Wörter ausprobieren, so wie du suchen würdest | Das passende Video kommt; sonst das Wort an Claude, es kommt in die Suchwörter | ❓ |

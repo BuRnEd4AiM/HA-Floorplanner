@@ -107,6 +107,11 @@ main { padding: 26px 0 70px; }
 .cat { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
 .card h3 { margin: 0; font-size: 17px; line-height: 1.3; }
 .card p { margin: 0; color: var(--text-2); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.via { font-size: 12.5px; color: var(--muted); }
+.via b { color: var(--text-2); font-weight: 600; }
+.hits .fixed { font-style: italic; }
+.moreHead { margin-top: 34px; }
+.moreHead h2 { font-size: 18px; color: var(--text-2); }
 .found { margin-top: 4px; display: flex; flex-direction: column; gap: 4px; }
 .found a { display: flex; gap: 8px; align-items: baseline; font-size: 13px; color: var(--text-2); text-decoration: none; padding: 5px 8px; border-radius: 8px; background: var(--surface-2); }
 .found a:hover { background: var(--wash); color: var(--text); }
@@ -249,15 +254,17 @@ body.embed h1, body.embed .lead, body.embed .kicker { display: none; }
   </div>
 </div>
 
+<!-- search.js -->
 <script>
 'use strict';
 const T = {
   de: {
     kicker: 'Video-Anleitung', h1: 'Alles, was dein 3D-Grundriss kann, in kurzen Videos',
     lead: 'Jede Funktion einmal vorgemacht: suchen, ansehen, nachmachen. Die Videos entstehen automatisch in der Demo und sind immer auf dem neuesten Stand.',
-    searchLabel: 'Suchen', ph: 'Was möchtest du tun? z. B. Licht dimmen, Wand zeichnen …', demo: 'Demo ausprobieren',
+    searchLabel: 'Suchen', ph: 'Was möchtest du tun? z. B. Licht dimmen, Rollo runter, Wand zeichnen …', demo: 'Demo ausprobieren',
     all: 'Alle', videos: (n) => n === 1 ? '1 Video' : `${n} Videos`, minutes: (m) => m === 1 ? '1 Minute zum Zuschauen' : `${m} Minuten zum Zuschauen`, groups: (n) => `${n} Bereiche`,
     hits: (n, q) => n ? `${n === 1 ? '1 Video' : n + ' Videos'} zu „${q}“` : '', none: 'Dazu gibt es noch kein Video', noneSub: 'Versuch ein anderes Wort, z. B. „Licht“, „Etage“ oder „Heizung“.',
+    partial: (q) => `Kein Video hat alle Wörter von „${q}“, diese passen am besten:`, more: 'Passt vielleicht auch', fixed: (w) => `auch gesucht nach „${w}“`, via: 'gefunden über',
     steps: 'Schritte', again: '↻ Nochmal', next: 'Weiter', nextTo: (t) => `Weiter: ${t}`, endText: 'Fertig!', capOn: 'Untertitel an', capOff: 'Untertitel aus',
     copy: '🔗 Link kopieren', copied: 'Link kopiert', dl: '⬇ Herunterladen', recorded: (v, d) => `Aufgenommen mit Version ${v} am ${d}.`,
     onlyOther: 'Dieses Video gibt es nur mit englischer Oberfläche.', phone: '📱 Handy', at: 'bei', foot: (d, v) => `Automatisch aufgenommen in der Demo · Version ${v} · ${d}`,
@@ -267,9 +274,10 @@ const T = {
   en: {
     kicker: 'Video guide', h1: 'Everything your 3D floorplan can do, in short videos',
     lead: 'Every feature shown once: search, watch, do it yourself. The videos are recorded automatically in the demo and always up to date.',
-    searchLabel: 'Search', ph: 'What do you want to do? e.g. dim a light, draw a wall …', demo: 'Try the demo',
+    searchLabel: 'Search', ph: 'What do you want to do? e.g. dim a light, lower the blinds, draw a wall …', demo: 'Try the demo',
     all: 'All', videos: (n) => n === 1 ? '1 video' : `${n} videos`, minutes: (m) => m === 1 ? '1 minute to watch' : `${m} minutes to watch`, groups: (n) => `${n} groups`,
     hits: (n, q) => n ? `${n === 1 ? '1 video' : n + ' videos'} for “${q}”` : '', none: 'No video for that yet', noneSub: 'Try another word, e.g. “light”, “floor” or “heating”.',
+    partial: (q) => `No video has every word of “${q}”; these fit best:`, more: 'Might also fit', fixed: (w) => `also searched for “${w}”`, via: 'found by',
     steps: 'Steps', again: '↻ Again', next: 'Next', nextTo: (t) => `Next: ${t}`, endText: 'Done!', capOn: 'Subtitles on', capOff: 'Subtitles off',
     copy: '🔗 Copy link', copied: 'Link copied', dl: '⬇ Download', recorded: (v, d) => `Recorded with version ${v} on ${d}.`,
     onlyOther: 'This video only exists with the German interface.', phone: '📱 Phone', at: 'at', foot: (d, v) => `Recorded automatically in the demo · version ${v} · ${d}`,
@@ -302,69 +310,50 @@ $('#themeBtn').addEventListener('click', () => {
 });
 
 // ---------- search ----------
-// every word of the query must be found somewhere in the clip (title, search words, text, steps; both languages, without accents);
-// a word in the title counts most. Steps that contain a word are listed under the clip with their second.
-function words(q) { return fold(q).split(/[\s,;.!?]+/).filter((w) => w.length > 0); }
-function textOf(c, l) { return { title: c.title[l], keys: c.keys, desc: c.desc[l], steps: (c.vid?.steps || []).map((s) => s[l] || '') }; }
-function score(c, ws) {
-  if (!ws.length) return { s: 1, steps: [] };
-  let total = 0;
-  const other = lang === 'de' ? 'en' : 'de', a = textOf(c, lang), b = textOf(c, other);
-  const found = new Set();
-  for (const w of ws) {
-    let s = 0;
-    const has = (x) => fold(x).includes(w);
-    const starts = (x) => fold(x).split(/[^a-z0-9äöü]+/).some((p) => p.startsWith(w));
-    if (has(a.title)) s += starts(a.title) ? 12 : 8;
-    if (has(a.keys)) s += starts(a.keys) ? 6 : 4;
-    if (has(a.desc)) s += 3;
-    a.steps.forEach((st, i) => { if (has(st)) { s += 2; found.add(i); } });
-    if (!s && (has(b.title) || has(b.desc) || b.steps.some(has))) s += 1;
-    if (!s) return null;
-    total += s;
-  }
-  return { s: total, steps: [...found].sort((x, y) => x - y) };
-}
-function mark(text, ws) {
-  if (!ws.length) return esc(text);
-  const f = fold(text);
-  const hit = new Array(text.length).fill(false);
-  for (const w of ws) { let i = f.indexOf(w); while (i >= 0) { for (let k = i; k < i + w.length && k < hit.length; k++) hit[k] = true; i = f.indexOf(w, i + 1); } }
-  let out = '', open = false;
-  for (let i = 0; i < text.length; i++) {
-    if (hit[i] && !open) { out += '<mark>'; open = true; }
-    if (!hit[i] && open) { out += '</mark>'; open = false; }
-    out += esc(text[i]);
-  }
-  return out + (open ? '</mark>' : '');
+// GuideSearch (tools/guide/search.js, put into this page by make_guide.py --site): every word is looked for in the title, the search
+// words, the features, the text and every step, in both languages; other forms, words with the same meaning (Rollo → Rollladen) and
+// small typing mistakes count too. The steps with a word are listed under the clip with their second.
+let IDX = null;
+function buildIndex() { IDX = GuideSearch.index(DATA.clips.map((c) => ({ ...c, steps: c.vid?.steps || [] })), DATA.syn || []); }
+function mark(text, hit) {
+  const rs = GuideSearch.ranges(text, hit);
+  let out = '', at = 0;
+  for (const [a, b] of rs) { out += `${esc(text.slice(at, a))}<mark>${esc(text.slice(a, b))}</mark>`; at = b; }
+  return out + esc(text.slice(at));
 }
 
 // ---------- the list ----------
 function vidOf(c) { return c.v[lang] ? { ...c.v[lang], lang } : (c.v.de ? { ...c.v.de, lang: 'de' } : { ...c.v.en, lang: 'en' }); }
-function card(c, r, ws) {
-  const v = c.vid, catName = DATA.cats.find((x) => x.id === c.cat)?.[lang] || '';
-  const steps = ws.length ? r.steps.slice(0, 2).map((i) => `<a href="#${c.id}@${v.steps[i].t}" data-t="${v.steps[i].t}"><b>${mmss(v.steps[i].t)}</b><span>${mark(v.steps[i][lang], ws)}</span></a>`).join('') : '';
+function card(c, r, R) {
+  const v = c.vid, catName = DATA.cats.find((x) => x.id === c.cat)?.[lang] || '', hit = R.hit, on = R.words.length > 0;
+  const steps = on ? r.steps.filter((i) => v.steps[i]).slice(0, 2).map((i) => `<a href="#${c.id}@${v.steps[i].t}" data-t="${v.steps[i].t}"><b>${mmss(v.steps[i].t)}</b><span>${mark(v.steps[i][lang], hit)}</span></a>`).join('') : '';
+  const via = on && r.via.length ? `<span class="via">🏷 ${esc(T[lang].via)} ${r.via.slice(0, 4).map((w) => `<b>${esc(w)}</b>`).join(' · ')}</span>` : '';
   return `<article class="card" tabindex="0" role="button" data-id="${c.id}" aria-label="${esc(c.title[lang])}">
     <div class="thumb"><img loading="lazy" src="${v.lang}/${c.id}.jpg" alt=""><div class="play"><i></i></div>
       ${c.device === 'phone' ? `<span class="dev">${T[lang].phone}</span>` : ''}<span class="dur">${mmss(v.duration)}</span></div>
-    <div class="body"><span class="cat">${esc(catName)}</span><h3>${mark(c.title[lang], ws)}</h3><p>${mark(c.desc[lang], ws)}</p>
-      ${steps ? `<div class="found">${steps}</div>` : ''}</div></article>`;
+    <div class="body"><span class="cat">${esc(catName)}</span><h3>${mark(c.title[lang], hit)}</h3><p>${mark(c.desc[lang], hit)}</p>
+      ${via}${steps ? `<div class="found">${steps}</div>` : ''}</div></article>`;
 }
 function render() {
-  const ws = words(query), L = T[lang], main = $('#main');
-  let list = DATA.clips.map((c) => ({ c, r: score(c, ws) })).filter((x) => x.r && (cat === 'all' || x.c.cat === cat));
-  if (ws.length) list.sort((a, b) => b.r.s - a.r.s);
-  shown = list.map((x) => x.c);
+  if (!IDX) return;                                                        // guide.json is still loading
+  const L = T[lang], main = $('#main'), R = GuideSearch.search(IDX, query, lang), on = R.words.length > 0;
+  const byId = Object.fromEntries(DATA.clips.map((c) => [c.id, c]));
+  const pick = (rs) => rs.map((r) => ({ c: byId[r.id], r })).filter((x) => x.c && (cat === 'all' || x.c.cat === cat));
+  const list = pick(R.list), more = pick(R.more);
+  const grid = (xs) => `<div class="grid">${xs.map((x) => card(x.c, x.r, R)).join('')}</div>`;
+  shown = [...list, ...more].map((x) => x.c);
   $('#clearQ').hidden = !query; document.querySelector('.search kbd').hidden = !!query;
   if (!list.length) { main.innerHTML = `<div class="empty"><b>${L.none}</b>${L.noneSub}</div>`; return; }
-  if (ws.length || cat !== 'all') {
-    main.innerHTML = (ws.length ? `<p class="hits">${esc(L.hits(list.length, query))}</p>` : '') + `<div class="grid">${list.map((x) => card(x.c, x.r, ws)).join('')}</div>`;
+  if (on || cat !== 'all') {
+    const fixed = Object.values(R.fixed).map((w) => L.fixed(w)).join(' · ');
+    main.innerHTML = (on ? `<p class="hits">${esc(R.partial ? L.partial(query) : L.hits(list.length, query))}${fixed ? ` <span class="fixed">· ${esc(fixed)}</span>` : ''}</p>` : '')
+      + grid(list) + (more.length ? `<div class="secHead moreHead"><h2>${esc(L.more)}</h2></div>${grid(more)}` : '');
   } else {
     main.innerHTML = DATA.cats.map((g) => {
       const items = list.filter((x) => x.c.cat === g.id);
       if (!items.length) return '';
       return `<section class="sec" id="g-${g.id}"><div class="secHead"><h2>${g.icon} ${esc(g[lang])}</h2><span class="n">${L.videos(items.length)}</span></div>
-        <div class="grid">${items.map((x) => card(x.c, x.r, ws)).join('')}</div></section>`;
+        ${grid(items)}</section>`;
     }).join('');
     main.innerHTML += features();
   }
@@ -398,6 +387,7 @@ function texts() {
   $('#tryList').innerHTML = L.tries.map((w) => `<button type="button">${esc(w)}</button>`).join('');
   if (DATA) {
     DATA.clips.forEach((c) => { c.vid = vidOf(c); });
+    buildIndex();
     const secs = DATA.clips.reduce((s, c) => s + c.vid.duration, 0);
     $('#stats').innerHTML = `<span><b>${L.videos(DATA.clips.length)}</b></span><span>${L.minutes(Math.max(1, Math.round(secs / 60)))}</span><span>${L.groups(new Set(DATA.clips.map((c) => c.cat)).size)}</span>`;
     $('#foot').textContent = L.foot(new Date(DATA.built).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB'), DATA.version);
