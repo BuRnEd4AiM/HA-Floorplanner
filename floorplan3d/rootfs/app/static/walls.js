@@ -4,6 +4,7 @@ import { hasShutter, curtainStyle, curtainSide, shutterSlats, curtainDepth, curt
 import { mergeParts } from './meshmerge.js';
 import { windowPanes, paneHinge } from './windowpanes.js';
 import { tiltAngle } from './windowtilt.js';
+import { sashParts } from './sash.js';
 
 /* Wall geometry with real openings (doors/windows).
  * Wall data: { id, a:[x,z], b:[x,z], thickness, height, openings:[{id,type,pos,width,height,sill}] }
@@ -129,6 +130,7 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
   const fd = t + 0.02, ft = 0.05;                        // frame depth / thickness
   const x0 = cx - w / 2, x1 = cx + w / 2;
   let pivot = null;
+  const sashes = [];                                     // the sashes of the panes (sash.js): no shadow of their own
   const st = o.style || (o.type === 'door' ? 'single' : 'double');   // windows saved before styles existed had one centre bar
   if (o.type === 'door' && st === 'gap') return g;       // bare opening in the wall: no frame, no leaf (still tappable via the group)
   g.add(boxMesh(x0, x0 + ft, s, s + h, fd, mats.frame));
@@ -202,26 +204,41 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
   } else {
     if (o.sill > 0) g.add(boxMesh(x0, x1, s, s + ft, fd, mats.frame));
     const shade = curtainStyle(o), panes = windowPanes(o), inner = h - 2 * ft;
+    /** the sash of a pane that opens (sash.js): its bars and handle as one mesh in the frame's material, so it is tinted with the frame */
+    const sash = (x0, x1, y0, y1, hingeAt) => {
+      const parts = sashParts({ x0, x1, y0, y1, hingeAt, room: -side });
+      if (!parts.length) return null;
+      const boxes = parts.map((q) => new THREE.BoxGeometry(q.w, q.h, q.d).translate(q.x, q.y, q.z));
+      const m = new THREE.Mesh(mergeGeometries(boxes), mats.frame);
+      m.userData.sash = true;
+      boxes.forEach((b) => b.dispose());
+      sashes.push(m);
+      return m;
+    };
     // window pane(s) swing inwards when open (fixed glazing does not open), each around the edge chosen for it in the properties
     // (paneHinge); multi-pane windows get one pivot per pane so every pane can follow its own sensor
     const mkPane = (u0, u1, i) => {
       const pv = new THREE.Group(), pw = u1 - u0, hinge = paneHinge(o, i);
       const flip = o.openOutward ? -1 : 1;                 // the pane opens inward by default, outward on request
-      let pane, dir = flip * -side, axis = 'x', max = 0.4;
+      let pane, dir = flip * -side, axis = 'x', max = 0.4, glass;
       if (hinge === 'left' || hinge === 'right') {
         const atU1 = hinge === 'left' ? side > 0 : side < 0;   // the hinge on the left seen from inside the room
         pv.position.set(atU1 ? u1 : u0, s + ft, 0);
         pane = atU1 ? boxMesh(-pw, 0, 0, inner, 0.015, mats.glass) : boxMesh(0, pw, 0, inner, 0.015, mats.glass);
         pane.position.y = inner / 2;
         dir = flip * (atU1 ? -side : side); axis = 'y'; max = 1.15;     // whatever the side: the pane swings inward unless 开向 says outward
+        glass = atU1 ? [-pw, 0, 0, inner, 'x1'] : [0, pw, 0, inner, 'x0'];
       } else {
         const top = hinge === 'top';
         pv.position.set(0, s + ft + (top ? inner : 0), 0);
         pane = top ? boxMesh(u0, u1, -inner, 0, 0.015, mats.glass) : boxMesh(u0, u1, 0, inner, 0.015, mats.glass);
         dir = flip * (top ? side : -side);
+        glass = top ? [u0, u1, -inner, 0, 'y1'] : [u0, u1, 0, inner, 'y0'];
       }
       pv.add(pane);
       if (st !== 'fixed' && hinge !== 'fixed') {
+        const sm = sash(...glass);                         // a pane that opens has a sash with a handle: it tilts and swings with the pane
+        if (sm) pv.add(sm);
         pv.userData.dir = dir; pv.userData.axis = axis; pv.userData.max = max;
         // tilted (#624, windowtilt.js): the pane leans into the room round its bottom edge, whatever its hinge (a tilt-and-turn window)
         const tg = new THREE.Group();
@@ -256,6 +273,7 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
   g.userData.pivot = pivot;
   g.userData.tint = Object.entries(mats).map(([k, m]) => ({ k, m, base: m.color.getHex() }));   // k: frame, door, metal, glass (openings.js partHex)
   g.traverse((m) => { if (m.isMesh) m.castShadow = true; });
+  sashes.forEach((m) => { m.castShadow = false; });     // the thin sash needs no shadow of its own (fewer draw calls)
   mergeParts(g);                                         // the fixed parts of the frame in one mesh: fewer draw calls (meshmerge.js, #394)
   g.position.x = o.pos - 0;                              // replaced by caller (needs wall length)
   return g;

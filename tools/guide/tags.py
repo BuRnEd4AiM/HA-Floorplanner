@@ -263,10 +263,10 @@ t("window-setup",
 t("window-tilt",
   "Fenster gekippt Kippstellung Kippfenster Dreh-Kipp-Fenster zwei Sensoren zwei Kontakte Fenstergriff Griffsensor "
   "Homematic Aqara halb offen auf Kipp gelb gekippt offen zu Kippwinkel Winkel Grad weiter kippen stärker kippen "
-  "Kippstellung deutlicher besser sehen wie weit kippt das Fenster alle Fenster",
+  "Kippstellung deutlicher besser sehen wie weit kippt das Fenster alle Fenster Flügelrahmen Fenstergriff Griff",
   "window tilted tilt position tilt window tilt and turn two sensors two contacts window handle handle sensor Homematic "
   "Aqara half open yellow tilted open closed tilt angle angle degrees tilt further tilt more see it better how far "
-  "does the window tilt all windows")
+  "does the window tilt all windows sash window frame handle")
 t("devices-place",
   "Gerät einfügen Gerät hinzufügen Lampe hinzufügen Sensor hinzufügen Thermostat platzieren Steckdose Schalter setzen "
   "Entität zuordnen verknüpfen Home Assistant verbinden Deckenlampe aufhängen",

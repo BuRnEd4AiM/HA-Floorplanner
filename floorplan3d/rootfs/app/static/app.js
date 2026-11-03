@@ -1901,6 +1901,7 @@ if (params.get('debug')) {
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData?.target ?? 0),   // a fixed pane has no target: 0
     tiltTargets: (id) => (registry.get(id)?.userData.tiltPivots || []).map((p) => p?.userData?.target ?? 0),   // a tilted pane (#624), its angle
+    sashes: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.children.some((c) => c.userData?.sash)),   // a pane with a sash (sash.js)
     openLook: (id) => registry.get(id)?.userData.look ?? null,                                                 // 'open', 'tilted', 'closed' …
     shutterScale: (id) => { const sh = registry.get(id)?.userData.shutter; const p = Array.isArray(sh) ? sh[0] : sh; return p?.userData.target ?? null; },   // how far a window's cover closes (#331)
     liveOk: () => liveChan.ok(),

@@ -248,7 +248,8 @@ def _(r):
     r.wait(500)
     r.click("#tiltContact .entItem[data-id='binary_sensor.fenster_wz_gekippt']")
     r.wait(1200)
-    r.say("Er ist gerade auf: das Fenster ist gekippt. Es wird gelb und kippt nach innen.", "It is on right now: the window is tilted. It turns yellow and tilts in.")
+    r.say("Er ist gerade auf: das Fenster ist gekippt. Es wird gelb, der Flügel mit Rahmen und Griff kippt nach innen.",
+          "It is on right now: the window is tilted. It turns yellow, the pane with its sash and handle tilts in.")
     r.wait(1400)
     r.js("""(() => { const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f);
       const mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2;

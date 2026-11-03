@@ -3,7 +3,8 @@ second contact, „Kontakt gekippt“. Tilted (only that one open) the window is
 says „Gekippt“; open (the contact „offen“, also with both) it is red and swings round its hinge; a handle sensor that says „tilted“ itself
 needs no second contact; fixed glazing has no such field. The add-on's window rule counts a tilted window: the heating goes off.
 4.64.0 (#624, biggilottecassi: „die Kippstellung … grafisch noch ein bisschen mehr“): the field „Kippwinkel (°)“ (5 to 45, 14 without a
-value), a shut window leans in for a moment after a change, „Für alle Fenster“, saved as tiltDeg.
+value), a shut window leans in for a moment after a change, „Für alle Fenster“, saved as tiltDeg; every pane that opens has a sash with a
+handle (sash.js), fixed glazing none.
 """
 saved_wt = api_admin("api/layout")              # put back at the end
 st_wt = api("api/settings")
@@ -58,6 +59,9 @@ pgW.evaluate("window.__fp.select('opening', 'wt_o')"); pgW.wait_for_timeout(300)
 check("tilt (#624): a window has the field „Kontakt gekippt“ with a short hint", pgW.locator("#tiltContact").count() == 1 and pgW.locator("#tiltContactHint").is_visible()
       and "gekippt" in pgW.locator("#tiltContact").inner_text())
 pgW.evaluate("window.__fp.select('opening', 'wt_f')"); pgW.wait_for_timeout(300)
+check("sash (4.64.0): a pane that opens has a sash with a handle (it tilts and swings with the pane), fixed glazing has none",
+      pgW.evaluate("window.__fp.sashes('wt_o')") == [True] and pgW.evaluate("window.__fp.sashes('wt_f')") in ([], [False]),
+      (pgW.evaluate("window.__fp.sashes('wt_o')"), pgW.evaluate("window.__fp.sashes('wt_f')")))
 check("tilt: fixed glazing has no such field (and no tilt angle)", pgW.locator("#tiltContact").count() == 0 and pgW.locator("#tiltDeg").count() == 0
       and pgW.locator("#winFixed").is_checked())
 

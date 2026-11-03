@@ -1,6 +1,6 @@
 {
  "version": "4.64.0",
- "buildHash": "81e0d23f4217378fd494c77fba79348181400745d0e9ac44f9650fc73c9f2d24",
+ "buildHash": "a140455b6966e25972ba36aa5d0ad25e6e3672c16f9b7520ef64c87bc22b3e4b",
  "files": {
   "alarmnotify.py": "3d9ada748b694e0f8dfcf53e85a2b5923f54b561dd44b4f17bfa716e44a730e6",
   "boards.py": "b506190d5264db67ead00bbb7716bded4cbc7c4f94c50589fc9d15d7a7657d87",
@@ -153,7 +153,7 @@
   "specialdays.py": "32baa51cf75580d1e35a782ef77bd8610dad58e3d770b398604aa3dfc77d0491",
   "static/alerts.js": "099108c279cdf2ea1008180d0d73dbe18b10aa4d63365a83bfde1cf7c2a4a803",
   "static/alertsui.js": "503c006f839253eb31f5e2adb4e6612d21fd657b8691956fd095546dce5177ea",
-  "static/app.js": "095e7dfb220b4411838eac56ba128b6d388bc45c71c77b850ae6aa177adfab6c",
+  "static/app.js": "41d4c764ad018448bb9f1f6da81debd436de3a0ea5e6a71f67fdd54e70765a4a",
   "static/appstate.js": "cb6e1e23ff04af418be97883d9220a7bc7650c1aea585e3306d5f56721a487de",
   "static/attic.js": "69211fb2f395308f80d62eab68be38db454d6e460d347f670115f2f98af5ceaa",
   "static/atticclip.js": "6d4d9f1afb41adc7f5395e62b4f77c28e954c54b0abf197f061f71e4cd5105a4",
@@ -370,6 +370,7 @@
   "static/rulesstore.js": "0354c49cb45d8be77d5aaf3519f2dc5c87d4454130e99396e9a29468f901616a",
   "static/rulesui.js": "f49aeeb764e4a6200123be116a13a3ecd4b3c2d406345f11ca4f75a790dfc5db",
   "static/safearea.js": "75de863b79e1afa5c0fc51731a249a875bb4aeb523d112e6474fd771ab1dfd15",
+  "static/sash.js": "fd143c0319704054975a1e036a23c739a1f18314f37f550f1c997cca7051a818",
   "static/scandi.js": "18f65c57d69c3e4fd2e1e3e6e2b69d2d1b5cc49e209225f61f599c8f13ece515",
   "static/scenebar.js": "4a745c15b07874a95e7f9b52a85e68cfdda3ed693386d60668bcb5e9abd82689",
   "static/scenebarui.js": "2ffb7694b91948c87984b6b5675ec96153a5f62f823949555a200e2edcc97715",
@@ -445,7 +446,7 @@
   "static/voiceprefs.js": "c49279953ad3b18b86157419a8408c966f17fccfa842d266110dfcebcb898038",
   "static/voicequery.js": "0e536f01bdb1973ef15196da594954f535553958b18c36e2a690c8b9418ee3bf",
   "static/voiceui.js": "651a4bd57afcec445050ad543a1e6cbc781dc33bec618d5f102080f46b030649",
-  "static/walls.js": "2b46836c3df0f5310eb9ed5ee0f13c9ebaeb3c1cbd726c2c337ede61c6536030",
+  "static/walls.js": "147721bad2bd1564208e61f545aa6ee82915681bada264c77b09ab0613bc3252",
   "static/wallskin.js": "2a27e6d77cacab8bac6d469867d2a85e8ef9aef0af290815e68b2383767d5fed",
   "static/wallsplit.js": "6bc7f799a7211b15dc36012ce9a99329fe4bc217bf9aaaff18ae82ee5aa4bd23",
   "static/welcome.js": "9fd669c923cd1dda8643f08de8b38f010288538a3423d0b28c82b1f3ebee5fee",
