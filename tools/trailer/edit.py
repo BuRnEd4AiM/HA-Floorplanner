@@ -51,7 +51,10 @@ def font(kind, size):
             p = Path(d) / f
             if p.exists():
                 return ImageFont.truetype(str(p), size)
-    return ImageFont.truetype(FALLBACK[kind], size)
+    try:
+        return ImageFont.truetype(FALLBACK[kind], size)
+    except OSError:                                         # no DejaVu either: Pillow's own font
+        return ImageFont.load_default(size)
 
 
 def ease(u):
