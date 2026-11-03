@@ -118,16 +118,18 @@ def at(r, sel, nth=0, text=None):
     """the middle of a thing of the page (CSS px), asked from the page itself and scrolled into view at once. Playwright's own way
     waits for two quiet frames: seconds while a lit 3D room is drawn behind it, and the film would wait that long (as spot() in
     tools/guide/clips_edit.py)"""
-    x, y = r.js("""([s, n, t]) => {
-      const e = [...document.querySelectorAll(s)].filter((x) => !t || new RegExp(t).test(x.textContent))[n];
-      if (!e) return [null, null];
-      e.scrollIntoView({ block: 'nearest' });
-      const b = e.getBoundingClientRect();
-      return [b.x + b.width / 2, b.y + b.height / 2];
-    }""", [sel, nth, text])
-    if x is None:
-        raise RuntimeError(f"{sel} ({text or ''} {nth}) is not on the page")
-    return x, y
+    for _ in range(40):                  # a dialog that is still opening: up to 4 s (of the page) for it
+        x, y = r.js("""([s, n, t]) => {
+          const e = [...document.querySelectorAll(s)].filter((x) => x.getClientRects().length && (!t || new RegExp(t).test(x.textContent)))[n];
+          if (!e) return [null, null];
+          e.scrollIntoView({ block: 'nearest' });
+          const b = e.getBoundingClientRect();
+          return [b.x + b.width / 2, b.y + b.height / 2];
+        }""", [sel, nth, text])
+        if x is not None:
+            return x, y
+        r.wait(100)
+    raise RuntimeError(f"{sel} ({text or ''} {nth}) is not on the page")
 
 
 def tap(r, sel, nth=0, text=None, ms=None):
