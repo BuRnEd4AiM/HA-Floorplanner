@@ -114,6 +114,18 @@ check("tilt angle: it is saved on the windows (tiltDeg), fixed glazing has none"
 pgW.evaluate("window.__fp.select('opening', 'wt_o')"); pgW.wait_for_timeout(300)
 pgW.fill("#tiltDeg", "14"); pgW.press("#tiltDeg", "Enter"); pgW.wait_for_timeout(300)
 check("tilt angle: back to 14: nothing stored", wait_wt(lambda: "tiltDeg" not in ops_wt(api_admin("api/layout"))["wt_o"]) and lean_wt(14), tilt_wt())
+# the owner: „Mach das aber für alle Fenster, nicht dass welche vergessen wird“: every window of the whole test house, every floor
+pgW.click("#floorRail .railHouse"); pgW.wait_for_timeout(2500)
+all_wt = pgW.evaluate("""(() => { const fp = window.__fp, bad = []; let n = 0;
+  fp.layout.floors.forEach((f) => [...(f.walls || []), ...(f.dormerWalls || [])].forEach((w) => (w.openings || []).forEach((o) => {
+    if (o.type !== 'window' || o.style === 'fixed') return;
+    n++;
+    const s = fp.sashes(o.id), want = s.map((_, i) => !(Array.isArray(o.paneHinges) && o.paneHinges[i] === 'fixed'));
+    if (!s.length || s.some((v, i) => v !== want[i])) bad.push([o.id, s]);
+  }))); return { n, bad }; })()""")
+check("sash: in the whole house every window that opens has its sashes, on every floor (fixed glazing and fixed panes none)",
+      all_wt["n"] >= 3 and not all_wt["bad"], all_wt)
+pgW.evaluate("window.__fp.switchFloor(0)"); pgW.wait_for_timeout(800)
 
 pgW.click("#modeSwitch button[data-mode=live]"); pgW.wait_for_timeout(1200)
 status_open(pgW)

@@ -9,10 +9,11 @@ export const SASH_DEPTH = 0.06;                  // its depth across the wall
 
 /** the boxes of the sash of a pane whose glass is x0..x1 × y0..y1 (in the pane's own frame, z = 0 the middle of the glass).
  *  hingeAt: the edge the pane swings round, 'x0' | 'x1' | 'y0' | 'y1'; room: +1 or −1, the side of the room along z (the handle).
- *  Returns [{ w, h, d, x, y, z }]: size and middle of every box; [] for a pane too small to have one */
+ *  Returns [{ w, h, d, x, y, z }]: size and middle of every box (every pane gets one, a small pane thinner bars and a smaller handle;
+ *  the owner: "für alle Fenster, nicht dass welche vergessen wird"); [] only for a pane without a size */
 export function sashParts({ x0, x1, y0, y1, hingeAt = 'y0', room = 1 }) {
   const W = x1 - x0, H = y1 - y0;
-  if (!(W > 0.12 && H > 0.12)) return [];
+  if (!(W > 0 && H > 0)) return [];
   const b = Math.min(SASH_BAR, W * 0.15, H * 0.15), d = SASH_DEPTH, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
   const parts = [
     { w: W, h: b, d, x: cx, y: y1 - b / 2, z: 0 },               // top
@@ -21,14 +22,14 @@ export function sashParts({ x0, x1, y0, y1, hingeAt = 'y0', room = 1 }) {
     { w: b, h: H - 2 * b, d, x: x1 - b / 2, y: cy, z: 0 },       // right
   ];
   // the handle: on the bar across from the hinge, in its middle, on the room side; its lever lies along that bar
-  const side = room < 0 ? -1 : 1, zb = side * (d / 2 + 0.012), zl = side * (d / 2 + 0.03);
+  const side = room < 0 ? -1 : 1, zb = side * (d / 2 + 0.012), zl = side * (d / 2 + 0.03), k = Math.min(1, W / 0.3, H / 0.3);   // k: a small pane, a small handle
   const across = { x0: 'x1', x1: 'x0', y0: 'y1', y1: 'y0' }[hingeAt] || 'y1';
   if (across === 'x0' || across === 'x1') {
     const x = across === 'x0' ? x0 + b / 2 : x1 - b / 2, lever = Math.min(0.13, H * 0.2);
-    parts.push({ w: 0.03, h: 0.05, d: 0.024, x, y: cy, z: zb }, { w: 0.024, h: lever, d: 0.02, x, y: cy - lever / 2 + 0.012, z: zl });
+    parts.push({ w: 0.03 * k, h: 0.05 * k, d: 0.024, x, y: cy, z: zb }, { w: 0.024 * k, h: lever, d: 0.02, x, y: cy - lever / 2 + 0.012 * k, z: zl });
   } else {
     const y = across === 'y0' ? y0 + b / 2 : y1 - b / 2, lever = Math.min(0.13, W * 0.2);
-    parts.push({ w: 0.05, h: 0.03, d: 0.024, x: cx, y, z: zb }, { w: lever, h: 0.024, d: 0.02, x: cx + lever / 2 - 0.012, y, z: zl });
+    parts.push({ w: 0.05 * k, h: 0.03 * k, d: 0.024, x: cx, y, z: zb }, { w: lever, h: 0.024 * k, d: 0.02, x: cx + lever / 2 - 0.012 * k, y, z: zl });
   }
   return parts;
 }
