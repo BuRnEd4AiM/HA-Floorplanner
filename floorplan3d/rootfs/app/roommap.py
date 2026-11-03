@@ -54,10 +54,30 @@ def opening_entities(o) -> list:
     return out
 
 
-def _openings(floor):
-    """(x, z, sides, opening) of every door and window of a floor, on its walls and dormer walls; sides: the two points just beside it,
-    across the wall (as levels.js besideOpening)"""
-    out = []
+def roof_windows(floors) -> dict:
+    """{floor id: [(x, z, window)]}: the windows of the dormers and the roof windows (#643) of every roof floor, by the floor they belong to.
+    They are no walls of the plan: the editor keeps where each lies (o.at: its middle in the plan, o.floor: the id of its floor, dormerwin.js)."""
+    out = {}
+    for f in floors if isinstance(floors, list) else []:
+        roof = f.get("roof") if isinstance(f, dict) and f.get("kind") == "roof" else None
+        if not isinstance(roof, dict):
+            continue
+        for spec in [roof, *[p for p in roof.get("parts") or [] if isinstance(p, dict)]]:
+            items = [d for d in spec.get("dormers") or [] if isinstance(d, dict) and d.get("win") is not False]
+            items += [s for s in spec.get("skylights") or [] if isinstance(s, dict)] if spec.get("type") != "flat" else []
+            for it in items:
+                o = it.get("window")
+                at = o.get("at") if isinstance(o, dict) else None
+                if isinstance(at, list) and len(at) >= 2 and _num(at[0]) is not None and _num(at[1]) is not None and isinstance(o.get("floor"), str):
+                    out.setdefault(o["floor"], []).append((float(at[0]), float(at[1]), o))
+    return out
+
+
+def _openings(floor, extra=()):
+    """(x, z, sides, opening) of every door and window of a floor, on its walls and dormer walls, and extra: [(x, z, window)] (the windows
+    of the dormers and the roof windows on it, roof_windows); sides: the two points just beside it, across the wall (as levels.js
+    besideOpening)"""
+    out = [(x, z, ((x, z), (x, z)), o) for x, z, o in extra]
     for w in [*(floor.get("walls") or []), *(floor.get("dormerWalls") or [])]:
         try:
             ax, az, bx, bz = float(w["a"][0]), float(w["a"][1]), float(w["b"][0]), float(w["b"][1])
@@ -88,12 +108,13 @@ def rooms_of(houses, area_entities=None) -> list:
     out = []
     for hid, layout in houses:
         floors = layout.get("floors") if isinstance(layout, dict) else None
+        roofwin = roof_windows(floors)
         for fi, f in enumerate(floors if isinstance(floors, list) else []):
             if not isinstance(f, dict):
                 continue
             rooms = [(r, _pts(r)) for r in f.get("rooms") or [] if isinstance(r, dict) and r.get("id")]
             rooms = [(r, p) for r, p in rooms if p]
-            ops = _openings(f)
+            ops = _openings(f, roofwin.get(f.get("id"), []))
             near = {id(o): [r["id"] for r, p in rooms if dist_to_poly(x, z, p) < EDGE or point_in_poly(x, z, p)] for x, z, _s, o in ops}
             indoor = [p for r, p in rooms if not r.get("terrace")]
             out_side = {id(o): any(not any(point_in_poly(sx, sz, p) for p in indoor) for sx, sz in sides) for _x, _z, sides, o in ops}

@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.61.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.62.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.61.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.62.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.62.0: 🪟 Dachfenster ohne Gaube** (Abschnitt 152, gefragt von christinloehner in #643): Claude hat 152.1 bis 152.6 im Browser-Test geprüft; für dich in der Demo 152.7 und 152.8, im Add-on 152.9 und 152.10, nach dem Merge das Video 152.11.
 1. **Neu nach 4.61.0: 🎬 die Suche der Video-Anleitung findet mehr** (Abschnitt 151, dein Wunsch: „wenn Leute ein anderes Wort verwenden … trotzdem das richtige Video“): Claude hat 151.1 und 151.2 geprüft; für dich nach dem Merge auf der Seite der Anleitung 151.3 bis 151.5, im Add-on 151.6, und 151.7 mit deinen eigenen Wörtern.
 1. **Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich in den Kehlen, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung** (Abschnitt 150, gefragt von LoggieXC81 in #621, Issue #639): Claude hat 150.1 bis 150.4 im Browser-Test geprüft; für dich in der Demo 150.5 und 150.6, im Add-on 150.7, nach dem Merge die Videos 150.8.
 1. **Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen statt Podest, Stufen im 1. Lauf, massive Wandtreppe** (Abschnitt 149, gefragt von Miicki in #623): Claude hat 149.1 bis 149.5 im Browser-Test geprüft; für dich in der Demo 149.6 und 149.7, im Add-on 149.8, nach dem Merge das Video 149.9.
@@ -400,7 +401,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 149. Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen in der Ecke, Stufen im 1. Lauf | 5 | 0 | 4 | 0 | 149.6 bis 149.9 |
 | 150. Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung | 4 | 0 | 4 | 0 | 150.5 bis 150.8 |
 | 151. 🎬 Video-Anleitung: die Suche findet mehr (nach 4.61.0, nur die Seite der Anleitung) | 2 | 0 | 5 | 0 | 151.3 bis 151.7 |
-| **Zusammen** | **894** | **2** | **151** | **92** | |
+| 152. Neu in 4.62.0: 🪟 Dachfenster ohne Gaube | 6 | 0 | 5 | 0 | 152.7 bis 152.11 |
+| **Zusammen** | **900** | **2** | **156** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2323,3 +2325,20 @@ Der Besitzer am 2026-11-03: „dass man die besser findet, wenn man oben was suc
 | 151.5 | Eine ganze Frage: „wer hat das Licht angemacht“ | Zuerst „📜 Protokoll“, darunter „Passt vielleicht auch“ mit den Licht-Videos | ❓ |
 | 151.6 | Im Add-on: 🎬 Anleitung öffnen, „Jalousie“ suchen (eine gespeicherte Kopie „📥 Für ohne Internet speichern“ vorher neu speichern) | Das Video „Rollladen auf und zu“ | ❓ |
 | 151.7 | Eigene Wörter ausprobieren, so wie du suchen würdest | Das passende Video kommt; sonst das Wort an Claude, es kommt in die Suchwörter | ❓ |
+
+## 152. Neu in 4.62.0: 🪟 Dachfenster ohne Gaube
+christinloehner in #643: „Bin ich doof oder finde ich wirklich keine ganz einfachen, ordinären Dachfenster, ohne Gauben?“ Es gab nur Fenster in Gauben. Jetzt hat die Etage Dach unter „Etage verwalten“ den Abschnitt „Dachfenster“: „+ Dachfenster“ setzt ein Fenster in die Dachschräge (Loch im Dach, Eindeckrahmen), mit Seite, Platz, üblicher Größe oder Breite/Höhe und Abstand zur Traufe. Es ist ein echtes Fenster (Kontakt, rot wenn offen, Scheibe klappt nach außen, zählt bei „offen“, Regenwarnung, Fenster-Regel der Heizung). Nebenbei: Gaubenfenster zählen jetzt auch auf dem Server (Fenster-Regel der Heizung, Ort in der Alarm-Nachricht).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 152.1 | Etage Dach, „Etage verwalten“, „+ Dachfenster“ | Ein Dachfenster 78 × 118 cm auf Seite A, Unterkante 1,00 m über dem Boden; das Dach hat ein Loch und einen Rahmen drumherum; das Fenster liegt in der Schräge | ✅ (2026-11-03, Claude im Browser-Test 72_skylights) |
+| 152.2 | „Übliche Größe“ 114 × 140 cm, dann „Dachseite“ B | Breite und Höhe ändern sich, das Fenster wird größer; es liegt dann in der anderen Schräge | ✅ (2026-11-03, Claude im Browser-Test 72_skylights) |
+| 152.3 | Der Kontakt des Dachfensters meldet „offen“ | Das Dachfenster wird rot, die Scheibe klappt nach außen, oben steht „1 offen“ | ✅ (2026-11-03, Claude im Browser-Test 72_skylights) |
+| 152.4 | Das Dachfenster anklicken, dann Entf | Die Felder sagen, dass Größe und Platz am Dach eingestellt werden, „Öffnet nach außen“ ist gewählt; Entf nimmt das Dachfenster weg, das Loch ist zu | ✅ (2026-11-03, Claude im Browser-Test 72_skylights) |
+| 152.5 | Dachform Flachdach, dann Pultdach | Flachdach: keine Dachfenster, ein Hinweis; Pultdach: Dachfenster in seiner einen Schräge (ohne „Dachseite“) | ✅ (2026-11-03, Claude im Browser-Test 72_skylights) |
+| 152.6 | 2D-Plan der Etage Dach; Kontakt am Server (Fenster-Regel der Heizung, Ort im Alarm) | Das Dachfenster als blaues Rechteck; der Server zählt den Kontakt für den Raum darunter | ✅ (2026-11-03, Claude, Browser-Test und tests/test_roommap.py) |
+| 152.7 | Demo: Etage Dach, „3D“, das Dach von vorne ansehen | Zwischen den beiden Gauben liegt ein Dachfenster mit grünem Rahmen (es hat einen Kontakt, zu) | ❓ |
+| 152.8 | Demo: „Bearbeiten“, Etage Dach, „Etage verwalten“, „+ Dachfenster“, dann Position, Größe und Seite ändern | Das neue Dachfenster folgt jeder Änderung, es sieht aus wie ein echtes Dachfenster | ❓ |
+| 152.9 | Im Add-on: in dein Dach ein Dachfenster setzen, antippen, einen Fensterkontakt wählen | Geht der Kontakt auf, wird es rot und klappt nach außen, „1 offen“ | ❓ |
+| 152.10 | Im Add-on mit „Fenster-Regel“ der Heizung und einem Thermostat im Raum unter dem Dachfenster (oder unter einer Gaube): das Fenster öffnen | Die Heizung in diesem Raum geht aus wie bei jedem Fenster | ❓ |
+| 152.11 | Nach dem Update auf der Seite der Anleitung das Video „Dachfenster ohne Gaube“ ansehen (oder „Dachfenster“ / „Velux“ suchen) | „+ Dachfenster“, Position, Größe 114 × 140 cm, ein zweites daneben | ❓ |

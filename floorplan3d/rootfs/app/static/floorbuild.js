@@ -243,6 +243,25 @@ export function initFloorBuild(ctx) {
       ctx.labelSprites.set(op.id, sp);
     });
   }
+  /** a roof window (#643, skylight.js): the wall group wg of its window (built upright on its lower edge, dormerwin.js) tipped back into the
+   *  slope round that edge (w.tilt). Returns the pivot to add to the floor and the tipped group (x along the edge, y up the slope) */
+  function tipIntoSlope(wg, w) {
+    const sill = w.openings[0]?.sill || 0, pivot = new THREE.Group(), tip = new THREE.Group();
+    pivot.position.set(wg.position.x, wg.position.y + sill, wg.position.z);
+    pivot.rotation.y = wg.rotation.y;
+    tip.rotation.x = w.tilt || 0;
+    pivot.add(tip);
+    wg.position.set(0, -sill, 0); wg.rotation.set(0, 0, 0);
+    tip.add(wg);
+    return { pivot, tip };
+  }
+  /** the hit box of a roof window lies in the slope with it; the ball of its cover floats over its upper edge */
+  function skylightHandles(g, tip, w, o, lift) {
+    const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+    w.openings.forEach((op) => ctx.openingHandle({ ...w, a: [-L / 2, 0], b: [L / 2, 0] }, { ...op, sill: 0 }, tip));
+    const top = w.top;
+    if (top) shutterParts(g, { ...w, a: top.a, b: top.b, openings: w.openings.map((op) => ({ ...op, sill: top.y - op.height })) }, o.labels, !!o.stack?.covered, lift);
+  }
   /** the walls with their doors and windows; on the open floor they take part in the cutaway and can be picked */
   function walls(g, f, i, o) {
     const { holo, ghost, iso } = o, low = ctx.lowWalls(), half = ctx.halfCut() && !low, look = facadeOf(ctx.settings());   // window frames, wall colour (#428)
@@ -288,7 +307,7 @@ export function initFloorBuild(ctx) {
     }));
     (f.dormerWalls || []).forEach((w) => {                       // the windows of the dormers over this floor: only the window, the dormer is the wall
       if (w.host) return;                                        // cut into a wall of the room, drawn with it (above)
-      const [ox, oz] = [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];
+      const [ox, oz] = w.skylight ? w.openings[0].at || [] : [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];
       if (iso && !ghost && !inIso(iso, ox, oz)) return;
       const wg = buildWall(w, { material: null, ghost, low, makeMat: ctx.mat, holo, bare: true, shutterSide: sideOf(w), windowFrame: look.frame });
       const lift = up.wall(w);
@@ -297,8 +316,10 @@ export function initFloorBuild(ctx) {
         const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + lift + (f.walls[0]?.height || 2.6) * 0.5 + 0.001);
         wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
       }
-      g.add(wg);
-      if (!ghost) { w.openings.forEach((op) => { const h = ctx.openingHandle(w, op, g); if (lift && h?.mesh) h.mesh.position.y += lift; }); shutterParts(g, w, o.labels, !!o.stack?.covered, lift); }
+      const sky = w.skylight ? tipIntoSlope(wg, w) : null;       // a roof window (#643): it lies in the slope
+      g.add(sky ? sky.pivot : wg);
+      if (!ghost && sky) skylightHandles(g, sky.tip, w, o, lift);
+      else if (!ghost) { w.openings.forEach((op) => { const h = ctx.openingHandle(w, op, g); if (lift && h?.mesh) h.mesh.position.y += lift; }); shutterParts(g, w, o.labels, !!o.stack?.covered, lift); }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
     });
     if (up.any) stepsAtDoors(g, f, o, up);

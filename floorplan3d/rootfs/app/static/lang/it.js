@@ -166,7 +166,7 @@ export default {
   'tool.opening': 'Porta/Finestra',
   'tool.erase': 'Elimina',
   'tool.dormer': 'Tetto',
-  'tip.dormer': 'Vai al tetto: forma, abbaini e altri tetti (crea un tetto se manca)',
+  'tip.dormer': 'Vai al tetto: forma, abbaini, finestre da tetto e altri tetti (crea un tetto se manca)',
   'tool.import': 'Importa casa',
   'tip.import': 'Crea una casa da una descrizione JSON',
   'tool.more': 'Altro ▾',
@@ -2238,4 +2238,5 @@ export default {
   'stair.corner': 'Angolo', 'stair.cornerLanding': 'Pianerottolo', 'stair.cornerWinder': 'Gradini a ventaglio', 'stair.winders': 'Gradini a ventaglio',
   'stair.split': 'Gradini della 1ª rampa', 'stair.splitHint': 'Quanti gradini prima dell’angolo: di più dà una prima rampa lunga e una seconda corta.',
   'stair.solid': 'Massiccia (gradini fino al pavimento)',
+  'skylight.title': 'Finestre da tetto', 'skylight.help': 'Una finestra nella falda del tetto, senza abbaino. Premi «+ Finestra da tetto», poi scegli il lato, il posto e la misura.', 'skylight.noFlat': 'Un tetto piano non ha finestre da tetto.', 'skylight.one': 'Finestra da tetto', 'skylight.roof': 'Tetto', 'skylight.mainRoof': 'Tetto principale', 'skylight.startTip': 'Dove inizia la finestra: distanza dal timpano a sinistra (o in alto) nella pianta fino al lato della finestra.', 'skylight.size': 'Misura comune', 'skylight.ownSize': 'misura libera', 'skylight.height': 'Altezza (nella falda)', 'skylight.heightTip': 'L’altezza della finestra, misurata nella falda del tetto (come le misure comuni, es. 78 × 118 cm).', 'skylight.eaveTip': 'Quanto dista il bordo inferiore della finestra dal bordo del tetto (gronda), misurato in pianta.', 'skylight.low': 'Bordo inferiore a {y} m sopra il pavimento sotto', 'skylight.remove': 'Rimuovi finestra da tetto', 'skylight.add': '+ Finestra da tetto', 'skylight.noFit': 'Non entra nella falda (troppo grande o troppo vicina al colmo).', 'skylight.tip': 'Contatto, nome, tapparella: tocca la finestra da tetto in 3D, come una finestra normale. Aperta diventa rossa e l’anta si apre verso l’esterno.', 'skylight.winHint': 'Finestra da tetto: misura e posto si impostano sul tetto (piano Tetto → Gestisci piano → Finestre da tetto).',
 };

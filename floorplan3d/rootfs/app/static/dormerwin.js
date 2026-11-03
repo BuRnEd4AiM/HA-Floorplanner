@@ -4,10 +4,14 @@
  * When a wall of the room under the dormer runs right behind the dormer's front, the window is cut into that wall (#275), so it shows
  * in the room; otherwise it sits in a short wall of its own in the dormer's front. Either way it hangs on a wall object that is never
  * saved (f.dormerWalls, each knowing its outside for a roller shutter, #331): openingWalls(f) gives the walls of a floor together with them, for everything that looks for doors and windows.
- * The doors and windows of a wall the dormer's front stands on show through the front (frontHoles, #341). Pure, no three.js, no DOM
- * (unit test: tests/dormerwin.test.mjs). */
+ * The doors and windows of a wall the dormer's front stands on show through the front (frontHoles, #341).
+ * The roof windows (Dachfenster, #643, skylight.js) are real windows the same way: each hangs on a wall object of its own along its lower
+ * edge (`skylight: true`, `tilt`: the floor tips it back into the slope). Every such window also keeps where it is (o.at: its middle in the
+ * plan, o.floor: the id of its floor), saved with it, so the server finds it for the window rule of the heating (roommap.py).
+ * Pure, no three.js, no DOM (unit test: tests/dormerwin.test.mjs). */
 import { fitDormer, dormerWindow } from './dormer.js';
 import { clipRoofFloor } from './attic.js';
+import { fitSkylight, skylightWindow, skylightsAllowed, THICK as SKY_THICK } from './skylight.js';
 
 const THICK = 0.1;                                                   // the dormer's front wall (for the window frame)
 const r3 = (v) => Math.round(v * 1000) / 1000;
@@ -36,6 +40,22 @@ export function dormerWindows(floors, roofs, elev) {
       if (!win) return;
       const base = elev(ri) + (R.y0 || 0) + n.yF + win.sill;
       out.push({ d, n, win, ri, fi: windowFloor(floors, ri, base + win.height / 2, elev), base });
+    }));
+  });
+  return out;
+}
+
+/** the roof windows (#643) of every roof of every roof floor, each with the floor it belongs to: [{ s, n (fitSkylight), win (skylightWindow),
+ *  spec (the roof it lies in), ri, fi, base (lower edge of the window over the ground) }] */
+export function skylightWindows(floors, roofs, elev) {
+  const out = [];
+  floors.forEach((f, ri) => {
+    if (f.kind !== 'roof') return;
+    roofs(ri).forEach((R) => (skylightsAllowed(R.spec) ? R.spec.skylights || [] : []).forEach((s) => {
+      const n = fitSkylight(R.bb, R.spec, s), win = skylightWindow(n);
+      if (!win) return;
+      const base = elev(ri) + (R.y0 || 0) + win.y0;
+      out.push({ s, n, win, spec: R.spec, ri, fi: windowFloor(floors, ri, base + (win.top.y - win.y0) / 2, elev), base });
     }));
   });
   return out;
@@ -116,6 +136,11 @@ export function eaveOntoWall(walls, n, win) {
  *  Returns the dormer walls per floor. */
 export function syncDormerWindows(floors, roofs, elev, uid) {
   const out = floors.map(() => []);
+  /** where window o lies: its middle in the plan on wall a→b, and its floor (for the server, see above) */
+  const keep = (o, a, b, fi) => {
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, k = o.pos / L;
+    Object.assign(o, { at: [r3(a[0] + (b[0] - a[0]) * k), r3(a[1] + (b[1] - a[1]) * k)], floor: floors[fi].id });
+  };
   for (const { d, n, win, fi, base } of dormerWindows(floors, roofs, elev)) {
     const o = (d.window ||= { id: uid(), type: 'window', style: win.width >= 1.1 ? 'double' : 'single' });
     Object.assign(o, { type: 'window', width: r3(win.width), height: r3(win.height), sill: r3(base - elev(fi)), pos: r3(n.w / 2) });
@@ -126,10 +151,21 @@ export function syncDormerWindows(floors, roofs, elev, uid) {
       if (o.sill + o.height > H - 0.05) o.sill = r3(Math.max(0.1, H - 0.05 - o.height));
       if (o.sill + o.height > H - 0.05) o.height = r3(Math.max(0.3, H - 0.05 - o.sill));
       o.pos = r3(h.pos);
+      keep(o, h.wall.a, h.wall.b, fi);
       out[fi].push({ id: `dormer-${o.id}`, a: h.wall.a, b: h.wall.b, thickness: h.wall.thickness, height: H, openings: [o], dormer: d, host: h.wall.id, outside: outsideOf(h.wall.a, h.wall.b, n) });
     } else {
+      keep(o, win.a, win.b, fi);
       out[fi].push({ id: `dormer-${o.id}`, a: win.a, b: win.b, thickness: THICK, height: o.sill + o.height, openings: [o], dormer: d, outside: outsideOf(win.a, win.b, n) });
     }
+  }
+  // the roof windows (#643): a window of one pane hinged at the top that opens outwards (it can be changed like any window), on a wall
+  // along its lower edge; `dormer` (the roof window) keeps it from being moved or sized like a window in a wall (draw3d.js, props.js)
+  for (const { s, win, spec, fi, base } of skylightWindows(floors, roofs, elev)) {
+    const o = (s.window ||= { id: uid(), type: 'window', style: 'single', hinge: 'top', openOutward: true });
+    Object.assign(o, { type: 'window', width: r3(win.width), height: r3(win.height), sill: r3(base - elev(fi)), pos: r3(win.width / 2) });
+    Object.assign(o, { at: win.mid.map(r3), floor: floors[fi].id });
+    const top = { a: win.top.a, b: win.top.b, y: r3(o.sill + win.top.y - win.y0) };   // the upper edge, its height over the floor (for the ball of a cover)
+    out[fi].push({ id: `skylight-${o.id}`, a: win.a, b: win.b, thickness: SKY_THICK, height: o.sill + o.height, openings: [o], dormer: s, skylight: true, roof: spec, tilt: win.tilt, top, outside: win.outside });
   }
   floors.forEach((f, i) => Object.defineProperty(f, 'dormerWalls', { value: out[i], configurable: true, writable: true, enumerable: false }));
   return out;

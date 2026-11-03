@@ -460,6 +460,48 @@
       }
      }
     },
+    "skylights": {
+     "type": "array",
+     "maxItems": 20,
+     "description": "Roof windows (Dachfenster, #643): plain windows lying in a slope of the roof, without a dormer. Ignored on a flat roof; on a shed roof they lie in its one slope.",
+     "items": {
+      "type": "object",
+      "properties": {
+       "side": {
+        "description": "Which roof slope: 0 / 1 (or \"a\" / \"b\"); a shed roof has only one.",
+        "enum": [0, 1, "a", "b", "A", "B"],
+        "default": 0
+       },
+       "pos": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "default": 0.5,
+        "description": "Position along the ridge, 0 = start, 1 = end."
+       },
+       "w": {
+        "type": "number",
+        "minimum": 0.3,
+        "maximum": 3,
+        "default": 0.78,
+        "description": "Width in metres (along the ridge)."
+       },
+       "h": {
+        "type": "number",
+        "minimum": 0.3,
+        "maximum": 3,
+        "default": 1.18,
+        "description": "Height in metres, measured in the slope (as the sizes of roof windows are given: 78 x 118 cm)."
+       },
+       "eave": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 20,
+        "description": "Distance of its lower edge from the eave (the edge of the overhang) in metres, measured flat in the plan. Without it: 1 m over the floor under the roof."
+       }
+      }
+     }
+    },
     "steps": {
      "type": "array",
      "maxItems": 20,

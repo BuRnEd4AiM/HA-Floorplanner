@@ -2,12 +2,13 @@
  * roof (shape, pitch, its own base, overhang, ridge; the overhang at the gables and the gable wall, a shed roof's high side, #628), steps in
  * its eaves (#342), its dormers (gable with its own pitch, flat or a long shed dormer, #339, placed by its distance from the gable) and further roofs
  * (with their ridge kept at 0° or 90°, #621; e.g. a
- * flat roof over an annex, a canopy as a shed roof, #628). The rules for the base
+ * flat roof over an annex, a canopy as a shed roof, #628), its roof windows (#643, skylightui.js). The rules for the base
  * boxes, new floors, moving floors and placing new dormers are pure functions (tested); initFloorPanel draws the panel. */
 import { dormerParts, dormerStart, posForStart, DORMER_DEFAULT, DORMER_TYPES, SHED_PITCH, GABLE_PITCH } from './dormer.js';
 import { ridgeHeight, pitchFor } from './attic.js';
 import { stepsAllowed, alongXOf, MAX_STEPS } from './roofsteps.js';
 import { ROOF_TYPES, SHED_HIGH, SHED_PITCH as SHED_ROOF_PITCH, hasGables, gableOverOf, shedHigh, shedHighToward, newCanopy, roofFrame } from './roofshape.js';
+import { initSkylightUi } from './skylightui.js';
 
 export const ROOF_DEFAULT = { type: 'gable', pitch: 35, overhang: 0.4 };
 /** an empty floor of a kind (a roof floor gets the default roof) */
@@ -19,6 +20,7 @@ export const floorLabel = (kind, count, t) => (kind === 'basement' ? t('floor.ba
 export function setRoofType(r, type, mb = null) {
   r.type = ROOF_TYPES.includes(type) ? type : 'gable';
   if (r.type === 'flat' || r.type === 'shed') delete r.dormers;
+  if (r.type === 'flat') delete r.skylights;                       // a flat roof has no roof windows (#643)
   if (r.type !== 'shed') return r;
   delete r.steps;
   if ((r.pitch ?? 35) > 25) r.pitch = SHED_ROOF_PITCH;
@@ -121,6 +123,9 @@ export function initFloorPanel(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput } = ctx.fields;
   const redo = () => { ctx.build(); ctx.scheduleSave(); render(); };
+  const selectOf = (...a) => select(...a);                       // (select is defined below)
+  const skylights = initSkylightUi({ t, field, inp, lenInput, select: selectOf, snapshot: () => ctx.snapshot(), redo, render: () => render(), uid: () => ctx.uid(),
+    roofBox: () => ctx.roofBox(ctx.layout().floors.indexOf(ctx.floor())), knee: () => ctx.floor()?.roof?.knee || 0 });
   function addFloorOf(kind) {
     const layout = ctx.layout();
     const name = prompt(t('floor.namePrompt'), floorLabel(kind, layout.floors.length, t));
@@ -262,6 +267,7 @@ export function initFloorPanel(ctx) {
     if (r.type !== 'shed') box.append(ridgeField(r, 'roofRidge'));   // a shed roof has its high side instead (#628)
     renderSteps(box, f, r);
     renderDormers(box, f, r);
+    skylights.render(box, f, r);                                   // roof windows without a dormer (#643)
     renderRoofParts(box, r);
   }
   /** steps in the eaves (#342): a house that is narrower at the front and wider at the back; one card per step */

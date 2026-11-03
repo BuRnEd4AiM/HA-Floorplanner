@@ -79,6 +79,8 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
     // "roof": { "type": "gable", "steps": [ { "side": "a", "at": 0, "out": -0.5 }, { "side": "a", "at": 6, "out": 0 } ] },
     // roof dormers (optional, not on flat): side 0|1 or "a"|"b", pos 0..1 along the ridge, w/hw/eave in m, type gable|flat|shed (shed dormer, with sp = its pitch in degrees, up to 30 m long), win true|false
     // "roof": { "type": "gable", "dormers": [ { "side": "a", "pos": 0.3, "w": 1.6, "hw": 1.2, "eave": 0.8, "type": "gable", "win": true } ] },
+    // roof windows without a dormer (optional, not on flat): side 0|1 or "a"|"b", pos 0..1 along the ridge, w = width, h = height in the slope (m), eave = distance of the lower edge from the eave (m, without it: 1 m over the floor)
+    // "roof": { "type": "gable", "skylights": [ { "side": "b", "pos": 0.5, "w": 0.78, "h": 1.18 } ] },
     "floors": [
       {
         "name": "Ground floor", "kind": "floor",        // floor | basement | roof

@@ -503,6 +503,7 @@
             { "side": "a", "pos": 0.85, "w": 1.4, "type": "flat", "win": false },
             { "side": "b", "pos": 0.2, "w": 3.0, "type": "shed", "sp": 15 }
           ],
+          "skylights": [{ "side": "a", "pos": 0.12, "w": 0.78, "h": 1.18 }, { "side": "b", "pos": 0.9, "w": 1.14, "h": 1.4, "eave": 1.6 }],
           "parts": [
             { "name": "Gartenhaus", "type": "hip", "pitch": 25, "overhang": 0.3, "box": { "x0": -5, "x1": -1, "z0": 18, "z1": 22 }, "level": 1 }
           ]
