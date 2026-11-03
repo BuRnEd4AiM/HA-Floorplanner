@@ -37,6 +37,8 @@ QUERIES = [
     ("Grundstück am Hang", "de", "plot-terrain"), ("Keller hinzufügen", "de", "floors-add"), ("neues Stockwerk", "de", "floors-add"),
     ("Parkett", "de", "finishes"), ("Wandfarbe", "de", "finishes"), ("Satteldach", "de", "roof"), ("Dachgaube", "de", "roof dormer-pitch"),
     ("Winkelhaus Dach", "de", "roof-wing"), ("Carport", "de", "roof-gable"), ("Wandlänge messen", "de", "measure"),
+    ("Dachfenster", "de", "skylight"), ("Velux", "de", "skylight"), ("Dachfenster ohne Gaube", "de", "skylight"),
+    ("Fenster in der Dachschräge", "de", "skylight"), ("skylight", "en", "skylight"), ("roof window", "en", "skylight"),
     ("rückgängig", "de", "move"), ("löschen", "de", "move"), ("Ferienwohnung", "de", "houses"), ("ChatGPT", "de", "import"),
     ("Haus mit KI bauen", "de", "import"), ("Symbolleiste", "de", "toolbar"),
     ("Filmabend", "de", "scenes"), ("Szene erstellen", "de", "sceneedit"), ("Lieblingsgeräte", "de", "tiles"),

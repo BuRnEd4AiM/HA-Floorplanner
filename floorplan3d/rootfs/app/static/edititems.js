@@ -23,6 +23,12 @@ export function itemIn(f, kind, id) {
 export function removeFrom(f, kind, id) {
   if (kind === 'opening') {
     const found = openingIn(f, id);
+    if (found?.wall.skylight) {                                    // a roof window (#643): it goes off its roof, the hole closes
+      const list = found.wall.roof?.skylights || [];
+      if (list.includes(found.wall.dormer)) list.splice(list.indexOf(found.wall.dormer), 1);
+      if (found.wall.roof && !list.length) delete found.wall.roof.skylights;
+      return;
+    }
     if (isDormerWall(found?.wall)) { found.wall.dormer.win = false; return; }   // a dormer window: the dormer keeps its wall, without a window
     if (found) found.wall.openings = found.wall.openings.filter((x) => x.id !== id);
     return;

@@ -4,6 +4,7 @@
  * the main roof can have steps (#342): its outline and their handles come along, stepTarget says which roof can get them. Pure
  * (unit test: tests/roofmove.test.mjs). */
 
+import { skylightOutlines } from './skylight.js';
 import { outline, stepHandles, cornerHandles } from './roofsteps.js';
 import { shedHigh } from './roofshape.js';
 
@@ -22,9 +23,9 @@ export function roofRects(f, autoBox) {
   const main = okBox(r.box) ? r.box : autoBox;
   if (okBox(main)) {
     const box = { x0: main.x0, x1: main.x1, z0: main.z0, z1: main.z1 };
-    out.push({ id: mainRoofId(f), main: true, name: '', box, outline: outline(box, r), steps: stepHandles(box, r), corners: cornerHandles(box, r), ...highOf(r) });
+    out.push({ id: mainRoofId(f), main: true, name: '', box, outline: outline(box, r), steps: stepHandles(box, r), corners: cornerHandles(box, r), skylights: skylightOutlines(box, r), ...highOf(r) });
   }
-  (r.parts || []).forEach((p, i) => { if (okBox(p.box)) out.push({ id: p.id || `part${i}`, main: false, name: p.name || '', box: { ...p.box }, ...highOf(p) }); });
+  (r.parts || []).forEach((p, i) => { if (okBox(p.box)) out.push({ id: p.id || `part${i}`, main: false, name: p.name || '', box: { ...p.box }, skylights: skylightOutlines(p.box, p), ...highOf(p) }); });   // its roof windows (#643)
   return out;
 }
 

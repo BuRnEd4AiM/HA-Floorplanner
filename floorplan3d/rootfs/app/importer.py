@@ -1008,6 +1008,11 @@ def _roof(rep, path, spec, part=False):
         rep.warn(f"{path}.dormers", f"a {typ} roof has no dormers, ignored")
     if dormers:
         roof["dormers"] = dormers
+    skylights = _skylights(rep, f"{path}.skylights", spec.get("skylights")) if typ != "flat" else []
+    if spec.get("skylights") and typ == "flat":
+        rep.warn(f"{path}.skylights", "a flat roof has no roof windows, ignored")
+    if skylights:
+        roof["skylights"] = skylights
     if not part:
         steps = _steps(rep, f"{path}.steps", spec.get("steps"), typ)
         if steps:
@@ -1113,6 +1118,44 @@ def _dormers(rep, path, raw):
         out.append(item)
     if len(raw) > MAX_DORMERS:
         rep.warn(path, f"only the first {MAX_DORMERS} dormers are used")
+    return out
+
+
+MAX_SKYLIGHTS = 20
+
+
+def _skylights(rep, path, raw):
+    """Roof windows (Dachfenster, #643): side 0|1 (or "a"|"b"), pos 0..1 along the ridge, w (width) and h (height in the slope) in metres,
+    eave (distance of the lower edge from the eave, optional: without it the editor puts it 1 m over the floor)."""
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        rep.warn(path, "skylights must be a list, ignored")
+        return []
+    out = []
+    for i, s in enumerate(raw[:MAX_SKYLIGHTS]):
+        sp = f"{path}[{i}]"
+        if not isinstance(s, dict):
+            rep.warn(sp, "a roof window must be an object, ignored")
+            continue
+        side = s.get("side", 0)
+        side = {"a": 0, "b": 1}.get(side.lower(), side) if isinstance(side, str) else side
+        if side not in (0, 1) or isinstance(side, bool):
+            rep.warn(f"{sp}.side", "side must be 0/1 (or \"a\"/\"b\"), using 0")
+            side = 0
+        item = {"id": f"sk{i + 1}", "side": side}
+        for key, lo, hi, default in (("pos", 0, 1, 0.5), ("w", 0.3, 3, 0.78), ("h", 0.3, 3, 1.18)):
+            if key in s and not _num(s[key], lo, hi):
+                rep.warn(f"{sp}.{key}", f"{key} must be a number between {lo} and {hi}, using {default}")
+            item[key] = float(s[key]) if _num(s.get(key), lo, hi) else default
+        if "eave" in s:
+            if _num(s["eave"], 0, 20):
+                item["eave"] = float(s["eave"])
+            else:
+                rep.warn(f"{sp}.eave", "eave must be a number between 0 and 20, ignored (1 m over the floor)")
+        out.append(item)
+    if len(raw) > MAX_SKYLIGHTS:
+        rep.warn(path, f"only the first {MAX_SKYLIGHTS} roof windows are used")
     return out
 
 

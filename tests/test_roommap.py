@@ -89,3 +89,20 @@ def test_a_tilt_contact_counts_for_the_window_rule():
     lay = {"floors": [{"walls": [{"a": [0, 0], "b": [6, 0], "openings": [{"pos": 3, "width": 1.2, **o}]}],
                        "rooms": [{"id": "r1", "name": "Wohnzimmer", "points": [[0, 0], [6, 0], [6, 4], [0, 4]]}], "devices": []}]}
     assert rm.rooms_of([("h1", lay)], {})[0]["windows"] == ["binary_sensor.offen", "binary_sensor.kipp"]
+
+
+def test_the_windows_of_roof_windows_and_dormers_count_for_their_room():
+    """#643: a roof window (and the window of a dormer) hangs on no wall of the plan; the editor keeps where it lies (at, floor)"""
+    lay = {"floors": [
+        {"id": "og", "kind": "floor", "walls": [], "rooms": [{"id": "s", "name": "Studio", "points": [[0, 0], [10, 0], [10, 6], [0, 6]]}]},
+        {"id": "dach", "kind": "roof", "walls": [], "rooms": [], "roof": {
+            "type": "gable", "skylights": [{"id": "s1", "window": {"type": "window", "entity": "binary_sensor.dachfenster", "at": [5, 1.5], "floor": "og"}},
+                                           {"id": "s2", "window": {"type": "window", "entity": "binary_sensor.weg", "at": [50, 1.5], "floor": "og"}},
+                                           {"id": "s3"}],
+            "dormers": [{"id": "d1", "window": {"type": "window", "entity": "binary_sensor.gaube", "at": [3, 0.4], "floor": "og"}},
+                        {"id": "d2", "win": False, "window": {"type": "window", "entity": "binary_sensor.aus", "at": [4, 0.4], "floor": "og"}}],
+            "parts": [{"id": "rp1", "type": "flat", "skylights": [{"window": {"type": "window", "entity": "binary_sensor.flach", "at": [5, 5], "floor": "og"}}]}]}},
+    ]}
+    (studio,) = rm.rooms_of([("h", lay)])
+    assert studio["windows"] == ["binary_sensor.gaube", "binary_sensor.dachfenster"]   # not one outside the room, a dormer without its window, a flat roof
+    assert set(rm.roof_windows(lay["floors"])) == {"og"} and rm.roof_windows(None) == {}

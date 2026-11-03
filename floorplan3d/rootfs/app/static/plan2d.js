@@ -309,7 +309,8 @@ export function createPlan(ctx) {
       const poly = r.outline?.length > 2 ? r.outline : [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]];   // with the steps of its eaves (#342)
       return `<polygon points="${pts(poly)}" fill="${on ? 'rgba(232,120,90,.18)' : 'rgba(200,90,60,.06)'}" stroke="${on ? C.accent : '#e0785a'}" stroke-width="${on ? 3 : 2}" stroke-dasharray="9 5" pointer-events="none" data-roof="${r.id}"/>`
         + `<text x="${sx((b.x0 + b.x1) / 2)}" y="${sy(b.z0) + 16}" text-anchor="middle" font-size="12" fill="#e0785a" pointer-events="none">${esc(r.name || ctx.t('prop.roof'))}</text>`
-        + (r.high ? highEdge(b, r.high, on) : '');
+        + (r.high ? highEdge(b, r.high, on) : '')
+        + (r.skylights || []).map((q) => `<polygon points="${pts(q)}" fill="rgba(120,190,255,.35)" stroke="#5aa9e6" stroke-width="2" pointer-events="none" data-skylight="1"/>`).join('');   // its roof windows (#643)
     }).join('');
   }
   /** the high side of a shed roof (#628): a solid line on that edge */

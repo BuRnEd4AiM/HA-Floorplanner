@@ -142,3 +142,46 @@ test('frontHoles (#341): the windows of a wall the dormer stands on show through
   assert.ok(Math.abs(door.y0 - (n.yF - 0.05)) < 1e-9, 'a door (no sill) starts at the bottom of the front');
   assert.deepEqual(W.frontHoles(null, [wall], 0), []);
 });
+
+test('roof windows (#643) are real windows too: on a wall along their lower edge, tipped into the slope, found, listed and deleted', () => {
+  const floors = house(1.0);
+  floors.forEach((f, i) => { f.id = `f${i}`; });
+  const roof = floors[2].roof;
+  roof.skylights = [{ id: 's1', side: 1, pos: 0.5, w: 0.78, h: 1.18, eave: 1.4 }];
+  W.syncDormerWindows(floors, roofs(floors), elev, uid);
+  const s = roof.skylights[0], o = s.window, f = floors[1];
+  assert.equal(f.dormerWalls.length, 2, 'the dormer window and the roof window belong to the storey under the slopes');
+  const w = f.dormerWalls.find((x) => x.skylight);
+  assert.equal(w.openings[0], o);
+  assert.deepEqual([o.type, o.style, o.hinge, o.openOutward], ['window', 'single', 'top', true]);   // one pane, hinged at the top, opens outwards
+  assert.equal(o.width, 0.78); assert.equal(o.height, 1.18); assert.equal(o.pos, 0.39);
+  const tan = Math.tan((35 * Math.PI) / 180);
+  assert.ok(Math.abs(o.sill - (1.0 + 1.4 * tan)) < 1e-3, `${o.sill}`);   // knee 1 m + the slope 1.4 m in from the eave
+  assert.ok(Math.abs(w.a[1] - (6.4 - 1.4)) < 1e-9 && w.a[1] === w.b[1], 'its lower edge 1.4 m in from the eave of side B');
+  assert.equal(w.dormer, s); assert.equal(w.roof, roof); assert.equal(w.outside, 1); assert.ok(w.tilt < 0);
+  assert.ok(w.top.y > o.sill && w.top.a[1] < w.a[1], 'the upper edge is higher, towards the ridge');
+  assert.equal(o.floor, 'f1'); assert.ok(Math.abs(o.at[0] - 5) < 1e-9 && o.at[1] < w.a[1], 'where it lies, kept for the server');
+  assert.equal(openingIn(f, o.id).opening, o);
+  o.entity = 'binary_sensor.dachfenster';
+  const env = { isOpen: (e) => e === 'binary_sensor.dachfenster', t: (k) => k, pointInPoly: () => true, distToPoly: () => 0 };
+  assert.deepEqual(openItems(floors, env).map((x) => [x.floor, x.id, x.kind]), [[1, o.id, 'windows']]);
+  W.syncDormerWindows(floors, roofs(floors), elev, uid);
+  assert.equal(s.window.id, o.id); assert.equal(s.window.entity, 'binary_sensor.dachfenster');
+  removeFrom(f, 'opening', o.id);
+  assert.equal(roof.skylights, undefined, 'deleting the window takes the roof window off the roof');
+  W.syncDormerWindows(floors, roofs(floors), elev, uid);
+  assert.equal(f.dormerWalls.filter((x) => x.skylight).length, 0);
+});
+
+test('a roof window on a flat roof is not there; dormer windows also keep where they lie', () => {
+  const floors = house();
+  floors.forEach((f, i) => { f.id = `f${i}`; });
+  floors[2].roof.skylights = [{ id: 's1' }];
+  floors[2].roof.type = 'flat';
+  W.syncDormerWindows(floors, roofs(floors), elev, uid);
+  assert.equal(floors[2].dormerWalls.length, 0);
+  floors[2].roof.type = 'gable';
+  W.syncDormerWindows(floors, roofs(floors), elev, uid);
+  const d = floors[2].roof.dormers[0].window;
+  assert.equal(d.floor, 'f2'); assert.ok(Math.abs(d.at[0] - 5) < 1e-9 && Math.abs(d.at[1] - 0.4) < 1e-9);
+});

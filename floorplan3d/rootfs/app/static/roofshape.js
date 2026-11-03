@@ -46,14 +46,21 @@ export function roofFrame(bb, r) {
   return { x0, x1, z0, z1, alongX, a0, a1, b0, b1, half, bc, h, ins, flat, tan, shed, hi };
 }
 
-/** the slope of a shed roof as triangles ([x, y, z] points, 3 per triangle), facing up: from the low eave (y 0) to the high side (y h) */
-export function shedSurface(bb, r) {
+/** the slope of a shed roof as triangles ([x, y, z] points, 3 per triangle), facing up: from the low eave (y 0) to the high side (y h);
+ *  holes: where roof windows lie (#643, skylight.js: [{ a0, a1, e0, e1 }], e from the low eave), the slope is cut into a grid round them */
+export function shedSurface(bb, r, holes = []) {
   const F = roofFrame(bb, r), P = (a, b, y) => (F.alongX ? [a, y, b] : [b, y, a]);
-  const lo = F.hi ? F.b0 : F.b1, top = F.bc;
-  const q = [P(F.a0, lo, 0), P(F.a1, lo, 0), P(F.a1, top, F.h), P(F.a0, top, F.h)];
-  const n = cross(q[0], q[1], q[2]);
-  if (n[1] < 0) q.reverse();
-  return [q[0], q[1], q[2], q[0], q[2], q[3]];
+  const lo = F.hi ? F.b0 : F.b1, sg = F.hi ? 1 : -1, Q = (a, e) => P(a, lo + sg * e, e * F.tan);
+  const cuts = (vals, a, b) => [...new Set([a, ...vals.filter((v) => v > a + 1e-6 && v < b - 1e-6), b])].sort((p, q) => p - q);
+  const as = cuts(holes.flatMap((h) => [h.a0, h.a1]), F.a0, F.a1), es = cuts(holes.flatMap((h) => [h.e0, h.e1]), 0, F.half), tris = [];
+  for (let i = 0; i + 1 < as.length; i++) for (let j = 0; j + 1 < es.length; j++) {
+    const am = (as[i] + as[i + 1]) / 2, em = (es[j] + es[j + 1]) / 2;
+    if (holes.some((h) => am > h.a0 && am < h.a1 && em > h.e0 && em < h.e1)) continue;
+    const q = [Q(as[i], es[j]), Q(as[i + 1], es[j]), Q(as[i + 1], es[j + 1]), Q(as[i], es[j + 1])];
+    if (cross(q[0], q[1], q[2])[1] < 0) q.reverse();
+    tris.push(q[0], q[1], q[2], q[0], q[2], q[3]);
+  }
+  return tris;
 }
 
 /** the outline of a wall from `from` up to the profile top ([[s, y], ...] along s, its top under the roof: rising, then falling): the part of

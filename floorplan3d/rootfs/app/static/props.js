@@ -189,7 +189,7 @@ export function initProps(ctx) {
     const { wall } = ctx.findOpening(it.id);
     const entities = ctx.entities(), rc = ctx.roomCtx(), dormer = !!wall.dormer;   // a dormer window: size and place come from the dormer (roof panel)
     const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p; };
-    if (dormer) { const p = document.createElement('p'); p.className = 'sub'; p.id = 'dormerWinHint'; p.textContent = t('dormer.winHint'); body.append(p); }
+    if (dormer) { const p = document.createElement('p'); p.className = 'sub'; p.id = 'dormerWinHint'; p.textContent = t(wall.skylight ? 'skylight.winHint' : 'dormer.winHint'); body.append(p); }   // a roof window (#643): set on the roof too
     if (!dormer) body.append(field(t('prop.width'), lenInput(() => it.width, (v) => { it.width = Math.max(MIN_OPENING, v); refit(); }, { min: MIN_OPENING })));
     if (!dormer) body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3 })));
     if (it.type === 'window' && !dormer) body.append(field(t('prop.sill'), lenInput(() => it.sill, (v) => (it.sill = v))));

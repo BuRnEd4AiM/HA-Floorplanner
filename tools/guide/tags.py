@@ -281,9 +281,15 @@ t("background",
   "plan from the architect brochure")
 t("roof",
   "Dach erstellen Dach hinzufügen Satteldach Walmdach Flachdach Pultdach Zeltdach Dachform Dachneigung Neigung "
-  "Gaube Dachgaube Dachfenster Dachüberstand First Traufe Ziegel",
+  "Gaube Dachgaube Dachüberstand First Traufe Ziegel",
   "add a roof create a roof gable roof hip roof flat roof shed roof pyramid roof roof shape roof pitch slope pitch "
-  "dormer roof window overhang ridge eaves tiles")
+  "dormer overhang ridge eaves tiles")
+t("skylight",
+  "Dachfenster Dachflächenfenster Schrägfenster Fenster in der Dachschräge Fenster im Dach ohne Gaube Velux Roto Fakro "
+  "Klappfenster Schwingfenster Lichtband Oberlicht Wohndachfenster Ausstiegsfenster Größe 78 x 118 Dachfenster Kontakt "
+  "Dachfenster offen Regen wie setze ich ein Dachfenster",
+  "roof window skylight rooflight roof light window in the roof slope without a dormer Velux Roto Fakro top hung "
+  "centre pivot window size 78 x 118 roof window contact roof window open rain how do I add a roof window")
 t("roof-wing",
   "L-Dach L-förmiges Dach Winkeldach Winkelhaus zweites Dach Anbau Seitenflügel Kehle Dachkehle Verschneidung "
   "Firstrichtung First drehen 90 Grad Kniestock Drempel zwei Dächer",

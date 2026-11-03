@@ -850,6 +850,7 @@ def test_showcase_uses_everything_the_format_knows():
     assert [f["kind"] for f in layout["floors"]] == ["basement", "floor", "floor", "roof"] and plot["boundary"]
     roof = layout["floors"][-1]["roof"]
     assert {d["type"] for d in roof["dormers"]} == importer.DORMER_TYPES and roof["steps"] and roof["parts"][0]["level"]
+    assert len(roof["skylights"]) == 2                                                     # roof windows (#643)
     assert any(f["blocks"] for f in layout["floors"]) and any(f["holes"] for f in layout["floors"])
     assert any(r.get("terrace") for f in layout["floors"] for r in f["rooms"])
     cables = [c for d in devices for c in d.get("cables", [])]
@@ -1031,3 +1032,33 @@ def test_a_plateau_and_a_raised_room_survive_import_and_export_and_match_levels_
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     ap = schema["properties"]["plot"]["properties"]["areas"]["items"]["properties"]
     assert ap["edge"]["enum"] == list(importer.PLATEAU_EDGES) and ap["wall"]["enum"] == list(importer.PLATEAU_WALLS) and ap["rise"]["maximum"] == importer.PLATEAU_MAX_RISE
+
+
+# ---------- roof windows (Dachfenster, #643)
+def test_roof_windows_are_imported_and_cleaned():
+    house = roof_house([])
+    house["building"]["roof"]["skylights"] = [{"side": "b", "pos": 0.3, "w": 1.14, "h": 1.4, "eave": 1.5}, {}, {"side": 5, "w": 9, "eave": -1}, "junk"]
+    layout, _, rep, _ = importer.build_layout(house)
+    s = roof_of(layout)["skylights"]
+    assert s[0] == {"id": "sk1", "side": 1, "pos": 0.3, "w": 1.14, "h": 1.4, "eave": 1.5}
+    assert s[1] == {"id": "sk2", "side": 0, "pos": 0.5, "w": 0.78, "h": 1.18}                  # defaults, no eave: the editor places it
+    assert s[2]["side"] == 0 and s[2]["w"] == 0.78 and "eave" not in s[2]                     # bad values fall back
+    paths = [w["path"] for w in rep.warnings]
+    assert any(p.endswith("[2].side") for p in paths) and any(p.endswith("[2].w") for p in paths) and any(p.endswith("[2].eave") for p in paths)
+    assert any(p.endswith("skylights[3]") for p in paths) and not rep.errors
+
+
+def test_roof_windows_on_a_shed_roof_but_not_on_a_flat_one():
+    house = roof_house([], "shed")
+    house["building"]["roof"]["skylights"] = [{"pos": 0.5}]
+    layout, _, rep, _ = importer.build_layout(house)
+    assert len(roof_of(layout)["skylights"]) == 1 and not rep.warnings
+    flat = roof_house([], "flat")
+    flat["building"]["roof"]["skylights"] = [{"pos": 0.5}]
+    layout, _, rep, _ = importer.build_layout(flat)
+    assert "skylights" not in roof_of(layout) and any(w["path"].endswith("roof.skylights") for w in rep.warnings)
+
+
+def test_schema_describes_roof_windows():
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    assert {"side", "pos", "w", "h", "eave"} <= set(schema["$defs"]["roof"]["properties"]["skylights"]["items"]["properties"])
