@@ -15,6 +15,10 @@
 
 [![Add repository to my Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FBuRnEd4AiM%2FHA-Floorplanner)
 
+<a href="https://www.paypal.com/donate/?hosted_button_id=693YLE2BGE4FA"><img src="docs/img/donate.svg" alt="Donate with PayPal: a cup of tea prevents brain overflow" height="64"></a>
+
+<sub>**Like it?** 3D Floorplan is free and made with love in many evenings. A small donation via PayPal buys me a cup of tea and prevents brain overflow. Thank you! 💛</sub>
+
 [![Open the demo in the browser](https://img.shields.io/badge/%E2%96%B6%20Try%20the%20demo-open%20in%20the%20browser-7dff9a?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/) [![Download the demo](https://img.shields.io/badge/%E2%AC%87%20Download%20the%20demo-always%20the%20latest-23e0ff?style=for-the-badge&labelColor=0a3ba8)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)
 
 <sub>**Try the demo:** one click and it runs right in your browser, always the newest version, no install and no Home Assistant needed. Or download it as one HTML file with an example house, lights and sensors and double-click it.</sub>
@@ -31,7 +35,7 @@
 
 <sub>Quick tour (sped up): room control, heat colours, power, whole house, night sky, 2D / split view, device library. All from the <a href="#-try-it-without-home-assistant">demo file</a>.</sub>
 
-**[Features](#-features) · [Import by JSON / AI](#-describe-it-instead-of-drawing-it) · [Installation](#-installation) · [Quick start](#-quick-start) · [Phones & tablets](#-phones-and-wall-tablets) · [Documentation](#-documentation) · [Roadmap](ROADMAP.md)**
+**[Features](#-features) · [Import by JSON / AI](#-describe-it-instead-of-drawing-it) · [Installation](#-installation) · [Quick start](#-quick-start) · [Phones & tablets](#-phones-and-wall-tablets) · [Documentation](#-documentation) · [Roadmap](ROADMAP.md) · [💛 Donate](#-support-the-project)**
 
 </div>
 
@@ -345,6 +349,10 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 
 **Home Assistant Container (Docker, no add-on store):** run 3D Floorplan as a second container next to Home Assistant; you log in with your Home Assistant user. The steps are in [container/README.md](container/README.md).
 
+<a href="https://www.paypal.com/donate/?hosted_button_id=693YLE2BGE4FA"><img src="docs/img/donate.svg" alt="Donate with PayPal: a cup of tea prevents brain overflow" height="52"></a>
+
+<sub>Installed and happy? A small donation via PayPal helps me keep building. 💛</sub>
+
 ## 🧩 Dashboard card
 
 Show the live 3D view on any dashboard with the card `custom:floorplan3d-card`. A tap on a device controls it, as in the add-on; editing stays in the add-on. The add-on must be installed and running.
@@ -458,6 +466,14 @@ DATA_DIR=./data python floorplan3d/rootfs/app/server.py     # http://localhost:8
 
 The browser end-to-end tests are described in [tests/e2e/README.md](tests/e2e/README.md). Every push to `main` that raises the version in `floorplan3d/config.yaml` creates a GitHub release automatically.
 
+## 💛 Support the project
+
+3D Floorplan is free and open source, and it will stay that way. It is built in my free time, many evenings and weekends. If it makes your home a little nicer and you would like to say thank you, you can buy me a cup of tea via PayPal:
+
+<a href="https://www.paypal.com/donate/?hosted_button_id=693YLE2BGE4FA"><img src="docs/img/donate.svg" alt="Donate with PayPal: a cup of tea prevents brain overflow" height="64"></a>
+
+Every donation, big or small, really means a lot to me. A ⭐ on GitHub, a bug report or an idea helps just as much. Thank you! 💛
+
 ## 🤝 Contributing
 
 Bug reports, ideas and pull requests are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md) and the [issue templates](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/new/choose). Please follow the [Code of Conduct](CODE_OF_CONDUCT.md). If you like the project, a ⭐ on GitHub makes my day.
@@ -470,4 +486,4 @@ In plain words: use it for free, read it, change it and share it. If you share a
 
 Versions **up to and including 4.61.0** were released under the MIT License and stay so; the GPL applies to every later version. The old MIT notice and the bundled libraries ([three.js](https://threejs.org) MIT, polygon-clipping MIT, hls.js Apache-2.0, 3D models by Kenney CC0) are listed in [NOTICE.md](NOTICE.md).
 
-<div align="center"><sub>Made with ❤️ for the Home Assistant community</sub></div>
+<div align="center"><sub>Made with ❤️ for the Home Assistant community · <a href="https://www.paypal.com/donate/?hosted_button_id=693YLE2BGE4FA">💛 Donate via PayPal</a></sub></div>

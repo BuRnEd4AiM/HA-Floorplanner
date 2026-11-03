@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmwrRFv9UuMWqRUy2gA",
+ "start": "2026-11-03",
+ "updated": "2026-11-03T09:22:42Z",
+ "branch": "claude/determined-hypatia-sa2b2n",
+ "source": "counted",
+ "input": 76,
+ "cache_write": 87974,
+ "cache_read": 4014940,
+ "output": 32647,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 76,
+   "cache_write": 87974,
+   "cache_read": 4014940,
+   "output": 32647,
+   "requests": 36
+  }
+ }
+}

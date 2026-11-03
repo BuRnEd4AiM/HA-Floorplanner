@@ -51,6 +51,8 @@ How the videos are made (for developers): `tools/make_guide.py` and `tools/guide
 
 Please open an issue in the project repository and include the add-on version and browser console output.
 
+**💛 Like it?** 3D Floorplan is free and made in many evenings. A small donation via PayPal buys me a cup of tea and prevents brain overflow: [Donate with PayPal](https://www.paypal.com/donate/?hosted_button_id=693YLE2BGE4FA). Thank you!
+
 ## Who may edit (permissions)
 
 The add-on panel is open to every Home Assistant user (`panel_admin: false`), but **only Home Assistant administrators can edit**:
