@@ -480,6 +480,7 @@ def _(r):
 def _routines_prep(r):
     ui_cam(r)
     r.pg.click("#tabBar [data-tab=routines]")
+    r.pg.wait_for_selector("[data-page=routines] .bdBtn.primary", state="visible", timeout=20000)
     r.pg.wait_for_timeout(1500)
 
 
@@ -487,8 +488,11 @@ def _routines_prep(r):
       caption=cap(("Abläufe", "Eigene Abläufe aus Bausteinen", "Wenn – dann, wie in Node-RED. Ohne YAML."),
                   ("Routines", "Build your own routines from blocks", "When – then, like in Node-RED. No YAML.")))
 def _(r):
-    tap(r, "[data-page=routines] .bdBtn.primary", text="Neuer|New")
-    r.wait(900)
+    for _try in range(3):                # the page of the routines may still be building: tap again until the editor is open
+        tap(r, "[data-page=routines] .bdBtn.primary", text="Neuer|New")
+        r.wait(900)
+        if r.js("(() => { const b = document.querySelector('.feDlg [data-add=time]'); return !!b && b.getClientRects().length > 0; })()"):
+            break
     tap(r, ".feDlg [data-add=time]")
     r.wait(800)
     tap(r, ".feDlg [data-add=cover]")
