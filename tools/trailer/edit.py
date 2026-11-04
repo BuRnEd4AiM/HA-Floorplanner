@@ -34,6 +34,7 @@ UP_TITLE = 255                    # … and the middle of the caption above it
 UP_APP = (24, 520, 1032, 580)     # an app shot upright: the whole app (16:9) …
 UP_LENS = (84, 1150, 912, 560)    # … and under it a magnifier of the part where things happen
 UP_LENS_PART = 0.44               # how much of the app's width the magnifier shows
+UP_ALONE = (12, 1050, 1056)       # an app shot without a magnifier (up=False): the whole app, as wide as it goes, around this middle (x, y, w)
 UP_FOOT = 1774                    # the top of the small name under everything
 TR = 0.4                          # seconds of the zoom from one shot to the next (half before the cut, half after it)
 MAX_SPEED = 2.4
@@ -499,7 +500,11 @@ class Cutter:
         fx, fy, z = it.view(t)
         if sh.up:
             fx, fy = sh.up
-        if sh.kind == "ui":                                  # the whole app, and under it a magnifier where things happen (the owner: not cut off)
+        if sh.kind == "ui" and sh.up is False:              # only the whole app, big (the owner: a magnifier of these pages shows nothing you can read)
+            x, my, w = UP_ALONE
+            h = round(w * src.height / src.width)
+            out = put_window(out, src.resize((w, h), Image.LANCZOS), (x, my - h // 2, w, h), r=22)
+        elif sh.kind == "ui":                                # the whole app, and under it a magnifier where things happen (the owner: not cut off)
             if not sh.up:
                 fx, fy = lens_spot(it.film, s)
             out = self.upright_ui(out, src, fx, fy)

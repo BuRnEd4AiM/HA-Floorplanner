@@ -408,8 +408,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 153. Neu in 4.63.0: 🏗 Balkon mit Geländer | 5 | 0 | 5 | 0 | 153.6 bis 153.10 |
 | 154. 🎬 Video-Anleitung: Strom-Rechner, Strom mehrerer Häuser, Nanoleaf (nach 4.63.0, nur die Anleitung) | 2 | 0 | 5 | 0 | 154.3 bis 154.7 |
 | 155. Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff | 5 | 0 | 3 | 0 | 155.5 bis 155.7 |
-| 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge) | 2 | 0 | 7 | 0 | 156.3 bis 156.9 |
-| **Zusammen** | **914** | **2** | **176** | **92** | |
+| 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge) | 6 | 0 | 4 | 0 | 156.3 bis 156.5, 156.10 |
+| **Zusammen** | **918** | **2** | **173** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2403,7 +2403,8 @@ Der Besitzer am 2026-11-03: „ein cooles Kurzvideo, wo alle Funktionen zeigt, i
 | 156.3 | Das Video aus dem Chat am Handy und am PC ansehen, mit Ton | Es sieht modern aus, man versteht in 90 Sekunden, was das Add-on kann; die Musik passt | ❓ |
 | 156.4 | Nach dem Merge: Actions → „Trailer“ läuft durch (etwa eine halbe Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen | Das Video spielt, „Deutsch/English“ und „16:9/9:16“ wechseln, „Video herunterladen“ speichert die MP4 | ❓ |
 | 156.5 | Das 9:16-Video in eine Instagram-Story / WhatsApp-Status / TikTok laden (nur Vorschau, nicht posten) | Es füllt den Bildschirm hochkant, die Titel sind lesbar | ❓ |
-| 156.6 | Den neuen Trailer ansehen (zweite Fassung): die App-Szenen und die neuen Szenen Strom-Editor, Heizung, Abläufe, Dashboards | Nichts ist abgeschnitten, man sieht die ganze App; die vier neuen Funktionen kommen kurz vor | ❓ |
-| 156.7 | Demo (nach dem Merge, neu laden): „Ganzes Haus“, dann ⚙ oder „Ansicht“ | Ein richtiges Haus: Etagen aufeinander ohne Lücke, Obergeschoss über die ganze Fläche (Bad oben, Flur, Arbeitszimmer), ein Satteldach über allem mit Solarmodulen, das Dachgeschoss (Studio, Atelier) unter den Schrägen | ❓ |
-| 156.8 | Den Trailer hochkant (9:16) am Handy ansehen (dritte Fassung) | In jeder App-Szene oben die ganze App, nichts abgeschnitten; darunter eine Lupe, die dem Zeiger folgt, mit einem blauen Rahmen in der App, wohin sie schaut | ❓ |
-| 156.9 | Demo: „Ganzes Haus“ von vorne, von der Seite und von hinten ansehen | Ein Hanghaus wie auf deinem Bild: das ganze Grundstück fällt zur Straße ab, hinten der Garten auf Höhe des Erdgeschosses, vorne der Keller mit Fenstern und dem Garagentor; im Keller die Garage mit dem Auto; das Nachbarhaus hat auch einen Keller; beide Gauben haben Fenster, das Dachfenster sitzt zwischen ihnen | ❓ |
+| 156.6 | Den neuen Trailer ansehen (zweite Fassung): die App-Szenen und die neuen Szenen Strom-Editor, Heizung, Abläufe, Dashboards | Nichts ist abgeschnitten, man sieht die ganze App; die vier neuen Funktionen kommen kurz vor | ✅ (2026-11-04) |
+| 156.7 | Demo (nach dem Merge, neu laden): „Ganzes Haus“, dann ⚙ oder „Ansicht“ | Ein richtiges Haus: Etagen aufeinander ohne Lücke, Obergeschoss über die ganze Fläche (Bad oben, Flur, Arbeitszimmer), ein Satteldach über allem mit Solarmodulen, das Dachgeschoss (Studio, Atelier) unter den Schrägen | ✅ (2026-11-04) |
+| 156.8 | Den Trailer hochkant (9:16) am Handy ansehen (dritte Fassung) | In jeder App-Szene oben die ganze App, nichts abgeschnitten; darunter eine Lupe, die dem Zeiger folgt, mit einem blauen Rahmen in der App, wohin sie schaut | ✅ (2026-11-04) |
+| 156.9 | Demo: „Ganzes Haus“ von vorne, von der Seite und von hinten ansehen | Ein Hanghaus wie auf deinem Bild: das ganze Grundstück fällt zur Straße ab, hinten der Garten auf Höhe des Erdgeschosses, vorne der Keller mit Fenstern und dem Garagentor; im Keller die Garage mit dem Auto; das Nachbarhaus hat auch einen Keller; beide Gauben haben Fenster, das Dachfenster sitzt zwischen ihnen | ✅ (2026-11-04) |
+| 156.10 | Den Trailer hochkant (9:16) am Handy ansehen (vierte Fassung): die Szene „Fertige Seiten für alles“ | Ohne Lupe: nur die ganze App, so breit es geht; bei Strom-Editor, Heizplan und Abläufen zeigt die Lupe das Wichtige (die Checkliste, die Wochentage mit den Zeiten, die Bausteine), keine leeren Flächen | ❓ |
