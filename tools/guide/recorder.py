@@ -72,8 +72,8 @@ HOOK = """(() => {
   let inner = null, first = true;
   const json = (d) => new Response(JSON.stringify(d), { status: 200, headers: { 'Content-Type': 'application/json' } });
   async function hooked(input, init = {}) {
-    const url = typeof input === 'string' ? input : input.url, path = url.replace(/^.*?(api\\/)/, '$1').split('?')[0];
-    for (const [k, v] of Object.entries(A)) if (k.endsWith('/') ? path.startsWith(k) : path === k) return json(v);
+    const url = typeof input === 'string' ? input : input.url, full = url.replace(/^.*?(api\\/)/, '$1'), path = full.split('?')[0];
+    for (const [k, v] of Object.entries(A)) if (k.includes('?') ? full === k : k.endsWith('/') ? path.startsWith(k) : path === k) return json(v);
     const r = await (inner || real)(input, init);
     if (path === 'api/settings' && first && (init.method || 'GET').toUpperCase() === 'GET') { first = false; return json({ ...(await r.json()), ...S }); }
     return r;
@@ -104,7 +104,8 @@ class Clip:
     def __init__(self, cid, cat, title, desc, keys, fn, device="desktop", query="mode=live", settings=None, sky="13:00", order=0, answers=None, prep=None):
         self.id, self.cat, self.title, self.desc, self.keys, self.fn = cid, cat, title, desc, keys, fn
         self.device, self.query, self.settings, self.sky, self.order = device, query, settings or {}, sky, order
-        self.answers = answers          # {api path: JSON} the demo does not have (a path ending in / means every path below it)
+        self.answers = answers          # {api path: JSON} the demo does not have (a path ending in / means every path below it,
+        #                                 one with ?… only that address, e.g. api/layout?house=x)
         self.prep = prep                # prep(r): gets the page ready before the recording starts (not in the video)
 
     def meta(self):

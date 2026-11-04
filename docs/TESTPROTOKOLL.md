@@ -408,8 +408,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 153. Neu in 4.63.0: 🏗 Balkon mit Geländer | 5 | 0 | 5 | 0 | 153.6 bis 153.10 |
 | 154. 🎬 Video-Anleitung: Strom-Rechner, Strom mehrerer Häuser, Nanoleaf (nach 4.63.0, nur die Anleitung) | 2 | 0 | 5 | 0 | 154.3 bis 154.7 |
 | 155. Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff | 5 | 0 | 3 | 0 | 155.5 bis 155.7 |
-| 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge) | 6 | 0 | 4 | 0 | 156.3 bis 156.5, 156.10 |
-| **Zusammen** | **918** | **2** | **173** | **92** | |
+| 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge) | 6 | 0 | 5 | 0 | 156.3 bis 156.5, 156.10, 156.11 |
+| **Zusammen** | **918** | **2** | **174** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2408,3 +2408,4 @@ Der Besitzer am 2026-11-03: „ein cooles Kurzvideo, wo alle Funktionen zeigt, i
 | 156.8 | Den Trailer hochkant (9:16) am Handy ansehen (dritte Fassung) | In jeder App-Szene oben die ganze App, nichts abgeschnitten; darunter eine Lupe, die dem Zeiger folgt, mit einem blauen Rahmen in der App, wohin sie schaut | ✅ (2026-11-04) |
 | 156.9 | Demo: „Ganzes Haus“ von vorne, von der Seite und von hinten ansehen | Ein Hanghaus wie auf deinem Bild: das ganze Grundstück fällt zur Straße ab, hinten der Garten auf Höhe des Erdgeschosses, vorne der Keller mit Fenstern und dem Garagentor; im Keller die Garage mit dem Auto; das Nachbarhaus hat auch einen Keller; beide Gauben haben Fenster, das Dachfenster sitzt zwischen ihnen | ✅ (2026-11-04) |
 | 156.10 | Den Trailer hochkant (9:16) am Handy ansehen (vierte Fassung): die Szenen „Fertige Seiten für alles“ und „Heizplan und Heiz-Regeln“ | Ohne Lupe: nur die ganze App, so breit es geht; bei Strom-Editor und Abläufen zeigt die Lupe das Wichtige (die Checkliste, die Bausteine), keine leeren Flächen | ❓ |
+| 156.11 | Den Trailer ansehen (fünfte Fassung): die neue Szene „Ein Haus aus Text – per KI oder API“ nach „Zeichne deinen Grundriss“ | Der Import-Dialog mit dem Musterhaus, „Prüfen“ (grün: 4 Etagen, 23 Räume, 331 Geräte), „Importieren“, dann steht das Musterhaus in 3D da und die Kamera fährt näher heran | ❓ |
