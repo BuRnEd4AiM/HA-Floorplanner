@@ -409,7 +409,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 154. 🎬 Video-Anleitung: Strom-Rechner, Strom mehrerer Häuser, Nanoleaf (nach 4.63.0, nur die Anleitung) | 2 | 0 | 5 | 0 | 154.3 bis 154.7 |
 | 155. Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff | 5 | 0 | 3 | 0 | 155.5 bis 155.7 |
 | 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge) | 6 | 0 | 6 | 0 | 156.3 bis 156.5, 156.10 bis 156.12 |
-| **Zusammen** | **918** | **2** | **175** | **92** | |
+| 157. Neu in 4.65.0: 🏠 Gaubenfenster kurz hinter dem Kniestock (#654) | 1 | 0 | 2 | 0 | 157.2, 157.3 |
+| **Zusammen** | **919** | **2** | **177** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2410,3 +2411,12 @@ Der Besitzer am 2026-11-03: „ein cooles Kurzvideo, wo alle Funktionen zeigt, i
 | 156.10 | Den Trailer hochkant (9:16) am Handy ansehen (vierte Fassung): die Szenen „Fertige Seiten für alles“ und „Heizplan und Heiz-Regeln“ | Ohne Lupe: nur die ganze App, so breit es geht; bei Strom-Editor und Abläufen zeigt die Lupe das Wichtige (die Checkliste, die Bausteine), keine leeren Flächen | ❓ |
 | 156.11 | Den Trailer ansehen (fünfte Fassung): die neue Szene „Ein Haus aus Text – per KI oder API“ nach „Zeichne deinen Grundriss“ | Der Import-Dialog mit dem Musterhaus, „Prüfen“ (grün: 4 Etagen, 23 Räume, 331 Geräte), „Importieren“, dann steht das Musterhaus in 3D da und die Kamera fährt näher heran | ❓ |
 | 156.12 | Demo (nach dem Merge, neu laden) und der nächste Trailer: das Wohnzimmer und die Rückseite des Hauses | Im Wohnzimmer keine Kamera und kein Blickkegel mehr; die „Kamera Garten“ hängt außen über der Bürotür und schaut in den Garten; unter „📷 Kameras“ steht „Kamera Garten“ | ❓ |
+
+## 157. Neu in 4.65.0: 🏠 Gaubenfenster kurz hinter dem Kniestock (#654)
+Gefunden beim Demo-Haus, der Besitzer: „kann sein das das haus in den gauben keine fenster hat“. Eine Gaube, die 0,25 bis 0,4 m hinter der Wand darunter steht (z. B. beim üblichen Abstand 0,8 m zum Dachrand), hatte eine graue Front: der Kniestock stand davor. Jetzt wird er an der Schräge abgeschnitten.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 157.1 | `node --test tests/attic.test.mjs tests/dormerwin.test.mjs` | Eine Wand reicht nur dort in eine Gaube hinauf, wo ihre Mittellinie hineinläuft; alle Tests grün | ✅ (2026-11-04, Claude) |
+| 157.2 | Im Add-on: ein Dach mit Kniestock (z. B. 1 m) über einem Dachgeschoss, eine Gaube mit Fenster, „Abstand zur Traufe“ auf 0,8 m (Standard) | Die Gaube hat ihr Fenster mit Rahmen, von außen und durchsichtig; keine graue Fläche davor | ❓ |
+| 157.3 | Denselben Abstand Schritt für Schritt von 0,5 auf 1,2 m stellen | Bei jedem Abstand ist das Fenster zu sehen (bis 0,75 m sitzt es in der Wand darunter, danach in der Front der Gaube) | ❓ |

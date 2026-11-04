@@ -9,6 +9,7 @@ import { stairLocal, polyToWorld, stairFloors, storeysShown } from './stairs.js'
 import { inIso, deviceInIso, clipWallToRoom, wallPieces } from './roomclip.js';
 import { buildWall, wallLength } from './walls.js';
 import { atticUniforms, cutAtRoof } from './atticclip.js';
+import { roomsOfWall } from './attic.js';
 import { solarPose, groundFn } from './solarroof.js';
 import { addPickProxy, underFloors, holoify } from './modelfx.js';
 import { shutterEntity, shutterSide, shutterLabelY } from './shutters.js';
@@ -274,6 +275,14 @@ export function initFloorBuild(ctx) {
     const { holo, ghost, iso } = o, low = ctx.lowWalls(), half = ctx.halfCut() && !low, look = facadeOf(ctx.settings());   // window frames, wall colour (#428)
     const up = upOf(f), wallH = ctx.settings().wallHeight;        // a plateau lifts the walls, doors and windows go up beside a raised room (#566)
     const attic = o.roofClip ? atticUniforms(o.roofClip) : null;   // under the roof (#260): the walls end at the slopes, not inside a dormer (#265)
+    const atticOf = new Map();                                    // a wall that runs into only some of the dormers (#654): its own uniforms, by which ones
+    const atticFor = (w) => {
+      const all = o.roofClip.rooms, rs = roomsOfWall(all, w.a, w.b);
+      if (rs.length === all.length) return attic;
+      const k = rs.map((q) => all.indexOf(q)).join(',');
+      if (!atticOf.has(k)) atticOf.set(k, atticUniforms({ ...o.roofClip, rooms: rs }));
+      return atticOf.get(k);
+    };
     const hosted = new Map();                                     // dormer windows cut into a wall of this floor (#275), by wall id
     (f.dormerWalls || []).forEach((d) => { if (d.host) hosted.set(d.host, [...(hosted.get(d.host) || []), ...d.openings]); });
     const dormerOut = new Map();                                  // roller shutters (#331) hang outside: a dormer window's dormer knows where that is
@@ -300,7 +309,7 @@ export function initFloorBuild(ctx) {
         const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + lift + (w.height || 2.6) * 0.5 + 0.001);
         wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
       }
-      if (attic) wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => cutAtRoof(m, attic)); });
+      if (attic) { const u = atticFor(w); wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => cutAtRoof(m, u)); }); }
       g.add(wg);
       if (!ghost) {
         const info = ctx.cutawayInfo(w, wg);
