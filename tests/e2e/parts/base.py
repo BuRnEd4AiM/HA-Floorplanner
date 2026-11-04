@@ -112,7 +112,11 @@ check("language switched", pg.inner_text("button[data-tool=wall]") == "Wall", pg
 check("theme switched", pg.evaluate("document.documentElement.dataset.theme") == "light")
 check("temperature / humidity buttons stay visible in the light theme", pg.is_visible("#modeBar"))
 pg.click("#settingsDialog menu button"); pg.wait_for_timeout(300)
-st = api("api/settings")
+for _ in range(25):                               # each choice saves on its own: on a slow machine the last save is still on its way (#660)
+    st = api("api/settings")
+    if st["language"] == "en" and st["theme"] == "light" and st["units"] == "imperial":
+        break
+    pg.wait_for_timeout(200)
 check("settings persisted", st["language"] == "en" and st["theme"] == "light" and st["units"] == "imperial", st)
 
 # --- live mode: tap light -> popup -> toggle

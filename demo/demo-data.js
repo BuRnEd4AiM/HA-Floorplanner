@@ -112,7 +112,9 @@ const layout = {
       { id: 'd7w', type: 'sensor', x: 4.5, z: 0.4, y: 1.4, rot: 0, scale: 1, name: 'Leistung', entity: 'sensor.wohnzimmer_leistung' },
       { id: 'd7',  type: 'plant',      x: 0.7, z: 0.7,  y: 0,    rot: 0,   scale: 1.2, name: 'Pflanze',         entity: '' },
       { id: 'd8',  type: 'sensor',     x: 5.75, z: 0.9, y: 1.6,  rot: 90,  scale: 1,   name: 'Temperatur Wohnzimmer', entity: 'sensor.wohnzimmer_temp' },
-      { id: 'cam1', type: 'camera', x: 3, z: 0.18, y: 2.3, rot: 0, scale: 1.4, name: 'Kamera Wohnzimmer', entity: 'camera.wohnzimmer', fov: 90, range: 4.2, motionEntity: 'binary_sensor.wohnzimmer_bewegung' },
+      // outside on the back wall over the door of the office, looking into the garden (the owner, 2026-11-04: the camera in the living room
+      // "im Video stört", it belongs outside)
+      { id: 'cam1', type: 'camera', x: 7.9, z: 7.22, y: 2.4, rot: 0, scale: 1.4, name: 'Kamera Garten', entity: 'camera.garten', fov: 90, range: 4.2, motionEntity: 'binary_sensor.garten_bewegung' },
       { id: 'cam2', type: 'camera', x: 9.82, z: 6.82, y: 2.3, rot: 225, scale: 1.4, name: 'Kamera Büro', entity: 'camera.buero', fov: 80, range: 3.6 },
       { id: 'd8c', type: 'sensor',     x: 5.75, z: 2.4, y: 1.6,  rot: 90,  scale: 1,   name: 'CO₂ Wohnzimmer', entity: 'sensor.wohnzimmer_co2' },
       { id: 'd9',  type: 'diningtable', x: 8,   z: 2.2,  y: 0,    rot: 0,   scale: 1, name: 'Esstisch',        entity: '' },
@@ -237,9 +239,9 @@ const layout = {
     rooms: [],                                            // no loft room: the roof starts in the attic floor below (knee), its outline comes from the floors below
     devices: [{ id: 'pv_dach', type: 'solarpanel', x: 3.6, z: 5.3, y: 0, rot: 0, scale: 1, cols: 5, rows: 2, name: 'PV Dach', entity: 'sensor.pv_dach' }],
     roof: { type: 'gable', pitch: 35, overhang: 0.5, knee: 1, ridge: 'x',   // over the whole house, starting on a knee wall of the attic floor below (#260)
-      // two dormers with windows, set back 1 m from the roof's edge (at 0.8 m their windows did not show: #654), the roof window between them
-      dormers: [{ side: 'a', pos: 0.2, eave: 1, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } },
-        { side: 'b', pos: 0.8, eave: 1, w: 2.0, type: 'flat', window: { id: 'gw2', type: 'window', style: 'double', name: 'Gaubenfenster Atelier' } }],
+      // two dormers with windows on the street side (side 0), set back 1 m from the roof's edge, the roof window between them
+      dormers: [{ side: 0, pos: 0.2, eave: 1, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } },
+        { side: 0, pos: 0.8, eave: 1, w: 2.0, type: 'flat', window: { id: 'gw2', type: 'window', style: 'double', name: 'Gaubenfenster Atelier' } }],
       skylights: [{ id: 'sky1', side: 0, pos: 0.5, w: 0.78, h: 1.18, eave: 1.3, window: { id: 'dfw1', type: 'window', style: 'single', hinge: 'top', openOutward: true, name: 'Dachfenster', entity: 'binary_sensor.dachfenster' } }] },   // #643: a roof window without a dormer   // #331: a dormer window with a roller shutter
   }],
 };
@@ -391,7 +393,7 @@ const entities = {
   'sensor.gast_temp':       { name: 'Gästezimmer Temperatur',  state: '17.4', unit: '°C' },
   'sensor.studio_temp':     { name: 'Studio Temperatur',       state: '24.6', unit: '°C' },
   'sensor.buero_temp':      { name: 'Büro Temperatur',         state: '23.0', unit: '°C', dc: 'temperature' },
-  'camera.wohnzimmer':       { name: 'Kamera Wohnzimmer',      state: 'idle' },
+  'camera.garten':           { name: 'Kamera Garten',          state: 'idle' },
   'camera.buero':            { name: 'Kamera Büro',            state: 'idle' },
   'camera.haustuer':         { name: 'Kamera Haustür',         state: 'idle' },   // 🔔 the doorbell (4.22): its camera
   'sensor.auto_ladestand':   { name: 'Auto Ladestand',         state: '64', unit: '%', dc: 'battery' },   // 🚗 the car (4.25, #533): found by its names
@@ -406,6 +408,7 @@ const entities = {
   'sensor.boden_feuchte':    { name: 'Rasen Bodenfeuchte',     state: '34', unit: '%', dc: 'moisture' },
   'event.haustuer_klingel':  { name: 'Haustür Klingel',        state: new Date(Date.now() - 3 * 3600000).toISOString(), dc: 'doorbell' },   // ... it rings: a new time (?klingel=1)
   'binary_sensor.wohnzimmer_bewegung': { name: 'Bewegung Wohnzimmer', state: 'on' },
+  'binary_sensor.garten_bewegung': { name: 'Bewegung Garten', state: 'on' },
   'cover.garagentor':        { name: 'Garagentor',             state: 'closed', position: 0 },
   'cover.rollladen_kueche':  { name: 'Rollladen Küche',        state: 'closed', position: 0 },
   'cover.rollladen_schlafzimmer': { name: 'Rollladen Schlafzimmer', state: 'open', position: 40 },

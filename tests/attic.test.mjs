@@ -82,6 +82,21 @@ test('dormers (#265): inside a dormer the wall is kept up to its ceiling, beside
   assert.deepEqual(A.dormerRooms(bb, { type: 'flat', dormers: spec.dormers }, 0), []);
 });
 
+test('a wall reaches up into a dormer only where its middle line runs into the dormer room (#654)', () => {
+  // the demo's case: a knee wall 0.24 m thick on the outer wall line (z = 0), the dormer front 0.3 m behind it (overhang 0.5, eave 0.8):
+  // its room starts 25 cm in front of the front (z = 0.05), so the inner side of the knee wall lay in it and hid the dormer's window
+  const spec = { type: 'gable', pitch: 35, overhang: 0.5, knee: 1, ridge: 'x', dormers: [{ side: 0, pos: 0.2, eave: 0.8 }] };
+  const [q] = A.dormerRooms(bb, spec, 0);
+  near(q.z0, 0.05);
+  assert.deepEqual(A.roomsOfWall([q], [0, 0], [10, 0]), [], 'the knee wall in front of it: cut at the slope everywhere');
+  assert.deepEqual(A.roomsOfWall([q], [0, 0.3], [10, 0.3]), [q], 'a wall right under its front reaches into it');
+  assert.deepEqual(A.roomsOfWall([q], [0, 0.05], [10, 0.05]), [q], 'touching counts (a wall up to 25 cm in front takes its window, dormerwin.js)');
+  assert.deepEqual(A.roomsOfWall([q], [q.at, 0], [q.at, 8]), [q], 'a wall across it, from the outer wall back');
+  assert.deepEqual(A.roomsOfWall([q], [q.x1 + 0.5, 0], [q.x1 + 0.5, 8]), [], 'a wall beside it');
+  assert.deepEqual(A.roomsOfWall([q], [q.at, 1], [q.at, 1]), [q], 'a point inside');
+  assert.deepEqual(A.roomsOfWall(null, [0, 0], [1, 0]), []);
+});
+
 test('shed dormer (#339): the wall under it reaches up to its sloping roof, on either side of the roof', () => {
   for (const side of [0, 1]) {
     const spec = { type: 'gable', pitch: 35, overhang: 0.4, ridge: 'x', dormers: [{ side, pos: 0.5, w: 6, hw: 1.8, eave: 0.4, type: 'shed', sp: 10 }] };

@@ -102,19 +102,21 @@ check("roofs (#255): in 3D the roof is picked, and pressed again it is dragged",
 att = pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, ri = L.length - 1, below = L[ri - 1], wid = below.walls[0]?.id;
   const roofY = () => Math.min(...fp.roofMeshes().filter((m) => m.tag === 'main').map((m) => m.y));
   const cutBelow = () => { fp.switchFloor(ri - 1); const n = wid ? fp.roofCut(wid) : -1; fp.switchFloor(ri); return n; };   // walls of the open floor only (the others are faded copies)
-  L[ri].roof.type = 'gable'; L[ri].roof.dormers = [{ side: 0, pos: 0.5 }]; fp.rebuild();
+  delete L[ri].roof.box;                                   // dragged above (#255): back on the walls
+  L[ri].roof.type = 'gable'; L[ri].roof.dormers = [{ side: 0, pos: 0.5, eave: 0.4 }]; fp.rebuild();   // its front on the outer wall x = 0 (w3)
   const y0 = roofY(), cut0 = cutBelow();
   L[ri].roof.knee = 1; fp.rebuild();
   const y1 = roofY(), cut1 = cutBelow();
-  fp.switchFloor(ri - 1); const keep = wid ? fp.roofKeep(wid) : -1; fp.switchFloor(ri);
-  const r = { wid, cut0, cut1, keep, drop: +(y0 - y1).toFixed(3), base: +(y1 - fp.elev(ri - 1)).toFixed(3) };
+  const under = below.walls.find((w) => w.id.endsWith('w3'))?.id;   // the wall under the dormer's front reaches up into it; a gable wall does not (#654)
+  fp.switchFloor(ri - 1); const keep = under ? fp.roofKeep(under) : -1, keepGable = wid ? fp.roofKeep(wid) : -1; fp.switchFloor(ri);
+  const r = { wid, cut0, cut1, keep, keepGable, drop: +(y0 - y1).toFixed(3), base: +(y1 - fp.elev(ri - 1)).toFixed(3) };
   const lower = L.findIndex((f, i) => i < ri - 1 && f.kind !== 'roof' && f.walls.length && f.kind !== 'basement');
   if (lower >= 0) { L[ri].roof.base = L[lower].id; fp.rebuild(); const yb = roofY(); fp.switchFloor(lower); r.lowerCut = fp.roofCut(L[lower].walls[0].id); r.lowerBase = +(yb - fp.elev(lower)).toFixed(3); fp.switchFloor(ri); delete L[ri].roof.base; }
   delete L[ri].roof.knee; delete L[ri].roof.dormers; fp.rebuild(); r.cut2 = cutBelow(); return r; }""")
 check("attic (#260): with a knee wall of 1 m the roof starts 1 m above the storey below and cuts its walls at both slopes; without, as before",
       att["wid"] and att["cut0"] == 0 and att["cut1"] == 2 and abs(att["base"] - 1) < 0.01 and att["drop"] > 0.5 and att["cut2"] == 0, att)
-check("attic (#265): a dormer keeps the wall up under it; the roof can start further down, then that storey is cut too",
-      att["keep"] == 1 and att.get("lowerCut", 2) == 2 and abs(att.get("lowerBase", 1) - 1) < 0.01, att)
+check("attic (#265, #654): a dormer keeps the wall under its front up into it, a gable wall beside it not; the roof can start further down, then that storey is cut too",
+      att["keep"] == 1 and att["keepGable"] == 0 and att.get("lowerCut", 2) == 2 and abs(att.get("lowerBase", 1) - 1) < 0.01, att)
 # --- a long shed dormer (#339): chosen in the roof panel it stands on the outer wall, begins where it is told, cuts a hole into the main roof,
 # and the wall below reaches up under its sloping roof
 shed_from = len(sol_errs)                                     # only the errors from here on
@@ -133,7 +135,7 @@ start = pgSol.input_value(".dormerCard .dormerStart"); t1 = main_tris()
 check("shed dormer (#339): the roof panel offers it with its own pitch; it stands on the outer wall, 3 m long, beginning 1.5 m from the gable",
       fields == [1, 1, 1] and sd["type"] == "shed" and abs(sd["eave"] - 0.4) < 1e-9 and abs(sd["w"] - 3) < 1e-3 and abs(float(start) / 3.28084 - 1.5) < 0.002, (fields, sd, start))
 check("shed dormer (#339): the main roof gets a hole under it (more pieces), the dormer's wall and roof are drawn", len(t0) == 1 and len(t1) >= 3 and t1[0] > t0[0], (t0, t1))
-lw = pgSol.evaluate("""() => { const fp = window.__fp, ri = fp.layout.floors.length - 1, wid = fp.layout.floors[ri - 1].walls[0].id; fp.switchFloor(ri - 1);
+lw = pgSol.evaluate("""() => { const fp = window.__fp, ri = fp.layout.floors.length - 1, wid = fp.layout.floors[ri - 1].walls.find((w) => w.id.endsWith('w3')).id; fp.switchFloor(ri - 1);   // the outer wall under its front (x = 0)
   const r = { keep: fp.roofKeep(wid), rise: fp.roofRise(wid) }; return r; }""")
 pgSol.wait_for_timeout(600)                                   # drawn with the cut: the wall shader must compile
 pgSol.evaluate("window.__fp.switchFloor(window.__fp.layout.floors.length - 1)"); pgSol.wait_for_timeout(300)

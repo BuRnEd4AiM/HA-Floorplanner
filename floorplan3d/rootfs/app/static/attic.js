@@ -131,6 +131,22 @@ export function dormerRooms(bb, spec, y0 = 0) {
   return out;
 }
 
+/** does the line a→b run into the box q ({ x0, x1, z0, z1 }), touching it counts */
+function lineInBox([ax, az], [bx, bz], q, eps = 1e-6) {
+  let t0 = 0, t1 = 1;
+  for (const [p, d, lo, hi] of [[ax, bx - ax, q.x0 - eps, q.x1 + eps], [az, bz - az, q.z0 - eps, q.z1 + eps]]) {
+    if (Math.abs(d) < 1e-12) { if (p < lo || p > hi) return false; continue; }
+    const u0 = (lo - p) / d, u1 = (hi - p) / d;
+    t0 = Math.max(t0, Math.min(u0, u1)); t1 = Math.min(t1, Math.max(u0, u1));
+    if (t0 > t1) return false;
+  }
+  return true;
+}
+/** the dormer rooms (see dormerRooms) a wall reaches up into: those its middle line a→b runs into (#654). A wall standing just in front of
+ *  a dormer, whose thickness alone reaches into the dormer's room, is cut at the slope like the rest of it: else a strip of it stood whole
+ *  in front of the dormer's window and hid it (a knee wall 0.3 m in front of the dormer) */
+export const roomsOfWall = (rooms, a, b) => (rooms || []).filter((q) => lineInBox(a, b, q));
+
 /** where a roof counts when several roofs cut the walls together (see joinCuts): its base box and the overhang all round */
 export function roofReach(bb, spec) {
   const F = roofFrame(bb, spec);

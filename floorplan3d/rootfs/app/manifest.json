@@ -1,6 +1,6 @@
 {
- "version": "4.64.0",
- "buildHash": "ebb611f43c96117392ccd861e827f3805763a03eee12eb095d1df4f466d3598a",
+ "version": "4.65.0",
+ "buildHash": "d2856a3c91b4cd530f407070405daa281831111325490018b4c071735c3e559a",
  "files": {
   "alarmnotify.py": "3d9ada748b694e0f8dfcf53e85a2b5923f54b561dd44b4f17bfa716e44a730e6",
   "boards.py": "b506190d5264db67ead00bbb7716bded4cbc7c4f94c50589fc9d15d7a7657d87",
@@ -155,7 +155,7 @@
   "static/alertsui.js": "503c006f839253eb31f5e2adb4e6612d21fd657b8691956fd095546dce5177ea",
   "static/app.js": "41d4c764ad018448bb9f1f6da81debd436de3a0ea5e6a71f67fdd54e70765a4a",
   "static/appstate.js": "cb6e1e23ff04af418be97883d9220a7bc7650c1aea585e3306d5f56721a487de",
-  "static/attic.js": "69211fb2f395308f80d62eab68be38db454d6e460d347f670115f2f98af5ceaa",
+  "static/attic.js": "6dfd88898cef9c3d5ffc99056ddc300927a19af2fe959f1d7ccc9fa1ccc97d37",
   "static/atticclip.js": "6d4d9f1afb41adc7f5395e62b4f77c28e954c54b0abf197f061f71e4cd5105a4",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/background.js": "6ccd7fd8e2e076b02317a864f0957ebe16af4faac9c9dacda16ae11b6e86b172",
@@ -231,7 +231,7 @@
   "static/finishes.js": "ed867c19907152563f9b86b9e373881a2c94e9431664b422658da4cd035ebc6c",
   "static/finishtex.js": "68c6a16b836b25a0ef54c3f389fb76a4c0731468d1969b71387c38863b38190d",
   "static/finishui.js": "343b128ac94f8789987d07bd487da1c6d0d23baa29e7affba97deb711da84d95",
-  "static/floorbuild.js": "c0bb92dbcf45866872ddf91efa2e3b76c5b3af3d2741d3260e8468e735da95db",
+  "static/floorbuild.js": "6796cc7841df377dd82fe2cc6044244a689da8d476b6773053085523f8d469da",
   "static/floorcards.js": "796804bf786da9691727263c67a012f1d897d19a5cdfd0dfa2287465354348cf",
   "static/floorcover.js": "9f8f0c620b151e7cc320f046fc54f3662e50b67b6a39bd3a538f0d626640b025",
   "static/floorpanel.js": "bf23cf3b9a91c84968a5b3c730f9484a1b19f01f8929effeac50c6f1ac688625",
