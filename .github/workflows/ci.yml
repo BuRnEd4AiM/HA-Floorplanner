@@ -125,7 +125,7 @@ jobs:
         run: |
           files=$(git diff --name-only "$BASE" HEAD 2>/dev/null) || files="unknown"
           echo "$files"
-          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^(docs/[^ ]*\.md|docs/tokens/[^/ ]*\.json|docs/timeline/[^ ]*|[^/ ]*\.md|tests/[^/ ]*\.(mjs|py)|tools/[^ ]*|\.github/workflows/(cleanup|demo|guide|issues-snapshot|project-setup|release|tokens|validate)\.yml|\.github/ISSUE_TEMPLATE/[^ ]*|\.github/[^/ ]*\.md)$'; then no_browser=true; else no_browser=false; fi
+          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^(docs/[^ ]*\.md|docs/tokens/[^/ ]*\.json|docs/timeline/[^ ]*|[^/ ]*\.md|tests/[^/ ]*\.(mjs|py)|tools/[^ ]*|\.github/workflows/(cleanup|demo|guide|issues-snapshot|project-setup|release|tokens|trailer|validate)\.yml|\.github/ISSUE_TEMPLATE/[^ ]*|\.github/[^/ ]*\.md)$'; then no_browser=true; else no_browser=false; fi
           echo "no_browser=$no_browser" | tee -a "$GITHUB_OUTPUT"
       - id: parts
         run: echo "parts=$(python3 tests/e2e/test_e2e.py --json)" | tee -a "$GITHUB_OUTPUT"

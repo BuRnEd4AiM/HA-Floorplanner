@@ -1010,7 +1010,7 @@ def _(r):
       "Schrank Kleiderschrank Maß Schräge Dachschräge Fächer Schubladen Türen Einbauschrank closet wardrobe custom slope shelves drawers doors built-in",
       query="mode=edit")
 def _(r):
-    r.say("Der Schrank steht im Dach unter der Schräge.", "The closet stands in the roof under the slope.")
+    r.say("Der Schrank steht im Dachgeschoss unter der Schräge.", "The closet stands in the attic under the slope.")
     i = r.js("window.__fp.layout.floors.findIndex((f) => f.devices.some((d) => d.id === 'schrank_dach'))")
     r.click(f"#floorRail .floorThumb[data-floor='{i}']")
     r.wait(1600)

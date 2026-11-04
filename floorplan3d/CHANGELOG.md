@@ -3,6 +3,9 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Changed
+- **The demo house looks like a real house** (the owner, 2026-11-03: "dass es nach einem richtigen Haus aussieht und … nicht den Abstand zwischen den Etagen gibt … ein hübsches Haus"): the upper floor covers the whole house (new: Bad oben, Flur, Arbeitszimmer), the attic floor (Studio, Atelier) lies under one gable roof over the whole house on a knee wall of 1 m, with the solar panels on its slope; the floors stand on top of each other (`houseFloors: 'stacked'`). The closet under the slope stands in the attic floor now.
+- **Trailer** (the owner, 2026-11-03: "ein cooles Kurzvideo, wo alle Funktionen zeigt, in einem coolen Zusammenschnitt … schick und modern … dass wenn man jetzt irgendwo einen Post macht … das hinschicken kann"): the best of the add-on in about 90 seconds, to share. `tools/make_trailer.py` films its own shots in the demo (camera flights around the house without bars, the app close up in a floating window), cuts them on the beat of music it makes itself (`tools/trailer/music.py`, no licence of anybody else needed), with captions word by word, 16:9 and 9:16 (Reels, Shorts), German and English. It shows the house, the light, scenes, sky and weather, colours, power, warnings, security, voice, drawing the plan, the roof, the power editor, the pages, the heating schedule and rules, own routines from blocks, designing pages and the phone; the app in a window, never zoomed so far that something is cut off. The workflow "Trailer" makes it, the page https://burned4aim.github.io/HA-Floorplanner/trailer/ shows it with a download button.
 
 ## [4.64.0] - 2026-11-03
 ### Added
