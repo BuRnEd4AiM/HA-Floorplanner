@@ -237,8 +237,10 @@ const layout = {
     rooms: [],                                            // no loft room: the roof starts in the attic floor below (knee), its outline comes from the floors below
     devices: [{ id: 'pv_dach', type: 'solarpanel', x: 3.6, z: 5.3, y: 0, rot: 0, scale: 1, cols: 5, rows: 2, name: 'PV Dach', entity: 'sensor.pv_dach' }],
     roof: { type: 'gable', pitch: 35, overhang: 0.5, knee: 1, ridge: 'x',   // over the whole house, starting on a knee wall of the attic floor below (#260)
-      dormers: [{ side: 'a', pos: 0.3, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } }, { side: 'b', pos: 0.82, w: 2.0, type: 'flat' }],
-      skylights: [{ id: 'sky1', side: 0, pos: 0.7, w: 0.78, h: 1.18, eave: 1.3, window: { id: 'dfw1', type: 'window', style: 'single', hinge: 'top', openOutward: true, name: 'Dachfenster', entity: 'binary_sensor.dachfenster' } }] },   // #643: a roof window without a dormer   // #331: a dormer window with a roller shutter
+      // two dormers with windows, set back 1 m from the roof's edge (at 0.8 m their windows did not show: #654), the roof window between them
+      dormers: [{ side: 'a', pos: 0.2, eave: 1, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } },
+        { side: 'b', pos: 0.8, eave: 1, w: 2.0, type: 'flat', window: { id: 'gw2', type: 'window', style: 'double', name: 'Gaubenfenster Atelier' } }],
+      skylights: [{ id: 'sky1', side: 0, pos: 0.5, w: 0.78, h: 1.18, eave: 1.3, window: { id: 'dfw1', type: 'window', style: 'single', hinge: 'top', openOutward: true, name: 'Dachfenster', entity: 'binary_sensor.dachfenster' } }] },   // #643: a roof window without a dormer   // #331: a dormer window with a roller shutter
   }],
 };
 
