@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [4.67.0] - 2026-11-04
+### Changed
+- **Trailer: the app stands still** (the owner, 2026-11-04: "im Video wird die ganze Zeit auch bei der PC-Version leicht reingezoomt … das sieht nicht so geil aus"): the app shots no longer zoom in slowly; the app window stays as it is, only the cut between two shots moves.
+
+### Fixed
+- **A see-through wall in the attic looked solid** (the owner's picture, 2026-11-04: "bei durchsichtig ist es da oben noch immer nicht durchsichtig"): with "see-through" on, the gable wall of a lived-in attic stayed nearly solid, plaster outside and bricks inside. Its finishes lie on the wall as layers of their own, and each was faded by itself; under the roof both sides of a wall are drawn (#628), so four layers of 30 % added up to a solid look. Now a wall's finish fades away completely before the wall turns see-through (`cutaway.js` `skinFade`), so a see-through wall is see-through everywhere.
+
 ## [4.66.0] - 2026-11-04
 ### Changed
 - **Trailer: the video guide** (the owner, 2026-11-04: "ins Video rein machen, dass es diese Video-Seite gibt für Hilfe"): a new scene before the end, "Zu jeder Funktion ein kurzes Video" / "A short video for every feature": the page of the video guide, "Gaube" (dormer) typed into its search, four videos found, one opens with its steps, with time to see what it is (6 s) and without a magnifier upright. The trailer builds the page itself from the pictures and texts on the branch `guide-videos` (no video needs to play). 116 s now.

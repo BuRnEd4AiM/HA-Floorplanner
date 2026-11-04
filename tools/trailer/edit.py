@@ -382,7 +382,7 @@ class Item:
         """(x, y, zoom) of the screen the film shows at t: the shot's keyframes (shots.Shot.focus), softly from one to the next"""
         f = self.shot.focus
         if not f:
-            keys = [(0, 0.5, 0.5, 1.0), (1, 0.5, 0.5, 1.04 if self.shot.kind == "ui" else 1.0)]   # the whole app, a slow push in
+            keys = [(0, 0.5, 0.5, 1.0)]                 # the whole app, standing still (the owner: the slow push in "sieht nicht so geil aus")
         elif len(f) == 2 and not isinstance(f[0], (tuple, list)):
             keys = [(0, f[0], f[1], 1.25)]
         else:

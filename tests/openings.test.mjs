@@ -83,6 +83,13 @@ test('cutaway: see-through fades the wall pieces, not the doors and windows in i
   assert.equal(C.fadesWithWall({ kind: 'opening', id: 'o1' }), false);
   assert.equal(C.fadesWithWall({ kind: 'handle' }), false);
 });
+test('cutaway: a see-through wall loses its finish (plaster, bricks) before it fades, so its layers do not add up to a solid wall', () => {
+  assert.equal(C.skinFade(1, 0.3), 1);
+  assert.equal(C.skinFade(0.3, 0.3), 0, 'see-through: no finish');
+  assert.equal(C.skinFade(0.2, 0.3), 0);
+  assert.ok(Math.abs(C.skinFade(0.65, 0.3) - 0.5) < 1e-9, 'half way: half of it');
+  assert.ok(C.skinFade(0.95, 0.3) < 0.95, 'it goes faster than the wall');
+});
 test('cutaway: approach moves 20 % of the way and snaps when close', () => {
   assert.equal(C.approach(1, 0, 0.002), 0.8);
   assert.equal(C.approach(0.0015, 0, 0.002), 0);

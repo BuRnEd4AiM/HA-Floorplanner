@@ -411,7 +411,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge) | 6 | 0 | 7 | 0 | 156.3 bis 156.5, 156.10 bis 156.13 |
 | 157. Neu in 4.65.0: 🏠 Gaubenfenster kurz hinter dem Kniestock (#654) | 1 | 0 | 2 | 0 | 157.2, 157.3 |
 | 158. Neu in 4.66.0: 🪟 Das Fenster einer breiten Gaube | 1 | 0 | 2 | 0 | 158.2, 158.3 |
-| **Zusammen** | **920** | **2** | **180** | **92** | |
+| 159. Neu in 4.67.0: 🪟 Durchsichtige Wände im Dachgeschoss, Trailer ohne Zoom | 1 | 0 | 3 | 0 | 159.2 bis 159.4 |
+| **Zusammen** | **921** | **2** | **183** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2431,3 +2432,13 @@ Der Besitzer zum Video „Breite Gaube mit eigener Neigung“: „diese Gaube ge
 | 158.1 | `node --test tests/dormer.test.mjs` | Eine breite Gaube hat ein Fenster in der Mitte, höchstens 1,6-mal so breit wie hoch und 2 m; eine Gaube der üblichen 1,6 m wie bisher 1,02 m | ✅ (2026-11-04, Claude) |
 | 158.2 | Im Add-on: eine Satteldachgaube „＋ Gaube“, „Breite“ auf 6 m, dann 10 m | Das Fenster bleibt ein normal geformtes Doppelfenster in der Mitte der Front (bei 1,2 m Wandhöhe 1,28 × 0,8 m), es wird nicht lang gezogen | ❓ |
 | 158.3 | Nach dem Merge (etwa eine Stunde später): in der Video-Anleitung das Video „Breite Gaube mit eigener Neigung“ ansehen | Die Gaube wird 6 und 10 m breit, ihr Fenster bleibt normal groß | ❓ |
+
+## 159. Neu in 4.67.0: 🪟 Durchsichtige Wände im Dachgeschoss, Trailer ohne Zoom
+Der Besitzer (mit Bild): „bei durchsichtig ist es da oben noch immer nicht durchsichtig“, und zum Trailer: „im Video wird die ganze Zeit … leicht reingezoomt … das sieht nicht so geil aus“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 159.1 | `node --test tests/openings.test.mjs` | Die Verkleidung einer Wand verschwindet, bevor die Wand durchsichtig wird; alle Tests grün | ✅ (2026-11-04, Claude) |
+| 159.2 | Demo (nach dem Merge, neu laden): „Dachgeschoss“ antippen, „Durchsichtig“ an, das Haus von vorne links ansehen (wie auf deinem Bild) | Die Giebelwand mit dem Fenster ist durchsichtig wie die anderen Wände; man sieht Sofa und Lampe dahinter | ❓ |
+| 159.3 | Dasselbe mit „Durchsichtig“ aus | Die Wände sind fest, Putz außen, Ziegel innen, wie bisher | ❓ |
+| 159.4 | Den nächsten Trailer am PC ansehen (16:9) | Die App-Szenen stehen still, nichts zoomt langsam hinein | ❓ |
