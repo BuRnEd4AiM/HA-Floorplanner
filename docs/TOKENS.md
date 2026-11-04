@@ -4,13 +4,13 @@
 
 Stand: 2026-11-04 · 108 Sitzungen
 
-**Insgesamt: 7,17 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 7,24 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 20,4 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 71,1 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 7,08 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 20,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 71,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 7,15 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 22 | 1,04 Mrd. | 2,7 Mio. |
+| 2026-11 | 22 | 1,11 Mrd. | 2,8 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,7 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-11-03 | [018pwcmz…](https://claude.ai/code/session_018pwcmzaSQw5fCUGZR5wDZA) | claude/dreamy-knuth-6p1s4h | 297,8 Mio. | 463 Tsd. | gezählt |
+| 2026-11-03 | [018pwcmz…](https://claude.ai/code/session_018pwcmzaSQw5fCUGZR5wDZA) | claude/dreamy-knuth-6p1s4h | 368,2 Mio. | 562 Tsd. | gezählt |
 | 2026-11-03 | [018pwcmx…](https://claude.ai/code/session_018pwcmxVVTnezr3eQr4cvDx) | claude/kippwinkel | 53,7 Mio. | 143 Tsd. | gezählt |
 | 2026-11-03 | [018pwcmx…](https://claude.ai/code/session_018pwcmxGmEcMG4NqTUCKepS) | claude/repo-beschreibung | 809 Tsd. | 6 Tsd. | gezählt |
 | 2026-11-03 | [018pwcmv…](https://claude.ai/code/session_018pwcmvaeTwnswbN4bTaHMg) | claude/stoic-davinci-zy4wnz | 37,3 Mio. | 97 Tsd. | gezählt |
