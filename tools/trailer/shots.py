@@ -14,6 +14,7 @@ others) and look at it. The order is ORDER at the bottom.
 """
 import json
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -405,6 +406,56 @@ def _(r):
     r.wait(2000)
 
 
+def _import_answers():
+    """the add-on's importer builds the show house of the import dialog (the demo has no importer): its answer to "Prüfen" and
+    "Importieren", and the plan it made, which the demo then opens as a new house"""
+    app = Path(__file__).resolve().parents[2] / "floorplan3d" / "rootfs" / "app"
+    sys.path.insert(0, str(app))
+    import importer
+    data = json.loads((app / "examples" / "showcase.json").read_text())
+    layout, _, report, summary = importer.build_layout(data)
+
+    def unlinked(v):                     # without its Home Assistant entities (light.x, …): the demo has none of them ("103 offline" in red)
+        if isinstance(v, dict):
+            return {k: unlinked(x) for k, x in v.items()}
+        if isinstance(v, list):
+            return [unlinked(x) for x in v]
+        return "" if isinstance(v, str) and re.fullmatch(r"[a-z_]+\.[a-z0-9_]+", v) else v
+    layout = unlinked(layout)
+    return {"api/import": {"ok": True, "summary": summary, "warnings": report.warnings, "errors": report.errors,
+                           "name": data.get("name") or "Musterhaus", "id": "import1"},
+            "api/layout?house=import1": layout}
+
+
+def _import_prep(r):
+    r.pg.add_style_tag(content="#offlinePill { display: none !important; }")   # the show house's lamps have no entity in the demo
+    r.pg.click("#housePanel > summary")
+    r.pg.wait_for_timeout(500)
+    r.pg.click("#importOpen")
+    r.pg.wait_for_selector("#importExShow", state="visible", timeout=10000)
+    r.pg.click("#importExShow")
+    r.pg.wait_for_timeout(1500)
+
+
+@shot("import", "ui", 12, up=False, part="plan", query="mode=edit", answers=_import_answers, prep=_import_prep,
+      caption=cap(("Import · KI", "Ein Haus aus Text – per KI oder API", "Grundriss-Foto an ChatGPT & Co., die Antwort einfügen: fertig."),
+                  ("Import · AI", "A house from text – by AI or API", "A floor plan photo to ChatGPT & co., paste the answer: done.")))
+def _(r):
+    r.wait(250)
+    tap(r, "#importCheck")
+    r.wait(1300)
+    tap(r, "#importRun")
+    r.wait(1300)
+    tap(r, "#view3d")
+    r.wait(500)
+    bb = r.box("#view")
+    r.move(bb["x"] + bb["width"] * 0.45, bb["y"] + bb["height"] * 0.55, ms=500)
+    for _ in range(6):                   # closer to the new house
+        r.pg.mouse.wheel(0, -160)
+        r.wait(180)
+    r.wait(900)
+
+
 @shot("roof", "ui", 8, up=(0.6, 0.5), part="plan", query="mode=edit", prep=_empty_split(walls=True),
       caption=cap(("Planen", "Dach, Gauben, Treppen, Balkon und Garten", ""),
                   ("Plan", "Roof, dormers, stairs, balcony and garden", "")))
@@ -554,7 +605,7 @@ def _(r):
 
 # the film, in this order
 ORDER = ["intro", "hero", "close", "light", "scenes", "sky-day", "sky-dusk", "sky-night", "sky-snow", "colors", "power", "warnings",
-         "security", "voice", "inside", "build", "roof", "power-edit", "pages", "heat", "flow", "dash", "phone", "outro"]
+         "security", "voice", "inside", "build", "import", "roof", "power-edit", "pages", "heat", "flow", "dash", "phone", "outro"]
 
 # the address of the demo, shown at the end
 DEMO_URL = "burned4aim.github.io/HA-Floorplanner"

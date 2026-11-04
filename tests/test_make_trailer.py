@@ -121,3 +121,17 @@ def test_the_music():
     assert abs(rms(4, 6)) > 0 and not np.isnan(x).any()
     c = music.plan_cues()
     assert [k["id"] for k in c] == S.ORDER and c[-1]["t1"] == pytest.approx(sum(S.SHOTS[s].seconds for s in S.ORDER))
+
+
+def test_the_import_shot_builds_the_show_house():
+    """the shot "import": the add-on's own importer builds the show house of the import dialog, and the demo opens it as a new
+    house without the entities it does not have (else the red "offline" pill)"""
+    import json
+    import re
+    a = S.SHOTS["import"].answers()
+    imp = a["api/import"]
+    assert imp["ok"] and not imp["errors"] and imp["id"], imp
+    assert imp["summary"]["floors"] >= 3 and imp["summary"]["devices"] > 100, imp["summary"]
+    layout = a[f"api/layout?house={imp['id']}"]
+    assert len(layout["floors"]) == imp["summary"]["floors"] and layout.get("plot")
+    assert not re.search(r'"[a-z_]+\.[a-z0-9_]+"', json.dumps(layout))
