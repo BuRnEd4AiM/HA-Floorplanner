@@ -19,7 +19,8 @@ export const SHED_PITCH = 15;                                      // the roof o
 const MAX_W = 30;                                                  // as long as the roof allows (a gable dormer was 5 m at most until 4.61, #621)
 const SHED_WIN = 1.2;                                              // the window of a (long) shed dormer is no wider than this (m)
 const WIDE_WIN = 2.0;                                              // the window of a wide gable or flat dormer: a double window, no wider
-                                                                   // (it grew with the dormer: 3.8 m in a dormer 6 m wide)
+const WIN_RATIO = 1.6;                                             // … and at most 1.6 times as wide as high, the shape of a double window (it grew
+                                                                   // with the dormer: 3.8 × 0.8 m in a dormer 6 m wide; the owner: "lang gezogen")
 export const GABLE_PITCH = 28;                                     // the little roof of a gable dormer (degrees), unless set (d.gp, #621)
 const MIN_GABLE = 5;                                               // ... it gets no flatter than this to fit under the main ridge
 const KEEP_WALL = 1;                                               // the front wall of a gable dormer keeps this much (m) before its roof gets flatter
@@ -106,7 +107,8 @@ export function dormerWindow(n) {
   if (!n?.win) return null;
   const { F, at, w, eave } = n, hw2 = w / 2, m = 0.18 * w, sill = 0.22, head = 0.18;
   const XZ = (u) => { const a = at + u, b = n.side === 0 ? F.b0 + eave : F.b1 - eave; return F.alongX ? [a, b] : [b, a]; };
-  return { width: Math.min(w - 2 * m, n.type === 'shed' ? SHED_WIN : WIDE_WIN), height: n.hw - sill - head, sill, a: XZ(-hw2), b: XZ(hw2) };
+  const height = n.hw - sill - head;
+  return { width: Math.min(w - 2 * m, n.type === 'shed' ? SHED_WIN : Math.min(WIDE_WIN, WIN_RATIO * height)), height, sill, a: XZ(-hw2), b: XZ(hw2) };
 }
 
 /** triangles ([x, y, z] points, 3 per triangle) of a dormer: front wall + cheeks, roof, window glass; null if it does not fit. holes: openings

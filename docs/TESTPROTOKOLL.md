@@ -2424,10 +2424,10 @@ Gefunden beim Demo-Haus, der Besitzer: „kann sein das das haus in den gauben k
 | 157.3 | Denselben Abstand Schritt für Schritt von 0,5 auf 1,2 m stellen | Bei jedem Abstand ist das Fenster zu sehen (bis 0,75 m sitzt es in der Wand darunter, danach in der Front der Gaube) | ❓ |
 
 ## 158. Neu in 4.66.0: 🪟 Das Fenster einer breiten Gaube
-Der Besitzer zum Video „Breite Gaube mit eigener Neigung“: „diese Gaube gestretched … dass das Fenster auch gestretched wird. Das sieht natürlich komisch aus“. Das Fenster einer Satteldach- oder Flachdachgaube wuchs mit der Gaube mit; jetzt höchstens 2 m.
+Der Besitzer zum Video „Breite Gaube mit eigener Neigung“: „diese Gaube gestretched … dass das Fenster auch gestretched wird. Das sieht natürlich komisch aus“. Das Fenster einer Satteldach- oder Flachdachgaube wuchs mit der Gaube mit; jetzt hat es die Form eines normalen Doppelfensters (höchstens 1,6-mal so breit wie hoch, höchstens 2 m). Der Besitzer zum ersten Versuch (2 × 0,8 m): „noch immer … lang gezogen“.
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 158.1 | `node --test tests/dormer.test.mjs` | Eine 6 m breite Gaube hat ein 2 m breites Fenster in der Mitte, eine 3 m breite wie bisher 1,92 m | ✅ (2026-11-04, Claude) |
-| 158.2 | Im Add-on: eine Satteldachgaube „＋ Gaube“, „Breite“ auf 6 m, dann 10 m | Das Fenster bleibt ein normales Doppelfenster in der Mitte der Front, es wird nicht mit breit gezogen | ❓ |
+| 158.1 | `node --test tests/dormer.test.mjs` | Eine breite Gaube hat ein Fenster in der Mitte, höchstens 1,6-mal so breit wie hoch und 2 m; eine Gaube der üblichen 1,6 m wie bisher 1,02 m | ✅ (2026-11-04, Claude) |
+| 158.2 | Im Add-on: eine Satteldachgaube „＋ Gaube“, „Breite“ auf 6 m, dann 10 m | Das Fenster bleibt ein normal geformtes Doppelfenster in der Mitte der Front (bei 1,2 m Wandhöhe 1,28 × 0,8 m), es wird nicht lang gezogen | ❓ |
 | 158.3 | Nach dem Merge (etwa eine Stunde später): in der Video-Anleitung das Video „Breite Gaube mit eigener Neigung“ ansehen | Die Gaube wird 6 und 10 m breit, ihr Fenster bleibt normal groß | ❓ |

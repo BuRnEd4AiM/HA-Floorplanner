@@ -135,13 +135,13 @@ test('the window of a long shed dormer stays window-sized and in the middle of i
   assert.ok(Math.abs(D.dormerWindow(D.fitDormer(bb, roof, { type: 'flat', w: 2 })).width - 1.28) < 1e-9, 'other dormers as before');
 });
 
-test('a wide gable or flat dormer keeps a window of normal size in the middle of its front, no wider than a double window', () => {
-  for (const type of ['gable', 'flat']) {
-    const n = D.fitDormer(bb, roof, { type, w: 6, hw: 1.6 }), win = D.dormerWindow(n);
-    assert.equal(win.width, 2, type);
-    assert.ok(Math.abs(Math.hypot(win.b[0] - win.a[0], win.b[1] - win.a[1]) - 6) < 1e-9, 'the front wall is the whole dormer');
+test('a wide gable or flat dormer keeps a window of normal size in the middle of its front: a double window, at most 1.6 times as wide as high and 2 m', () => {
+  for (const type of ['gable', 'flat']) for (const [w, hw] of [[6, 1.2], [6, 1.6], [10, 2.2]]) {
+    const n = D.fitDormer(bb, roof, { type, w, hw }), win = D.dormerWindow(n);
+    assert.ok(Math.abs(win.width - Math.min(2, 1.6 * win.height)) < 1e-9 && win.width < w * 0.64, `${type} ${w} m: ${win.width} x ${win.height}`);
+    assert.ok(Math.abs(Math.hypot(win.b[0] - win.a[0], win.b[1] - win.a[1]) - n.w) < 1e-9, 'the front wall is the whole dormer');
   }
-  assert.ok(Math.abs(D.dormerWindow(D.fitDormer(bb, roof, { w: 3 })).width - 1.92) < 1e-9, 'up to about 3 m wide it grows with the dormer');
+  assert.ok(Math.abs(D.dormerWindow(D.fitDormer(bb, roof, { w: 1.6 })).width - 1.024) < 1e-9, 'a dormer of the usual size as before');
 });
 
 test('start along the ridge: metres from the gable end of the house, and back to pos', () => {
