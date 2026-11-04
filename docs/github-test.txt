@@ -1,0 +1,1 @@
+Test: starts GitHub the checks for a new pull request? (2026-11-04; this branch and its pull request are closed again, nothing is merged)
