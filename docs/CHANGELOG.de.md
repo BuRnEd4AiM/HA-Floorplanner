@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.67.0] - 2026-11-04
+### Verbessert
+- **Trailer: die App steht still** (der Besitzer, 2026-11-04: „im Video wird die ganze Zeit auch bei der PC-Version leicht reingezoomt … das sieht nicht so geil aus“): die App-Szenen zoomen nicht mehr langsam hinein; das App-Fenster bleibt, wie es ist, nur der Übergang zwischen zwei Szenen bewegt sich.
+
+### Repariert
+- **Eine durchsichtige Wand im Dachgeschoss sah fest aus** (das Bild des Besitzers, 2026-11-04: „bei durchsichtig ist es da oben noch immer nicht durchsichtig“): mit „Durchsichtig“ blieb die Giebelwand eines ausgebauten Dachgeschosses fast fest, außen Putz, innen Ziegel. Ihre Verkleidungen liegen als eigene Schichten auf der Wand, und jede wurde für sich durchsichtig; unter dem Dach werden beide Seiten einer Wand gezeichnet (#628), so ergaben vier Schichten zu 30 % ein festes Aussehen. Jetzt verschwindet die Verkleidung einer Wand ganz, bevor die Wand durchsichtig wird (`cutaway.js` `skinFade`), so ist eine durchsichtige Wand überall durchsichtig.
+
 ## [4.66.0] - 2026-11-04
 ### Verbessert
 - **Trailer: die Video-Anleitung** (der Besitzer, 2026-11-04: „ins Video rein machen, dass es diese Video-Seite gibt für Hilfe“): eine neue Szene vor dem Ende, „Zu jeder Funktion ein kurzes Video“: die Seite der Video-Anleitung, in ihre Suche wird „Gaube“ getippt, vier Videos werden gefunden, eins öffnet sich mit seinen Schritten, mit Zeit zum Hinschauen (6 s) und hochkant ohne Lupe. Der Trailer baut die Seite selbst aus den Bildern und Texten im Zweig `guide-videos` (kein Video muss abspielen). Jetzt 116 s.

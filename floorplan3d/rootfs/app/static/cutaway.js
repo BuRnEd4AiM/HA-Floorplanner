@@ -33,6 +33,10 @@ export function fadesWithWall(userData) {
   const kind = userData?.kind;
   return kind !== 'opening' && kind !== 'handle';
 }
+/** how much of its finish (plaster, bricks, wallpaper: wallskin.js) a wall keeps while it fades to f (see: how far see-through fades it):
+ *  all of it while solid, none once see-through. The finish lies on the wall as layers of its own; each faded by itself they added up, and
+ *  in an attic, where both sides of a wall are drawn (#628), a see-through gable wall looked solid (the owner's picture, 4.67.0) */
+export const skinFade = (f, see) => (f >= 1 ? 1 : Math.max(0, (f - see) / (1 - see)));
 /** one smooth step from cur towards target (20 %), snapping when close */
 export function approach(cur, target, eps) {
   const v = cur + (target - cur) * 0.2;
@@ -47,18 +51,19 @@ export function initCutaway(ctx) {
     const { cx, cz } = ctx.center();
     return { group, n: outwardNormal(w, cx, cz), low: 1 };
   }
-  /** fade the materials of a wall to `f` (1 = as built), but not those of its doors and windows; the built opacity is remembered on the material */
+  /** fade the materials of a wall to `f` (1 = as built), but not those of its doors and windows, its finish faster (skinFade); the built opacity is remembered on the material */
   function setWallFade(c, f) {
     if (c.fadeNow === f) return;
     c.fadeNow = f;
     (function fade(o) {
       if (!fadesWithWall(o.userData)) return;
+      const k = o.userData?.skin ? skinFade(f, ctx.wallSee) : f;   // its finish goes before the wall does
       [].concat(o.material || []).forEach((m) => {
         const u = m.userData;
         if (u.baseOp === undefined) { u.baseOp = m.opacity; u.baseTr = m.transparent; u.baseDW = m.depthWrite; }
-        const tr = f < 1 || u.baseTr;
-        m.opacity = u.baseOp * f;
-        m.depthWrite = f < 1 ? false : u.baseDW;
+        const tr = k < 1 || u.baseTr;
+        m.opacity = u.baseOp * k;
+        m.depthWrite = k < 1 ? false : u.baseDW;
         if (m.transparent !== tr) { m.transparent = tr; m.needsUpdate = true; }
       });
       o.children.forEach(fade);

@@ -1,6 +1,6 @@
 {
- "version": "4.66.0",
- "buildHash": "d0729723fa8882d1d309b60efc6bb8d564170f30a673f47bc93a5c7b529ba65e",
+ "version": "4.67.0",
+ "buildHash": "68ea687684da2fb3ccc74a8563b8a39a982229d1e148869f648cb8fc59d14986",
  "files": {
   "alarmnotify.py": "3d9ada748b694e0f8dfcf53e85a2b5923f54b561dd44b4f17bfa716e44a730e6",
   "boards.py": "b506190d5264db67ead00bbb7716bded4cbc7c4f94c50589fc9d15d7a7657d87",
@@ -195,7 +195,7 @@
   "static/compass.js": "a47770fbc2511ddc67ec3e2bbd52c4052ba95cde66ef539aeba0e1f1ed3d1408",
   "static/coverrow.js": "e3e1e1e2d164e78cbfa357557bc08fc50f8507e48bc181ea9092284f8eb10965",
   "static/ctlwindow.js": "8232a2964156a6ab57d043ab7dad3c3a419d2bb94b56c71fec1594f83b7daded",
-  "static/cutaway.js": "1874b9867ddaab2cf6bdbde12c151a956ad7ff5a71ebf36aa02e01180744cd62",
+  "static/cutaway.js": "51083de384c83a67d5bbf573e57e315eb47d7b858ef8b17905f926eeb6297cb3",
   "static/dashboards.js": "ba4acc0bd676016de1cdafed3f748d620cf36d99285000390c282f1f432b43b7",
   "static/devicecontrols.js": "351f42f5e0cdc76d92ac7868eaaa7be1bc8c7086b5a6bfcfe94c47bd0c843517",
   "static/devicelist.js": "d63230ae3efa6cdc1aeaa4696112c6c7bf7bbab253c33030e80dba312f11b917",
