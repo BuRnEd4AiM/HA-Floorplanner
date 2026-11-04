@@ -466,7 +466,7 @@ def _climate_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("heat", "ui", 8, part="pages", sky="15:49", prep=_climate_prep, up=(0.22, 0.45),
+@shot("heat", "ui", 8, part="pages", sky="15:49", prep=_climate_prep, up=False,
       caption=cap(("Heizung", "Heizplan und Heiz-Regeln", "Fenster auf, Heizung aus: fertig zum Einschalten."),
                   ("Heating", "Heating schedule and rules", "Window open, heating off: ready to switch on.")))
 def _(r):
