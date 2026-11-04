@@ -2,9 +2,12 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [4.66.0] - 2026-11-04
 ### Changed
-- **Trailer: the video guide** (the owner, 2026-11-04: "ins Video rein machen, dass es diese Video-Seite gibt für Hilfe"): a new scene before the end, "Zu jeder Funktion ein kurzes Video" / "A short video for every feature": the page of the video guide, "Gaube" (dormer) typed into its search, four videos found, one opens with its steps. The trailer builds the page itself from the pictures and texts on the branch `guide-videos` (no video needs to play). 114 s now.
+- **Trailer: the video guide** (the owner, 2026-11-04: "ins Video rein machen, dass es diese Video-Seite gibt für Hilfe"): a new scene before the end, "Zu jeder Funktion ein kurzes Video" / "A short video for every feature": the page of the video guide, "Gaube" (dormer) typed into its search, four videos found, one opens with its steps, with time to see what it is (6 s) and without a magnifier upright. The trailer builds the page itself from the pictures and texts on the branch `guide-videos` (no video needs to play). 116 s now.
+
+### Fixed
+- **The window of a wide dormer** (the owner, 2026-11-04, about the video "Breite Gaube mit eigener Neigung": "diese Gaube gestretched … dass das Fenster auch gestretched wird. Das sieht natürlich komisch aus"): a gable or flat dormer's window grew with the dormer (3.8 m wide in a dormer of 6 m, 6.4 m in one of 10 m). It now keeps the shape of a normal double window in the middle of the front: at most 1.6 times as wide as high and never wider than 2 m (1.28 × 0.8 m in a low dormer; a dormer of the usual 1.6 m keeps its 1.02 m). The long shed dormer already kept 1.2 m. The guide's clip is recorded again with it.
 
 ## [4.65.0] - 2026-11-04
 ### Changed
