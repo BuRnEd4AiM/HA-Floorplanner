@@ -14,11 +14,10 @@ const layout = {
   version: 1,
   plot: { boundary: [[-7, -6], [29, -6], [29, 14], [-7, 14]],    // the plot (Grundstück): the house stands in the lawn, the basement in the earth; the neighbour house too
     // ⛰ a house on a hillside (#629, the owner: "EG ist quasi normal mit dem Rasen … dann geht quasi der Hang schräg runter und unten ist dann UG, wie zum
-    // Beispiel die Garage"): the garden at the ground floor, along the house the slope falls one storey (3 m) to the street at the basement with the
-    // garage; the neighbour's plot stays up
-    terrain: { points: [{ id: 'tp1', x: -7, z: -6, h: -3 }, { id: 'tp2', x: 15.5, z: -6, h: -3 }, { id: 'tp3', x: -7, z: 0, h: -3 }, { id: 'tp4', x: 15.5, z: 0, h: -3 },
-      { id: 'tp5', x: -7, z: 7, h: 0 }, { id: 'tp6', x: 15.5, z: 7, h: 0 }, { id: 'tp7', x: -7, z: 14, h: 0 }, { id: 'tp8', x: 15.5, z: 14, h: 0 },
-      { id: 'tp9', x: 17, z: -6, h: 0 }, { id: 'tp10', x: 29, z: -6, h: 0 }, { id: 'tp11', x: 17, z: 14, h: 0 }, { id: 'tp12', x: 29, z: 14, h: 0 }] },
+    // Beispiel die Garage", and his picture: the whole plot one slope): the lawn falls from the garden (1 m over the ground floor) along the house
+    // (from the ground floor at its back to the basement at its front, 3 m) down to the street (4.2 m under the ground floor); both houses have a basement
+    terrain: { points: [{ id: 'tp1', x: -7, z: -6, h: -4.2 }, { id: 'tp2', x: 29, z: -6, h: -4.2 }, { id: 'tp3', x: -7, z: 0, h: -3 }, { id: 'tp4', x: 29, z: 0, h: -3 },
+      { id: 'tp5', x: -7, z: 7, h: 0 }, { id: 'tp6', x: 29, z: 7, h: 0 }, { id: 'tp7', x: -7, z: 14, h: 1 }, { id: 'tp8', x: 29, z: 14, h: 1 }] },
     areas: [                                                       // the areas on it (#538): the drive, the yard, a bed, a pond, a path of gravel
       { id: 'ya1', name: 'Einfahrt', surface: 'paving', points: [[10.5, -6], [14.5, -6], [14.5, 0], [10.5, 0]] },
       { id: 'ya2', name: 'Hof', surface: 'cobble', points: [[1, -2.6], [10.5, -2.6], [10.5, 0], [1, 0]] },
@@ -251,6 +250,16 @@ const neighbor = {
   energy: { meters: { from: ['sensor.nachbar_netz_kwh'] }, price: { buy: 0.3 }, house: { entity: 'sensor.nachbar_leistung' },
     battery: { level: 'sensor.nachbar_batterie' } },        // #515: a battery of its own, for the card "🔋 Ladestand" of two houses
   floors: [{
+    id: 'n_kg', name: 'Keller', kind: 'basement',   // on the hillside its front door is down at the street
+    rooms: [{ id: 'n_k1', name: 'Diele unten', color: '#9a958c', points: [[0, 0], [8, 0], [8, 7], [0, 7]] }],
+    walls: [
+      W('n_kw1', [0, 0], [8, 0], 0.3, [Win('n_ko1', 2), D('n_o3', 5.8, { name: 'Haustür Nachbar' })]),
+      W('n_kw2', [8, 0], [8, 7], 0.3, []),
+      W('n_kw3', [8, 7], [0, 7], 0.3, []),
+      W('n_kw4', [0, 7], [0, 0], 0.3, []),
+    ],
+    devices: [{ id: 'n_kd1', type: 'light', x: 4, z: 3.5, y: 2.55, rot: 0, scale: 1.2, name: 'Licht Diele unten', entity: '' }],
+  }, {
     id: 'n_eg', name: 'Erdgeschoss',
     stairs: [{ id: 'n_st1', name: 'Wandtreppe', type: 'wall', x: 7.76, z: 0.9, rot: 0, w: 0.9, turn: 'right', dir: 'up', floors: 1, landing: 1, path: [[0, 0], [0, 5.85], [-2.4, 5.85]] }],
     rooms: [
@@ -258,7 +267,7 @@ const neighbor = {
       { id: 'n_r2', name: 'Diele', color: '#a9a39a', points: [[5, 0], [8, 0], [8, 7], [5, 7]] },
     ],
     walls: [
-      W('n_w1', [0, 0], [8, 0], 0.24, [Win('n_o1', 1.5), Win('n_o2', 3.6), D('n_o3', 5.8, { name: 'Haustür Nachbar' })]),
+      W('n_w1', [0, 0], [8, 0], 0.24, [Win('n_o1', 1.5), Win('n_o2', 3.6), Win('n_o7', 6.2)]),
       W('n_w2', [8, 0], [8, 7], 0.24, []),
       W('n_w3', [8, 7], [0, 7], 0.24, [Win('n_o4', 5.5)]),
       W('n_w4', [0, 7], [0, 0], 0.24, [Win('n_o5', 3.5, { width: 1.6 })]),
