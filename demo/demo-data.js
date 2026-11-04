@@ -13,6 +13,11 @@ const Win = (id, pos, extra = {}) => ({ id, type: 'window', pos, width: 1.2, hei
 const layout = {
   version: 1,
   plot: { boundary: [[-7, -6], [29, -6], [29, 14], [-7, 14]],    // the plot (Grundstück): the house stands in the lawn, the basement in the earth; the neighbour house too
+    // ⛰ a house on a hillside (#629, the owner: "EG ist quasi normal mit dem Rasen … dann geht quasi der Hang schräg runter und unten ist dann UG, wie zum
+    // Beispiel die Garage", and his picture: the whole plot one slope): the lawn falls from the garden (1 m over the ground floor) along the house
+    // (from the ground floor at its back to the basement at its front, 3 m) down to the street (4.2 m under the ground floor); both houses have a basement
+    terrain: { points: [{ id: 'tp1', x: -7, z: -6, h: -4.2 }, { id: 'tp2', x: 29, z: -6, h: -4.2 }, { id: 'tp3', x: -7, z: 0, h: -3 }, { id: 'tp4', x: 29, z: 0, h: -3 },
+      { id: 'tp5', x: -7, z: 7, h: 0 }, { id: 'tp6', x: 29, z: 7, h: 0 }, { id: 'tp7', x: -7, z: 14, h: 1 }, { id: 'tp8', x: 29, z: 14, h: 1 }] },
     areas: [                                                       // the areas on it (#538): the drive, the yard, a bed, a pond, a path of gravel
       { id: 'ya1', name: 'Einfahrt', surface: 'paving', points: [[10.5, -6], [14.5, -6], [14.5, 0], [10.5, 0]] },
       { id: 'ya2', name: 'Hof', surface: 'cobble', points: [[1, -2.6], [10.5, -2.6], [10.5, 0], [1, 0]] },
@@ -27,16 +32,22 @@ const layout = {
       { id: 'k1', name: 'Hobbyraum',  color: '#8f8a7e', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
       { id: 'k2', name: 'Technik',    covering: 'concrete', color: '#7d8590', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
       { id: 'k3', name: 'Waschküche', covering: 'concrete', color: '#8a96a0', points: [[0, 4.5], [10, 4.5], [10, 7], [0, 7]] },
+      { id: 'gr1', name: 'Garage',     covering: 'concrete', color: '#8d9096', points: [[10, 0], [15, 0], [15, 6], [10, 6]] },   // at the street, under the ground floor (a house on a hillside)
     ],
     walls: [
-      W('k_w1', [0, 0], [10, 0], 0.3, [Win('k_o1', 2.5, { height: 0.6, sill: 1.8 })]),
-      W('k_w2', [10, 0], [10, 7], 0.3, []),
+      W('k_w1', [0, 0], [10, 0], 0.3, [Win('k_o1', 1.6), Win('k_o7', 4.4), Win('k_o8', 8, { width: 0.9 })]),   // the front at the street: real windows
+      W('k_w2', [10, 0], [10, 7], 0.3, [D('k_o6', 2, { name: 'Tür zur Garage' })]),
+      W('g_w1', [10, 0], [15, 0], 0.3, [D('g_o1', 2.5, { width: 2.6, height: 2.1, style: 'garage', entity: 'cover.garagentor', name: 'Garagentor' })]),
+      W('g_w2', [15, 0], [15, 6], 0.3, []),
+      W('g_w3', [15, 6], [10, 6], 0.3, []),
       W('k_w3', [10, 7], [0, 7], 0.3, []),
       W('k_w4', [0, 7], [0, 0], 0.3, []),
       W('k_i1', [6, 0], [6, 4.5], 0.12, [D('k_o2', 3.2)]),
       W('k_i2', [0, 4.5], [10, 4.5], 0.12, [D('k_o3', 3), D('k_o4', 8)]),
     ],
     devices: [
+      { id: 'gt5', type: 'car',     x: 12.5, z: 3.0,  y: 0, rot: 0, scale: 1,   name: 'Auto', entity: '' },
+      { id: 'gg1', type: 'light',   x: 12.5, z: 3.0,  y: 2.55, rot: 0, scale: 1.2, name: 'Garagenlicht', entity: 'light.garage' },
       { id: 'k_d1', type: 'light',   x: 3,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Licht Hobbyraum', entity: 'light.keller' },
       { id: 'k_d2', type: 'sofa',    x: 3,   z: 3.6,  y: 0,    rot: 180, scale: 1,   name: 'Sofa', entity: '' },
       { id: 'k_d3', type: 'table',   x: 3,   z: 2.3,  y: 0,    rot: 0,   scale: 0.7, name: 'Tisch', entity: '' },
@@ -61,16 +72,16 @@ const layout = {
       { id: 'r3', name: 'Bad',           covering: 'hexFloor', wallLook: { pattern: 'paint', color: '#f4f2ee' }, wallBelow: { pattern: 'wTiles', color: '#6f8fa8', height: 1.2 }, color: '#8fb1c2', points: [[0, 4.5], [3, 4.5], [3, 7], [0, 7]] },
       { id: 'r4', name: 'Schlafzimmer',  area: 'schlafzimmer', covering: 'carpet', floorLook: { color: '#c7bba8' }, wallLook: { pattern: 'wpLeaves' }, color: '#a99bb8', points: [[3, 4.5], [7, 4.5], [7, 7], [3, 7]] },
       { id: 'r5', name: 'Büro',          area: 'buero', covering: 'parquetDark', wallLook: { pattern: 'plaster', color: '#ece6da' }, color: '#9db39a', points: [[7, 4.5], [10, 4.5], [10, 7], [7, 7]] },
-      { id: 'gr1', name: 'Garage',       covering: 'concrete', color: '#8d9096', points: [[10, 0], [15, 0], [15, 6], [10, 6]] },
+      { id: 'hw1', name: 'Hauswirtschaft', covering: 'tilesLarge', color: '#a9a49a', points: [[10, 0], [15, 0], [15, 6], [10, 6]] },   // over the garage
     ],
     walls: [
       W('w1', [0, 0], [6, 0], 0.24, [Win('o1', 1.6, { entity: 'binary_sensor.fenster_wohnzimmer', name: 'Fenster Wohnzimmer' }), Win('o2', 4.4, { style: 'single', hinge: 'left', entity: 'binary_sensor.fenster_wz_offen', tiltEntity: 'binary_sensor.fenster_wz_gekippt', name: 'Fenster Terrasse' })]),   // #624: open and tilted
       W('w2', [6, 0], [10, 0], 0.24, [Win('o3', 2, { entity: 'binary_sensor.fenster_kueche', name: 'Fenster Küche', shutter: true, shutterEntity: 'cover.rollladen_kueche' })]),   // #331: window with a contact and a roller shutter
-      W('w3', [10, 0], [10, 4.5], 0.24, [D('o4', 2.25, { name: 'Tür zur Garage' })]),
+      W('w3', [10, 0], [10, 4.5], 0.24, [D('o4', 2.25, { name: 'Tür Hauswirtschaft' })]),
       W('w4', [10, 4.5], [10, 7], 0.24, []),
-      W('g_w1', [10, 0], [15, 0], 0.24, []),
-      W('g_w2', [15, 0], [15, 6], 0.24, [D('g_o1', 3, { width: 2.6, height: 2.1, style: 'garage', entity: 'cover.garagentor', name: 'Garagentor' })]),
-      W('g_w3', [15, 6], [10, 6], 0.24, []),
+      W('h_w1', [10, 0], [15, 0], 0.24, [Win('h_o1', 2.5)]),
+      W('h_w2', [15, 0], [15, 6], 0.24, [Win('h_o2', 3)]),
+      W('h_w3', [15, 6], [10, 6], 0.24, []),
       W('w5', [10, 7], [7, 7], 0.24, [D('o6', 1.5, { entity: 'binary_sensor.tuer_buero', name: 'Bürotür' })]),
       W('w6', [7, 7], [3, 7], 0.24, [Win('o7', 2, { shutter: true, shutterEntity: 'cover.rollladen_schlafzimmer' })]),
       W('w7', [3, 7], [0, 7], 0.24, [Win('o8', 1.5, { width: 0.7, height: 0.8, sill: 1.3 })]),
@@ -143,8 +154,6 @@ const layout = {
       { id: 'gt2', type: 'tree',    x: 14.5, z: -3.5, y: 0, rot: 0,  scale: 1.3, name: 'Linde', entity: '' },
       { id: 'gt3', type: 'bush',    x: -5,   z: 5.5,  y: 0, rot: 0,  scale: 1,   name: 'Hecke', entity: '' },
       { id: 'gt4', type: 'terrace', x: -2.6, z: 2.5,  y: 0, rot: 90, scale: 1.1, name: 'Terrasse', entity: '' },
-      { id: 'gt5', type: 'car',     x: 12.2, z: 3.0,  y: 0, rot: 90, scale: 1,   name: 'Auto', entity: '' },
-      { id: 'gg1', type: 'light',   x: 12.5, z: 3.0,  y: 2.55, rot: 0, scale: 1.2, name: 'Garagenlicht', entity: 'light.garage' },
       { id: 'gt6', type: 'fence',   x: 5,    z: -5.6, y: 0, rot: 0,  scale: 1, sx: 7.8, name: 'Zaun', entity: '' },
       { id: 'gd1', type: 'parasol', x: -1.4, z: 1.2, y: 0, rot: 0, scale: 1, name: 'Sonnenschirm', entity: '' },   // garden things (#538, yarddeco.js)
       { id: 'gd2', type: 'grill_kettle', x: -4.6, z: 1.2, y: 0, rot: 0, scale: 1, name: 'Grill', entity: '' },
@@ -228,8 +237,10 @@ const layout = {
     rooms: [],                                            // no loft room: the roof starts in the attic floor below (knee), its outline comes from the floors below
     devices: [{ id: 'pv_dach', type: 'solarpanel', x: 3.6, z: 5.3, y: 0, rot: 0, scale: 1, cols: 5, rows: 2, name: 'PV Dach', entity: 'sensor.pv_dach' }],
     roof: { type: 'gable', pitch: 35, overhang: 0.5, knee: 1, ridge: 'x',   // over the whole house, starting on a knee wall of the attic floor below (#260)
-      dormers: [{ side: 'a', pos: 0.3, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } }, { side: 'b', pos: 0.82, w: 2.0, type: 'flat' }],
-      skylights: [{ id: 'sky1', side: 0, pos: 0.7, w: 0.78, h: 1.18, eave: 1.3, window: { id: 'dfw1', type: 'window', style: 'single', hinge: 'top', openOutward: true, name: 'Dachfenster', entity: 'binary_sensor.dachfenster' } }] },   // #643: a roof window without a dormer   // #331: a dormer window with a roller shutter
+      // two dormers with windows, set back 1 m from the roof's edge (at 0.8 m their windows did not show: #654), the roof window between them
+      dormers: [{ side: 'a', pos: 0.2, eave: 1, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } },
+        { side: 'b', pos: 0.8, eave: 1, w: 2.0, type: 'flat', window: { id: 'gw2', type: 'window', style: 'double', name: 'Gaubenfenster Atelier' } }],
+      skylights: [{ id: 'sky1', side: 0, pos: 0.5, w: 0.78, h: 1.18, eave: 1.3, window: { id: 'dfw1', type: 'window', style: 'single', hinge: 'top', openOutward: true, name: 'Dachfenster', entity: 'binary_sensor.dachfenster' } }] },   // #643: a roof window without a dormer   // #331: a dormer window with a roller shutter
   }],
 };
 
@@ -241,6 +252,16 @@ const neighbor = {
   energy: { meters: { from: ['sensor.nachbar_netz_kwh'] }, price: { buy: 0.3 }, house: { entity: 'sensor.nachbar_leistung' },
     battery: { level: 'sensor.nachbar_batterie' } },        // #515: a battery of its own, for the card "🔋 Ladestand" of two houses
   floors: [{
+    id: 'n_kg', name: 'Keller', kind: 'basement',   // on the hillside its front door is down at the street
+    rooms: [{ id: 'n_k1', name: 'Diele unten', color: '#9a958c', points: [[0, 0], [8, 0], [8, 7], [0, 7]] }],
+    walls: [
+      W('n_kw1', [0, 0], [8, 0], 0.3, [Win('n_ko1', 2), D('n_o3', 5.8, { name: 'Haustür Nachbar' })]),
+      W('n_kw2', [8, 0], [8, 7], 0.3, []),
+      W('n_kw3', [8, 7], [0, 7], 0.3, []),
+      W('n_kw4', [0, 7], [0, 0], 0.3, []),
+    ],
+    devices: [{ id: 'n_kd1', type: 'light', x: 4, z: 3.5, y: 2.55, rot: 0, scale: 1.2, name: 'Licht Diele unten', entity: '' }],
+  }, {
     id: 'n_eg', name: 'Erdgeschoss',
     stairs: [{ id: 'n_st1', name: 'Wandtreppe', type: 'wall', x: 7.76, z: 0.9, rot: 0, w: 0.9, turn: 'right', dir: 'up', floors: 1, landing: 1, path: [[0, 0], [0, 5.85], [-2.4, 5.85]] }],
     rooms: [
@@ -248,7 +269,7 @@ const neighbor = {
       { id: 'n_r2', name: 'Diele', color: '#a9a39a', points: [[5, 0], [8, 0], [8, 7], [5, 7]] },
     ],
     walls: [
-      W('n_w1', [0, 0], [8, 0], 0.24, [Win('n_o1', 1.5), Win('n_o2', 3.6), D('n_o3', 5.8, { name: 'Haustür Nachbar' })]),
+      W('n_w1', [0, 0], [8, 0], 0.24, [Win('n_o1', 1.5), Win('n_o2', 3.6), Win('n_o7', 6.2)]),
       W('n_w2', [8, 0], [8, 7], 0.24, []),
       W('n_w3', [8, 7], [0, 7], 0.24, [Win('n_o4', 5.5)]),
       W('n_w4', [0, 7], [0, 0], 0.24, [Win('n_o5', 3.5, { width: 1.6 })]),

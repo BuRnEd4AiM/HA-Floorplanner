@@ -819,10 +819,11 @@ def _(r):
 
 
 def slope_view(r):
-    """prep: the demo house (it has a basement, here with a garage door in front) on its ground floor in the 2D plan (#629)"""
+    """prep: the demo house (its basement has the garage in front) on a flat plot (the demo stands on a hillside: here it starts flat), on
+    its ground floor in the 2D plan (#629)"""
     pg = r.pg
-    pg.evaluate("""() => { const fp = window.__fp, L = fp.layout, kg = L.floors.find((f) => f.kind === 'basement'), w = kg && kg.walls[0];
-      if (w) w.openings.push({ id: 'clipGate', type: 'door', style: 'garage', pos: 7, width: 2.5, height: 2.1, sill: 0 });   // a garage door in front
+    pg.evaluate("""() => { const fp = window.__fp, L = fp.layout;
+      if (L.plot) delete L.plot.terrain;
       fp.rebuild(); fp.switchFloor(L.floors.findIndex((f) => f.kind !== 'basement')); }""")
     pg.click("#view2d")
     pg.wait_for_timeout(1200)
