@@ -2,6 +2,10 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [Unreleased]
+### Verbessert
+- **Trailer: die Video-Anleitung** (der Besitzer, 2026-11-04: „ins Video rein machen, dass es diese Video-Seite gibt für Hilfe“): eine neue Szene vor dem Ende, „Zu jeder Funktion ein kurzes Video“: die Seite der Video-Anleitung, in ihre Suche wird „Gaube“ getippt, vier Videos werden gefunden, eins öffnet sich mit seinen Schritten. Der Trailer baut die Seite selbst aus den Bildern und Texten im Zweig `guide-videos` (kein Video muss abspielen). Jetzt 114 s.
+
 ## [4.65.0] - 2026-11-04
 ### Verbessert
 - **Die Kamera der Demo hängt draußen** (der Besitzer, 2026-11-04: „dass die Kamera nicht im Wohnzimmer ist, sondern im Außenbereich, da diese im Video stört“): aus der „Kamera Wohnzimmer“ mit ihrem Blickkegel mitten im Wohnzimmer wird die „Kamera Garten“, außen an der Rückwand über der Bürotür, mit Blick in den Garten (mit eigenem Bewegungsmelder).

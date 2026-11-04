@@ -591,6 +591,59 @@ def _(r):
         r.wait(1000)
 
 
+def guide_site():
+    """the page of the video guide (tools/make_guide.py), built from the pictures and texts of its videos on the branch guide-videos
+    (the videos themselves are not needed: the shot shows the page, its search and a clip's steps, no video plays). Built once into
+    $TRAILER_GUIDE or <temp>/trailer-guide; returns the folder of the page"""
+    import io
+    import os
+    import subprocess
+    import tarfile
+    import tempfile
+    root = Path(__file__).resolve().parents[2]
+    home = Path(os.environ.get("TRAILER_GUIDE") or Path(tempfile.gettempdir()) / "trailer-guide")
+    site, vids = home / "site", home / "vids"
+    if (site / "guide.json").exists():
+        return site
+    subprocess.run(["git", "-C", str(root), "fetch", "-q", "--depth", "1", "origin", "guide-videos"], check=True)
+    tar = subprocess.run(["git", "-C", str(root), "archive", "FETCH_HEAD", "--", ":(glob)**/*.jpg", ":(glob)**/*.json"],
+                         check=True, capture_output=True).stdout
+    vids.mkdir(parents=True, exist_ok=True)
+    tarfile.open(fileobj=io.BytesIO(tar)).extractall(vids, filter="data")
+    for j in vids.glob("*/*.json"):                # an empty stand-in for each video: the page lists the clips that have one
+        j.with_suffix(".mp4").touch()
+    sys.path.insert(0, str(root / "tools"))
+    import make_guide
+    make_guide.build_site(site, vids)
+    return site
+
+
+def _guide_prep(r):
+    site = guide_site()
+
+    def serve(route):                               # the page from the folder, as if from a web server (file:// may not load guide.json)
+        f = site / route.request.url.split("guide.local/", 1)[1].split("?")[0].split("#")[0]
+        route.fulfill(path=str(f)) if f.is_file() else route.fulfill(status=404, body="")
+    r.pg.route("http://guide.local/**", serve)
+    r.pg.emulate_media(color_scheme="dark")
+    r.pg.goto(f"http://guide.local/index.html?lang={r.lang}", wait_until="domcontentloaded")
+    r.pg.wait_for_selector("#main .card", state="visible", timeout=20000)
+    r.pg.wait_for_timeout(1200)
+
+
+@shot("guide", "ui", 8, part="pages", prep=_guide_prep,
+      caption=cap(("Hilfe", "Zu jeder Funktion ein kurzes Video", "Einfach eintippen, was du tun möchtest – auch im Add-on unter „Anleitung“."),
+                  ("Help", "A short video for every feature", "Just type what you want to do – also in the add-on under “Guide”.")))
+def _(r):
+    r.wait(300)
+    tap(r, "#q")
+    r.type("Gaube" if r.lang == "de" else "dormer", ms=110)
+    r.wait(900)
+    tap(r, "#main .card .thumb")
+    r.pg.wait_for_selector("#player #pTitle", state="visible", timeout=5000)
+    r.wait(1600)
+
+
 def _outro_prep(r):
     clean(r)
     whole_house(r)
@@ -605,7 +658,7 @@ def _(r):
 
 # the film, in this order
 ORDER = ["intro", "hero", "close", "light", "scenes", "sky-day", "sky-dusk", "sky-night", "sky-snow", "colors", "power", "warnings",
-         "security", "voice", "inside", "build", "import", "roof", "power-edit", "pages", "heat", "flow", "dash", "phone", "outro"]
+         "security", "voice", "inside", "build", "import", "roof", "power-edit", "pages", "heat", "flow", "dash", "phone", "guide", "outro"]
 
 # the address of the demo, shown at the end
 DEMO_URL = "burned4aim.github.io/HA-Floorplanner"
