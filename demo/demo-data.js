@@ -13,6 +13,7 @@ const Win = (id, pos, extra = {}) => ({ id, type: 'window', pos, width: 1.2, hei
 const layout = {
   version: 1,
   plot: { boundary: [[-7, -6], [29, -6], [29, 14], [-7, 14]],    // the plot (Grundstück): the house stands in the lawn, the basement in the earth; the neighbour house too
+    terrain: { points: [{ id: 'tp1', x: 5, z: 14, h: 1 }, { id: 'tp2', x: 5, z: -6, h: -1.5 }] },   // ⛰ on a gentle slope (#629, the owner: "eine Bodenschräge"): the garden above, the street 2.5 m lower, in front the basement stands free
     areas: [                                                       // the areas on it (#538): the drive, the yard, a bed, a pond, a path of gravel
       { id: 'ya1', name: 'Einfahrt', surface: 'paving', points: [[10.5, -6], [14.5, -6], [14.5, 0], [10.5, 0]] },
       { id: 'ya2', name: 'Hof', surface: 'cobble', points: [[1, -2.6], [10.5, -2.6], [10.5, 0], [1, 0]] },

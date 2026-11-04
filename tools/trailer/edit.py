@@ -31,6 +31,10 @@ FPS = 30
 SIZES = {"16x9": (1920, 1080), "9x16": (1080, 1920)}
 UP_CARD = (60, 470, 960, 1080)    # the upright film: where the card with the shot is (x, y, w, h), 8:9 (half the app's width)
 UP_TITLE = 255                    # … and the middle of the caption above it
+UP_APP = (24, 520, 1032, 580)     # an app shot upright: the whole app (16:9) …
+UP_LENS = (84, 1150, 912, 560)    # … and under it a magnifier of the part where things happen
+UP_LENS_PART = 0.44               # how much of the app's width the magnifier shows
+UP_FOOT = 1774                    # the top of the small name under everything
 TR = 0.4                          # seconds of the zoom from one shot to the next (half before the cut, half after it)
 MAX_SPEED = 2.4
 ACCENT = (86, 168, 255)
@@ -392,6 +396,17 @@ class Item:
         return keys[-1][1:]
 
 
+def lens_spot(film, s):
+    """where the magnifier of an upright app shot looks at second s of the recording (0…1 of the screen): where the pointer is, a little
+    ahead and behind averaged so it glides; the middle while there is no pointer"""
+    if any(a <= s < b for a, b in film.r["hidden"]) or not film.r["moves"]:
+        return 0.5, 0.5
+    pts = [film.pointer(min(film.end, max(0.0, s + d))) for d in (-0.6, -0.3, 0, 0.3, 0.6)]
+    x = sum(p[0] for p in pts) / len(pts) / film.vw
+    y = sum(p[1] for p in pts) / len(pts) / film.vh
+    return clamp(x, 0, 1), clamp(y, 0, 1)
+
+
 def crop(src, fx, fy, z, aspect=None):
     """the part of src around (fx, fy) (0…1) that a zoom z shows (aspect: width / height of the part, else the picture's)"""
     w, h = src.size
@@ -484,9 +499,14 @@ class Cutter:
         fx, fy, z = it.view(t)
         if sh.up:
             fx, fy = sh.up
-        cw, chh = UP_CARD[2], UP_CARD[3]
-        card = src.resize((cw, chh), Image.LANCZOS, box=crop(src, fx, fy, max(1.0, z * 0.8), aspect=cw / chh))
-        out = put_window(out, card, UP_CARD, r=30)
+        if sh.kind == "ui":                                  # the whole app, and under it a magnifier where things happen (the owner: not cut off)
+            if not sh.up:
+                fx, fy = lens_spot(it.film, s)
+            out = self.upright_ui(out, src, fx, fy)
+        else:
+            cw, chh = UP_CARD[2], UP_CARD[3]
+            card = src.resize((cw, chh), Image.LANCZOS, box=crop(src, fx, fy, max(1.0, z * 0.8), aspect=cw / chh))
+            out = put_window(out, card, UP_CARD, r=30)
         out = self.footer(out)
         return self.outro(out, t - it.t0, it.t1 - it.t0) if sh.id == "outro" else out
 
@@ -517,13 +537,30 @@ class Cutter:
             img = Image.blend(img, Image.new("RGB", img.size), ease((t - (self.end - 1.2)) / 1.2))
         return img
 
+    def upright_ui(self, out, src, fx, fy):
+        """the upright film, an app shot: the whole app on top, a magnifier (twice as big) of the part around (fx, fy) under it, and a thin
+        frame in the app around that part"""
+        x, y, w, h = UP_APP
+        app = src.resize((w, h), Image.LANCZOS)
+        mx, my, mw, mh = UP_LENS
+        bw = src.width * UP_LENS_PART
+        box = crop(src, fx, fy, src.height / (bw * mh / mw), aspect=mw / mh)
+        lens = src.resize((mw, mh), Image.LANCZOS, box=box)
+        k = w / src.width                                     # the frame of the magnified part, drawn on the app
+        a = app.convert("RGBA")
+        ov = Image.new("RGBA", (w * 2, h * 2), (0, 0, 0, 0))
+        ImageDraw.Draw(ov).rounded_rectangle((box[0] * k * 2, box[1] * k * 2, box[2] * k * 2, box[3] * k * 2), 12, outline=ACCENT + (255,), width=6)
+        a.alpha_composite(ov.resize((w, h), Image.LANCZOS))
+        out = put_window(out, a.convert("RGB"), UP_APP, r=22)
+        return put_window(out, lens, UP_LENS, r=26)
+
     def footer(self, img):
         """the upright film: the house and the name small under the card"""
         o = img.convert("RGBA")
         m = house_mark(64)
         im, pad = word_img("3D Floorplan · Home Assistant", "semi", 30, SOFT, False)
         x = (self.W - (64 + 12 + im.width - 2 * pad)) / 2
-        y = UP_CARD[1] + UP_CARD[3] + 46
+        y = UP_FOOT
         o.alpha_composite(m, (round(x), round(y)))
         o.alpha_composite(im, (round(x + 76 - pad), round(y + 32 - im.height / 2)))
         return o.convert("RGB")

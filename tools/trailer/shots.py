@@ -60,7 +60,7 @@ class Shot(Clip):
         # what the film shows of the screen: (x, y) 0…1 of the screen, or keyframes [(u, x, y, zoom), …] (u 0…1 of the shot);
         # zoom 1.33 shows the app pixel for pixel in the window, the upright film crops around (x, y)
         self.focus = focus
-        self.up = up                     # (x, y) for the upright film's card instead of focus (a page with its content on the left)
+        self.up = up                     # (x, y): where the upright film looks (its card; in an app shot its magnifier, else that follows the pointer)
         self.beat = beat                 # the moment the shot marks with r.say("@beat", …) comes this many seconds into the shot (on a beat)
 
     @property
@@ -217,7 +217,7 @@ def dolly(r, to, k, ms):
     r.pg.evaluate(f"({DOLLY_JS})({json.dumps({'to': to, 'k': k, 'ms': ms})})")
 
 
-@shot("light", "ui", 16, sky="19:40", settings=tiles_off(), prep=_light_prep, up=(0.53, 0.42),
+@shot("light", "ui", 16, sky="19:40", settings=tiles_off(), prep=_light_prep,
       caption=cap(("Bedienen", "Antippen, schalten, dimmen, färben", ""),
                   ("Control", "Tap, switch, dim, colour", "")))
 def _(r):
@@ -385,7 +385,7 @@ def _empty_split(walls=False):
 L_HOUSE = [(-170, -120), (90, -120), (90, 10), (170, 10), (170, 130), (-170, 130)]
 
 
-@shot("build", "ui", 12, up=(0.38, 0.5), part="plan", query="mode=edit", prep=_empty_split(),
+@shot("build", "ui", 12, part="plan", query="mode=edit", prep=_empty_split(),
       caption=cap(("Planen", "Zeichne deinen Grundriss", "Das 3D-Haus entsteht beim Zeichnen."),
                   ("Plan", "Draw your floor plan", "The 3D house grows while you draw.")))
 def _(r):
@@ -423,7 +423,7 @@ def _(r):
         r.wait(1500)
 
 
-@shot("power-edit", "ui", 8, part="plan", query="mode=edit", sky="12:30", prep=_room_prep, up=(0.62, 0.45),
+@shot("power-edit", "ui", 8, part="plan", query="mode=edit", sky="12:30", prep=_room_prep,
       caption=cap(("Strom-Editor", "Strom einrichten: Netz, Solar, Batterie", "Aus dem Energie-Dashboard übernehmen, mit einem Klick."),
                   ("Power editor", "Set up power: grid, solar, battery", "Take it over from the energy dashboard in one click.")))
 def _(r):
@@ -465,7 +465,7 @@ def _climate_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("heat", "ui", 8, part="pages", sky="15:49", prep=_climate_prep,
+@shot("heat", "ui", 8, part="pages", sky="15:49", prep=_climate_prep, up=(0.55, 0.42),
       caption=cap(("Heizung", "Heizplan und Heiz-Regeln", "Fenster auf, Heizung aus: fertig zum Einschalten."),
                   ("Heating", "Heating schedule and rules", "Window open, heating off: ready to switch on.")))
 def _(r):
@@ -483,7 +483,7 @@ def _routines_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("flow", "ui", 8, part="pages", sky="15:49", prep=_routines_prep,
+@shot("flow", "ui", 8, part="pages", sky="15:49", prep=_routines_prep, up=(0.42, 0.3),
       caption=cap(("Abläufe", "Eigene Abläufe aus Bausteinen", "Wenn – dann, wie in Node-RED. Ohne YAML."),
                   ("Routines", "Build your own routines from blocks", "When – then, like in Node-RED. No YAML.")))
 def _(r):
