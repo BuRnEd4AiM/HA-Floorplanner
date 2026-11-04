@@ -631,17 +631,17 @@ def _guide_prep(r):
     r.pg.wait_for_timeout(1200)
 
 
-@shot("guide", "ui", 8, part="pages", prep=_guide_prep,
+@shot("guide", "ui", 12, part="pages", up=False, prep=_guide_prep,   # time to see what it is (the owner: "2-3 Sekunden mehr Zeit … kein Zoom")
       caption=cap(("Hilfe", "Zu jeder Funktion ein kurzes Video", "Einfach eintippen, was du tun möchtest – auch im Add-on unter „Anleitung“."),
                   ("Help", "A short video for every feature", "Just type what you want to do – also in the add-on under “Guide”.")))
 def _(r):
-    r.wait(300)
+    r.wait(1000)                                    # the page first: what it is
     tap(r, "#q")
-    r.type("Gaube" if r.lang == "de" else "dormer", ms=110)
-    r.wait(900)
+    r.type("Gaube" if r.lang == "de" else "dormer", ms=160)
+    r.wait(1700)                                    # the videos it found
     tap(r, "#main .card .thumb")
     r.pg.wait_for_selector("#player #pTitle", state="visible", timeout=5000)
-    r.wait(1600)
+    r.wait(2000)
 
 
 def _outro_prep(r):

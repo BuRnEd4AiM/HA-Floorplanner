@@ -2,9 +2,12 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
-## [Unreleased]
+## [4.66.0] - 2026-11-04
 ### Verbessert
-- **Trailer: die Video-Anleitung** (der Besitzer, 2026-11-04: „ins Video rein machen, dass es diese Video-Seite gibt für Hilfe“): eine neue Szene vor dem Ende, „Zu jeder Funktion ein kurzes Video“: die Seite der Video-Anleitung, in ihre Suche wird „Gaube“ getippt, vier Videos werden gefunden, eins öffnet sich mit seinen Schritten. Der Trailer baut die Seite selbst aus den Bildern und Texten im Zweig `guide-videos` (kein Video muss abspielen). Jetzt 114 s.
+- **Trailer: die Video-Anleitung** (der Besitzer, 2026-11-04: „ins Video rein machen, dass es diese Video-Seite gibt für Hilfe“): eine neue Szene vor dem Ende, „Zu jeder Funktion ein kurzes Video“: die Seite der Video-Anleitung, in ihre Suche wird „Gaube“ getippt, vier Videos werden gefunden, eins öffnet sich mit seinen Schritten, mit Zeit zum Hinschauen (6 s) und hochkant ohne Lupe. Der Trailer baut die Seite selbst aus den Bildern und Texten im Zweig `guide-videos` (kein Video muss abspielen). Jetzt 116 s.
+
+### Repariert
+- **Das Fenster einer breiten Gaube** (der Besitzer, 2026-11-04, zum Video „Breite Gaube mit eigener Neigung“: „diese Gaube gestretched … dass das Fenster auch gestretched wird. Das sieht natürlich komisch aus“): Das Fenster einer Satteldach- oder Flachdachgaube wuchs mit der Gaube mit (3,8 m breit bei einer 6 m breiten Gaube, 6,4 m bei 10 m). Jetzt bleibt es ein Doppelfenster von höchstens 2 m in der Mitte der Front (bis etwa 3 m Gaubenbreite wächst es wie bisher); die lange Schleppgaube hatte schon 1,2 m. Das Video der Anleitung wird damit neu aufgenommen.
 
 ## [4.65.0] - 2026-11-04
 ### Verbessert
