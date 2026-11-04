@@ -2,6 +2,10 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+### Changed
+- **Trailer: the video guide** (the owner, 2026-11-04: "ins Video rein machen, dass es diese Video-Seite gibt für Hilfe"): a new scene before the end, "Zu jeder Funktion ein kurzes Video" / "A short video for every feature": the page of the video guide, "Gaube" (dormer) typed into its search, four videos found, one opens with its steps. The trailer builds the page itself from the pictures and texts on the branch `guide-videos` (no video needs to play). 114 s now.
+
 ## [4.65.0] - 2026-11-04
 ### Changed
 - **The demo camera hangs outside** (the owner, 2026-11-04: "dass die Kamera nicht im Wohnzimmer ist, sondern im Außenbereich, da diese im Video stört"): the "Kamera Wohnzimmer" with its cone in the middle of the living room is now the "Kamera Garten", outside on the back wall over the door of the office, looking into the garden (with its own motion sensor).
