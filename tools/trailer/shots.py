@@ -60,7 +60,8 @@ class Shot(Clip):
         # what the film shows of the screen: (x, y) 0…1 of the screen, or keyframes [(u, x, y, zoom), …] (u 0…1 of the shot);
         # zoom 1.33 shows the app pixel for pixel in the window, the upright film crops around (x, y)
         self.focus = focus
-        self.up = up                     # (x, y): where the upright film looks (its card; in an app shot its magnifier, else that follows the pointer)
+        self.up = up                     # (x, y): where the upright film looks (its card; in an app shot its magnifier, else that follows the pointer);
+        #                                  False: an app shot upright without a magnifier, only the whole app (pages full of small cards)
         self.beat = beat                 # the moment the shot marks with r.say("@beat", …) comes this many seconds into the shot (on a beat)
 
     @property
@@ -423,7 +424,7 @@ def _(r):
         r.wait(1500)
 
 
-@shot("power-edit", "ui", 8, part="plan", query="mode=edit", sky="12:30", prep=_room_prep,
+@shot("power-edit", "ui", 8, up=(0.49, 0.38), part="plan", query="mode=edit", sky="12:30", prep=_room_prep,
       caption=cap(("Strom-Editor", "Strom einrichten: Netz, Solar, Batterie", "Aus dem Energie-Dashboard übernehmen, mit einem Klick."),
                   ("Power editor", "Set up power: grid, solar, battery", "Take it over from the energy dashboard in one click.")))
 def _(r):
@@ -448,7 +449,7 @@ def _pages_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("pages", "ui", 12, part="pages", sky="15:49", prep=_pages_prep, up=(0.27, 0.45),
+@shot("pages", "ui", 12, part="pages", sky="15:49", prep=_pages_prep, up=False,
       caption=cap(("Seiten", "Fertige Seiten für alles", "Heute · Energie · Klima · Kameras · Familie …"),
                   ("Pages", "Ready-made pages for everything", "Today · Energy · Climate · Cameras · Family …")))
 def _(r):
@@ -465,7 +466,7 @@ def _climate_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("heat", "ui", 8, part="pages", sky="15:49", prep=_climate_prep, up=(0.55, 0.42),
+@shot("heat", "ui", 8, part="pages", sky="15:49", prep=_climate_prep, up=False,
       caption=cap(("Heizung", "Heizplan und Heiz-Regeln", "Fenster auf, Heizung aus: fertig zum Einschalten."),
                   ("Heating", "Heating schedule and rules", "Window open, heating off: ready to switch on.")))
 def _(r):
@@ -480,15 +481,19 @@ def _(r):
 def _routines_prep(r):
     ui_cam(r)
     r.pg.click("#tabBar [data-tab=routines]")
+    r.pg.wait_for_selector("[data-page=routines] .bdBtn.primary", state="visible", timeout=20000)
     r.pg.wait_for_timeout(1500)
 
 
-@shot("flow", "ui", 8, part="pages", sky="15:49", prep=_routines_prep, up=(0.42, 0.3),
+@shot("flow", "ui", 8, part="pages", sky="15:49", prep=_routines_prep, up=(0.27, 0.3),
       caption=cap(("Abläufe", "Eigene Abläufe aus Bausteinen", "Wenn – dann, wie in Node-RED. Ohne YAML."),
                   ("Routines", "Build your own routines from blocks", "When – then, like in Node-RED. No YAML.")))
 def _(r):
-    tap(r, "[data-page=routines] .bdBtn.primary", text="Neuer|New")
-    r.wait(900)
+    for _try in range(3):                # the page of the routines may still be building: tap again until the editor is open
+        tap(r, "[data-page=routines] .bdBtn.primary", text="Neuer|New")
+        r.wait(900)
+        if r.js("(() => { const b = document.querySelector('.feDlg [data-add=time]'); return !!b && b.getClientRects().length > 0; })()"):
+            break
     tap(r, ".feDlg [data-add=time]")
     r.wait(800)
     tap(r, ".feDlg [data-add=cover]")

@@ -87,19 +87,22 @@ def film_all(ids, langs, work, slow):
                 sh = S.SHOTS[sid]
                 if sh.kind == "card":
                     continue
-                t = time.time()
-                print(f"[{lang}] {sid} …", flush=True)
-                try:
-                    res = film(b, sh, lang, work, slow)
-                    print(f"[{lang}] {sid}: {len(res['frames'])} pictures, {res['end']:.1f} s, {time.time() - t:.0f} s", flush=True)
-                except Exception:
-                    traceback.print_exc()
-                    failed.append(f"{lang}/{sid}")
+                for attempt in (1, 2):         # a shot that goes wrong (the page was still busy) gets a second go in a fresh browser
+                    t = time.time()
+                    print(f"[{lang}] {sid} …" + (" (second go)" if attempt == 2 else ""), flush=True)
                     try:
-                        b.close()
+                        res = film(b, sh, lang, work, slow)
+                        print(f"[{lang}] {sid}: {len(res['frames'])} pictures, {res['end']:.1f} s, {time.time() - t:.0f} s", flush=True)
+                        break
                     except Exception:
-                        pass
-                    b = launch()
+                        traceback.print_exc()
+                        if attempt == 2:
+                            failed.append(f"{lang}/{sid}")
+                        try:
+                            b.close()
+                        except Exception:
+                            pass
+                        b = launch()
         b.close()
     return failed
 
