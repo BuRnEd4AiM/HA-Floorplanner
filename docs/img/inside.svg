@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="560" viewBox="0 0 960 560" role="img" aria-label="More than a floor plan. Inside: plan in 2D and 3D, lights and scenes, heating control, energy, security, cameras and doorbell, routines, dashboard pages, voice, sky and weather, house from AI or JSON, phone and wall tablet">
+  <!-- The banner at the top of the README (the owner's wish, 2026-11-05: the repo should show "dass es nicht nur ein Floorplan ist …
+       man entdeckt es nur aus Versehen"): what is inside besides the floor plan, at one glance. The tiles come up one after another,
+       then a soft light walks from tile to tile. Without animations (or with reduced motion) everything simply stands there. -->
+  <title>More than a floor plan: what is inside 3D Floorplan</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f1722"/>
+      <stop offset="100%" stop-color="#0b1220"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3fa9f5"/>
+      <stop offset="100%" stop-color="#7ad0ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="0%" r="70%">
+      <stop offset="0%" stop-color="#3fa9f5" stop-opacity=".22"/>
+      <stop offset="100%" stop-color="#3fa9f5" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <style>
+    .k { font: 700 15px "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; letter-spacing: .3em; fill: #7ad0ff; }
+    .h { font: 800 30px "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #ffffff; }
+    .e { font: 36px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+    .l { font: 700 19px "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #e8eef5; }
+    .s { font: 400 14.5px "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #9fb2c6; }
+    .tile { animation: pop .7s cubic-bezier(.2, .8, .2, 1) backwards; }
+    .lit { opacity: 0; animation: walk 9.6s ease-in-out infinite; }
+    @keyframes pop { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes walk { 0%, 12%, 100% { opacity: 0; } 4% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .tile, .lit { animation: none; } }
+  </style>
+
+  <rect x="1" y="1" width="958" height="558" rx="22" fill="url(#bg)" stroke="#2a3541" stroke-width="2"/>
+  <rect x="1" y="1" width="958" height="220" rx="22" fill="url(#glow)"/>
+  <text class="k" x="480" y="50" text-anchor="middle">MORE THAN A FLOOR PLAN</text>
+  <text class="h" x="480" y="92" text-anchor="middle">Your whole smart home, in one place</text>
+
+  <!-- 12 tiles, 4 x 3: 212 x 128, 16 apart -->
+  <g class="tile" style="animation-delay:.05s"><rect x="32" y="120" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:1.2s" x="32" y="120" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="138" y="168" text-anchor="middle">🏠</text><text class="l" x="138" y="206" text-anchor="middle">Plan in 2D &amp; 3D</text><text class="s" x="138" y="230" text-anchor="middle">draw it, see it live</text></g>
+  <g class="tile" style="animation-delay:.12s"><rect x="260" y="120" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:2.0s" x="260" y="120" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="366" y="168" text-anchor="middle">💡</text><text class="l" x="366" y="206" text-anchor="middle">Lights &amp; scenes</text><text class="s" x="366" y="230" text-anchor="middle">tap them where they are</text></g>
+  <g class="tile" style="animation-delay:.19s"><rect x="488" y="120" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:2.8s" x="488" y="120" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="594" y="168" text-anchor="middle">🔥</text><text class="l" x="594" y="206" text-anchor="middle">Heating control</text><text class="s" x="594" y="230" text-anchor="middle">rules, schedule, sensors</text></g>
+  <g class="tile" style="animation-delay:.26s"><rect x="716" y="120" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:3.6s" x="716" y="120" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="822" y="168" text-anchor="middle">⚡</text><text class="l" x="822" y="206" text-anchor="middle">Energy</text><text class="s" x="822" y="230" text-anchor="middle">solar, battery, costs</text></g>
+
+  <g class="tile" style="animation-delay:.33s"><rect x="32" y="264" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:4.4s" x="32" y="264" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="138" y="312" text-anchor="middle">🛡️</text><text class="l" x="138" y="350" text-anchor="middle">Security</text><text class="s" x="138" y="374" text-anchor="middle">alarm, replay your day</text></g>
+  <g class="tile" style="animation-delay:.40s"><rect x="260" y="264" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:5.2s" x="260" y="264" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="366" y="312" text-anchor="middle">📷</text><text class="l" x="366" y="350" text-anchor="middle">Cameras &amp; doorbell</text><text class="s" x="366" y="374" text-anchor="middle">on every wall tablet</text></g>
+  <g class="tile" style="animation-delay:.47s"><rect x="488" y="264" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:6.0s" x="488" y="264" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="594" y="312" text-anchor="middle">🧩</text><text class="l" x="594" y="350" text-anchor="middle">Routines</text><text class="s" x="594" y="374" text-anchor="middle">blocks, like Node-RED</text></g>
+  <g class="tile" style="animation-delay:.54s"><rect x="716" y="264" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:6.8s" x="716" y="264" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="822" y="312" text-anchor="middle">🗂️</text><text class="l" x="822" y="350" text-anchor="middle">Dashboard pages</text><text class="s" x="822" y="374" text-anchor="middle">Today, Climate, Energy …</text></g>
+
+  <g class="tile" style="animation-delay:.61s"><rect x="32" y="408" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:7.6s" x="32" y="408" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="138" y="456" text-anchor="middle">🎤</text><text class="l" x="138" y="494" text-anchor="middle">Voice</text><text class="s" x="138" y="518" text-anchor="middle">ask your house</text></g>
+  <g class="tile" style="animation-delay:.68s"><rect x="260" y="408" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:8.4s" x="260" y="408" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="366" y="456" text-anchor="middle">🌦️</text><text class="l" x="366" y="494" text-anchor="middle">Sky &amp; weather</text><text class="s" x="366" y="518" text-anchor="middle">sun, moon, rain, live</text></g>
+  <g class="tile" style="animation-delay:.75s"><rect x="488" y="408" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:9.2s" x="488" y="408" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="594" y="456" text-anchor="middle">🤖</text><text class="l" x="594" y="494" text-anchor="middle">House by AI</text><text class="s" x="594" y="518" text-anchor="middle">JSON, API, GeoJSON</text></g>
+  <g class="tile" style="animation-delay:.82s"><rect x="716" y="408" width="212" height="128" rx="14" fill="#182028" stroke="#2a3541"/><rect class="lit" style="animation-delay:10.0s" x="716" y="408" width="212" height="128" rx="14" fill="#3fa9f5" fill-opacity=".10" stroke="url(#edge)" stroke-width="2"/><text class="e" x="822" y="456" text-anchor="middle">📱</text><text class="l" x="822" y="494" text-anchor="middle">Phone &amp; wall tablet</text><text class="s" x="822" y="518" text-anchor="middle">kiosk, 8 languages</text></g>
+</svg>

@@ -2,6 +2,8 @@
 
 Draw your home, view it in 3D and control your devices from the floor plan.
 
+**And much more than a floor plan:** pages for every day at the bottom of the live view (Today, Energy, Climate, Cameras, Music & TV, Household, Routines, Family), heating rules and a schedule with room sensors for the thermostats, energy with sun, battery and costs, security with warnings, the doorbell on every tablet and a recorded day played back in 3D, own routines from blocks that become real Home Assistant automations, a voice search that answers in the plan and a kiosk mode for wall tablets. Every feature as a short video: [video guide](https://burned4aim.github.io/HA-Floorplanner/guide/).
+
 ## First steps
 
 1. Start the add-on and open **3D Floorplan** from the sidebar.

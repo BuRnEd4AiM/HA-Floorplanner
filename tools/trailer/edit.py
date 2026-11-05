@@ -257,6 +257,24 @@ def word_img(text, kind, size, rgb, glow=False, track=0):
     return im, pad
 
 
+@lru_cache(maxsize=32)
+def chip_img(text, rgb, size):
+    """a word in a dark glass pill with a coloured dot before it (the title at the start: what is in the add-on)"""
+    f = font("semi", size)
+    k = 3
+    h = round(size * 1.9)
+    dot = round(size * 0.42)
+    w = round(size * 0.8 + dot + size * 0.45 + f.getlength(text) + size * 0.85)
+    im = Image.new("RGBA", (w * k, h * k), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((0, 0, w * k - 1, h * k - 1), h * k // 2, fill=(20, 30, 52, 225), outline=(255, 255, 255, 52), width=2 * k)
+    x0 = size * 0.8 * k
+    d.ellipse((x0, (h * k - dot * k) / 2, x0 + dot * k, (h * k + dot * k) / 2), fill=rgb + (255,))
+    im = im.resize((w, h), Image.LANCZOS)
+    ImageDraw.Draw(im).text((size * 0.8 + dot + size * 0.45, h / 2), text, font=f, fill=(240, 244, 252, 255), anchor="lm")
+    return im
+
+
 def faded(im, a):
     if a >= 0.999:
         return im
@@ -600,12 +618,12 @@ class Cutter:
     def intro(self, u):
         W, H = self.W, self.H
         out = self.bg.frame(u).convert("RGBA")
-        size = round(min(W, H) * (0.36 if self.fmt == "16x9" else 0.5))
+        size = round(min(W, H) * (0.32 if self.fmt == "16x9" else 0.46))
         p = ease_out(u / 0.9)
         m = house_mark(size)
         sc = 0.82 + 0.18 * p
         mm = m.resize((round(size * sc), round(size * sc)), Image.LANCZOS)
-        cy = H * (0.40 if self.fmt == "16x9" else 0.42)
+        cy = H * (0.33 if self.fmt == "16x9" else 0.36)
         out.alpha_composite(faded(mm, p), (round(W / 2 - mm.width / 2), round(cy - mm.height / 2 - 30 * (1 - p))))
         title = "3D Floorplan"
         ts = 120 if self.fmt == "16x9" else 110
@@ -618,7 +636,41 @@ class Cutter:
         if q2 > 0.01:
             im, pad = word_img(sub.upper(), "semi", 34, ACCENT, True, track=8)
             out.alpha_composite(faded(im, q2), (round(W / 2 - im.width / 2), round(cy + size * 0.42 + ts * 1.25 - pad + 20 * (1 - q2))))
+        top = cy + size * 0.42 + ts * 1.25 + (110 if self.fmt == "16x9" else 130)
+        for k, (im, x, y) in enumerate(self.chip_layout(top)):          # what is in it besides the plan, one after another
+            q3 = ease_out((u - S.INTRO_CHIPS_AT - k * S.BEAT / 2) / 0.4)
+            if q3 > 0.01:
+                sc = 0.72 + 0.28 * q3
+                cm = im.resize((max(1, round(im.width * sc)), max(1, round(im.height * sc))), Image.LANCZOS) if sc < 0.999 else im
+                out.alpha_composite(faded(cm, q3), (round(x + (im.width - cm.width) / 2), round(y + (im.height - cm.height) / 2 + 14 * (1 - q3))))
         return out.convert("RGB")
+
+    def chip_layout(self, top):
+        """the words under the title (shots.INTRO_CHIPS) as pills, centred in rows that fit the screen: [(picture, x, y), …]"""
+        big = self.fmt == "16x9"
+        ims = [chip_img(w, rgb, 32 if big else 36) for w, rgb in zip(S.INTRO_CHIPS[self.lang], S.CHIP_COLOURS)]
+        gap, maxw = (18, self.W - 240) if big else (18, self.W - 80)
+        width = lambda row: sum(im.width for im in row) + gap * (len(row) - 1)  # noqa: E731
+        rows, cur = [], []
+        for im in ims:
+            if cur and width(cur + [im]) > maxw:
+                rows.append(cur)
+                cur = []
+            cur.append(im)
+        if cur:
+            rows.append(cur)
+        n = -(-len(ims) // len(rows))                                    # the rows about as full as each other (4 + 3, not 6 + 1)
+        even = [ims[i:i + n] for i in range(0, len(ims), n)]
+        if len(even) == len(rows) and all(width(r) <= maxw for r in even):
+            rows = even
+        out, y = [], top
+        for row in rows:
+            x = (self.W - width(row)) / 2
+            for im in row:
+                out.append((im, x, y))
+                x += im.width + gap
+            y += row[0].height + gap
+        return out
 
     def outro(self, img, u, length):
         W, H = self.W, self.H

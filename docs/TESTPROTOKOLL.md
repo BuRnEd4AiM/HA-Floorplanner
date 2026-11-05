@@ -10,6 +10,7 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu nach 4.67.1: 🏠 Mehr als ein Grundriss** (Abschnitt 162, dein Wunsch: „dass es nicht nur ein Floorplan ist … man entdeckt es nur aus Versehen“): Claude hat 162.1 und 162.2 geprüft; für dich das Probe-Video im Chat 162.3, nach dem Merge die Startseite 162.4, Vorschaubild hochladen 162.5, Beschreibung und Stichwörter 162.6 (beides nur du kannst das), der Add-on-Store 162.7, der neue Trailer 162.8.
 1. **Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff** (Abschnitt 155, gefragt von biggilottecassi in #624: „die Kippstellung … grafisch noch ein bisschen mehr“): Claude hat 155.1 bis 155.5a im Browser-Test geprüft; für dich in der Demo 155.5, im Add-on 155.6, nach dem Merge das Video 155.7.
 1. **Neu nach 4.63.0: 🎬 Videos zum Strom-Rechner, zum Strom mehrerer Häuser und zum Nanoleaf-Editor** (Abschnitt 154, dein Wunsch: „eine Anleitung für den Strom-Rechner … auch für mehrere Häuser und der Nanoleaf-Editor“): Claude hat 154.1 und 154.2 geprüft; für dich nach dem Merge auf der Seite der Anleitung 154.3 bis 154.6, im Add-on 154.7.
 1. **Neu in 4.63.0: 🏗 Balkon mit Geländer** (Abschnitt 153, gefragt von christinloehner in #646): Claude hat 153.1 bis 153.5 im Browser-Test geprüft; für dich in der Demo 153.6 bis 153.8, im Add-on 153.9, nach dem Merge das Video 153.10.
@@ -414,7 +415,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 159. Neu in 4.67.0: 🪟 Durchsichtige Wände im Dachgeschoss, Trailer ohne Zoom | 1 | 0 | 3 | 0 | 159.2 bis 159.4 |
 | 160. Neu in 4.67.1: 🖼 Neue Bilder auf der Startseite, 🛡-Knopf in der richtigen Sprache (#665) | 2 | 0 | 3 | 0 | 160.3 bis 160.5 |
 | 161. 📱 Kurze Clips für TikTok, Reels und Shorts (nach 4.67.1, nur Werkzeuge) | 2 | 0 | 4 | 0 | 161.3 bis 161.6 |
-| **Zusammen** | **925** | **2** | **190** | **92** | |
+| 162. 🏠 Mehr als ein Grundriss: Startseite, Vorschaubild, Store und Trailer-Anfang (nach 4.67.1, keine Version) | 2 | 0 | 6 | 0 | 162.3 bis 162.8 |
+| **Zusammen** | **927** | **2** | **196** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2467,3 +2469,17 @@ Der Besitzer: „in Tick tok noch bewerben … gerne mehr Menschen erreichen“,
 | 161.4 | Nach dem Merge: Actions → „Trailer“ läuft durch (etwa eine Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen und nach unten scrollen | „Kurze Clips für TikTok, Reels und Shorts“: 10 Clips mit Woche und Tag; „⬇ Video“ speichert die MP4, „📋 Text kopieren“ kopiert Text und Hashtags; mit „English“ die englischen | ❓ |
 | 161.5 | Einen Clip in TikTok laden (nur die Vorschau, nicht posten) | Der erste Satz, die Szenen und das Ende sind nicht von den Knöpfen oder dem Text von TikTok verdeckt | ❓ |
 | 161.6 | Den nächsten Trailer hochkant ansehen: die Szene „Szenen“ | Statt „Ein Tipp – das ganze Haus in“ / „Stimmung“ steht „Ein Tipp – das ganze Haus“ / „in Stimmung“, statt „dimmen,“ / „färben“ steht „Antippen, schalten,“ / „dimmen, färben“ | ❓ |
+
+## 162. 🏠 Mehr als ein Grundriss: Startseite, Vorschaubild, Store und Trailer-Anfang (nach 4.67.1, keine Version)
+Der Besitzer: „dass mein Repo mehr zeigt, dass es nicht nur ein Floorplan ist … man entdeckt es nur aus Versehen … im Video, in der Startsekunden noch ein paar kleine Nebenstichpunkte“. Neu: Zeile und Banner oben in der README (`docs/img/inside.svg`), mehr Zeilen unter *Highlights*, das Vorschaubild für GitHub, die Beschreibung im Add-on-Store und in der Anleitung des Add-ons, im Trailer die Wörter unter dem Titel.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 162.1 | `python3 -m pytest tests/test_make_trailer.py tests/test_make_clips.py` | Die Wörter unter dem Titel gibt es auf Deutsch und Englisch, jedes mit Farbe, quer in einer, hochkant in höchstens zwei Reihen, alle im Bild; das letzte ist über eine Sekunde vor dem ersten Haus-Bild da | ✅ (2026-11-05, Claude) |
+| 162.2 | Den Anfang des Trailers quer und hochkant, Deutsch und Englisch, Bild für Bild ansehen (Claude) | Haus-Logo, „3D Floorplan“, „für Home Assistant“, dann kommen Licht, Heizung, Strom, Sicherheit, Kameras, Abläufe, Dashboards nacheinander; hochkant in zwei gleich vollen Reihen (4 + 3) | ✅ (2026-11-05, Claude) |
+| 162.3 | Das kurze Probe-Video „Trailer-Anfang“ aus dem Chat ansehen | Man liest alle Wörter, bevor der Titel endet; es wirkt nicht zu lang | ❓ |
+| 162.4 | Nach dem Merge https://github.com/BuRnEd4AiM/HA-Floorplanner öffnen (am PC und am Handy) | Unter dem Namen „More than a floor plan …“, dann das dunkle Banner mit 12 Kacheln (sie kommen nacheinander, dann leuchtet eine nach der anderen kurz blau auf); ein Tipp darauf springt zu *Features* | ❓ |
+| 162.5 | Das neue Vorschaubild hochladen: auf GitHub Settings → General → Social preview → Edit → Upload an image → `docs/img/social-preview.png` (vorher herunterladen) | Danach zeigt ein Link zur Repo (z. B. in WhatsApp geschickt) das Haus mit „More than a floor plan“ und den Wörtern Lights, Heating, Energy … | ❓ |
+| 162.6 | Neue Beschreibung und Stichwörter eintragen (`docs/HACS-STORE.md`, Schritt 1) | Rechts bei „About“ steht „More than a floor plan: …“, darunter die 20 Stichwörter | ❓ |
+| 162.7 | Im Home Assistant: Einstellungen → Add-ons → Add-on-Store → 3D Floorplan (evtl. erst ⋮ → „Nach Updates suchen“) | Die Beschreibung beginnt mit „More than a floor plan“; im Reiter „Dokumentation“ steht oben der Absatz „And much more than a floor plan“ | ❓ |
+| 162.8 | Nach dem Merge: Actions → „Trailer“ läuft von selbst (etwa eine Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen | Der Trailer beginnt mit den Wörtern unter dem Titel, ist knapp 2 Minuten lang; der Rest wie vorher | ❓ |
