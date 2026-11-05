@@ -698,21 +698,24 @@ class Cutter:
 
     def chip_layout(self, top):
         """the words under the title (shots.INTRO_CHIPS) as pills, centred in rows about as full as each other that fit the screen:
-        [(picture, x, y, (glow, its reach)), …]"""
+        [(picture, x, y, (glow, its reach)), …]; with a wider font (no Inter) the pills get smaller rather than a row more"""
         big = self.fmt == "16x9"
-        size = 46 if big else 50
-        keys = [(w, rgb, size, ic) for w, rgb, ic in zip(S.INTRO_CHIPS[self.lang], S.CHIP_COLOURS, S.CHIP_ICONS)]
-        ims = [chip_img(*key) for key in keys]
+        most = 2 if big else 3                                           # rows at most
         gap, maxw = (22, self.W - 200) if big else (20, self.W - 80)
-        width = lambda row: sum(ims[i].width for i in row) + gap * (len(row) - 1)  # noqa: E731
-        n = len(ims)
-        for nrows in range(1, n + 1):                                    # as few rows as fit, as even as possible (4 + 3, 3 + 2 + 2)
-            sizes = [n // nrows + (1 if r < n % nrows else 0) for r in range(nrows)]
-            rows, i = [], 0
-            for c in sizes:
-                rows.append(list(range(i, i + c)))
-                i += c
-            if all(width(r) <= maxw for r in rows):
+        for size in range(46 if big else 50, 21, -2):
+            keys = [(w, rgb, size, ic) for w, rgb, ic in zip(S.INTRO_CHIPS[self.lang], S.CHIP_COLOURS, S.CHIP_ICONS)]
+            ims = [chip_img(*key) for key in keys]
+            width = lambda row: sum(ims[i].width for i in row) + gap * (len(row) - 1)  # noqa: E731
+            n = len(ims)
+            for nrows in range(1, n + 1):                                # as few rows as fit, as even as possible (4 + 3, 3 + 2 + 2)
+                sizes = [n // nrows + (1 if r < n % nrows else 0) for r in range(nrows)]
+                rows, i = [], 0
+                for c in sizes:
+                    rows.append(list(range(i, i + c)))
+                    i += c
+                if all(width(r) <= maxw for r in rows):
+                    break
+            if len(rows) <= most:
                 break
         out, y = [], top
         for row in rows:
