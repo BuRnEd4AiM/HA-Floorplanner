@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-05 · 110 Sitzungen
+Stand: 2026-11-05 · 111 Sitzungen
 
-**Insgesamt: 7,40 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 7,42 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 20,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 72,1 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 7,30 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 20,9 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 72,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 7,32 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 24 | 1,27 Mrd. | 3,1 Mio. |
+| 2026-11 | 25 | 1,29 Mrd. | 3,1 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-05 | [018pwcmw…](https://claude.ai/code/session_018pwcmwYymXU78zE1PZdFb8) | claude/mehr-als-grundriss | 22,0 Mio. | 85 Tsd. | gezählt |
 | 2026-11-05 | [018pwcmv…](https://claude.ai/code/session_018pwcmvjprR3UcyqXcCrAM9) | claude/tiktok-clips | 27,5 Mio. | 128 Tsd. | gezählt |
 | 2026-11-05 | [018pwcmz…](https://claude.ai/code/session_018pwcmzDCUiow9hhUSgz21G) | claude/sleepy-bohr-hti0hs | 22,5 Mio. | 50 Tsd. | gezählt |
 | 2026-11-03 | [018pwcmz…](https://claude.ai/code/session_018pwcmzaSQw5fCUGZR5wDZA) | claude/dreamy-knuth-6p1s4h | 471,0 Mio. | 666 Tsd. | gezählt |
