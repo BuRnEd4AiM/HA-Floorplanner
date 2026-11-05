@@ -93,20 +93,21 @@ def test_every_caption_fits_on_the_screen():
 
 def test_the_title_says_what_is_inside():
     """the title at the start names what the add-on does besides the floor plan (the owner, 2026-11-05: "dass es nicht nur ein
-    Floorplan ist"): the same number of words in both languages, each with its colour, all of them on the screen in at most two rows,
+    Floorplan ist"): the same number of words in both languages, each with its emoji and colour, all of them on the screen (landscape in
+    at most two rows, upright three),
     and the last one is there a good second before the film goes on"""
     pytest.importorskip("PIL")
     import edit
-    assert len(S.INTRO_CHIPS["de"]) == len(S.INTRO_CHIPS["en"]) == len(S.CHIP_COLOURS) >= 5
+    assert len(S.INTRO_CHIPS["de"]) == len(S.INTRO_CHIPS["en"]) == len(S.CHIP_COLOURS) == len(S.CHIP_ICONS) >= 5
     last = S.INTRO_CHIPS_AT + (len(S.CHIP_COLOURS) - 1) * S.BEAT / 2 + 0.4
     assert last <= S.SHOTS["intro"].seconds - 1.2, last
     for fmt, (W, H) in edit.SIZES.items():
         for lang in ("de", "en"):
             cut = edit.Cutter({}, lang, fmt)
-            chips = cut.chip_layout(H * 0.6)
+            chips = cut.chip_layout(H * 0.55)
             assert len(chips) == len(S.INTRO_CHIPS[lang])
-            assert len({round(y) for _, _, y in chips}) <= 2, (fmt, lang)
-            for im, x, y in chips:
+            assert len({round(y) for _, _, y, _ in chips}) <= (2 if fmt == "16x9" else 3), (fmt, lang)
+            for im, x, y, _ in chips:
                 assert 40 <= x and x + im.width <= W - 40 and y + im.height <= H * 0.85, (fmt, lang)
 
 

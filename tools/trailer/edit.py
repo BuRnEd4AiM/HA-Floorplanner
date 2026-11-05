@@ -257,22 +257,69 @@ def word_img(text, kind, size, rgb, glow=False, track=0):
     return im, pad
 
 
+EMOJI_FONTS = ["/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf", "/usr/share/fonts/noto/NotoColorEmoji.ttf"]
+
+
 @lru_cache(maxsize=32)
-def chip_img(text, rgb, size):
-    """a word in a dark glass pill with a coloured dot before it (the title at the start: what is in the add-on)"""
-    f = font("semi", size)
+def emoji_img(ch, size):
+    """an emoji as a picture size high (Noto Color Emoji draws only at 109 px: drawn there, then made smaller); None without the font"""
+    for path in EMOJI_FONTS:
+        if Path(path).exists():
+            try:
+                f = ImageFont.truetype(path, 109)
+                im = Image.new("RGBA", (160, 160), (0, 0, 0, 0))
+                ImageDraw.Draw(im).text((80, 80), ch, font=f, embedded_color=True, anchor="mm")
+            except OSError:
+                return None
+            box = im.getbbox()
+            if not box:
+                return None
+            im = im.crop(box)
+            return im.resize((max(1, round(im.width * size / im.height)), size), Image.LANCZOS)
+    return None
+
+
+@lru_cache(maxsize=32)
+def chip_img(text, rgb, size, icon=None):
+    """a word in a pill tinted in its colour, with its emoji before it (or a coloured dot without the emoji font): the title at the
+    start, what is in the add-on (the owner, 2026-11-05: "prägnanter … größer oder anders dargestellt")"""
+    f = font("title", size)
     k = 3
     h = round(size * 1.9)
-    dot = round(size * 0.42)
-    w = round(size * 0.8 + dot + size * 0.45 + f.getlength(text) + size * 0.85)
+    em = emoji_img(icon, round(size * 1.1)) if icon else None
+    mark = em.width if em else round(size * 0.42)
+    w = round(size * 0.7 + mark + size * 0.42 + f.getlength(text) + size * 0.8)
     im = Image.new("RGBA", (w * k, h * k), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
-    d.rounded_rectangle((0, 0, w * k - 1, h * k - 1), h * k // 2, fill=(20, 30, 52, 225), outline=(255, 255, 255, 52), width=2 * k)
-    x0 = size * 0.8 * k
-    d.ellipse((x0, (h * k - dot * k) / 2, x0 + dot * k, (h * k + dot * k) / 2), fill=rgb + (255,))
+    fill = tuple(round(c * 0.26 + b * 0.74) for c, b in zip(rgb, (14, 20, 38)))
+    d.rounded_rectangle((0, 0, w * k - 1, h * k - 1), h * k // 2, fill=fill + (238,), outline=rgb + (200,), width=round(2.5 * k))
+    if not em:
+        x0 = size * 0.7 * k
+        d.ellipse((x0, (h * k - mark * k) / 2, x0 + mark * k, (h * k + mark * k) / 2), fill=rgb + (255,))
     im = im.resize((w, h), Image.LANCZOS)
-    ImageDraw.Draw(im).text((size * 0.8 + dot + size * 0.45, h / 2), text, font=f, fill=(240, 244, 252, 255), anchor="lm")
+    if em:
+        im.alpha_composite(em, (round(size * 0.7), round((h - em.height) / 2)))
+    ImageDraw.Draw(im).text((size * 0.7 + mark + size * 0.42, h / 2), text, font=f, fill=(255, 255, 255, 255), anchor="lm")
     return im
+
+
+@lru_cache(maxsize=32)
+def chip_glow(text, rgb, size, icon=None):
+    """the light around a pill in its colour, for the moment it pops up; returns (picture, how far it reaches out)"""
+    c = chip_img(text, rgb, size, icon)
+    pad = round(size * 0.9)
+    g = Image.new("RGBA", (c.width + 2 * pad, c.height + 2 * pad), rgb + (0,))
+    m = Image.new("L", g.size, 0)
+    ImageDraw.Draw(m).rounded_rectangle((pad, pad, pad + c.width, pad + c.height), c.height // 2, fill=200)
+    g.putalpha(m.filter(ImageFilter.GaussianBlur(size * 0.45)))
+    return g, pad
+
+
+def back_out(u):
+    """0 … 1 with a little swing over the end (a pop)"""
+    u = min(1.0, max(0.0, u))
+    c = 1.9
+    return 1 + (c + 1) * (u - 1) ** 3 + c * (u - 1) ** 2
 
 
 def faded(im, a):
@@ -618,12 +665,12 @@ class Cutter:
     def intro(self, u):
         W, H = self.W, self.H
         out = self.bg.frame(u).convert("RGBA")
-        size = round(min(W, H) * (0.32 if self.fmt == "16x9" else 0.46))
+        size = round(min(W, H) * (0.28 if self.fmt == "16x9" else 0.42))
         p = ease_out(u / 0.9)
         m = house_mark(size)
         sc = 0.82 + 0.18 * p
         mm = m.resize((round(size * sc), round(size * sc)), Image.LANCZOS)
-        cy = H * (0.33 if self.fmt == "16x9" else 0.36)
+        cy = H * (0.25 if self.fmt == "16x9" else 0.29)
         out.alpha_composite(faded(mm, p), (round(W / 2 - mm.width / 2), round(cy - mm.height / 2 - 30 * (1 - p))))
         title = "3D Floorplan"
         ts = 120 if self.fmt == "16x9" else 110
@@ -636,40 +683,44 @@ class Cutter:
         if q2 > 0.01:
             im, pad = word_img(sub.upper(), "semi", 34, ACCENT, True, track=8)
             out.alpha_composite(faded(im, q2), (round(W / 2 - im.width / 2), round(cy + size * 0.42 + ts * 1.25 - pad + 20 * (1 - q2))))
-        top = cy + size * 0.42 + ts * 1.25 + (110 if self.fmt == "16x9" else 130)
-        for k, (im, x, y) in enumerate(self.chip_layout(top)):          # what is in it besides the plan, one after another
-            q3 = ease_out((u - S.INTRO_CHIPS_AT - k * S.BEAT / 2) / 0.4)
-            if q3 > 0.01:
-                sc = 0.72 + 0.28 * q3
-                cm = im.resize((max(1, round(im.width * sc)), max(1, round(im.height * sc))), Image.LANCZOS) if sc < 0.999 else im
-                out.alpha_composite(faded(cm, q3), (round(x + (im.width - cm.width) / 2), round(y + (im.height - cm.height) / 2 + 14 * (1 - q3))))
+        top = cy + size * 0.42 + ts * 1.25 + (100 if self.fmt == "16x9" else 120)
+        for k, (im, x, y, glow) in enumerate(self.chip_layout(top)):    # what is in it besides the plan, one after another
+            t = u - S.INTRO_CHIPS_AT - k * S.BEAT / 2
+            q3 = ease_out(t / 0.25)
+            if q3 <= 0.01:
+                continue
+            g, pad = glow                                                # a flash of its colour as it comes, then a soft glow stays
+            out.alpha_composite(faded(g, 0.35 + 0.65 * (1 - ease(t / 0.7)) if t < 0.7 else 0.35), (round(x - pad), round(y - pad)))
+            sc = 0.55 + 0.45 * back_out(t / 0.45)
+            cm = im.resize((max(1, round(im.width * sc)), max(1, round(im.height * sc))), Image.LANCZOS) if abs(sc - 1) > 0.002 else im
+            out.alpha_composite(faded(cm, q3), (round(x + (im.width - cm.width) / 2), round(y + (im.height - cm.height) / 2)))
         return out.convert("RGB")
 
     def chip_layout(self, top):
-        """the words under the title (shots.INTRO_CHIPS) as pills, centred in rows that fit the screen: [(picture, x, y), …]"""
+        """the words under the title (shots.INTRO_CHIPS) as pills, centred in rows about as full as each other that fit the screen:
+        [(picture, x, y, (glow, its reach)), …]"""
         big = self.fmt == "16x9"
-        ims = [chip_img(w, rgb, 32 if big else 36) for w, rgb in zip(S.INTRO_CHIPS[self.lang], S.CHIP_COLOURS)]
-        gap, maxw = (18, self.W - 240) if big else (18, self.W - 80)
-        width = lambda row: sum(im.width for im in row) + gap * (len(row) - 1)  # noqa: E731
-        rows, cur = [], []
-        for im in ims:
-            if cur and width(cur + [im]) > maxw:
-                rows.append(cur)
-                cur = []
-            cur.append(im)
-        if cur:
-            rows.append(cur)
-        n = -(-len(ims) // len(rows))                                    # the rows about as full as each other (4 + 3, not 6 + 1)
-        even = [ims[i:i + n] for i in range(0, len(ims), n)]
-        if len(even) == len(rows) and all(width(r) <= maxw for r in even):
-            rows = even
+        size = 46 if big else 50
+        keys = [(w, rgb, size, ic) for w, rgb, ic in zip(S.INTRO_CHIPS[self.lang], S.CHIP_COLOURS, S.CHIP_ICONS)]
+        ims = [chip_img(*key) for key in keys]
+        gap, maxw = (22, self.W - 200) if big else (20, self.W - 80)
+        width = lambda row: sum(ims[i].width for i in row) + gap * (len(row) - 1)  # noqa: E731
+        n = len(ims)
+        for nrows in range(1, n + 1):                                    # as few rows as fit, as even as possible (4 + 3, 3 + 2 + 2)
+            sizes = [n // nrows + (1 if r < n % nrows else 0) for r in range(nrows)]
+            rows, i = [], 0
+            for c in sizes:
+                rows.append(list(range(i, i + c)))
+                i += c
+            if all(width(r) <= maxw for r in rows):
+                break
         out, y = [], top
         for row in rows:
             x = (self.W - width(row)) / 2
-            for im in row:
-                out.append((im, x, y))
-                x += im.width + gap
-            y += row[0].height + gap
+            for i in row:
+                out.append((ims[i], x, y, chip_glow(*keys[i])))
+                x += ims[i].width + gap
+            y += ims[row[0]].height + gap
         return out
 
     def outro(self, img, u, length):
