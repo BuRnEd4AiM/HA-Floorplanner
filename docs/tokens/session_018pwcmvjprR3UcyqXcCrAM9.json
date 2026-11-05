@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmvjprR3UcyqXcCrAM9",
+ "start": "2026-11-05",
+ "updated": "2026-11-05T11:40:02Z",
+ "branch": "claude/tiktok-clips",
+ "source": "counted",
+ "input": 196,
+ "cache_write": 255941,
+ "cache_read": 22012574,
+ "output": 118170,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 196,
+   "cache_write": 255941,
+   "cache_read": 22012574,
+   "output": 118170,
+   "requests": 100
+  }
+ }
+}

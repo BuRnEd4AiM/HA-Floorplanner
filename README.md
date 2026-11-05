@@ -29,7 +29,7 @@
 
 [![Trailer](https://img.shields.io/badge/%F0%9F%8E%9E%20Trailer-the%20best%20in%2090%20seconds-ff5fa2?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/trailer/)
 
-<sub>**Trailer:** the best of the add-on in a minute and a half, with its own music, landscape (16:9) and upright (9:16, for Reels and Shorts), German and English. To share: the link or the download button on the page.</sub>
+<sub>**Trailer:** the best of the add-on in a minute and a half, with its own music, landscape (16:9) and upright (9:16, for Reels and Shorts), German and English. To share: the link or the download button on the page. Under it: ten short clips (16–20 s, one feature each) for TikTok, Reels and Shorts, with the text and hashtags to copy.</sub>
 
 <img src="docs/img/3d.jpg" alt="3D view of a house at dusk with live lights, labels over the rooms and room tiles at the bottom" width="900">
 
@@ -437,7 +437,7 @@ To build it yourself: `cd demo && npm install && npm run build`.
 
 ## 📚 Documentation
 
-- **[🎞 Trailer](https://burned4aim.github.io/HA-Floorplanner/trailer/)**: the best of the add-on in 90 seconds, to show and share (made by `tools/make_trailer.py`).
+- **[🎞 Trailer](https://burned4aim.github.io/HA-Floorplanner/trailer/)**: the best of the add-on in 90 seconds, to show and share (made by `tools/make_trailer.py`), and under it short clips for TikTok, Reels and Shorts (`tools/make_clips.py`).
 - **[🎬 Video guide](https://burned4aim.github.io/HA-Floorplanner/guide/)**: every feature as a short video, searchable (also in the add-on: *🎬 Anleitung* at the top, for editors; *📥 Für ohne Internet speichern* keeps a small copy in the add-on).
 
 - [User guide](floorplan3d/DOCS.md): permissions, tablets and views, areas, whole-room control, Nanoleaf, 2D editor, houses, backup

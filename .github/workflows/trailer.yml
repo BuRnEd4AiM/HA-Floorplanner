@@ -4,6 +4,8 @@ name: Trailer
 # Zusammenschnitt … schick und modern … dass wenn man jetzt irgendwo einen Post macht … das hinschicken kann"): every shot of
 # tools/trailer/shots.py is filmed in the demo, cut to its own music, as a landscape (16:9) and an upright (9:16) film, German and English.
 # Runs when the trailer's tools change on main and by hand (Actions → Trailer → Run workflow; after a big new version, so it shows it).
+# After it the short clips for TikTok, Reels and Shorts (tools/make_clips.py, the owner's wish 2026-11-05: "in TikTok noch bewerben"):
+# cut from the same filmed shots, so they film nothing of their own; they go to clips/ next to the trailer.
 # The films go to the branch "trailer-video" (one commit, replaced every time), then the workflow "Demo" puts them on GitHub Pages:
 # https://burned4aim.github.io/HA-Floorplanner/trailer/
 on:
@@ -12,6 +14,7 @@ on:
     paths:
       - "tools/trailer/**"
       - "tools/make_trailer.py"
+      - "tools/make_clips.py"
       - "!tools/trailer/page.html"            # only the page: the workflow "Demo" puts it on GitHub Pages
   workflow_dispatch:
 
@@ -57,6 +60,9 @@ jobs:
           ffmpeg -hide_banner -encoders 2>/dev/null | grep -q libx264
       - name: Film and cut (${{ matrix.lang }})
         run: python -u tools/make_trailer.py --lang ${{ matrix.lang }} --out trailer-out --work /tmp/trailer-work
+      - name: Cut the short clips (${{ matrix.lang }})
+        continue-on-error: true               # a clip that goes wrong never holds back the trailer
+        run: python -u tools/make_clips.py --lang ${{ matrix.lang }} --out trailer-out/clips --work /tmp/trailer-work
       - uses: actions/upload-artifact@v4
         with:
           name: trailer-${{ matrix.lang }}
@@ -86,7 +92,7 @@ jobs:
           git init -q -b trailer-video
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          printf '# The trailer\n\nMade by the workflow "Trailer" (tools/make_trailer.py) from the demo; replaced at every run. The page: https://burned4aim.github.io/HA-Floorplanner/trailer/\n' > README.md
+          printf '# The trailer\n\nMade by the workflow "Trailer" (tools/make_trailer.py, the short clips in clips/: tools/make_clips.py) from the demo; replaced at every run. The page: https://burned4aim.github.io/HA-Floorplanner/trailer/\n' > README.md
           git add -A
           git commit -q -m "Trailer of ${GITHUB_SHA::7}"
           git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" trailer-video
