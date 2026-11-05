@@ -413,7 +413,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 158. Neu in 4.66.0: 🪟 Das Fenster einer breiten Gaube | 1 | 0 | 2 | 0 | 158.2, 158.3 |
 | 159. Neu in 4.67.0: 🪟 Durchsichtige Wände im Dachgeschoss, Trailer ohne Zoom | 1 | 0 | 3 | 0 | 159.2 bis 159.4 |
 | 160. Neu in 4.67.1: 🖼 Neue Bilder auf der Startseite, 🛡-Knopf in der richtigen Sprache (#665) | 2 | 0 | 3 | 0 | 160.3 bis 160.5 |
-| **Zusammen** | **923** | **2** | **186** | **92** | |
+| 161. 📱 Kurze Clips für TikTok, Reels und Shorts (nach 4.67.1, nur Werkzeuge) | 2 | 0 | 4 | 0 | 161.3 bis 161.6 |
+| **Zusammen** | **925** | **2** | **190** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2454,3 +2455,15 @@ Der Besitzer: „die Bilder auf der Startseite auch anpassen, weil die Demo sieh
 | 160.3 | Nach dem Merge: die Startseite auf GitHub öffnen und durchscrollen | Überall das neue Haus (am Hang, Garage im Keller, Satteldach mit Gauben), oben „v4.67.1“; nirgends mehr das alte Haus | ❓ |
 | 160.4 | GitHub → Settings → General → Social preview → „Edit“ → das Bild `docs/img/social-preview.png` hochladen; dann den Link zum Projekt z. B. in WhatsApp schicken | Die Vorschau zeigt das neue Haus von der Straße | ❓ |
 | 160.5 | Im Add-on (Sprache Englisch, Urlaubs-Alarm eingerichtet): Seite neu laden, dann in ⚙ die Sprache auf Deutsch stellen | Der 🛡-Knopf sagt gleich „Alarm off“, nach dem Wechsel gleich „Alarm aus“ | ❓ |
+
+## 161. 📱 Kurze Clips für TikTok, Reels und Shorts (nach 4.67.1, nur Werkzeuge)
+Der Besitzer: „in Tick tok noch bewerben … gerne mehr Menschen erreichen“, dann „Gerne“ zum Werkzeug für die Clips. `tools/make_clips.py` schneidet aus den Szenen des Trailers zehn Clips (16 bis 20 s, hochkant, Deutsch und Englisch), der Plan zum Posten steht im Dokument „TikTok-Plan 3D Floorplan“ in der Claude-App.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 161.1 | `python3 -m pytest tests/test_make_clips.py tests/test_make_trailer.py` | Jeder Clip hat deutsche und englische Texte und Hashtags, ist 14 bis 22 s lang, die Musik wechselt auf ganzen Takten, alle Wörter passen ins Bild und bleiben aus den Stellen, die TikTok verdeckt; kein Wort steht allein in der letzten Zeile | ✅ (2026-11-05, Claude) |
+| 161.2 | Die deutschen Clips machen und Bild für Bild ansehen (Claude) | Der erste Satz kommt sofort groß, dann die Szenen mit ihren Titeln, am Ende Haus-Logo, „Demo: Link im Profil“ und die Adresse; unten bleibt Platz für den Text von TikTok | ✅ (2026-11-05, Claude) |
+| 161.3 | Den Clip „licht“ aus dem Chat am Handy ansehen, mit Ton | Man versteht in 20 Sekunden, was es kann; die Musik passt | ❓ |
+| 161.4 | Nach dem Merge: Actions → „Trailer“ läuft durch (etwa eine Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen und nach unten scrollen | „Kurze Clips für TikTok, Reels und Shorts“: 10 Clips mit Woche und Tag; „⬇ Video“ speichert die MP4, „📋 Text kopieren“ kopiert Text und Hashtags; mit „English“ die englischen | ❓ |
+| 161.5 | Einen Clip in TikTok laden (nur die Vorschau, nicht posten) | Der erste Satz, die Szenen und das Ende sind nicht von den Knöpfen oder dem Text von TikTok verdeckt | ❓ |
+| 161.6 | Den nächsten Trailer hochkant ansehen: die Szene „Szenen“ | Statt „Ein Tipp – das ganze Haus in“ / „Stimmung“ steht „Ein Tipp – das ganze Haus“ / „in Stimmung“, statt „dimmen,“ / „färben“ steht „Antippen, schalten,“ / „dimmen, färben“ | ❓ |

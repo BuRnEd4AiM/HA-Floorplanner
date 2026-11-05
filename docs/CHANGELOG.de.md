@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [Unreleased]
+### Neu
+- **Kurze Clips für TikTok, Instagram Reels und YouTube Shorts** (der Besitzer, 2026-11-05: „in Tick tok noch bewerben … gerne mehr Menschen erreichen“): `tools/make_clips.py` schneidet aus den Szenen des Trailers zehn Clips von 16 bis 20 Sekunden, jeder zu einer Sache (das Haus, Licht, Fenster, Zeichnen, Klima, ein Haus per KI, Strom, Wetter, das Handy, ohne YAML), hochkant, Deutsch und Englisch: groß der erste Satz schon im ersten Bild, die Titel und die Musik des Trailers, am Ende „Demo: Link im Profil“ und die Adresse der Demo. Sie bleiben aus den Stellen, die TikTok verdeckt (oben, der Text unten, die Knöpfe rechts). Jeder Clip hat seinen Text und seine Hashtags für unter das Video und seinen Tag in einem Plan für vier Wochen (`tools/trailer/clips.py`). Der Ablauf „Trailer“ macht sie nach dem Trailer; die Seite des Trailers zeigt sie unter „Kurze Clips“ mit „Video“ und „Text kopieren“.
+
+### Verbessert
+- **Trailer hochkant: kein kurzes Wort allein in der letzten Zeile eines Titels** („Antippen, schalten, dimmen,“ / „färben“ ist jetzt „Antippen, schalten,“ / „dimmen, färben“; so in elf Titeln). Der Film im Querformat bleibt genau wie er war.
+
 ## [4.67.1] - 2026-11-05
 ### Verbessert
 - **Die Bilder auf der Startseite zeigen das neue Demo-Haus** (der Besitzer, 2026-11-05: „die Bilder auf der Startseite auch anpassen, weil die Demo sieht ja mittlerweile anders aus … überall wo man halt noch das alte Haus sieht“): alle Bilder der README mit der Demo neu gemacht, wie sie jetzt ist (das Haus am Hang mit der Garage im Keller, das volle Obergeschoss, das Dachgeschoss unter einem Dach; sie zeigten 4.38.0). Das ganze Haus ist jetzt von der Straße aus zu sehen, der Keller von der Seite mit dem aufgeschnittenen Hang, und die Bilder des Erdgeschosses (Strom, Wärme, Böden, Handy) schauen etwas höher, damit die Räume über den Raum-Kacheln und der neuen Reihe der Szenen stehen. Das Vorschaubild für GitHub (`docs/img/social-preview.png`) zeigt das Haus auch von der Straße.

@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+### Added
+- **Short clips for TikTok, Instagram Reels and YouTube Shorts** (the owner, 2026-11-05: "in Tick tok noch bewerben … gerne mehr Menschen erreichen"): `tools/make_clips.py` cuts ten clips of 16 to 20 seconds from the trailer's shots, each about one thing (the house, light, windows, drawing, climate, a house by AI, power, weather, the phone, no YAML), upright, German and English: big first words over the first picture, the trailer's captions and music, at the end "Demo: Link im Profil" and the address of the demo. They keep out of what TikTok covers (the top, the text at the bottom, the buttons on the right). Each clip has its text and hashtags for under the video and its day in a four-week plan (`tools/trailer/clips.py`). The workflow "Trailer" makes them after the trailer; the trailer page shows them under "Kurze Clips" with "Download" and "Copy text".
+
+### Changed
+- **Trailer upright: no short word alone on a caption's last line** ("Antippen, schalten, dimmen," / "färben" is now "Antippen, schalten," / "dimmen, färben"; so in eleven captions). The landscape film stays exactly as it was.
+
 ## [4.67.1] - 2026-11-05
 ### Changed
 - **The pictures on the start page show the new demo house** (the owner, 2026-11-05: "die Bilder auf der Startseite auch anpassen, weil die Demo sieht ja mittlerweile anders aus … überall wo man halt noch das alte Haus sieht"): every picture of the README taken again with the demo as it is now (the house on its slope with the garage in the basement, the full upper floor, the attic under one roof; they showed 4.38.0). The whole house is seen from the street now, the basement from the side with the slope cut open, and the pictures of the ground floor (power, heat, floors, phone) look from a little higher, so the rooms stand above the room tiles and the new row of scenes. The GitHub preview picture (`docs/img/social-preview.png`) shows the house from the street too.

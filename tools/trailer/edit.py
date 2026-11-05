@@ -265,11 +265,21 @@ def faded(im, a):
     return im
 
 
+def lonely(before, last, f):
+    """the last line is one word, much shorter than the line before it (it looks left behind)"""
+    return len(last) == 1 and len(before) > 2 and f.getlength(last[0]) < 0.4 * f.getlength(" ".join(before))
+
+
 def wrap(words, kind, size, maxw):
     f = font(kind, size)
     space = f.getlength(" ")
     lines, cur, cw = [], [], 0
     for wd in words:
+        if wd == "|":                     # a line break the text asks for (a clip's hook: "Mein ganzes Zuhause | in der Hosentasche")
+            if cur:
+                lines.append(cur)
+            cur, cw = [], 0
+            continue
         w = f.getlength(wd)
         if cur and cw + space + w > maxw:
             lines.append(cur)
@@ -278,16 +288,21 @@ def wrap(words, kind, size, maxw):
         cur.append(wd)
     if cur:
         lines.append(cur)
+    if len(lines) > 1 and lonely(lines[-2], lines[-1], f):          # no short word alone on the last line ("… in" / "Stimmung")
+        moved = [lines[-2][-1]] + lines[-1]
+        if f.getlength(" ".join(moved)) <= maxw:
+            lines[-2], lines[-1] = lines[-2][:-1], moved
     return lines
 
 
 class Caption:
     """the caption of a shot (or a group of short shots): a small word above, the title, a line under it"""
 
-    def __init__(self, texts, t0, t1, style, size):
+    def __init__(self, texts, t0, t1, style, size, top=UP_TITLE):
         self.kicker, self.title, self.sub = texts
         self.t0, self.t1, self.style = t0, t1, style
         self.W, self.H = size
+        self.top = top                     # the upright film: the middle of the caption (y)
 
     def look(self):
         """font sizes, where the block is, how it is aligned"""
@@ -299,8 +314,10 @@ class Caption:
             return dict(ks=24, ts=56, ss=28, x=W / 2, maxw=W - 300, align="center", anchor=("top", 44), glow=False)
         if st == "side":
             return dict(ks=26, ts=74, ss=34, x=150, maxw=820, align="left", anchor=("middle", H / 2), glow=False)
+        if st == "hook":                  # the first words of a short clip (tools/make_clips.py): bigger, they must stop the thumb
+            return dict(ks=30, ts=80, ss=38, x=W / 2, maxw=W - 150, align="center", anchor=("middle", self.top), glow=True)
         # the upright film: centred above the card
-        return dict(ks=28, ts=70, ss=34, x=W / 2, maxw=W - 140, align="center", anchor=("middle", UP_TITLE), glow=False)
+        return dict(ks=28, ts=70, ss=34, x=W / 2, maxw=W - 140, align="center", anchor=("middle", self.top), glow=False)
 
     def layout(self):
         L = self.look()
@@ -420,12 +437,13 @@ def crop(src, fx, fy, z, aspect=None):
     return (x0, y0, x0 + cw, y0 + ch)
 
 
-def plan(takes):
-    """the shots that are there, one after the other on the beats; and the captions over them"""
+def plan(takes, order=None):
+    """the shots that are there, one after the other on the beats; and the captions over them
+    (order: ids of shots.SHOTS or Shot objects, default the trailer's shots.ORDER)"""
     items, t = [], 0.0
-    for sid in S.ORDER:
-        sh = S.SHOTS[sid]
-        take = takes.get(sid)
+    for sh in order or S.ORDER:
+        sh = S.SHOTS[sh] if isinstance(sh, str) else sh
+        take = takes.get(sh.id)
         if sh.kind != "card" and take is None:
             continue
         items.append(Item(sh, t, take))
@@ -434,11 +452,15 @@ def plan(takes):
 
 
 class Cutter:
-    def __init__(self, takes, lang, fmt):
+    # the upright film: where everything is (a short clip, tools/make_clips.py, keeps out of the places TikTok covers)
+    UP = {"card": UP_CARD, "title": UP_TITLE, "app": UP_APP, "lens": UP_LENS, "alone": UP_ALONE, "foot": UP_FOOT, "phone": 1240}
+    FADE_IN, FADE_OUT, TAIL = 0.35, 1.2, 1.6                 # seconds: from black, to black, the last picture held while the music ends
+
+    def __init__(self, takes, lang, fmt, order=None):
         self.lang, self.fmt = lang, fmt
         self.W, self.H = SIZES[fmt]
-        self.items, self.total = plan(takes)
-        self.end = self.total + 1.6                           # the last picture stays while the music ends
+        self.items, self.total = plan(takes, order)
+        self.end = self.total + self.TAIL
         self.bg = Backdrop(self.W, self.H)
         self.vignette = self._vignette()
         self.caps = []
@@ -450,7 +472,7 @@ class Cutter:
             if sh.caption and sh.id != "outro":
                 style = sh.kind if fmt == "16x9" else "upright"
                 style = "side" if style == "phone" else style
-                self.caps.append(Caption(sh.caption[lang], it.t0, it.t1, style, (self.W, self.H)))
+                self.caps.append(Caption(sh.caption[lang], it.t0, it.t1, style, (self.W, self.H), self.UP["title"]))
         self.flashes = [it.t0 for it in self.items if it.shot.keep]
 
     def _vignette(self):
@@ -494,14 +516,15 @@ class Cutter:
             return put_window(out, img, ((W - ww) // 2, H - wh - 42, ww, wh), r=20)
         # the upright film: every shot a card under the caption
         out = self.bg.frame(t)
+        card_box = self.UP["card"]
         if sh.kind == "phone":
-            return self.footer(put_phone(out, it.film, s, W / 2, UP_CARD[1] + UP_CARD[3] / 2, 1240))
+            return self.footer(put_phone(out, it.film, s, W / 2, card_box[1] + card_box[3] / 2, self.UP["phone"]))
         src = it.film.frame(s, cursor=sh.kind != "cine")
         fx, fy, z = it.view(t)
         if sh.up:
             fx, fy = sh.up
         if sh.kind == "ui" and sh.up is False:              # only the whole app, big (the owner: a magnifier of these pages shows nothing you can read)
-            x, my, w = UP_ALONE
+            x, my, w = self.UP["alone"]
             h = round(w * src.height / src.width)
             out = put_window(out, src.resize((w, h), Image.LANCZOS), (x, my - h // 2, w, h), r=22)
         elif sh.kind == "ui":                                # the whole app, and under it a magnifier where things happen (the owner: not cut off)
@@ -509,9 +532,9 @@ class Cutter:
                 fx, fy = lens_spot(it.film, s)
             out = self.upright_ui(out, src, fx, fy)
         else:
-            cw, chh = UP_CARD[2], UP_CARD[3]
+            cw, chh = card_box[2], card_box[3]
             card = src.resize((cw, chh), Image.LANCZOS, box=crop(src, fx, fy, max(1.0, z * 0.8), aspect=cw / chh))
-            out = put_window(out, card, UP_CARD, r=30)
+            out = put_window(out, card, card_box, r=30)
         out = self.footer(out)
         return self.outro(out, t - it.t0, it.t1 - it.t0) if sh.id == "outro" else out
 
@@ -536,18 +559,18 @@ class Cutter:
                 img = Image.blend(img, Image.new("RGB", img.size, (255, 255, 255)), 0.22 * (1 - (t - f) / 0.2))
         for c in self.caps:
             img = c.draw(img, t)
-        if t < 0.35:
-            img = Image.blend(Image.new("RGB", img.size), img, ease(t / 0.35))
-        if t > self.end - 1.2:
-            img = Image.blend(img, Image.new("RGB", img.size), ease((t - (self.end - 1.2)) / 1.2))
+        if t < self.FADE_IN:
+            img = Image.blend(Image.new("RGB", img.size), img, ease(t / self.FADE_IN))
+        if self.FADE_OUT and t > self.end - self.FADE_OUT:
+            img = Image.blend(img, Image.new("RGB", img.size), ease((t - (self.end - self.FADE_OUT)) / self.FADE_OUT))
         return img
 
     def upright_ui(self, out, src, fx, fy):
         """the upright film, an app shot: the whole app on top, a magnifier (twice as big) of the part around (fx, fy) under it, and a thin
         frame in the app around that part"""
-        x, y, w, h = UP_APP
+        x, y, w, h = self.UP["app"]
         app = src.resize((w, h), Image.LANCZOS)
-        mx, my, mw, mh = UP_LENS
+        mx, my, mw, mh = self.UP["lens"]
         bw = src.width * UP_LENS_PART
         box = crop(src, fx, fy, src.height / (bw * mh / mw), aspect=mw / mh)
         lens = src.resize((mw, mh), Image.LANCZOS, box=box)
@@ -556,16 +579,18 @@ class Cutter:
         ov = Image.new("RGBA", (w * 2, h * 2), (0, 0, 0, 0))
         ImageDraw.Draw(ov).rounded_rectangle((box[0] * k * 2, box[1] * k * 2, box[2] * k * 2, box[3] * k * 2), 12, outline=ACCENT + (255,), width=6)
         a.alpha_composite(ov.resize((w, h), Image.LANCZOS))
-        out = put_window(out, a.convert("RGB"), UP_APP, r=22)
-        return put_window(out, lens, UP_LENS, r=26)
+        out = put_window(out, a.convert("RGB"), self.UP["app"], r=22)
+        return put_window(out, lens, self.UP["lens"], r=26)
 
     def footer(self, img):
-        """the upright film: the house and the name small under the card"""
+        """the upright film: the house and the name small under the card (UP["foot"] None: not there)"""
+        if self.UP["foot"] is None:
+            return img
         o = img.convert("RGBA")
         m = house_mark(64)
         im, pad = word_img("3D Floorplan · Home Assistant", "semi", 30, SOFT, False)
         x = (self.W - (64 + 12 + im.width - 2 * pad)) / 2
-        y = UP_FOOT
+        y = self.UP["foot"]
         o.alpha_composite(m, (round(x), round(y)))
         o.alpha_composite(im, (round(x + 76 - pad), round(y + 32 - im.height / 2)))
         return o.convert("RGB")
@@ -655,10 +680,11 @@ def cues(items):
              "accent": it.t0 + it.shot.beat if it.shot.beat is not None and it.film else None} for it in items]
 
 
-def make(takes, lang, fmt, mp4, music=True, poster_at=None):
-    """write the film; returns its length and the picture for a link (a moment of the first shot with its caption)"""
+def make(takes, lang, fmt, mp4, music=True, poster_at=None, cut=None, crf=19):
+    """write the film; returns its length and the picture for a link (a moment of the first shot with its caption)
+    (cut: another Cutter, e.g. a short clip's, clipcut.py; crf: the quality, higher is a smaller file)"""
     import music as M
-    cut = Cutter(takes, lang, fmt)
+    cut = cut or Cutter(takes, lang, fmt)
     n = int(cut.end * FPS)
     mp4 = Path(mp4)
     with tempfile.TemporaryDirectory() as tmp:
@@ -667,7 +693,7 @@ def make(takes, lang, fmt, mp4, music=True, poster_at=None):
             wav = Path(tmp) / "music.wav"
             M.write(cues(cut.items), cut.end, wav)
             cmd += ["-i", str(wav), "-c:a", "aac", "-b:a", "192k"]
-        cmd += ["-c:v", "libx264", "-preset", "slow", "-crf", "19", "-pix_fmt", "yuv420p", "-profile:v", "high", "-movflags", "+faststart",
+        cmd += ["-c:v", "libx264", "-preset", "slow", "-crf", str(crf), "-pix_fmt", "yuv420p", "-profile:v", "high", "-movflags", "+faststart",
                 "-g", str(FPS * 2), "-shortest", str(mp4)]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
         try:
