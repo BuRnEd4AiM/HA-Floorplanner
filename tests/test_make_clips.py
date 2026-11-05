@@ -77,10 +77,31 @@ def test_the_texts_for_the_plan():
     json.dumps([C.meta(c) for c in C.CLIPS])
 
 
-def test_the_words_fit_and_stay_out_of_what_tiktok_covers():
+def test_the_pictures_stay_out_of_what_tiktok_covers():
     pytest.importorskip("PIL")
     import clipcut
     import edit
+    U = clipcut.ClipCutter.UP
+    W, H = edit.SIZES["9x16"]
+    for name in ("card", "app", "lens"):
+        x, y, w, h = U[name]
+        assert 0 <= x and x + w <= W and clipcut.SAFE_TOP <= y and y + h <= clipcut.SAFE_BOTTOM, name
+    x, my, w = U["alone"]
+    h = w * 9 / 16
+    assert my - h / 2 >= clipcut.SAFE_TOP and my + h / 2 <= clipcut.SAFE_BOTTOM
+    cy = U["card"][1] + U["card"][3] / 2
+    assert cy - U["phone"] / 2 - 22 >= clipcut.SAFE_TOP and cy + U["phone"] / 2 + 22 <= clipcut.SAFE_BOTTOM   # the body of the phone around it
+    assert U["foot"] is None and clipcut.ClipCutter.FADE_IN == 0                       # the first picture already counts
+
+
+def test_the_words_fit_and_stay_out_of_what_tiktok_covers():
+    """where the lines break depends on the font: the clips are made with Inter (the workflow "Trailer" installs fonts-inter);
+    with another font (the job "test" of CI has none) the lines break elsewhere, so this is checked only with Inter"""
+    pytest.importorskip("PIL")
+    import clipcut
+    import edit
+    if "Inter" not in Path(getattr(edit.font("title", 80), "path", "") or "").name:
+        pytest.skip("the font Inter is not installed (fonts-inter): the clips are made with it")
     U = clipcut.ClipCutter.UP
     W, H = edit.SIZES["9x16"]
     top_of_card = min(U["card"][1], U["app"][1])
@@ -102,15 +123,6 @@ def test_the_words_fit_and_stay_out_of_what_tiktok_covers():
                     assert w <= L["maxw"] + 2 or len(words) == 1, (c["id"], lang, words)
                     assert y >= clipcut.SAFE_TOP - 30, (c["id"], lang, texts, y)            # (y is the top of the line's box)
                     assert y + size * 1.25 <= top_of_card - 4, (c["id"], lang, texts, y)
-    for name in ("card", "app", "lens"):
-        x, y, w, h = U[name]
-        assert 0 <= x and x + w <= W and clipcut.SAFE_TOP <= y and y + h <= clipcut.SAFE_BOTTOM, name
-    x, my, w = U["alone"]
-    h = w * 9 / 16
-    assert my - h / 2 >= clipcut.SAFE_TOP and my + h / 2 <= clipcut.SAFE_BOTTOM
-    cy = U["card"][1] + U["card"][3] / 2
-    assert cy - U["phone"] / 2 - 22 >= clipcut.SAFE_TOP and cy + U["phone"] / 2 + 22 <= clipcut.SAFE_BOTTOM   # the body of the phone around it
-    assert U["foot"] is None and clipcut.ClipCutter.FADE_IN == 0                       # the first picture already counts
 
 
 def test_a_clip_and_its_end_are_drawn():
