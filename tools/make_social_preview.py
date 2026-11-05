@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DEMO = ROOT / "demo" / "floorplan3d-demo.html"
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "docs" / "img" / "social-preview.png"
 HIDE = "body *{visibility:hidden!important} #view{visibility:visible!important}"          # only the 3D canvas stays
-CAM = os.environ.get("CAM", "-6, 15, 34, 9, 3")                                                # camAt(x, y, z, look at x, z)
+CAM = os.environ.get("CAM", "-17, 15, -29, 7, 3")     # camAt(x, y, z, look at x, z): from the street, the house on its slope (demo since 4.67)
 
 CARD = """<!doctype html><meta charset="utf-8"><style>
 *{box-sizing:border-box} body{margin:0;width:1280px;height:640px;overflow:hidden;font-family:'DejaVu Sans',system-ui,sans-serif;color:#e8eef5;
@@ -40,8 +40,8 @@ h1{position:absolute;left:68px;top:140px;margin:0;font-size:104px;line-height:.9
 <div class="chips"><span class="chip">Live control</span><span class="chip">JSON &amp; AI import</span><span class="chip">8 languages</span></div>
 <img class="house" src="data:image/png;base64,@@SHOT@@">
 <div class="tag" style="left:700px;top:40px">Living room<b><span class="dot"></span>5 lights on</b></div>
-<div class="tag" style="left:1090px;top:300px">Kitchen<b>21.4 °C</b></div>
-<div class="tag" style="left:690px;top:520px">Windows<b>2 open</b></div>
+<div class="tag" style="left:1090px;top:520px">Kitchen<b>22.1 °C</b></div>
+<div class="tag" style="left:690px;top:520px">Windows<b>3 open</b></div>
 <div class="bar"></div>"""
 
 
@@ -61,7 +61,7 @@ def main():
         # no room names on the house
         pg.evaluate("(() => { window.__fp.layout.floors.forEach((f) => f.rooms.forEach((r) => { r.name = ''; })); window.__fp.rebuild(); })()")
         pg.wait_for_timeout(800)
-        pg.evaluate(f"window.__fp.camAt({CAM})"); pg.wait_for_timeout(1200)   # the house from the front, a little from above
+        pg.evaluate(f"window.__fp.camAt({CAM})"); pg.wait_for_timeout(1200)   # the house from the street, a little from above
         pg.add_style_tag(content=HIDE); pg.wait_for_timeout(600)
         raw = Image.open(io.BytesIO(pg.locator("#view").screenshot())).convert("RGB")
         bg = raw.getpixel((4, 4))                                                         # the colour of the 3D scene: the card gets the same, so it blends

@@ -117,19 +117,25 @@ def shot_hero(b):
     save(pg, "3d.jpg")
 
 
+# camAt(x, y, z, look at x, z) for the demo house since 4.67 (hillside, full upper floor, utility room; demo/demo-data.js). The pictures of
+# the ground floor look at a spot a little in front of its middle, so the rooms stand above the room tiles and the scenes at the bottom
+HOUSE_CAM = (-4, 12, -23, 7, 0)          # the whole house from the street: on its slope, the garage down at the street, the garden behind (4.58.0)
+FLOOR_CAM = (12, 14, 16, 7, 5.5)         # the ground floor from above, all its rooms over the tiles
+
+
 def shot_house(b):
-    """the whole house on its plot: all floors, roof with solar panels, garden, the neighbour"""
+    """the whole house on its plot, from the street: all floors, the hillside with the garage in the basement, roof with dormers, the neighbour"""
     pg = demo_page(b, sky="15:30", settings={"labelMode": "none", "roomTiles": False})
     pg.evaluate("__fp.setHouseMode(true)"); pg.wait_for_timeout(2000)
-    cam(pg, 22, 13, 24, 8, 3)
+    cam(pg, *HOUSE_CAM)
     save(pg, "house.jpg")
 
 
 def shot_ground(b):
-    """the basement in the earth, cut open like a section drawing"""
+    """the basement in the earth, cut open like a section drawing: from the side, the slope from the garden down to the street"""
     pg = demo_page(b, sky="11:00", settings={"labelMode": "none", "roomTiles": False})
     pg.evaluate("__fp.setHouseMode(true)"); pg.wait_for_timeout(2000)
-    cam(pg, -11, 2.2, 19, 6, 3)
+    cam(pg, -18, 4, 2, 6, 2)
     save(pg, "ground.jpg")
 
 
@@ -187,7 +193,7 @@ def shot_toolbar(b):
 def shot_power(b):
     """'Strom' pressed: the card 'Power now' and the cables with flowing dots in the house"""
     pg = demo_page(b, sky="12:30")
-    cam(pg, 13, 10, 14, 7, 3)
+    cam(pg, *FLOOR_CAM)
     pg.click("#powerBtn")
     save(pg, "power.jpg", 1500)
 
@@ -195,7 +201,7 @@ def shot_power(b):
 def shot_heat(b):
     """the rooms coloured by temperature"""
     pg = demo_page(b, sky="12:30")
-    cam(pg, 13, 10, 14, 7, 3)
+    cam(pg, *FLOOR_CAM)
     pg.click("#modeBar [data-vm=temp]")
     save(pg, "heat.jpg", 1500)
 
@@ -203,7 +209,7 @@ def shot_heat(b):
 def shot_floors(b):
     """real floors per room (parquet, tiles, concrete) and anthracite window frames, close up"""
     pg = demo_page(b, sky="11:30")
-    cam(pg, 9, 7.5, 11, 5, 3)
+    cam(pg, 10, 11, 13, 6, 4.5)
     save(pg, "floors.jpg")
 
 
@@ -328,10 +334,10 @@ def shot_phone(b):
     """three phones in one picture: the house at dusk with room labels and tiles, 'Strom' pressed, a room opened"""
     shots = []
     pg = demo_page(b, phone=True, sky="18:40")
-    cam(pg, 19.8, 32, 25.6, 7, 3)                            # a little closer than the phone starts
+    cam(pg, 19.8, 32, 25.6, 7, 6)                            # a little closer than the phone starts, the house over the tiles
     shots.append(grab(pg, 1000)); pg.context.close()
     pg = demo_page(b, phone=True, sky="12:30")
-    cam(pg, 19.8, 32, 25.6, 7, 3)
+    cam(pg, 19.8, 32, 25.6, 7, 6)
     pg.click("#powerBtn"); shots.append(grab(pg, 1500)); pg.context.close()
     pg = demo_page(b, phone=True, sky="19:15")
     pg.evaluate("__fp.liveTapRoom('r1')"); pg.wait_for_timeout(1500)
@@ -365,7 +371,7 @@ def shot_tour(b):
     pg.click("#powerBtn"); add(pg, 1200)
     pg.click("#powerBtn")
     pg.evaluate("__fp.setHouseMode(true)"); pg.wait_for_timeout(1500)
-    cam(pg, 24, 15, 27, 7, 3); add(pg, 800)
+    cam(pg, *HOUSE_CAM); add(pg, 800)
     pg.evaluate("__fp.setHouseMode(false)"); pg.context.close()
     pg = demo_page(b, w=1600, h=900, dsf=1, sky="21:00")
     cam(pg, 14, 9, 15, 6, 3); add(pg, 800)

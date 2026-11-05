@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.67.1] - 2026-11-05
+### Verbessert
+- **Die Bilder auf der Startseite zeigen das neue Demo-Haus** (der Besitzer, 2026-11-05: „die Bilder auf der Startseite auch anpassen, weil die Demo sieht ja mittlerweile anders aus … überall wo man halt noch das alte Haus sieht“): alle Bilder der README mit der Demo neu gemacht, wie sie jetzt ist (das Haus am Hang mit der Garage im Keller, das volle Obergeschoss, das Dachgeschoss unter einem Dach; sie zeigten 4.38.0). Das ganze Haus ist jetzt von der Straße aus zu sehen, der Keller von der Seite mit dem aufgeschnittenen Hang, und die Bilder des Erdgeschosses (Strom, Wärme, Böden, Handy) schauen etwas höher, damit die Räume über den Raum-Kacheln und der neuen Reihe der Szenen stehen. Das Vorschaubild für GitHub (`docs/img/social-preview.png`) zeigt das Haus auch von der Straße.
+
+### Repariert
+- **Der 🛡-Knopf sagte auf Englisch „Alarm aus“** (#665): gleich nach dem Öffnen blieb der Knopf des Urlaubs-Alarms oft bis zu 15 s deutsch (und nach dem Wechsel der Sprache in der alten): er schrieb seinen Text nur, wenn er das Add-on fragte, und die erste Antwort kam oft, bevor die Sprache gelesen war. Jetzt spricht er sofort die neue Sprache.
+
 ## [4.67.0] - 2026-11-04
 ### Verbessert
 - **Trailer: die App steht still** (der Besitzer, 2026-11-04: „im Video wird die ganze Zeit auch bei der PC-Version leicht reingezoomt … das sieht nicht so geil aus“): die App-Szenen zoomen nicht mehr langsam hinein; das App-Fenster bleibt, wie es ist, nur der Übergang zwischen zwei Szenen bewegt sich.

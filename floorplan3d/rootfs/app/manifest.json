@@ -1,6 +1,6 @@
 {
- "version": "4.67.0",
- "buildHash": "68ea687684da2fb3ccc74a8563b8a39a982229d1e148869f648cb8fc59d14986",
+ "version": "4.67.1",
+ "buildHash": "8bf4b9ab78d9d8377b5e62c5a21ffe4d477f4c1165d072221cb39e845ed0f5a8",
  "files": {
   "alarmnotify.py": "3d9ada748b694e0f8dfcf53e85a2b5923f54b561dd44b4f17bfa716e44a730e6",
   "boards.py": "b506190d5264db67ead00bbb7716bded4cbc7c4f94c50589fc9d15d7a7657d87",
@@ -246,7 +246,7 @@
   "static/garage.js": "a43e3240fc50dad7589079be05a6edb5a8e2ad940ccc49ad5575297a2a9475c9",
   "static/garden.js": "df5097f939a09d9296f6654802cd5dfb7e37a31dcc608faaadc042156f4f66f0",
   "static/guard.js": "d9960763010dbb5e189283d950a8219e10ebcb80036ddbe60336e8800dc9a088",
-  "static/guardui.js": "a936564342d3dab3c039149ea641dfbf1a752f699fe4d012f33404385def163a",
+  "static/guardui.js": "5c05c7fb6340af3edebd1b89ad7db992ca8bd5e6168edf3ec68d36277671d6ee",
   "static/guide.js": "bf8e05fcf6f2f4f429666d3d4591cd0bdaa21a15260eebcb316b9e2a5a1f6d30",
   "static/guideui.js": "ca37a40e07a53b7a65e0954dc5419b387df2e5bd81c27d5dc2d0a28c641366e5",
   "static/hamanage.js": "242733eb49f97131190c7238bc83b9a6a7f9d426538ff7333dd37e9fd322279c",

@@ -412,7 +412,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 157. Neu in 4.65.0: 🏠 Gaubenfenster kurz hinter dem Kniestock (#654) | 1 | 0 | 2 | 0 | 157.2, 157.3 |
 | 158. Neu in 4.66.0: 🪟 Das Fenster einer breiten Gaube | 1 | 0 | 2 | 0 | 158.2, 158.3 |
 | 159. Neu in 4.67.0: 🪟 Durchsichtige Wände im Dachgeschoss, Trailer ohne Zoom | 1 | 0 | 3 | 0 | 159.2 bis 159.4 |
-| **Zusammen** | **921** | **2** | **183** | **92** | |
+| 160. Neu in 4.67.1: 🖼 Neue Bilder auf der Startseite, 🛡-Knopf in der richtigen Sprache (#665) | 2 | 0 | 3 | 0 | 160.3 bis 160.5 |
+| **Zusammen** | **923** | **2** | **186** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2442,3 +2443,14 @@ Der Besitzer (mit Bild): „bei durchsichtig ist es da oben noch immer nicht dur
 | 159.2 | Demo (nach dem Merge, neu laden): „Dachgeschoss“ antippen, „Durchsichtig“ an, das Haus von vorne links ansehen (wie auf deinem Bild) | Die Giebelwand mit dem Fenster ist durchsichtig wie die anderen Wände; man sieht Sofa und Lampe dahinter | ❓ |
 | 159.3 | Dasselbe mit „Durchsichtig“ aus | Die Wände sind fest, Putz außen, Ziegel innen, wie bisher | ❓ |
 | 159.4 | Den nächsten Trailer am PC ansehen (16:9) | Die App-Szenen stehen still, nichts zoomt langsam hinein | ❓ |
+
+## 160. Neu in 4.67.1: 🖼 Neue Bilder auf der Startseite, 🛡-Knopf in der richtigen Sprache (#665)
+Der Besitzer: „die Bilder auf der Startseite auch anpassen, weil die Demo sieht ja mittlerweile anders aus … überall wo man halt noch das alte Haus sieht“. Dabei fiel auf: auf den englischen Bildern stand „Alarm aus“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 160.1 | Browser-Test Teil `29_guard` | Nach dem Wechsel auf Englisch sagt der 🛡-Knopf sofort „Alarm off“ (ohne die Reparatur: „🛡 Alarm aus“, rot) | ✅ (2026-11-05, Claude) |
+| 160.2 | Alle Bilder in `docs/img` ansehen (Claude) | Sie zeigen v4.67.1 und das neue Haus am Hang; auf Englisch nirgends „Alarm aus“ | ✅ (2026-11-05, Claude) |
+| 160.3 | Nach dem Merge: die Startseite auf GitHub öffnen und durchscrollen | Überall das neue Haus (am Hang, Garage im Keller, Satteldach mit Gauben), oben „v4.67.1“; nirgends mehr das alte Haus | ❓ |
+| 160.4 | GitHub → Settings → General → Social preview → „Edit“ → das Bild `docs/img/social-preview.png` hochladen; dann den Link zum Projekt z. B. in WhatsApp schicken | Die Vorschau zeigt das neue Haus von der Straße | ❓ |
+| 160.5 | Im Add-on (Sprache Englisch, Urlaubs-Alarm eingerichtet): Seite neu laden, dann in ⚙ die Sprache auf Deutsch stellen | Der 🛡-Knopf sagt gleich „Alarm off“, nach dem Wechsel gleich „Alarm aus“ | ❓ |

@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [4.67.1] - 2026-11-05
+### Changed
+- **The pictures on the start page show the new demo house** (the owner, 2026-11-05: "die Bilder auf der Startseite auch anpassen, weil die Demo sieht ja mittlerweile anders aus … überall wo man halt noch das alte Haus sieht"): every picture of the README taken again with the demo as it is now (the house on its slope with the garage in the basement, the full upper floor, the attic under one roof; they showed 4.38.0). The whole house is seen from the street now, the basement from the side with the slope cut open, and the pictures of the ground floor (power, heat, floors, phone) look from a little higher, so the rooms stand above the room tiles and the new row of scenes. The GitHub preview picture (`docs/img/social-preview.png`) shows the house from the street too.
+
+### Fixed
+- **The 🛡 button said "Alarm aus" in English** (#665): right after the page opened, the holiday alarm's button often stayed German for up to 15 s (and after picking another language, in the old one): it only wrote its text when it asked the add-on, and the first answer often came before the language was read. It now says it in the new language at once.
+
 ## [4.67.0] - 2026-11-04
 ### Changed
 - **Trailer: the app stands still** (the owner, 2026-11-04: "im Video wird die ganze Zeit auch bei der PC-Version leicht reingezoomt … das sieht nicht so geil aus"): the app shots no longer zoom in slowly; the app window stays as it is, only the cut between two shots moves.
