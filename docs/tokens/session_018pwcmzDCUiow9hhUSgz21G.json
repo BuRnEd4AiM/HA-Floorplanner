@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmzDCUiow9hhUSgz21G",
+ "start": "2026-11-05",
+ "updated": "2026-11-05T08:22:54Z",
+ "branch": "claude/sleepy-bohr-hti0hs",
+ "source": "counted",
+ "input": 221,
+ "cache_write": 258329,
+ "cache_read": 22156211,
+ "output": 49590,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 221,
+   "cache_write": 258329,
+   "cache_read": 22156211,
+   "output": 49590,
+   "requests": 108
+  }
+ }
+}

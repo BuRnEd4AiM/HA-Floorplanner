@@ -35,7 +35,7 @@ A knowledge graph of the code is built at session start in graphify-out/.
 - Before every `git commit` the hook runs `tools/tokens.py --hook`: it writes this session's token use to docs/tokens/<session>.json and stages it. Commit it, it belongs in every commit. docs/TOKENS.md is written only by the workflow "Token count" after a merge, never edit or commit it in a PR.
 ## Test protocol
 - When entering test results in docs/TESTPROTOKOLL.md, only change the result tables, then run `python3 tools/testprotokoll.py`: it rewrites the overview table (counts and open numbers). tests/test_testprotokoll.py fails if it is out of date. Also update the hand-written "Kurze Prüfliste" / "Ältere offene Punkte" lists if items in them are done.
-- A PR that only changes text (*.md in docs/ or the top folder), unit tests (tests/*.mjs, tests/test_*.py), tools/, workflows other than ci.yml (e.g. demo.yml), the issue templates or .github/*.md skips the browser test in CI (the list is in ci.yml, job "changes").
+- A PR that only changes text (*.md in docs/ or the top folder), the pictures in docs/img, unit tests (tests/*.mjs, tests/test_*.py), tools/, workflows other than ci.yml (e.g. demo.yml), the issue templates or .github/*.md skips the browser test in CI (the list is in ci.yml, job "changes").
 ## Browser test (tests/e2e)
 - It is split into parts (tests/e2e/parts/, `tests/e2e/run.sh --list`). CI runs every part as its own job at the same time (a few minutes).
 - In a session never run the whole browser test (15-20 minutes here). Run only the parts that cover the change: `tests/e2e/run.sh <part> [<part> ...]` (the test house + those parts, a few minutes each), then push: CI runs all parts.

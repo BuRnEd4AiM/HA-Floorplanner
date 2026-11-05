@@ -88,6 +88,11 @@ check("holiday alarm: the code on the tablet switches it off everywhere, the sir
       and not pgG.evaluate("document.body.classList.contains('guardArmed')")
       and ["homeassistant", "turn_off", ["siren.e2e"]] in ha_calls()[c0:] and any("Alarm beendet" in (m[2] or "") for m in notified()[n0:]),
       (ha_calls()[c0:], notified()[n0:]))
+pgG.click("#settingsBtn"); open_setting(pgG, "#setLanguage"); pgG.wait_for_timeout(600)
+pgG.select_option("#setLanguage", "en"); pgG.wait_for_timeout(1500)        # far less than the 15 s until the button asks the add-on again
+check("holiday alarm: another language, the 🛡 button says it at once (it stayed German for 15 s)", "Alarm off" in pgG.inner_text("#guardBtn"),
+      pgG.inner_text("#guardBtn"))
+pgG.select_option("#setLanguage", "de"); pgG.wait_for_timeout(800); pgG.keyboard.press("Escape")
 pgT.close(); pgG.close()
 
 ha_set("binary_sensor.tuer_e2e", "off")

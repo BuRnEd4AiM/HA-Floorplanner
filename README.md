@@ -194,10 +194,10 @@ Admins arrange every page like a Home Assistant dashboard: drag cards, hide them
 <table>
 <tr>
 <td width="50%"><img src="docs/img/split.jpg" alt="2D and 3D split view"><br><sub><b>2D + 3D split view</b>: draw in the blueprint, see it in 3D instantly</sub></td>
-<td width="50%"><img src="docs/img/house.jpg" alt="Whole-house view with plot, garden and the basement in the ground"><br><sub><b>Whole-house view</b>: all floors stacked, the house in its plot and garden</sub></td>
+<td width="50%"><img src="docs/img/house.jpg" alt="Whole-house view from the street: a house on a slope, the garage in the basement, all floors stacked, the garden behind"><br><sub><b>Whole-house view</b>: all floors stacked, the house on its plot, here on a slope with the garage down at the street</sub></td>
 </tr>
 <tr>
-<td width="50%"><img src="docs/img/ground.jpg" alt="Basement in the earth, shown as a section with soil layers"><br><sub><b>Basement in the ground</b>: cut open like a section drawing, turns with the camera</sub></td>
+<td width="50%"><img src="docs/img/ground.jpg" alt="The house on its slope from the side: the earth cut open with its soil layers, the basement in the ground"><br><sub><b>Basement in the ground</b>: cut open like a section drawing, also on a slope</sub></td>
 <td width="50%"><img src="docs/img/ledring.jpg" alt="LED ring under the bedroom ceiling with its sections"><br><sub><b>LED ring</b>: indirect light around the room, one light per section</sub></td>
 </tr>
 </table>

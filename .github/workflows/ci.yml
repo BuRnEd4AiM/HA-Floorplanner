@@ -106,7 +106,7 @@ jobs:
 
   changes:
     # no_browser: true when the change cannot alter what the browser sees: only text (*.md in docs/ or in the top folder, e.g. a test result in
-    #   docs/TESTPROTOKOLL.md), the token counts (docs/tokens/*.json), the photos of the timeline page (docs/timeline/), unit tests
+    #   docs/TESTPROTOKOLL.md), the token counts (docs/tokens/*.json), the photos of the timeline page (docs/timeline/), the pictures of the README (docs/img/), unit tests
     #   (tests/*.mjs, tests/test_*.py), tools/, the other workflows (not this ci.yml: e.g. demo.yml only builds the pages next to the
     #   demo), the issue templates and the *.md files in .github/.
     #   The browser test is skipped then.
@@ -125,7 +125,7 @@ jobs:
         run: |
           files=$(git diff --name-only "$BASE" HEAD 2>/dev/null) || files="unknown"
           echo "$files"
-          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^(docs/[^ ]*\.md|docs/tokens/[^/ ]*\.json|docs/timeline/[^ ]*|[^/ ]*\.md|tests/[^/ ]*\.(mjs|py)|tools/[^ ]*|\.github/workflows/(cleanup|demo|guide|issues-snapshot|project-setup|release|tokens|trailer|validate)\.yml|\.github/ISSUE_TEMPLATE/[^ ]*|\.github/[^/ ]*\.md)$'; then no_browser=true; else no_browser=false; fi
+          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^(docs/[^ ]*\.md|docs/tokens/[^/ ]*\.json|docs/timeline/[^ ]*|docs/img/[^ ]*|[^/ ]*\.md|tests/[^/ ]*\.(mjs|py)|tools/[^ ]*|\.github/workflows/(cleanup|demo|guide|issues-snapshot|project-setup|release|tokens|trailer|validate)\.yml|\.github/ISSUE_TEMPLATE/[^ ]*|\.github/[^/ ]*\.md)$'; then no_browser=true; else no_browser=false; fi
           echo "no_browser=$no_browser" | tee -a "$GITHUB_OUTPUT"
       - id: parts
         run: echo "parts=$(python3 tests/e2e/test_e2e.py --json)" | tee -a "$GITHUB_OUTPUT"

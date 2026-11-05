@@ -119,6 +119,9 @@ export function initGuardUi(ctx) {
   }, true);
   setInterval(() => { if (phase() === 'arming' || phase() === 'entry') render(); }, 1000);   // the seconds count down
   document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
+  // a new language (setLanguage sets <html lang>): the button says it at once. Its first answer often comes before the settings are read
+  // (the page starts in German), and it stayed "🛡 Alarm aus" in English until the next ask 15 s later
+  new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 
   /* ---- the part in the settings (editors) ---- */
   function checkRow(id, key, on) {
