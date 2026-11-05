@@ -91,6 +91,34 @@ def test_every_caption_fits_on_the_screen():
                     assert rows[-1][4] + rows[-1][1] * 1.3 <= H - 810 - 42, (sid, lang)
 
 
+@pytest.mark.parametrize("fonts", ["installed", "fallback"])
+def test_the_title_says_what_is_inside(fonts, monkeypatch):
+    """the title at the start names what the add-on does besides the floor plan (the owner, 2026-11-05: "dass es nicht nur ein
+    Floorplan ist"): the same number of words in both languages, each with its emoji and colour, all of them on the screen (landscape in
+    at most two rows, upright three),
+    and the last one is there a good second before the film goes on; also with a wider font than Inter (CI has no Inter: the pills
+    get smaller, not a row more)"""
+    pytest.importorskip("PIL")
+    import edit
+    if fonts == "fallback":
+        monkeypatch.setattr(edit, "FONT_DIRS", [])
+    for f in (edit.font, edit.chip_img, edit.chip_glow, edit.word_img):
+        f.cache_clear()
+    assert len(S.INTRO_CHIPS["de"]) == len(S.INTRO_CHIPS["en"]) == len(S.CHIP_COLOURS) == len(S.CHIP_ICONS) >= 5
+    last = S.INTRO_CHIPS_AT + (len(S.CHIP_COLOURS) - 1) * S.BEAT / 2 + 0.4
+    assert last <= S.SHOTS["intro"].seconds - 1.2, last
+    for fmt, (W, H) in edit.SIZES.items():
+        for lang in ("de", "en"):
+            cut = edit.Cutter({}, lang, fmt)
+            chips = cut.chip_layout(H * 0.55)
+            assert len(chips) == len(S.INTRO_CHIPS[lang])
+            assert len({round(y) for _, _, y, _ in chips}) <= (2 if fmt == "16x9" else 3), (fmt, lang)
+            for im, x, y, _ in chips:
+                assert 40 <= x and x + im.width <= W - 40 and y + im.height <= H * 0.85, (fmt, lang)
+    for f in (edit.font, edit.chip_img, edit.chip_glow, edit.word_img):
+        f.cache_clear()
+
+
 def test_a_frame_of_every_kind_is_drawn():
     pytest.importorskip("PIL")
     import edit

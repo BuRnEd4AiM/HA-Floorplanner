@@ -156,7 +156,17 @@ def ui_cam(r, a=0.95, d=16, h=13, mid=MID):
 
 # ---------- the shots ----------
 
-@shot("intro", "card", 6, part="intro")
+# the title at the start: under the name, what is in it besides the floor plan (the owner, 2026-11-05: "dass es nicht nur ein Floorplan
+# ist … in der Startsekunden noch ein paar kleine Nebenstichpunkte"); the words come one after another on the half beat, each with
+# its emoji and colour (CHIP_ICONS, CHIP_COLOURS, in the same order)
+INTRO_CHIPS = {"de": ["Licht", "Heizung", "Strom", "Sicherheit", "Kameras", "Abläufe", "Dashboards"],
+               "en": ["Lights", "Heating", "Energy", "Security", "Cameras", "Routines", "Dashboards"]}
+CHIP_COLOURS = [(255, 201, 94), (255, 138, 76), (125, 230, 154), (255, 95, 120), (183, 140, 255), (35, 224, 255), (86, 168, 255)]
+CHIP_ICONS = ["💡", "🔥", "⚡", "🛡", "📷", "🧩", "🗂"]   # the emoji before each word (without the emoji font: the coloured dot)
+INTRO_CHIPS_AT = 1.5                     # seconds into the film: the first word (then one every half beat; the title is there by then)
+
+
+@shot("intro", "card", 10, part="intro")
 def _(r):
     pass
 

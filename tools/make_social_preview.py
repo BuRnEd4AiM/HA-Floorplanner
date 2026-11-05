@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Draw docs/img/social-preview.png (GitHub social preview, 1280 x 640) in the dark design: the whole house of the demo
-(dark theme, in the editor, without the sky) on a plain dark card. Needs: pip install playwright, a Chromium (PLAYWRIGHT_BROWSERS_PATH or CHROME env var).
+(dark theme, in the editor, without the sky) on a plain dark card, beside it the name, "More than a floor plan" and what is inside
+(the owner, 2026-11-05: people should see at once that it is not only a floor plan). Needs: pip install playwright, a Chromium (PLAYWRIGHT_BROWSERS_PATH or CHROME env var).
 Usage: python3 tools/make_social_preview.py [output.png]"""
 import base64
 import io
@@ -25,22 +26,24 @@ CARD = """<!doctype html><meta charset="utf-8"><style>
 *{box-sizing:border-box} body{margin:0;width:1280px;height:640px;overflow:hidden;font-family:'DejaVu Sans',system-ui,sans-serif;color:#e8eef5;
 background:@@BG@@;position:relative}
 .bar{position:absolute;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,#3d9bff,#7ad0ff)}
-.k{position:absolute;left:72px;top:100px;letter-spacing:.32em;font-weight:700;font-size:20px;color:#7ad0ff}
-h1{position:absolute;left:68px;top:140px;margin:0;font-size:104px;line-height:.98;font-weight:800;color:#fff}
-.s{position:absolute;left:72px;top:372px;width:520px;font-size:28px;line-height:1.4;color:#b9c7d6}
-.chips{position:absolute;left:72px;top:482px;display:flex;gap:12px}
-.chip{border:1px solid #33465c;background:#17212d;border-radius:999px;padding:12px 20px;font-weight:700;font-size:19px;color:#e8eef5}
+.k{position:absolute;left:72px;top:98px;letter-spacing:.32em;font-weight:700;font-size:20px;color:#7ad0ff}
+h1{position:absolute;left:68px;top:134px;margin:0;font-size:96px;line-height:.98;font-weight:800;color:#fff}
+.s{position:absolute;left:72px;top:348px;width:560px;font-size:25px;line-height:1.38;color:#b9c7d6}
+.s b{color:#fff}
+.chips{position:absolute;left:72px;top:450px;width:600px;display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:1px solid #33465c;background:#17212d;border-radius:999px;padding:8px 13px;font-weight:700;font-size:16px;color:#e8eef5}
+.chip i{font-style:normal;margin-right:6px;font-family:'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif}
 .house{position:absolute;right:24px;top:70px;width:580px;height:500px;object-fit:contain}
 .tag{position:absolute;background:#17212dee;border:1px solid #33465c;border-radius:12px;padding:10px 16px;font-size:13px;letter-spacing:.08em;color:#9fb2c6;text-transform:uppercase}
 .tag b{display:block;margin-top:4px;font-size:19px;letter-spacing:0;text-transform:none;color:#fff}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffc95e;margin-right:8px}
 </style>
 <div class="k">HOME ASSISTANT ADD-ON</div><h1>3D<br>Floorplan</h1>
-<div class="s">Draw your home, see it in 3D and control it right where things are.</div>
-<div class="chips"><span class="chip">Live control</span><span class="chip">JSON &amp; AI import</span><span class="chip">8 languages</span></div>
+<div class="s"><b>More than a floor plan:</b> your whole smart home in 3D, in one place.</div>
+<div class="chips"><span class="chip"><i>💡</i>Lights</span><span class="chip"><i>🔥</i>Heating</span><span class="chip"><i>⚡</i>Energy</span><span class="chip"><i>🛡️</i>Security</span><span class="chip"><i>🧩</i>Routines</span><span class="chip"><i>🗂️</i>Dashboards</span><span class="chip"><i>🤖</i>House by AI</span></div>
 <img class="house" src="data:image/png;base64,@@SHOT@@">
 <div class="tag" style="left:700px;top:40px">Living room<b><span class="dot"></span>5 lights on</b></div>
-<div class="tag" style="left:1090px;top:520px">Kitchen<b>22.1 °C</b></div>
+<div class="tag" style="left:1060px;top:520px">Solar now<b>☀ 4.2 kW</b></div>
 <div class="tag" style="left:690px;top:520px">Windows<b>3 open</b></div>
 <div class="bar"></div>"""
 

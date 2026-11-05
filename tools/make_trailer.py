@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The trailer: a short film (about a minute and a half) of the best of the add-on, to show people what it can do.
+"""The trailer: a short film (about two minutes) of the best of the add-on, to show people what it can do.
 
 The owner's wish (2026-11-03): "ein cooles Kurzvideo, wo alle Funktionen zeigt, in einem coolen Zusammenschnitt, wo auch wirklich
 qualitativ gut aussieht … schick und modern … dass wenn man jetzt irgendwo einen Post macht … das hinschicken kann".

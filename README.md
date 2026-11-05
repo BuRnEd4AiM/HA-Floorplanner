@@ -2,7 +2,11 @@
 
 # 🏠 3D Floorplan for Home Assistant
 
-### Draw your home, see it in 3D and control it right where things are.
+### More than a floor plan: your whole smart home in one place, in 3D.
+
+Draw your home (or let an AI build it), then run lights, heating, energy, security, cameras and your own routines right where things are, with ready-made dashboard pages, on the phone, the PC and the wall tablet.
+
+<a href="#-features"><img src="docs/img/inside.svg" alt="More than a floor plan. Inside: plan in 2D and 3D, lights and scenes, heating control, energy, security, cameras and doorbell, routines, dashboard pages, voice, sky and weather, a house by AI, phone and wall tablet" width="760"></a>
 
 [![CI](https://github.com/BuRnEd4AiM/HA-Floorplanner/actions/workflows/ci.yml/badge.svg)](https://github.com/BuRnEd4AiM/HA-Floorplanner/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FBuRnEd4AiM%2FHA-Floorplanner%2Fmain%2Ffloorplan3d%2Fconfig.yaml&query=%24.version&prefix=v&label=release&color=blue&cacheSeconds=3600)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases)
@@ -27,9 +31,9 @@
 
 <sub>**Video guide:** every feature shown in a short video (German or English interface), searchable down to the single step. Recorded automatically in the demo after every update.</sub>
 
-[![Trailer](https://img.shields.io/badge/%F0%9F%8E%9E%20Trailer-the%20best%20in%2090%20seconds-ff5fa2?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/trailer/)
+[![Trailer](https://img.shields.io/badge/%F0%9F%8E%9E%20Trailer-the%20best%20in%202%20minutes-ff5fa2?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/trailer/)
 
-<sub>**Trailer:** the best of the add-on in a minute and a half, with its own music, landscape (16:9) and upright (9:16, for Reels and Shorts), German and English. To share: the link or the download button on the page. Under it: ten short clips (16–20 s, one feature each) for TikTok, Reels and Shorts, with the text and hashtags to copy.</sub>
+<sub>**Trailer:** the best of the add-on in two minutes, with its own music, landscape (16:9) and upright (9:16, for Reels and Shorts), German and English. To share: the link or the download button on the page. Under it: ten short clips (16–20 s, one feature each) for TikTok, Reels and Shorts, with the text and hashtags to copy.</sub>
 
 <img src="docs/img/3d.jpg" alt="3D view of a house at dusk with live lights, labels over the rooms and room tiles at the bottom" width="900">
 
@@ -49,6 +53,8 @@
 
 Most floor plan cards make you place icons on a picture. **3D Floorplan** lets you *build* your home: walls, rooms, doors, windows, stairs and furniture, then see it as a real 3D model in which every device is bound to a Home Assistant entity. Tap a lamp where it stands, switch a whole room, start a scene, see which window is open, all in one place, on your phone, your desktop or a wall tablet.
 
+**And the plan is only the start.** Behind it there is a whole smart home app that many people only find by chance: ready-made **pages for every day** (Today, Energy, Climate, Cameras, Music & TV, Household, Routines, Family), **heating rules and schedules** with room sensors for the thermostats, **energy** with sun, battery and costs, **security** with warnings, a doorbell on every tablet and a recorded day you can play back in 3D, **own routines** from blocks that become real Home Assistant automations, a **voice search** that answers in the plan, and a **kiosk mode** for wall tablets. All of it is listed under [Features](#-features), and every feature has [a short video](https://burned4aim.github.io/HA-Floorplanner/guide/).
+
 It is made with a lot of love for my own smart home, and it is used every day. I hope it makes yours a little nicer, too. 💙
 
 ## 🤖 About this project (honest note)
@@ -66,7 +72,11 @@ What that means for you: the code is automatically tested (backend and browser t
 | 💡 **Control it** | Every device is a Home Assistant entity: lights, scenes, effects, Nanoleaf layouts, TV backlight, windows, heat and humidity |
 | 🌅 **See it at a glance** | Labels over the rooms and room tiles, power as a picture, the sky of the time of day with the weather and the moon, real floors |
 | 🗂️ **Your only dashboard** | Pages at the bottom for every day: ☀ Today, ⚡ Energy, 🌡 Climate, 📷 Cameras, 🎵 Music & TV, 🧺 Household, ▶ Routines, 👨‍👩‍👧 Family, arranged like a Home Assistant dashboard |
-| 🔥 **Heating that thinks** | Heating rules (window open → off, nobody home, night, schedule, boost, holidays), a **room sensor per thermostat** like Better Thermostat, own routines that become real Home Assistant automations |
+| 🔥 **Heating that thinks** | Heating rules (window open → off, nobody home, night, schedule, boost, holidays), a **room sensor per thermostat** like Better Thermostat |
+| ⚡ **Energy at a glance** | Power as a picture (sun, grid, battery and house with flowing dots, cables in the house), today, the week, month or year with costs, several houses compared |
+| 🛡️ **Safe at home** | Warnings for smoke, gas, water and the alarm (also as a WhatsApp) and for windows open in the rain, the doorbell with its camera on every tablet, a recorded day played back in 3D |
+| 🧩 **Own routines** | *When … then …* from blocks like Node-RED, saved as **real Home Assistant automations**; scenes, *I'm leaving* and *Good night* checks |
+| 🎤 **Ask your house** | "Which windows are open?" and the view goes there; "Lights in the living room off" switches them |
 | 📱 **Everywhere** | Phone, desktop and wall tablets (kiosk mode, per-user rooms), 8 languages, offline and private |
 
 ## 🤖 Describe it instead of drawing it

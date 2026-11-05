@@ -7,8 +7,8 @@ Heute findet man die Karte „3D Floorplan Card“ in HACS nur, wenn man dieses 
 | Was | Stand |
 |---|---|
 | Öffentliches Repository auf GitHub, nicht archiviert, Issues eingeschaltet | ✅ |
-| Beschreibung des Repositorys (HACS zeigt sie im Store an) | ✅ seit 2026-11-03 die neue Beschreibung (Schritt 1) |
-| Stichwörter (Topics) | ✅ (addons, dashboard, docker, floorplan, hacs, home-assistant, homeassistant-addons, json-api, kioskbrowser, lovelace-card, smart-home, threejs) |
+| Beschreibung des Repositorys (HACS zeigt sie im Store an) | ⏳ neue Beschreibung „More than a floor plan …“ (2026-11-05, Schritt 1) zum Eintragen |
+| Stichwörter (Topics) | ✅ 12 Stück; ⏳ 8 neue zum Eintragen (2026-11-05, Schritt 1) |
 | README mit Anleitung und Bildern | ✅ |
 | `hacs.json` mit Name und Datei der Karte | ✅ (`3D Floorplan Card`, `floorplan3d-card.js`) |
 | Die Karte als Datei in `dist/` | ✅ `dist/floorplan3d-card.js` |
@@ -24,11 +24,11 @@ Heute findet man die Karte „3D Floorplan Card“ in HACS nur, wenn man dieses 
 2. Rechts bei „About“ auf das Zahnrad ⚙ tippen. (Am Handy in Safari: wenn „About“ fehlt, unten links „aA“ → „Desktop-Website anfordern“.)
 3. Bei „Description“ eintragen (HACS zeigt den Text auf Englisch an, so wie die anderen Karten):
 
-   `Your home in 3D for Home Assistant: draw it or let an AI build it from a description, then control lights, windows, heating and scenes right where they are. With dashboard pages for energy, climate, cameras and more. Add-on, Docker and dashboard card – try the demo in your browser.`
+   `More than a floor plan: your smart home in 3D for Home Assistant. Draw it or let an AI build it, then run lights, heating, energy, security, cameras and routines right where they are, with ready-made dashboard pages. Add-on, Docker and dashboard card – try the demo in your browser.`
 
-   (So steht es seit 2026-11-03 da. Die alte Beschreibung vom 2026-10-28 kannte die Dashboard-Seiten, die Heizung, den Bau aus einer Beschreibung, die Docker-Version und die Demo noch nicht. Höchstens 350 Zeichen.)
+   (Neu seit 2026-11-05, Wunsch des Besitzers: man soll gleich sehen, dass es mehr als ein Grundriss ist. Davor seit 2026-11-03: „Your home in 3D for Home Assistant: draw it or let an AI build it from a description, then control lights, windows, heating and scenes right where they are. With dashboard pages for energy, climate, cameras and more. Add-on, Docker and dashboard card – try the demo in your browser.“ Höchstens 350 Zeichen.)
 
-4. Bei „Topics“ stehen (hilft bei der Suche): `addons`, `dashboard`, `docker`, `floorplan`, `hacs`, `home-assistant`, `homeassistant-addons`, `json-api`, `kioskbrowser`, `lovelace-card`, `smart-home`, `threejs`
+4. Bei „Topics“ stehen (hilft bei der Suche): `addons`, `dashboard`, `docker`, `floorplan`, `hacs`, `home-assistant`, `homeassistant-addons`, `json-api`, `kioskbrowser`, `lovelace-card`, `smart-home`, `threejs`. **Neu dazu (2026-11-05)**, damit man das Projekt auch findet, wenn man nach Heizung, Strom oder Sicherheit sucht: `3d`, `home-automation`, `energy-monitoring`, `heating-control`, `security`, `automation`, `voice-control`, `wall-tablet` (dann sind es 20, mehr erlaubt GitHub nicht).
 5. „Save changes“.
 
 ## Schritt 2: warten, bis „Validate“ grün ist und ein neues Release da ist

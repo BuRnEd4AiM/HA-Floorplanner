@@ -1,7 +1,7 @@
 name: "3D Floorplan"
 version: "4.67.1"
 slug: floorplan3d
-description: "Draw your floor plan, see your home in 3D and control your Home Assistant devices right where they are"
+description: "More than a floor plan: your smart home in 3D. Lights, heating, energy, security, cameras and routines right where they are, with ready-made dashboard pages"
 url: "https://github.com/BuRnEd4AiM/HA-Floorplanner"
 arch:
   - amd64

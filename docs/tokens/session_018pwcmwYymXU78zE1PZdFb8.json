@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmwYymXU78zE1PZdFb8",
+ "start": "2026-11-05",
+ "updated": "2026-11-05T18:45:25Z",
+ "branch": "claude/mehr-als-grundriss",
+ "source": "counted",
+ "input": 232,
+ "cache_write": 250712,
+ "cache_read": 21697008,
+ "output": 84641,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 232,
+   "cache_write": 250712,
+   "cache_read": 21697008,
+   "output": 84641,
+   "requests": 110
+  }
+ }
+}
