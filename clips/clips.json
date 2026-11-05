@@ -1,0 +1,144 @@
+{
+ "clips": [
+  {
+   "id": "haus",
+   "week": 1,
+   "day": 0,
+   "seconds": 18.0,
+   "hook": {
+    "de": "Mein Haus in 3D – und alles darin ist echt",
+    "en": "My house in 3D – and it's all real"
+   },
+   "text": {
+    "de": "Mein Zuhause als 3D-Modell in Home Assistant: Lampen, Fenster und Sensoren live, genau da, wo sie sind. Kostenlos, die Demo läuft ohne Installation im Browser: Link im Profil.\n\n#homeassistant #smarthome #hausautomation #3d #opensource",
+    "en": "My home as a 3D model in Home Assistant: lamps, windows and sensors live, right where they are. Free, the demo runs in your browser without installing anything: link in bio.\n\n#homeassistant #smarthome #homeautomation #3d #opensource"
+   }
+  },
+  {
+   "id": "licht",
+   "week": 1,
+   "day": 1,
+   "seconds": 20.0,
+   "hook": {
+    "de": "Diese Lampen sind echt. Antippen im 3D-Haus – zu Hause geht das Licht an.",
+    "en": "These lamps are real. Tap one in the 3D house – the light at home goes on."
+   },
+   "text": {
+    "de": "Ich tippe auf die Lampe im 3D-Haus, und zu Hause geht das Licht an. Dimmen, Farbe, Szenen für das ganze Haus. Home Assistant mit 3D Floorplan, kostenlos. Demo: Link im Profil.\n\n#homeassistant #smarthome #licht #hausautomation #diy",
+    "en": "I tap the lamp in the 3D house and the light at home goes on. Dim, colour, scenes for the whole house. Home Assistant with 3D Floorplan, free. Demo: link in bio.\n\n#homeassistant #smarthome #smartlights #homeautomation #diy"
+   }
+  },
+  {
+   "id": "fenster",
+   "week": 1,
+   "day": 2,
+   "seconds": 16.0,
+   "hook": {
+    "de": "Regen – und welches Fenster ist noch offen? Ein Blick aufs 3D-Haus reicht.",
+    "en": "Rain – which window is still open? One look at the 3D house."
+   },
+   "text": {
+    "de": "Es regnet und ein Fenster ist offen? Mein 3D-Haus zeigt sofort, welches, und ich kann es auch fragen. Home Assistant mit 3D Floorplan, kostenlos. Demo: Link im Profil.\n\n#homeassistant #smarthome #fenster #sicherheit #hausautomation",
+    "en": "It rains and a window is open? My 3D house shows which one at once, and I can just ask it. Home Assistant with 3D Floorplan, free. Demo: link in bio.\n\n#homeassistant #smarthome #homesecurity #windows #homeautomation"
+   }
+  },
+  {
+   "id": "zeichnen",
+   "week": 2,
+   "day": 0,
+   "seconds": 20.0,
+   "hook": {
+    "de": "Ich zeichne meinen Grundriss … und das 3D-Haus entsteht dabei.",
+    "en": "I draw my floor plan … and the 3D house builds itself."
+   },
+   "text": {
+    "de": "Grundriss zeichnen, und das 3D-Haus entsteht live: Wände, Fenster, Dach, Gauben, Treppen, Balkon. Für Home Assistant, kostenlos. Die Demo läuft ohne Installation: Link im Profil.\n\n#grundriss #homeassistant #hausbau #3d #smarthome",
+    "en": "Draw the floor plan and the 3D house appears live: walls, windows, roof, dormers, stairs, balcony. For Home Assistant, free. The demo runs without installing: link in bio.\n\n#floorplan #homeassistant #3d #smarthome #diy"
+   }
+  },
+  {
+   "id": "klima",
+   "week": 2,
+   "day": 1,
+   "seconds": 16.0,
+   "hook": {
+    "de": "Wo ist es zu warm – und wo zu kalt? Temperatur als Farbe, in jedem Raum.",
+    "en": "Which room is too warm – and which too cold? Temperature as colour, in every room."
+   },
+   "text": {
+    "de": "Temperatur, Feuchte und CO₂ als Farbe in jedem Raum, dazu Heizplan und Regeln wie „Fenster auf, Heizung aus“. Home Assistant mit 3D Floorplan, kostenlos. Demo: Link im Profil.\n\n#heizung #homeassistant #smarthome #energiesparen #hausautomation",
+    "en": "Temperature, humidity and CO₂ as colour in every room, plus a heating schedule and rules like \"window open, heating off\". Home Assistant with 3D Floorplan, free. Demo: link in bio.\n\n#heating #homeassistant #smarthome #energysaving #homeautomation"
+   }
+  },
+  {
+   "id": "ki",
+   "week": 3,
+   "day": 0,
+   "seconds": 16.0,
+   "hook": {
+    "de": "Foto vom Grundriss → 3D-Haus. ChatGPT & Co. bauen es, ganz ohne Zeichnen.",
+    "en": "Floor plan photo → 3D house. ChatGPT & co. build it, no drawing at all."
+   },
+   "text": {
+    "de": "Grundriss fotografieren, an ChatGPT geben, die Antwort einfügen: fertig ist das 3D-Haus in Home Assistant. Kostenlos. Demo: Link im Profil.\n\n#ki #chatgpt #grundriss #homeassistant #smarthome",
+    "en": "Take a photo of the floor plan, give it to ChatGPT, paste the answer: the 3D house in Home Assistant is done. Free. Demo: link in bio.\n\n#ai #chatgpt #floorplan #homeassistant #smarthome"
+   }
+  },
+  {
+   "id": "strom",
+   "week": 3,
+   "day": 1,
+   "seconds": 18.0,
+   "hook": {
+    "de": "Wohin fließt mein Strom gerade? Solar, Netz, Batterie – live im 3D-Haus.",
+    "en": "Where is my power going right now? Solar, grid, battery – live in the 3D house."
+   },
+   "text": {
+    "de": "Solar, Netz, Batterie und jedes Gerät: Ich sehe live im 3D-Haus, wohin mein Strom fließt. Home Assistant mit 3D Floorplan, kostenlos. Demo: Link im Profil.\n\n#photovoltaik #solar #homeassistant #strom #smarthome",
+    "en": "Solar, grid, battery and every device: I see live in the 3D house where my power goes. Home Assistant with 3D Floorplan, free. Demo: link in bio.\n\n#solar #solarpower #homeassistant #energy #smarthome"
+   }
+  },
+  {
+   "id": "wetter",
+   "week": 4,
+   "day": 0,
+   "seconds": 16.0,
+   "hook": {
+    "de": "Mein 3D-Haus hat das Wetter von draußen. Sonne, Abend, Nacht und Schnee – live.",
+    "en": "My 3D house has the weather from outside. Sun, dusk, night and snow – live."
+   },
+   "text": {
+    "de": "Sonne, Regen, Schnee und Nacht: Mein 3D-Haus hat den Himmel von draußen, zur echten Uhrzeit. Home Assistant mit 3D Floorplan, kostenlos. Demo: Link im Profil.\n\n#homeassistant #smarthome #wetter #3d #hausautomation",
+    "en": "Sun, rain, snow and night: my 3D house has the sky from outside, at the real time of day. Home Assistant with 3D Floorplan, free. Demo: link in bio.\n\n#homeassistant #smarthome #weather #3d #homeautomation"
+   }
+  },
+  {
+   "id": "handy",
+   "week": 4,
+   "day": 1,
+   "seconds": 18.0,
+   "hook": {
+    "de": "Mein ganzes Zuhause in der Hosentasche. Am Handy, am Tablet, an der Wand.",
+    "en": "My whole home in my pocket. On the phone, the tablet, the wall."
+   },
+   "text": {
+    "de": "Mein ganzes Zuhause in 3D am Handy, am Tablet oder an der Wand, und fragen kann ich es auch. Home Assistant mit 3D Floorplan, kostenlos. Demo: Link im Profil.\n\n#homeassistant #smarthome #dashboard #tablet #hausautomation",
+    "en": "My whole home in 3D on the phone, the tablet or the wall, and I can ask it too. Home Assistant with 3D Floorplan, free. Demo: link in bio.\n\n#homeassistant #smarthome #dashboard #tablet #homeautomation"
+   }
+  },
+  {
+   "id": "ohne-yaml",
+   "week": 4,
+   "day": 2,
+   "seconds": 18.0,
+   "hook": {
+    "de": "Smart Home ganz ohne YAML. Fertige Seiten und Abläufe zum Klicken.",
+    "en": "Smart home without any YAML. Ready-made pages, routines by clicking."
+   },
+   "text": {
+    "de": "Fertige Seiten, eigene Dashboards und Abläufe aus Bausteinen, ganz ohne YAML. Home Assistant mit 3D Floorplan, kostenlos. Demo: Link im Profil.\n\n#homeassistant #smarthome #nodered #dashboard #hausautomation",
+    "en": "Ready-made pages, your own dashboards and routines from blocks, without any YAML. Home Assistant with 3D Floorplan, free. Demo: link in bio.\n\n#homeassistant #smarthome #nodered #dashboard #homeautomation"
+   }
+  }
+ ]
+}
