@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmvqAqTjbedoqaU8Qvm",
+ "start": "2026-11-06",
+ "updated": "2026-11-06T11:31:29Z",
+ "branch": "claude/tests-selbst-pruefen",
+ "source": "counted",
+ "input": 433,
+ "cache_write": 513980,
+ "cache_read": 78457783,
+ "output": 176150,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 433,
+   "cache_write": 513980,
+   "cache_read": 78457783,
+   "output": 176150,
+   "requests": 215
+  }
+ }
+}

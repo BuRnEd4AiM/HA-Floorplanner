@@ -1,6 +1,6 @@
 {
- "version": "4.67.1",
- "buildHash": "8bf4b9ab78d9d8377b5e62c5a21ffe4d477f4c1165d072221cb39e845ed0f5a8",
+ "version": "4.67.2",
+ "buildHash": "587d85173543b794ef9afde0c0fe39b53fbfe034fd2d46882faaf5c03e560de7",
  "files": {
   "alarmnotify.py": "3d9ada748b694e0f8dfcf53e85a2b5923f54b561dd44b4f17bfa716e44a730e6",
   "boards.py": "b506190d5264db67ead00bbb7716bded4cbc7c4f94c50589fc9d15d7a7657d87",
@@ -234,7 +234,7 @@
   "static/floorbuild.js": "6796cc7841df377dd82fe2cc6044244a689da8d476b6773053085523f8d469da",
   "static/floorcards.js": "796804bf786da9691727263c67a012f1d897d19a5cdfd0dfa2287465354348cf",
   "static/floorcover.js": "9f8f0c620b151e7cc320f046fc54f3662e50b67b6a39bd3a538f0d626640b025",
-  "static/floorpanel.js": "bf23cf3b9a91c84968a5b3c730f9484a1b19f01f8929effeac50c6f1ac688625",
+  "static/floorpanel.js": "ccebfa866acaaa5e8d964f5556da14b77b53b7cdae0eb30e6eb1dbd9a46de490",
   "static/floorrail.js": "2ca488635f5e25b0baddfeddc299f80f023ca33a7898cc895ae40a8c891bf440",
   "static/floortex.js": "8532729eb5d2806c68377b5524286d2b4044ef4b475182f3e5f6474bd889ed53",
   "static/flowedit.js": "185ff0000490ac13ebd681ed041e03ca352a93680ef55b6ab9cd34fee69c21ee",

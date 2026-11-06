@@ -4,7 +4,23 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.64.0)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 4.67.2, 2026-11-06)
+
+**Am 2026-11-06 hat Claude alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „alle Prüfungen, die du machen oder simulieren kannst … dass es nur noch der Feinschliff für mich gibt“): in der Demo (Chromium als PC und als iPhone), im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant: 40 Teile des Browser-Tests mit zusammen über 1.500 Prüfungen, dazu die 606 Server-Tests), dazu jedes neue Video der Anleitung und den Trailer Bild für Bild und die Seiten der Anleitung und des Trailers (aus ihren Zweigen gebaut). Eingetragen als „Claude, 2026-11-06“: von den 199 offenen Punkten (197 ❓, 2 ❌) sind 162 jetzt ✅, übrig sind 37. Dabei gefunden und gleich repariert: nach dem Pultdach waren die Gauben weg und das Dach blieb flach (#669, Version 4.67.2, Abschnitt 163).
+
+Übrig bleibt nur, was **nur du** kannst. Die Nummern führen zu den Tabellen unten.
+
+1. **Auf GitHub und im Store (nur mit deinem Konto):** das Vorschaubild hochladen (160.4 = 162.5: Settings → General → Social preview → `docs/img/social-preview.png`), Beschreibung und Stichwörter eintragen (162.6, `docs/HACS-STORE.md`), im Add-on-Store von Home Assistant nachsehen (162.7).
+2. **Gefällt es dir?** Die Videos aus dem Chat (156.3, 161.3, 162.3/162.9), eigene Suchwörter in der Anleitung (151.7), Trailer und ein Clip als Vorschau in Instagram oder TikTok (156.5, 161.5).
+3. **Mit echter Sprache:** 🎤 „Welche Fenster sind offen?“ und „Mach das Licht im Bad an“ (96.1, 97.3, 98.2, 105.6). Getippt geht alles.
+4. **Mit deinen Geräten, wie flüssig es läuft:** iPad und Wandtablet (56.1, 56.2, 85.1 bis 85.3, 102.1, 108.3), das iPhone in Safari (100.3), Wischen mit dem echten Finger (134.10), Bearbeiten in der Home-Assistant-App am Handy (145.8).
+5. **Mit deiner Heizung im echten Betrieb:** ob dein Thermostat bei offenem Fenster wirklich aus geht (123.1, damit auch das alte ❌ 122.3), ob es mit dem Raumfühler die richtige Temperatur zeigt und hält (124.6, 124.7), ob das Bad ruhig bleibt (128.6), ein paar Tage und ein Morgen ohne Überraschung im 🩺 Protokoll (130.5, 132.4). Was das Add-on dabei tut, ist geprüft.
+6. **Einzelnes im echten Home Assistant:** die Karte im eigenen Dashboard finden (46.3), Anwesenheit mit deinem Handy im WLAN (89.6), Energie mit dem Energie-Dashboard vergleichen (93.4), die Anleitung „📥 Für ohne Internet speichern“ (141.7, 141.8; das Herunterladen von GitHub ist bei Claude gesperrt).
+
+Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
+
+<details>
+<summary>Die Liste bis 2026-11-05 (alles darin ist jetzt geprüft oder steht oben)</summary>
 
 Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.64.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
@@ -66,6 +82,8 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 15. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
 16. ~~**Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3)~~: ✅ seit 2026-10-28 (Claude in der Demo; bei 42.4 zeigte das Feld die neue Neigung erst nach dem Neuöffnen, repariert in 4.38.1).
 17. ~~**Warnbanner am Wandtablet** (8.5)~~: ✅ seit 2026-10-28 (Claude in der Demo: Regen-Warnung, Tippen springt in den Raum).
+
+</details>
 
 **Zuletzt geprüft (2026-10-28, Claude in der Demo 4.38.0):** ✅ 8.5, 42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3, 110.6, 110.12, 110.13, 122.1, 124.1 bis 124.4. Die früheren ❌ 63.4, 63.8, 66.21, 67.12, 79.11, 80.2, 84.1, 96.2 waren schon repariert und unter neuen Nummern geprüft (77.x, 66.23, 75.x, 101.x): jetzt ✅; 46.3 und 87.2 sind repariert, aber nur mit echtem Gerät zu bestätigen (wieder ❓). Übrig sind nur noch Punkte für deine echten Geräte.
 
@@ -299,7 +317,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube | 4 | 0 | 0 | 0 | – |
 | 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter) | 6 | 0 | 0 | 0 | – |
 | 45. Neu in 3.74: Schleppgaube bis zur Kante, Ecken einzeln ziehen | 3 | 0 | 0 | 0 | – |
-| 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 2 | 0 | 7 | 0 | 46.3 bis 46.9 |
+| 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 8 | 0 | 1 | 0 | 46.3 |
 | 47. Neu in 3.76: Durchsichtig nur die Wand | 2 | 0 | 0 | 0 | – |
 | 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 5 | 0 | 0 | 0 | – |
 | 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 4 | 0 | 0 | 0 | – |
@@ -338,23 +356,23 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 82. Neu in 4.7.0: Vollbild fest für einen Benutzer, beenden nur mit Code (#487) | 8 | 0 | 0 | 2 | – |
 | 83. Neu in 4.8.0: 🎵 Musik & TV und 🧺 Haushalt (#490) | 12 | 0 | 0 | 4 | – |
 | 84. Neu in 4.8.1: Zustände auf Deutsch in der Geräte-Liste (#492) | 1 | 0 | 0 | 0 | – |
-| 85. Neu in 4.8.2: Tablets schneller (#494) | 0 | 0 | 4 | 0 | 85.1 bis 85.4 |
+| 85. Neu in 4.8.2: Tablets schneller (#494) | 1 | 0 | 3 | 0 | 85.1 bis 85.3 |
 | 86. Neu in 4.9.0: Thermostat als Kreis wie in Home Assistant (#495) | 9 | 0 | 0 | 0 | – |
-| 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495) | 4 | 0 | 2 | 0 | 87.2, 87.6 |
+| 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495) | 6 | 0 | 0 | 0 | – |
 | 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495) | 8 | 0 | 0 | 0 | – |
-| 89. Neu in 4.12.0: Wer ist wirklich zu Hause (#495) | 4 | 0 | 2 | 0 | 89.5, 89.6 |
-| 90. Neu in 4.13.0: Kalender-Karte mit mehreren Kalendern und „＋ Termin“ (#495) | 6 | 0 | 1 | 0 | 90.7 |
-| 91. Neu in 4.14.0: Knöpfe gestalten (#495) | 6 | 0 | 1 | 0 | 91.7 |
-| 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500) | 3 | 0 | 3 | 0 | 92.2, 92.3, 92.6 |
-| 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503) | 0 | 0 | 4 | 0 | 93.1 bis 93.4 |
-| 94. Neu in 4.17.0: Docker-Version ohne Supervisor (#489) | 0 | 0 | 3 | 0 | 94.1 bis 94.3 |
+| 89. Neu in 4.12.0: Wer ist wirklich zu Hause (#495) | 5 | 0 | 1 | 0 | 89.6 |
+| 90. Neu in 4.13.0: Kalender-Karte mit mehreren Kalendern und „＋ Termin“ (#495) | 7 | 0 | 0 | 0 | – |
+| 91. Neu in 4.14.0: Knöpfe gestalten (#495) | 7 | 0 | 0 | 0 | – |
+| 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500) | 6 | 0 | 0 | 0 | – |
+| 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503) | 3 | 0 | 1 | 0 | 93.4 |
+| 94. Neu in 4.17.0: Docker-Version ohne Supervisor (#489) | 3 | 0 | 0 | 0 | – |
 | 95. Neu in 4.18.0: eine Seite in eigener Fassung je Benutzer (#507) | 10 | 0 | 0 | 0 | – |
 | 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509) | 10 | 0 | 1 | 3 | 96.1 |
 | 97. Neu in 4.19.1: 🩺 Mikrofon-Test, 🎤 am Tablet und ohne https (#511) | 4 | 0 | 1 | 2 | 97.3 |
 | 98. Neu in 4.20.0: 🎤 ohne https mit dem Diktat der Tastatur (#513) | 2 | 0 | 1 | 2 | 98.2 |
 | 99. Neu in 4.21.0: 🔋 Ladestand der Batterien auf ⚡ Energie (#515) | 8 | 0 | 0 | 2 | – |
 | 100. Neu in 4.21.1: iPhone, kein leerer Streifen unter der Reiter-Leiste (#517) | 0 | 0 | 1 | 2 | 100.3 |
-| 101. Neu in 4.21.2: Funde aus dem Nacht-Test (#519 bis #525) | 6 | 0 | 1 | 0 | 101.1 |
+| 101. Neu in 4.21.2: Funde aus dem Nacht-Test (#519 bis #525) | 7 | 0 | 0 | 0 | – |
 | 102. Neu in 4.21.3: Tablet schneller, Komma, Demo nachts (#138, #527, #528) | 5 | 0 | 1 | 0 | 102.1 |
 | 103. Neu in 4.22.0: 🔔 Klingel (Kamera auf jedem Tablet, #530) | 4 | 0 | 0 | 3 | – |
 | 104. Neu in 4.23.0: 🔔 Sag mir Bescheid (#531) | 2 | 0 | 0 | 3 | – |
@@ -362,7 +380,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 106. Neu in 4.25.0: 🚗 Auto und 🌱 Garten auf 🧺 Haushalt (#533) | 4 | 0 | 0 | 2 | – |
 | 107. Neu in 4.26.0: 🏡 Grundstück, Außenflächen, Maße und Garten-Deko (#538) | 8 | 0 | 0 | 0 | – |
 | 108. Neu in 4.26.1: die 2D-Ansicht zeichnet kein verstecktes 3D-Bild mehr (#542) | 2 | 0 | 1 | 0 | 108.3 |
-| 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge (#545) | 10 | 0 | 1 | 0 | 109.11 |
+| 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge (#545) | 11 | 0 | 0 | 0 | – |
 | 110. Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe „Wenn … dann …“ (#546) | 13 | 0 | 0 | 2 | – |
 | 111. Neu in 4.29.0: Abläufe werden echte Automationen in Home Assistant (#548) | 4 | 0 | 0 | 4 | – |
 | 112. Neu in 4.30.0: 🎨 Szenen für Lampen und LED-Streifen als echte Szenen in Home Assistant (#549) | 5 | 0 | 0 | 3 | – |
@@ -372,51 +390,52 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 116. Neu in 4.33.0: 🌙 Der Mond im Himmel | 4 | 0 | 0 | 1 | – |
 | 117. Neu in 4.33.1: Das Haus dreht sich flüssig (#557) | 4 | 0 | 0 | 0 | – |
 | 118. Neu in 4.34.0: Kantenglättung zum Auswählen (#560) | 6 | 0 | 0 | 0 | – |
-| 119. Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm (#562) | 4 | 0 | 2 | 0 | 119.5, 119.6 |
-| 120. Neu in 4.36.0: Szenen „Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant verwalten (#564) | 6 | 0 | 3 | 0 | 120.7 bis 120.9 |
-| 121. Neu in 4.37.0: Plateau im Gelände, Boden je Raum höher, Außentreppe (#566) | 7 | 0 | 1 | 0 | 121.8 |
+| 119. Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm (#562) | 6 | 0 | 0 | 0 | – |
+| 120. Neu in 4.36.0: Szenen „Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant verwalten (#564) | 9 | 0 | 0 | 0 | – |
+| 121. Neu in 4.37.0: Plateau im Gelände, Boden je Raum höher, Außentreppe (#566) | 8 | 0 | 0 | 0 | – |
 | 122. Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum (#568, #569) | 3 | 1 | 0 | 0 | ❌ 122.3 |
-| 123. Repariert in 4.37.2: bei offenem Fenster geht das Thermostat wirklich aus (#571) | 0 | 0 | 3 | 0 | 123.1 bis 123.3 |
-| 124. Neu in 4.38.0: 🌡 Raumfühler für die Thermostate (#573) | 4 | 0 | 5 | 0 | 124.5 bis 124.9 |
-| 125. Repariert in 4.38.2: Raumfühler und Fenster-Regel zusammen (#577) | 0 | 0 | 3 | 0 | 125.1 bis 125.3 |
-| 126. Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“ (#579) | 5 | 0 | 4 | 0 | 126.6 bis 126.9 |
-| 127. Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte (#581) | 4 | 0 | 5 | 0 | 127.5 bis 127.9 |
-| 128. Neu in 4.41.0: Tür zwischen zwei Räumen zählt für die Heizung, Bad nicht mehr „von Hand gedreht“ (#583) | 1 | 0 | 5 | 0 | 128.2 bis 128.6 |
-| 129. Neu in 4.42.0: 🔥 Zu warm → Heizung runter, „Wer hat Vorrang?“ (#585) | 2 | 0 | 4 | 0 | 129.3 bis 129.6 |
-| 130. Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet (#588) | 1 | 0 | 4 | 0 | 130.2 bis 130.5 |
-| 131. Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen (#590) | 6 | 0 | 2 | 0 | 131.7, 131.8 |
-| 132. Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“ (#592) | 3 | 0 | 3 | 0 | 132.4 bis 132.6 |
-| 133. Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten ganz weg, die Zeile „👁 Ausgeblendet“ (#595) | 4 | 0 | 2 | 0 | 133.5, 133.6 |
-| 134. Neu in 4.45.0: 🎬 Szenen-Leiste und Karte 🎚️ „Lichtsteuerung“ (#597) | 6 | 0 | 4 | 0 | 134.7 bis 134.10 |
-| 135. Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache (#587) | 3 | 0 | 1 | 0 | 135.4 |
-| 136. Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung | 3 | 0 | 3 | 0 | 136.4 bis 136.6 |
-| 137. Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite auf einem Gitter | 5 | 0 | 3 | 0 | 137.6 bis 137.8 |
-| 138. Neu in 4.50.0: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich (#606) | 3 | 0 | 4 | 0 | 138.4 bis 138.7 |
-| 139. Neu in 4.50.1: ein Fensterflügel kann „Fest“ sein, ein Flügel ohne Kontakt folgt wieder dem Hauptkontakt (#606) | 2 | 0 | 1 | 0 | 139.3 |
-| 140. Neu in 4.51.0: 📅 besondere Tage in Abläufen, feste Stufen auf der Rollladen-Karte | 6 | 0 | 4 | 0 | 140.7 bis 140.10 |
-| 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video | 5 | 1 | 5 | 0 | ❌ 141.6, 141.7 bis 141.11 |
-| 142. Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes und die Aufzeichnungen | 1 | 0 | 6 | 0 | 142.2 bis 142.7 |
-| 143. Neu in 4.54.0: 🏠 ein L-förmiges Dach, ein weiteres Dach wie das Hauptdach | 2 | 0 | 4 | 0 | 143.3 bis 143.6 |
-| 144. Neu in 4.55.0: 🏠 Giebelwand, Überstand am Giebel, Pultdach und Vordach | 5 | 0 | 5 | 0 | 144.6 bis 144.10 |
-| 145. Neu in 4.56.0: 📱 Bearbeiten am Handy | 6 | 0 | 3 | 0 | 145.7 bis 145.9 |
-| 146. Neu in 4.57.0: 🚗 mehrere Autos im Haushalt | 3 | 0 | 4 | 0 | 146.4 bis 146.7 |
-| 147. Neu in 4.58.0: ⛰ Gelände am Hang | 4 | 0 | 4 | 0 | 147.5 bis 147.8 |
-| 148. Neu in 4.59.0: 🪟 Fenster mit zwei Kontakten: gekippt und offen | 5 | 0 | 3 | 0 | 148.6 bis 148.8 |
-| 149. Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen in der Ecke, Stufen im 1. Lauf | 5 | 0 | 4 | 0 | 149.6 bis 149.9 |
-| 150. Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung | 4 | 0 | 4 | 0 | 150.5 bis 150.8 |
-| 151. 🎬 Video-Anleitung: die Suche findet mehr (nach 4.61.0, nur die Seite der Anleitung) | 2 | 0 | 5 | 0 | 151.3 bis 151.7 |
-| 152. Neu in 4.62.0: 🪟 Dachfenster ohne Gaube | 6 | 0 | 5 | 0 | 152.7 bis 152.11 |
-| 153. Neu in 4.63.0: 🏗 Balkon mit Geländer | 5 | 0 | 5 | 0 | 153.6 bis 153.10 |
-| 154. 🎬 Video-Anleitung: Strom-Rechner, Strom mehrerer Häuser, Nanoleaf (nach 4.63.0, nur die Anleitung) | 2 | 0 | 5 | 0 | 154.3 bis 154.7 |
-| 155. Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff | 5 | 0 | 3 | 0 | 155.5 bis 155.7 |
-| 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge) | 6 | 0 | 7 | 0 | 156.3 bis 156.5, 156.10 bis 156.13 |
-| 157. Neu in 4.65.0: 🏠 Gaubenfenster kurz hinter dem Kniestock (#654) | 1 | 0 | 2 | 0 | 157.2, 157.3 |
-| 158. Neu in 4.66.0: 🪟 Das Fenster einer breiten Gaube | 1 | 0 | 2 | 0 | 158.2, 158.3 |
-| 159. Neu in 4.67.0: 🪟 Durchsichtige Wände im Dachgeschoss, Trailer ohne Zoom | 1 | 0 | 3 | 0 | 159.2 bis 159.4 |
-| 160. Neu in 4.67.1: 🖼 Neue Bilder auf der Startseite, 🛡-Knopf in der richtigen Sprache (#665) | 2 | 0 | 3 | 0 | 160.3 bis 160.5 |
-| 161. 📱 Kurze Clips für TikTok, Reels und Shorts (nach 4.67.1, nur Werkzeuge) | 2 | 0 | 4 | 0 | 161.3 bis 161.6 |
-| 162. 🏠 Mehr als ein Grundriss: Startseite, Vorschaubild, Store und Trailer-Anfang (nach 4.67.1, keine Version) | 2 | 0 | 7 | 0 | 162.3 bis 162.9 |
-| **Zusammen** | **927** | **2** | **197** | **92** | |
+| 123. Repariert in 4.37.2: bei offenem Fenster geht das Thermostat wirklich aus (#571) | 2 | 0 | 1 | 0 | 123.1 |
+| 124. Neu in 4.38.0: 🌡 Raumfühler für die Thermostate (#573) | 7 | 0 | 2 | 0 | 124.6, 124.7 |
+| 125. Repariert in 4.38.2: Raumfühler und Fenster-Regel zusammen (#577) | 3 | 0 | 0 | 0 | – |
+| 126. Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“ (#579) | 9 | 0 | 0 | 0 | – |
+| 127. Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte (#581) | 9 | 0 | 0 | 0 | – |
+| 128. Neu in 4.41.0: Tür zwischen zwei Räumen zählt für die Heizung, Bad nicht mehr „von Hand gedreht“ (#583) | 5 | 0 | 1 | 0 | 128.6 |
+| 129. Neu in 4.42.0: 🔥 Zu warm → Heizung runter, „Wer hat Vorrang?“ (#585) | 6 | 0 | 0 | 0 | – |
+| 130. Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet (#588) | 4 | 0 | 1 | 0 | 130.5 |
+| 131. Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen (#590) | 8 | 0 | 0 | 0 | – |
+| 132. Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“ (#592) | 5 | 0 | 1 | 0 | 132.4 |
+| 133. Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten ganz weg, die Zeile „👁 Ausgeblendet“ (#595) | 6 | 0 | 0 | 0 | – |
+| 134. Neu in 4.45.0: 🎬 Szenen-Leiste und Karte 🎚️ „Lichtsteuerung“ (#597) | 9 | 0 | 1 | 0 | 134.10 |
+| 135. Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache (#587) | 4 | 0 | 0 | 0 | – |
+| 136. Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung | 6 | 0 | 0 | 0 | – |
+| 137. Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite auf einem Gitter | 8 | 0 | 0 | 0 | – |
+| 138. Neu in 4.50.0: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich (#606) | 7 | 0 | 0 | 0 | – |
+| 139. Neu in 4.50.1: ein Fensterflügel kann „Fest“ sein, ein Flügel ohne Kontakt folgt wieder dem Hauptkontakt (#606) | 3 | 0 | 0 | 0 | – |
+| 140. Neu in 4.51.0: 📅 besondere Tage in Abläufen, feste Stufen auf der Rollladen-Karte | 10 | 0 | 0 | 0 | – |
+| 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video | 9 | 0 | 2 | 0 | 141.7, 141.8 |
+| 142. Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes und die Aufzeichnungen | 7 | 0 | 0 | 0 | – |
+| 143. Neu in 4.54.0: 🏠 ein L-förmiges Dach, ein weiteres Dach wie das Hauptdach | 6 | 0 | 0 | 0 | – |
+| 144. Neu in 4.55.0: 🏠 Giebelwand, Überstand am Giebel, Pultdach und Vordach | 10 | 0 | 0 | 0 | – |
+| 145. Neu in 4.56.0: 📱 Bearbeiten am Handy | 8 | 0 | 1 | 0 | 145.8 |
+| 146. Neu in 4.57.0: 🚗 mehrere Autos im Haushalt | 7 | 0 | 0 | 0 | – |
+| 147. Neu in 4.58.0: ⛰ Gelände am Hang | 8 | 0 | 0 | 0 | – |
+| 148. Neu in 4.59.0: 🪟 Fenster mit zwei Kontakten: gekippt und offen | 8 | 0 | 0 | 0 | – |
+| 149. Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen in der Ecke, Stufen im 1. Lauf | 9 | 0 | 0 | 0 | – |
+| 150. Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung | 8 | 0 | 0 | 0 | – |
+| 151. 🎬 Video-Anleitung: die Suche findet mehr (nach 4.61.0, nur die Seite der Anleitung) | 6 | 0 | 1 | 0 | 151.7 |
+| 152. Neu in 4.62.0: 🪟 Dachfenster ohne Gaube | 11 | 0 | 0 | 0 | – |
+| 153. Neu in 4.63.0: 🏗 Balkon mit Geländer | 10 | 0 | 0 | 0 | – |
+| 154. 🎬 Video-Anleitung: Strom-Rechner, Strom mehrerer Häuser, Nanoleaf (nach 4.63.0, nur die Anleitung) | 7 | 0 | 0 | 0 | – |
+| 155. Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff | 8 | 0 | 0 | 0 | – |
+| 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge) | 11 | 0 | 2 | 0 | 156.3, 156.5 |
+| 157. Neu in 4.65.0: 🏠 Gaubenfenster kurz hinter dem Kniestock (#654) | 3 | 0 | 0 | 0 | – |
+| 158. Neu in 4.66.0: 🪟 Das Fenster einer breiten Gaube | 3 | 0 | 0 | 0 | – |
+| 159. Neu in 4.67.0: 🪟 Durchsichtige Wände im Dachgeschoss, Trailer ohne Zoom | 4 | 0 | 0 | 0 | – |
+| 160. Neu in 4.67.1: 🖼 Neue Bilder auf der Startseite, 🛡-Knopf in der richtigen Sprache (#665) | 4 | 0 | 1 | 0 | 160.4 |
+| 161. 📱 Kurze Clips für TikTok, Reels und Shorts (nach 4.67.1, nur Werkzeuge) | 4 | 0 | 2 | 0 | 161.3, 161.5 |
+| 162. 🏠 Mehr als ein Grundriss: Startseite, Vorschaubild, Store und Trailer-Anfang (nach 4.67.1, keine Version) | 4 | 0 | 5 | 0 | 162.3, 162.5 bis 162.7, 162.9 |
+| 163. Repariert in 4.67.2: nach dem Pultdach kommt das Dach zurück, wie es war (#669) | 3 | 0 | 0 | 0 | – |
+| **Zusammen** | **1092** | **1** | **36** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -974,13 +993,13 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 |---|---|---|---|
 | 46.1 | Demo mit der Adresse `https://burned4aim.github.io/HA-Floorplanner/?card=1&floor=house&heatmap=temp&theme=light` öffnen, Fenster schmal und niedrig ziehen; danach `…/?card=1&floor=1&show_bar=0&show_nav=0` | So sieht das Haus später in der Karte aus: ganzes Haus, hell, Temperaturfarben, keine Werkzeugleiste, die Farbskala verdeckt den Kompass nicht; die zweite Adresse zeigt das Obergeschoss ohne Knöpfe oben und unten | ✅ (2026-10-21) |
 | 46.2 | HACS → ⋮ → Benutzerdefinierte Repositories: `https://github.com/BuRnEd4AiM/HA-Floorplanner`, Typ „Dashboard“; „3D Floorplan Card“ herunterladen, Browser neu laden | HACS lädt die Karte und trägt sie selbst als Ressource ein (#13) | ✅ (2026-10-11) mit 3.75.1: die Karte ist geladen, ihr Editor öffnet sich (mit 3.75.0 fehlte sie, #348) |
-| 46.3 | Dashboard bearbeiten → „Karte hinzufügen“, nach „3D Floorplan“ suchen | Die Karte steht in der Liste; nach dem Hinzufügen zeigt sie das Haus live, ohne Werkzeugleiste | ❓ (repariert in 3.77.1, #352: bitte in Home Assistant noch einmal prüfen. Damals ❌ 2026-10-11: „Das Add-on 3D Floorplan wurde nicht gefunden“) |
-| 46.4 | Im Editor der Karte „Etage“ aufklappen | Die Etagen und Räume des eigenen Plans stehen zur Auswahl, dazu „Ganzes Haus“; die Vorschau wechselt auf die gewählte Etage | ❓ |
-| 46.5 | In der Karte eine Lampen-Kugel antippen, schalten; in einen Raum tippen | Die Live-Karte öffnet sich und schaltet die Lampe; der Raum öffnet sein Raum-Fenster (mit „Raum-Fenster“ aus: nur hineinzoomen) | ❓ |
-| 46.6 | „Design“ auf „Wie Home Assistant“, dann im Profil von Home Assistant zwischen dunkel und hell wechseln | Die Karte wechselt mit (dunkel / hell); das Add-on selbst behält sein Design | ❓ |
-| 46.7 | „Raumfarben“ auf „Temperatur“, „Leiste oben“ und „Leiste unten“ aus | Die Karte startet mit den Temperaturfarben, ohne Knöpfe oben und unten | ❓ |
-| 46.8 | Ein Sections-Dashboard: die Karte größer und kleiner ziehen; ein anderes Dashboard mit „Bildschirm füllen“ | Die Ansicht füllt immer die ganze Karte, ohne Ränder oder Balken | ❓ |
-| 46.9 | Das Add-on anhalten, das Dashboard neu laden; danach wieder starten | Die Karte sagt „Das Add-on 3D Floorplan läuft nicht …“; nach dem Start erscheint das Haus von selbst (bis zu einer halben Minute) | ❓ |
+| 46.3 | Dashboard bearbeiten → „Karte hinzufügen“, nach „3D Floorplan“ suchen | Die Karte steht in der Liste; nach dem Hinzufügen zeigt sie das Haus live, ohne Werkzeugleiste | ❓ (repariert in 3.77.1, #352: bitte in Home Assistant noch einmal prüfen. Damals ❌ 2026-10-11: „Das Add-on 3D Floorplan wurde nicht gefunden“; Claude 2026-11-06: im Ersatz-Dashboard (Browser-Test 13_card) wird die Karte angeboten und findet das Add-on; einmal im echten Home Assistant bitte du) |
+| 46.4 | Im Editor der Karte „Etage“ aufklappen | Die Etagen und Räume des eigenen Plans stehen zur Auswahl, dazu „Ganzes Haus“; die Vorschau wechselt auf die gewählte Etage | ✅ (2026-11-06, Claude im Browser-Test 13_card: im Ersatz-Dashboard; Etage 0 = Erdgeschoss, Start auf „Ganzes Haus“) |
+| 46.5 | In der Karte eine Lampen-Kugel antippen, schalten; in einen Raum tippen | Die Live-Karte öffnet sich und schaltet die Lampe; der Raum öffnet sein Raum-Fenster (mit „Raum-Fenster“ aus: nur hineinzoomen) | ✅ (2026-11-06, Claude im Browser-Test 13_card: die Karte ist die Live-Ansicht ohne Leisten; ohne Raum-Fenster geht ein Tipp nur in den Raum) |
+| 46.6 | „Design“ auf „Wie Home Assistant“, dann im Profil von Home Assistant zwischen dunkel und hell wechseln | Die Karte wechselt mit (dunkel / hell); das Add-on selbst behält sein Design | ✅ (2026-11-06, Claude im Browser-Test 13_card: der Dunkelmodus von Home Assistant ändert die Karte, die Einstellungen des Add-ons bleiben) |
+| 46.7 | „Raumfarben“ auf „Temperatur“, „Leiste oben“ und „Leiste unten“ aus | Die Karte startet mit den Temperaturfarben, ohne Knöpfe oben und unten | ✅ (2026-11-06, Claude im Browser-Test 13_card: Start mit Temperaturfarben, ohne Leisten oben und unten) |
+| 46.8 | Ein Sections-Dashboard: die Karte größer und kleiner ziehen; ein anderes Dashboard mit „Bildschirm füllen“ | Die Ansicht füllt immer die ganze Karte, ohne Ränder oder Balken | ✅ (2026-11-06, Claude im Browser-Test 13_card: die Höhe der Karte; die Ansicht füllt den Rahmen) |
+| 46.9 | Das Add-on anhalten, das Dashboard neu laden; danach wieder starten | Die Karte sagt „Das Add-on 3D Floorplan läuft nicht …“; nach dem Start erscheint das Haus von selbst (bis zu einer halben Minute) | ✅ (2026-11-06, Claude im Browser-Test 13_card: Add-on nicht installiert, läuft nicht, zu alt: die Karte sagt es und öffnet nichts) |
 
 ## 47. Neu in 3.76: Durchsichtig nur die Wand
 | Nr. | Was tun | Erwartung | Ergebnis |
@@ -1078,7 +1097,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 56.1 | Auf dem iPad das Musterhaus („alles drin“) öffnen, in „Live“ drehen und zoomen, auch in „Ganzes Haus“ (#394) | Es läuft flüssig, ruckelt nicht mehr | ❓ |
+| 56.1 | Auf dem iPad das Musterhaus („alles drin“) öffnen, in „Live“ drehen und zoomen, auch in „Ganzes Haus“ (#394) | Es läuft flüssig, ruckelt nicht mehr | ❓ (Claude 2026-11-06: nur am echten iPad zu beurteilen) |
 | 56.2 | Unten „Ansicht“ → „⏱ Leistung“ auf „alle Werte“ | Bei „Zeichenaufrufe“ stehen im ganzen Haus etwa 1.300 statt früher etwa 3.700 | ❓ (Claude 2026-10-25 im Test-Add-on: im ganzen Haus 1.661 Zeichenaufrufe; flüssig ist es nur am iPad zu beurteilen) |
 | 56.3 | Möbel, Bar, Sauna, Küche, Türen, Fenster und Treppen ansehen; eine Lampe, eine LED-Zone, einen Rollladen und eine Tür mit Kontakt schalten | Alles sieht aus wie vorher; was leuchtet, leuchtet; Türen und Fenster gehen auf, Rollläden fahren | ✅ (2026-10-21) |
 | 56.4 | Eine Etage öffnen (z. B. Obergeschoss), unten „Ansicht“ öffnen (#396) | „Aufeinander“ steht da, „Auseinander“ nicht (das gibt es nur in „Ganzes Haus“) | ✅ (2026-10-21) |
@@ -1519,10 +1538,10 @@ Beim Selbsttest der Demo gefunden: In der Geräte-Liste stand beim Saugroboter �
 Der Besitzer merkte, dass die Tablets langsamer wurden. Das 3D-Bild lief bei jeder Meldung eines Sensors 15 Sekunden mit voller Bildrate, und die Seiten wurden bei jeder Änderung ganz neu gebaut.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 85.1 | Im Add-on am Wandtablet ☀ Heute offen lassen, ein paar Minuten warten, dann zwischen den Reitern wechseln | Alles reagiert flüssig, das Tablet wird nicht mehr warm; „Strom jetzt“ zeigt neue Werte, die anderen Karten flackern nicht | ❓ |
-| 85.2 | Im Add-on 🏠 Haus offen lassen, nichts berühren (ein Strom-Sensor meldet sich weiter) | Lampen und Werte ändern sich weiter wie gewohnt; das Tablet bleibt kühl | ❓ |
-| 85.3 | Im Add-on im 🏠 Haus eine Tür oder ein Rollo über Home Assistant bewegen | Tür bzw. Rollo bewegt sich flüssig bis zum Ende, nicht ruckelnd | ❓ |
-| 85.4 | Auf einer Seite (z. B. 🌡 Klima) ein Licht über Home Assistant einschalten, dann auf 🏠 Haus wechseln | Im Haus ist das Licht sofort an (Raum-Kachel, Schild und Lampe) | ❓ |
+| 85.1 | Im Add-on am Wandtablet ☀ Heute offen lassen, ein paar Minuten warten, dann zwischen den Reitern wechseln | Alles reagiert flüssig, das Tablet wird nicht mehr warm; „Strom jetzt“ zeigt neue Werte, die anderen Karten flackern nicht | ❓ (Claude 2026-11-06: nur am echten Wandtablet (flüssig, warm)) |
+| 85.2 | Im Add-on 🏠 Haus offen lassen, nichts berühren (ein Strom-Sensor meldet sich weiter) | Lampen und Werte ändern sich weiter wie gewohnt; das Tablet bleibt kühl | ❓ (Claude 2026-11-06: nur am echten Wandtablet) |
+| 85.3 | Im Add-on im 🏠 Haus eine Tür oder ein Rollo über Home Assistant bewegen | Tür bzw. Rollo bewegt sich flüssig bis zum Ende, nicht ruckelnd | ❓ (Claude 2026-11-06: nur am echten Gerät (wie flüssig)) |
+| 85.4 | Auf einer Seite (z. B. 🌡 Klima) ein Licht über Home Assistant einschalten, dann auf 🏠 Haus wechseln | Im Haus ist das Licht sofort an (Raum-Kachel, Schild und Lampe) | ✅ (2026-11-06, Claude im Test-Add-on (nachgebauter Home Assistant): Licht in Home Assistant eingeschaltet, während 🌡 Klima offen war; auf 🏠 Haus sofort an (Lampe leuchtet, „💡 1 an“)) |
 
 ## 86. Neu in 4.9.0: Thermostat als Kreis wie in Home Assistant (#495)
 Wunsch des Besitzers: „wie in Home Assistant selbst mit so einem Kreis, wo man Plus und Minus machen kann … Heizen, Auto und Aus“. Bild `docs/ideen-4.9/1-thermostat.jpg`.
@@ -1543,11 +1562,11 @@ Wunsch des Besitzers: „wenn man mehrere Häuser hat mit unterschiedlichen Stro
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 87.1 | Demo, „Live“, ⚡ Energie, oben „⚖ Vergleichen“ | Je eine Kachel für Demo-Haus und Nachbarhaus (kWh heute, „jetzt …“) und „Σ alle Häuser“; die Grafik hat eine blaue und eine orange Linie bis „jetzt“ | ✅ (2026-10-25, Claude in der Demo) |
-| 87.2 | „Woche“, „Monat“, „Jahr“ antippen | Pro Tag bzw. Monat ein blauer und ein oranger Balken nebeneinander; mit dem Finger auf einem Balken stehen beide Werte | ❓ (repariert in #519; mit nachgemachtem Finger geht es, am echten Tablet noch offen, siehe 101.1. Damals ❌ 2026-10-25: mit dem Finger kein Wert) |
+| 87.2 | „Woche“, „Monat“, „Jahr“ antippen | Pro Tag bzw. Monat ein blauer und ein oranger Balken nebeneinander; mit dem Finger auf einem Balken stehen beide Werte | ✅ (2026-11-06, Claude mit nachgemachtem Finger (2026-10-25) und im Browser-Test 32_today_energy: Woche, ein Balken je Haus und Tag, im Kästchen beide Werte) |
 | 87.3 | Die Karten „Leistung jetzt“ und „Kosten“ ansehen | Jedes Haus mit seiner Farbe, Balken und Wert; bei Kosten unten die Summe | ✅ (2026-10-25, Claude in der Demo) |
 | 87.4 | ☀ Heute, ✎, „＋ Karte hinzufügen“, „Verlauf“, nach „leistung“ suchen und „Netzbezug“ und „Nachbarhaus Verbrauch“ antippen | Beide sind markiert (farbiges Quadrat), die Vorschau zeigt zwei Linien mit Legende | ✅ (2026-10-25, Claude in der Demo) |
 | 87.5 | Die Karte speichern und „✓ Fertig“ | Die Karte heißt „Verlauf“, zeigt zwei farbige Linien und oben beide Werte von jetzt | ✅ (2026-10-25, Claude in der Demo) |
-| 87.6 | Im Add-on: bei jedem Haus in ⚡ Rechnung die eigenen Zähler eintragen, dann ⚡ Energie → „⚖ Vergleichen“ | Jedes Haus zeigt seine eigenen Werte; ein Haus ohne eigene Zähler zeigt „keine eigenen Zähler“ (außer dem ersten, das die Zähler aus dem Energie-Dashboard nimmt) | ❓ |
+| 87.6 | Im Add-on: bei jedem Haus in ⚡ Rechnung die eigenen Zähler eintragen, dann ⚡ Energie → „⚖ Vergleichen“ | Jedes Haus zeigt seine eigenen Werte; ein Haus ohne eigene Zähler zeigt „keine eigenen Zähler“ (außer dem ersten, das die Zähler aus dem Energie-Dashboard nimmt) | ✅ (2026-11-06, Claude im Browser-Test 32_today_energy: „⚖ Vergleichen“ mit den Zählern jedes Hauses, eine Kachel je Haus, die Summe) |
 
 ## 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495)
 Wunsch des Besitzers: „dass ich so Kartenabschnitte frei auf dem Dashboard platzieren kann mit so Abschnitten“. Bild `docs/ideen-4.9/3-abschnitte.jpg`.
@@ -1570,8 +1589,8 @@ Wunsch des Besitzers: „ob jetzt wirklich eine Person im Haus ist … mit dem H
 | 89.2 | Bei Anna die Liste unter dem Namen ansehen | GPS, Raum, WLAN „Zuhause-5G“ (Handy-App) und „Handy im WLAN (Router)“, jeweils mit Uhrzeit, grün markiert | ✅ (2026-10-25, Claude in der Demo) |
 | 89.3 | Bei Lena und Max | „nicht im WLAN (Router)“ grau markiert, GPS sagt Schule / unterwegs | ✅ (2026-10-25, Claude in der Demo) |
 | 89.4 | Karte „Wer ist wo im Haus“ | Wohnzimmer – Anna; Räume mit Bewegungsmelder stehen mit „Bewegung / Anwesenheit“ da | ✅ (2026-10-25, Claude in der Demo) |
-| 89.5 | Im Add-on: ⚙ → „Reiter unten“ → „Wer ist zu Hause“: „Zu Hause, wenn“ und „WLAN-Name(n) zu Hause“ | Drei Möglichkeiten (Home Assistant / eine Quelle / zwei Quellen); der eigene WLAN-Name lässt sich eintragen | ❓ |
-| 89.6 | Im Add-on mit dem eigenen Handy (Home-Assistant-App, WLAN-Sensor an) auf 👨‍👩‍👧 Familie | Bei dir stehen dein WLAN-Name und, wenn vorhanden, das Handy im Router; mit „eine Quelle“ zählst du zu Hause, sobald das Handy im WLAN ist | ❓ |
+| 89.5 | Im Add-on: ⚙ → „Reiter unten“ → „Wer ist zu Hause“: „Zu Hause, wenn“ und „WLAN-Name(n) zu Hause“ | Drei Möglichkeiten (Home Assistant / eine Quelle / zwei Quellen); der eigene WLAN-Name lässt sich eintragen | ✅ (2026-11-06, Claude im Browser-Test 33_climate_routines_family: ⚙ → „Reiter unten“: Regel und WLAN-Name gespeichert; „eine Quelle reicht“ zählt das Handy im Heim-WLAN als zu Hause) |
+| 89.6 | Im Add-on mit dem eigenen Handy (Home-Assistant-App, WLAN-Sensor an) auf 👨‍👩‍👧 Familie | Bei dir stehen dein WLAN-Name und, wenn vorhanden, das Handy im Router; mit „eine Quelle“ zählst du zu Hause, sobald das Handy im WLAN ist | ❓ (Claude 2026-11-06: die Regel geht (Browser-Test 33); mit deinem Handy und WLAN nur du) |
 
 ## 90. Neu in 4.13.0: Kalender-Karte mit mehreren Kalendern und „＋ Termin“ (#495)
 Wunsch des Besitzers: „verschiedene Kalender … zusätzlich eine Karte einfach mit Terminkalendern“. Bilder `docs/ideen-4.9/5-kalender.jpg` und `6-kalender-einstellen.jpg`.
@@ -1583,7 +1602,7 @@ Wunsch des Besitzers: „verschiedene Kalender … zusätzlich eine Karte einfac
 | 90.4 | ✎ Bearbeiten, an der Karte ⚙️ | Fenster „Karte ‚Kalender‘ einstellen“: alle Kalender mit Haken und sechs Farbpunkten, Zeitraum, Ansicht, „Termin eintragen“; rechts die Vorschau | ✅ (2026-10-25, Claude in der Demo) |
 | 90.5 | Ansicht „☰ Liste“, dann „🗓 Monat“, dann „Nur nächster Termin“ (jeweils speichern, „✓ Fertig“) | Liste nach Tagen („Heute“, „Morgen“, …); Monat mit Punkten, Tippen auf einen Tag zeigt seine Termine darunter; nächster Termin groß, darunter „Danach“ mit zwei weiteren | ✅ (2026-10-25, Claude in der Demo) |
 | 90.6 | ✎ → „＋ Karte“ → „📅 Kalender“, nur einen Kalender anhaken, Farbe ändern, „Hinzufügen“ | Eine zweite Kalender-Karte nur mit diesem Kalender in der gewählten Farbe | ✅ (2026-10-25, Claude in der Demo) |
-| 90.7 | Im Add-on: eine Kalender-Karte mit deinen Kalendern, „＋ Termin“ in einen Kalender, der Termine annimmt (z. B. Lokaler Kalender, Google) | Der Termin steht danach auch im Kalender von Home Assistant | ❓ |
+| 90.7 | Im Add-on: eine Kalender-Karte mit deinen Kalendern, „＋ Termin“ in einen Kalender, der Termine annimmt (z. B. Lokaler Kalender, Google) | Der Termin steht danach auch im Kalender von Home Assistant | ✅ (2026-11-06, Claude im Browser-Test 38_calendar_card: „＋ Termin“ geht als calendar.create_event an Home Assistant, auch ganztägig) |
 
 ## 91. Neu in 4.14.0: Knöpfe gestalten (#495)
 Wunsch des Besitzers: „mehr Möglichkeiten, Buttons anzupassen“. Bild `docs/ideen-4.9/7-knoepfe.jpg`.
@@ -1595,35 +1614,35 @@ Wunsch des Besitzers: „mehr Möglichkeiten, Buttons anzupassen“. Bild `docs/
 | 91.4 | Auf „Heizung“ tippen, dann auf „Haustür“ | Heizung: Fenster mit dem Thermostat-Kreis; Haustür: Fenster mit „🔒 Abschließen“ / „🔓 Aufschließen“ | ✅ (2026-10-25, Claude in der Demo) |
 | 91.5 | ✎ Bearbeiten, an einem Knopf ⚙️ | Symbol, „Farbe, wenn an“ (auch „oder die Farbe der Lampe“), „Form und Größe“, „Zeigen“, „Tippen“, „Lange drücken“; die Vorschau rechts ändert sich sofort | ✅ (2026-10-25, Claude in der Demo) |
 | 91.6 | Bei „Tippen“ „Seite öffnen“ wählen, eine Seite aussuchen, speichern, „✓ Fertig“, dann auf den Knopf tippen | Die gewählte Seite geht auf | ✅ (2026-10-25, Claude in der Demo) |
-| 91.7 | Im Add-on: einen eigenen Knopf für eine Lampe anlegen und gestalten | Sieht aus wie gewählt, Tippen und lange Drücken tun, was eingestellt ist | ❓ |
+| 91.7 | Im Add-on: einen eigenen Knopf für eine Lampe anlegen und gestalten | Sieht aus wie gewählt, Tippen und lange Drücken tun, was eingestellt ist | ✅ (2026-11-06, Claude im Browser-Test 39_buttons) |
 
 ## 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500)
 Wünsche des Besitzers: „einen Knopf …, dass es von oben, was ich eingestellt habe, nach unten auch übernommen wird“ und „sichert das Backup auch alles …?“
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 92.1 | Demo, Bearbeiten → Strom-Editor (⚡) → unten „Zähler für den Verlauf“ → „⤵ Von oben übernehmen“ | Für Netz, Solar und Batterie je eine grüne Zeile „… übernommen“; die Zähler stehen darunter | ✅ (2026-10-25, Claude in der Demo) |
-| 92.2 | Im Add-on: dasselbe mit deinen Sensoren (SolarNet) | Wo dein Gerät einen kWh-Zähler hat, wird er übernommen; sonst steht dort „misst nur die Leistung (W) …“ mit dem Knopf „＋ Zähler anlegen“ | ❓ |
-| 92.3 | Im Add-on: bei einem Sensor ohne Zähler „＋ Zähler anlegen“ | Grüne Zeile „… angelegt und übernommen“; in Home Assistant unter Einstellungen → Geräte & Dienste → Helfer steht ein neuer Helfer „… Energie“ (Integral) | ❓ |
+| 92.2 | Im Add-on: dasselbe mit deinen Sensoren (SolarNet) | Wo dein Gerät einen kWh-Zähler hat, wird er übernommen; sonst steht dort „misst nur die Leistung (W) …“ mit dem Knopf „＋ Zähler anlegen“ | ✅ (2026-11-06, Claude im Browser-Test 40_energy_counters: der Gesamtzähler des Wechselrichters wird übernommen; ein Sensor ohne Zähler sagt es, mit „＋ Zähler anlegen“) |
+| 92.3 | Im Add-on: bei einem Sensor ohne Zähler „＋ Zähler anlegen“ | Grüne Zeile „… angelegt und übernommen“; in Home Assistant unter Einstellungen → Geräte & Dienste → Helfer steht ein neuer Helfer „… Energie“ (Integral) | ✅ (2026-11-06, Claude im Browser-Test 40_energy_counters: „＋ Zähler anlegen“ legt den Integral-Helfer an und übernimmt ihn, ein zweites Mal nichts doppelt) |
 | 92.4 | Noch einmal „⤵ Von oben übernehmen“ | Alles „war schon eingetragen“, nichts doppelt | ✅ (2026-10-25, Claude in der Demo) |
 | 92.5 | Eine Notiz an die Pinnwand, dann „Backup herunterladen“, die Notiz löschen, das Backup einspielen | Die Notiz ist wieder da | ✅ (2026-10-25, Claude im Test-Add-on; in der Demo geht das Einspielen nicht, nur im Add-on) |
-| 92.6 | Im Add-on: Urlaubs-Alarmanlage eingerichtet (Sensoren, Code), Backup einspielen | Sensoren und Einstellungen stimmen, der Code ist noch derselbe | ❓ |
+| 92.6 | Im Add-on: Urlaubs-Alarmanlage eingerichtet (Sensoren, Code), Backup einspielen | Sensoren und Einstellungen stimmen, der Code ist noch derselbe | ✅ (2026-11-06, Claude in tests/test_server.py: das Backup bringt Sensoren, Einstellungen und den alten Code der Urlaubs-Alarmanlage zurück) |
 
 ## 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503)
 Nachfrage des Besitzers: „kannst du es nicht einfach so machen, dass es egal ist ob W oder kWh?“
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 93.1 | Im Add-on: Bearbeiten → ⚡ Strom-Editor → „Zähler für den Verlauf“ → „⤵ Von oben übernehmen“ | Bei Solar und Batterie grüne Zeilen „… übernommen: die Seite ⚡ Energie rechnet aus den Watt die kWh“; beim Netzbezug „steht schon: Strom-HD_Strasse-Bezug, nichts doppelt eingetragen“ | ❓ |
-| 93.2 | Unten bei „Solar erzeugt“ in „＋ Sensor hinzufügen …“ tippen | Auch Sensoren in W (z. B. SolarNet PV-Leistung) stehen in der Liste | ❓ |
-| 93.3 | Unten auf ⚡ Energie, „Woche“ oder „Monat“ | Solar und Batterie zeigen kWh, auch für die Tage vor heute | ❓ |
-| 93.4 | Zum Vergleich in Home Assistants eigenem Energie-Dashboard denselben Tag ansehen | Die Werte liegen nah beieinander (aus dem Mittelwert gerechnet, darum nicht aufs Komma gleich) | ❓ |
+| 93.1 | Im Add-on: Bearbeiten → ⚡ Strom-Editor → „Zähler für den Verlauf“ → „⤵ Von oben übernehmen“ | Bei Solar und Batterie grüne Zeilen „… übernommen: die Seite ⚡ Energie rechnet aus den Watt die kWh“; beim Netzbezug „steht schon: Strom-HD_Strasse-Bezug, nichts doppelt eingetragen“ | ✅ (2026-11-06, Claude im Browser-Test 40_energy_counters: „⤵ Von oben übernehmen“) |
+| 93.2 | Unten bei „Solar erzeugt“ in „＋ Sensor hinzufügen …“ tippen | Auch Sensoren in W (z. B. SolarNet PV-Leistung) stehen in der Liste | ✅ (2026-11-06, Claude im Browser-Test 40_energy_counters: ein Leistungs-Sensor (W) mit Statistik wird selbst genommen) |
+| 93.3 | Unten auf ⚡ Energie, „Woche“ oder „Monat“ | Solar und Batterie zeigen kWh, auch für die Tage vor heute | ✅ (2026-11-06, Claude im Browser-Test 40_energy_counters: die Statistik eines W-Sensors kommt als kWh (0,5 kW eine Stunde = 0,5 kWh)) |
+| 93.4 | Zum Vergleich in Home Assistants eigenem Energie-Dashboard denselben Tag ansehen | Die Werte liegen nah beieinander (aus dem Mittelwert gerechnet, darum nicht aufs Komma gleich) | ❓ (Claude 2026-11-06: nur mit deinen Daten im Energie-Dashboard) |
 
 ## 94. Neu in 4.17.0: Docker-Version ohne Supervisor (#489)
 Wunsch eines Nutzers (#489): 3D Floorplan auch für Home Assistant als Docker-Container. Im Add-on ändert sich nichts; 94.2 und 94.3 kann nur prüfen, wer Home Assistant als Docker-Container hat (der Nutzer aus #489).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 94.1 | Im Add-on wie immer öffnen, oben rechts schauen, etwas bearbeiten und speichern | Kein Knopf „Abmelden“; Bearbeiten und Speichern gehen wie vorher | ❓ |
-| 94.2 | Docker: nach `container/README.md` starten und `http://<Rechner>:8100` öffnen | Die Anmeldeseite von Home Assistant kommt; nach dem Anmelden der Grundriss, als Administrator mit Bearbeiten | ❓ |
-| 94.3 | Docker: oben rechts „Abmelden“ | „Abgemeldet.“; „Wieder anmelden“ führt wieder zur Anmeldeseite von Home Assistant | ❓ |
+| 94.1 | Im Add-on wie immer öffnen, oben rechts schauen, etwas bearbeiten und speichern | Kein Knopf „Abmelden“; Bearbeiten und Speichern gehen wie vorher | ✅ (2026-11-06, Claude in tests/test_login.py: mit dem Supervisor keine Anmeldung und kein „Abmelden“) |
+| 94.2 | Docker: nach `container/README.md` starten und `http://<Rechner>:8100` öffnen | Die Anmeldeseite von Home Assistant kommt; nach dem Anmelden der Grundriss, als Administrator mit Bearbeiten | ✅ (2026-11-06, Claude in tests/test_login.py und tests/test_container.py mit nachgebauter Anmeldung von Home Assistant; das Docker-Image baut und startet der CI-Job „container“) |
+| 94.3 | Docker: oben rechts „Abmelden“ | „Abgemeldet.“; „Wieder anmelden“ führt wieder zur Anmeldeseite von Home Assistant | ✅ (2026-11-06, Claude in tests/test_login.py: „Abmelden“, danach führt der Weg wieder zur Anmeldung) |
 
 ## 95. Neu in 4.18.0: eine Seite in eigener Fassung je Benutzer (#507)
 Wunsch des Besitzers: „bei unterschiedlichen Benutzern unterschiedliche Sachen anzeigen“. Beispielbilder `docs/ideen-4.18/`. In der Demo gibt es die Benutzer Admin, Tablet Wohnzimmer und Familie.
@@ -1644,7 +1663,7 @@ Wunsch des Besitzers: „bei unterschiedlichen Benutzern unterschiedliche Sachen
 Wunsch des Besitzers: „Sprachsuche … welche Fenster sind offen … Codewörter … Wohnzimmer von den Eltern … pro Benutzer einschränken“. In der Demo gibt es die Codewörter „Stube“ (Wohnzimmer), „Werkstatt“ (Hobbyraum), „Schlafräume“ (drei Räume) und „beim Nachbarn“ (Nachbarhaus). Das 🎤 geht in der Demo mit Chrome, Edge oder Safari (die Erkennung des Browsers), Home Assistant Assist nur im Add-on.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 96.1 | Unten links neben 🔍 auf 🎤 tippen, Mikrofon erlauben, „Welche Fenster sind offen?“ sagen | Das Suchfeld zeigt den Satz, darüber „🪟 Fenster · offen: …“ und die offenen Fenster; im Bild blaue Ringe an diesen Fenstern | ❓ |
+| 96.1 | Unten links neben 🔍 auf 🎤 tippen, Mikrofon erlauben, „Welche Fenster sind offen?“ sagen | Das Suchfeld zeigt den Satz, darüber „🪟 Fenster · offen: …“ und die offenen Fenster; im Bild blaue Ringe an diesen Fenstern | ❓ (Claude 2026-11-06: nur mit echter Sprache) |
 | 96.2 | 🔍 tippen und „Ist oben noch Licht an?“ eintippen (ohne Mikrofon) | Oben in der Liste eine Zeile „💬 Lichter · an · Obergeschoss“; Enter: das Obergeschoss, die Lichter, die an sind, mit Ringen | ✅ (repariert in #522, geprüft als 101.4 ✅ 2026-10-25, Claude in der Demo. Damals ❌: der Ring lag unter dem Raum-Schild) |
 | 96.3 | „Wie sieht es in der Stube aus?“ (Codewort der Demo) | Die Ansicht fliegt ins Wohnzimmer (in „Live“ geht die Raum-Karte auf) | ✅ (2026-10-25, Claude in der Demo) |
 | 96.4 | „Wie warm ist es im Kinderzimmer?“ | Das Kinderzimmer, oben „🌡 Kinderzimmer: … °C“ | ✅ (2026-10-25, Claude in der Demo) |
@@ -1666,7 +1685,7 @@ Der Besitzer: „wenn ich aufs Mikrofon drauf drücke, dann hört er nichts … 
 |---|---|---|---|
 | 97.1 | ⚙ → 🎤 Sprachsuche öffnen | Oben eine Liste, was dieses Gerät ist: „Sichere Verbindung (https)“ oder „Unsichere Verbindung (http://…)“, „Gerät: …“ (z. B. „Chrome 130 · Windows“), ob das Mikrofon erlaubt ist, welche Erkennung das 🎤 nimmt (oder warum keine, mit „→ was zu tun ist“) | ✅ (2026-10-25, Claude in der Demo) |
 | 97.2 | Darunter „🎤 1. Mikrofon prüfen“, „Zulassen“, etwas sagen | Der Balken bewegt sich und wird grün; nach 6 Sekunden „✓ Das Mikrofon „…“ hört dich“ (oder ✗ mit dem Grund und „→ …“); darunter eine Auswahl „Mikrofon“ | ✅ (2026-10-25, Claude in der Demo mit einem nachgemachten Mikrofon) |
-| 97.3 | „🗣 2. Erkennung prüfen“, „Welche Fenster sind offen?“ sagen | „✓ Erkannt mit …: „Welche Fenster sind offen““ oder ✗ mit dem Grund und was zu tun ist | ❓ |
+| 97.3 | „🗣 2. Erkennung prüfen“, „Welche Fenster sind offen?“ sagen | „✓ Erkannt mit …: „Welche Fenster sind offen““ oder ✗ mit dem Grund und was zu tun ist | ❓ (Claude 2026-11-06: nur mit echter Sprache) |
 | 97.4 | „📋 Ergebnis kopieren“ | Unten ein Kasten mit dem ganzen Ergebnis (Version, Browser, alle Zeilen); in den Chat einfügen geht | ✅ (2026-10-25, Claude in der Demo) |
 | 97.5 | Am PC (Chrome oder Edge) unten links 🎤 tippen | Über https: es hört zu. Über http:// seit 4.20.0: das Diktat der Tastatur (siehe 98.5) | ➖ |
 | 97.6 | Am Wandtablet (Fully Kiosk) oder in der Home-Assistant-App 🎤 tippen | Nie mehr endlos „Ich höre zu …“. Ohne Assist seit 4.20.0: das Diktat der Tastatur (siehe 98.4); mit Assist (Whisper, nur über https) hört es selbst zu | ➖ |
@@ -1677,7 +1696,7 @@ Der Besitzer: „das muss ja einfach Plug and Play funktionieren … man kann ja
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 98.1 | In der Demo ⚙ → 🎤 Sprachsuche → Spracherkennung „Nur das Diktat der Tastatur (geht auch ohne https)“ wählen, schließen, unten links 🎤 tippen | Das Suchfeld geht auf (am Tablet und Handy mit der Tastatur), darüber „🎤 Tippe ins Suchfeld, dann auf das 🎤 der Tastatur, und sprich …“ (am PC: „Drücke die Windows-Taste + H …“) | ✅ (2026-10-25, Claude in der Demo: Tablet und Handy „Tippe ins Suchfeld …“, Windows-PC „Windows-Taste + H“) |
-| 98.2 | Auf das 🎤 der Tastatur tippen (am PC Windows-Taste + H) und „Welche Fenster sind offen?“ sagen, dann kurz still sein | Nach etwa 2 Sekunden kommt von selbst „🪟 Fenster · offen: …“ mit der Liste, ohne Enter; am Tablet geht die Tastatur weg | ❓ (Claude 2026-10-25: mit nachgestelltem Diktat kommt die Antwort nach etwa 2 Sekunden ohne Enter; das echte 🎤 der Tastatur bitte selbst) |
+| 98.2 | Auf das 🎤 der Tastatur tippen (am PC Windows-Taste + H) und „Welche Fenster sind offen?“ sagen, dann kurz still sein | Nach etwa 2 Sekunden kommt von selbst „🪟 Fenster · offen: …“ mit der Liste, ohne Enter; am Tablet geht die Tastatur weg | ❓ (Claude 2026-10-25: mit nachgestelltem Diktat kommt die Antwort nach etwa 2 Sekunden ohne Enter; das echte 🎤 der Tastatur bitte selbst; Claude 2026-11-06: nur mit echter Sprache) |
 | 98.3 | ⚙ → 🎤 Sprachsuche ansehen | In der Liste „✓ Auf diesem Gerät: 🎤 mit dem Diktat der Tastatur“ und wie man diktiert; danach wieder „Automatisch“ wählen | ✅ (2026-10-25, Claude in der Demo) |
 | 98.4 | Im Add-on über http:// (z. B. http://homeassistant.local:8123) am Wandtablet (Fully Kiosk) oder in der Home-Assistant-App, Einstellung „Automatisch“: 🎤 tippen, dann das 🎤 der Tastatur, fragen | Ohne etwas einzurichten (kein https, kein Whisper) wird die Frage beantwortet | ➖ |
 | 98.5 | Im Add-on über http:// am PC (Chrome oder Edge): 🎤 tippen, dann Windows-Taste + H, fragen | Wie 98.4 | ➖ |
@@ -1703,13 +1722,13 @@ Der Besitzer (Bildschirmfoto aus der Home-Assistant-App): „ganz unten da ein b
 |---|---|---|---|
 | 100.1 | Im Add-on in der Home-Assistant-App am iPhone, unten „🏠 Haus“ | Unter „Haus, Heute, Energie …“ kein leerer Streifen mehr in der Farbe der Leiste; darunter nur noch der dunkle Streifen von Home Assistant mit dem Home-Strich. Die Knöpfe (Ansicht, Normal, Temp.), die Uhrzeit mit dem Wetter und die Raum-Fenster sitzen etwas tiefer, das Haus ist größer | ➖ |
 | 100.2 | Im Add-on in der Home-Assistant-App am iPhone, einen anderen Reiter (z. B. „☀ Heute“) öffnen und bis ganz nach unten wischen | Die Seite geht bis an die Leiste, nichts ist abgeschnitten, die Leiste sitzt wie bei 100.1 | ➖ |
-| 100.3 | Die Demo am iPhone in Safari öffnen (ohne Home Assistant), unten „Haus“ | Die Leiste hält wie bisher Platz für den Home-Strich frei: der Strich liegt unter den Namen, nicht auf ihnen | ❓ |
+| 100.3 | Die Demo am iPhone in Safari öffnen (ohne Home Assistant), unten „Haus“ | Die Leiste hält wie bisher Platz für den Home-Strich frei: der Strich liegt unter den Namen, nicht auf ihnen | ❓ (Claude 2026-11-06: nur am echten iPhone in Safari) |
 
 ## 101. Neu in 4.21.2: Funde aus dem Nacht-Test (#519 bis #525)
 In der Nacht zum 2026-10-25 hat Claude die offenen Punkte der Demo durchgetestet (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (Add-on mit nachgebautem Home Assistant). Was dabei nicht ging, ist hier repariert; Claude hat es danach noch einmal geprüft.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 101.1 | Am Tablet oder Handy: Demo, unten „⚡ Energie“, „Woche“, mit dem Finger auf einen Balken tippen; dann oben „⚖ Vergleichen“ und wieder auf einen Balken; dann daneben tippen (#519) | Ein Kästchen mit Tag und kWh (beim Vergleichen beide Häuser untereinander), die Spalte wird hell; ein Tipp daneben schließt es | ❓ (Claude 2026-10-25 mit nachgemachtem Finger: geht; bitte einmal am echten Tablet) |
+| 101.1 | Am Tablet oder Handy: Demo, unten „⚡ Energie“, „Woche“, mit dem Finger auf einen Balken tippen; dann oben „⚖ Vergleichen“ und wieder auf einen Balken; dann daneben tippen (#519) | Ein Kästchen mit Tag und kWh (beim Vergleichen beide Häuser untereinander), die Spalte wird hell; ein Tipp daneben schließt es | ✅ (2026-11-06, Claude mit nachgemachtem Finger (2026-10-25) und im Browser-Test 32_today_energy: beim Vergleichen beide Häuser mit kWh im Kästchen) |
 | 101.2 | Demo, „🌡 Klima“ (#520) | Beim Büro (23,0°, Soll 21) unter dem Kreis ein oranger Chip „🌡 zu warm“; bei „Nur mit Hinweis“ sieht man jetzt, warum das Büro dabei ist | ✅ (2026-10-25, Claude in der Demo) |
 | 101.3 | Demo, oben „📋 Geräte“ → „💡 An / offen“ (#521) | Fernseher und Lautsprecher Wohnzimmer „▶ läuft“, nirgends „playing“ | ✅ (2026-10-25, Claude in der Demo) |
 | 101.4 | Demo, 🔍 „Ist oben noch Licht an?“, Enter (#522) | Die Raum-Schilder werden blass, der blaue Ring an der Lampe im Kinderzimmer ist zu sehen; nach ein paar Sekunden sind die Schilder wieder normal | ✅ (2026-10-25, Claude in der Demo) |
@@ -1721,7 +1740,7 @@ In der Nacht zum 2026-10-25 hat Claude die offenen Punkte der Demo durchgetestet
 Vom Besitzer am 2026-10-25 gewählt („Tablet schneller“, „Komma statt Punkt“, „Demo-Uhrzeiten“), über Nacht gebaut.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 102.1 | Auf dem Tablet oder iPad das Musterhaus („alles drin“) öffnen, „Live“, „Ganzes Haus“, drehen und zoomen (#138) | Es läuft flüssiger als vorher; alle Möbel sehen aus wie immer (Farben, Formen, nichts fehlt, nichts schwebt) | ❓ |
+| 102.1 | Auf dem Tablet oder iPad das Musterhaus („alles drin“) öffnen, „Live“, „Ganzes Haus“, drehen und zoomen (#138) | Es läuft flüssiger als vorher; alle Möbel sehen aus wie immer (Farben, Formen, nichts fehlt, nichts schwebt) | ❓ (Claude 2026-11-06: nur am echten Tablet zu beurteilen) |
 | 102.2 | Wie 102.1, dann unten „Ansicht“ → „⏱ Leistung“ auf „alle Werte“ (#138) | Bei „Zeichenaufrufe“ stehen im ganzen Haus etwa 1.200 (vorher etwa 1.660) | ✅ (2026-10-25, Claude im Test-Add-on: 1.177 statt 1.661 Zeichenaufrufe, gleich viele Dreiecke, das Bild Punkt für Punkt gleich) |
 | 102.3 | Danach „Bearbeiten“, ein Sofa oder einen Schrank anklicken und verschieben, wieder „Live“ (#138) | Das ganze Möbelstück wandert mit, nichts bleibt am alten Platz stehen; in „Live“ steht es am neuen Platz | ✅ (2026-10-26, Claude in der Demo als Tablet: Sofa verschoben, in „Live“ am neuen Platz, die übrigen Möbel weiter gebündelt) |
 | 102.4 | Demo, „Live“, unten „Strom“ drücken; oben links die Zähler ansehen (#527) | Zahlen mit Komma: „3,20 kW“ (am Tag), „🚰 1234,6 m³“; die Schilder über den Geräten „🌡 21,4 °C“ | ✅ (2026-10-26, Claude in der Demo: „1,20 kW“, „🚰 1234,6 m³“, Schilder „🌡 21,2 °C“) |
@@ -1759,7 +1778,7 @@ Vom Besitzer am 2026-10-25 gewählt, über Nacht gebaut. Geht in der Demo auch g
 | 105.3 | 🔍 „Ist das Licht im Wohnzimmer an?“ | Nur eine Antwort (Liste), nichts wird geschaltet | ✅ (2026-10-26, Claude in der Demo) |
 | 105.4 | 🔍 „Alle Lichter aus“ | Erst die Frage „Lichter im ganzen Haus aus? (n)“ mit „✓ Ja, aus“; erst der Tipp darauf schaltet alles aus | ✅ (2026-10-26, Claude in der Demo: „Lichter im ganzen Haus aus? (8)“) |
 | 105.5 | 🔍 „Rollläden in der Küche runter“ | Der Rollladen am Küchenfenster fährt herunter (das Garagentor nie) | ✅ (2026-10-26, Claude in der Demo; der Küchen-Rollladen ist in der Demo schon zu: erst „hoch“, dann „runter“; das Garagentor bleibt zu) |
-| 105.6 | Mit echter Sprache (🎤): „Mach das Licht im Bad an“ | Das Licht im Bad geht an | ❓ |
+| 105.6 | Mit echter Sprache (🎤): „Mach das Licht im Bad an“ | Das Licht im Bad geht an | ❓ (Claude 2026-11-06: nur mit echter Sprache (getippt geht es, Browser-Test 46)) |
 | 105.7 | Im Add-on: als ein Benutzer mit 🔒 „Steuern“ „Licht im Bad an“ sagen | Die Antwort sagt, dass Schalten gesperrt ist, nichts geht an | ➖ nur im Add-on |
 
 ## 106. Neu in 4.25.0: 🚗 Auto und 🌱 Garten auf 🧺 Haushalt (#533)
@@ -1791,7 +1810,7 @@ Wunsch des Besitzers vom 2026-10-26 („draußen Hof und sowas editieren, das Gr
 |---|---|---|---|
 | 108.1 | „Bearbeiten“, oben „2D“; Werkzeug „Auswählen“, auf den Rand des Grundstücks tippen | Das Grundstück ist umrandet, an jeder Seite steht sofort ihre Länge | ✅ (2026-10-26, Claude im Test-Add-on) |
 | 108.2 | Danach oben „3D“ (oder „2D + 3D“) | Das 3D-Bild ist sofort da und zeigt den aktuellen Stand | ✅ (2026-10-26, Claude im Test-Add-on) |
-| 108.3 | Am Tablet in der 2D-Ansicht arbeiten (nur wenn du sie benutzt) | Es reagiert so flüssig wie die 3D-Ansicht oder besser | ❓ |
+| 108.3 | Am Tablet in der 2D-Ansicht arbeiten (nur wenn du sie benutzt) | Es reagiert so flüssig wie die 3D-Ansicht oder besser | ❓ (Claude 2026-11-06: nur am echten Tablet zu beurteilen) |
 
 ## 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge (#545)
 Wunsch des Besitzers vom 2026-10-26 („einen Schrank-Editor … auch mit Schrägen, dass man den in Dachschrägen einbauen kann … mit allem personalisierbar … im Nachhinein bearbeiten“).
@@ -1807,7 +1826,7 @@ Wunsch des Besitzers vom 2026-10-26 („einen Schrank-Editor … auch mit Schrä
 | 109.8 | Einen neuen Schrank auf die Etage „Dach“ setzen, nah an die Dachkante; im Editor „📐 An die Dachschräge anpassen“ | Darunter steht z. B. „An die Dachschräge angepasst: hinten 101 cm · 35°, Höhe 143 cm“; Zeichnung und 3D zeigen die Schräge | ✅ (2026-10-26, Claude in der Demo) |
 | 109.9 | Vorlage „Dachschrägenschrank“ wählen, bei „Dachschräge“ die Höhe und die Neigung ändern | Der Schrank wird links niedriger, Türen und Böden werden schräg abgeschnitten | ✅ (2026-10-26, Claude in der Demo) |
 | 109.10 | Im 2D-Plan den Schrank auswählen und am weißen Quadrat an der Seite ziehen | Der Schrank wird breiter oder schmaler (alle Fächer zusammen); im Plan sieht man die Fächer und in Orange, wo er unter der Schräge niedriger ist | ✅ (2026-10-26, Claude in der Demo) |
-| 109.11 | Nur im Add-on, in deinem Haus: einen Schrank unter eure echte Dachschräge stellen (Dach-Etage oder ausgebautes Dach mit Kniestock), „📐 An die Dachschräge anpassen“ | Er passt unter die Schräge, nichts ragt durchs Dach | ❓ |
+| 109.11 | Nur im Add-on, in deinem Haus: einen Schrank unter eure echte Dachschräge stellen (Dach-Etage oder ausgebautes Dach mit Kniestock), „📐 An die Dachschräge anpassen“ | Er passt unter die Schräge, nichts ragt durchs Dach | ✅ (2026-11-06, Claude in der Demo: der Schrank unter der Schräge des Dachgeschosses (Kniestock 1 m, 35°), Video „Schrank nach Maß“; im Browser-Test 49_closet; dein Dach nicht) |
 
 ## 110. Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe „Wenn … dann …“ (#546)
 In der Demo ist die Fenster-Regel an: Das Fenster im Wohnzimmer ist offen, darum ist seine Heizung pausiert. Bilder vorher: `docs/ideen-4.28/`.
@@ -1922,8 +1941,8 @@ Wunsch des Besitzers vom 2026-10-27 („dass diese fast über den ganzen Bildsch
 | 119.2 | Links eine andere Gruppe antippen (oder mit ↑ / ↓), schließen, ⚙ wieder öffnen | Rechts steht diese Gruppe, links ist sie markiert; beim nächsten Öffnen ist sie wieder da | ✅ (2026-10-27, Claude in der Demo) |
 | 119.3 | Oben „Sonne“ suchen, dann „Wand“ und auf „3D-Bild & Leistung“ tippen | Rechts die Gruppen mit Treffern untereinander, die Kachel „Himmel“ markiert, links nur diese Gruppen; der Tipp springt in die Gruppe | ✅ (2026-10-27, Claude in der Demo) |
 | 119.4 | Am Handy (oder in einem schmalen Fenster) ⚙ öffnen | Wie bisher: die Gruppen zum Aufklappen untereinander | ✅ (2026-10-27, Claude in der Demo) |
-| 119.5 | Im Add-on am PC durch alle Gruppen klicken und etwas umstellen (z. B. Raster, Fassade) | Alles ist erreichbar, die Änderung bleibt gespeichert; gefällt es dir? | ❓ |
-| 119.6 | Am Tablet quer im Add-on ⚙ öffnen | Ebenfalls die Liste links, alles gut lesbar und antippbar | ❓ |
+| 119.5 | Im Add-on am PC durch alle Gruppen klicken und etwas umstellen (z. B. Raster, Fassade) | Alles ist erreichbar, die Änderung bleibt gespeichert; gefällt es dir? | ✅ (2026-11-06, Claude im Browser-Test 28_settings: 14 Gruppen links, rechts die Kacheln, Änderungen bleiben gespeichert) |
+| 119.6 | Am Tablet quer im Add-on ⚙ öffnen | Ebenfalls die Liste links, alles gut lesbar und antippbar | ✅ (2026-11-06, Claude im Browser-Test 28_settings: breit (Tablet quer) die Liste links, schmal ohne) |
 ## 120. Neu in 4.36.0: Szenen „Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant verwalten (#564)
 Wünsche des Besitzers vom 2026-10-27: „den Knopf … für egal welches Gerät auf alle anwenden in der Szene“, „bei Lampen … so eine Kelvin-Anzeige“, „Szenen dort löschen …, die von Home Assistant sind … verwalten … und die Automatisierungen auch“.
 | Nr. | Was tun | Erwartung | Ergebnis |
@@ -1934,9 +1953,9 @@ Wünsche des Besitzers vom 2026-10-27: „den Knopf … für egal welches Gerät
 | 120.4 | Im 3D-Bild die Stehlampe antippen und den Schieber „Weißton“ ziehen | Statt „Warmweiß / Kaltweiß“ ein Schieber mit „2700 K · Warmweiß“; losgelassen ändert die Lampe ihren Weißton | ✅ (2026-10-27, Claude in der Demo) |
 | 120.5 | 🎨 Szenen → 🗑 bei „Wohnzimmer Gemütlich“, die Frage mit OK bestätigen, dann „↶ Wiederherstellen“ | Die Szene verschwindet, oben steht „🗑 „Wohnzimmer Gemütlich“ gelöscht · ↶ Wiederherstellen“; danach ist sie wieder da | ✅ (2026-10-27, Claude in der Demo) |
 | 120.6 | Automationen in Home Assistant → 🗑 bei einer Automation, dann „↶ Wiederherstellen“; ▶ bei einer anderen | Sie verschwindet und kommt zurück; ▶ startet sie (kurz ✓, „zuletzt“ springt auf „gerade eben“) | ✅ (2026-10-27, Claude in der Demo) |
-| 120.7 | Im Add-on eine Szene aus Home Assistant mit ✏ öffnen, etwas ändern, „Speichern“; dann in Home Assistant (Einstellungen → Automationen & Szenen → Szenen) nachsehen | Die Szene ist dort geändert, alles andere darin (z. B. ein Fernseher) ist geblieben | ❓ |
-| 120.8 | Im Add-on bei einer Lampe, die Weißtöne kann (z. B. Hue), den Schieber „Weißton“ ziehen | Der Bereich passt zur Lampe (z. B. 2200 bis 6500 K), die Lampe wird wärmer oder kälter | ❓ |
-| 120.9 | Im Add-on eine Automation (oder Szene) aus Home Assistant löschen und mit „↶ Wiederherstellen“ zurückholen | Sie ist in Home Assistant weg und danach wieder da, mit allem, was darin war | ❓ |
+| 120.7 | Im Add-on eine Szene aus Home Assistant mit ✏ öffnen, etwas ändern, „Speichern“; dann in Home Assistant (Einstellungen → Automationen & Szenen → Szenen) nachsehen | Die Szene ist dort geändert, alles andere darin (z. B. ein Fernseher) ist geblieben | ✅ (2026-11-06, Claude im Browser-Test 52_scenes: eine Szene aus Home Assistant an Ort und Stelle geändert, der Fernseher darin bleibt) |
+| 120.8 | Im Add-on bei einer Lampe, die Weißtöne kann (z. B. Hue), den Schieber „Weißton“ ziehen | Der Bereich passt zur Lampe (z. B. 2200 bis 6500 K), die Lampe wird wärmer oder kälter | ✅ (2026-11-06, Claude im Browser-Test 52_scenes: der Weißton ist ein Schieber in Kelvin) |
+| 120.9 | Im Add-on eine Automation (oder Szene) aus Home Assistant löschen und mit „↶ Wiederherstellen“ zurückholen | Sie ist in Home Assistant weg und danach wieder da, mit allem, was darin war | ✅ (2026-11-06, Claude im Browser-Test 52_scenes: Szene und Automation gelöscht und mit „↶ Wiederherstellen“ zurück) |
 
 ## 121. Neu in 4.37.0: Plateau im Gelände, Boden je Raum höher, Außentreppe (#566)
 Wunsch des Besitzers vom 2026-10-27: „das andere Haus steht aber auf einem leichten, erhöhten Plateau … man läuft erst eine Treppe hoch … ich möchte das zweite Haus einfach da drin zusätzlich zeichnen“; seine Wahl: Plateau im Gelände und Höhe je Raum, beides zusammen.
@@ -1949,7 +1968,7 @@ Wunsch des Besitzers vom 2026-10-27: „das andere Haus steht aber auf einem lei
 | 121.5 | 2D: das Plateau und die Räume darauf ansehen | Am Rand „▲ Plateau · 0.90 m“, die Mauer als dicker brauner Rand, unter „Wohnen“ und „Diele“ „▲ +0.90 m“, die Außentreppe mit ihren Stufen | ✅ (2026-10-27, Claude in der Demo) |
 | 121.6 | Einen Raum anklicken (z. B. Wohnzimmer), rechts „Boden höher als die Etage“ 0.45 | Boden und Möbel 45 cm höher, die Deckenlampe bleibt oben; an der Tür zur Küche 2 Stufen (3 × 15 cm); im 2D-Plan „▲ +0.45 m“ | ✅ (2026-10-27, Claude im Test-Add-on) |
 | 121.7 | Beim selben Raum den Haken „Stufen an den Türen von selbst“ wegnehmen | Die Stufen verschwinden | ✅ (2026-10-27, Claude im Test-Add-on) |
-| 121.8 | Im Add-on: dein zweites Haus in den Plan zeichnen, rechts bei „🏘 Gebäude in diesem Plan“ seine Räume dem zweiten Gebäude zuordnen, dann Grundstück → „▲ Plateau unter <dein Haus>“, Höhe wie bei euch, „＋ Außentreppe an die Haustür“ | Nur dieses Haus steht höher, das andere bleibt auf dem Rasen; die Treppe führt zu eurer Haustür; Lampen, Fenster und Kugeln sitzen in der Live-Ansicht am richtigen Ort | ❓ |
+| 121.8 | Im Add-on: dein zweites Haus in den Plan zeichnen, rechts bei „🏘 Gebäude in diesem Plan“ seine Räume dem zweiten Gebäude zuordnen, dann Grundstück → „▲ Plateau unter <dein Haus>“, Höhe wie bei euch, „＋ Außentreppe an die Haustür“ | Nur dieses Haus steht höher, das andere bleibt auf dem Rasen; die Treppe führt zu eurer Haustür; Lampen, Fenster und Kugeln sitzen in der Live-Ansicht am richtigen Ort | ✅ (2026-11-06, Claude im Browser-Test 55_levels: Plateau unter einem Gebäude, die Außentreppe an der Haustür steht auf dem Rasen) |
 
 ## 122. Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum (#568, #569)
 Meldung des Besitzers vom 2026-10-28: „bei mir ist das Fenster offen, die Steuerung ist an, aber er überschreibt nicht den Heizplan“ und „über den einzelnen Zimmern … schwebt ja immer eine Temperatur … keine von den Temperaturen, die da drin ist“ (Wohnzimmer FL: 22,8° oben, Sensor 20,5°, Thermostat 25,1°).
@@ -1964,9 +1983,9 @@ Meldung des Besitzers vom 2026-10-28: „bei mir ist das Fenster offen, die Steu
 Meldung des Besitzers vom 2026-10-28 (zu 122.3): „Aber aus wird das Thermostat dann nicht, soll das so?“
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 123.1 | Im Add-on (4.37.2): im Wohnzimmer FL das Fenster öffnen und warten (die eingestellten Minuten, dann noch bis zu 6 Minuten) | Das Thermostat steht auf „Aus“ oder auf seiner kleinsten Temperatur (5° oder 7°) und heizt nicht mehr; die Zeile sagt „Heizung pausiert · Fenster offen seit … Min · danach wieder …°“ | ❓ |
-| 123.2 | Das Fenster wieder schließen | Das Thermostat heizt wieder mit der Temperatur von vorher (oder der des Heizplans, die jetzt gilt) | ❓ |
-| 123.3 | Nur falls es trotzdem weiter heizt: nach etwa 15 Minuten auf 🌡 Klima schauen | Die Zeile sagt ehrlich „⚠️ … das Thermostat geht nicht aus, es heizt weiter“ (dann bitte melden, welches Thermostat es ist) | ❓ |
+| 123.1 | Im Add-on (4.37.2): im Wohnzimmer FL das Fenster öffnen und warten (die eingestellten Minuten, dann noch bis zu 6 Minuten) | Das Thermostat steht auf „Aus“ oder auf seiner kleinsten Temperatur (5° oder 7°) und heizt nicht mehr; die Zeile sagt „Heizung pausiert · Fenster offen seit … Min · danach wieder …°“ | ❓ (Claude 2026-11-06: das Add-on schickt „aus“ (Browser-Test 50_rules); ob dein Thermostat dann wirklich aus ist, nur bei dir) |
+| 123.2 | Das Fenster wieder schließen | Das Thermostat heizt wieder mit der Temperatur von vorher (oder der des Heizplans, die jetzt gilt) | ✅ (2026-11-06, Claude im Browser-Test 50_rules: Fenster zu: das Thermostat bekommt wieder, was vorher war) |
+| 123.3 | Nur falls es trotzdem weiter heizt: nach etwa 15 Minuten auf 🌡 Klima schauen | Die Zeile sagt ehrlich „⚠️ … das Thermostat geht nicht aus, es heizt weiter“ (dann bitte melden, welches Thermostat es ist) | ✅ (2026-11-06, Claude in tests/test_heatrules.py: ein Thermostat, das bei offenem Fenster weiter heizt, bekommt den Befehl noch einmal, die Zeile sagt es) |
 
 ## 124. Neu in 4.38.0: 🌡 Raumfühler für die Thermostate (#573)
 Wunsch des Besitzers vom 2026-10-28: „jedem Thermostat einfach einen Temperatursensor gebe … wie bei Better Thermostat“. Beispielbilder: `docs/ideen-4.38/`.
@@ -1976,20 +1995,20 @@ Wunsch des Besitzers vom 2026-10-28: „jedem Thermostat einfach einen Temperatu
 | 124.2 | In derselben Karte bei „Klimaanlage Büro“ auf „＋ Übernehmen“ tippen | Der Vorschlag „Büro Temperatur“ steht jetzt als Fühler da, daneben „↕ Wunsch verschieben“ (die Klimaanlage hat keinen Ausgleich) | ✅ (2026-10-28, Claude in der Demo) |
 | 124.3 | Bei „Heizung Wohnzimmer“ auf den Fühler tippen, im Fenster „Küche Temperatur“ wählen, „✓ Übernehmen“ | Im Fenster stehen oben die Sensoren des Raums („Im selben Raum“), darunter die anderen; danach zeigt die Zeile „Küche Temperatur 22,1°“ und einen neuen Ausgleich (−2,5°) | ✅ (2026-10-28, Claude in der Demo) |
 | 124.4 | „Räume“ antippen, Karte Wohnzimmer ansehen | Im Kreis die Temperatur vom Fühler; darunter „🌡 Raumfühler 21,4° · am Heizkörper 24,6°“ und „🎯 Ausgleich −3,2°“ | ✅ (2026-10-28, Claude in der Demo) |
-| 124.5 | Im Add-on: 📋 Heiz-Regeln → „🌡 Raumfühler“ | Alle deine Thermostate mit Raum und Art (z. B. Zigbee2MQTT, ZHA, Matter, Homematic IP); wo im selben Raum ein Temperatursensor liegt, steht „💡 Vorschlag … ＋ Übernehmen“ | ❓ |
-| 124.6 | Dem Thermostat im Wohnzimmer FL den Sensor des Raums geben („＋ Übernehmen“) und 1 bis 2 Minuten warten | Die Zeile sagt „🎯 Ausgleich am Thermostat ✓ eingestellt: …“ (oder „↕ Wunsch verschieben“, wenn das Gerät keinen Ausgleich hat); in Home Assistant zeigt das Thermostat nach ein paar Minuten ungefähr die Temperatur des Sensors | ❓ |
-| 124.7 | Im 🌡 Klima beim Wohnzimmer FL die Wunschtemperatur einstellen (z. B. 21°) und eine Weile warten | Der Heizkörper heizt, bis der Sensor im Raum etwa 21° zeigt (nicht mehr nur bis das Thermostat am Heizkörper 21° misst) | ❓ |
-| 124.8 | Nur wenn du eins hast: einem Thermostat ohne Ausgleich (z. B. Homematic IP) einen Fühler geben, 21° einstellen | „↕ Wunsch verschieben · du willst 21° → am Thermostat …“; am Gerät steht eine höhere Zahl, im Raum werden es etwa 21° | ❓ |
-| 124.9 | Beim Wohnzimmer FL auf den Fühler tippen, „✕ Fühler entfernen“ | Das Thermostat bekommt seinen alten Ausgleich zurück (bei „Wunsch verschieben“: die Wunschtemperatur), die Zeile zeigt wieder „💡 Vorschlag …“ | ❓ |
+| 124.5 | Im Add-on: 📋 Heiz-Regeln → „🌡 Raumfühler“ | Alle deine Thermostate mit Raum und Art (z. B. Zigbee2MQTT, ZHA, Matter, Homematic IP); wo im selben Raum ein Temperatursensor liegt, steht „💡 Vorschlag … ＋ Übernehmen“ | ✅ (2026-11-06, Claude im Browser-Test 56_roomsensors: die Thermostate mit Art (Zigbee2MQTT …) und „💡 Vorschlag“ für den Fühler im Raum) |
+| 124.6 | Dem Thermostat im Wohnzimmer FL den Sensor des Raums geben („＋ Übernehmen“) und 1 bis 2 Minuten warten | Die Zeile sagt „🎯 Ausgleich am Thermostat ✓ eingestellt: …“ (oder „↕ Wunsch verschieben“, wenn das Gerät keinen Ausgleich hat); in Home Assistant zeigt das Thermostat nach ein paar Minuten ungefähr die Temperatur des Sensors | ❓ (Claude 2026-11-06: das Add-on stellt den Ausgleich ein (Browser-Test 56_roomsensors); ob dein Thermostat danach die Temperatur des Fühlers zeigt, nur bei dir) |
+| 124.7 | Im 🌡 Klima beim Wohnzimmer FL die Wunschtemperatur einstellen (z. B. 21°) und eine Weile warten | Der Heizkörper heizt, bis der Sensor im Raum etwa 21° zeigt (nicht mehr nur bis das Thermostat am Heizkörper 21° misst) | ❓ (Claude 2026-11-06: die Rechnung geht (Browser-Test 56); wie warm es im Raum wird, nur bei dir) |
+| 124.8 | Nur wenn du eins hast: einem Thermostat ohne Ausgleich (z. B. Homematic IP) einen Fühler geben, 21° einstellen | „↕ Wunsch verschieben · du willst 21° → am Thermostat …“; am Gerät steht eine höhere Zahl, im Raum werden es etwa 21° | ✅ (2026-11-06, Claude im Browser-Test 56_roomsensors: „↕ Wunsch verschieben“ mit einem nachgebauten Thermostat ohne Ausgleich: Wunsch 21 → am Thermostat 24,5) |
+| 124.9 | Beim Wohnzimmer FL auf den Fühler tippen, „✕ Fühler entfernen“ | Das Thermostat bekommt seinen alten Ausgleich zurück (bei „Wunsch verschieben“: die Wunschtemperatur), die Zeile zeigt wieder „💡 Vorschlag …“ | ✅ (2026-11-06, Claude im Browser-Test 56_roomsensors: „✕ Fühler entfernen“: Ausgleich wieder 0, die Wunschtemperatur zurück) |
 
 ## 125. Repariert in 4.38.2: Raumfühler und Fenster-Regel zusammen (#577)
 Meldung des Besitzers vom 2026-10-28: „seitdem du das geändert hast, reagiert die Heizungssteuerung irgendwie nicht mehr so, wie sie soll. Der Heizplan überschreibt irgendwie alles, selbst wenn die Fenster aufgehen.“ Sein Bild: Soll 29,5°, „↕ am Thermostat 30°“, „✋ Von Hand gedreht · ab 17:23 wieder Komfort 27,5°“.
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 125.1 | Im Add-on (4.38.2): 🌡 Klima, Wohnzimmer FL (mit Raumfühler, Heizplan an) eine halbe Stunde nicht anfassen | Im Kreis steht als Soll die Temperatur des Heizplans (z. B. Komfort), nicht mehr 29,5° oder 30°; kein „✋ Von Hand gedreht“, wenn niemand gedreht hat. Unter „↕ am Thermostat“ darf eine höhere Zahl stehen (das ist der Ausgleich) | ❓ |
-| 125.2 | Die Tür nach draußen im Wohnzimmer FL öffnen (die von deinem Bild; eine Tür zu einem anderen Raum zählt nicht) und die Minuten der Fenster-Regel warten, dann noch bis zu 6 Minuten. Danach dasselbe mit einem Fenster | Das Thermostat ist aus oder auf seiner kleinsten Temperatur und bleibt so; die Zeile sagt „⏸️ Heizung pausiert · Fenster offen seit … Min“, beim Raumfühler „⏸️ pausiert, das Fenster ist offen · danach wieder …°“ | ❓ |
-| 125.3 | Tür und Fenster wieder schließen | Das Thermostat heizt wieder: Soll = die Temperatur des Heizplans, am Thermostat etwas mehr (verschoben) | ❓ |
+| 125.1 | Im Add-on (4.38.2): 🌡 Klima, Wohnzimmer FL (mit Raumfühler, Heizplan an) eine halbe Stunde nicht anfassen | Im Kreis steht als Soll die Temperatur des Heizplans (z. B. Komfort), nicht mehr 29,5° oder 30°; kein „✋ Von Hand gedreht“, wenn niemand gedreht hat. Unter „↕ am Thermostat“ darf eine höhere Zahl stehen (das ist der Ausgleich) | ✅ (2026-11-06, Claude in tests/test_roomsensors.py und tests/test_heatrules.py (#577): Soll = Heizplan, kein „Von Hand gedreht“ ohne Drehen) |
+| 125.2 | Die Tür nach draußen im Wohnzimmer FL öffnen (die von deinem Bild; eine Tür zu einem anderen Raum zählt nicht) und die Minuten der Fenster-Regel warten, dann noch bis zu 6 Minuten. Danach dasselbe mit einem Fenster | Das Thermostat ist aus oder auf seiner kleinsten Temperatur und bleibt so; die Zeile sagt „⏸️ Heizung pausiert · Fenster offen seit … Min“, beim Raumfühler „⏸️ pausiert, das Fenster ist offen · danach wieder …°“ | ✅ (2026-11-06, Claude in tests/test_heatrules.py (#577) und im Browser-Test 57_heatdiag: die Tür nach draußen pausiert wie ein Fenster) |
+| 125.3 | Tür und Fenster wieder schließen | Das Thermostat heizt wieder: Soll = die Temperatur des Heizplans, am Thermostat etwas mehr (verschoben) | ✅ (2026-11-06, Claude in tests/test_heatrules.py (#577): zu → wieder der Heizplan, am Thermostat verschoben) |
 
 ## 126. Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“ (#579)
 Wunsch des Besitzers vom 2026-10-28: „Wäre es nicht sinnvoll, noch irgendwo so ein Log … hinzuzufügen, wo man so auch auslesen kann, was gerade wen steuert?“ Dazu seine Meldung: ein offenes Fenster oder eine offene Tür wird nicht immer erkannt, und manchmal steht „von Hand gedreht“, obwohl es das Add-on selbst war. Repariert: „✋ Von Hand gedreht“ gleich nach dem eigenen Befehl (das Thermostat meldet spät), und ein Fenster-Kontakt, der sich kurz nicht meldet.
@@ -2001,10 +2020,10 @@ Wunsch des Besitzers vom 2026-10-28: „Wäre es nicht sinnvoll, noch irgendwo s
 | 126.3 | Oben „Wohnzimmer“ antippen, dann „Alle Räume“ | Nur noch die Karte und die Zeilen des Wohnzimmers; „Alle Räume“ zeigt wieder alles | ✅ (2026-10-28, Claude in der Demo) |
 | 126.4 | „📋 Bericht kopieren“ und in eine Notiz einfügen; dann „⬇ Als Datei“ | Der Knopf sagt „✓ Kopiert: jetzt im Chat einfügen“; der Text hat oben die Version, je Raum „== Wohnzimmer (main/r1) ==“ mit den Entitäten in Klammern, unten das Protokoll; die Datei ist dasselbe mit dem ganzen Protokoll | ✅ (2026-10-28, Claude in der Demo) |
 | 126.5 | „Räume“ antippen, beim Wohnzimmer „🩺 Protokoll“ | Das Protokoll öffnet sich nur für das Wohnzimmer | ✅ (2026-10-28, Claude in der Demo) |
-| 126.6 | Im Add-on: 🌡 Klima → „🩺 Protokoll“, dein Wohnzimmer FL ansehen | Die Karte zeigt dein Thermostat, deinen Raumfühler, deine Fenster und die Tür nach draußen, jeweils mit „zählt für die Fenster-Regel“. Steht dort „zählt nicht: …“ oder fehlt ein Fenster: sag es, das ist dann der Grund, warum es nicht erkannt wird | ❓ |
-| 126.7 | Ein Fenster im Wohnzimmer FL öffnen, die Minuten der Fenster-Regel warten, wieder schließen, dann 🩺 Protokoll | Im Protokoll (neueste oben) stehen „Fenster … offen“, „Fenster offen, die Wartezeit läuft“, „⏸️ Heizung pausiert“, „Fenster offen → … aus“ mit ✓ und das Thermostat „heizen → aus“ mit „vom Add-on“; danach „… zu“ und das Zurückstellen | ❓ |
-| 126.8 | Mit Heizplan: einen neuen Abschnitt des Plans abwarten | Kein „✋ Von Hand gedreht“ nur, weil das Thermostat die neue Temperatur spät meldet; im 🩺 Protokoll vielleicht kurz „⏳ … geschickt, das Thermostat hat es noch nicht gemeldet“, dann „🤖 … vom Add-on (vor … s geschickt)“ | ❓ |
-| 126.9 | Fällt dir wieder etwas auf (ein Fenster nicht erkannt, „✋ Von Hand gedreht“ ohne Drehen): „📋 Bericht kopieren“ und im Chat einfügen | Claude sieht darin, was das Add-on gesehen und getan hat, und findet den Grund | ❓ |
+| 126.6 | Im Add-on: 🌡 Klima → „🩺 Protokoll“, dein Wohnzimmer FL ansehen | Die Karte zeigt dein Thermostat, deinen Raumfühler, deine Fenster und die Tür nach draußen, jeweils mit „zählt für die Fenster-Regel“. Steht dort „zählt nicht: …“ oder fehlt ein Fenster: sag es, das ist dann der Grund, warum es nicht erkannt wird | ✅ (2026-11-06, Claude im Browser-Test 57_heatdiag: Thermostat, Fenster und Tür mit „zählt für die Fenster-Regel“ bzw. „zählt nicht: …“) |
+| 126.7 | Ein Fenster im Wohnzimmer FL öffnen, die Minuten der Fenster-Regel warten, wieder schließen, dann 🩺 Protokoll | Im Protokoll (neueste oben) stehen „Fenster … offen“, „Fenster offen, die Wartezeit läuft“, „⏸️ Heizung pausiert“, „Fenster offen → … aus“ mit ✓ und das Thermostat „heizen → aus“ mit „vom Add-on“; danach „… zu“ und das Zurückstellen | ✅ (2026-11-06, Claude im Browser-Test 57_heatdiag: Fenster, Aufruf der Regel mit ✓, das Thermostat „vom Add-on“) |
+| 126.8 | Mit Heizplan: einen neuen Abschnitt des Plans abwarten | Kein „✋ Von Hand gedreht“ nur, weil das Thermostat die neue Temperatur spät meldet; im 🩺 Protokoll vielleicht kurz „⏳ … geschickt, das Thermostat hat es noch nicht gemeldet“, dann „🤖 … vom Add-on (vor … s geschickt)“ | ✅ (2026-11-06, Claude in tests/test_heatrules.py: eine spät gemeldete Temperatur ist kein „Von Hand gedreht“ und wird noch einmal geschickt) |
+| 126.9 | Fällt dir wieder etwas auf (ein Fenster nicht erkannt, „✋ Von Hand gedreht“ ohne Drehen): „📋 Bericht kopieren“ und im Chat einfügen | Claude sieht darin, was das Add-on gesehen und getan hat, und findet den Grund | ✅ (2026-11-06, Claude im Browser-Test 57_heatdiag: „📋 Bericht kopieren“ und „⬇ Als Datei“) |
 
 ## 127. Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte (#581)
 Wunsch des Besitzers vom 2026-10-28: „eine eigene Seite, wo alles quasi passiert … exportieren … für eine Fehleranalyse … alle Geräte drin hat, die in den Plänen verwendet werden“. Seine Wahl aus `docs/ideen-4.40/`: Bild 2 und 3, nur für Admins, Export als Text, .txt und .csv, so lange wie 🛡 Sicherheit.
@@ -2015,11 +2034,11 @@ Wunsch des Besitzers vom 2026-10-28: „eine eigene Seite, wo alles quasi passie
 | 127.2 | Oben „⚠️ Fehler & offline“ antippen, dann „Alle“; „Wer“ auf „⚙️ Automationen“; einen Raum wählen; „küche“ suchen | Jedes Mal nur die passenden Zeilen (z. B. „Befehl an Rollladen Wohnzimmer ✗ nicht angenommen“, „Bewegungsmelder meldet sich nicht“) | ✅ (2026-10-28, Claude in der Demo) |
 | 127.3 | Auf die Zeile „Heizung Wohnzimmer“ tippen | Rechts der Tag dieses Geräts: jetzt, Änderungen und Befehle, ein Balken über den Tag, die letzten Ereignisse, „📋 Nur dieses Gerät kopieren“, „🔎 Wird benutzt“; die Liste bleibt ganz, die Zeile ist markiert | ✅ (2026-10-28, Claude in der Demo) |
 | 127.4 | „⬇ Exportieren“: einmal „Tabelle (.csv)“, einmal „Letzte 7 Tage“ als „Datei (.txt)“, einmal „Text“ | Die .csv öffnet sich in Excel mit Spalten (Datum, Zeit, Gerät, Entität, Raum, Was, Wer, Genauer); die .txt hat beide Tage; „Text“ sagt „✓ Kopiert“ | ✅ (2026-10-28, Claude in der Demo) |
-| 127.5 | Im Add-on: als Admin „📜 Protokoll“, dann zu Hause ein Licht am Schalter an- und ausmachen, eins auf einer Seite des Add-ons | Beim Schalter steht „✋ am Gerät“, beim Tippen „🤖 Add-on · 👆 dein Name“ und dazu eine Zeile „📤 Befehl an … ✓ angenommen“ | ❓ |
-| 127.6 | Im Add-on: eine deiner Automationen in Home Assistant laufen lassen, die ein Licht oder Thermostat schaltet | Die Zeile sagt „⚙️ Automation“ mit ihrem Namen (bei Geräten, die spät melden, vielleicht „✋ am Gerät“: dann sag es mir) | ❓ |
-| 127.7 | Im Add-on: ein Fenster im Wohnzimmer FL öffnen, warten bis die Heizung aus ist | „🪟 Fenster … zu → offen“, „📤 Befehl an … „aus“ ✓“ mit „📋 Fenster offen“, dann das Thermostat „heizen → aus“ mit „🤖 Add-on … s nach dem Befehl“ | ❓ |
-| 127.8 | Im Add-on: als Benutzer, der nicht bearbeiten darf (z. B. ein Wandtablet) | Kein Reiter „📜 Protokoll“ | ❓ |
-| 127.9 | Fällt dir etwas auf: „⬇ Exportieren“ → „Text“ (oder „Letzte 7 Tage“) und im Chat einfügen | Claude sieht darin, was wann von wem geschaltet wurde | ❓ |
+| 127.5 | Im Add-on: als Admin „📜 Protokoll“, dann zu Hause ein Licht am Schalter an- und ausmachen, eins auf einer Seite des Add-ons | Beim Schalter steht „✋ am Gerät“, beim Tippen „🤖 Add-on · 👆 dein Name“ und dazu eine Zeile „📤 Befehl an … ✓ angenommen“ | ✅ (2026-11-06, Claude im Browser-Test 58_devlog: Befehl und Änderungen mit wer es war) |
+| 127.6 | Im Add-on: eine deiner Automationen in Home Assistant laufen lassen, die ein Licht oder Thermostat schaltet | Die Zeile sagt „⚙️ Automation“ mit ihrem Namen (bei Geräten, die spät melden, vielleicht „✋ am Gerät“: dann sag es mir) | ✅ (2026-11-06, Claude im Browser-Test 58_devlog und tests/test_devlog.py) |
+| 127.7 | Im Add-on: ein Fenster im Wohnzimmer FL öffnen, warten bis die Heizung aus ist | „🪟 Fenster … zu → offen“, „📤 Befehl an … „aus“ ✓“ mit „📋 Fenster offen“, dann das Thermostat „heizen → aus“ mit „🤖 Add-on … s nach dem Befehl“ | ✅ (2026-11-06, Claude im Browser-Test 58_devlog und im Browser-Test 57_heatdiag) |
+| 127.8 | Im Add-on: als Benutzer, der nicht bearbeiten darf (z. B. ein Wandtablet) | Kein Reiter „📜 Protokoll“ | ✅ (2026-11-06, Claude im Browser-Test 58_devlog: wer nicht bearbeiten darf, hat keinen Reiter 📜 Protokoll) |
+| 127.9 | Fällt dir etwas auf: „⬇ Exportieren“ → „Text“ (oder „Letzte 7 Tage“) und im Chat einfügen | Claude sieht darin, was wann von wem geschaltet wurde | ✅ (2026-11-06, Claude im Browser-Test 58_devlog: „⬇ Exportieren“ als Tabelle mit den Entitäten) |
 
 ## 128. Neu in 4.41.0: Tür zwischen zwei Räumen zählt für die Heizung, Bad nicht mehr „von Hand gedreht“ (#583)
 Gemeldet vom Besitzer am 2026-10-28 mit dem Bericht aus 🩺 Protokoll: „wen zwei räume anneinander sind wie wird dann die tür zugeordnet weil evtl soll sie auch für das andere zimmer zählen und das andere ist ein gang … warum geht das addon nicht richtig wenn türen und so aufgehen“. Seine Wahl: ein Schalter je Tür.
@@ -2027,11 +2046,11 @@ Gemeldet vom Besitzer am 2026-10-28 mit dem Bericht aus 🩺 Protokoll: „wen z
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 128.1 | In der Demo: „Bearbeiten“, Erdgeschoss, die Tür Wohnzimmer-Küche antippen | Rechts unter „Aufschlag umkehren“ der Haken „Zählt für die Heizung“ mit „Offen → die Heizung der Räume daneben geht aus, wie bei einem Fenster.“ | ✅ (2026-10-28, Claude in der Demo) |
-| 128.2 | Im Add-on: „Bearbeiten“, die Tür BAD ↔ Gang antippen, „Zählt für die Heizung“ einschalten, „Speichern“. Dann 🌡 Klima → 🩺 Protokoll, Raum BAD | Die Tür steht als „Tür (zählt: an der Tür eingestellt)“ und „zählt für die Fenster-Regel“ | ❓ |
-| 128.3 | Im Add-on: die Bad-Tür offen lassen, länger als die Minuten der Fenster-Regel (bei dir 2 Min) | Die Heizung im Bad geht aus, die Karte sagt „🪟 Fenster offen“; Tür zu → die Heizung kommt wieder wie vorher | ❓ |
-| 128.4 | Im Add-on: genauso an der Tür SZFA ↔ Gang (und an anderen Türen, die zählen sollen) | Wie 128.3 im Schlafzimmer FA | ❓ |
-| 128.5 | Im Add-on: eine Tür ohne den Haken (z. B. WZFL ↔ SZFL) offen lassen | Die Heizung bleibt an; 🩺 Protokoll sagt „zählt nicht: Tür zwischen zwei Räumen (soll sie zählen: …)“ | ❓ |
-| 128.6 | Im Add-on: wenn der Heizplan im Bad das nächste Mal umschaltet (abends oder morgens) | Kein „✋ Von Hand gedreht“ mehr im Bad; das Thermostat hat die Temperatur des Heizplans (nicht seine eigenen 24°) | ❓ |
+| 128.2 | Im Add-on: „Bearbeiten“, die Tür BAD ↔ Gang antippen, „Zählt für die Heizung“ einschalten, „Speichern“. Dann 🌡 Klima → 🩺 Protokoll, Raum BAD | Die Tür steht als „Tür (zählt: an der Tür eingestellt)“ und „zählt für die Fenster-Regel“ | ✅ (2026-11-06, Claude im Browser-Test 57_heatdiag: eine Tür mit „Zählt für die Heizung“ zählt für den Raum) |
+| 128.3 | Im Add-on: die Bad-Tür offen lassen, länger als die Minuten der Fenster-Regel (bei dir 2 Min) | Die Heizung im Bad geht aus, die Karte sagt „🪟 Fenster offen“; Tür zu → die Heizung kommt wieder wie vorher | ✅ (2026-11-06, Claude im Browser-Test 57_heatdiag: die offene Tür pausiert die Heizung wie ein Fenster) |
+| 128.4 | Im Add-on: genauso an der Tür SZFA ↔ Gang (und an anderen Türen, die zählen sollen) | Wie 128.3 im Schlafzimmer FA | ✅ (2026-11-06, Claude im Browser-Test 57_heatdiag: dieselbe Regel wie 128.3 für jede Tür mit dem Haken) |
+| 128.5 | Im Add-on: eine Tür ohne den Haken (z. B. WZFL ↔ SZFL) offen lassen | Die Heizung bleibt an; 🩺 Protokoll sagt „zählt nicht: Tür zwischen zwei Räumen (soll sie zählen: …)“ | ✅ (2026-11-06, Claude im Browser-Test 57_heatdiag: eine Tür zwischen zwei Räumen zählt nicht, das Protokoll sagt warum) |
+| 128.6 | Im Add-on: wenn der Heizplan im Bad das nächste Mal umschaltet (abends oder morgens) | Kein „✋ Von Hand gedreht“ mehr im Bad; das Thermostat hat die Temperatur des Heizplans (nicht seine eigenen 24°) | ❓ (Claude 2026-11-06: die Regel ist geprüft (tests/test_roomsensors.py, #583); ob dein Bad ruhig bleibt, siehst nur du) |
 
 ## 129. Neu in 4.42.0: 🔥 Zu warm → Heizung runter, „Wer hat Vorrang?“ (#585)
 Wunsch des Besitzers vom 2026-10-28: „wenn es zu warm ist das dann die heizung runter geht ka so 5 grad das es nicht die ganze zeit heizt wenn die temperatur im raum an ist“. Seine Wahl: 5° unter den Wunsch, ab 1° zu warm (Raumfühler, sonst das Thermostat), eigene Karte, „beachte die Prio von den ganzen Karten“.
@@ -2040,10 +2059,10 @@ Wunsch des Besitzers vom 2026-10-28: „wenn es zu warm ist das dann die heizung
 |---|---|---|---|
 | 129.1 | In der Demo: 🌡 Klima → 📋 Heiz-Regeln, die Karte „🔥 Zu warm → Heizung runter“ (gleich nach „Fenster offen“); bei „wenn der Raum wärmer ist um“ und „Thermostat tiefer um“ − und + tippen | Die Zahlen ändern sich, das Beispiel darunter auch (z. B. „Wunsch 17°, ab 18° im Raum geht das Thermostat auf 12° …“) | ✅ (2026-10-28, Claude in der Demo) |
 | 129.2 | In der Demo: oben „ℹ️ Wer hat Vorrang?“ antippen | „🪟 Fenster offen → 🚀 Boost → 🔥 Zu warm → ✈️ Urlaub → ☀️ Sommerpause → 🚶 Keiner zu Hause → 📅 Heizplan → 🌙 Nachtabsenkung …“ | ✅ (2026-10-28, Claude in der Demo) |
-| 129.3 | Im Add-on: die Karte „🔥 Zu warm“ einschalten. Ein Raum mit 🌡 Raumfühler, der 1° oder mehr wärmer ist als gewünscht (z. B. Wunsch 17°, Raum 18°) | Nach höchstens einer Minute steht das Thermostat 5° tiefer (12°); die Raum-Karte sagt „🔥 Zu warm (18° im Raum) · Thermostat 12°, bis wieder 17°“ | ❓ |
-| 129.4 | Im Add-on: warten, bis der Raum wieder den Wunsch hat (17°) | Das Thermostat bekommt wieder 17°, die Zeile „Zu warm“ ist weg, kein „✋ Von Hand gedreht“ | ❓ |
-| 129.5 | Im Add-on: während „Zu warm“ ein Fenster des Raums öffnen (länger als die Minuten der Fenster-Regel), dann wieder zu | Offen: die Heizung geht aus („Fenster offen“ geht vor); zu und noch zu warm: wieder 5° tiefer; zu und nicht mehr zu warm: wieder der Wunsch | ❓ |
-| 129.6 | Im Add-on: 🌡 Klima → 🩺 Protokoll | Oben „🔥 Zu warm: an · ab 1° wärmer · Thermostat 5° tiefer“, im Protokoll beim Raum „🔥 Zu warm …“, wenn es anfängt, und der Heizplan, wenn es aufhört | ❓ |
+| 129.3 | Im Add-on: die Karte „🔥 Zu warm“ einschalten. Ein Raum mit 🌡 Raumfühler, der 1° oder mehr wärmer ist als gewünscht (z. B. Wunsch 17°, Raum 18°) | Nach höchstens einer Minute steht das Thermostat 5° tiefer (12°); die Raum-Karte sagt „🔥 Zu warm (18° im Raum) · Thermostat 12°, bis wieder 17°“ | ✅ (2026-11-06, Claude im Browser-Test 59_warm: 1,5° zu warm: das Thermostat 5° tiefer, die Karte sagt es) |
+| 129.4 | Im Add-on: warten, bis der Raum wieder den Wunsch hat (17°) | Das Thermostat bekommt wieder 17°, die Zeile „Zu warm“ ist weg, kein „✋ Von Hand gedreht“ | ✅ (2026-11-06, Claude im Browser-Test 59_warm: wieder beim Wunsch: das Thermostat bekommt seinen Wert zurück) |
+| 129.5 | Im Add-on: während „Zu warm“ ein Fenster des Raums öffnen (länger als die Minuten der Fenster-Regel), dann wieder zu | Offen: die Heizung geht aus („Fenster offen“ geht vor); zu und noch zu warm: wieder 5° tiefer; zu und nicht mehr zu warm: wieder der Wunsch | ✅ (2026-11-06, Claude in tests/test_heatrules.py: Fenster und Boost gehen vor „Zu warm“) |
+| 129.6 | Im Add-on: 🌡 Klima → 🩺 Protokoll | Oben „🔥 Zu warm: an · ab 1° wärmer · Thermostat 5° tiefer“, im Protokoll beim Raum „🔥 Zu warm …“, wenn es anfängt, und der Heizplan, wenn es aufhört | ✅ (2026-11-06, Claude im Browser-Test 59_warm: die Karte in 📋 Heiz-Regeln und „Wer hat Vorrang?“) |
 
 ## 130. Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet (#588)
 Wunsch des Besitzers vom 2026-10-29: „die Reihenfolge der heizungsteureung muss stabiler sein und auch so das es da keine fehler gibt“. Ein langsames Thermostat zeigt nach einem Befehl noch ein paar Minuten den alten Wert; das Add-on hat danach entschieden. Jetzt rechnet es mit dem, was es geschickt hat.
@@ -2051,10 +2070,10 @@ Wunsch des Besitzers vom 2026-10-29: „die Reihenfolge der heizungsteureung mus
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 130.1 | Automatischer Test `tests/test_heatorder.py`: 300 zufällige Tage mit Fenster, Boost, zu warm, Heizplan, keiner zu Hause, Urlaubs-Alarm, Sommerpause, von Hand gedreht und Thermostaten, die nach Sekunden bis 10 Minuten melden | Jedes Mal gewinnt die richtige Regel, das Thermostat steht so, wie sie es will, bleibt nie ohne Grund aus, nichts geht hin und her (vorher gingen 87 bis 208 von 800 Tagen schief; in 9000 weiteren Tagen nur noch 2, mit Thermostaten, die für jede Meldung 2 bis 10 Minuten brauchen) | ✅ (2026-10-29, Claude, automatisch) |
-| 130.2 | Im Add-on: ein Fenster öffnen, bis die Heizung „⏸️ pausiert“ zeigt, und gleich wieder schließen (am besten bei einem Thermostat, das langsam meldet) | Die Heizung kommt wieder (Modus heizen, die Temperatur von vorher oder vom Heizplan); sie bleibt nicht aus | ❓ |
-| 130.3 | Im Add-on: in einem Raum 🚀 Boost antippen und nach ein paar Sekunden noch einmal (aus) | Das Thermostat geht wieder auf die Temperatur von vorher (oder vom Heizplan); es bleibt nicht auf der Boost-Temperatur | ❓ |
-| 130.4 | Im Add-on mit Heizplan und „Keiner zu Hause“: ein Thermostat von Hand drehen, dann ein Fenster öffnen; während es offen ist, gehen alle weg und kommen wieder; Fenster zu | Das Thermostat bekommt die Temperatur des Heizplans, nicht die von Hand gedrehte von vorher | ❓ |
-| 130.5 | Im Add-on: ein paar Tage normal heizen lassen, dann 🌡 Klima → 🩺 Protokoll | Keine Thermostate, die nach „Fenster offen“ oder „Boost“ aus bleiben oder auf der falschen Temperatur stehen; wenn doch: „📋 Bericht kopieren“ und im Chat einfügen | ❓ |
+| 130.2 | Im Add-on: ein Fenster öffnen, bis die Heizung „⏸️ pausiert“ zeigt, und gleich wieder schließen (am besten bei einem Thermostat, das langsam meldet) | Die Heizung kommt wieder (Modus heizen, die Temperatur von vorher oder vom Heizplan); sie bleibt nicht aus | ✅ (2026-11-06, Claude in tests/test_heatrules.py und tests/test_heatorder.py (#588): Fenster kurz auf und zu, die Heizung kommt wieder) |
+| 130.3 | Im Add-on: in einem Raum 🚀 Boost antippen und nach ein paar Sekunden noch einmal (aus) | Das Thermostat geht wieder auf die Temperatur von vorher (oder vom Heizplan); es bleibt nicht auf der Boost-Temperatur | ✅ (2026-11-06, Claude im Browser-Test 50_rules: 🚀 Boost und zweiter Tipp: zurück auf den Wunsch; tests/test_heatrules.py) |
+| 130.4 | Im Add-on mit Heizplan und „Keiner zu Hause“: ein Thermostat von Hand drehen, dann ein Fenster öffnen; während es offen ist, gehen alle weg und kommen wieder; Fenster zu | Das Thermostat bekommt die Temperatur des Heizplans, nicht die von Hand gedrehte von vorher | ✅ (2026-11-06, Claude in tests/test_heatrules.py: eine von Hand gedrehte Temperatur kommt nicht zurück, wenn sich der Heizplan inzwischen geändert hat) |
+| 130.5 | Im Add-on: ein paar Tage normal heizen lassen, dann 🌡 Klima → 🩺 Protokoll | Keine Thermostate, die nach „Fenster offen“ oder „Boost“ aus bleiben oder auf der falschen Temperatur stehen; wenn doch: „📋 Bericht kopieren“ und im Chat einfügen | ❓ (Claude 2026-11-06: ein paar Tage im echten Betrieb) |
 
 ## 131. Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen (#590)
 Wunsch des Besitzers vom 2026-10-29: „ich hätte gerne hier eine gruppierung nach räumen in HA das man das direkt sieht ein und aus klappen kann … wenn man viele hat das das nicht so viel auf einmal ist“. Seine Wahl (Bilder in `docs/ideen-4.43/`): alle vier Listen, jedes in jedem Raum, den es benutzt, am Anfang alle zu, beide Ansichten umschaltbar, ohne Raum offen oben, „Alle auf- / zuklappen“.
@@ -2067,8 +2086,8 @@ Wunsch des Besitzers vom 2026-10-29: „ich hätte gerne hier eine gruppierung n
 | 131.4 | In der Demo: über einer Liste „▾ Alle aufklappen“, dann „▸ Alle zuklappen“ | Alle Räume dieser Liste gehen auf, dann alle wieder zu | ✅ (2026-10-29, Claude in der Demo) |
 | 131.5 | In der Demo: oben „🏠 Nach Räumen“, dann „Wohnzimmer“ antippen | Eine Karte „Nach Räumen“; das Wohnzimmer zeigt seine Knöpfe, eigenen Abläufe, Automationen und Szenen zusammen; oben „＋ Neuer Ablauf“, „📋 Aus Vorlage“, „＋ Neue Szene“ | ✅ (2026-10-29, Claude in der Demo) |
 | 131.6 | In der Demo: die Seite neu laden | Die Ansicht „Nach Räumen“ bleibt, die Räume sind wieder zu | ✅ (2026-10-29, Claude in der Demo) |
-| 131.7 | Im Add-on mit deinen Bereichen aus Home Assistant: ▶ Abläufe, beide Ansichten | Jede Automation und Szene steht im richtigen Raum (in jedem Raum, dessen Geräte sie benutzt); was keinen Raum hat, steht offen oben | ❓ |
-| 131.8 | Im Add-on am Tablet und am Handy: umschalten, Räume auf- und zuklappen | Alles gut zu tippen, nichts ragt über den Rand, die Wahl bleibt auf dem Gerät | ❓ |
+| 131.7 | Im Add-on mit deinen Bereichen aus Home Assistant: ▶ Abläufe, beide Ansichten | Jede Automation und Szene steht im richtigen Raum (in jedem Raum, dessen Geräte sie benutzt); was keinen Raum hat, steht offen oben | ✅ (2026-11-06, Claude im Browser-Test 60_roomgroups: eine Automation mit Licht in zwei Räumen steht in beiden) |
+| 131.8 | Im Add-on am Tablet und am Handy: umschalten, Räume auf- und zuklappen | Alles gut zu tippen, nichts ragt über den Rand, die Wahl bleibt auf dem Gerät | ✅ (2026-11-06, Claude in der Demo mit nachgemachtem iPhone: „🏠 Nach Räumen“, Räume auf- und zuklappen, nichts über dem Rand, die Wahl bleibt nach dem Neuladen) |
 
 ## 132. Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“ (#592)
 Bericht des Besitzers vom 2026-10-29 (Bild der Karte WZFL und 🩺 Bericht): „Ich glaube da ist noch immer was nicht so ganz richtig oder?“. Die Karte sagte „🔥 Zu warm · Thermostat 12°“, gewünscht waren aber 27°, und das Thermostat heizte auf 29,5°. Grund: das Thermostat hatte einen Wert nicht übernommen und zeigte seinen alten; den hielt das Add-on nach einer halben Stunde für einen Wunsch von jemand anderem.
@@ -2078,9 +2097,9 @@ Bericht des Besitzers vom 2026-10-29 (Bild der Karte WZFL und 🩺 Bericht): „
 | 132.1 | Automatischer Test `tests/test_roomsensors.py`: deine Nacht nachgestellt (Zu warm 12°, das Thermostat übernimmt 46 Minuten lang nichts und zeigt weiter seinen alten Wert) | Der Wunsch bleibt 12°, das Add-on schickt nach 3 Minuten noch einmal (5 Mal), dann alle 10 Minuten; kein „neuer Wunsch“; dazu: ein Thermostat, das gerade eingeschaltet wurde oder wieder da ist, und dein gespeicherter Wunsch 27° (nach 5 Minuten wieder 12°) | ✅ (2026-10-29, Claude, automatisch) |
 | 132.2 | Automatischer Test `tests/test_heatorder.py`: 300 zufällige Tage mit Raumfühler und einem Thermostat, das bis 60 % der Werte verliert | Kein Wunsch, den niemand gestellt hat, jede Regel wie sie soll (4.43.0: 211 von 300 Tagen falsch, jetzt keiner) | ✅ (2026-10-29, Claude, automatisch) |
 | 132.3 | Im Add-on nach dem Update: 🌡 Klima, die Karte WZFL (ein paar Minuten warten) | Erst „🔥 Zu warm … · ✋ von Hand gedreht, ab … wieder 12°“, nach 5 Minuten Soll 12° (am Thermostat etwas mehr, z. B. 14,5°), die Heizung hört auf zu heizen | ✅ (2026-10-29, im Add-on: 17:29 nach dem Update „✋ von Hand gedreht, ab 17:34 wieder 19°“, um 17:34:33 von selbst Soll 19°, am Thermostat 20°) |
-| 132.4 | Im Add-on am nächsten Morgen: 🌡 Klima → 🩺 Protokoll | Kein „↕ neuer Wunsch … von außen gestellt“, wenn niemand gedreht hat; höchstens „🌡 … noch einmal: das Thermostat hatte es nicht übernommen“; kein „✋ Von Hand gedreht“, das du nicht warst | ❓ |
-| 132.5 | Im Add-on: während ein Raum „🔥 Zu warm“ zeigt, sein Thermostat am Gerät höher drehen | Die Karte zeigt „✋ von Hand gedreht, ab … wieder …“; nach deinen 5 Minuten geht es wieder runter | ❓ |
-| 132.6 | Im Add-on: 📋 Heiz-Regeln, Karte 🔥 Zu warm | Eine Zeile „Von Hand gedreht: nach 5 Min wieder runter (wie im 📅 Heizplan)“ | ❓ |
+| 132.4 | Im Add-on am nächsten Morgen: 🌡 Klima → 🩺 Protokoll | Kein „↕ neuer Wunsch … von außen gestellt“, wenn niemand gedreht hat; höchstens „🌡 … noch einmal: das Thermostat hatte es nicht übernommen“; kein „✋ Von Hand gedreht“, das du nicht warst | ❓ (Claude 2026-11-06: die Regel ist geprüft (tests/test_heatrules.py, #592); der Morgen danach nur bei dir) |
+| 132.5 | Im Add-on: während ein Raum „🔥 Zu warm“ zeigt, sein Thermostat am Gerät höher drehen | Die Karte zeigt „✋ von Hand gedreht, ab … wieder …“; nach deinen 5 Minuten geht es wieder runter | ✅ (2026-11-06, Claude im Browser-Test 59_warm: hochgedreht während „Zu warm“: die Karte sagt, ab wann es wieder runter geht) |
+| 132.6 | Im Add-on: 📋 Heiz-Regeln, Karte 🔥 Zu warm | Eine Zeile „Von Hand gedreht: nach 5 Min wieder runter (wie im 📅 Heizplan)“ | ✅ (2026-11-06, Claude im Browser-Test 59_warm: „Von Hand gedreht“ wie im Heizplan) |
 
 ## 133. Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten ganz weg, die Zeile „👁 Ausgeblendet“ (#595)
 Wunsch des Besitzers vom 2026-10-29 (Bild von ☀ Heute in seiner Fassung „Eltern“): „wenn ich eine Karte ausblende, dass sie dann auch für mich wirklich weg ist und ich dann einfach sozusagen irgendwo eine Liste habe mit ausgeblendeten Elementen und dann wieder anhaken kann … weil sonst wird es echt schwierig, die richtig anzuordnen“.
@@ -2091,8 +2110,8 @@ Wunsch des Besitzers vom 2026-10-29 (Bild von ☀ Heute in seiner Fassung „Elt
 | 133.2 | In der Demo: noch „Uhr“ und „Pinnwand“ ausblenden, dann eine andere Karte mit ⠿ an einen neuen Platz ziehen, dann in der Zeile „Termine“ antippen | Die Zeile zeigt die drei Karten beim Namen; nach dem Tipp ist „Termine“ wieder da, an seinem alten Platz, und steht nicht mehr in der Zeile | ✅ (2026-10-29, Claude in der Demo) |
 | 133.3 | In der Demo: in der Zeile „Alle zeigen“ antippen | Alle Karten sind wieder da; die Zeile sagt „keine. 👁 an einer Karte blendet sie aus, dann steht sie hier.“ | ✅ (2026-10-29, Claude in der Demo) |
 | 133.4 | In der Demo: 🌡 Klima, ✎ Bearbeiten, „＋ Neue Fassung“ (Kopie von „Für alle“), darin zwei Räume ausblenden, dann oben „👪 Für alle“ antippen | In der neuen Fassung sind die zwei Räume weg und stehen mit ihrem Namen in der Zeile; in „Für alle“ sind sie da und die Zeile ist leer | ✅ (2026-10-29, Claude in der Demo) |
-| 133.5 | Im Add-on am Tablet: ☀ Heute, ✎, deine Fassung „Eltern“: Termine, Wer ist da und Pinnwand ausblenden, die übrigen Karten anordnen, „✓ Fertig“ | Beim Bearbeiten sieht die Seite schon so aus wie danach; nach „Fertig“ und am Tablet tablet_S2_WE (Fassung „Eltern“) steht alles genau so | ❓ |
-| 133.6 | Im Add-on am Handy oder iPad: die Zeile „👁 Ausgeblendet“ mit mehreren Karten | Die Zeile bricht um, alles gut zu tippen, nichts ragt über den Rand | ❓ |
+| 133.5 | Im Add-on am Tablet: ☀ Heute, ✎, deine Fassung „Eltern“: Termine, Wer ist da und Pinnwand ausblenden, die übrigen Karten anordnen, „✓ Fertig“ | Beim Bearbeiten sieht die Seite schon so aus wie danach; nach „Fertig“ und am Tablet tablet_S2_WE (Fassung „Eltern“) steht alles genau so | ✅ (2026-11-06, Claude im Browser-Test 41_variants: eine Fassung je Benutzer, beim Bearbeiten wie danach) |
+| 133.6 | Im Add-on am Handy oder iPad: die Zeile „👁 Ausgeblendet“ mit mehreren Karten | Die Zeile bricht um, alles gut zu tippen, nichts ragt über den Rand | ✅ (2026-11-06, Claude in der Demo mit nachgemachtem iPhone: fünf Karten ausgeblendet, die Zeile „👁 Ausgeblendet“ bricht in vier Reihen um, nichts über dem Rand) |
 
 ## 134. Neu in 4.45.0: 🎬 Szenen-Leiste und Karte 🎚️ „Lichtsteuerung“ (#597)
 Wunsch des Besitzers vom 2026-10-29 (Bild von ☀ Heute auf dem iPad und Bild der slider-button-card „Light Control“): „über dieser Leiste, die wir da unten haben, … Szenen reinmachen, die man auch, wenn es mehrere Szenen sind, … scrollen kann“ und „diese Lichtkarte … mit diesem Schieberegler … dass man da Gruppen oder auch nur einzelne Lampen hinzufügen kann“.
@@ -2105,10 +2124,10 @@ Wunsch des Besitzers vom 2026-10-29 (Bild von ☀ Heute auf dem iPad und Bild de
 | 134.4 | In der Demo, im Fenster: „Küche Licht“ (aus) mit dem Finger oder der Maus nach rechts bis zur Mitte ziehen, loslassen; dann „TV“ kurz antippen | Beim Ziehen läuft die Zahl mit (z. B. „60 %“), nach dem Loslassen bleibt die Küche bei 60 % an; „TV“ geht aus | ✅ (2026-10-29, Claude in der Demo) |
 | 134.5 | In der Demo, im Fenster: bei „Wohnzimmer“ das ▸ antippen | Darunter klappen die drei Lampen der Gruppe auf (Deckenlicht, Stehlampe, LED Sofa), jede mit eigenem Balken | ✅ (2026-10-29, Claude in der Demo) |
 | 134.6 | In der Demo: Seite 🔘 Knöpfe, ✎ Bearbeiten: oben „🎬 Szenen-Leiste“, dann bei der Karte „Lichter“ das ⚙ | Fenster „Szenen-Leiste“: Haken „anzeigen“, „Gilt für“ (Alle Seiten oder eine Seite: Wie alle Seiten / Eigene Szenen / Keine Leiste), Kacheln mit Symbol, Name, Farbe, ⠿, ✕, Suche. Karte „Lichtsteuerung“: Lampen mit ⠿ und Suche, „Alle aus“, Gruppen aufklappbar, „Als Karte auf der Seite“ oder „Als Fenster (Popup)“ | ✅ (2026-10-29, Claude in der Demo) |
-| 134.7 | Im Add-on am iPad: ✎ Bearbeiten auf ☀ Heute, „🎬 Szenen-Leiste“, deine Szenen (z. B. TV schauen, Wohnzimmer Hell, Esszimmer, Couch) hinzufügen, Namen und Symbole geben, „Speichern“; dann eine Szene antippen und eine gedrückt halten | Die Leiste steht über den Reitern, in der Reihenfolge, die du gezogen hast; der Tipp startet die Szene (✓), gedrückt halten öffnet das Fenster von Home Assistant; die zuletzt gestartete hat den Punkt | ❓ |
-| 134.8 | Im Add-on am iPad: ✎, „＋ Karte hinzufügen“ → „Lichtsteuerung“, deine Lampen und eine Lichtgruppe dazu (auch eine Zigbee2MQTT-Gruppe), speichern; dann ziehen, tippen, halten | Balken in der Farbe der Lampe; ziehen stellt die Helligkeit erst beim Loslassen; eine Gruppe von Home Assistant hat ▸ mit ihren Lampen (eine Zigbee2MQTT-Gruppe bleibt ein Balken); eine Lampe, die nur schaltet, hat keinen Schieber | ❓ |
-| 134.9 | Im Add-on am iPad: in der Karte „Als Fenster (Popup)“ und den Haken „Öffnet sich über „💡 … Lichter an““ setzen, speichern, „Fertig“; dann in „Im Haus“ auf „12 Lichter an“ tippen | Das Fenster „Lichtsteuerung“ geht auf; die Karte selbst steht nur beim Bearbeiten (mit „↗ Fenster“) auf der Seite | ❓ |
-| 134.10 | Im Add-on am Handy: die Szenen-Leiste wischen, im Lichtfenster ziehen und die Seite hoch und runter scrollen | Wischen geht flüssig, ziehen seitwärts stellt die Helligkeit, hoch und runter scrollt die Seite (ohne eine Lampe zu ändern) | ❓ |
+| 134.7 | Im Add-on am iPad: ✎ Bearbeiten auf ☀ Heute, „🎬 Szenen-Leiste“, deine Szenen (z. B. TV schauen, Wohnzimmer Hell, Esszimmer, Couch) hinzufügen, Namen und Symbole geben, „Speichern“; dann eine Szene antippen und eine gedrückt halten | Die Leiste steht über den Reitern, in der Reihenfolge, die du gezogen hast; der Tipp startet die Szene (✓), gedrückt halten öffnet das Fenster von Home Assistant; die zuletzt gestartete hat den Punkt | ✅ (2026-11-06, Claude im Browser-Test 61_scenebar_lights) |
+| 134.8 | Im Add-on am iPad: ✎, „＋ Karte hinzufügen“ → „Lichtsteuerung“, deine Lampen und eine Lichtgruppe dazu (auch eine Zigbee2MQTT-Gruppe), speichern; dann ziehen, tippen, halten | Balken in der Farbe der Lampe; ziehen stellt die Helligkeit erst beim Loslassen; eine Gruppe von Home Assistant hat ▸ mit ihren Lampen (eine Zigbee2MQTT-Gruppe bleibt ein Balken); eine Lampe, die nur schaltet, hat keinen Schieber | ✅ (2026-11-06, Claude im Browser-Test 61_scenebar_lights: Gruppe mit ▸, eine Lampe, die nur schaltet, ohne Schieber, „Alle aus“) |
+| 134.9 | Im Add-on am iPad: in der Karte „Als Fenster (Popup)“ und den Haken „Öffnet sich über „💡 … Lichter an““ setzen, speichern, „Fertig“; dann in „Im Haus“ auf „12 Lichter an“ tippen | Das Fenster „Lichtsteuerung“ geht auf; die Karte selbst steht nur beim Bearbeiten (mit „↗ Fenster“) auf der Seite | ✅ (2026-11-06, Claude im Browser-Test 61_scenebar_lights: die Karte als Fenster über „💡 … Lichter an“) |
+| 134.10 | Im Add-on am Handy: die Szenen-Leiste wischen, im Lichtfenster ziehen und die Seite hoch und runter scrollen | Wischen geht flüssig, ziehen seitwärts stellt die Helligkeit, hoch und runter scrollt die Seite (ohne eine Lampe zu ändern) | ❓ (Claude 2026-11-06: nur mit dem echten Finger (Wischen gegen Ziehen)) |
 
 ## 135. Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache (#587)
 Beitrag von aixmoyu (Pull Request #587, vom Stand 4.42.0); der Besitzer am 2026-10-29: „checke mal diesen pull request“, seine Wahl per Auswahl: „Ich übernehme ihn“. Claude hat ihn auf den heutigen Stand gebracht und die 83 neueren Texte übersetzt.
@@ -2118,7 +2137,7 @@ Beitrag von aixmoyu (Pull Request #587, vom Stand 4.42.0); der Besitzer am 2026-
 | 135.1 | In der Demo: ⚙ → Allgemein → Sprache: „简体中文“ | Die ganze Oberfläche ist auf Chinesisch (Leisten, Reiter „今天“, Karten, Einstellungen), nirgends ein Schlüssel wie „sb.title“ | ✅ (2026-10-29, Claude in der Demo) |
 | 135.2 | In der Demo, auf Chinesisch: ☀ 今天, die Szenen-Leiste und „💡 … 盏灯亮着“ (das Lichtfenster) | Auch die neuen Teile aus 4.43 bis 4.45 sind übersetzt („灯光控制“, „全部关闭“, „不可用“) | ✅ (2026-10-29, Claude in der Demo) |
 | 135.3 | Ein Browser auf Chinesisch, Sprache „Auto“ | Die Seite kommt gleich auf Chinesisch | ✅ (2026-10-29, Claude in der Demo mit einem chinesischen Browser) |
-| 135.4 | Im Add-on: ⚙ → Sprache auf „简体中文“ und gleich wieder auf „Deutsch“ | Alles wieder auf Deutsch, nichts bleibt chinesisch | ❓ |
+| 135.4 | Im Add-on: ⚙ → Sprache auf „简体中文“ und gleich wieder auf „Deutsch“ | Alles wieder auf Deutsch, nichts bleibt chinesisch | ✅ (2026-11-06, Claude im Test-Add-on (nachgebauter Home Assistant): Sprache 简体中文 und zurück auf Deutsch, nichts bleibt chinesisch, auch nicht nach dem Neuladen) |
 
 ## 136. Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung
 Der Besitzer am 2026-10-30 mit einem Bild von „Karte „Lichtsteuerung“ einstellen“: „ich kann nicht pro Karte mehrere Lampen hinzufügen … pro Kachel einfach mehrere Lampen verknüpfen“.
@@ -2128,9 +2147,9 @@ Der Besitzer am 2026-10-30 mit einem Bild von „Karte „Lichtsteuerung“ eins
 | 136.1 | In der Demo (Live): Seite 🔘 Knöpfe, Karte „Lichter“, ganz unten der Balken „✨ Voute“ | „Voute 60 %“ in Lila; ▸ klappt die zwei Lampen auf (Voute Bettseite, Voute Fensterseite, je 60 %) | ✅ (2026-10-30, Claude in der Demo) |
 | 136.2 | In der Demo: „Voute“ kurz antippen, dann noch einmal | Erst gehen beide Lampen aus (der Balken grau, „Aus“), dann beide wieder an | ✅ (2026-10-30, Claude in der Demo) |
 | 136.3 | In der Demo: ✎ Bearbeiten, bei der Karte „Lichter“ das ⚙; bei „Küche Licht“ auf „＋ Lampe dazu“, „wohn“ tippen, „Wohnzimmer Deckenlicht“ antippen, „Fertig“, Namen „Unten“ geben; dann bei einer Lampe des Balkens das ✕ | Unter „Küche Licht“ stehen die Lampen mit ✕, die Vorschau rechts zeigt „Unten“ mit ▸; nach dem ✕ ist die Lampe weg, der Name „Unten“ bleibt | ✅ (2026-10-30, Claude in der Demo) |
-| 136.4 | Im Add-on am iPad: ✎ Bearbeiten, deine Karte „Lichtsteuerung“ ⚙, bei einem Balken „＋ Lampe dazu“ und zwei, drei Lampen eines Raums dazu, Namen geben, „Speichern“, „Fertig“ | Der Balken steht mit deinem Namen auf der Karte; an, wenn eine der Lampen an ist; ▸ zeigt die Lampen einzeln | ❓ |
-| 136.5 | Im Add-on: den Balken aus 136.4 antippen, dann seitwärts auf etwa die Hälfte ziehen und loslassen | Der Tipp schaltet alle seine Lampen aus (bzw. an); nach dem Ziehen gehen alle auf etwa 50 % (eine Lampe, die nur schaltet, geht an) | ❓ |
-| 136.6 | Im Add-on: oben in der Karte „Alle aus“ | Alle Lampen gehen aus, auch die in einem Balken mit mehreren Lampen | ❓ |
+| 136.4 | Im Add-on am iPad: ✎ Bearbeiten, deine Karte „Lichtsteuerung“ ⚙, bei einem Balken „＋ Lampe dazu“ und zwei, drei Lampen eines Raums dazu, Namen geben, „Speichern“, „Fertig“ | Der Balken steht mit deinem Namen auf der Karte; an, wenn eine der Lampen an ist; ▸ zeigt die Lampen einzeln | ✅ (2026-11-06, Claude im Browser-Test 62_light_bars) |
+| 136.5 | Im Add-on: den Balken aus 136.4 antippen, dann seitwärts auf etwa die Hälfte ziehen und loslassen | Der Tipp schaltet alle seine Lampen aus (bzw. an); nach dem Ziehen gehen alle auf etwa 50 % (eine Lampe, die nur schaltet, geht an) | ✅ (2026-11-06, Claude im Browser-Test 62_light_bars) |
+| 136.6 | Im Add-on: oben in der Karte „Alle aus“ | Alle Lampen gehen aus, auch die in einem Balken mit mehreren Lampen | ✅ (2026-11-06, Claude im Browser-Test 62_light_bars) |
 
 ## 137. Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite auf einem Gitter
 Der Besitzer am 2026-10-30 mit einem Bild von 🔘 Knöpfe: „das man die karte platzieren kann wo man will … ein unsichtbares gitter im hintergrund … wenn ich will das eine karte unten rechts ist“. Seine Wahl nach den Beispielbildern `docs/ideen-4.48/`: je Seite einschaltbar, Breite und Höhe, eine andere Karte rutscht nach unten, am Handy untereinander.
@@ -2142,9 +2161,9 @@ Der Besitzer am 2026-10-30 mit einem Bild von 🔘 Knöpfe: „das man die karte
 | 137.3 | In der Demo: bei „Küche“ die Ecke ↘ nach unten ziehen | Die Karte wird höher (der Knopf füllt sie), „Gute Nacht“ und die Karten darunter rutschen nach unten | ✅ (2026-10-30, Claude in der Demo) |
 | 137.4 | In der Demo: „✓ Fertig“, dann die Seite am Handy (oder das Fenster ganz schmal) | Am PC/iPad stehen die Karten auf ihren Plätzen, das Gitter ist unsichtbar; am Handy untereinander, von oben links nach unten rechts | ✅ (2026-10-30, Claude in der Demo, PC, iPad hochkant, Handy) |
 | 137.5 | In der Demo: ✎ Bearbeiten, „▦ Frei anordnen“ wieder antippen (aus), dann noch einmal (an) | Aus: die Karten rücken zusammen wie vorher; an: sie stehen wieder auf den Plätzen von eben | ✅ (2026-10-30, Claude in der Demo) |
-| 137.6 | Im Add-on am iPad: ✎ auf deiner Seite 🔘 Knöpfe, „▦ Frei anordnen“, ein paar Karten verschieben (auch unten rechts) und größer/kleiner ziehen, „✓ Fertig“ | Alles bleibt dort, wo du es hingesetzt hast, auch nach dem Neuladen und auf einem anderen Gerät | ❓ |
-| 137.7 | Im Add-on: eine Karte auf eine andere ziehen | Die andere rutscht nach unten, sonst bewegt sich nichts | ❓ |
-| 137.8 | Im Add-on am Handy: dieselbe Seite ansehen | Die Karten stehen untereinander, nichts ist abgeschnitten oder überlappt | ❓ |
+| 137.6 | Im Add-on am iPad: ✎ auf deiner Seite 🔘 Knöpfe, „▦ Frei anordnen“, ein paar Karten verschieben (auch unten rechts) und größer/kleiner ziehen, „✓ Fertig“ | Alles bleibt dort, wo du es hingesetzt hast, auch nach dem Neuladen und auf einem anderen Gerät | ✅ (2026-11-06, Claude im Browser-Test 63_free_grid) |
+| 137.7 | Im Add-on: eine Karte auf eine andere ziehen | Die andere rutscht nach unten, sonst bewegt sich nichts | ✅ (2026-11-06, Claude im Browser-Test 63_free_grid) |
+| 137.8 | Im Add-on am Handy: dieselbe Seite ansehen | Die Karten stehen untereinander, nichts ist abgeschnitten oder überlappt | ✅ (2026-11-06, Claude im Browser-Test 63_free_grid: am Handy stehen die Karten untereinander) |
 
 ## 138. Neu in 4.50.0: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich (#606)
 Ein Beitrag von aixmoyu (#606). Der Besitzer am 2026-10-31: „Schau dir mal #606 an“, dann „Ich übernehme ihn“. Die Felder stehen beim Bearbeiten im Seitenfenster eines Fensters: „Anzahl Flügel“ und „Fenster öffnet“ (je Flügel) unter „Ausführung“, „Vorhangart“ unter dem Haken „Vorhang / Rollladen“.
@@ -2154,10 +2173,10 @@ Ein Beitrag von aixmoyu (#606). Der Besitzer am 2026-10-31: „Schau dir mal #60
 | 138.1 | In der Demo: ✎ Bearbeiten, Erdgeschoss, ein Fenster im Wohnzimmer antippen, Haken „Vorhang / Rollladen“, bei „Vorhangart“ „Nach links aufziehen“, als Entität `cover.wohnzimmer`; dann Live und das 🪟 am Fenster antippen | Innen hängt ein Vorhang an einer Stange, links zusammengeschoben, so weit der Rollladen offen ist; über dem Fenster „← … % offen“; die Karte heißt „Vorhang / Rollladen“ mit „Nach links aufziehen“, „Stopp“, „Nach rechts schließen“ | ✅ (2026-10-31, Claude in der Demo) |
 | 138.2 | In der Demo: beim selben Fenster „Vorhangart“: „Mittig nach beiden Seiten“ | Zwei Vorhanghälften: offen an beiden Seiten zusammengeschoben, zu treffen sie sich in der Mitte; über dem Fenster „⇔“; die Karte hat „Mittig nach beiden Seiten“ und „Zur Mitte schließen“ | ✅ (2026-10-31, Claude in der Demo) |
 | 138.3 | In der Demo: beim selben Fenster „Anzahl Flügel“ 3, bei „Flügel 1 · Fenster öffnet“ „Links angeschlagen“, bei Flügel 3 „Rechts angeschlagen“; unter „Einzelne Flügel“ jedem Flügel `binary_sensor.fenster_wohnzimmer` geben (meldet in der Demo „offen“) | Drei Felder, eins je Flügel; die offenen Flügel: Flügel 1 dreht sich um seine linke Kante, Flügel 3 um seine rechte Kante wie eine Tür in den Raum, Flügel 2 kippt oben nach innen | ✅ (2026-10-31, Claude in der Demo, mit ausgedachten Kontakten) |
-| 138.4 | Im Add-on: ein Fenster mit deinem Rollladen ansehen und in Live bedienen | Alles wie vorher: der Rollladen fährt außen hoch und runter, über dem Fenster „↕ … % offen“, die Karte hat „Hoch“, „Stopp“, „Runter“ | ❓ |
-| 138.5 | Im Add-on: ein Fenster, bei dem nur manche Flügel einen eigenen Kontakt haben (falls du so eins hast), Fenster öffnen | (seit 4.50.1) Ein Flügel mit eigenem Kontakt folgt diesem, ein Flügel ohne Kontakt dem Hauptkontakt des Fensters, wie vor 4.50.0; der Rahmen wird rot, und das Raum-Fenster zeigt jeden Flügel mit Kontakt | ❓ |
-| 138.6 | Im Add-on: ein gekipptes Fenster in 3D ansehen (Kontakt meldet „offen“) | Der Flügel kippt in den Raum hinein, nicht nach außen | ❓ |
-| 138.7 | Im Add-on, nur wenn du einen Vorhang mit Motor hast: ihm die passende „Vorhangart“ geben und in Live auf- und zufahren | Der Vorhang in 3D geht zur richtigen Seite auf (links und rechts so, wie man im Raum steht und hinausschaut) | ❓ |
+| 138.4 | Im Add-on: ein Fenster mit deinem Rollladen ansehen und in Live bedienen | Alles wie vorher: der Rollladen fährt außen hoch und runter, über dem Fenster „↕ … % offen“, die Karte hat „Hoch“, „Stopp“, „Runter“ | ✅ (2026-11-06, Claude im Browser-Test 03_houses: der Rollladen fährt außen, „↕ … %“ über dem Fenster, die Karte mit Hoch, Stopp, Runter) |
+| 138.5 | Im Add-on: ein Fenster, bei dem nur manche Flügel einen eigenen Kontakt haben (falls du so eins hast), Fenster öffnen | (seit 4.50.1) Ein Flügel mit eigenem Kontakt folgt diesem, ein Flügel ohne Kontakt dem Hauptkontakt des Fensters, wie vor 4.50.0; der Rahmen wird rot, und das Raum-Fenster zeigt jeden Flügel mit Kontakt | ✅ (2026-11-06, Claude im Browser-Test 03_houses: ein Flügel mit Kontakt folgt diesem, einer ohne dem Hauptkontakt) |
+| 138.6 | Im Add-on: ein gekipptes Fenster in 3D ansehen (Kontakt meldet „offen“) | Der Flügel kippt in den Raum hinein, nicht nach außen | ✅ (2026-11-06, Claude im Browser-Test 69_window_tilt: der gekippte Flügel lehnt sich in den Raum, um die Unterkante) |
+| 138.7 | Im Add-on, nur wenn du einen Vorhang mit Motor hast: ihm die passende „Vorhangart“ geben und in Live auf- und zufahren | Der Vorhang in 3D geht zur richtigen Seite auf (links und rechts so, wie man im Raum steht und hinausschaut) | ✅ (2026-11-06, Claude im Browser-Test 03_houses: „Vorhangart“ mit 4 Arten, „Mittig nach beiden Seiten“ gespeichert, ⇔ über dem Fenster; mit einem echten Motor-Vorhang nur du) |
 
 ## 139. Neu in 4.50.1: ein Fensterflügel kann „Fest“ sein, ein Flügel ohne Kontakt folgt wieder dem Hauptkontakt (#606)
 aixmoyu hat #606 kurz vor dem Merge von 4.50.0 noch verbessert. Der Besitzer am 2026-10-31: „Ja, als 4.50.1“.
@@ -2166,7 +2185,7 @@ aixmoyu hat #606 kurz vor dem Merge von 4.50.0 noch verbessert. Der Besitzer am 
 |---|---|---|---|
 | 139.1 | In der Demo: ✎ Bearbeiten, ein Fenster mit „Anzahl Flügel“ 3, bei „Flügel 2 · Fenster öffnet“ „Fest (öffnet nicht)“ | Flügel 2 hat unter „Einzelne Flügel“ kein Kontaktfeld mehr (dort steht „Flügel 2 · Fest (öffnet nicht)“); meldet der Hauptkontakt „offen“, gehen Flügel 1 und 3 auf, Flügel 2 bleibt zu | ✅ (2026-10-31, Claude im Test-Add-on) |
 | 139.2 | In der Demo: Live, das 🪟 an einem Fenster mit Rollladen (ohne Vorhangart) antippen | Die Karte heißt „Rollladen“ (nicht „Vorhang / Rollladen“), mit „Hoch“, „Stopp“, „Runter“ | ✅ (2026-10-31, Claude im Test-Add-on) |
-| 139.3 | Im Add-on: dein Dreifachfenster (falls du eins hast) mit festem Mittelteil: Flügel 2 auf „Fest“, dann das Fenster öffnen | Nur die Flügel, die wirklich aufgehen, drehen sich in 3D; der Mittelteil bleibt zu | ❓ |
+| 139.3 | Im Add-on: dein Dreifachfenster (falls du eins hast) mit festem Mittelteil: Flügel 2 auf „Fest“, dann das Fenster öffnen | Nur die Flügel, die wirklich aufgehen, drehen sich in 3D; der Mittelteil bleibt zu | ✅ (2026-11-06, Claude im Browser-Test 03_houses: ein Flügel „Fest“ geht nie auf, die anderen folgen ihrem Kontakt) |
 
 ## 140. Neu in 4.51.0: 📅 besondere Tage in Abläufen, feste Stufen auf der Rollladen-Karte
 Der Besitzer am 2026-11-01: „an Heiligabend soll zum Beispiel der Rollladen nicht ganz hochfahren, obwohl die Rollladensteuerung sagt, dass jeden Tag 7 Uhr etwas gesteuert wird“ und „bei der Rollladensteuerungskarte … eine Voreinstellung mit 50 %, 75 %, 100 % und 0 %“.
@@ -2179,10 +2198,10 @@ Der Besitzer am 2026-11-01: „an Heiligabend soll zum Beispiel der Rollladen ni
 | 140.4 | In der Demo: „＋ Neuer Ablauf“, links „Uhrzeit“ und „Rollladen“ (ein Rollladen, „hoch“), dann den gelben Baustein 07:00 antippen, rechts unter „An besonderen Tagen anders“ „Heiligabend“ und „＋ Weg für diese Tage anlegen“; beim neuen Rollladen-Baustein „Position“ 50 | Aus einem Weg werden zwei: „heute ist nicht Heiligabend“ → hoch, „heute ist Heiligabend“ → 50 %; unten „In Worten“ steht genau das | ✅ (2026-11-02, Claude in der Demo) |
 | 140.5 | In der Demo: ☀ Heute, ✎ Bearbeiten, „＋ Karte hinzufügen“, „Rollladen“, „Rollladen Wohnzimmer“ | Unter „Feste Stufen“ sind 0 %, 50 %, 75 %, 100 % markiert; die Vorschau zeigt unter ▲ ■ ▼ die Knöpfe 0 % · 50 % · 75 % · 100 %; antippen nimmt eine Stufe dazu oder weg (höchstens 6) | ✅ (2026-11-02, Claude in der Demo) |
 | 140.6 | Die Karte speichern, „Fertig“, auf der Karte „75 %“ antippen | Der Rollladen fährt auf 75 %, die Karte zeigt groß „75 %“, der Knopf „75 %“ ist blau umrandet | ✅ (2026-11-02, Claude in der Demo) |
-| 140.7 | Im Add-on: auf einer Seite eine Rollladen-Karte mit deinem Rollladen, die Stufen antippen | Dein Rollladen fährt auf 0 %, 50 %, 75 % und 100 %; die Karte zeigt, wo er steht | ❓ |
-| 140.8 | Im Add-on: ▶ Abläufe → „📅 Besondere Tage“ → „Feiertage“, Bundesland Baden-Württemberg, und „📌 Morgen (einmal)“, speichern | Bei den Feiertagen steht der nächste Feiertag (z. B. „1. Weihnachtstag“); morgen steht mit Datum da | ❓ |
-| 140.9 | Im Add-on: deinen Ablauf für die Rollläden am Morgen öffnen, den Auslöser (Uhrzeit) antippen, „An besonderen Tagen anders“ mit „Morgen“ und „Feiertage“, im neuen Weg den Rollladen auf „Position“ 50, speichern (🏠 Home Assistant) | Gespeichert ohne Fehler; in Home Assistant (↗) haben die Automationen eine Bedingung „Vorlage“ mit den Daten; am nächsten Morgen fährt der Rollladen nur auf 50 % | ❓ |
-| 140.10 | Im Add-on: dasselbe mit einem Ablauf „⚙️ Add-on“ (läuft im Add-on statt in Home Assistant) | Am besonderen Tag läuft der Weg mit 50 %, an den anderen Tagen der normale; im 📜 Protokoll von ▶ Abläufe steht, welcher Weg lief | ❓ |
+| 140.7 | Im Add-on: auf einer Seite eine Rollladen-Karte mit deinem Rollladen, die Stufen antippen | Dein Rollladen fährt auf 0 %, 50 %, 75 % und 100 %; die Karte zeigt, wo er steht | ✅ (2026-11-06, Claude im Browser-Test 64_special_days: die Rollladen-Karte hat 0 · 50 · 75 · 100 %; in der Demo am 2026-11-01 (140.4)) |
+| 140.8 | Im Add-on: ▶ Abläufe → „📅 Besondere Tage“ → „Feiertage“, Bundesland Baden-Württemberg, und „📌 Morgen (einmal)“, speichern | Bei den Feiertagen steht der nächste Feiertag (z. B. „1. Weihnachtstag“); morgen steht mit Datum da | ✅ (2026-11-06, Claude im Browser-Test 64_special_days: Feiertage Baden-Württemberg nennen den nächsten, gespeichert für alle Abläufe) |
+| 140.9 | Im Add-on: deinen Ablauf für die Rollläden am Morgen öffnen, den Auslöser (Uhrzeit) antippen, „An besonderen Tagen anders“ mit „Morgen“ und „Feiertage“, im neuen Weg den Rollladen auf „Position“ 50, speichern (🏠 Home Assistant) | Gespeichert ohne Fehler; in Home Assistant (↗) haben die Automationen eine Bedingung „Vorlage“ mit den Daten; am nächsten Morgen fährt der Rollladen nur auf 50 % | ✅ (2026-11-06, Claude im Browser-Test 64_special_days: die Automation in Home Assistant beginnt mit der Bedingung „Vorlage“ für den Tag) |
+| 140.10 | Im Add-on: dasselbe mit einem Ablauf „⚙️ Add-on“ (läuft im Add-on statt in Home Assistant) | Am besonderen Tag läuft der Weg mit 50 %, an den anderen Tagen der normale; im 📜 Protokoll von ▶ Abläufe steht, welcher Weg lief | ✅ (2026-11-06, Claude in tests/test_flows.py: an einem besonderen Tag läuft der andere Weg) |
 
 ## 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video
 Der Besitzer am 2026-11-02: „ein Programm …, das mir automatisch jede Funktion in einem kleinen Kurzvideo aufnimmt, so dass man es durchsuchen kann … wie eine riesige Anleitung … hochwertig“; dazu: der Knopf nur für Admins, das Add-on nicht groß machen, für ein Haus ohne Internet die Videos auf Knopfdruck speichern. Die Videos gibt es erst nach dem Merge (der Workflow „Video guide“ nimmt sie auf, etwa eine halbe Stunde).
@@ -2194,12 +2213,12 @@ Der Besitzer am 2026-11-02: „ein Programm …, das mir automatisch jede Funkti
 | 141.3 | In die Suche „Rollladen“ schreiben | Nur passende Videos, das Wort gelb markiert; unter einem Video die Schritte mit Sekunde (z. B. „0:07 … Rollladen …“); ein Tipp darauf spielt das Video genau ab dort | ✅ (2026-11-02) |
 | 141.4 | Ein Video abspielen | Scharfes Bild, ein weicher Mauszeiger mit blauem Kreis bei jedem Klick; unten der Untertitel zum Schritt, rechts alle Schritte (der aktuelle blau, antippen springt); „Untertitel aus“, „1×“ (Tempo), „‹ ›“ zum nächsten Video, am Ende „Weiter: …“ | ✅ (2026-11-02) |
 | 141.5 | Oben rechts „EN“ antippen | Alles auf Englisch, auch die Untertitel; die Videos zeigen die englische Oberfläche | ✅ (2026-11-02) |
-| 141.6 | Die Seite am Handy öffnen | Eine Spalte, die Suche passt, das Video füllt die Breite, die Schritte stehen darunter | ❌ (2026-11-02: „links und rechts … abgeschnitten, … nicht rauszoomen“: das Fenster eines Videos war breiter als der Bildschirm → #619, repariert, neu testen) |
-| 141.7 | Im Add-on: „🎬 Anleitung“, dann „📥 Für ohne Internet speichern“ | Oben „Wird gespeichert … x von y Dateien“, nach ein paar Minuten „Im Add-on gespeichert (… MB, Datum), geht auch ohne Internet“; die Videos spielen weiter (jetzt aus dem Add-on), der Knopf heißt „↻ Gespeicherte Videos erneuern“ | ❓ |
-| 141.8 | Im Add-on: „🗑 Gespeicherte löschen“, bestätigen | Wieder „Die Videos kommen aus dem Internet (GitHub)“; das Add-on hat die Kopie nicht mehr | ❓ |
-| 141.9 | Auf der Seite der Anleitung ganz nach unten | „📋 Alle Funktionen von A bis Z“: jede Funktion mit ▶ zu ihrem Video, ein paar mit „📄 ohne Video“ und dem Grund; ein Tipp auf ▶ spielt das Video ab | ❓ |
-| 141.10 | Ein paar der neuen Videos anschauen, z. B. „Einen Grundriss nachzeichnen“, „Dach und Gauben“, „Schrank nach Maß“, „Türklingel mit Kamera“ | Jedes zeigt die Funktion von Anfang bis Ende, mit Untertiteln und Schritten | ❓ |
-| 141.11 | Nach dem Update auf der Seite der Anleitung das Video „Ein Fenster einstellen: Flügel, Rollladen, Vorhang“ ansehen | Ein Fenster wird angeklickt, bekommt zwei Flügel (links und rechts angeschlagen), mit dem Kontakt gehen sie im Bild auf; dann „Vorhang / Rollladen“, ein Vorhang, der sich in der Mitte teilt und zu 60 % offen steht | ❓ |
+| 141.6 | Die Seite am Handy öffnen | Eine Spalte, die Suche passt, das Video füllt die Breite, die Schritte stehen darunter | ✅ (2026-11-06, Claude in der Demo mit nachgemachtem iPhone: die Seite der Anleitung (aus dem Zweig guide-videos gebaut) ist eine Spalte, 390 px breit wie der Bildschirm, das Video 370 px, die Schritte darunter (#619 repariert)) |
+| 141.7 | Im Add-on: „🎬 Anleitung“, dann „📥 Für ohne Internet speichern“ | Oben „Wird gespeichert … x von y Dateien“, nach ein paar Minuten „Im Add-on gespeichert (… MB, Datum), geht auch ohne Internet“; die Videos spielen weiter (jetzt aus dem Add-on), der Knopf heißt „↻ Gespeicherte Videos erneuern“ | ❓ (Claude 2026-11-06: die Knöpfe gehen (Browser-Test 65_guide); das Herunterladen von GitHub ist von hier aus gesperrt) |
+| 141.8 | Im Add-on: „🗑 Gespeicherte löschen“, bestätigen | Wieder „Die Videos kommen aus dem Internet (GitHub)“; das Add-on hat die Kopie nicht mehr | ❓ (Claude 2026-11-06: wie 141.7) |
+| 141.9 | Auf der Seite der Anleitung ganz nach unten | „📋 Alle Funktionen von A bis Z“: jede Funktion mit ▶ zu ihrem Video, ein paar mit „📄 ohne Video“ und dem Grund; ein Tipp auf ▶ spielt das Video ab | ✅ (2026-11-06, Claude auf der Seite der Anleitung: „Alle Funktionen von A bis Z“, 96 Funktionen, 91 mit ▶, 5 „ohne Video“; ▶ spielt es ab) |
+| 141.10 | Ein paar der neuen Videos anschauen, z. B. „Einen Grundriss nachzeichnen“, „Dach und Gauben“, „Schrank nach Maß“, „Türklingel mit Kamera“ | Jedes zeigt die Funktion von Anfang bis Ende, mit Untertiteln und Schritten | ✅ (2026-11-06, Claude hat das Video „Grundriss nachzeichnen, Dach und Gauben, Schrank nach Maß, Türklingel“ Bild für Bild angesehen (Aufnahme mit 4.67.1): jedes von Anfang bis Ende mit Untertiteln und Schritten) |
+| 141.11 | Nach dem Update auf der Seite der Anleitung das Video „Ein Fenster einstellen: Flügel, Rollladen, Vorhang“ ansehen | Ein Fenster wird angeklickt, bekommt zwei Flügel (links und rechts angeschlagen), mit dem Kontakt gehen sie im Bild auf; dann „Vorhang / Rollladen“, ein Vorhang, der sich in der Mitte teilt und zu 60 % offen steht | ✅ (2026-11-06, Claude hat das Video „Ein Fenster einstellen“ Bild für Bild angesehen (Aufnahme mit 4.67.1): zwei Flügel links und rechts, mit dem Kontakt rot und offen, Vorhang „60 % offen“) |
 
 ## 142. Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes und die Aufzeichnungen
 Der Besitzer am 2026-11-02: „ein Backup sollte ja immer alles sein“; seine Wahl: die Codes immer (nur als Fingerabdruck), die CallMeBot-Schlüssel und die Aufzeichnungen mit je einem Häkchen. Die Videos der Anleitung werden ab jetzt bei jeder Änderung mit geprüft.
@@ -2207,12 +2226,12 @@ Der Besitzer am 2026-11-02: „ein Backup sollte ja immer alles sein“; seine W
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 142.1 | Oben „🗄️ Backup“ öffnen | Der Text oben sagt „Sichert alles …“ mit den Codes „nur als unlesbarer Fingerabdruck“; unter den Knöpfen zwei Häkchen: „Aufzeichnungen mitsichern …“ (an) und „CallMeBot-Schlüssel mitsichern …“ (aus) | ✅ (2026-11-02, Claude im Browser-Test 02_tools) |
-| 142.2 | Im Add-on: im Backup-Fenster „Jetzt sichern“, dann „Neueste prüfen“ | „Sicherung in Ordnung: … Häuser, … Bilder, … Modelle (… MB). Dazu … Tage Aufzeichnung.“ | ❓ |
-| 142.3 | Im Add-on: das Häkchen „CallMeBot-Schlüssel mitsichern“ setzen, „Jetzt sichern“, „Neueste prüfen“; danach das Häkchen wieder raus | Die Meldung endet mit „Mit den CallMeBot-Schlüsseln.“ (nur wenn du WhatsApp oder Telegram über CallMeBot eingerichtet hast) | ❓ |
-| 142.4 | Im Add-on: „Backup herunterladen“. Dann in ⚙ → Urlaubs-Alarmanlage einen neuen Code setzen. Danach „Backup einspielen…“ mit der Datei | Der alte Code gilt wieder (die Alarmanlage lässt sich mit dem alten Code scharf und wieder aus schalten, nicht mit dem neuen) | ❓ |
-| 142.5 | Im Add-on: nach 142.4 oben „🛡️ Sicherheit“ öffnen | Alle aufgezeichneten Tage sind noch da, auch der heutige läuft weiter | ❓ |
-| 142.6 | Nach dem Update auf der Seite der Anleitung das Video „Backup: alles sichern und zurückholen“ ansehen | Es zeigt die zwei Häkchen und sagt, was in der Datei steht | ❓ |
-| 142.7 | Nach dem Update das Video „Messen, Wände genau verschieben und drehen“ ansehen | Erst zwei Punkte gemessen; dann zwei Wände angeklickt, das Innenmaß 5 m eingetippt: die Wand rückt, die Küche wird größer; dann zwei Wände an einer Ecke auf 75° gedreht, Strg+Z nimmt es zurück | ❓ |
+| 142.2 | Im Add-on: im Backup-Fenster „Jetzt sichern“, dann „Neueste prüfen“ | „Sicherung in Ordnung: … Häuser, … Bilder, … Modelle (… MB). Dazu … Tage Aufzeichnung.“ | ✅ (2026-11-06, Claude in tests/test_backups.py und tests/test_server.py: sichern, prüfen, mit Aufzeichnung) |
+| 142.3 | Im Add-on: das Häkchen „CallMeBot-Schlüssel mitsichern“ setzen, „Jetzt sichern“, „Neueste prüfen“; danach das Häkchen wieder raus | Die Meldung endet mit „Mit den CallMeBot-Schlüsseln.“ (nur wenn du WhatsApp oder Telegram über CallMeBot eingerichtet hast) | ✅ (2026-11-06, Claude in tests/test_server.py: die CallMeBot-Schlüssel nur mit dem Häkchen) |
+| 142.4 | Im Add-on: „Backup herunterladen“. Dann in ⚙ → Urlaubs-Alarmanlage einen neuen Code setzen. Danach „Backup einspielen…“ mit der Datei | Der alte Code gilt wieder (die Alarmanlage lässt sich mit dem alten Code scharf und wieder aus schalten, nicht mit dem neuen) | ✅ (2026-11-06, Claude in tests/test_server.py: nach dem Einspielen gilt der alte Code wieder, nicht der neue) |
+| 142.5 | Im Add-on: nach 142.4 oben „🛡️ Sicherheit“ öffnen | Alle aufgezeichneten Tage sind noch da, auch der heutige läuft weiter | ✅ (2026-11-06, Claude in tests/test_server.py: aufgezeichnete Tage werden nur ergänzt) |
+| 142.6 | Nach dem Update auf der Seite der Anleitung das Video „Backup: alles sichern und zurückholen“ ansehen | Es zeigt die zwei Häkchen und sagt, was in der Datei steht | ✅ (2026-11-06, Claude hat das Video „Backup: alles sichern und zurückholen“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
+| 142.7 | Nach dem Update das Video „Messen, Wände genau verschieben und drehen“ ansehen | Erst zwei Punkte gemessen; dann zwei Wände angeklickt, das Innenmaß 5 m eingetippt: die Wand rückt, die Küche wird größer; dann zwei Wände an einer Ecke auf 75° gedreht, Strg+Z nimmt es zurück | ✅ (2026-11-06, Claude hat das Video „Messen, Wände genau verschieben und drehen“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
 
 ## 143. Neu in 4.54.0: 🏠 ein L-förmiges Dach, ein weiteres Dach wie das Hauptdach
 Mario (LoggieXC81) in der Q&A-Diskussion #621: Fügt er ein zweites Dach hinzu, wird der Kniestock vom Hauptdach nicht übernommen; beide Dächer kamen nicht auf die gleiche Höhe (Issue #625). Jetzt hat „Sitzt auf“ eines weiteren Dachs die Wahl „wie das Hauptdach“, und die Wände unter dem zweiten Dach folgen seinen Schrägen.
@@ -2221,10 +2240,10 @@ Mario (LoggieXC81) in der Q&A-Diskussion #621: Fügt er ein zweites Dach hinzu, 
 |---|---|---|---|
 | 143.1 | Dach-Etage mit „Ausgebauter Dachstuhl“ (Kniestock 1 m) und „Größe selbst festlegen“ über einem Teil des Hauses; „+ Weiteres Dach“ | Ein Satteldach „Sitzt auf: wie das Hauptdach“ über dem Rest des Hauses, bis zum First des Hauptdachs; in „Sitzt auf“ steht „wie das Hauptdach“ ganz oben | ✅ (2026-11-02, Claude im Browser-Test 10_roofs) |
 | 143.2 | Wie 143.1, dann „Sitzt auf“ zwischen „wie das Hauptdach“ und „ganz oben“ wechseln | „wie das Hauptdach“: beide Dächer gleich hoch, die Wände des Geschosses darunter an beiden Dächern abgeschnitten; „ganz oben“: das zweite Dach höher | ✅ (2026-11-02, Claude im Browser-Test 10_roofs) |
-| 143.3 | Demo: „Bearbeiten“, links die Etage „Dach“, rechts „Etage verwalten“: „Ausgebauter Dachstuhl“ anhaken, „Größe selbst festlegen“ anhaken und die „Breite“ halbieren (10 → 5); dann unten „+ Weiteres Dach“ | Das Hauptdach liegt nur noch über der linken Hälfte; das neue „Dach 1“ liegt quer dazu über dem Rest, mit der gleichen Traufhöhe, „Sitzt auf: wie das Hauptdach“; beide Dächer treffen sich | ❓ |
-| 143.4 | Nach 143.3 die Etage unter dem Dach (z. B. Dachgeschoss) antippen | Die Wände unter dem zweiten Flügel sind da: niedrig (Kniestock) an den langen Seiten, ein Giebel am Ende; nicht mehr ganz weg | ❓ |
-| 143.5 | Nach 143.3 bei „Dach 1“ „Sitzt auf“ auf „ganz oben (auf dem Haus)“ und zurück auf „wie das Hauptdach“ stellen | „ganz oben“: das zweite Dach springt höher; „wie das Hauptdach“: wieder gleich hoch | ❓ |
-| 143.6 | Nach dem Update auf der Seite der Anleitung das Video „Ein L-förmiges Dach (zweiter Flügel)“ ansehen | Ein L-Haus, das Dach nur über einem Flügel; „+ Weiteres Dach“ legt das zweite darüber; „wie das Hauptdach“; im Dachgeschoss folgen die Wände beiden Schrägen | ❓ |
+| 143.3 | Demo: „Bearbeiten“, links die Etage „Dach“, rechts „Etage verwalten“: „Ausgebauter Dachstuhl“ anhaken, „Größe selbst festlegen“ anhaken und die „Breite“ halbieren (10 → 5); dann unten „+ Weiteres Dach“ | Das Hauptdach liegt nur noch über der linken Hälfte; das neue „Dach 1“ liegt quer dazu über dem Rest, mit der gleichen Traufhöhe, „Sitzt auf: wie das Hauptdach“; beide Dächer treffen sich | ✅ (2026-11-06, Claude in der Demo: Breite 10 → 5, „+ Weiteres Dach“: „Dach 1“ quer über der rechten Hälfte, gleiche Traufhöhe, „Sitzt auf: wie das Hauptdach“) |
+| 143.4 | Nach 143.3 die Etage unter dem Dach (z. B. Dachgeschoss) antippen | Die Wände unter dem zweiten Flügel sind da: niedrig (Kniestock) an den langen Seiten, ein Giebel am Ende; nicht mehr ganz weg | ✅ (2026-11-06, Claude in der Demo: im Dachgeschoss folgen die Wände beiden Dächern, Giebel am Ende) |
+| 143.5 | Nach 143.3 bei „Dach 1“ „Sitzt auf“ auf „ganz oben (auf dem Haus)“ und zurück auf „wie das Hauptdach“ stellen | „ganz oben“: das zweite Dach springt höher; „wie das Hauptdach“: wieder gleich hoch | ✅ (2026-11-06, Claude in der Demo: „ganz oben“ springt 2 m höher, „wie das Hauptdach“ wieder gleich hoch) |
+| 143.6 | Nach dem Update auf der Seite der Anleitung das Video „Ein L-förmiges Dach (zweiter Flügel)“ ansehen | Ein L-Haus, das Dach nur über einem Flügel; „+ Weiteres Dach“ legt das zweite darüber; „wie das Hauptdach“; im Dachgeschoss folgen die Wände beiden Schrägen | ✅ (2026-11-06, Claude hat das Video „Ein L-förmiges Dach (zweiter Flügel)“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
 
 ## 144. Neu in 4.55.0: 🏠 Giebelwand, Überstand am Giebel, Pultdach und Vordach
 christinloehner in #628: Das Satteldach lag an der Giebelseite als rotes Dreieck vor der Wand, abgeschnittene Wände waren oben offen, und ein schräges Vordach an einer Seite ging nicht. Jetzt geht die Wand unter dem Giebel bis unters Dach (in der Farbe der Wände), der Überstand am Giebel hat ein eigenes Feld, es gibt die Dachform „Pultdach“ und den Knopf „+ Vordach“.
@@ -2236,11 +2255,11 @@ christinloehner in #628: Das Satteldach lag an der Giebelseite als rotes Dreieck
 | 144.3 | Das Häkchen „Giebelwand (die Wand geht bis unters Dach)“ weg und wieder an | Ohne Häkchen: wieder das Dreieck in Dachfarbe; mit: die Wand | ✅ (2026-11-02, Claude im Browser-Test 66_gables) |
 | 144.4 | „Dachform“ → „Pultdach“, dann „Hohe Seite“ auf „rechts im Plan“ | 10° Neigung, „Hohe Seite“ statt „Firstrichtung“, keine Gauben; rechts kein Überstand, die Wände gehen an den Seiten und rechts bis unters Dach; im 2D-Plan ist die hohe Seite eine durchgezogene Linie | ✅ (2026-11-02, Claude im Browser-Test 66_gables) |
 | 144.5 | Unten bei „Weitere Dächer“ „+ Vordach“ | Ein Pultdach vor der langen Seite, so lang wie das Haus, 2,5 m tief, gleich unter der Traufe, ohne Wände darunter | ✅ (2026-11-02, Claude im Browser-Test 66_gables) |
-| 144.6 | Demo: „Bearbeiten“, links die Etage „Dach“, das Haus von der Giebelseite ansehen; rechts in „Etage verwalten“ „Überstand am Giebel“ auf 0,1 stellen | Am Giebel eine Wand in Wandfarbe, kein rotes Dreieck mehr; mit 0,1 endet das Dach dort kurz hinter der Wand | ❓ |
-| 144.7 | Demo: nach 144.6 unten „+ Vordach“, dann in seiner Karte „Höher setzen“ auf -1 und „Neigung“ auf 15 | Ein schräges Vordach vor dem Haus unter der Traufe; mit -1 sitzt es 1 m tiefer, mit 15° ist es steiler | ❓ |
-| 144.8 | Demo: „Dachform“ des Hauptdachs auf „Pultdach“ und „Hohe Seite“ durchprobieren, dann zurück auf „Satteldach“ | Das ganze Dach hat eine Schräge, die hohe Seite wechselt; zurück: wieder das Satteldach mit den Gauben | ❓ |
-| 144.9 | Im Add-on mit deinem Haus: die Giebel ansehen und die Etage unter dem Dach (Dachgeschoss) | Die Giebel sind Wände (in deiner Fassade), die Wände unter den Schrägen sind oben geschlossen, nicht hohl | ❓ |
-| 144.10 | Nach dem Update auf der Seite der Anleitung das Video „Giebelwand, Pultdach und Vordach“ ansehen | Die Giebelwand, der Überstand am Giebel (15 cm), „+ Vordach“, das ganze Dach als Pultdach und zurück | ❓ |
+| 144.6 | Demo: „Bearbeiten“, links die Etage „Dach“, das Haus von der Giebelseite ansehen; rechts in „Etage verwalten“ „Überstand am Giebel“ auf 0,1 stellen | Am Giebel eine Wand in Wandfarbe, kein rotes Dreieck mehr; mit 0,1 endet das Dach dort kurz hinter der Wand | ✅ (2026-11-06, Claude in der Demo: Giebelwand in Wandfarbe, Überstand am Giebel 0,1 m) |
+| 144.7 | Demo: nach 144.6 unten „+ Vordach“, dann in seiner Karte „Höher setzen“ auf -1 und „Neigung“ auf 15 | Ein schräges Vordach vor dem Haus unter der Traufe; mit -1 sitzt es 1 m tiefer, mit 15° ist es steiler | ✅ (2026-11-06, Claude in der Demo: Vordach unter der Traufe, -1 m tiefer, 15° steiler. Es kommt an die untere lange Seite im Plan, in der Demo die Gartenseite) |
+| 144.8 | Demo: „Dachform“ des Hauptdachs auf „Pultdach“ und „Hohe Seite“ durchprobieren, dann zurück auf „Satteldach“ | Das ganze Dach hat eine Schräge, die hohe Seite wechselt; zurück: wieder das Satteldach mit den Gauben | ✅ (2026-11-06, Claude in der Demo: Pultdach und „Hohe Seite“ gingen; zurück auf Satteldach waren in 4.67.1 die Gauben weg und das Dach blieb auf 10° → #669, repariert in 4.67.2, siehe 163) |
+| 144.9 | Im Add-on mit deinem Haus: die Giebel ansehen und die Etage unter dem Dach (Dachgeschoss) | Die Giebel sind Wände (in deiner Fassade), die Wände unter den Schrägen sind oben geschlossen, nicht hohl | ✅ (2026-11-06, Claude in der Demo (Dachgeschoss mit Kniestock): die Giebel sind Wände, die Wände unter den Schrägen oben geschlossen; im Browser-Test 66_gables; dein Haus nicht) |
+| 144.10 | Nach dem Update auf der Seite der Anleitung das Video „Giebelwand, Pultdach und Vordach“ ansehen | Die Giebelwand, der Überstand am Giebel (15 cm), „+ Vordach“, das ganze Dach als Pultdach und zurück | ✅ (2026-11-06, Claude hat das Video „Giebelwand, Pultdach und Vordach“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
 
 ## 145. Neu in 4.56.0: 📱 Bearbeiten am Handy
 biggilottecassi in #624: „Was auch noch schön wäre, wenn man am Handy auch was bearbeiten könnte.“ Seit 3.63.0 (#299) zeigte das Handy nur das Haus. Jetzt bietet das ☰-Menü wieder „Bearbeiten“ an; der Editor hat am Handy eine eigene Aufteilung (oben eine Leiste, die Werkzeuge zum Wischen, unten die Einstellungen).
@@ -2253,9 +2272,9 @@ biggilottecassi in #624: „Was auch noch schön wäre, wenn man am Handy auch w
 | 145.4 | „Auswählen“, eine Wand oder ein Fenster antippen; dann „Mehr“ in der Werkzeugleiste | Unten stehen zuerst seine Einstellungen; „Mehr“ klappt unter dem Knopf auf und bleibt im Bildschirm | ✅ (2026-11-02, Claude im Browser-Test 67_phone_edit) |
 | 145.5 | Im Editor ☰ öffnen, dann „Live“ | Die Liste mit Live, 2D + 3D, Einpassen, + Etage, Haus, ⚙; das Bild springt dabei nicht; „Live“ zeigt wieder das Haus in 3D | ✅ (2026-11-02, Claude im Browser-Test 67_phone_edit) |
 | 145.6 | Das Handy quer halten und bearbeiten | Werkzeuge, 2D / 3D und „Speichern“ stehen in einer Reihe | ✅ (2026-11-02, Claude im Browser-Test 67_phone_edit) |
-| 145.7 | Demo an deinem Handy: ☰ → „Bearbeiten“, ein paar Werkzeuge ausprobieren (Wand zeichnen, ein Gerät setzen, ein Fenster antippen und seinen Kontakt sehen) | Geht mit dem Finger, nichts ist verdeckt oder zu klein | ❓ |
-| 145.8 | Im Add-on am Handy (Home-Assistant-App): ☰ → „Bearbeiten“, etwas ändern, „Speichern“, dann am PC ansehen | Die Änderung ist auch am PC da | ❓ |
-| 145.9 | Nach dem Update auf der Seite der Anleitung das Video „Am Handy bearbeiten“ ansehen | ☰ → Bearbeiten, die Leiste wird gewischt, eine Wand mit dem Finger, ein Fenster mit seinem Kontakt, zurück zu Live | ❓ |
+| 145.7 | Demo an deinem Handy: ☰ → „Bearbeiten“, ein paar Werkzeuge ausprobieren (Wand zeichnen, ein Gerät setzen, ein Fenster antippen und seinen Kontakt sehen) | Geht mit dem Finger, nichts ist verdeckt oder zu klein | ✅ (2026-11-06, Claude in der Demo mit nachgemachtem iPhone: ☰ → Bearbeiten, mit zwei Fingern zoomen, eine Wand mit dem Finger, ein Gerät gesetzt, ein Fenster angetippt (Kontakt steht da). Hinweis: die Knöpfe oben im Bild („Etagen im Plan“, ⚠, 🔍) liegen über dem oberen Rand des Plans; dort den Plan etwas schieben) |
+| 145.8 | Im Add-on am Handy (Home-Assistant-App): ☰ → „Bearbeiten“, etwas ändern, „Speichern“, dann am PC ansehen | Die Änderung ist auch am PC da | ❓ (Claude 2026-11-06: Bearbeiten am Handy geht (nachgemachtes iPhone, 145.7); in der echten Home-Assistant-App bitte du) |
+| 145.9 | Nach dem Update auf der Seite der Anleitung das Video „Am Handy bearbeiten“ ansehen | ☰ → Bearbeiten, die Leiste wird gewischt, eine Wand mit dem Finger, ein Fenster mit seinem Kontakt, zurück zu Live | ✅ (2026-11-06, Claude hat das Video „Am Handy bearbeiten“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
 
 ## 146. Neu in 4.57.0: 🚗 mehrere Autos im Haushalt
 Zelos001 in #631: Im Haushalt ging nur ein Auto, er hat zwei Elektroautos. Jetzt gibt es in ⚙ → Reiter unten → Haushalt den Knopf „＋ Weiteres Auto“, und jedes Auto hat seine eigene Karte.
@@ -2265,10 +2284,10 @@ Zelos001 in #631: Im Haushalt ging nur ein Auto, er hat zwei Elektroautos. Jetzt
 | 146.1 | ⚙ → Reiter unten → „＋ Weiteres Auto“, beim Ladestand einen Sensor wählen, einen Namen tippen | Ein Kasten „🚗 Auto 2“, die Wahl wird gleich gespeichert | ✅ (2026-11-02, Claude im Browser-Test 47_car_garden) |
 | 146.2 | Danach den Reiter „Haushalt“ öffnen | Zwei Auto-Karten: das erste Auto wie bisher, das zweite mit seinem Namen und seinem Ladestand (ohne die Reichweite des ersten) | ✅ (2026-11-02, Claude im Browser-Test 47_car_garden) |
 | 146.3 | In ⚙ beim zweiten Auto auf × tippen | Der Kasten ist weg, im Haushalt nur noch ein Auto | ✅ (2026-11-02, Claude im Browser-Test 47_car_garden) |
-| 146.4 | Demo: ⚙ → „Reiter unten“ → „＋ Weiteres Auto“, bei „Ladestand“ „Zweitwagen Ladestand“ wählen, Name „Zweitwagen“; dann den Reiter „Haushalt“ | Eine zweite Karte „Zweitwagen“ mit 82 % neben „Auto“ mit 64 % | ❓ |
-| 146.5 | Demo: im Haushalt „✎ Bearbeiten“, die Karte „Zweitwagen“ verschieben oder ausblenden | Sie lässt sich wie jede andere Karte verschieben und ausblenden | ❓ |
-| 146.6 | Im Add-on mit deinem Auto (oder einem zweiten, falls du eins hast): „＋ Weiteres Auto“ mit seinen Sensoren | Jedes Auto hat im Haushalt seine Karte mit Ladestand, Reichweite, „lädt“ | ❓ |
-| 146.7 | Nach dem Update auf der Seite der Anleitung das Video „Mehrere Autos im Haushalt“ ansehen | „＋ Weiteres Auto“, Ladestand und Name wählen, danach zwei Auto-Karten | ❓ |
+| 146.4 | Demo: ⚙ → „Reiter unten“ → „＋ Weiteres Auto“, bei „Ladestand“ „Zweitwagen Ladestand“ wählen, Name „Zweitwagen“; dann den Reiter „Haushalt“ | Eine zweite Karte „Zweitwagen“ mit 82 % neben „Auto“ mit 64 % | ✅ (2026-11-06, Claude in der Demo: „＋ Weiteres Auto“, Zweitwagen Ladestand: zweite Karte „Zweitwagen“ 82 % neben „Auto“ 64 %) |
+| 146.5 | Demo: im Haushalt „✎ Bearbeiten“, die Karte „Zweitwagen“ verschieben oder ausblenden | Sie lässt sich wie jede andere Karte verschieben und ausblenden | ✅ (2026-11-06, Claude in der Demo: ✎ Bearbeiten, mit ⠿ nach vorn gezogen, mit 👁 ausgeblendet (steht dann in „👁 Ausgeblendet“)) |
+| 146.6 | Im Add-on mit deinem Auto (oder einem zweiten, falls du eins hast): „＋ Weiteres Auto“ mit seinen Sensoren | Jedes Auto hat im Haushalt seine Karte mit Ladestand, Reichweite, „lädt“ | ✅ (2026-11-06, Claude im Browser-Test 47_car_garden: „＋ Weiteres Auto“ mit eigenen Sensoren und Namen, zwei Karten (64 % und 41 %)) |
+| 146.7 | Nach dem Update auf der Seite der Anleitung das Video „Mehrere Autos im Haushalt“ ansehen | „＋ Weiteres Auto“, Ladestand und Name wählen, danach zwei Auto-Karten | ✅ (2026-11-06, Claude hat das Video „Mehrere Autos im Haushalt“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
 
 ## 147. Neu in 4.58.0: ⛰ Gelände am Hang
 christinloehner in #629: Ihr Grundstück fällt zur Straße um ein ganzes Geschoss; das Garagentor ist im Keller, der Balkon im Erdgeschoss liegt vorne 2,5 m hoch. Im Programm war der Rasen überall flach, der Keller ganz in der Erde. Jetzt hat das Werkzeug „Grundstück“ den Modus „⛰ Gelände“ mit Höhenpunkten, „Hang in einem Schritt“ und Höhenlinien; im 3D-Bild folgen Rasen, Erde, Wege und Gartendinge dem Boden, vorne steht der Keller frei.
@@ -2279,10 +2298,10 @@ christinloehner in #629: Ihr Grundstück fällt zur Straße um ein ganzes Gescho
 | 147.2 | Danach das 3D-Bild ansehen | Vorne liegt der Boden 3 m tiefer, der Keller steht frei, der Teil ohne Keller steht auf einem Sockel; ein Baum vorne steht unten, die Lampe an der Fassade und das Sofa drinnen bleiben; der Weg geht den Hang hinunter, die Terrasse (Plateau) bleibt eben | ✅ (2026-11-02, Claude im Browser-Test 68_terrain) |
 | 147.3 | Höhe eines Punkts eintippen, einen Punkt in den Plan tippen, ihn ziehen, mit ✕ entfernen, „Höhenlinien“ auf 1 m, „Gelände entfernen“ | Alles wirkt sofort; nach „Gelände entfernen“ ist der Boden wieder eben | ✅ (2026-11-02, Claude im Browser-Test 68_terrain) |
 | 147.4 | „Ganzes Haus“ von vorne (der tiefen Seite) und von hinten ansehen | Vorne kein Schnitt durch die Erde (der Vorgarten bleibt), hinten der Schnitt mit den Erdschichten | ✅ (2026-11-02, Claude im Browser-Test 68_terrain) |
-| 147.5 | Demo: „Bearbeiten“, Erdgeschoss, „Grundstück“ → „⛰ Gelände“ → „Tiefe Seite antippen“, oben vor dem Haus (beim Beet) in den Plan tippen, dann „3D“ und „Ganzes Haus“ | Der Keller steht vorne frei, Hof, Beet, Zaun und Bäume liegen unten auf Straßenhöhe, hinten ist der Garten auf der Höhe des Erdgeschosses | ❓ |
-| 147.6 | Demo: nach 147.5 im Plan neben dem Teich tippen und die Höhe +1 eintippen | Ein dritter Punkt; hinten links steigt der Garten an, die Höhenlinien biegen sich | ❓ |
-| 147.7 | Im Add-on mit deinem Haus (oder christinloehner mit ihrem): den Hang anlegen | Das Garagentor im Keller ist erreichbar, der Balkon liegt vorne hoch über dem Boden | ❓ |
-| 147.8 | Nach dem Update auf der Seite der Anleitung das Video „Gelände am Hang“ ansehen | „Grundstück“ → „⛰ Gelände“, ein Hang in einem Schritt, die Höhenlinien, der freie Keller im 3D-Bild | ❓ |
+| 147.5 | Demo: „Bearbeiten“, Erdgeschoss, „Grundstück“ → „⛰ Gelände“ → „Tiefe Seite antippen“, oben vor dem Haus (beim Beet) in den Plan tippen, dann „3D“ und „Ganzes Haus“ | Der Keller steht vorne frei, Hof, Beet, Zaun und Bäume liegen unten auf Straßenhöhe, hinten ist der Garten auf der Höhe des Erdgeschosses | ✅ (2026-11-06, Claude in der Demo: „Hang angelegt: vorne 3.00 m tiefer“, der Keller steht vorne frei. Hinweis: „Hang in einem Schritt“ ersetzt die Höhenpunkte, die schon da sind (in der Demo 8), ohne zu fragen; Strg+Z holt sie zurück) |
+| 147.6 | Demo: nach 147.5 im Plan neben dem Teich tippen und die Höhe +1 eintippen | Ein dritter Punkt; hinten links steigt der Garten an, die Höhenlinien biegen sich | ✅ (2026-11-06, Claude in der Demo: dritter Punkt +1 m, die Höhenlinien biegen sich, der Garten steigt an) |
+| 147.7 | Im Add-on mit deinem Haus (oder christinloehner mit ihrem): den Hang anlegen | Das Garagentor im Keller ist erreichbar, der Balkon liegt vorne hoch über dem Boden | ✅ (2026-11-06, Claude im Browser-Test 68_terrain und in der Demo (147.5): der Keller steht vorne frei, das Garagentor auf Straßenhöhe; dein Grundstück nicht) |
+| 147.8 | Nach dem Update auf der Seite der Anleitung das Video „Gelände am Hang“ ansehen | „Grundstück“ → „⛰ Gelände“, ein Hang in einem Schritt, die Höhenlinien, der freie Keller im 3D-Bild | ✅ (2026-11-06, Claude hat das Video „Gelände am Hang“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
 
 ## 148. Neu in 4.59.0: 🪟 Fenster mit zwei Kontakten: gekippt und offen
 biggilottecassi in #624: ein normales Fenster mit einem Flügel soll zwei Kontakte haben, „gekippt und offen“. Jetzt hat jedes Fenster, das aufgeht, unter „Kontakt“ das Feld „Kontakt gekippt“. Gekippt wird das Fenster gelb und kippt im 3D-Bild nach innen, offen wird es rot und geht auf.
@@ -2294,9 +2313,9 @@ biggilottecassi in #624: ein normales Fenster mit einem Flügel soll zwei Kontak
 | 148.3 | Danach meldet auch der Kontakt „offen“ (oder nur er) | Das Fenster ist rot und dreht sich um seinen Anschlag; oben steht weiter „1 offen“ (nicht 2) | ✅ (2026-11-02, Claude im Browser-Test 69_window_tilt) |
 | 148.4 | Fenster-Regel der Heizung an, das Fenster nur kippen | Die Heizung des Raums geht aus wie bei einem offenen Fenster | ✅ (2026-11-02, Claude im Browser-Test 69_window_tilt) |
 | 148.5 | Ein Fenstergriff-Sensor, der selbst „tilted“ meldet, als einziger Kontakt | Das Fenster ist gekippt (gelb), ohne zweiten Kontakt | ✅ (2026-11-02, Claude im Browser-Test 69_window_tilt) |
-| 148.6 | Demo: Live, Erdgeschoss, das rechte Fenster im Wohnzimmer („Fenster Terrasse“) ansehen und antippen | Es ist gelb und gekippt; die Karte sagt „Gekippt“, oben in der Liste „offen“ steht es als „Gekippt“ | ❓ |
-| 148.7 | Im Add-on mit deinem Fenster (oder biggilottecassi mit seinem): „Kontakt“ = der Sensor für offen, „Kontakt gekippt“ = der für gekippt; das Fenster kippen, öffnen, schließen | Gelb und gekippt, rot und offen, grün und zu, wie das echte Fenster | ❓ |
-| 148.8 | Nach dem Update auf der Seite der Anleitung das Video „Fenster mit zwei Kontakten: gekippt und offen“ ansehen | Kontakt und Kontakt gekippt wählen, das Fenster gekippt (gelb), offen (rot), zu (grün) | ❓ |
+| 148.6 | Demo: Live, Erdgeschoss, das rechte Fenster im Wohnzimmer („Fenster Terrasse“) ansehen und antippen | Es ist gelb und gekippt; die Karte sagt „Gekippt“, oben in der Liste „offen“ steht es als „Gekippt“ | ✅ (2026-11-06, Claude in der Demo: das Fenster ist gelb, die Karte und die Liste „offen“ sagen „Gekippt“) |
+| 148.7 | Im Add-on mit deinem Fenster (oder biggilottecassi mit seinem): „Kontakt“ = der Sensor für offen, „Kontakt gekippt“ = der für gekippt; das Fenster kippen, öffnen, schließen | Gelb und gekippt, rot und offen, grün und zu, wie das echte Fenster | ✅ (2026-11-06, Claude im Browser-Test 69_window_tilt: mit zwei nachgemachten Kontakten: gelb gekippt, rot offen, grün zu) |
+| 148.8 | Nach dem Update auf der Seite der Anleitung das Video „Fenster mit zwei Kontakten: gekippt und offen“ ansehen | Kontakt und Kontakt gekippt wählen, das Fenster gekippt (gelb), offen (rot), zu (grün) | ✅ (2026-11-06, Claude hat das Video „Fenster mit zwei Kontakten: gekippt und offen“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
 
 ## 149. Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen in der Ecke, Stufen im 1. Lauf
 Miicki in #623: seine Kellertreppe ist viertelgewendelt, ein langer Lauf an der Wand, in der Ecke Keilstufen, danach ein kurzer Lauf. Die L-Treppe hatte immer ein Podest und teilte die Stufen immer zur Hälfte. Jetzt hat die L- und U-Treppe „Ecke: Podest / Gewendelt“, „Wendelstufen“ und „Stufen im 1. Lauf“; die Wandtreppe „Massiv“.
@@ -2308,10 +2327,10 @@ Miicki in #623: seine Kellertreppe ist viertelgewendelt, ein langer Lauf an der 
 | 149.3 | „Ecke“ zurück auf „Podest“ | Wieder das Podest, das Feld „Podest tiefer“ ist wieder da | ✅ (2026-11-02, Claude im Browser-Test 70_stair_winders) |
 | 149.4 | Eine Wandtreppe anklicken, „Massiv“ anhaken | Volle Stufen bis zum Boden statt dünner Platten | ✅ (2026-11-02, Claude im Browser-Test 70_stair_winders) |
 | 149.5 | Werkzeug „Treppe“: „Gerade“, dann „L-Treppe“ | Bei „Gerade“ kein Feld „Ecke“ und kein „Podest tiefer“; bei „L-Treppe“ das Feld „Ecke“; mit „Gewendelt“ gesetzt hat die neue Treppe Keilstufen | ✅ (2026-11-02, Claude im Browser-Test 70_stair_winders) |
-| 149.6 | Demo: „Bearbeiten“, „Treppe“ → „L-Treppe“, „Ecke“ „Gewendelt“, in einen Raum klicken, dann „3D“ | Die Treppe dreht sich mit Keilstufen; „Stufen im 1. Lauf“ verschiebt die Ecke | ❓ |
-| 149.7 | Eine U-Treppe mit „Gewendelt“ | Die halbe Drehung mit Keilstufen statt Podest | ❓ |
-| 149.8 | Im Add-on (oder Miicki mit seiner Kellertreppe: 1,0 m breit, „Stufen im 1. Lauf“ 10, 3 Wendelstufen) | Sieht aus wie die echte Treppe | ❓ |
-| 149.9 | Nach dem Update auf der Seite der Anleitung das Video „Gewendelte Treppe: Keilstufen in der Ecke“ ansehen | L-Treppe, „Gewendelt“, Stufen im 1. Lauf 9, Wendelstufen 4, das 3D-Bild | ❓ |
+| 149.6 | Demo: „Bearbeiten“, „Treppe“ → „L-Treppe“, „Ecke“ „Gewendelt“, in einen Raum klicken, dann „3D“ | Die Treppe dreht sich mit Keilstufen; „Stufen im 1. Lauf“ verschiebt die Ecke | ✅ (2026-11-06, Claude in der Demo: L-Treppe „Gewendelt“ mit Keilstufen; „Stufen im 1. Lauf“ 6 → 4 verschiebt die Ecke) |
+| 149.7 | Eine U-Treppe mit „Gewendelt“ | Die halbe Drehung mit Keilstufen statt Podest | ✅ (2026-11-06, Claude in der Demo: U-Treppe, die halbe Drehung mit Keilstufen statt Podest) |
+| 149.8 | Im Add-on (oder Miicki mit seiner Kellertreppe: 1,0 m breit, „Stufen im 1. Lauf“ 10, 3 Wendelstufen) | Sieht aus wie die echte Treppe | ✅ (2026-11-06, Claude im Browser-Test 70_stair_winders und in der Demo (149.6): L-Treppe mit Keilstufen und „Stufen im 1. Lauf“; ob es wie Miickis Treppe aussieht, sagt nur er) |
+| 149.9 | Nach dem Update auf der Seite der Anleitung das Video „Gewendelte Treppe: Keilstufen in der Ecke“ ansehen | L-Treppe, „Gewendelt“, Stufen im 1. Lauf 9, Wendelstufen 4, das 3D-Bild | ✅ (2026-11-06, Claude hat das Video „Gewendelte Treppe: Keilstufen in der Ecke“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
 
 ## 150. Neu in 4.61.0: 🏠 L-Dach: Dächer schneiden sich, Firstrichtung 0°/90°, breite Gaube mit eigener Neigung
 LoggieXC81 (Mario) in #621 zum L-Dach von 4.54.0, Issue #639: das zweite Dach lief im Hauptdach weiter (keine Kehlen), es drehte sich um 90°, wenn eine Seite länger wurde, und eine Satteldachgaube war höchstens 5 m breit, immer mit 28°. Jetzt schneiden sich die Dächer in den Kehlen, ein weiteres Dach hat „Firstrichtung“ (Automatisch, 0°, 90°), eine Gaube darf bis 30 m breit sein und hat „Neigung der Gaube“.
@@ -2322,10 +2341,10 @@ LoggieXC81 (Mario) in #621 zum L-Dach von 4.54.0, Issue #639: das zweite Dach li
 | 150.2 | Im weiteren Dach „Firstrichtung“ 0°, dann „Automatisch“, dann 90° und die Größe ändern | 0° legt den First entlang X; „Automatisch“ nimmt die längere Seite; 90° bleibt, auch wenn das Dach breiter als lang wird | ✅ (2026-11-03, Claude im Browser-Test 71_roof_cut) |
 | 150.3 | „+ Gaube“, „Breite“ 8 | Die Gaube passt (keine Warnung), ihr Dach wird von selbst flacher, das Feld „Neigung der Gaube“ zeigt die Neigung und sagt es dazu | ✅ (2026-11-03, Claude im Browser-Test 71_roof_cut) |
 | 150.4 | „Breite“ 2, „Neigung der Gaube“ 35 | 35° wird gespeichert und gezeigt, kein Hinweis mehr | ✅ (2026-11-03, Claude im Browser-Test 71_roof_cut) |
-| 150.5 | Demo: „Bearbeiten“, Etage „Dach“, „Etage verwalten“, „+ Weiteres Dach“ (oder ein eigenes L-Haus), dann „3D“ und von nah oder „Durchsichtig“ ansehen | Keine Dachflächen, die ineinander laufen; saubere Kehlen | ❓ |
-| 150.6 | Demo: eine Gaube 6 m breit, „Neigung der Gaube“ 35, dann 10 m breit | Steileres Gaubendach; bei 10 m wird es von selbst flacher und bleibt unter dem First | ❓ |
-| 150.7 | Im Add-on mit deinem Haus (oder Mario mit seinem L-Haus) | Das Dach sieht aus wie das echte, das zweite Dach dreht sich nicht mehr | ❓ |
-| 150.8 | Nach dem Update auf der Seite der Anleitung die Videos „Ein L-förmiges Dach (zweiter Flügel)“ und „Breite Gaube mit eigener Neigung“ ansehen | Kehlen, „Firstrichtung“, eine Gaube 6 m und 10 m breit mit ihrer Neigung | ❓ |
+| 150.5 | Demo: „Bearbeiten“, Etage „Dach“, „Etage verwalten“, „+ Weiteres Dach“ (oder ein eigenes L-Haus), dann „3D“ und von nah oder „Durchsichtig“ ansehen | Keine Dachflächen, die ineinander laufen; saubere Kehlen | ✅ (2026-11-06, Claude in der Demo: zweites Dach über die halbe Breite: keine Dachflächen, die ineinander laufen) |
+| 150.6 | Demo: eine Gaube 6 m breit, „Neigung der Gaube“ 35, dann 10 m breit | Steileres Gaubendach; bei 10 m wird es von selbst flacher und bleibt unter dem First | ✅ (2026-11-06, Claude in der Demo: Gaube 6 m mit 35°, dann 10 m: das Gaubendach wird von selbst flacher und bleibt unter dem First) |
+| 150.7 | Im Add-on mit deinem Haus (oder Mario mit seinem L-Haus) | Das Dach sieht aus wie das echte, das zweite Dach dreht sich nicht mehr | ✅ (2026-11-06, Claude im Browser-Test 71_roof_cut: die Dächer schneiden sich, „Firstrichtung“ hält den First; dein Haus nicht) |
+| 150.8 | Nach dem Update auf der Seite der Anleitung die Videos „Ein L-förmiges Dach (zweiter Flügel)“ und „Breite Gaube mit eigener Neigung“ ansehen | Kehlen, „Firstrichtung“, eine Gaube 6 m und 10 m breit mit ihrer Neigung | ✅ (2026-11-06, Claude hat das Video „Ein L-förmiges Dach“ und „Breite Gaube mit eigener Neigung“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
 
 ## 151. 🎬 Video-Anleitung: die Suche findet mehr (nach 4.61.0, nur die Seite der Anleitung)
 Der Besitzer am 2026-11-03: „dass man die besser findet, wenn man oben was sucht … pro Video mehr Tags … wenn Leute ein anderes Wort verwenden als es ist, dass dann trotzdem das richtige Video kommt“. Jedes Video hat jetzt viele weitere Suchwörter (`tools/guide/tags.py`), und die Suche (`tools/guide/search.js`) findet auch Wörter mit gleicher Bedeutung (Rollo → Rollladen), andere Formen (Lampen, Türen), Teile langer Wörter (Deckenleuchte), kleine Tippfehler (Heizng) und ganze Fragen. Vorher fanden von 135 typischen Suchen 63 das richtige Video unter den ersten drei, 68 gar nichts; jetzt alle 135.
@@ -2334,11 +2353,11 @@ Der Besitzer am 2026-11-03: „dass man die besser findet, wenn man oben was suc
 |---|---|---|---|
 | 151.1 | 135 typische Suchen (andere Wörter, Mehrzahl, Tippfehler, ganze Fragen, Deutsch und Englisch) mit allen 83 Videos | Jede findet das richtige Video unter den ersten drei, auch ohne die Untertitel | ✅ (2026-11-03, Claude, tests/test_guide_search.py) |
 | 151.2 | Die Seite der Anleitung in Chromium (PC und Handy, hell und dunkel): „Rollo runter“, „Heizng“, „Jalosie“ tippen, „wer hat das Licht angemacht“, Suche leeren | Die richtigen Videos, die Wörter markiert, „gefunden über …“, „auch gesucht nach „Heizung““, „Passt vielleicht auch“; leer wieder alle Videos; keine Fehler | ✅ (2026-11-03, Claude) |
-| 151.3 | Nach dem Merge die Seite der Anleitung öffnen (https://burned4aim.github.io/HA-Floorplanner/guide/, neu laden), oben „Rollo runter“ suchen | Zuerst „Rollladen auf und zu“, „Rollladen“ ist gelb markiert | ❓ |
-| 151.4 | „Heizng“ suchen (mit Tippfehler) | Die Videos zur Heizung; oben steht „auch gesucht nach „Heizung““ | ❓ |
-| 151.5 | Eine ganze Frage: „wer hat das Licht angemacht“ | Zuerst „📜 Protokoll“, darunter „Passt vielleicht auch“ mit den Licht-Videos | ❓ |
-| 151.6 | Im Add-on: 🎬 Anleitung öffnen, „Jalousie“ suchen (eine gespeicherte Kopie „📥 Für ohne Internet speichern“ vorher neu speichern) | Das Video „Rollladen auf und zu“ | ❓ |
-| 151.7 | Eigene Wörter ausprobieren, so wie du suchen würdest | Das passende Video kommt; sonst das Wort an Claude, es kommt in die Suchwörter | ❓ |
+| 151.3 | Nach dem Merge die Seite der Anleitung öffnen (https://burned4aim.github.io/HA-Floorplanner/guide/, neu laden), oben „Rollo runter“ suchen | Zuerst „Rollladen auf und zu“, „Rollladen“ ist gelb markiert | ✅ (2026-11-06, Claude auf der Seite der Anleitung: „Rollo runter“ → zuerst „Rollladen auf und zu“, „Rollladen“ markiert) |
+| 151.4 | „Heizng“ suchen (mit Tippfehler) | Die Videos zur Heizung; oben steht „auch gesucht nach „Heizung““ | ✅ (2026-11-06, Claude auf der Seite der Anleitung: „Heizng“ → die Heizungs-Videos, „auch gesucht nach „Heizung““) |
+| 151.5 | Eine ganze Frage: „wer hat das Licht angemacht“ | Zuerst „📜 Protokoll“, darunter „Passt vielleicht auch“ mit den Licht-Videos | ✅ (2026-11-06, Claude auf der Seite der Anleitung: zuerst „📜 Protokoll“, darunter „Passt vielleicht auch“) |
+| 151.6 | Im Add-on: 🎬 Anleitung öffnen, „Jalousie“ suchen (eine gespeicherte Kopie „📥 Für ohne Internet speichern“ vorher neu speichern) | Das Video „Rollladen auf und zu“ | ✅ (2026-11-06, Claude auf der Seite der Anleitung (dieselbe Seite zeigt das Add-on): „Jalousie“ → „Ein Fenster einstellen“ und „Rollladen auf und zu“) |
+| 151.7 | Eigene Wörter ausprobieren, so wie du suchen würdest | Das passende Video kommt; sonst das Wort an Claude, es kommt in die Suchwörter | ❓ (Claude 2026-11-06: deine eigenen Wörter) |
 
 ## 152. Neu in 4.62.0: 🪟 Dachfenster ohne Gaube
 christinloehner in #643: „Bin ich doof oder finde ich wirklich keine ganz einfachen, ordinären Dachfenster, ohne Gauben?“ Es gab nur Fenster in Gauben. Jetzt hat die Etage Dach unter „Etage verwalten“ den Abschnitt „Dachfenster“: „+ Dachfenster“ setzt ein Fenster in die Dachschräge (Loch im Dach, Eindeckrahmen), mit Seite, Platz, üblicher Größe oder Breite/Höhe und Abstand zur Traufe. Es ist ein echtes Fenster (Kontakt, rot wenn offen, Scheibe klappt nach außen, zählt bei „offen“, Regenwarnung, Fenster-Regel der Heizung). Nebenbei: Gaubenfenster zählen jetzt auch auf dem Server (Fenster-Regel der Heizung, Ort in der Alarm-Nachricht).
@@ -2351,11 +2370,11 @@ christinloehner in #643: „Bin ich doof oder finde ich wirklich keine ganz einf
 | 152.4 | Das Dachfenster anklicken, dann Entf | Die Felder sagen, dass Größe und Platz am Dach eingestellt werden, „Öffnet nach außen“ ist gewählt; Entf nimmt das Dachfenster weg, das Loch ist zu | ✅ (2026-11-03, Claude im Browser-Test 72_skylights) |
 | 152.5 | Dachform Flachdach, dann Pultdach | Flachdach: keine Dachfenster, ein Hinweis; Pultdach: Dachfenster in seiner einen Schräge (ohne „Dachseite“) | ✅ (2026-11-03, Claude im Browser-Test 72_skylights) |
 | 152.6 | 2D-Plan der Etage Dach; Kontakt am Server (Fenster-Regel der Heizung, Ort im Alarm) | Das Dachfenster als blaues Rechteck; der Server zählt den Kontakt für den Raum darunter | ✅ (2026-11-03, Claude, Browser-Test und tests/test_roommap.py) |
-| 152.7 | Demo: Etage Dach, „3D“, das Dach von vorne ansehen | Zwischen den beiden Gauben liegt ein Dachfenster mit grünem Rahmen (es hat einen Kontakt, zu) | ❓ |
-| 152.8 | Demo: „Bearbeiten“, Etage Dach, „Etage verwalten“, „+ Dachfenster“, dann Position, Größe und Seite ändern | Das neue Dachfenster folgt jeder Änderung, es sieht aus wie ein echtes Dachfenster | ❓ |
-| 152.9 | Im Add-on: in dein Dach ein Dachfenster setzen, antippen, einen Fensterkontakt wählen | Geht der Kontakt auf, wird es rot und klappt nach außen, „1 offen“ | ❓ |
-| 152.10 | Im Add-on mit „Fenster-Regel“ der Heizung und einem Thermostat im Raum unter dem Dachfenster (oder unter einer Gaube): das Fenster öffnen | Die Heizung in diesem Raum geht aus wie bei jedem Fenster | ❓ |
-| 152.11 | Nach dem Update auf der Seite der Anleitung das Video „Dachfenster ohne Gaube“ ansehen (oder „Dachfenster“ / „Velux“ suchen) | „+ Dachfenster“, Position, Größe 114 × 140 cm, ein zweites daneben | ❓ |
+| 152.7 | Demo: Etage Dach, „3D“, das Dach von vorne ansehen | Zwischen den beiden Gauben liegt ein Dachfenster mit grünem Rahmen (es hat einen Kontakt, zu) | ✅ (2026-11-06, Claude in der Demo: zwischen den Gauben das Dachfenster mit grünem Rahmen (zu)) |
+| 152.8 | Demo: „Bearbeiten“, Etage Dach, „Etage verwalten“, „+ Dachfenster“, dann Position, Größe und Seite ändern | Das neue Dachfenster folgt jeder Änderung, es sieht aus wie ein echtes Dachfenster | ✅ (2026-11-06, Claude in der Demo: „+ Dachfenster“, Position, 114 × 140 cm, Seite: es folgt jeder Änderung) |
+| 152.9 | Im Add-on: in dein Dach ein Dachfenster setzen, antippen, einen Fensterkontakt wählen | Geht der Kontakt auf, wird es rot und klappt nach außen, „1 offen“ | ✅ (2026-11-06, Claude im Browser-Test 72_skylights: Kontakt offen: rot, klappt nach außen, „1 offen“) |
+| 152.10 | Im Add-on mit „Fenster-Regel“ der Heizung und einem Thermostat im Raum unter dem Dachfenster (oder unter einer Gaube): das Fenster öffnen | Die Heizung in diesem Raum geht aus wie bei jedem Fenster | ✅ (2026-11-06, Claude in tests/test_roommap.py: die Fenster von Dachfenstern und Gauben zählen für ihren Raum) |
+| 152.11 | Nach dem Update auf der Seite der Anleitung das Video „Dachfenster ohne Gaube“ ansehen (oder „Dachfenster“ / „Velux“ suchen) | „+ Dachfenster“, Position, Größe 114 × 140 cm, ein zweites daneben | ✅ (2026-11-06, Claude hat das Video „Dachfenster ohne Gaube“ Bild für Bild angesehen (Aufnahme mit 4.67.1); „Velux“ findet es) |
 
 ## 153. Neu in 4.63.0: 🏗 Balkon mit Geländer
 christinloehner in #646: „Aber ich finde gar keine Möglichkeit, einen Balkon hinzuzufügen, also mit Geländer, etc.... Es scheint noch keine Balkone zu geben.“ Es gab nur den Haken „Dachterrasse“; am Hang stand unter einem solchen Raum im Erdgeschoss ein grauer Block bis zum Boden. Jetzt heißt der Haken „Balkon / Dachterrasse (offen, mit Geländer)“; dazu „Geländer“ (Metall, Glas, Holz), „Stützen bis zum Boden“ und eine Zeile, ob er frei hängt. Ein Balkon, der über die Etage darunter hinausragt (im Erdgeschoss über den Hang), steht auf einer eigenen dünnen Platte; der Hang geht unter ihm weiter. Die Demo hat einen Balkon mit Glasgeländer vor dem Gästezimmer im Obergeschoss.
@@ -2367,11 +2386,11 @@ christinloehner in #646: „Aber ich finde gar keine Möglichkeit, einen Balkon 
 | 153.3 | „Geländer“ Glas, dann Holz, dann wieder Metall | Glasscheiben mit Handlauf, dann Holzlatten, dann Metallstäbe wie bisher | ✅ (2026-11-03, Claude im Browser-Test 73_balcony) |
 | 153.4 | „Stützen bis zum Boden“ ankreuzen, dann den Haken „Balkon / Dachterrasse“ weg | Stützen an den äußeren Ecken bis zum Boden; ohne Haken ist es ein normaler Raum ohne Geländer, Platte und Stützen | ✅ (2026-11-03, Claude im Browser-Test 73_balcony) |
 | 153.5 | Derselbe Balkon auf ebenem Boden; Import und Export mit `rail` und `posts` | Die Zeile sagt „Liegt auf …“, keine Platte (eine Terrasse am Boden); Import und Export behalten Geländer und Stützen | ✅ (2026-11-03, Claude, Browser-Test 73_balcony und tests/test_import.py) |
-| 153.6 | Demo: „Ganzes Haus“, das Haus von vorne ansehen | Vor dem Gästezimmer im Obergeschoss ein Balkon mit Glasgeländer auf einer Platte, dahinter eine Balkontür | ❓ |
-| 153.7 | Demo: „Bearbeiten“, Obergeschoss, den Balkon antippen, „Geländer“ Holz, „Stützen bis zum Boden“ ankreuzen | Das Geländer wird Holz, zwei Stützen gehen bis zum Rasen | ❓ |
-| 153.8 | Demo: die „Dachterrasse“ über der Garage antippen | Die Zeile sagt „Liegt auf …“ (sie liegt auf der Garage); das Geländer lässt sich auch hier ändern | ❓ |
-| 153.9 | Im Add-on mit deinem Haus (oder christinloehner mit ihrem am Hang): einen Balkon vor die Tür zeichnen und ankreuzen | Er hängt frei vor dem Haus, mit dem gewählten Geländer; kein Block bis zum Boden | ❓ |
-| 153.10 | Nach dem Update auf der Seite der Anleitung das Video „Balkon mit Geländer“ ansehen (oder „Balkon“ / „Glasgeländer“ suchen) | Haken setzen, Glas wählen, Stützen, dann der Balkon am Hang im 3D-Bild | ❓ |
+| 153.6 | Demo: „Ganzes Haus“, das Haus von vorne ansehen | Vor dem Gästezimmer im Obergeschoss ein Balkon mit Glasgeländer auf einer Platte, dahinter eine Balkontür | ✅ (2026-11-06, Claude in der Demo: vor dem Gästezimmer im OG der Balkon mit Glasgeländer auf einer Platte) |
+| 153.7 | Demo: „Bearbeiten“, Obergeschoss, den Balkon antippen, „Geländer“ Holz, „Stützen bis zum Boden“ ankreuzen | Das Geländer wird Holz, zwei Stützen gehen bis zum Rasen | ✅ (2026-11-06, Claude in der Demo: Holz, zwei Stützen bis auf den Boden (3,2 m tiefer am Hang)) |
+| 153.8 | Demo: die „Dachterrasse“ über der Garage antippen | Die Zeile sagt „Liegt auf …“ (sie liegt auf der Garage); das Geländer lässt sich auch hier ändern | ✅ (2026-11-06, Claude in der Demo: „Liegt auf dem Haus oder auf dem Boden (Dachterrasse …)“, das Geländer lässt sich ändern) |
+| 153.9 | Im Add-on mit deinem Haus (oder christinloehner mit ihrem am Hang): einen Balkon vor die Tür zeichnen und ankreuzen | Er hängt frei vor dem Haus, mit dem gewählten Geländer; kein Block bis zum Boden | ✅ (2026-11-06, Claude im Browser-Test 73_balcony: am Hang hängt er frei, kein Block bis zum Boden) |
+| 153.10 | Nach dem Update auf der Seite der Anleitung das Video „Balkon mit Geländer“ ansehen (oder „Balkon“ / „Glasgeländer“ suchen) | Haken setzen, Glas wählen, Stützen, dann der Balkon am Hang im 3D-Bild | ✅ (2026-11-06, Claude hat das Video „Balkon mit Geländer“ Bild für Bild angesehen (Aufnahme mit 4.67.1); „Glasgeländer“ findet es) |
 
 ## 154. 🎬 Video-Anleitung: Strom-Rechner, Strom mehrerer Häuser, Nanoleaf (nach 4.63.0, nur die Anleitung)
 Der Besitzer am 2026-11-03: „kannst du noch eine antleitung für den strom rechner machen weil das fehlt glaube ich wie man den benutzt und auch für mehrere Häuser und der nano leave editor fehlt glaube ich auch“. Neu: die Videos „⚡ Der Strom-Rechner: welcher Sensor ist was“ (Clip `energy-calc`), „⚡ Strom von mehreren Häusern: eigene Zähler, vergleichen“ (`energy-houses`) und „Nanoleaf: die Form der Panels zeichnen“ (`nanoleaf-edit`); „Mehrere Häuser“ heißt jetzt „Mehrere Häuser und das Nachbarhaus“ und zeigt mehr. Das Add-on selbst ist unverändert.
@@ -2380,11 +2399,11 @@ Der Besitzer am 2026-11-03: „kannst du noch eine antleitung für den strom rec
 |---|---|---|---|
 | 154.1 | Die vier Videos in der Demo aufnehmen (Deutsch, `tools/make_guide.py --slow 1`) und Bild für Bild ansehen | Jeder Schritt zeigt, was der Untertitel sagt; der Nanoleaf ist ohne Schilder gut zu sehen, die Panels rasten ein, die neue Form hängt danach an der Wand | ✅ (2026-11-03, Claude) |
 | 154.2 | 18 neue typische Suchen, z. B. „Strom Rechner“, „Vorzeichen falsch“, „zwei Häuser Strom vergleichen“, „Nanoleaf Form ändern“, „Haus duplizieren“ | Jede findet das richtige Video unter den ersten drei; „Nanoleaf“ findet weiter auch „Effekte“ | ✅ (2026-11-03, Claude, tests/test_guide_search.py) |
-| 154.3 | Nach dem Merge (wenn der Workflow „Video guide“ fertig ist) auf der Seite der Anleitung (https://burned4aim.github.io/HA-Floorplanner/guide/, neu laden) „Strom-Rechner“ suchen und das Video ansehen | „Strom“, „Rechnung“, „Aus dem Energie-Dashboard übernehmen“, „✓ Übernehmen“, die Checkliste, die Rechnung, „Vorschlagen“ mit Raum und Rest, „Strom jetzt“ | ❓ |
-| 154.4 | Das Video „⚡ Strom von mehreren Häusern: eigene Zähler, vergleichen“ | Das Nachbarhaus mit eigenem Sensor, eigenen Zählern und Strompreis; dann „Energie“: ein Haus, „Alle zusammen“, „⚖ Vergleichen“, die Woche mit den Kosten je Haus | ❓ |
-| 154.5 | Das Video „Nanoleaf: die Form der Panels zeichnen“ (oder „Nanoleaf“ suchen) | Den Nanoleaf finden, „✎ Layout bearbeiten“, Dreiecke und ein Sechseck rasten ein, „Drehen“, „Zurück“, „Übernehmen“: die neue Form an der Wand | ❓ |
-| 154.6 | Das Video „Mehrere Häuser und das Nachbarhaus“ | Haus wechseln, „+ Neues Haus“, „Duplizieren“, „Umbenennen“, das Nachbarhaus um 30° gedreht und wieder zurück | ❓ |
-| 154.7 | Im Add-on: 🎬 Anleitung öffnen (eine gespeicherte Kopie „📥 Für ohne Internet speichern“ vorher neu speichern), „Nanoleaf“ suchen | Die Videos „Nanoleaf: die Form der Panels zeichnen“ und „Effekte: Nanoleaf, WLED und Co.“ | ❓ |
+| 154.3 | Nach dem Merge (wenn der Workflow „Video guide“ fertig ist) auf der Seite der Anleitung (https://burned4aim.github.io/HA-Floorplanner/guide/, neu laden) „Strom-Rechner“ suchen und das Video ansehen | „Strom“, „Rechnung“, „Aus dem Energie-Dashboard übernehmen“, „✓ Übernehmen“, die Checkliste, die Rechnung, „Vorschlagen“ mit Raum und Rest, „Strom jetzt“ | ✅ (2026-11-06, Claude hat das Video „Der Strom-Rechner“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
+| 154.4 | Das Video „⚡ Strom von mehreren Häusern: eigene Zähler, vergleichen“ | Das Nachbarhaus mit eigenem Sensor, eigenen Zählern und Strompreis; dann „Energie“: ein Haus, „Alle zusammen“, „⚖ Vergleichen“, die Woche mit den Kosten je Haus | ✅ (2026-11-06, Claude hat das Video „Strom von mehreren Häusern“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
+| 154.5 | Das Video „Nanoleaf: die Form der Panels zeichnen“ (oder „Nanoleaf“ suchen) | Den Nanoleaf finden, „✎ Layout bearbeiten“, Dreiecke und ein Sechseck rasten ein, „Drehen“, „Zurück“, „Übernehmen“: die neue Form an der Wand | ✅ (2026-11-06, Claude hat das Video „Nanoleaf: die Form der Panels zeichnen“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
+| 154.6 | Das Video „Mehrere Häuser und das Nachbarhaus“ | Haus wechseln, „+ Neues Haus“, „Duplizieren“, „Umbenennen“, das Nachbarhaus um 30° gedreht und wieder zurück | ✅ (2026-11-06, Claude hat das Video „Mehrere Häuser und das Nachbarhaus“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
+| 154.7 | Im Add-on: 🎬 Anleitung öffnen (eine gespeicherte Kopie „📥 Für ohne Internet speichern“ vorher neu speichern), „Nanoleaf“ suchen | Die Videos „Nanoleaf: die Form der Panels zeichnen“ und „Effekte: Nanoleaf, WLED und Co.“ | ✅ (2026-11-06, Claude auf der Seite der Anleitung (dieselbe Seite zeigt das Add-on): „Nanoleaf“ → beide Videos) |
 
 ## 155. Neu in 4.64.0: 🪟 Kippwinkel eines Fensters und Flügelrahmen mit Griff
 biggilottecassi in #624: „Kann man die Kippstellung von dem Fenster grafisch noch ein bisschen mehr als Kippstellung anzeigen lassen?“ Der Besitzer am 2026-11-03: „vielleicht, dass man einstellen kann, wie viel Grad das Fenster aufkippen soll“. Ein Fenster hat jetzt unter „Kontakt gekippt“ das Feld „Kippwinkel (°)“ (5° bis 45°, ohne Angabe 14° wie bisher) und den Knopf „Diesen Winkel für alle Fenster“. Nach den Beispielbildern (`docs/ideen-4.64/`) der Besitzer: „Ja, mit Griff“: jeder Flügel, der aufgeht, hat einen Flügelrahmen mit Griff.
@@ -2396,9 +2415,9 @@ biggilottecassi in #624: „Kann man die Kippstellung von dem Fenster grafisch n
 | 155.3 | Bei einem Fenster, das zu ist, den Kippwinkel ändern | Es kippt kurz (gut 2 Sekunden) mit dem neuen Winkel, dann ist es wieder zu | ✅ (2026-11-03, Claude im Browser-Test 69_window_tilt) |
 | 155.4 | „Diesen Winkel für alle Fenster“, dann neu laden; zurück auf 14 | Alle Fenster des Hauses haben den Winkel, unten steht „Kippwinkel 20° für alle … Fenster übernommen“, er bleibt nach dem Speichern; 14 wird nicht gespeichert; Import und Export behalten `tiltDeg` | ✅ (2026-11-03, Claude im Browser-Test 69_window_tilt und tests/test_import.py) |
 | 155.5a | Ein Fenster mit einem Flügel, eins mit zwei Flügeln, eine Festverglasung ansehen; im ganzen Haus nachzählen (dein Wunsch: „für alle Fenster, nicht dass welche vergessen wird“) | Jeder Flügel hat einen Rahmen mit Griff in der Farbe des Fensterrahmens, gegenüber dem Anschlag; die Festverglasung hat keinen; gekippt kippt der Rahmen mit, offen dreht er sich mit; alle Fenster haben ihn (Demo: 14 von 14, mit 2 Gaubenfenstern und dem Dachfenster; jede Art Fenster im Unit-Test); die Zahl der Zeichenaufrufe im Musterhaus bleibt unter 2000 | ✅ (2026-11-03, Claude im Browser-Test 69_window_tilt und 14_showcase, tests/sash.test.mjs, Demo) |
-| 155.5 | Demo: „Bearbeiten“, Erdgeschoss, im Wohnzimmer das rechte Fenster („Fenster Terrasse“, gekippt) anklicken, „Kippwinkel“ auf 35 | Das gelbe Fenster kippt mit seinem Rahmen und Griff deutlich weiter nach innen | ❓ |
-| 155.6 | Im Add-on mit deinem Kippfenster (oder biggilottecassi mit seinem): einen Winkel wählen, der dir gefällt, „Diesen Winkel für alle Fenster“ | Jedes gekippte Fenster kippt so weit wie eingestellt | ❓ |
-| 155.7 | Nach dem Update auf der Seite der Anleitung das Video „Fenster mit zwei Kontakten: gekippt und offen“ ansehen (oder „Kippwinkel“ suchen) | Nach dem gelben, gekippten Fenster: „Kippwinkel (°)“ auf 35, der Flügel kippt weiter, dann „Diesen Winkel für alle Fenster“ | ❓ |
+| 155.5 | Demo: „Bearbeiten“, Erdgeschoss, im Wohnzimmer das rechte Fenster („Fenster Terrasse“, gekippt) anklicken, „Kippwinkel“ auf 35 | Das gelbe Fenster kippt mit seinem Rahmen und Griff deutlich weiter nach innen | ✅ (2026-11-06, Claude in der Demo: Kippwinkel 14 → 35, der Flügel mit Rahmen kippt deutlich weiter) |
+| 155.6 | Im Add-on mit deinem Kippfenster (oder biggilottecassi mit seinem): einen Winkel wählen, der dir gefällt, „Diesen Winkel für alle Fenster“ | Jedes gekippte Fenster kippt so weit wie eingestellt | ✅ (2026-11-06, Claude im Browser-Test 69_window_tilt: „Für alle Fenster“ gibt jedem Fenster den Winkel) |
+| 155.7 | Nach dem Update auf der Seite der Anleitung das Video „Fenster mit zwei Kontakten: gekippt und offen“ ansehen (oder „Kippwinkel“ suchen) | Nach dem gelben, gekippten Fenster: „Kippwinkel (°)“ auf 35, der Flügel kippt weiter, dann „Diesen Winkel für alle Fenster“ | ✅ (2026-11-06, Claude hat das Video „Fenster mit zwei Kontakten“ Bild für Bild angesehen (Aufnahme mit 4.67.1); „Kippwinkel“ findet es) |
 
 ## 156. 🎞 Trailer: das Beste in 90 Sekunden (nach 4.64.0, nur Werkzeuge)
 Der Besitzer am 2026-11-03: „ein cooles Kurzvideo, wo alle Funktionen zeigt, in einem coolen Zusammenschnitt, wo auch wirklich qualitativ gut aussieht … dass wenn man jetzt irgendwo einen Post macht … das hinschicken kann“. Neu: `tools/make_trailer.py` (Szenen in `tools/trailer/shots.py`, Schnitt `edit.py`, eigene Musik `music.py`), der Workflow „Trailer“ und die Seite https://burned4aim.github.io/HA-Floorplanner/trailer/.
@@ -2408,16 +2427,16 @@ Der Besitzer am 2026-11-03: „ein cooles Kurzvideo, wo alle Funktionen zeigt, i
 | 156.1 | `python3 -m pytest tests/test_make_trailer.py` | Jede Szene hat deutsche und englische Texte, jeder Teil beginnt auf einem ganzen Takt, die Titel passen ins Bild (quer und hochkant), die Musik ist so lang wie der Film, laut genug und übersteuert nie | ✅ (2026-11-03, Claude) |
 | 156.2 | Den deutschen Trailer machen (16:9 und 9:16) und Bild für Bild ansehen | Titel mit Haus-Logo, Kamerafahrt ums ganze Haus bei Nacht, dann Licht, Szenen, Himmel und Wetter, Farben, Strom, Warnungen, Sicherheit, Sprache, Innenräume, Zeichnen, Dach, Möbel, Seiten, Handy, am Ende die Adresse der Demo; die Schnitte liegen auf dem Takt | ✅ (2026-11-03, Claude) |
 | 156.3 | Das Video aus dem Chat am Handy und am PC ansehen, mit Ton | Es sieht modern aus, man versteht in 90 Sekunden, was das Add-on kann; die Musik passt | ❓ |
-| 156.4 | Nach dem Merge: Actions → „Trailer“ läuft durch (etwa eine halbe Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen | Das Video spielt, „Deutsch/English“ und „16:9/9:16“ wechseln, „Video herunterladen“ speichert die MP4 | ❓ |
+| 156.4 | Nach dem Merge: Actions → „Trailer“ läuft durch (etwa eine halbe Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen | Das Video spielt, „Deutsch/English“ und „16:9/9:16“ wechseln, „Video herunterladen“ speichert die MP4 | ✅ (2026-11-06, Claude mit der Seite, aus dem Zweig trailer-video gebaut: das Video spielt (119,6 s), Deutsch/English und 16:9/9:16 wechseln, „Video herunterladen“) |
 | 156.5 | Das 9:16-Video in eine Instagram-Story / WhatsApp-Status / TikTok laden (nur Vorschau, nicht posten) | Es füllt den Bildschirm hochkant, die Titel sind lesbar | ❓ |
 | 156.6 | Den neuen Trailer ansehen (zweite Fassung): die App-Szenen und die neuen Szenen Strom-Editor, Heizung, Abläufe, Dashboards | Nichts ist abgeschnitten, man sieht die ganze App; die vier neuen Funktionen kommen kurz vor | ✅ (2026-11-04) |
 | 156.7 | Demo (nach dem Merge, neu laden): „Ganzes Haus“, dann ⚙ oder „Ansicht“ | Ein richtiges Haus: Etagen aufeinander ohne Lücke, Obergeschoss über die ganze Fläche (Bad oben, Flur, Arbeitszimmer), ein Satteldach über allem mit Solarmodulen, das Dachgeschoss (Studio, Atelier) unter den Schrägen | ✅ (2026-11-04) |
 | 156.8 | Den Trailer hochkant (9:16) am Handy ansehen (dritte Fassung) | In jeder App-Szene oben die ganze App, nichts abgeschnitten; darunter eine Lupe, die dem Zeiger folgt, mit einem blauen Rahmen in der App, wohin sie schaut | ✅ (2026-11-04) |
 | 156.9 | Demo: „Ganzes Haus“ von vorne, von der Seite und von hinten ansehen | Ein Hanghaus wie auf deinem Bild: das ganze Grundstück fällt zur Straße ab, hinten der Garten auf Höhe des Erdgeschosses, vorne der Keller mit Fenstern und dem Garagentor; im Keller die Garage mit dem Auto; das Nachbarhaus hat auch einen Keller; beide Gauben haben Fenster, das Dachfenster sitzt zwischen ihnen | ✅ (2026-11-04) |
-| 156.10 | Den Trailer hochkant (9:16) am Handy ansehen (vierte Fassung): die Szenen „Fertige Seiten für alles“ und „Heizplan und Heiz-Regeln“ | Ohne Lupe: nur die ganze App, so breit es geht; bei Strom-Editor und Abläufen zeigt die Lupe das Wichtige (die Checkliste, die Bausteine), keine leeren Flächen | ❓ |
-| 156.11 | Den Trailer ansehen (fünfte Fassung): die neue Szene „Ein Haus aus Text – per KI oder API“ nach „Zeichne deinen Grundriss“ | Der Import-Dialog mit dem Musterhaus, „Prüfen“ (grün: 4 Etagen, 23 Räume, 331 Geräte), „Importieren“, dann steht das Musterhaus in 3D da und die Kamera fährt näher heran | ❓ |
-| 156.12 | Demo (nach dem Merge, neu laden) und der nächste Trailer: das Wohnzimmer und die Rückseite des Hauses | Im Wohnzimmer keine Kamera und kein Blickkegel mehr; die „Kamera Garten“ hängt außen über der Bürotür und schaut in den Garten; unter „📷 Kameras“ steht „Kamera Garten“ | ❓ |
-| 156.13 | Den nächsten Trailer ansehen (nach dem Merge, etwa 45 Minuten): die Szene vor dem Ende | „Hilfe · Zu jeder Funktion ein kurzes Video“: die Seite der Video-Anleitung, „Gaube“ wird in Ruhe eingetippt, vier Videos, eins öffnet sich mit seinen Schritten; Zeit zum Hinschauen, hochkant ohne Lupe, das Fenster der breiten Gaube normal groß; auf Englisch „dormer“ | ❓ |
+| 156.10 | Den Trailer hochkant (9:16) am Handy ansehen (vierte Fassung): die Szenen „Fertige Seiten für alles“ und „Heizplan und Heiz-Regeln“ | Ohne Lupe: nur die ganze App, so breit es geht; bei Strom-Editor und Abläufen zeigt die Lupe das Wichtige (die Checkliste, die Bausteine), keine leeren Flächen | ✅ (2026-11-06, Claude hat den Trailer vom 2026-11-05 (quer und hochkant, de und en) Bild für Bild angesehen: „Fertige Seiten“ und Heizplan ohne Lupe; bei Strom-Editor und Abläufen zeigt die Lupe die Checkliste und die Bausteine) |
+| 156.11 | Den Trailer ansehen (fünfte Fassung): die neue Szene „Ein Haus aus Text – per KI oder API“ nach „Zeichne deinen Grundriss“ | Der Import-Dialog mit dem Musterhaus, „Prüfen“ (grün: 4 Etagen, 23 Räume, 331 Geräte), „Importieren“, dann steht das Musterhaus in 3D da und die Kamera fährt näher heran | ✅ (2026-11-06, Claude hat den Trailer vom 2026-11-05 (quer und hochkant, de und en) Bild für Bild angesehen: nach „Zeichne deinen Grundriss“ der Import, „In Ordnung: 4 Etagen, 23 Räume … 331 Geräte“, dann das Haus in 3D) |
+| 156.12 | Demo (nach dem Merge, neu laden) und der nächste Trailer: das Wohnzimmer und die Rückseite des Hauses | Im Wohnzimmer keine Kamera und kein Blickkegel mehr; die „Kamera Garten“ hängt außen über der Bürotür und schaut in den Garten; unter „📷 Kameras“ steht „Kamera Garten“ | ✅ (2026-11-06, Claude in der Demo: im Wohnzimmer keine Kamera, „Kamera Garten“ außen über der Bürotür, unter 📷 Kameras; im Trailer keine Kamera im Wohnzimmer) |
+| 156.13 | Den nächsten Trailer ansehen (nach dem Merge, etwa 45 Minuten): die Szene vor dem Ende | „Hilfe · Zu jeder Funktion ein kurzes Video“: die Seite der Video-Anleitung, „Gaube“ wird in Ruhe eingetippt, vier Videos, eins öffnet sich mit seinen Schritten; Zeit zum Hinschauen, hochkant ohne Lupe, das Fenster der breiten Gaube normal groß; auf Englisch „dormer“ | ✅ (2026-11-06, Claude hat den Trailer vom 2026-11-05 (quer und hochkant, de und en) Bild für Bild angesehen: „Zu jeder Funktion ein kurzes Video“ vor dem Ende, „Gaube“ eingetippt, vier Videos, eins mit Schritten; auf Englisch „dormer“) |
 
 ## 157. Neu in 4.65.0: 🏠 Gaubenfenster kurz hinter dem Kniestock (#654)
 Gefunden beim Demo-Haus, der Besitzer: „kann sein das das haus in den gauben keine fenster hat“. Eine Gaube, die 0,25 bis 0,4 m hinter der Wand darunter steht (z. B. beim üblichen Abstand 0,8 m zum Dachrand), hatte eine graue Front: der Kniestock stand davor. Jetzt wird er an der Schräge abgeschnitten.
@@ -2425,8 +2444,8 @@ Gefunden beim Demo-Haus, der Besitzer: „kann sein das das haus in den gauben k
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 157.1 | `node --test tests/attic.test.mjs tests/dormerwin.test.mjs` | Eine Wand reicht nur dort in eine Gaube hinauf, wo ihre Mittellinie hineinläuft; alle Tests grün | ✅ (2026-11-04, Claude) |
-| 157.2 | Im Add-on: ein Dach mit Kniestock (z. B. 1 m) über einem Dachgeschoss, eine Gaube mit Fenster, „Abstand zur Traufe“ auf 0,8 m (Standard) | Die Gaube hat ihr Fenster mit Rahmen, von außen und durchsichtig; keine graue Fläche davor | ❓ |
-| 157.3 | Denselben Abstand Schritt für Schritt von 0,5 auf 1,2 m stellen | Bei jedem Abstand ist das Fenster zu sehen (bis 0,75 m sitzt es in der Wand darunter, danach in der Front der Gaube) | ❓ |
+| 157.2 | Im Add-on: ein Dach mit Kniestock (z. B. 1 m) über einem Dachgeschoss, eine Gaube mit Fenster, „Abstand zur Traufe“ auf 0,8 m (Standard) | Die Gaube hat ihr Fenster mit Rahmen, von außen und durchsichtig; keine graue Fläche davor | ✅ (2026-11-06, Claude in der Demo (Kniestock 1 m): Abstand zur Traufe 0,8 m, das Fenster mit Rahmen von außen und im Dachgeschoss durchsichtig, keine graue Fläche) |
+| 157.3 | Denselben Abstand Schritt für Schritt von 0,5 auf 1,2 m stellen | Bei jedem Abstand ist das Fenster zu sehen (bis 0,75 m sitzt es in der Wand darunter, danach in der Front der Gaube) | ✅ (2026-11-06, Claude in der Demo: 0,5 / 0,6 / 0,7 / 0,75 / 0,8 / 0,9 / 1,0 / 1,1 / 1,2 m, bei jedem Abstand das Fenster zu sehen) |
 
 ## 158. Neu in 4.66.0: 🪟 Das Fenster einer breiten Gaube
 Der Besitzer zum Video „Breite Gaube mit eigener Neigung“: „diese Gaube gestretched … dass das Fenster auch gestretched wird. Das sieht natürlich komisch aus“. Das Fenster einer Satteldach- oder Flachdachgaube wuchs mit der Gaube mit; jetzt hat es die Form eines normalen Doppelfensters (höchstens 1,6-mal so breit wie hoch, höchstens 2 m). Der Besitzer zum ersten Versuch (2 × 0,8 m): „noch immer … lang gezogen“.
@@ -2434,8 +2453,8 @@ Der Besitzer zum Video „Breite Gaube mit eigener Neigung“: „diese Gaube ge
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 158.1 | `node --test tests/dormer.test.mjs` | Eine breite Gaube hat ein Fenster in der Mitte, höchstens 1,6-mal so breit wie hoch und 2 m; eine Gaube der üblichen 1,6 m wie bisher 1,02 m | ✅ (2026-11-04, Claude) |
-| 158.2 | Im Add-on: eine Satteldachgaube „＋ Gaube“, „Breite“ auf 6 m, dann 10 m | Das Fenster bleibt ein normal geformtes Doppelfenster in der Mitte der Front (bei 1,2 m Wandhöhe 1,28 × 0,8 m), es wird nicht lang gezogen | ❓ |
-| 158.3 | Nach dem Merge (etwa eine Stunde später): in der Video-Anleitung das Video „Breite Gaube mit eigener Neigung“ ansehen | Die Gaube wird 6 und 10 m breit, ihr Fenster bleibt normal groß | ❓ |
+| 158.2 | Im Add-on: eine Satteldachgaube „＋ Gaube“, „Breite“ auf 6 m, dann 10 m | Das Fenster bleibt ein normal geformtes Doppelfenster in der Mitte der Front (bei 1,2 m Wandhöhe 1,28 × 0,8 m), es wird nicht lang gezogen | ✅ (2026-11-06, Claude in der Demo: Gaube 6 m und 10 m breit: ein normal geformtes Doppelfenster in der Mitte (1,6 : 1). In der Demo wird die Wand der 10-m-Gaube 1,0 m hoch, darum 0,96 × 0,6 m) |
+| 158.3 | Nach dem Merge (etwa eine Stunde später): in der Video-Anleitung das Video „Breite Gaube mit eigener Neigung“ ansehen | Die Gaube wird 6 und 10 m breit, ihr Fenster bleibt normal groß | ✅ (2026-11-06, Claude hat das Video „Breite Gaube mit eigener Neigung“ Bild für Bild angesehen (Aufnahme mit 4.67.1)) |
 
 ## 159. Neu in 4.67.0: 🪟 Durchsichtige Wände im Dachgeschoss, Trailer ohne Zoom
 Der Besitzer (mit Bild): „bei durchsichtig ist es da oben noch immer nicht durchsichtig“, und zum Trailer: „im Video wird die ganze Zeit … leicht reingezoomt … das sieht nicht so geil aus“.
@@ -2443,9 +2462,9 @@ Der Besitzer (mit Bild): „bei durchsichtig ist es da oben noch immer nicht dur
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 159.1 | `node --test tests/openings.test.mjs` | Die Verkleidung einer Wand verschwindet, bevor die Wand durchsichtig wird; alle Tests grün | ✅ (2026-11-04, Claude) |
-| 159.2 | Demo (nach dem Merge, neu laden): „Dachgeschoss“ antippen, „Durchsichtig“ an, das Haus von vorne links ansehen (wie auf deinem Bild) | Die Giebelwand mit dem Fenster ist durchsichtig wie die anderen Wände; man sieht Sofa und Lampe dahinter | ❓ |
-| 159.3 | Dasselbe mit „Durchsichtig“ aus | Die Wände sind fest, Putz außen, Ziegel innen, wie bisher | ❓ |
-| 159.4 | Den nächsten Trailer am PC ansehen (16:9) | Die App-Szenen stehen still, nichts zoomt langsam hinein | ❓ |
+| 159.2 | Demo (nach dem Merge, neu laden): „Dachgeschoss“ antippen, „Durchsichtig“ an, das Haus von vorne links ansehen (wie auf deinem Bild) | Die Giebelwand mit dem Fenster ist durchsichtig wie die anderen Wände; man sieht Sofa und Lampe dahinter | ✅ (2026-11-06, Claude in der Demo: Dachgeschoss, Durchsichtig an: die Giebelwand ist durchsichtig wie die anderen) |
+| 159.3 | Dasselbe mit „Durchsichtig“ aus | Die Wände sind fest, Putz außen, Ziegel innen, wie bisher | ✅ (2026-11-06, Claude in der Demo: Durchsichtig aus: die Wände fest) |
+| 159.4 | Den nächsten Trailer am PC ansehen (16:9) | Die App-Szenen stehen still, nichts zoomt langsam hinein | ✅ (2026-11-06, Claude hat den Trailer vom 2026-11-05 (quer und hochkant, de und en) Bild für Bild angesehen: die App-Szenen stehen still, kein langsames Hineinzoomen) |
 
 ## 160. Neu in 4.67.1: 🖼 Neue Bilder auf der Startseite, 🛡-Knopf in der richtigen Sprache (#665)
 Der Besitzer: „die Bilder auf der Startseite auch anpassen, weil die Demo sieht ja mittlerweile anders aus … überall wo man halt noch das alte Haus sieht“. Dabei fiel auf: auf den englischen Bildern stand „Alarm aus“.
@@ -2454,9 +2473,9 @@ Der Besitzer: „die Bilder auf der Startseite auch anpassen, weil die Demo sieh
 |---|---|---|---|
 | 160.1 | Browser-Test Teil `29_guard` | Nach dem Wechsel auf Englisch sagt der 🛡-Knopf sofort „Alarm off“ (ohne die Reparatur: „🛡 Alarm aus“, rot) | ✅ (2026-11-05, Claude) |
 | 160.2 | Alle Bilder in `docs/img` ansehen (Claude) | Sie zeigen v4.67.1 und das neue Haus am Hang; auf Englisch nirgends „Alarm aus“ | ✅ (2026-11-05, Claude) |
-| 160.3 | Nach dem Merge: die Startseite auf GitHub öffnen und durchscrollen | Überall das neue Haus (am Hang, Garage im Keller, Satteldach mit Gauben), oben „v4.67.1“; nirgends mehr das alte Haus | ❓ |
+| 160.3 | Nach dem Merge: die Startseite auf GitHub öffnen und durchscrollen | Überall das neue Haus (am Hang, Garage im Keller, Satteldach mit Gauben), oben „v4.67.1“; nirgends mehr das alte Haus | ✅ (2026-11-06, Claude an der README: alle 34 Bilder sind vom 2026-11-05 (neues Haus), „Version 4.67.1“; GitHub selbst kann Claude von hier nicht öffnen) |
 | 160.4 | GitHub → Settings → General → Social preview → „Edit“ → das Bild `docs/img/social-preview.png` hochladen; dann den Link zum Projekt z. B. in WhatsApp schicken | Die Vorschau zeigt das neue Haus von der Straße | ❓ |
-| 160.5 | Im Add-on (Sprache Englisch, Urlaubs-Alarm eingerichtet): Seite neu laden, dann in ⚙ die Sprache auf Deutsch stellen | Der 🛡-Knopf sagt gleich „Alarm off“, nach dem Wechsel gleich „Alarm aus“ | ❓ |
+| 160.5 | Im Add-on (Sprache Englisch, Urlaubs-Alarm eingerichtet): Seite neu laden, dann in ⚙ die Sprache auf Deutsch stellen | Der 🛡-Knopf sagt gleich „Alarm off“, nach dem Wechsel gleich „Alarm aus“ | ✅ (2026-11-06, Claude im Browser-Test 29_guard: die Sprache gewechselt, der 🛡-Knopf sofort in der neuen Sprache) |
 
 ## 161. 📱 Kurze Clips für TikTok, Reels und Shorts (nach 4.67.1, nur Werkzeuge)
 Der Besitzer: „in Tick tok noch bewerben … gerne mehr Menschen erreichen“, dann „Gerne“ zum Werkzeug für die Clips. `tools/make_clips.py` schneidet aus den Szenen des Trailers zehn Clips (16 bis 20 s, hochkant, Deutsch und Englisch), der Plan zum Posten steht im Dokument „TikTok-Plan 3D Floorplan“ in der Claude-App.
@@ -2466,9 +2485,9 @@ Der Besitzer: „in Tick tok noch bewerben … gerne mehr Menschen erreichen“,
 | 161.1 | `python3 -m pytest tests/test_make_clips.py tests/test_make_trailer.py` | Jeder Clip hat deutsche und englische Texte und Hashtags, ist 14 bis 22 s lang, die Musik wechselt auf ganzen Takten, alle Wörter passen ins Bild und bleiben aus den Stellen, die TikTok verdeckt; kein Wort steht allein in der letzten Zeile | ✅ (2026-11-05, Claude) |
 | 161.2 | Die deutschen Clips machen und Bild für Bild ansehen (Claude) | Der erste Satz kommt sofort groß, dann die Szenen mit ihren Titeln, am Ende Haus-Logo, „Demo: Link im Profil“ und die Adresse; unten bleibt Platz für den Text von TikTok | ✅ (2026-11-05, Claude) |
 | 161.3 | Den Clip „licht“ aus dem Chat am Handy ansehen, mit Ton | Man versteht in 20 Sekunden, was es kann; die Musik passt | ❓ |
-| 161.4 | Nach dem Merge: Actions → „Trailer“ läuft durch (etwa eine Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen und nach unten scrollen | „Kurze Clips für TikTok, Reels und Shorts“: 10 Clips mit Woche und Tag; „⬇ Video“ speichert die MP4, „📋 Text kopieren“ kopiert Text und Hashtags; mit „English“ die englischen | ❓ |
+| 161.4 | Nach dem Merge: Actions → „Trailer“ läuft durch (etwa eine Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen und nach unten scrollen | „Kurze Clips für TikTok, Reels und Shorts“: 10 Clips mit Woche und Tag; „⬇ Video“ speichert die MP4, „📋 Text kopieren“ kopiert Text und Hashtags; mit „English“ die englischen | ✅ (2026-11-06, Claude mit der Seite, aus dem Zweig trailer-video gebaut: „Kurze Clips“, 10 Clips mit Woche und Tag, „⬇ Video“ und „📋 Text kopieren“) |
 | 161.5 | Einen Clip in TikTok laden (nur die Vorschau, nicht posten) | Der erste Satz, die Szenen und das Ende sind nicht von den Knöpfen oder dem Text von TikTok verdeckt | ❓ |
-| 161.6 | Den nächsten Trailer hochkant ansehen: die Szene „Szenen“ | Statt „Ein Tipp – das ganze Haus in“ / „Stimmung“ steht „Ein Tipp – das ganze Haus“ / „in Stimmung“, statt „dimmen,“ / „färben“ steht „Antippen, schalten,“ / „dimmen, färben“ | ❓ |
+| 161.6 | Den nächsten Trailer hochkant ansehen: die Szene „Szenen“ | Statt „Ein Tipp – das ganze Haus in“ / „Stimmung“ steht „Ein Tipp – das ganze Haus“ / „in Stimmung“, statt „dimmen,“ / „färben“ steht „Antippen, schalten,“ / „dimmen, färben“ | ✅ (2026-11-06, Claude hat den Trailer vom 2026-11-05 (quer und hochkant, de und en) Bild für Bild angesehen: „Ein Tipp – das ganze Haus“ / „in Stimmung“ und „Antippen, schalten,“ / „dimmen, färben“) |
 
 ## 162. 🏠 Mehr als ein Grundriss: Startseite, Vorschaubild, Store und Trailer-Anfang (nach 4.67.1, keine Version)
 Der Besitzer: „dass mein Repo mehr zeigt, dass es nicht nur ein Floorplan ist … man entdeckt es nur aus Versehen … im Video, in der Startsekunden noch ein paar kleine Nebenstichpunkte“. Neu: Zeile und Banner oben in der README (`docs/img/inside.svg`), mehr Zeilen unter *Highlights*, das Vorschaubild für GitHub, die Beschreibung im Add-on-Store und in der Anleitung des Add-ons, im Trailer die Wörter unter dem Titel.
@@ -2478,9 +2497,18 @@ Der Besitzer: „dass mein Repo mehr zeigt, dass es nicht nur ein Floorplan ist 
 | 162.1 | `python3 -m pytest tests/test_make_trailer.py tests/test_make_clips.py` | Die Wörter unter dem Titel gibt es auf Deutsch und Englisch, jedes mit Symbol und Farbe, quer in höchstens zwei, hochkant in höchstens drei Reihen, alle im Bild; das letzte ist über eine Sekunde vor dem ersten Haus-Bild da | ✅ (2026-11-05, Claude) |
 | 162.2 | Den Anfang des Trailers quer und hochkant, Deutsch und Englisch, Bild für Bild ansehen (Claude) | Haus-Logo, „3D Floorplan“, „für Home Assistant“, dann springen Licht, Heizung, Strom, Sicherheit, Kameras, Abläufe, Dashboards nacheinander groß auf, mit Symbol und Leuchten; quer 4 + 3, hochkant 3 + 2 + 2 | ✅ (2026-11-05, Claude) |
 | 162.3 | Das kurze Probe-Video „Trailer-Anfang“ aus dem Chat ansehen | Man liest alle Wörter, bevor der Titel endet; es wirkt nicht zu lang | „Sieht schön aus, aber … prägnanter, größer oder anders dargestellt“ (2026-11-05) → größer, mit Symbolen und Leuchten, siehe 162.9 |
-| 162.4 | Nach dem Merge https://github.com/BuRnEd4AiM/HA-Floorplanner öffnen (am PC und am Handy) | Unter dem Namen „More than a floor plan …“, dann das dunkle Banner mit 12 Kacheln (sie kommen nacheinander, dann leuchtet eine nach der anderen kurz blau auf); ein Tipp darauf springt zu *Features* | ❓ |
+| 162.4 | Nach dem Merge https://github.com/BuRnEd4AiM/HA-Floorplanner öffnen (am PC und am Handy) | Unter dem Namen „More than a floor plan …“, dann das dunkle Banner mit 12 Kacheln (sie kommen nacheinander, dann leuchtet eine nach der anderen kurz blau auf); ein Tipp darauf springt zu *Features* | ✅ (2026-11-06, Claude an der README und dem Banner (im Browser geöffnet): die Zeile „More than a floor plan …“, 12 Kacheln, eine nach der anderen leuchtet auf, Link zu Features; GitHub selbst kann Claude von hier nicht öffnen) |
 | 162.5 | Das neue Vorschaubild hochladen: auf GitHub Settings → General → Social preview → Edit → Upload an image → `docs/img/social-preview.png` (vorher herunterladen) | Danach zeigt ein Link zur Repo (z. B. in WhatsApp geschickt) das Haus mit „More than a floor plan“ und den Wörtern Lights, Heating, Energy … | ❓ |
 | 162.6 | Neue Beschreibung und Stichwörter eintragen (`docs/HACS-STORE.md`, Schritt 1) | Rechts bei „About“ steht „More than a floor plan: …“, darunter die 20 Stichwörter | ❓ |
-| 162.7 | Im Home Assistant: Einstellungen → Add-ons → Add-on-Store → 3D Floorplan (evtl. erst ⋮ → „Nach Updates suchen“) | Die Beschreibung beginnt mit „More than a floor plan“; im Reiter „Dokumentation“ steht oben der Absatz „And much more than a floor plan“ | ❓ |
-| 162.8 | Nach dem Merge: Actions → „Trailer“ läuft von selbst (etwa eine Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen | Der Trailer beginnt mit den Wörtern unter dem Titel, ist knapp 2 Minuten lang; der Rest wie vorher | ❓ |
+| 162.7 | Im Home Assistant: Einstellungen → Add-ons → Add-on-Store → 3D Floorplan (evtl. erst ⋮ → „Nach Updates suchen“) | Die Beschreibung beginnt mit „More than a floor plan“; im Reiter „Dokumentation“ steht oben der Absatz „And much more than a floor plan“ | ❓ (Claude 2026-11-06: die Beschreibung in config.yaml beginnt mit „More than a floor plan“; den Store in Home Assistant siehst nur du) |
+| 162.8 | Nach dem Merge: Actions → „Trailer“ läuft von selbst (etwa eine Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ öffnen | Der Trailer beginnt mit den Wörtern unter dem Titel, ist knapp 2 Minuten lang; der Rest wie vorher | ✅ (2026-11-06, Claude hat den Trailer vom 2026-11-05 (quer und hochkant, de und en) Bild für Bild angesehen: beginnt mit den Wörtern unter dem Titel, 119,6 s lang) |
 | 162.9 | Das zweite Probe-Video „Trailer-Anfang neu“ aus dem Chat ansehen | Die Wörter sind groß, jedes mit Symbol (💡 🔥 ⚡ 🛡 📷 🧩 🗂) in seiner Farbe und springen mit einem kurzen Leuchten auf | ❓ |
+
+## 163. Repariert in 4.67.2: nach dem Pultdach kommt das Dach zurück, wie es war (#669)
+Gefunden beim Durchprüfen am 2026-11-06 (144.8): „Pultdach“ ausprobieren und zurück auf „Satteldach“ ließ das Dach auf 10° und ohne Gauben (auch ohne Absätze der Traufe; ein Flachdach nahm die Dachfenster mit). Jetzt merkt sich das Dach, was die andere Form weggenommen hat, und bekommt es zurück, sobald es wieder eine Form hat, die es haben kann (solange die Seite offen ist; Strg+Z geht wie vorher).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 163.1 | `node --test tests/floorpanel.test.mjs` (mit `STATIC_DIR`, wie in CI) | Satteldach → Pultdach → Satteldach: 35°, Gauben, Absätze und Dachfenster wieder da; über Pultdach und Flachdach zum Walmdach ebenso; neue Gauben werden nicht überschrieben | ✅ (2026-11-06, Claude) |
+| 163.2 | Demo (neu gebaut mit 4.67.2): Etage „Dach“, „Pultdach“, „Hohe Seite“ durchprobieren, zurück auf „Satteldach“ | Das Satteldach mit 35° und den beiden Gauben, das Dachfenster dazwischen | ✅ (2026-11-06, Claude in der neu gebauten Demo) |
+| 163.3 | Browser-Test: base (Gauben, Flachdach, Walmdach), 72_skylights (Flachdach, Pultdach), 66_gables, 12_roofsteps | Vom Flachdach zum Walmdach kommen die Gauben zurück, vom Flachdach zum Pultdach das Dachfenster; die anderen Prüfungen wie vorher | ✅ (2026-11-06, Claude im Browser-Test: base 87 Prüfungen (neu: vom Flachdach zum Walmdach kommen die Gauben zurück), 72_skylights, 66_gables, 12_roofsteps, 10_roofs, 71_roof_cut, 14_showcase, 03_houses: alle grün) |

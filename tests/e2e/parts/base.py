@@ -317,6 +317,10 @@ check("roof: a dormer can be removed", len(pg2.evaluate("window.__fp.layout.floo
 pg2.click("#addDormer"); pg2.select_option("#roofType", "flat"); pg2.wait_for_timeout(300)
 check("roof: a flat roof has no dormers (hint instead of cards)", pg2.locator(".dormerCard").count() == 0 and pg2.locator("#addDormer").count() == 0)
 pg2.select_option("#roofType", "hip"); pg2.wait_for_timeout(200)
+check("roof (#669): back from the flat roof to a hip roof the dormers come back", pg2.locator(".dormerCard").count() == 2,
+      pg2.evaluate("window.__fp.layout.floors.at(-1).roof.dormers"))
+for _ in range(2):                                           # the test house goes on without dormers, as before
+    pg2.locator(".dormerCard button:has-text('×')").first.click(); pg2.wait_for_timeout(200)
 rb = pg2.evaluate("(() => { const n = window.__fp.layout.floors.length - 1; return [window.__fp.floorIdx() === n, window.__fp.bounds(), window.__fp.roofBox(n)]; })()")
 check("the camera frames the roof, not a corner of the plan", rb[0] and rb[2] and abs(rb[1]["cx"] - (rb[2]["x0"] + rb[2]["x1"]) / 2) < 0.01 and abs(rb[1]["cz"] - (rb[2]["z0"] + rb[2]["z1"]) / 2) < 0.01, rb)
 g = pg2.evaluate("window.__fp.layout.floors[1].devices.length")
