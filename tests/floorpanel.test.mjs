@@ -120,3 +120,21 @@ test('a new roof shape (#628): a shed roof loses dormers and steps, gets a shed 
   const f = F.setRoofType({ type: 'gable', dormers: [{}] }, 'flat');
   assert.equal(f.dormers, undefined);
 });
+test('back from a shed or flat roof (#669): the dormers, steps, roof windows and the pitch come back', () => {
+  const d = [{ id: 'd1' }, { id: 'd2' }], st = [{ side: 0, at: 1, out: 1 }], sk = [{ id: 's1' }];
+  const r = { type: 'gable', pitch: 35, dormers: d, steps: st, skylights: sk };
+  F.setRoofType(r, 'shed');
+  assert.deepEqual([r.pitch, r.dormers, r.steps, r.skylights], [10, undefined, undefined, sk], 'a shed roof: no dormers or steps, 10°, its roof windows stay');
+  F.setRoofType(r, 'gable');
+  assert.deepEqual([r.type, r.pitch, r.dormers, r.steps, r.skylights], ['gable', 35, d, st, sk], 'back: the roof as it was');
+  F.setRoofType(r, 'shed'); F.setRoofType(r, 'flat');
+  assert.deepEqual([r.dormers, r.skylights, r.steps], [undefined, undefined, st], 'shed, then flat: still no dormers, no roof windows');
+  F.setRoofType(r, 'hip');
+  assert.deepEqual([r.pitch, r.dormers, r.skylights], [35, d, sk], 'then hip: all of it back');
+  const n = { type: 'gable', pitch: 35, dormers: d };
+  F.setRoofType(n, 'shed'); n.dormers = [{ id: 'new' }]; F.setRoofType(n, 'gable');
+  assert.deepEqual(n.dormers, [{ id: 'new' }], 'dormers made meanwhile are not replaced');
+  const low = { type: 'gable', pitch: 20 };
+  F.setRoofType(low, 'shed'); low.pitch = 15; F.setRoofType(low, 'gable');
+  assert.equal(low.pitch, 15, 'a pitch the shed roof could keep was never taken: what was set stays');
+});

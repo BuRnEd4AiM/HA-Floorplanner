@@ -83,9 +83,8 @@ pgS.click("#addSkylight"); pgS.wait_for_timeout(400)
 pgS.select_option("#floorBody #roofType", "flat"); pgS.wait_for_timeout(500)
 check("roof windows: a flat roof has none (they go with it) and says so", "skylights" not in roof_sk() and pgS.locator("#addSkylight").count() == 0
       and "Flachdach" in pgS.locator("#skylightHelp").inner_text(), roof_sk())
-pgS.select_option("#floorBody #roofType", "shed"); pgS.wait_for_timeout(400)
-pgS.click("#addSkylight"); pgS.wait_for_timeout(500)
-check("roof windows: a shed roof has them in its one slope (no side to choose)", len(roof_sk().get("skylights") or []) == 1 and pgS.locator(".skylightCard .skylightSide").count() == 0
+pgS.select_option("#floorBody #roofType", "shed"); pgS.wait_for_timeout(500)
+check("roof windows (#669): back from the flat roof to a shed roof the roof window comes back, in its one slope (no side to choose)", len(roof_sk().get("skylights") or []) == 1 and pgS.locator(".skylightCard .skylightSide").count() == 0
       and len(flash_sk()) == 1, roof_sk())
 check("roof windows: no errors on the page", not own_sk, own_sk[:5])
 pgS.close()

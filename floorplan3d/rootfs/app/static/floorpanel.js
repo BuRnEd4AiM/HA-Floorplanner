@@ -15,15 +15,28 @@ export const ROOF_DEFAULT = { type: 'gable', pitch: 35, overhang: 0.4 };
 export const newFloor = (kind, name, id) => ({ id, name, kind, walls: [], rooms: [], devices: [], blocks: [], stairs: [], ...(kind === 'roof' ? { roof: { ...ROOF_DEFAULT } } : {}) });
 /** the name a new floor is offered with */
 export const floorLabel = (kind, count, t) => (kind === 'basement' ? t('floor.basement') : kind === 'roof' ? t('floor.roof') : `${t('floor.new')} ${count + 1}`);
+/** what a shed or flat roof took from roof r (its dormers, steps, roof windows and its steeper pitch): kept beside the roof, not saved, so
+ *  that trying a shed roof and going back to the gable roof gives the roof as it was (#669) */
+const taken = new WeakMap();
 /** a new shape for roof r (main or further roof): a shed roof (#628) has no dormers and no steps, and gets a shed's pitch (10°) when it was
- *  steeper than 25° (a pitch of a gable roof); its high side faces the main roof (base box mb) when it is a further roof (box) */
+ *  steeper than 25° (a pitch of a gable roof); its high side faces the main roof (base box mb) when it is a further roof (box). Back to a
+ *  shape that can have them, what the shed or flat roof took comes back (#669) */
 export function setRoofType(r, type, mb = null) {
+  const kept = taken.get(r) || {};
+  taken.set(r, kept);
   r.type = ROOF_TYPES.includes(type) ? type : 'gable';
-  if (r.type === 'flat' || r.type === 'shed') delete r.dormers;
-  if (r.type === 'flat') delete r.skylights;                       // a flat roof has no roof windows (#643)
-  if (r.type !== 'shed') return r;
-  delete r.steps;
-  if ((r.pitch ?? 35) > 25) r.pitch = SHED_ROOF_PITCH;
+  const take = (key) => { if (r[key]?.length) kept[key] = r[key]; delete r[key]; };
+  if (r.type === 'flat' || r.type === 'shed') take('dormers');
+  else if (kept.dormers && !r.dormers?.length) { r.dormers = kept.dormers; delete kept.dormers; }
+  if (r.type === 'flat') take('skylights');                         // a flat roof has no roof windows (#643)
+  else if (kept.skylights && !r.skylights?.length) { r.skylights = kept.skylights; delete kept.skylights; }
+  if (r.type !== 'shed') {
+    if (kept.steps && !r.steps?.length) { r.steps = kept.steps; delete kept.steps; }
+    if (kept.pitch != null) { r.pitch = kept.pitch; delete kept.pitch; }
+    return r;
+  }
+  take('steps');
+  if ((r.pitch ?? 35) > 25) { kept.pitch = r.pitch ?? 35; r.pitch = SHED_ROOF_PITCH; }
   if (!r.high) r.high = r.box && mb ? shedHighToward(r.box, mb) : 'z0';
   return r;
 }
