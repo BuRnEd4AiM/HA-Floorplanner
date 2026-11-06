@@ -13,10 +13,10 @@ const groundIdx = (L) => Math.max(0, (L.floors || []).findIndex((f) => f.kind !=
 const r2 = (v) => Math.round(v * 100) / 100;
 
 /** ctx: t, layout(), snapshot(), changed(), setStatus(txt), uid(), fmtLen(m), toDisp(m), fromDisp(v), imperial(), fields: { field, lenInput },
- *  floorH (the height of a storey), hint(txt), render() (the palette again) */
+ *  floorH() (the height of a storey, #671), hint(txt), render() (the palette again) */
 export function initTerrainUi(ctx) {
   const { t } = ctx;
-  let sel = null, pending = null, drop = ctx.floorH || 3, key = null;
+  let sel = null, pending = null, drop = ctx.floorH?.() || 3, key = null;
   const stored = () => ctx.layout().plot?.terrain || null;
   const points = () => cleanTerrain(stored())?.points || [];
   /** the stored list of points (made when there is none yet) */

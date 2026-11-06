@@ -2211,4 +2211,13 @@ export default {
   'balc.postsHint': 'Tylko dla balkonu, który wisi swobodnie: słupy w zewnętrznych narożnikach aż do ziemi.',
   'balc.free': 'Wisi swobodnie (balkon): niesie go płyta.',
   'balc.onTop': 'Leży na domu lub na ziemi (taras na dachu, taras): bez płyty, bez słupów. Balkon wystaje poza piętro poniżej, na parterze nad zboczem (Działka → ⛰ Teren).',
+  'floor.storeyH': 'Wysokość kondygnacji (cały dom)',
+  'floor.storeyHelp': 'Od podłogi do podłogi, dla wszystkich pięter tego domu (inaczej 3 m). Od niej zależy też liczba stopni schodów.',
+  'set.storeyHint': 'Wysokość kondygnacji (od podłogi do podłogi) ustawisz w „Zarządzaj piętrami”.', 'stair.steps': 'Stopnie na piętro',
+  'stair.stepsHint': 'Ile stopni mają schody od podłogi do podłogi (krok na podłogę u góry się nie liczy). Puste: {n}, z wysokości kondygnacji.',
+  'stair.rise': 'Stopień ma {rise} wysokości, kondygnacja {storey} (wysokość kondygnacji w „Zarządzaj piętrami”).', 'stair.corner2': '2. narożnik',
+  'stair.corner2None': 'brak', 'stair.corner2Hint': 'Schody skręcają po 2. biegu jeszcze raz w tę samą stronę, np. zabiegowe na dole i na górze.',
+  'stair.winders2': 'Stopnie zabiegowe (2. narożnik)', 'stair.split2': 'Stopnie w 2. biegu',
+  'stair.split2Hint': 'Ile stopni leży między dwoma narożnikami; reszta jest po 2. narożniku.', 'stair.lastFlight': 'Po 2. narożniku: {n} stopni',
+  'stair.splitHint0': 'Ile stopni leży przed narożnikiem. 0: schody zaczynają się od razu stopniami zabiegowymi, wchodzi się z boku.',
 };

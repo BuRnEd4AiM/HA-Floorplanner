@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmxad2DogQ9PVxk2G2X",
+ "start": "2026-11-06",
+ "updated": "2026-11-06T22:10:01Z",
+ "branch": "claude/nifty-clarke-1sw4k9",
+ "source": "counted",
+ "input": 298,
+ "cache_write": 372742,
+ "cache_read": 41208504,
+ "output": 134530,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 298,
+   "cache_write": 372742,
+   "cache_read": 41208504,
+   "output": 134530,
+   "requests": 149
+  }
+ }
+}

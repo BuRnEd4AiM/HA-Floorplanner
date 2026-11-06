@@ -101,6 +101,13 @@
      "maximum": 10,
      "default": 2.6
     },
+    "storeyHeight": {
+     "type": "number",
+     "minimum": 2.2,
+     "maximum": 6,
+     "default": 3,
+     "description": "Storey height in metres, floor to floor, the same for every floor: how far the floors stand apart, and how many steps the stairs get (one about 18 cm high)."
+    },
     "outerWall": {
      "type": "number",
      "minimum": 0.05,
@@ -240,8 +247,29 @@
     },
     "split": {
      "type": "integer",
-     "minimum": 1,
-     "description": "Types 'L' and 'U': treads in the first flight (default about half), e.g. a long first and a short second flight."
+     "minimum": 0,
+     "description": "Types 'L' and 'U': treads in the first flight (default about half), e.g. a long first and a short second flight. 0 only with corner 'winder': the stair starts right away with the winders (you step on from the side)."
+    },
+    "corner2": {
+     "enum": ["landing", "winder"],
+     "description": "Type 'L': the stair turns a second time, to the same side, after its middle flight ('unten und oben viertelgewendelt'), with a landing or winder steps. Without it the stair turns once."
+    },
+    "winders2": {
+     "type": "integer",
+     "minimum": 2,
+     "maximum": 6,
+     "description": "With corner2 'winder': how many winder steps turn the second corner (default: as at a first corner)."
+    },
+    "split2": {
+     "type": "integer",
+     "minimum": 0,
+     "description": "With corner2: treads in the middle flight between the two corners (default about two thirds of what is left); the rest is the last flight."
+    },
+    "steps": {
+     "type": "integer",
+     "minimum": 2,
+     "maximum": 40,
+     "description": "Treads per floor, as counted on the real stair (the step onto the floor above does not count). Default: from the storey height, a step about 18 cm high; kept between 25 cm and 12 cm high."
     },
     "solid": {
      "type": "boolean",

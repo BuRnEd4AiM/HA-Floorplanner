@@ -73,7 +73,7 @@ export function arrangeCards(cards, view) {
  *  zooms into it, the cards of the floors would then float in the empty space beside it) */
 export const cardsShown = ({ house, mode, focused }) => !!house && mode !== '2d' && !focused;
 
-/** ctx: $, t, camera, canvas, layout(), states(), onStates, settings(), isOpen(entity), houseMode(), layoutMode(), roomFocused(), elev(i), floorH, switchFloor(i) */
+/** ctx: $, t, camera, canvas, layout(), states(), onStates, settings(), isOpen(entity), houseMode(), layoutMode(), roomFocused(), elev(i), floorH(), switchFloor(i) */
 export function initFloorCards(ctx) {
   const { $, t } = ctx;
   const cards = [];                                  // { el, key, pos: Vector3, corners, natW, narrowW }
@@ -92,7 +92,7 @@ export function initFloorCards(ctx) {
         box.append(el);
         c = cards[n] = { el, key: '', pos: new THREE.Vector3(), corners: [] };
       }
-      const { x0, x1, z0, z1 } = floorBounds(f), y = ctx.elev(i) + ctx.floorH / 2;
+      const { x0, x1, z0, z1 } = floorBounds(f), y = ctx.elev(i) + ctx.floorH() / 2;
       c.pos.set((x0 + x1) / 2, y, (z0 + z1) / 2);                     // the card points at the middle of the floor ...
       c.corners = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]].map(([x, z]) => new THREE.Vector3(x, y, z));   // ... and keeps clear of its outline
       const { lights, windows } = floorCounts(f, { states: ctx.states(), onStates: ctx.onStates, isOpen: ctx.isOpen });

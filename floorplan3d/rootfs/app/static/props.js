@@ -40,7 +40,7 @@ export function stretchValue(n) {
 /** ctx: $, t, floor(), isLive(), selection(), roomCtx(), setRoomCtx(id), fields: { field, inp, lenInput, pickerField }, entityPicker(list, room, current, onChange),
  *  entities(), areas(), findOpening(id), snapshot(), changed(), build(), refreshSelection(), deleteItem(sel), applyStates(), setStatus(txt),
  *  renderObjList(), renderRoomEntities(), stateText(id), roomAt(x, z), pointInPoly, controlsTarget() ({x, z}), wallTypes, ledLike, catOf, baseDims(type, dev),
- *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH, power(), stairTool(), fmtLen(m), toDisp(m), imperial(),
+ *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH(), power(), stairTool(), fmtLen(m), toDisp(m), imperial(),
  *  defaultLightColor() (settings: the colour of a lamp that reports none), yardProps(body, box, sel) (the plot and its areas, plotui.js),
  *  closetRoof(d) (the roof slopes over a cabinet's floor and the height of its bottom: { planes, baseY } or null), balconyFree(id) (the room
  *  hangs free: a balcony, #646), previewTilt(id) (a window leans in for a moment: its tilt angle changed), allOpenings() (every door and
@@ -113,7 +113,7 @@ export function initProps(ctx) {
     else if (selection.kind === 'room') roomProps(body, it);
     else if (selection.kind === 'block') {
       body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
-      body.append(field(t('prop.height'), lenInput(() => it.h || ctx.floorH, (v) => (it.h = Math.max(0.5, v)), { min: 0.5, step: 0.1 })));
+      body.append(field(t('prop.height'), lenInput(() => it.h || ctx.floorH(), (v) => (it.h = Math.max(0.5, v)), { min: 0.5, step: 0.1 })));
       const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('block.help'); body.append(hp);
     } else if (selection.kind === 'hole') {
       const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('hole.help'); body.append(hp);

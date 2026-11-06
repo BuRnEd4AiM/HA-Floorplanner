@@ -136,7 +136,7 @@ export function initRoofs(ctx) {
     const under = floors.slice(0, i).reverse().find((x) => x.kind !== 'roof' && x.kind !== 'basement'), t = wallThickness(under);
     // from: where the walls under it end, over the base of the roof (a knee wall: up at the roof floor; the walls are lower than a storey:
     // the gap down to them is closed too), for its gable walls (#628); t: their thickness
-    const gap = (fl) => Math.max(0, (ctx.floorH || 0) - wallHeightOf(fl, ctx.settings().wallHeight));
+    const gap = (fl) => Math.max(0, (ctx.floorH?.() || 0) - wallHeightOf(fl, ctx.settings().wallHeight));
     if (bb) { const y0 = roofY0(floors, i, ctx.elev); out.push({ bb, spec, y0, tag: 'main', from: -y0 - gap(under), t }); }   // on a knee wall it starts lower down (#260, #265)
     (f.roof?.parts || []).forEach((p, pi) => {                              // further roofs: an annex on the floor it stands on, or a wing like the main roof (#621)
       const pb = partBox(p);

@@ -322,6 +322,13 @@ t("stairs-winder",
   "Kellertreppe Lauf massive Treppe Blockstufen",
   "winder stairs quarter turn half turn winders wedge steps stairs with a turn corner landing basement stairs flight "
   "solid stairs block steps")
+t("stairs-storey",
+  "Geschosshöhe Etagenhöhe Stockwerkshöhe Höhe der Etage Deckenhöhe Raumhöhe wie hoch ist ein Stockwerk Treppe zu hoch Stufen zählen "
+  "Anzahl Stufen Steigung Stufenhöhe zweimal viertelgewendelt unten und oben gewendelt Reihenhaustreppe von der Seite aufsteigen "
+  "zwei Ecken dreiläufig Geschosshöhe ändern Etagenhöhe einstellen Höhe zwischen den Etagen",
+  "change the storey height set the floor height height between floors storey height floor height story height level height ceiling height how high is a floor stairs too tall count the steps "
+  "number of steps rise step height double quarter turn winders top and bottom row house stairs step on from the side "
+  "two corners three flights")
 t("plot",
   "Grundstück anlegen Garten zeichnen Rasen Wiese Terrasse Weg Gehweg Einfahrt Auffahrt Pflaster Beet Teich Pool "
   "Zaun Hecke Außenbereich Hof Außenanlage",

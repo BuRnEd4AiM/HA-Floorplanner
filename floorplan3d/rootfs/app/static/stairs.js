@@ -6,7 +6,9 @@
  *    every floor it reaches.
  *  - landing: L and U stairs: the landing at the turn is this much deeper (m); wall stairs: flat for this long after every bend (#210).
  *  - corner: L and U stairs: 'landing' (default) or 'winder' (wedge steps turn the corner, #623, winders.js), winders: how many;
- *    split: treads in the first flight (without it about half).
+ *    split: treads in the first flight (without it about half; 0 with winders: none, you step on from the side, #671).
+ *  - corner2, winders2, split2: an L stair that turns a second time, the same way, after a middle flight of split2 treads (#671).
+ *  - steps: treads per storey (#671); without it as many as make the steps about 18 cm high (stairSteps).
  *  - solid: a wall stair with solid steps down to the floor instead of thin plates (#623).
  *  - type 'wall': a light stair hanging on a wall: `path` = the line along the wall as local points [[0,0], ...] (the first is the start), `turn` = the
  *    side the steps stick out to (looking along the path). Every bend of the path is a landing (Podest); the steps are thin plates (`thin`) with
@@ -19,7 +21,7 @@
  */
 
 import polygonClipping from './vendor/polygon-clipping.js';
-import { flightSplit, hasWinders, lWinders, uWinders } from './winders.js';
+import { flightSplit, hasWinders, hasCorner2, hasWinders2, lWinders, lWinders2, uWinders } from './winders.js';
 
 export const STAIR_TYPES = ['straight', 'L', 'U', 'spiral', 'wall'];
 /** shallowest / deepest tread (m): with the usual 16 treads this allows stairs from 1.6 m to 7.2 m long */
@@ -42,13 +44,30 @@ export function stairDefaults(type) {
   return { type, w: type === 'spiral' ? 0.9 : type === 'wall' ? 0.9 : 1.0, tread: 0.27, turn: 'right', dir: 'up', floors: 1 };
 }
 
-/** number of risers for the floor height, and the rise of one step */
-export function stairSteps(H) {
-  const n = Math.max(3, Math.round(H / 0.18));
+/** the treads per storey a stair can be given (st.steps, #671) for the storey height H: steps from 25 cm down to 12 cm high */
+export function stepsRange(H) {
+  return [Math.max(2, Math.ceil(H / 0.25 - 1e-9) - 1), Math.max(2, Math.floor(H / 0.12 + 1e-9) - 1)];
+}
+/** number of risers for the floor height, and the rise of one step: as many as make a step about 18 cm high, or the treads set on the
+ *  stair (st.steps, #671: a real stair counted; kept to stepsRange) and one more (the last riser arrives at the upper floor) */
+export function stairSteps(H, st) {
+  const k = Math.round(Number(st?.steps));
+  const n = Number.isFinite(k) && k > 0 ? Math.max(stepsRange(H)[0], Math.min(stepsRange(H)[1], k)) + 1 : Math.max(3, Math.round(H / 0.18));
   return { n, rise: H / n };
 }
+/** the treads a stair has per storey by itself (without st.steps) */
+export const autoSteps = (H) => stairSteps(H).n - 1;
 
 const rect = (x0, x1, z0, z1) => [[x0, z0], [x1, z0], [x1, z1], [x0, z1]];
+/** a polygon without points that repeat the one before (a stair without a first flight, #671) */
+const clean = (poly) => poly.filter((q, i) => { const p = poly[(i + poly.length - 1) % poly.length]; return Math.hypot(q[0] - p[0], q[1] - p[1]) > 1e-9; });
+/** the outline of rectangles that touch (the opening of an L stair with two corners, #671) */
+function outline(rects) {
+  try {
+    const mp = polygonClipping.union(...rects.map((r) => [[...r, r[0]]]));
+    return mp.length ? mp.map((poly) => poly[0].slice(0, -1)).sort((x, y) => y.length - x.length)[0] : [];
+  } catch { return rects[0] || []; }
+}
 
 /**
  * Local geometry of a stair.
@@ -61,7 +80,7 @@ export function stairLocal(st, H) {
   if (nf > 1 && perStorey(st)) {
     // several floors (#229): the same stair again on every storey, so it arrives on each floor and you step off there; the upper storeys are
     // a slab under their steps (nothing solid down to the floor below); where a U stair ends behind its start a plate closes the gap on the floor
-    const one = stairLocal({ ...st, floors: 1 }, H), { rise } = stairSteps(H), treads = [...one.treads];
+    const one = stairLocal({ ...st, floors: 1 }, H), { rise } = stairSteps(H, st), treads = [...one.treads];
     for (let k = 1; k < nf; k++) {
       if (one.gap) treads.push({ poly: one.gap, top: k * H, thin: SLAB, storey: k });
       one.treads.forEach((tr) => treads.push({ ...tr, top: tr.top + k * H, thin: tr.thin || rise + SLAB, storey: k }));   // wall stair: its thin plates
@@ -69,7 +88,7 @@ export function stairLocal(st, H) {
     return { ...one, treads };
   }
   if (st.type === 'wall') return wallStairLocal(st, H);
-  const { n, rise } = stairSteps(H);                   // every kind of stair counts its steps per storey
+  const { n, rise } = stairSteps(H, st);               // every kind of stair counts its steps per storey
   const T = n - 1;                                     // treads; the last riser arrives at the upper floor
   const w = st.w || 1, d = st.tread || 0.27, sg = st.turn === 'left' ? -1 : 1;
   const treads = [];
@@ -114,25 +133,32 @@ export function stairLocal(st, H) {
     return { treads, hole, arrow };
   }
 
-  const { n1, c, n2 } = flightSplit(st, T, GAP);      // flight 1, the corner (a landing: one step; winders: c, #623), flight 2
+  const { n1, c, n2, c2, n3 } = flightSplit(st, T, GAP);   // flight 1, the corner (a landing: one step; winders: c, #623), flight 2 (and #671)
   for (let k = 0; k < n1; k++) treads.push({ poly: rect(k * d, (k + 1) * d, -w / 2, w / 2), top: (k + 1) * rise });
   const wind = hasWinders(st);
   const xa = n1 * d, xb = xa + w, landTop = (n1 + 1) * rise, ex = wind ? 0 : landingLength(st);   // ex: the landing at the turn is this much deeper (#229)
   const after = (j) => (n1 + c + 1 + j) * rise;                    // the top of step j of flight 2
 
   if (st.type === 'L') {
-    if (wind) {                                                     // quarter turn with winder steps (#623): the corner square in wedges
-      lWinders(xa, w, c).forEach((poly, i) => treads.push({ poly: flip(poly), top: (n1 + 1 + i) * rise, winder: true }));
-      for (let j = 0; j < n2; j++) treads.push({ poly: flip(rect(xa, xb, w / 2 + j * d, w / 2 + (j + 1) * d)), top: after(j) });
-      hole = flip([[0, -w / 2], [xb, -w / 2], [xb, w / 2 + n2 * d], [xa, w / 2 + n2 * d], [xa, w / 2], [0, w / 2]]);
-      arrow = [[0, 0], [xa, 0], [xa + w / 2, 0], [xa + w / 2, (w / 2 + n2 * d) * sg]];
+    const z0 = w / 2 + ex;                                            // flight 2 starts after the (deeper) landing
+    if (wind) lWinders(xa, w, c).forEach((poly, i) => treads.push({ poly: flip(poly), top: (n1 + 1 + i) * rise, winder: true }));   // quarter turn with winder steps (#623): the corner square in wedges
+    else treads.push({ poly: flip(rect(xa, xb, -w / 2, z0)), top: landTop });
+    for (let j = 0; j < n2; j++) treads.push({ poly: flip(rect(xa, xb, z0 + j * d, z0 + (j + 1) * d)), top: after(j) });
+    const zc = z0 + n2 * d;                                           // where flight 2 ends
+    if (!hasCorner2(st)) {
+      hole = flip(clean([[0, -w / 2], [xb, -w / 2], [xb, zc], [xa, zc], [xa, w / 2], [0, w / 2]]));
+      arrow = wind ? [[0, 0], [xa, 0], [xa + w / 2, 0], [xa + w / 2, zc * sg]] : [[0, 0], [xa + w / 2, 0], [xa + w / 2, zc * sg]];
       return { treads, hole, arrow };
     }
-    const z0 = w / 2 + ex;                                            // flight 2 starts after the (deeper) landing
-    treads.push({ poly: flip(rect(xa, xb, -w / 2, z0)), top: landTop });
-    for (let j = 0; j < n2; j++) treads.push({ poly: flip(rect(xa, xb, z0 + j * d, z0 + (j + 1) * d)), top: after(j) });
-    hole = flip([[0, -w / 2], [xb, -w / 2], [xb, z0 + n2 * d], [xa, z0 + n2 * d], [xa, w / 2], [0, w / 2]]);
-    arrow = [[0, 0], [xa + w / 2, 0], [xa + w / 2, (z0 + n2 * d) * sg]];
+    // the second quarter turn, the same way (#671): the square [xa, xb] × [zc, zc + w] (winders or a landing, that one deeper towards the
+    // last flight), then the last flight back along -x beside the middle one
+    const k2 = n1 + c + n2, ex2 = hasWinders2(st) ? 0 : landingLength(st), x3 = xa - ex2;
+    if (hasWinders2(st)) lWinders2(xa, w, zc, c2).forEach((poly, i) => treads.push({ poly: flip(poly), top: (k2 + 1 + i) * rise, winder: true }));
+    else treads.push({ poly: flip(rect(x3, xb, zc, zc + w)), top: (k2 + 1) * rise });
+    for (let j = 0; j < n3; j++) treads.push({ poly: flip(rect(x3 - (j + 1) * d, x3 - j * d, zc, zc + w)), top: (k2 + c2 + 1 + j) * rise });
+    const xe = x3 - n3 * d;                                           // where the last flight ends
+    hole = flip(outline([rect(xa, xb, -w / 2, zc + w), ...(xa > 1e-9 ? [rect(0, xa, -w / 2, w / 2)] : []), ...(xa - xe > 1e-9 ? [rect(xe, xa, zc, zc + w)] : [])]));
+    arrow = [[0, 0], [xa + w / 2, 0], [xa + w / 2, (zc + w / 2) * sg], [xe, (zc + w / 2) * sg]];
     return { treads, hole, arrow };
   }
 
@@ -172,19 +198,36 @@ export function splitStoreys(L, upTo, H) {
   };
 }
 
-/** tread counts: T treads per storey (#229, #236); L/U stairs split into flight 1 (n1), the corner (c: a landing 1, winders more, #623)
- *  and flight 2 (n2) */
+/** tread counts: T treads per storey (#229, #236; st.steps, #671); L/U stairs split into flight 1 (n1), the corner (c: a landing 1,
+ *  winders more, #623) and flight 2 (n2); an L stair with a second corner also c2 and the last flight n3 (#671) */
 export function stairCounts(st, H) {
-  const T = stairSteps(H).n - 1;
+  const T = stairSteps(H, st).n - 1;
   return { T, ...flightSplit(st, T, GAP) };
+}
+/** the flight whose length the size handle and the field "Länge" set: the first one, or the next one when the stair starts right away
+ *  with winder steps (#671). { k: its treads, from: its start (local, the middle of the stair), dir: its direction }; null for spiral and
+ *  wall stairs */
+export function stairRun(st, H) {
+  if (st.type === 'spiral' || st.type === 'wall') return null;
+  const cnt = stairCounts(st, H);
+  if (st.type === 'straight') return { k: cnt.T, from: [0, 0], dir: [1, 0] };
+  if (cnt.n1 > 0 || !cnt.n2) return { k: Math.max(1, cnt.n1), from: [0, 0], dir: [1, 0] };
+  const w = st.w || 1, sg = st.turn === 'left' ? -1 : 1;
+  return st.type === 'L' ? { k: cnt.n2, from: [w / 2, (w / 2) * sg], dir: [0, sg] } : { k: cnt.n2, from: [0, (w + GAP) * sg], dir: [-1, 0] };
 }
 /** length of the (first) run in metres, null for spiral stairs */
 export function stairLength(st, H) {
-  if (st.type === 'spiral' || st.type === 'wall') return null;
-  const { T, n1 } = stairCounts(st, H);
-  return (st.type === 'straight' ? T : n1) * (st.tread || 0.27);
+  const r = stairRun(st, H);
+  return r ? r.k * (st.tread || 0.27) : null;
 }
-/** local positions of the two size handles: `len` at the end of the first run, `wid` at its side */
+/** the depth of a step when the length handle is dragged to the local point (lx, lz): along its run, to the centimetre */
+export function treadAt(st, H, lx, lz) {
+  const r = stairRun(st, H);
+  if (!r) return st.tread || 0.27;
+  const along = (lx - r.from[0]) * r.dir[0] + (lz - r.from[1]) * r.dir[1];
+  return Math.max(MIN_TREAD, Math.min(MAX_TREAD, Math.round((along / r.k) * 100) / 100));
+}
+/** local positions of the two size handles: `len` at the end of the first run (stairRun), `wid` at its side */
 export function stairHandles(st, H) {
   const w = st.w || 1;
   if (st.type === 'spiral') return { len: null, wid: [w, 0] };
@@ -194,8 +237,9 @@ export function stairHandles(st, H) {
     const L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, d = [(b[0] - a[0]) / L, (b[1] - a[1]) / L], nr = wallSide(st, d);
     return { len: null, wid: [(a[0] + b[0]) / 2 + nr[0] * w, (a[1] + b[1]) / 2 + nr[1] * w] };
   }
-  const L = stairLength(st, H);
-  return { len: [L, 0], wid: [L / 2, w / 2] };
+  const r = stairRun(st, H), L = r.k * (st.tread || 0.27), len = [r.from[0] + r.dir[0] * L, r.from[1] + r.dir[1] * L];
+  if (r.from[0] === 0 && r.from[1] === 0) return { len, wid: [L / 2, w / 2] };
+  return { len, wid: [w / 2, (st.turn === 'left' ? 1 : -1) * (w / 2)] };   // no first flight (#671): the outer side of the first winders
 }
 
 /* ---- wall stair: a light stair hanging on a wall, with a landing at every bend of its path ---- */
@@ -261,7 +305,7 @@ export function wallStairPlan(st, nTreads) {
 }
 
 function wallStairLocal(st, Htot) {
-  const { n, rise } = stairSteps(Htot), T = n - 1, w = st.w || 0.9, sg = st.turn === 'left' ? -1 : 1;
+  const { n, rise } = stairSteps(Htot, st), T = n - 1, w = st.w || 0.9, sg = st.turn === 'left' ? -1 : 1;
   const plan = wallStairPlan(st, T);
   const treads = [];
   const add = (poly, c) => treads.push({ poly, top: c * rise, ...(st.solid ? {} : { thin: THIN }) });   // solid (#623): down to the floor

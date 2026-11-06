@@ -16,6 +16,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 4. **Mit deinen Geräten, wie flüssig es läuft:** iPad und Wandtablet (56.1, 56.2, 85.1 bis 85.3, 102.1, 108.3), das iPhone in Safari (100.3), Wischen mit dem echten Finger (134.10), Bearbeiten in der Home-Assistant-App am Handy (145.8).
 5. **Mit deiner Heizung im echten Betrieb:** ob dein Thermostat bei offenem Fenster wirklich aus geht (123.1, damit auch das alte ❌ 122.3), ob es mit dem Raumfühler die richtige Temperatur zeigt und hält (124.6, 124.7), ob das Bad ruhig bleibt (128.6), ein paar Tage und ein Morgen ohne Überraschung im 🩺 Protokoll (130.5, 132.4). Was das Add-on dabei tut, ist geprüft.
 6. **Einzelnes im echten Home Assistant:** die Karte im eigenen Dashboard finden (46.3), Anwesenheit mit deinem Handy im WLAN (89.6), Energie mit dem Energie-Dashboard vergleichen (93.4), die Anleitung „📥 Für ohne Internet speichern“ (141.7, 141.8; das Herunterladen von GitHub ist bei Claude gesperrt).
+7. **Neu in 4.68.0: 🪜 Geschosshöhe und L-Treppe mit 2. Ecke** (Abschnitt 164, gefragt von Oely99 in #671): Claude hat 164.1 bis 164.4 geprüft; für dich in der Demo 164.5, im Add-on oder mit der Antwort von Oely99 164.6, nach dem Merge das Video 164.7.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -435,7 +436,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 161. 📱 Kurze Clips für TikTok, Reels und Shorts (nach 4.67.1, nur Werkzeuge) | 4 | 0 | 2 | 0 | 161.3, 161.5 |
 | 162. 🏠 Mehr als ein Grundriss: Startseite, Vorschaubild, Store und Trailer-Anfang (nach 4.67.1, keine Version) | 4 | 0 | 5 | 0 | 162.3, 162.5 bis 162.7, 162.9 |
 | 163. Repariert in 4.67.2: nach dem Pultdach kommt das Dach zurück, wie es war (#669) | 3 | 0 | 0 | 0 | – |
-| **Zusammen** | **1092** | **1** | **36** | **92** | |
+| 164. Neu in 4.68.0: 🪜 Geschosshöhe je Haus, Stufen je Etage, L-Treppe mit 2. Ecke (#671) | 4 | 0 | 3 | 0 | 164.5 bis 164.7 |
+| **Zusammen** | **1096** | **1** | **39** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2512,3 +2514,16 @@ Gefunden beim Durchprüfen am 2026-11-06 (144.8): „Pultdach“ ausprobieren un
 | 163.1 | `node --test tests/floorpanel.test.mjs` (mit `STATIC_DIR`, wie in CI) | Satteldach → Pultdach → Satteldach: 35°, Gauben, Absätze und Dachfenster wieder da; über Pultdach und Flachdach zum Walmdach ebenso; neue Gauben werden nicht überschrieben | ✅ (2026-11-06, Claude) |
 | 163.2 | Demo (neu gebaut mit 4.67.2): Etage „Dach“, „Pultdach“, „Hohe Seite“ durchprobieren, zurück auf „Satteldach“ | Das Satteldach mit 35° und den beiden Gauben, das Dachfenster dazwischen | ✅ (2026-11-06, Claude in der neu gebauten Demo) |
 | 163.3 | Browser-Test: base (Gauben, Flachdach, Walmdach), 72_skylights (Flachdach, Pultdach), 66_gables, 12_roofsteps | Vom Flachdach zum Walmdach kommen die Gauben zurück, vom Flachdach zum Pultdach das Dachfenster; die anderen Prüfungen wie vorher | ✅ (2026-11-06, Claude im Browser-Test: base 87 Prüfungen (neu: vom Flachdach zum Walmdach kommen die Gauben zurück), 72_skylights, 66_gables, 12_roofsteps, 10_roofs, 71_roof_cut, 14_showcase, 03_houses: alle grün) |
+
+## 164. Neu in 4.68.0: 🪜 Geschosshöhe je Haus, Stufen je Etage, L-Treppe mit 2. Ecke (#671)
+Gefragt von Oely99 in #671: „FLOOR_H is fixed at 3.0 m … My real stair has 14 steps; the real floor-to-floor height is about 2.75 m“ und „L stair with winders at both ends (unten und oben viertelgewendelt)“. Neu: „Etage verwalten“ → „Geschosshöhe (ganzes Haus)“ (2,2 bis 6 m, sonst 3 m), an jeder Treppe „Stufen je Etage“ mit der Höhe einer Stufe darunter, an der L-Treppe „2. Ecke“ (keine, Podest, Gewendelt) mit „Wendelstufen (2. Ecke)“ und „Stufen im 2. Lauf“; mit Wendelstufen darf „Stufen im 1. Lauf“ 0 sein (man steigt von der Seite auf).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 164.1 | `node --test tests/winders.test.mjs tests/housefloors.test.mjs` (mit `STATIC_DIR`, wie in CI) | Die Treppe von Oely99 (0,95 m, 2,75 m, unten 3, 6 gerade, oben 5 Wendelstufen) hat 14 gleich hohe Stufen ohne Überschneidung, die Öffnung ist genau die Treppe; zwei Podeste und drei Läufe; „Stufen je Etage“ von 25 bis 12 cm hoch; die Geschosshöhe bleibt zwischen 2,2 und 6 m, 3 m wird nicht gespeichert | ✅ (2026-11-06, Claude) |
+| 164.2 | `python3 -m pytest tests/test_import.py` | Import und Export kennen `building.storeyHeight`, `steps`, `corner2`, `winders2`, `split2` und `split: 0` (nur mit Wendelstufen) | ✅ (2026-11-06, Claude) |
+| 164.3 | Browser-Test Teil `74_storey_stairs` | Ohne Geschosshöhe wie bisher (3 m, 16 Stufen); 2,75 m: das Obergeschoss steht 2,75 m höher, die Treppe hat 14 Stufen, gespeichert mit dem Plan; 1 m wird 2,2 m; „Stufen je Etage“ 16 gibt 16 Stufen zu 16,2 cm, leer wieder 14; „Stufen im 1. Lauf“ 0, „2. Ecke“ „Gewendelt“ 5, „Stufen im 2. Lauf“ 6: 3 Keilstufen, 6 gerade, 5 Keilstufen; „keine“ nimmt die 2. Ecke wieder weg | ✅ (2026-11-06, Claude im Browser-Test 74_storey_stairs, 17 Prüfungen) |
+| 164.4 | Das Demo-Haus (neu gebaut) im „Ganzen Haus“, „Aufeinander“, mit 2,6 m und 3,4 m Geschosshöhe | Keller, Etagen, Decken und Dach rücken zusammen bzw. auseinander, nichts schwebt; das Nachbarhaus behält seine 3 m | ✅ (2026-11-06, Claude in der neu gebauten Demo) |
+| 164.5 | Demo: „Bearbeiten“, „Etage verwalten“, „Geschosshöhe“ 2.75; „Treppe“ → „L-Treppe“, „Ecke“ „Gewendelt“, in einen Raum klicken; „Stufen im 1. Lauf“ 0, „2. Ecke“ „Gewendelt“, „Wendelstufen (2. Ecke)“ 5, „Stufen im 2. Lauf“ 6; dann „3D“ | Unten 3 Keilstufen (man steigt von der Seite auf), ein gerader Lauf, oben 5 Keilstufen zur selben Seite; „Stufen je Etage“ 14, darunter „Eine Stufe ist 18.3 cm hoch“ | ❓ |
+| 164.6 | Im Add-on (oder Oely99 mit seiner Treppe: 0,95 m breit, 14 Stufen, unten 3, oben 4 bis 5 Wendelstufen, Geschosshöhe 2,75 m) | Sieht aus wie die echte Treppe | ❓ |
+| 164.7 | Nach dem Merge auf der Seite der Anleitung das Video „Geschosshöhe und Treppe unten und oben gewendelt“ ansehen | Geschosshöhe 2,75, die L-Treppe mit beiden Ecken, „Stufen je Etage“ 14, das 3D-Bild von der Seite | ❓ |

@@ -147,7 +147,7 @@ import { frameDue, shadowDue, dampingFor, MAX_STEP } from './frameloop.js';
 import { initPerfHud } from './perfhud.js';
 import { canvasSmooth } from './edges.js';
 import { startEdges, initSmoothEdges } from './smoothedges.js';
-import { floorsMode, floorElev, hasSlab, isCovered, underRoof, drawnFloors, liveFloors, initHouseFloors } from './housefloors.js';
+import { floorsMode, floorElev, hasSlab, isCovered, underRoof, drawnFloors, liveFloors, initHouseFloors, storeyHeight } from './housefloors.js';
 import { initHouseLoad } from './houseload.js';
 import { roofRects, moveRoof, tagRoofMeshes, panelsOn, setRoofBox, stepTarget } from './roofmove.js';
 import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, fmtLen as fmtLenOf } from './appstate.js';
@@ -165,7 +165,7 @@ window.fp3dBooted = true;           // every module is loaded: the boot guard (b
 window.fp3dReadySupported = true;   // init() will report fp3dReady: the integration's boot splash can wait for it instead of guessing
 
 /* ================= State ================= */
-const FLOOR_H = 3.0;
+const floorH = () => storeyHeight(layout);   // the storey height (Geschosshöhe) of this house, 3 m unless set (#671, housefloors.js)
 const params = new URLSearchParams(location.search);
 const card = cardOptions(params);         // opened by the dashboard card (#13, cardmode.js): its options, else null
 
@@ -207,7 +207,7 @@ const floor = () => layout.floors[floorIdx];
 const groundIdx = () => Math.max(0, layout.floors.findIndex((f) => f.kind !== 'basement'));   // first floor above ground
 const WALL_SEE = 0.3;                  // opacity of a wall between the camera and the room when the walls are made see-through
 /** height of floor i; the whole-house view can pull the floors apart or stack them like a real house (setting houseFloors, housefloors.js) */
-const elev = (i = floorIdx) => floorElev(i, groundIdx(), FLOOR_H, floorsMode(settings, houseMode));
+const elev = (i = floorIdx) => floorElev(i, groundIdx(), floorH(), floorsMode(settings, houseMode));
 /** how clearly the floors below the open one show: dimmed (the setting), fully (stacked) */
 const belowVis = () => (settings.belowMode === 'stacked' ? 1 : settings.belowVisibility);
 let houseMode = false;                 // "whole house" view: every floor solid, nothing ghosted
@@ -338,7 +338,7 @@ const roomMeshes = new Map();     // room id -> { mesh, room }
 const groundOf = memoField();
 const terrainHere = () => groundOf(layout.plot?.terrain);
 const GARDEN = new Set([...OUTDOOR, ...Object.keys(YARD)]);           // garden things stand on the ground even close to the house
-const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundIdx(), floorH: FLOOR_H, settings: () => settings, houseMode: () => houseMode, terrain: terrainHere });
+const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundIdx(), floorH, settings: () => settings, houseMode: () => houseMode, terrain: terrainHere });
 const sky = initSky({ $, t, canvas, params, settings: () => settings, states: () => states, isLive: () => isLive(), isHolo: () => isHolo(),   // sky and weather (#418, #419), skyui.js
   low: () => perfParam === 'low', earthTint: (c) => earth.setTint(c) });
 let plotLoop = null;                  // the plot outline: a drawing aid, only in edit mode
@@ -430,7 +430,7 @@ const roofsUi = initRoofs({
   layout: () => layout, elev: (i) => elev(i), mat: (...a) => mat(...a), HOLO, camera: () => camera, settings: () => settings, wallSee: WALL_SEE,
   roofShown: (i, R) => roofShown(i, R), roofFloors: (i) => roofFloors(i),
   editingRoof: () => !houseMode && floor()?.kind === 'roof',     // the roof floor is open: the roof (and its dormers) must stay clearly visible
-  fast: () => LOW, floorH: FLOOR_H,                              // the facade on a gable wall (#628): one colour, no pictures; the gap under it
+  fast: () => LOW, floorH,                                     // the facade on a gable wall (#628): one colour, no pictures; the gap under it
 });
 const roofBox = (i) => roofsUi.box(i), autoRoofBox = (i) => roofsUi.autoBox(i), roofList = (i) => roofsUi.list(i);
 /* moving roofs on the open roof floor (#255); the code lives in roofmove.js */
@@ -452,7 +452,7 @@ function dragRoofBy(id, dx, dz) {
 function updateRoofFade() { roofsUi.updateFade(); }
 /* ---- Neighbour house (#220): another house of the list drawn next to this one; the code lives in neighbor.js ---- */
 const neighbors = initNeighbors({
-  $, t, houses: () => hs.list(), houseId: () => hs.id(), label: (h) => hs.label(h), layout: () => layout, floorH: FLOOR_H, mat: (...a) => mat(...a), HOLO,
+  $, t, houses: () => hs.list(), houseId: () => hs.id(), label: (h) => hs.label(h), layout: () => layout, floorH, mat: (...a) => mat(...a), HOLO,
   bridges: () => layout.floors.flatMap((f, i) => (f.devices || []).filter((d) => d.type === 'bridge').map((d) => ({ d, y: elev(i) }))),
   camera: () => camera, settings: () => settings, wallSee: WALL_SEE, snapshot: () => snapshot(), changed: () => changed(), build: () => build(), fields: { field, lenInput, inp },
 });
@@ -468,7 +468,7 @@ const floorBuild = initFloorBuild({
   mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (...a) => textSprite(...a), railing: (...a) => roofsUi.railing(...a),
   balcony: (...a) => balconies.build(...a), freeBalconies: (i) => balconies.free(i),
   lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
-  registry, pickables, floorOpenings: (i) => floorOpenings(i), floorH: FLOOR_H, holoEdge: HOLO.edge,
+  registry, pickables, floorOpenings: (i) => floorOpenings(i), floorH, holoEdge: HOLO.edge,
   houseMode: () => houseMode, halfCut: () => halfCut, elev: (i) => elev(i), stairMesh: (...a) => stairTool.build(...a),
   cutawayInfo: (w, wg) => wallCutawayInfo(w, wg), openingHandle: (w, o, g) => makeOpeningHandle(w, o, g), cutawayWalls: () => cutawayWalls,
   makeModel: (...a) => makeModel(...a), setPicture: (m, d) => setPicture(m, d), placeSolar: (...a) => roofsUi.placeSolar(...a),
@@ -819,7 +819,7 @@ const tabsUi = initTabsUi({
 /* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
 const floorCards = initFloorCards({
   $, t, camera, canvas, layout: () => shownLayout(), states: () => states, onStates: ON_STATES, settings: () => settings, isOpen: (e) => isOpen(e), houseMode: () => houseMode,
-  layoutMode: () => layoutMode, roomFocused: () => !!focusedRoom, elev: (i) => elev(i), floorH: FLOOR_H, switchFloor: (i) => switchFloor(i),
+  layoutMode: () => layoutMode, roomFocused: () => !!focusedRoom, elev: (i) => elev(i), floorH, switchFloor: (i) => switchFloor(i),
 });
 
 /* colour scale at the edge while a room colouring is on */
@@ -1088,7 +1088,7 @@ const houseLoad = initHouseLoad({
 });
 function switchHouse(id) { return houseLoad.switchHouse(id); }
 buildingsUi = initBuildingsUi({
-  $, t, layout: () => layout, houseId: () => hs.id(), houses: () => hs.list(), houseLabel: (h) => hs.label(h), uid: () => uid(), floorH: FLOOR_H,
+  $, t, layout: () => layout, houseId: () => hs.id(), houses: () => hs.list(), houseLabel: (h) => hs.label(h), uid: () => uid(), floorH,
   snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), confirm: (x) => confirm(x),
   shownChanged: () => {                                            // another building shown: its floor (the ground floor when the open one has nothing of it), framed
     refreshView();
@@ -1350,8 +1350,8 @@ function wallsCenter() { return (!isolatedRoom() && wallsCenterOf(shownFloor()))
 function houseBounds() { return houseBoundsOf(shownLayout().floors); }
 function fitCamera() {
   const { cx, cz, size } = houseMode ? houseBounds() : floorBounds();
-  const midY = houseMode ? (elev(layout.floors.length - 1) + elev(0)) / 2 + FLOOR_H / 2 : elev();
-  const span = houseMode ? Math.max(size, elev(layout.floors.length - 1) - elev(0) + FLOOR_H) : size;   // pulled-apart floors are tall
+  const midY = houseMode ? (elev(layout.floors.length - 1) + elev(0)) / 2 + floorH() / 2 : elev();
+  const span = houseMode ? Math.max(size, elev(layout.floors.length - 1) - elev(0) + floorH()) : size;   // pulled-apart floors are tall
   sheetView?.apply();                  // phones, whole house: the picture moves left, the cards get a column on the right (floorcards.js)
   const dist = (span * 1.25 + 2) * Math.max(1, 1.0 / (camera.aspect || 1)) * columnZoom(canvas.clientWidth, floorCards.column());
   controls.target.set(cx, midY, cz);
@@ -1532,7 +1532,7 @@ $('#belowLabelsToggle').addEventListener('click', () => {                 // nam
 /* ================= Palettes: devices, custom models; the code lives in palettes.js ================= */
 const palettes = initPalettes({ $, t, getType: () => deviceType, setType: (k) => { deviceType = k; }, alert: (x) => alert(x) });   // the last pieces placed on top (#471)
 /* ================= Placeholder blocks and stairs: the code lives in blocks.js and stairtool.js ================= */
-const floorOpenings = (i) => floorOpeningsOf(shownLayout().floors, i, FLOOR_H);
+const floorOpenings = (i) => floorOpeningsOf(shownLayout().floors, i, floorH());
 const blocks = initBlocks({
   $, t, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, setFloorIdx: (i) => { floorIdx = i; }, snapshot: () => snapshot(), changed: (...a) => changed(...a),
   setStatus: (x) => setStatus(x), select: (sel) => { selection = sel; }, uid: () => uid(), plan: () => plan, fillFloorSelect: () => fillFloorSelect(),
@@ -1543,12 +1543,12 @@ const plotUi = initPlotUi({
   select: (sel) => { multiSel.clear(); selection = sel; refreshSelection(); }, selection: () => selection, fmtLen: (m) => fmtLen(m), imperial: () => imperial(),
   toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), fields: { field, inp, lenInput }, deleteItem: (sel) => deleteItem(sel),
   hint: (x) => { $('#hintText').textContent = x; }, cancelDraft: () => plan?.cancel(), floorIdx: () => floorIdx,
-  floorH: FLOOR_H, planRender: () => plan?.render(),                // the mode "Gelände": a slope of one storey, the plan drawn again (#629)
+  floorH, planRender: () => plan?.render(),                // the mode "Gelände": a slope of one storey, the plan drawn again (#629)
 });
 const stairTool = initStairTool({
-  $, t, settings: () => settings, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, floorH: FLOOR_H, snapshot: () => snapshot(), changed: (...a) => changed(...a),
+  $, t, settings: () => settings, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, floorH, snapshot: () => snapshot(), changed: (...a) => changed(...a),
   select: (sel) => { selection = sel; }, setTool: (x) => setTool(x), plan: () => plan, uid: () => uid(), mat: (...a) => mat(...a), isLive: () => isLive(),
-  ui: { field: (...a) => field(...a), inp: (...a) => inp(...a), lenInput: (...a) => lenInput(...a) },
+  ui: { field: (...a) => field(...a), inp: (...a) => inp(...a), lenInput: (...a) => lenInput(...a) }, fmtLen: (m) => fmtLen(m), imperial: () => imperial(),
 });
 
 /* ================= Background image (template to trace): the code lives in background.js ================= */
@@ -1603,7 +1603,7 @@ const props = initProps({
   deleteItem: (sel) => deleteItem(sel), applyStates: () => applyStates(), setStatus: (x) => setStatus(x), renderObjList: () => renderObjList(),
   renderRoomEntities: () => renderRoomEntities(), stateText: (id) => stateText(id), roomAt: (x, z) => roomAt(x, z), pointInPoly, controlsTarget: () => controls.target,
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type, dev) => baseSize(type, dev), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
-  uploadPicture: (f, d) => uploadPicture(f, d), floorH: FLOOR_H, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
+  uploadPicture: (f, d) => uploadPicture(f, d), floorH, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
   balconyFree: (id) => balconies.free(floorIdx).has(id),        // a balcony that hangs free (#646): its fields say so
   previewTilt: (id) => openings.preview(id), allOpenings: () => layout.floors.flatMap((f) => openingWalls(f).flatMap((w) => w.openings || [])),   // "Kippwinkel" (tiltui.js)
@@ -1741,7 +1741,7 @@ plan = createPlan({
   holdPlaced,
   setSelection: (h) => { multiSel.clear(); selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); }, toggleMulti: (h) => multiSel.toggle(h), addMulti: (items) => multiSel.addAll(items), multiItems: () => multiSel.items(),
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate: (a, b) => bgUi.calibrate(a, b),
-  bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, neighborOutlines: () => neighbors.outlines(elev(floorIdx)), ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: (p) => plotUi.drawn(p), placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
+  bgChanged: () => bgUi.render(), floorH, neighborOutlines: () => neighbors.outlines(elev(floorIdx)), ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: (p) => plotUi.drawn(p), placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
  
   liveMoveDevice: (d) => liveMove(d),
@@ -1921,7 +1921,8 @@ if (params.get('debug')) {
     has: (id) => registry.has(id),
     upper: (id) => { const u = registry.get(id)?.userData.upper; return u ? u.visible : null; },   // the storeys of a stair above the open floor (#246)
     stairGeo: (id) => { const st = layout.floors.flatMap((f) => f.stairs || []).find((s) => s.id === id); if (!st) return null;   // #623: its steps
-      const g = stairLocal(st, FLOOR_H); return { treads: g.treads.length, winders: g.treads.filter((x) => x.winder).length, thin: g.treads.filter((x) => x.thin).length }; },
+      const g = stairLocal(st, floorH()); return { treads: g.treads.length, winders: g.treads.filter((x) => x.winder).length, thin: g.treads.filter((x) => x.thin).length,
+        order: g.treads.filter((x) => !x.storey).map((x) => (x.winder ? 'w' : 's')).join(''), top: Math.max(...g.treads.map((x) => x.top)) }; },   // #671: the steps of one storey in order (w winder, s straight)
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
     badgePill: (id) => !!labelSprites.get(id)?.userData.pill,
     badgeScreen: (id) => {                                           // the value badge of a device on the screen, null while it does not show
@@ -1958,7 +1959,7 @@ if (params.get('debug')) {
       for (let i = 0; i + 2 < pos.count; i += 3) a += Math.abs((pos.getX(i + 1) - pos.getX(i)) * (pos.getZ(i + 2) - pos.getZ(i)) - (pos.getX(i + 2) - pos.getX(i)) * (pos.getZ(i + 1) - pos.getZ(i))) / 2;
       return +a.toFixed(3);
     },
-    stairHandle(id, k) { const st = floor().stairs.find((v) => v.id === id); const h = st && stairHandles(st, FLOOR_H)[k]; return h ? toWorld(st, h[0], h[1]) : null; },
+    stairHandle(id, k) { const st = floor().stairs.find((v) => v.id === id); const h = st && stairHandles(st, floorH())[k]; return h ? toWorld(st, h[0], h[1]) : null; },
     objInfo(id) { const o = registry.get(id); return o && { rx: o.rotation.x, rz: o.rotation.z, sx: o.scale.x }; },
     moveDevice: (id, x, z) => { const d = floor().devices.find((v) => v.id === id); moveDeviceTo(d, x, z); return [d.x, d.z]; },
     setWallStop: (v) => { settings.wallStop = v; },

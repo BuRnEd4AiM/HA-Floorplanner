@@ -2217,4 +2217,13 @@ export default {
   'balc.postsHint': 'Alleen voor een balkon dat vrij hangt: steunen op de buitenhoeken tot op de grond.',
   'balc.free': 'Hangt vrij (balkon): een plaat draagt het.',
   'balc.onTop': 'Ligt op het huis of op de grond (dakterras, terras): geen plaat, geen steunen. Een balkon steekt uit over de verdieping eronder, op de begane grond boven de helling (Perceel → ⛰ Terrein).',
+  'floor.storeyH': 'Verdiepingshoogte (hele huis)',
+  'floor.storeyHelp': 'Van vloer tot vloer, voor alle verdiepingen van dit huis (anders 3 m). Ook het aantal treden van de trappen hangt ervan af.',
+  'set.storeyHint': 'De verdiepingshoogte (van vloer tot vloer) stel je in bij „Verdieping beheren”.', 'stair.steps': 'Treden per verdieping',
+  'stair.stepsHint': 'Hoeveel treden de trap heeft van vloer tot vloer (de stap op de vloer boven telt niet). Leeg: {n}, uit de verdiepingshoogte.',
+  'stair.rise': 'Een trede is {rise} hoog, de verdieping {storey} (verdiepingshoogte in „Verdieping beheren”).', 'stair.corner2': '2e hoek',
+  'stair.corner2None': 'geen', 'stair.corner2Hint': 'De trap draait na de 2e trap nog een keer naar dezelfde kant, bijv. onder en boven verdreven.',
+  'stair.winders2': 'Wigtreden (2e hoek)', 'stair.split2': 'Treden in de 2e trap',
+  'stair.split2Hint': 'Hoeveel treden tussen de twee hoeken liggen; de rest komt na de 2e hoek.', 'stair.lastFlight': 'Na de 2e hoek: {n} treden',
+  'stair.splitHint0': 'Hoeveel treden vóór de hoek liggen. 0: de trap begint meteen met de wigtreden, je stapt van opzij op.',
 };
