@@ -3858,4 +3858,9 @@ export default {
   'skylight.title': '屋顶窗', 'skylight.help': '嵌在屋顶斜面上的窗户，不带老虎窗。点“+ 屋顶窗”，然后选择哪一面、位置和尺寸。', 'skylight.noFlat': '平屋顶没有屋顶窗。', 'skylight.one': '屋顶窗', 'skylight.roof': '屋顶', 'skylight.mainRoof': '主屋顶', 'skylight.startTip': '屋顶窗从哪里开始：从平面图左侧（或上方）的山墙到窗户侧边的距离。', 'skylight.size': '常用尺寸', 'skylight.ownSize': '自定义尺寸', 'skylight.height': '高度（沿斜面）', 'skylight.heightTip': '窗户的高度，沿屋顶斜面测量（与常用尺寸一致，例如 78 × 118 cm）。', 'skylight.eaveTip': '窗户下边缘到屋顶边缘（檐口）的距离，在平面图上水平测量。', 'skylight.low': '下边缘高出下方地面 {y} m', 'skylight.remove': '删除屋顶窗', 'skylight.add': '+ 屋顶窗', 'skylight.noFit': '放不进屋顶斜面（太大或离屋脊太近）。', 'skylight.tip': '传感器、名称、卷帘：像普通窗户一样在 3D 中点击屋顶窗。打开时它会变红，窗扇向外打开。', 'skylight.winHint': '屋顶窗：尺寸和位置在屋顶上设置（屋顶楼层 → 管理楼层 → 屋顶窗）。',
   'balc.rail': '栏杆', 'balc.metal': '金属（栏杆条）', 'balc.glass': '玻璃', 'balc.wood': '木（板条）', 'balc.posts': '支柱落地', 'balc.postsHint': '仅适用于悬空的阳台：在外角设支柱直到地面。',
   'balc.free': '悬空（阳台）：由一块板承托。', 'balc.onTop': '放在房屋或地面上（屋顶露台、露台）：没有承托板，没有支柱。阳台会伸出下面一层之外；在底层则伸到斜坡上方（地块 → ⛰ 地形）。',
+  'floor.storeyH': '层高（整栋房子）', 'floor.storeyHelp': '从地面到地面，适用于这栋房子的所有楼层（未设置时为 3 米）。楼梯的踏步数也据此计算。', 'set.storeyHint': '层高（从地面到地面）在“管理楼层”中设置。',
+  'stair.steps': '每层踏步数', 'stair.stepsHint': '楼梯从地面到地面有多少级踏步（踏上楼上地面的那一步不算）。留空：{n}，按层高计算。', 'stair.rise': '每级踏步高 {rise}，层高 {storey}（在“管理楼层”中设置层高）。',
+  'stair.corner2': '第二个转角', 'stair.corner2None': '无', 'stair.corner2Hint': '楼梯在第二段之后再向同一侧转一次，例如上下两端都是扇形踏步。', 'stair.winders2': '扇形踏步数（第二个转角）',
+  'stair.split2': '第二段踏步数', 'stair.split2Hint': '两个转角之间有多少级踏步；其余的在第二个转角之后。', 'stair.lastFlight': '第二个转角之后：{n} 级踏步',
+  'stair.splitHint0': '转角之前有多少级踏步。0：楼梯直接从扇形踏步开始，从侧面踏上。',
 };

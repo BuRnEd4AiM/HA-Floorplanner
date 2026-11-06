@@ -734,6 +734,35 @@ def test_winder_stairs_and_a_solid_wall_stair_are_imported_and_exported():
     assert "L: [2, 6], U: [3, 10]" in js and importer.STAIR_WINDERS == {"L": (2, 6), "U": (3, 10)}
 
 
+def test_row_house_stair_with_two_corners_steps_and_storey_height_are_imported_and_exported():
+    """#671 (Oely99): an L stair that turns twice the same way, no first flight, steps per floor, the storey height of the house"""
+    spec = _stairs_spec([
+        {"type": "L", "x": 1, "z": 1, "w": 0.95, "corner": "winder", "winders": 3, "split": 0, "corner2": "winder", "winders2": 5, "split2": 6, "steps": 14},
+        {"type": "L", "x": 4, "z": 1, "split": 0, "corner2": "landing", "winders2": 3, "split2": 4},
+        {"type": "U", "x": 6, "z": 1, "corner2": "winder"},
+        {"type": "straight", "x": 8, "z": 1, "steps": 1}])
+    spec["building"]["storeyHeight"] = 2.75
+    layout, _, rep, _ = importer.build_layout(spec)
+    assert not rep.errors and layout["storeyHeight"] == 2.75
+    a, b, u, s = layout["floors"][0]["stairs"]
+    assert (a["split"], a["corner2"], a["winders2"], a["split2"], a["steps"]) == (0, "winder", 5, 6, 14)
+    assert "split" not in b and b["corner2"] == "landing" and "winders2" not in b and b["split2"] == 4, "0 needs winders; winders2 a winder corner"
+    assert "corner2" not in u and "steps" not in s
+    paths = " ".join(x["path"] for x in rep.warnings)
+    assert "stairs[1].split" in paths and "stairs[2]" in paths and "stairs[3].steps" in paths
+    out = importer.layout_to_property(layout, "x")
+    assert out["building"]["storeyHeight"] == 2.75
+    back = importer.build_layout(out)[0]
+    a2 = back["floors"][0]["stairs"][0]
+    assert back["storeyHeight"] == 2.75 and (a2["split"], a2["corner2"], a2["winders2"], a2["split2"], a2["steps"]) == (0, "winder", 5, 6, 14)
+    assert "storeyHeight" not in importer.build_layout(_stairs_spec([]))[0], "3 m is not stored"
+    bad = _stairs_spec([])
+    bad["building"]["storeyHeight"] = 1.2
+    assert importer.build_layout(bad)[2].errors, "a storey of 1.2 m is refused"
+    js = (Path(__file__).parent.parent / "floorplan3d" / "rootfs" / "app" / "static" / "housefloors.js").read_text(encoding="utf-8")
+    assert "STOREY_MIN = 2.2, STOREY_MAX = 6" in js and importer.STOREY_HEIGHT == (2.2, 6)
+
+
 def test_stair_needs_a_position_and_floors_is_a_whole_number():
     _, _, rep, _ = importer.build_layout(_stairs_spec([{"type": "straight", "x": "a", "z": 1}]))
     assert rep.errors and "stairs[0]" in rep.errors[0]["path"]

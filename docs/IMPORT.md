@@ -71,6 +71,7 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
   "building": {
     "origin": [5.5, 8],                      // optional
     "wallHeight": 2.6, "outerWall": 0.3, "innerWall": 0.12,
+    "storeyHeight": 2.75,                    // optional: Geschosshöhe von Boden zu Boden (2,2 bis 6 m, sonst 3 m); danach richten sich auch die Treppenstufen
     "footprint": [[0,0],[11,0],[11,9],[0,9]],           // optional: Außenumriss → dicke Außenwände
     "roof": { "type": "gable", "pitch": 38 },           // gable | hip | flat | shed (Pultdach)
     // Giebel (gable, shed): gableOver = Überstand am Giebel in m (sonst wie overhang), gableWall: false = keine Giebelwand;
@@ -164,12 +165,19 @@ Pro Etage (nicht beim Dach), alle Maße in Metern. Die Treppe gehört zu der Eta
 | `landing` | **bei `wall`:** nach jedem Knick bleibt die Treppe so viele Meter flach (0 bis 3, Standard 0 = nur die Ecke). **Bei `L` und `U`:** das Podest an der Wende wird so viele Meter tiefer (0 bis 3, Standard 0 = so tief wie die Treppe breit) |
 | `corner` | **bei `L` und `U`:** `"landing"` (Podest, Standard) oder `"winder"` (Keilstufen in der Ecke, 4.60.0) |
 | `winders` | **bei `corner: "winder"`:** wie viele Keilstufen (L 2 bis 6, U 3 bis 10; Standard: etwa so tief wie die geraden Stufen) |
-| `split` | **bei `L` und `U`:** Stufen im 1. Lauf (Standard etwa die Hälfte), z. B. ein langer erster und ein kurzer zweiter Lauf |
+| `split` | **bei `L` und `U`:** Stufen im 1. Lauf (Standard etwa die Hälfte), z. B. ein langer erster und ein kurzer zweiter Lauf. `0` nur bei `corner: "winder"`: die Treppe beginnt gleich mit den Keilstufen (man steigt von der Seite auf, 4.68.0) |
+| `corner2` | **bei `L`:** die Treppe dreht nach dem 2. Lauf noch einmal zur selben Seite („unten und oben viertelgewendelt“, 4.68.0): `"landing"` (Podest) oder `"winder"` (Keilstufen). Ohne: nur eine Ecke |
+| `winders2` | **bei `corner2: "winder"`:** wie viele Keilstufen in der 2. Ecke (2 bis 6; Standard wie bei der 1. Ecke) |
+| `split2` | **bei `corner2`:** Stufen im 2. Lauf zwischen den Ecken (Standard etwa zwei Drittel vom Rest); die übrigen Stufen sind der letzte Lauf |
+| `steps` | Stufen je Etage, wie an der echten Treppe gezählt (der Schritt auf den Boden oben zählt nicht; 2 bis 40, die App hält eine Stufe zwischen 12 und 25 cm hoch). Standard: aus der Geschosshöhe, eine Stufe etwa 18 cm hoch (4.68.0) |
 | `solid` | **bei `wall`:** `true` = massive Stufen bis zum Boden statt dünner Platten |
 
 Wandtreppe mit Podest in der Ecke (läuft an der oberen Wand entlang, dann an der rechten Wand hinunter; die Stufen stehen nach rechts in den Raum):
 `{ "type": "wall", "x": 1.6, "z": 0.1, "turn": "right", "floors": 2, "path": [[0, 0], [2.3, 0], [2.3, 4.9]] }`
 Die Punkte sollten auf der Wandfläche liegen (Wandmitte plus halbe Wanddicke). Für Knicke von etwa 90° ist das Podest gebaut.
+
+Reihenhaus-Treppe „unten und oben viertelgewendelt“ (mit `"storeyHeight": 2.75` im `building`: 14 Stufen; man steigt von der Seite auf, 3 Keilstufen, 6 gerade, 5 Keilstufen nach oben):
+`{ "type": "L", "x": 1, "z": 0.6, "w": 0.95, "turn": "right", "corner": "winder", "winders": 3, "split": 0, "corner2": "winder", "winders2": 5, "split2": 6 }`
 
 **Platzhalter-Blöcke** (ein Gebäudeteil ohne Details, z. B. ein Anbau): `"blocks": [{ "name": "Anbau", "points": [[8,0],[11,0],[11,4],[8,4]], "h": 3 }]` (`h` = Höhe, Standard eine Etage).
 **Bodenöffnungen** (ein Loch im Boden dieser Etage, z. B. ein Luftraum): `"holes": [{ "points": [[2,1],[4,1],[4,3],[2,3]] }]`.

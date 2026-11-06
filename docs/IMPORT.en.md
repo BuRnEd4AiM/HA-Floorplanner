@@ -70,6 +70,7 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
   "building": {
     "origin": [5.5, 8],                      // optional
     "wallHeight": 2.6, "outerWall": 0.3, "innerWall": 0.12,
+    "storeyHeight": 2.75,                    // optional: storey height floor to floor (2.2 to 6 m, else 3 m); the stairs take their steps from it
     "footprint": [[0,0],[11,0],[11,9],[0,9]],           // optional: outline, gives thick outer walls
     "roof": { "type": "gable", "pitch": 38 },           // gable | hip | flat | shed (one slope)
     // gables (gable, shed): gableOver = overhang at the gables in m (else as overhang), gableWall: false = no gable wall;
@@ -162,12 +163,19 @@ Per floor (not for the roof), all sizes in metres. A stair belongs to the floor 
 | `landing` | **for `wall`:** after every bend the stair stays flat for this many metres (0 to 3, default 0 = only the corner). **For `L` and `U`:** the landing at the turn is this many metres deeper (0 to 3, default 0 = as deep as the stair is wide) |
 | `corner` | **for `L` and `U`:** `"landing"` (default) or `"winder"` (wedge steps in the corner, 4.60.0) |
 | `winders` | **with `corner: "winder"`:** how many wedge steps (L 2 to 6, U 3 to 10; default: about as deep as the straight steps) |
-| `split` | **for `L` and `U`:** steps in the first flight (default about half), e.g. a long first and a short second flight |
+| `split` | **for `L` and `U`:** steps in the first flight (default about half), e.g. a long first and a short second flight. `0` only with `corner: "winder"`: the stair starts right away with the wedge steps (you step on from the side, 4.68.0) |
+| `corner2` | **for `L`:** the stair turns once more to the same side after flight 2 (winders at the bottom and at the top, 4.68.0): `"landing"` or `"winder"`. Without it: one corner only |
+| `winders2` | **with `corner2: "winder"`:** how many wedge steps in the 2nd corner (2 to 6; default as at the first corner) |
+| `split2` | **with `corner2`:** steps in flight 2 between the corners (default about two thirds of the rest); the remaining steps are the last flight |
+| `steps` | steps per floor, as counted on the real stair (the step onto the floor above does not count; 2 to 40, the app keeps a step between 12 and 25 cm high). Default: from the storey height, a step about 18 cm high (4.68.0) |
 | `solid` | **for `wall`:** `true` = solid steps down to the floor instead of thin plates |
 
 A wall stair with a landing in the corner (along the top wall, then down the right wall; the steps stick out to the right, into the room):
 `{ "type": "wall", "x": 1.6, "z": 0.1, "turn": "right", "floors": 2, "path": [[0, 0], [2.3, 0], [2.3, 4.9]] }`
 The points should lie on the wall face (wall centre plus half the wall thickness). The landing is built for bends of about 90°.
+
+Row-house stair with winders at the bottom and at the top (with `"storeyHeight": 2.75` in `building`: 14 steps; you step on from the side, 3 wedge steps, 6 straight ones, 5 wedge steps up):
+`{ "type": "L", "x": 1, "z": 0.6, "w": 0.95, "turn": "right", "corner": "winder", "winders": 3, "split": 0, "corner2": "winder", "winders2": 5, "split2": 6 }`
 
 **Placeholder blocks** (a part of the house without detail, e.g. an annex): `"blocks": [{ "name": "Annex", "points": [[8,0],[11,0],[11,4],[8,4]], "h": 3 }]` (`h` = height, default one floor).
 **Floor openings** (a hole in the floor of this floor, e.g. a void): `"holes": [{ "points": [[2,1],[4,1],[4,3],[2,3]] }]`.

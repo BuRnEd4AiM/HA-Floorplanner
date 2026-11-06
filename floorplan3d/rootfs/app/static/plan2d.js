@@ -11,7 +11,7 @@ import { bridgeSize } from './bridge.js';
 import { stepsSize, stepsDepth, stepsLocal, lifter, cleanRise, offsetPoly, LEVELS } from './levels.js';
 import { armPose } from './tvmount.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange, sectionHex } from './ledring.js';
-import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
+import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, treadAt, wallStairWidthAt, arrivingStairs } from './stairs.js';
 import { boxItems, groupTargets, moveGroup } from './multisel.js';
 import { planFill } from './floorcover.js';
 import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
@@ -1023,8 +1023,8 @@ export function createPlan(ctx) {
       }
       if (drag.type === 'stairsize' && moved) {
         snapshotOnce();
-        const st = drag.st, [lx, lz] = toLocal(st, x, z), { T, n1 } = stairCounts(st, ctx.floorH());
-        if (drag.which === 'len') st.tread = Math.max(MIN_TREAD, Math.min(MAX_TREAD, Math.round((lx / (st.type === 'straight' ? T : n1)) * 100) / 100));
+        const st = drag.st, [lx, lz] = toLocal(st, x, z);
+        if (drag.which === 'len') st.tread = treadAt(st, ctx.floorH(), lx, lz);   // along the first run (or the next one without it, #671)
         else if (st.type === 'wall') st.w = Math.max(0.6, Math.min(3, Math.round(wallStairWidthAt(st, lx, lz) * 20) / 20));
         else st.w = st.type === 'spiral' ? Math.max(0.5, Math.min(2.5, Math.round(Math.hypot(lx, lz) * 20) / 20)) : Math.max(0.6, Math.min(3, Math.round(2 * Math.abs(lz) * 20) / 20));
         drag.moved = true; scheduleRebuild(); render();

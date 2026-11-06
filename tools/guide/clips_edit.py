@@ -791,6 +791,68 @@ def _(r):
     r.wait(3000)
 
 
+@clip("stairs-storey", "edit",
+      {"de": "Geschosshöhe und Treppe unten und oben gewendelt", "en": "Storey height and a stair with winders at both ends"},
+      {"de": "„Etage verwalten“ → „Geschosshöhe“ (von Boden zu Boden) gibt den Abstand der Etagen und die Stufen der Treppen. Eine L-Treppe bekommt eine „2. Ecke“: unten Keilstufen, ein gerader Lauf, oben noch einmal Keilstufen. „Stufen je Etage“ wie an der echten Treppe gezählt.",
+       "en": "“Manage floor” → “Storey height” (floor to floor) sets how far the floors stand apart and the steps of the stairs. An L stair gets a “2nd corner”: wedge steps at the bottom, a straight flight, wedge steps again at the top. “Steps per floor” as counted on the real stair."},
+      "Geschosshöhe Etagenhöhe Raumhöhe Boden zu Boden Stufen je Etage Stufenanzahl 2. Ecke unten und oben viertelgewendelt zweimal gewendelt Reihenhaus Keilstufen storey height floor height floor to floor steps per floor number of steps second corner winders at both ends double winder row house",
+      query="mode=edit", prep=empty_house(walls=True, rooms=True))
+def _(r):
+    cx, cy = centre(r)
+    r.say("„Etage verwalten“: die „Geschosshöhe“, von Boden zu Boden, hier 2,75 m.", "“Manage floor”: the “Storey height”, floor to floor, here 2.75 m.")
+    r.click("#floorPanel > summary")
+    r.wait(700)
+    r.click("#storeyHeight")
+    r.pg.keyboard.press("Control+A")
+    r.type("2.75")
+    r.key("Tab")
+    r.wait(1500)
+    r.click("#floorPanel > summary")
+    r.wait(400)
+    r.say("„Treppe“, „L-Treppe“, „Ecke: Gewendelt“, dann in den Raum klicken.", "“Stairs”, “L stair”, “Corner: Winders”, then click into the room.")
+    r.click("#tools [data-tool=stairs]")
+    r.wait(500)
+    r.click("#stairTypes button[data-stair=L]")
+    r.wait(400)
+    r.click("#stairCorner")
+    r.loc("#stairCorner").select_option("winder")
+    r.wait(600)
+    r.click(cx - 120, cy - 110)
+    r.wait(1400)
+    r.say("„Stufen im 1. Lauf“ 0: man steigt von der Seite gleich auf die Keilstufen.", "“Steps in flight 1” 0: you step on from the side right onto the wedge steps.")
+    r.click("#stairSplit")
+    r.pg.keyboard.press("Control+A")
+    r.type("0")
+    r.key("Tab")
+    r.wait(1400)
+    r.say("„2. Ecke: Gewendelt“: oben dreht sie noch einmal, zur selben Seite.", "“2nd corner: Winders”: at the top it turns once more, to the same side.")
+    r.click("#stairCorner2")
+    r.loc("#stairCorner2").select_option("winder")
+    r.wait(1400)
+    r.say("5 Wendelstufen oben, 6 Stufen im geraden Lauf dazwischen.", "5 winders at the top, 6 steps in the straight flight between.")
+    r.click("#stairWinders2")
+    r.pg.keyboard.press("Control+A")
+    r.type("5")
+    r.key("Tab")
+    r.wait(900)
+    r.click("#stairSplit2")
+    r.pg.keyboard.press("Control+A")
+    r.type("6")
+    r.key("Tab")
+    r.wait(1400)
+    r.poster()
+    r.say("„Stufen je Etage“: 14 aus 2,75 m; eine andere Zahl, wenn deine Treppe mehr oder weniger hat.", "“Steps per floor”: 14 from 2.75 m; another number if your stair has more or fewer.")
+    r.zoom("#stairSteps", 1.5)
+    r.wait(2200)
+    r.zoom()
+    r.say("Im 3D-Bild: unten Keilstufen, der gerade Lauf, oben wieder Keilstufen.", "In 3D: wedge steps at the bottom, the straight flight, wedge steps again at the top.")
+    r.click("#view3d")
+    r.wait(600)
+    r.js("""(() => { const fp = window.__fp, st = fp.layout.floors[fp.floorIdx()].stairs.at(-1);
+      fp.camAt(st.x + 4.4, 5.0, st.z + 4.2, st.x + 0.4, st.z + 1.6); })()""")          # from inside the room, a little above: both ends
+    r.wait(3200)
+
+
 @clip("plot", "edit",
       {"de": "Grundstück und Garten", "en": "Plot and garden"},
       {"de": "„Grundstück“: Rasen um das Haus, dazu Flächen wie Terrasse, Weg, Beet oder Teich, als Rechteck oder frei gezeichnet.",

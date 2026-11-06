@@ -1,4 +1,5 @@
-/* Floor panel ("Manage floor"): name and kind of the open floor, move it up or down, add a basement or a roof, delete it; for a roof floor the
+/* Floor panel ("Manage floor"): name and kind of the open floor, move it up or down, add a basement or a roof, delete it, the storey height of
+ * the house (#671); for a roof floor the
  * roof (shape, pitch, its own base, overhang, ridge; the overhang at the gables and the gable wall, a shed roof's high side, #628), steps in
  * its eaves (#342), its dormers (gable with its own pitch, flat or a long shed dormer, #339, placed by its distance from the gable) and further roofs
  * (with their ridge kept at 0° or 90°, #621; e.g. a
@@ -9,6 +10,7 @@ import { ridgeHeight, pitchFor } from './attic.js';
 import { stepsAllowed, alongXOf, MAX_STEPS } from './roofsteps.js';
 import { ROOF_TYPES, SHED_HIGH, SHED_PITCH as SHED_ROOF_PITCH, hasGables, gableOverOf, shedHigh, shedHighToward, newCanopy, roofFrame } from './roofshape.js';
 import { initSkylightUi } from './skylightui.js';
+import { storeyHeight, setStoreyHeight, STOREY_MIN } from './housefloors.js';
 
 export const ROOF_DEFAULT = { type: 'gable', pitch: 35, overhang: 0.4 };
 /** an empty floor of a kind (a roof floor gets the default roof) */
@@ -238,6 +240,11 @@ export function initFloorPanel(ctx) {
                rowBtn('addRoof', t('floor.addRoof'), () => addFloorOf('roof')),
                rowBtn('delFloor', t('floor.delete'), deleteFloor, layout.floors.length < 2));
     box.append(add);
+    // the storey height of the whole house, floor to floor (#671): it stacks the floors and gives the stairs their steps
+    const sh = lenInput(() => storeyHeight(layout), (v) => { setStoreyHeight(layout, v); queueMicrotask(render); }, { min: STOREY_MIN, step: 0.05 });
+    sh.id = 'storeyHeight';
+    box.append(field(t('floor.storeyH'), sh));
+    const shelp = document.createElement('p'); shelp.className = 'sub'; shelp.id = 'storeyHelp'; shelp.textContent = t('floor.storeyHelp'); box.append(shelp);
     if (f.kind !== 'roof') return;
     const r = (f.roof ||= { ...ROOF_DEFAULT });
     const tsel = document.createElement('select'); tsel.id = 'roofType';

@@ -122,6 +122,8 @@ STAIR_MAX_FLOORS = 6                                              # MAX_FLOORS i
 STAIR_TREAD = (0.1, 0.45)                                         # MIN_TREAD / MAX_TREAD in static/stairs.js
 STAIR_MAX_LANDING = 3                                             # MAX_LANDING in static/stairs.js
 STAIR_WINDERS = {"L": (2, 6), "U": (3, 10)}                       # WINDER_RANGE in static/winders.js (#623)
+STAIR_STEPS = (2, 40)                                             # treads per storey a stair may be given (#671; the app keeps them from 25 to 12 cm high)
+STOREY_HEIGHT = (2.2, 6)                                          # STOREY_MIN / STOREY_MAX in static/housefloors.js (#671), 3 m when not given
 MAX_STAIR_POINTS = 30
 SOLAR_MAX_FIELD = 12                                              # MAX_FIELD in static/solarroof.js
 SOLAR_MOUNTS = ("auto", "flat", "stand")                          # MOUNTS in static/solarroof.js
@@ -677,12 +679,42 @@ def _stair(rep: Report, path: str, spec, ids, ox, oz):
                 rep.warn(f"{path}.winders", f"winders must be a whole number from {lo} to {hi} on {'an' if typ == 'L' else 'a'} {typ} stair: ignored")
         if "split" in spec:
             v = spec["split"]
-            if isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= 40:
+            lo1 = 0 if st.get("corner") == "winder" else 1               # with winders the stair may start right away with them (#671)
+            if isinstance(v, int) and not isinstance(v, bool) and lo1 <= v <= 40:
                 st["split"] = v
             else:
-                rep.warn(f"{path}.split", "split (treads in the first flight) must be a whole number from 1: ignored")
+                rep.warn(f"{path}.split", f"split (treads in the first flight) must be a whole number from {lo1} (0 only with corner \"winder\"): ignored")
     elif any(k in spec for k in ("corner", "winders", "split")):
         rep.warn(path, "corner, winders and split are for L and U stairs: ignored")
+    if typ == "L":                                          # a second quarter turn the same way after a middle flight (#671)
+        if "corner2" in spec:
+            if spec["corner2"] in ("landing", "winder"):
+                st["corner2"] = spec["corner2"]
+            else:
+                rep.warn(f"{path}.corner2", "corner2 must be \"landing\" or \"winder\": ignored")
+        lo, hi = STAIR_WINDERS["L"]
+        if "winders2" in spec:
+            v = spec["winders2"]
+            if isinstance(v, int) and not isinstance(v, bool) and lo <= v <= hi:
+                if st.get("corner2") == "winder":
+                    st["winders2"] = v
+            else:
+                rep.warn(f"{path}.winders2", f"winders2 must be a whole number from {lo} to {hi}: ignored")
+        if "split2" in spec:
+            v = spec["split2"]
+            if isinstance(v, int) and not isinstance(v, bool) and 0 <= v <= 40:
+                if "corner2" in st:
+                    st["split2"] = v
+            else:
+                rep.warn(f"{path}.split2", "split2 (treads in the middle flight) must be a whole number from 0: ignored")
+    elif any(k in spec for k in ("corner2", "winders2", "split2")):
+        rep.warn(path, "corner2, winders2 and split2 are for L stairs: ignored")
+    if "steps" in spec:                                     # treads per storey, as counted on the real stair (#671)
+        v = spec["steps"]
+        if isinstance(v, int) and not isinstance(v, bool) and STAIR_STEPS[0] <= v <= STAIR_STEPS[1]:
+            st["steps"] = v
+        else:
+            rep.warn(f"{path}.steps", f"steps (treads per floor) must be a whole number from {STAIR_STEPS[0]} to {STAIR_STEPS[1]}: ignored")
     if spec.get("solid") is True and typ == "wall":         # a wall stair with solid steps instead of thin plates (#623)
         st["solid"] = True
     st["x"], st["z"] = round(st["x"] + ox, 3), round(st["z"] + oz, 3)
@@ -757,6 +789,7 @@ def build_layout(data):
             return default
         return float(v)
     height = opt("building", "wallHeight", 2.6, 1.8, 10)
+    storey = opt("building", "storeyHeight", 3.0, *STOREY_HEIGHT)    # floor to floor (#671)
     outer_t = opt("building", "outerWall", 0.3, 0.05, 1.5)
     inner_t = opt("building", "innerWall", 0.12, 0.03, 1)
     origin = b.get("origin", [0, 0])
@@ -977,6 +1010,8 @@ def build_layout(data):
     if rep.errors:
         return None, None, rep, summary
     layout = {"version": 1, "floors": floors}
+    if abs(storey - 3.0) > 1e-9:
+        layout["storeyHeight"] = round(storey, 2)
     if plot:
         layout["plot"] = plot
     return layout, plot, rep, summary
@@ -1304,6 +1339,12 @@ def layout_to_property(layout, name="Haus"):
                 os_["landing"] = st["landing"]
             if st["type"] in ("L", "U"):                                    # #623
                 os_.update({k: st[k] for k in ("corner", "winders", "split") if st.get(k) not in (None, "", 0)})
+                if st.get("split") == 0 and st.get("corner") == "winder":     # no first flight (#671)
+                    os_["split"] = 0
+            if st["type"] == "L" and st.get("corner2") in ("landing", "winder"):   # #671
+                os_.update({k: st[k] for k in ("corner2", "winders2", "split2") if st.get(k) not in (None, "")})
+            if isinstance(st.get("steps"), int) and not isinstance(st.get("steps"), bool) and st["steps"] > 0:
+                os_["steps"] = st["steps"]
             if st["type"] == "wall" and st.get("solid") is True:
                 os_["solid"] = True
             stairs.append(os_)
@@ -1314,6 +1355,8 @@ def layout_to_property(layout, name="Haus"):
                 item[key] = [{k: b[k] for k in keys if k in b} for b in f[key] if isinstance(b.get("points"), list)]
         floors.append(item)
     out = {"schemaVersion": SCHEMA_VERSION, "name": name, "building": {"floors": floors}}
+    if _num(layout.get("storeyHeight"), *STOREY_HEIGHT) and abs(float(layout["storeyHeight"]) - 3.0) > 1e-9:   # #671
+        out["building"]["storeyHeight"] = layout["storeyHeight"]
     pl = layout.get("plot") or {}
     out_plot = {"boundary": pl["boundary"]} if pl.get("boundary") else {}
     areas = [{k: a[k] for k in ("name", "surface", "points", "rise", "edge", "wall") if a.get(k) not in (None, "")}

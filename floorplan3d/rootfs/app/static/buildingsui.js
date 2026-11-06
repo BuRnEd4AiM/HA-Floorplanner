@@ -6,7 +6,7 @@
 import { buildingsOf, showSwitch, pickBuilding, roomOwners, inheritedBuilding, roofOwner, roofsPerBuilding, mergePlan, planBox } from './buildings.js';
 import { autoRoofBox, partBox } from './roofs.js';
 
-/** ctx: $, t, layout(), houseId(), houses() ([{ id, name }]), houseLabel(h), uid(), floorH, snapshot(), changed(), shownChanged() (draw the
+/** ctx: $, t, layout(), houseId(), houses() ([{ id, name }]), houseLabel(h), uid(), floorH(), snapshot(), changed(), shownChanged() (draw the
  *  building shown now), setStatus(txt), confirm(txt), roofBox(i) (the box of the main roof of roof floor i as drawn) */
 export function initBuildingsUi(ctx) {
   const { $, t } = ctx;
@@ -185,7 +185,7 @@ export function initBuildingsUi(ctx) {
           if (f.kind === 'roof' && f.roof && !f.roof.building) f.roof.building = own.id;   // its roof stays over its own rooms, not over both
         });
       }
-      res = mergePlan(l, src, { ...at, autoBox: autoRoofBox }, bid, name, () => ctx.uid(), ctx.floorH);
+      res = mergePlan(l, src, { ...at, autoBox: autoRoofBox }, bid, name, () => ctx.uid(), ctx.floorH());
       if (nb) { l.neighbors = l.neighbors.filter((x) => x !== nb); if (!l.neighbors.length) delete l.neighbors; }   // it is part of this plan now
     });
     ctx.setStatus(t('bld.mergeDone', { name, n: res.things, f: res.floors }));

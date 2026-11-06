@@ -36,6 +36,25 @@ test('floor heights: one storey per floor; apart lifts every floor off the one b
   for (let i = 1; i < 4; i++) assert.ok(apart[i] - apart[i - 1] >= 3 + H.APART_GAP - 1e-9, `gap ${i}`);
 });
 
+test('the storey height of a house (#671): 3 m unless set, kept from 2.2 m to 6 m, 3 m is not stored', () => {
+  assert.equal(H.storeyHeight({}), 3);
+  assert.equal(H.storeyHeight(null), 3);
+  assert.equal(H.storeyHeight({ storeyHeight: 2.75 }), 2.75);
+  assert.equal(H.storeyHeight({ storeyHeight: '2.8' }), 2.8);
+  assert.equal(H.storeyHeight({ storeyHeight: 1 }), 3, 'too low: the default');
+  assert.equal(H.storeyHeight({ storeyHeight: 'x' }), 3);
+  const L = {};
+  assert.equal(H.setStoreyHeight(L, 2.754), 2.75);
+  assert.deepEqual(L, { storeyHeight: 2.75 });
+  assert.equal(H.setStoreyHeight(L, 1.5), 2.2, 'kept to the lowest');
+  assert.equal(H.setStoreyHeight(L, 9), 6);
+  assert.equal(H.setStoreyHeight(L, 3), 3);
+  assert.deepEqual(L, {}, '3 m is the default: not stored');
+  H.setStoreyHeight(L, 2.9); H.setStoreyHeight(L, '');
+  assert.deepEqual(L, {}, 'nothing typed: back to 3 m');
+  assert.deepEqual([0, 1, 2].map((i) => H.floorElev(i, 1, 2.75, 'normal')), [-2.75, 0, 2.75], 'the floors stand one storey apart');
+});
+
 test('the ceiling between two floors fills the gap between the walls and the floor above', () => {
   assert.equal(H.slabDepth(3, 2.6), 0.4);
   assert.equal(H.slabDepth(3, 2.5), 0.5);

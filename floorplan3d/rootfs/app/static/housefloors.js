@@ -8,6 +8,22 @@
 export const HOUSE_FLOORS = ['normal', 'apart', 'stacked'];
 export const APART_GAP = 2.5;              // extra space between every two floors when pulled apart (m)
 
+/* The storey height (Geschosshöhe, floor to floor, #671): one number per house, `layout.storeyHeight` (m), 3 m when not set. It stacks the
+ * floors and gives the stairs their number of steps (stairs.js stairSteps). Set in "Etage verwalten" (floorpanel.js). */
+export const STOREY_DEFAULT = 3, STOREY_MIN = 2.2, STOREY_MAX = 6;
+/** the storey height of a house (its layout): layout.storeyHeight when it is a number from STOREY_MIN to STOREY_MAX, else 3 m */
+export function storeyHeight(layout) {
+  const v = Number(layout?.storeyHeight);
+  return Number.isFinite(v) && v >= STOREY_MIN && v <= STOREY_MAX ? v : STOREY_DEFAULT;
+}
+/** a typed storey height for a house: kept from STOREY_MIN to STOREY_MAX, to the centimetre; 3 m (or nothing typed) is not stored */
+export function setStoreyHeight(layout, v) {
+  const n = Number(v);
+  const h = Number.isFinite(n) && n > 0 ? Math.round(Math.max(STOREY_MIN, Math.min(STOREY_MAX, n)) * 100) / 100 : STOREY_DEFAULT;
+  if (Math.abs(h - STOREY_DEFAULT) < 1e-9) delete layout.storeyHeight; else layout.storeyHeight = h;
+  return h;
+}
+
 /** the way the floors stand: pulled apart only in the whole-house view; stacked in both views (one floor open: it sits right on the floors
  *  below it, #396); anything unknown is 'normal' */
 export function floorsMode(settings, houseMode) {

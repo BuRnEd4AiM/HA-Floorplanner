@@ -6,6 +6,7 @@ import { buildWall } from './walls.js';
 import { initRoofs } from './roofs.js';
 import { layoutUrl } from './houses.js';
 import { floorHex } from './floorcover.js';
+import { storeyHeight } from './housefloors.js';
 
 /** where a point [x, z] of the neighbour's plan lies in this plan: turned by nb.rot degrees (like a device), moved by nb.x / nb.z */
 export function placePoint([x, z], nb) {
@@ -45,7 +46,7 @@ export function cleanNeighbor(nb) {
   return { house: String(nb?.house || ''), x: n(nb?.x, -1000, 1000), z: n(nb?.z, -1000, 1000), rot: ((n(nb?.rot, -3600, 3600) % 360) + 360) % 360, y: n(nb?.y, -50, 50) };
 }
 
-/** ctx: $, t, houses() ([{ id, name }]), houseId(), label(house), layout(), floorH, mat(color, ghost, extra), HOLO, camera(), settings(), wallSee, bridges() ([{ d, y }]),
+/** ctx: $, t, houses() ([{ id, name }]), houseId(), label(house), layout(), floorH() (this house's storey height; a neighbour stacks its floors with its own, #671), mat(color, ghost, extra), HOLO, camera(), settings(), wallSee, bridges() ([{ d, y }]),
  *  snapshot(), changed(), build(), fields: { field, lenInput, inp } */
 export function initNeighbors(ctx) {
   const { $, t } = ctx;
@@ -62,7 +63,7 @@ export function initNeighbors(ctx) {
     return null;
   }
   function roofs(id, L) {
-    if (!roofsOf.has(id)) roofsOf.set(id, initRoofs({ layout: () => cache.get(id) || L, elev: (i) => floorElev((cache.get(id) || L).floors, i, ctx.floorH), mat: ctx.mat, HOLO: ctx.HOLO, camera: ctx.camera, settings: ctx.settings, wallSee: ctx.wallSee, editingRoof: () => false }));
+    if (!roofsOf.has(id)) roofsOf.set(id, initRoofs({ layout: () => cache.get(id) || L, elev: (i) => { const P = cache.get(id) || L; return floorElev(P.floors, i, storeyHeight(P)); }, mat: ctx.mat, HOLO: ctx.HOLO, camera: ctx.camera, settings: ctx.settings, wallSee: ctx.wallSee, editingRoof: () => false }));
     return roofsOf.get(id);
   }
   /** draw the neighbours into `world`: upTo = height of the open floor (Infinity in the whole-house view) */
@@ -74,17 +75,17 @@ export function initNeighbors(ctx) {
       const root = new THREE.Group();
       root.position.set(nb.x, nb.y, nb.z); root.rotation.y = (nb.rot * Math.PI) / 180;
       root.userData.neighbor = nb.house;
-      const R = roofs(nb.house, L);
-      shownFloors(L.floors, nb, ctx.floorH, upTo === Infinity ? upTo : upTo + ctx.floorH * 0.8).forEach((i) => {   // its storey at this level shows even when it lies a bit higher (#222)
+      const R = roofs(nb.house, L), H = storeyHeight(L);              // its own storey height (#671)
+      shownFloors(L.floors, nb, H, upTo === Infinity ? upTo : upTo + ctx.floorH() * 0.8).forEach((i) => {   // its storey at this level shows even when it lies a bit higher (#222)
         const f = L.floors[i], g = new THREE.Group();
-        g.position.y = floorElev(L.floors, i, ctx.floorH);
+        g.position.y = floorElev(L.floors, i, H);
         (f.walls || []).forEach((w) => g.add(buildWall({ ...w, openings: w.openings || [] }, { material: ctx.mat('#cfc9bf', false), makeMat: ctx.mat, holo })));
         (f.rooms || []).forEach((r) => {
           if ((r.points || []).length < 3) return;
           const geo = new THREE.ShapeGeometry(new THREE.Shape(r.points.map(([x, z]) => new THREE.Vector2(x, -z)))).rotateX(-Math.PI / 2);
           const m = new THREE.Mesh(geo, ctx.mat(floorHex(r), false, { side: THREE.DoubleSide }));   // a covered floor in its colour (#427)
           m.position.y = 0.01; m.receiveShadow = true; g.add(m);
-          if (r.terrace) R.railing(g, r, f, holo, false, bridgesAt(ctx.bridges?.(), nb, floorElev(L.floors, i, ctx.floorH) + nb.y, ctx.floorH));   // its terrace keeps its railing, open where our bridge arrives
+          if (r.terrace) R.railing(g, r, f, holo, false, bridgesAt(ctx.bridges?.(), nb, floorElev(L.floors, i, H) + nb.y, ctx.floorH()));   // its terrace keeps its railing, open where our bridge arrives
         });
         if (f.kind === 'roof') R.build(g, i, f, holo, false);
         root.add(g);
@@ -94,7 +95,7 @@ export function initNeighbors(ctx) {
   }
   /** dashed outline of the neighbours at height y, for the 2D plan */
   function outlines(y) {
-    return list().flatMap((raw) => { const nb = cleanNeighbor(raw), L = planOf(nb.house); return L ? outlineAt(L.floors, nb, ctx.floorH, y) : []; });
+    return list().flatMap((raw) => { const nb = cleanNeighbor(raw), L = planOf(nb.house); return L ? outlineAt(L.floors, nb, storeyHeight(L), y) : []; });
   }
 
   /** the settings in "Houses & backup": which house stands where */

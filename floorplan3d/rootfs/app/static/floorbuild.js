@@ -47,7 +47,7 @@ export const roomCenter = (points) => points.reduce((a, p) => [a[0] + p[0] / poi
 
 /** ctx: settings(), floorIdx(), topView(), imperial(), belowVis(), fast() (the "fast" performance mode), mat(color, ghost, extra), roomLightMat(kind, alpha, ghost), textSprite(text),
  *  railing(g, room, f, holo, ghost) (roof terrace, balcony), balcony(g, room, f, o, lift) and freeBalconies(i) (a balcony that hangs free,
- *  balcony3d.js, #646), lowWalls(), roomMeshes (Map), alerts ({ hasRoom(id), pulses }), registry (Map), pickables (Array), floorOpenings(i), floorH, holoEdge,
+ *  balcony3d.js, #646), lowWalls(), roomMeshes (Map), alerts ({ hasRoom(id), pulses }), registry (Map), pickables (Array), floorOpenings(i), floorH(), holoEdge,
  *  houseMode(), halfCut(), elev(i), stairMesh(st, holo, ghost, edge, upTo) (stairtool.js), cutawayInfo(w, group), openingHandle(w, o, g),
  *  cutawayWalls() (the list of the open floor's walls for the cutaway), makeModel(type, onLoad, d, pose) (models.js), setPicture(model, d),
  *  placeSolar(model, d, roofs), tapBalls, cams, labelSprites (Map), modelLoaded(), roomName(f, id, sprite) (the name of a room on a floor
@@ -64,7 +64,7 @@ export function initFloorBuild(ctx) {
    *  (its walls with their thickness, rooms and blocks), with its stairwells and floor openings left open; its edge closes the facade */
   function slab(g, f, i, o) {
     if (!o.stack?.slab) return;
-    const d = slabDepth(ctx.floorH, ctx.settings().wallHeight);
+    const d = slabDepth(ctx.floorH(), ctx.settings().wallHeight);
     if (!d) return;
     const fl = withoutRooms([f], 0, ctx.freeBalconies?.(i))[0];     // a balcony that hangs free has a plate of its own (balcony3d.js, #646)
     let rings = houseFootprint([fl], 0);
@@ -199,7 +199,7 @@ export function initFloorBuild(ctx) {
     f.blocks.forEach((b) => {
       if (b.points.length < 3) return;
       const shape = floorShapes(b.points, shaftHoles);
-      const eg = new THREE.ExtrudeGeometry(shape, { depth: b.h || ctx.floorH, bevelEnabled: false });
+      const eg = new THREE.ExtrudeGeometry(shape, { depth: b.h || ctx.floorH(), bevelEnabled: false });
       eg.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(eg, o.holo
         ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: 0.5, depthWrite: false })
@@ -212,7 +212,7 @@ export function initFloorBuild(ctx) {
   }
   /** stairs (a 'down' stair starts one floor lower and arrives at this floor). o: as rooms, plus edge (the hologram edge material) */
   function stairs(g, f, i, o) {
-    const { holo, ghost, iso } = o, H = ctx.floorH, open = ctx.floorIdx(), house = ctx.houseMode(), up = upOf(f);
+    const { holo, ghost, iso } = o, H = ctx.floorH(), open = ctx.floorIdx(), house = ctx.houseMode(), up = upOf(f);
     (f.stairs || []).forEach((st) => {
       if (iso) {                                   // a focused room still shows the stair standing in it
         const hp = polyToWorld(st, stairLocal(st, H).hole);
@@ -298,7 +298,7 @@ export function initFloorBuild(ctx) {
       let w = up.any ? wallWithShift(w0, f.rooms, wallH) : w0;
       if (wallLength(w) < 0.01) return;
       if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
-      if (o.stack?.upTo && !low && !half && wallUnder(w, o.stack.upTo)) w = { ...w, height: wallUpTo(w.height, ctx.settings().wallHeight, ctx.floorH) };   // stacked: up to the roof
+      if (o.stack?.upTo && !low && !half && wallUnder(w, o.stack.upTo)) w = { ...w, height: wallUpTo(w.height, ctx.settings().wallHeight, ctx.floorH()) };   // stacked: up to the roof
       const wallMat = holo
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * ctx.belowVis() : ctx.settings().wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : ctx.mat(look.wall, ghost);

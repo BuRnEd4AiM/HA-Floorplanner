@@ -68,7 +68,7 @@ export function padLevel(hasBasement, depth) {
 const ringsOf = (fn) => { try { return fn().map((poly) => poly[0].slice(0, -1)); } catch { return []; } };
 const closed = (r) => [[...r, r[0]]];
 
-/** ctx: layout(), groundIdx(), floorH, settings(), houseMode(), terrain() (the height of the ground (x, z) => h on a slope, terrain.js;
+/** ctx: layout(), groundIdx(), floorH() (the storey height, #671), settings(), houseMode(), terrain() (the height of the ground (x, z) => h on a slope, terrain.js;
  *  null when the plot is level, #629) */
 export function initEarth(ctx) {
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 1000);     // nothing cut until the camera says where (what lies under the plane is cut: nothing)
@@ -109,7 +109,7 @@ export function initEarth(ctx) {
     const margin = Math.max(0.5, +settings.earthMargin || 5);                      // ⚙ "lawn around the house"
     const outline = layout.plot?.boundary?.length >= 3 ? layout.plot.boundary
       : [[hx0 - margin, hz0 - margin], [hx1 + margin, hz0 - margin], [hx1 + margin, hz1 + margin], [hx0 - margin, hz1 + margin]];
-    const depth = nb > 0 ? nb * ctx.floorH + 0.4 : 0.4;   // without a basement: a slab of ground the house stands on
+    const depth = nb > 0 ? nb * ctx.floorH() + 0.4 : 0.4;   // without a basement: a slab of ground the house stands on
     const cellar = nb > 0 ? houseFootprint(layout.floors, nb, true) : [];
     let holes = nb > 0 && !hf ? cellar : foot;            // only the basement is cut out of the earth: parts without one (garage ...) stand on the ground; on a slope the whole house (they get a plinth)
     if (layout.plot?.boundary?.length >= 3) {                     // a plot smaller than the house: only cut out what lies on it
