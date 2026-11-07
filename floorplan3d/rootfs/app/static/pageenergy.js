@@ -1,4 +1,5 @@
-/* The page ⚡ Energie of the tab bar (#481): today, a week, a month or a year of a house (or all houses together) from Home Assistant's
+/* The page ⚡ Energie of the tab bar (#481): today, a week, a month or a year of a house (or all houses together; since 4.70.0 also of a
+ * building of a plan that counts power per building, energyunits.js: each building is then one more "house" here) from Home Assistant's
  * long-term statistics: used, from the sun, from the grid, fed in, made itself, what it cost, a bar per hour / day / month (made itself
  * and from the grid), the devices that used most, gas and water, the charge of the batteries (#515, batterycard.js). The rules are in
  * energyhistory.js and batterylevels.js (tested); this file asks the add-on (api/energy/meters, api/energy/stats, api/energy/levels,
@@ -13,13 +14,15 @@ import { withBarTips } from './bartip.js';
 const OWN = '#cc7a00', GRID = '#488fc2';           // made itself (sun, battery) / from the grid: the colours of "Strom jetzt", checked for colour blindness
 const ALL = '*', CMP = 'cmp';                     // all houses added up / side by side (⚖ Vergleichen, #495)
 
-/** ctx: t, el (the page), lang(), layout() (the house shown), houseId(), houses() ([{ id, name }]), changed() (the tab bar again: the page
+/** ctx: t, el (the page), lang(), layout() (the house shown), houseId(), houses() ([{ id, name }]), units(layout, house, withHouse) (what counts
+ *  power in a plan: energyUnits), shownBuilding() (the building chosen at the top: the page shows it; all of them: side by side), changed() (the tab bar again: the page
  *  can have something now or not), board (pageboard.js, #484: keys tiles, chart, battery, top, more; in ⚖ Vergleichen cmp:tiles,
  *  cmp:chart, cmp:now, cmp:cost, battery), states() (the power and the charge of each house now), nameOf(entity) (its name in Home Assistant) */
 export function initEnergyPage(ctx) {
   const { t, el } = ctx;
   let ha = null, haErr = false, asking = null, askedAt = 0;   // Home Assistant's energy dashboard: { meters, devices, price, levels }
   let kind = 'day', offset = 0, house = null, drawn = '', run = 0, forced = false;   // forced: a forced drawing overtaken by a newer one stays forced
+  let lastShown;                                   // the building shown at the top when the page last looked: another one, the page follows it
   const layouts = new Map();                       // other houses: id -> layout (for their meters)
   let cmp = null, cmpGrid = null;                  // ⚖ Vergleichen: { p, stats } of the last statistics asked for, and its grid
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -43,24 +46,35 @@ export function initEnergyPage(ctx) {
     try { const r = await fetch(`api/layout?house=${encodeURIComponent(id)}`); if (r.ok) layouts.set(id, await r.json()); } catch { /* left out */ }
     return houseLayout(id);
   }
-  /** the meters, devices and price of what is chosen: one house or all of them */
-  async function chosen() {
-    const houses = ctx.houses();
-    if (house === ALL && houses.length > 1) {
-      const lays = await Promise.all(houses.map((h) => loadHouse(h.id)));
-      const ms = lays.filter(Boolean).map((l) => houseMeters(l.energy, ha.meters));
-      return { meters: mergeMeters(ms.map((m) => m.meters)), own: ms.every((m) => m.own), devices: ms.some((m) => !m.own) ? ha.devices : [],
-        price: priceOf(lays.find(Boolean)?.energy, ha.price) };
-    }
-    const lay = (await loadHouse(house || ctx.houseId())) || ctx.layout(), hm = houseMeters(lay.energy, ha.meters);
-    return { ...hm, devices: hm.own ? [] : ha.devices, price: priceOf(lay.energy, ha.price) };
+  /** what counts power, in every house: [{ key, bid, name, layout, house }] (a house, or each building of a house counted per building) */
+  async function unitsAll() {
+    const houses = ctx.houses(), many = houses.length > 1, lays = await Promise.all(houses.map((h) => loadHouse(h.id)));
+    const out = houses.flatMap((h, i) => (lays[i] ? ctx.units(lays[i], h, many).map((u) => ({ ...u, house: h.id })) : []));
+    return out.length ? out : ctx.units(ctx.layout(), { id: ctx.houseId(), name: '' }, false).map((u) => ({ ...u, house: ctx.houseId() }));
   }
-  /** the batteries of what is chosen (#515): one house, or every house (all houses, ⚖ Vergleichen), each in the colour of its house */
-  async function batteries(all) {
-    const houses = all ? ctx.houses() : ctx.houses().filter((h) => h.id === (house && house !== ALL && house !== CMP ? house : ctx.houseId()));
-    const list = houses.length ? houses : [{ id: ctx.houseId(), name: '' }];
-    const lays = await Promise.all(list.map((h) => loadHouse(h.id)));
-    return cardBatteries(list.map((h, i) => ({ id: h.id, name: h.name, layout: lays[i], ha: !houseMeters(lays[i]?.energy, ha.meters).own })), ctx.states?.() || {}, ha.levels, ctx.nameOf);
+  /** what the page shows: the unit chosen with a chip; else the building chosen at the top, with "🏘 Alle Gebäude" every building side by
+   *  side (⚖ Vergleichen, the owner's choice "Beides getrennt"), else the house open */
+  function choice(units) {
+    if (units.length > 1 && (house === ALL || house === CMP)) return house;
+    if (units.some((u) => u.key === house)) return house;
+    const mine = units.filter((u) => u.house === ctx.houseId());
+    if (mine.length > 1) return mine.find((u) => u.bid === ctx.shownBuilding?.())?.key || CMP;
+    return mine[0]?.key ?? units[0]?.key ?? null;
+  }
+  /** the meters, devices and price of what is chosen: one house (or building) or all of them */
+  function chosen(units, key) {
+    if (key === ALL && units.length > 1) {
+      const ms = units.map((u) => houseMeters(u.layout?.energy, ha.meters));
+      return { meters: mergeMeters(ms.map((m) => m.meters)), own: ms.every((m) => m.own), devices: ms.some((m) => !m.own) ? ha.devices : [],
+        price: priceOf(units[0]?.layout?.energy, ha.price) };
+    }
+    const u = units.find((x) => x.key === key) || units[0], hm = houseMeters(u?.layout?.energy, ha.meters);
+    return { ...hm, devices: hm.own ? [] : ha.devices, price: priceOf(u?.layout?.energy, ha.price), building: !!u?.bid };
+  }
+  /** the batteries of what is chosen (#515): one house (or building), or every one (all together, ⚖ Vergleichen), each in its colour */
+  function batteries(units, key) {
+    const list = key === ALL || key === CMP ? units : units.filter((u) => u.key === key);
+    return cardBatteries(list.map((u) => ({ id: u.key, name: u.name, layout: u.layout, ha: !houseMeters(u.layout?.energy, ha.meters).own })), ctx.states?.() || {}, ha.levels, ctx.nameOf);
   }
   /** the charge of the batteries through the period (api/energy/levels): asked again at most every 5 minutes; null when it failed */
   let lv = { sig: '', data: null, asking: null };
@@ -151,15 +165,16 @@ export function initEnergyPage(ctx) {
   const barName = (p, d) => (p.kind === 'day' ? `${d.getHours()}:00` : p.kind === 'year' ? new Intl.DateTimeFormat(lang(), { month: 'long' }).format(d)
     : new Intl.DateTimeFormat(lang(), { weekday: 'short', day: 'numeric', month: 'short' }).format(d));
 
+  let heads = { units: [], key: null };            // what the chips at the top offer and which one is on (set by render)
   function head() {
     const h = make('div', 'tpHead');
     h.append(make('h2', '', `⚡ ${t('tab.energy')}`));
-    const houses = ctx.houses();
-    if (houses.length > 1) {
+    const { units, key } = heads;
+    if (units.length > 1) {
       const row = make('div', 'peChips');
-      [...houses.map((x) => [x.id, x.name]), [ALL, t('pe.allHouses')], [CMP, `⚖ ${t('pe.compare')}`]].forEach(([id, name]) => {
-        const b = btn(`tpChip${(house || ctx.houseId()) === id ? ' on' : ''}`, name, () => { house = id; render(true); });
-        b.dataset.house = id; row.append(b);
+      [...units.map((x) => [x.key, x.bid ? `🏠 ${x.name}` : x.name, x.bid]), [ALL, t('pe.allHouses')], [CMP, `⚖ ${t('pe.compare')}`]].forEach(([id, name, bid]) => {
+        const b = btn(`tpChip${key === id ? ' on' : ''}`, name, () => { house = id; render(true); });
+        b.dataset.house = id; if (bid) b.dataset.building = bid; row.append(b);
       });
       h.append(row);
     }
@@ -185,13 +200,18 @@ export function initEnergyPage(ctx) {
     if (force) forced = true;
     if (!ha || (haErr && force)) await probe(true);
     if (me !== run) return;
-    if (house === CMP && ctx.houses().length > 1) { await renderCompare(me); return; }
-    const [c, bats] = await Promise.all([chosen(), batteries(house === ALL && ctx.houses().length > 1)]);
+    const sb = ctx.shownBuilding?.() ?? null;
+    if (sb !== lastShown) { lastShown = sb; house = null; }    // another building at the top: the page shows it
+    const units = await unitsAll();
     if (me !== run) return;
+    const key = choice(units);
+    heads = { units, key };
+    if (key === CMP && units.length > 1) { await renderCompare(me, units); return; }
+    const c = chosen(units, key), bats = batteries(units, key);
     if (!hasMeters(c.meters) && !bats.length) { drawn = ''; empty(haErr ? t('pe.noHa') : t('pe.noMeters')); return; }
     const now = new Date(), p = periodRange(kind, offset, now), prev = periodRange(kind, offset - 1, now);
     const ids = meterIds(c.meters, c.devices);
-    const sig = `${house}|${kind}|${offset}|${ids.join()}|${bats.map((b) => b.id).join()}|${Math.floor(+now / 300000)}`;      // again at most every 5 minutes
+    const sig = `${key}|${kind}|${offset}|${ids.join()}|${bats.map((b) => b.id).join()}|${Math.floor(+now / 300000)}`;      // again at most every 5 minutes
     if (!forced && sig === drawn) return;
     if (!hasMeters(c.meters)) {                    // only batteries (#515): their card alone
       const lvData = await levels(p, bats, now);
@@ -211,11 +231,11 @@ export function initEnergyPage(ctx) {
     } catch { if (me === run) empty(t('pe.noHa')); return; }
     if (me !== run) return;
     drawn = sig; forced = false;
-    const stats = data.stats || {}, units = data.units || {};
+    const stats = data.stats || {}, statUnits = data.units || {};
     const rows = bars(stats, c.meters, p.buckets, p.end), prevRows = bars(stats, c.meters, prev.buckets, prev.end);
     const cur = totals(rows), n = offset === 0 ? elapsed(p.buckets, now) : prevRows.length, before = totals(prevRows, n);
     const money = cost(cur, c.price);
-    const out = [head(), nav(p, c.own ? t('pe.ownMeters') : t('pe.haMeters'))], items = [];
+    const out = [head(), nav(p, c.own ? t(c.building ? 'pe.ownMetersB' : 'pe.ownMeters') : t('pe.haMeters'))], items = [];
     const tiles = make('div', 'peTiles');
     const prevText = (v) => t(`${offset === 0 ? 'pe.prev' : 'pe.prevFull'}.${p.kind}`, { v: num(v) });   // the period before: so far, or whole
     tiles.append(tile(t('pe.used'), num(cur.use), 'kWh', prevText(before.use)));
@@ -250,7 +270,7 @@ export function initEnergyPage(ctx) {
     const more = make('div', 'peTiles');
     [['gas', '🔥'], ['water', '💧']].forEach(([k, icon]) => {
       if (!m[k].length) return;
-      const unit = units[m[k][0]] || (k === 'water' ? 'm³' : 'kWh');
+      const unit = statUnits[m[k][0]] || (k === 'water' ? 'm³' : 'kWh');
       more.append(tile(`${icon} ${t(`pe.${k}`)}`, num(cur[k]), unit, prevText(before[k])));
     });
     if (more.childElementCount) items.push({ key: 'more', el: more, width: 4 });
@@ -260,12 +280,9 @@ export function initEnergyPage(ctx) {
   }
   /** ⚖ Vergleichen (#495): every house with its own meters side by side; the statistics again at most every 5 minutes, the power now with
    *  every update (only the cards that show it are drawn again) */
-  async function renderCompare(me) {
-    const houses = ctx.houses(), lays = await Promise.all(houses.map((h) => loadHouse(h.id)));
-    if (me !== run) return;
-    const list = compareMeters(houses.map((h, i) => ({ id: h.id, name: h.name, energy: lays[i]?.energy })), ha.meters, ha.price);
-    const ids = [...new Set(list.flatMap((h) => meterIds(h.meters)))], bats = await batteries(true);
-    if (me !== run) return;
+  async function renderCompare(me, units) {
+    const list = compareMeters(units.map((u) => ({ id: u.key, name: u.name, energy: u.layout?.energy })), ha.meters, ha.price);
+    const ids = [...new Set(list.flatMap((h) => meterIds(h.meters)))], bats = batteries(units, CMP);
     if (!ids.length && !bats.length) { drawn = ''; cmp = null; empty(haErr ? t('pe.noHa') : t('pe.noMeters')); return; }
     const now = new Date(), p = periodRange(kind, offset, now);
     const sig = `${CMP}|${kind}|${offset}|${ids.join()}|${Math.floor(+now / 300000)}`;
@@ -282,12 +299,12 @@ export function initEnergyPage(ctx) {
       if (me !== run) return;
       drawn = sig; forced = false; cmp = { p, stats: data.stats || {} };
       cmpGrid = make('div', 'peBoard');
-      el.replaceChildren(head(), nav(p, t('pe.cmp.note')), cmpGrid);
+      el.replaceChildren(head(), nav(p, t(units.some((u) => u.bid) ? 'pe.cmp.noteB' : 'pe.cmp.note')), cmpGrid);
     }
     const lvData = await levels(cmp.p, bats, now);
     if (me !== run) return;
     const c = compareHouses(list, cmp.stats, cmp.p.buckets, cmp.p.end);
-    const items = ids.length ? compare.items(cmp.p, c, Object.fromEntries(houses.map((h, i) => [h.id, lays[i]])), now) : [];
+    const items = ids.length ? compare.items(cmp.p, c, Object.fromEntries(units.map((u) => [u.key, u.layout])), now) : [];
     ctx.board.fill('energy', cmpGrid, [...items, batteryItem(cmp.p, bats, lvData, now)], { min: 280 });
   }
   const compare = initEnergyCompare({ t, lang, states: () => ctx.states?.() || {}, label, barName });
@@ -295,10 +312,12 @@ export function initEnergyPage(ctx) {
     render: () => render(true), update: () => render(false),
     has: () => {
       if (!ha || (haErr && Date.now() - askedAt > 300000)) probe(true);           // Home Assistant was not there: ask again every 5 minutes
-      const hm = houseMeters(ctx.layout().energy, ha?.meters);
-      return hasMeters(hm.meters) || houseBatteries(ctx.layout(), ctx.states?.() || {}, hm.own ? [] : ha?.levels, ctx.nameOf).length > 0;   // or only a battery (#515)
+      return ctx.units(ctx.layout(), { id: ctx.houseId() }, false).some((u) => {      // the house, or one of its buildings (4.70.0)
+        const hm = houseMeters(u.layout?.energy, ha?.meters);
+        return hasMeters(hm.meters) || houseBatteries(u.layout, ctx.states?.() || {}, hm.own ? [] : ha?.levels, ctx.nameOf).length > 0;   // or only a battery (#515)
+      });
     },
-    reset: () => { run++; drawn = ''; house = null; cmp = null; cmpGrid = null; lv = { sig: '', data: null, asking: null }; },
+    reset: () => { run++; drawn = ''; house = null; cmp = null; cmpGrid = null; heads = { units: [], key: null }; lv = { sig: '', data: null, asking: null }; },
     probe,
   };
 }

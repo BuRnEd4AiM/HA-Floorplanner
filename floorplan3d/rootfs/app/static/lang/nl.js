@@ -2235,4 +2235,12 @@ export default {
   'rname.noAreas': 'Geen ruimtes uit Home Assistant. Maak je daar ruimtes aan (Instellingen → Ruimtes), dan kun je ze hier als naam kiezen.',
   'rname.linked': '🔗 Gekoppeld aan de Home Assistant-ruimte ‘{area}’', 'rname.linkOne': '‘{room}’ heet als een ruimte: koppelen',
   'rname.linkAll': '{n} kamers heten als een ruimte: alle koppelen', 'rname.linkedAll': '🔗 {n} gekoppeld: {rooms}',
+  'eu.per': '⚡ Eigen berekening per gebouw',
+  'eu.offHint': 'Uit: één berekening voor het hele plan. Aan: elk gebouw rekent voor zich (eigen sensoren, meters en prijzen); bovenaan een gebouw kiezen toont zijn stroom, ‘🏘 Alle gebouwen’ elk apart.',
+  'eu.onHint': 'Elk gebouw rekent voor zich, met de stroomapparaten in zijn kamers. Bovenaan een gebouw kiezen toont zijn stroom, ‘🏘 Alle gebouwen’ elk apart.',
+  'eu.for': 'Berekening voor:', 'eu.pick': 'Kies een gebouw om zijn berekening in te stellen.',
+  'eu.splitDone': 'Elk gebouw rekent nu voor zich; de berekening tot nu toe hoort bij ‘{name}’.',
+  'eu.joinAsk': 'Weer één berekening voor het hele plan? Die van ‘{name}’ geldt dan voor alles, die van de andere gebouwen worden verwijderd.',
+  'eu.joinDone': 'Eén berekening voor het hele plan (die van ‘{name}’).', 'pe.ownMetersB': 'Meters van dit gebouw (⚡ Berekening)',
+  'pe.cmp.noteB': 'elk gebouw met zijn eigen meters',
 };

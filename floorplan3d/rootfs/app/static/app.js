@@ -14,6 +14,8 @@ import { initPower } from './power.js';
 import { initEnergyUi } from './energyui.js';
 import { initEnergyFlow } from './energyflowui.js';
 import { energyBalance } from './energycalc.js';
+import { energyUnits } from './energyunits.js';
+import { initEnergyUnitsUi } from './energyunitsui.js';
 import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
 import { initBadges } from './badges.js';
@@ -368,6 +370,7 @@ function refreshView() {
   owners = b ? roomOwners(layout) : null;
   view = b ? viewOf(layout, b, owners) : null;
   roofViews = new Map();
+  energyUnitsUi?.invalidate();                                     // power per building: the rooms and devices of each may have changed
 }
 const shownLayout = () => view || layout;
 const shownFloor = () => shownLayout().floors[floorIdx];
@@ -401,7 +404,7 @@ function claimNewRooms() {
   }));
   knownRooms = roomIds();
 }
-let buildingsUi = null;
+let buildingsUi = null, energyUnitsUi = null;
 
 
 /** Doors/windows live inside their wall group, which is scaled down when the wall is lowered. This unscaled
@@ -575,6 +578,13 @@ const ON_STATES = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool',
 function labelText(entityId, type) { return badgeText(states[entityId], entityId, t, type); }
 function stateText(entityId) { return plainStateText(states[entityId], t, entityId); }
 
+/* ---- ⚡ power per building (4.70.0): what the overview, the energy flow, ☀ Heute and the tab "⚡ Rechnung" count with: the plan, the
+ *  building shown, or every building apart (energyunitsui.js, energyunits.js) ---- */
+energyUnitsUi = initEnergyUnitsUi({
+  $, t, layout: () => layout, shown: () => buildingsUi?.shown() ?? null, setShown: (id) => buildingsUi?.setShown(id),
+  snapshot: () => snapshot(), changed: () => changed(false), refresh: () => applyHouseStates(), rerender: () => energyUi.render(),
+  setStatus: (x) => setStatus(x), confirm: (x) => confirm(x),
+});
 /* ---- power add-on (#136): cables, power editor, energy overview; the code lives in power.js and powerlogic.js ---- */
 const power = initPower({
   $, t, scene, camera, canvas, ray: () => picking.ray, registry,
@@ -586,20 +596,22 @@ const power = initPower({
   setPaletteCat: (v) => palettes.setCat(v), rebuildPalette: () => palettes.build(),
   deleteItem: (sel) => deleteItem(sel),
   field: (...a) => field(...a), pickerField: (...a) => pickerField(...a), entityPicker: (...a) => entityPicker(...a), roomAt: (x, z) => roomAt(x, z),
+  powerUnits: () => energyUnitsUi.shown(),
 });
 /* the tab "⚡ Rechnung" of the power editor (#378): which sensor is what and how it is counted; the code lives in energyui.js and energycalc.js */
 /* the top of the tab: take over the energy dashboard of Home Assistant, the setup check list (energysetup.js, #407) */
 const energySetup = initEnergySetup({
-  $, t, layout: () => layout, states: () => states, entities: () => entities, snapshot: () => snapshot(), changed: () => changed(false),
+  $, t, layout: () => layout, units: energyUnitsUi, states: () => states, entities: () => entities, snapshot: () => snapshot(), changed: () => changed(false),
   refresh: () => power.update(), rerender: () => energyUi.render(), floor: () => floor(), center: () => floorBounds(), uid, setStatus,
   deviceY: (type) => DEVICE_TYPES[type]?.y || 0, onWall: (d) => { if (WALL_TYPES.has(d.type)) snapToWall(d, 100); }, placed: () => changed(),
 });
-const energyFlow = initEnergyFlow({ $, t, settings: () => settings, states: () => states, layout: () => layout,   // the energy flow as a picture (#420), energyflowui.js
+const energyFlow = initEnergyFlow({ $, t, settings: () => settings, states: () => states, layout: () => layout, units: () => energyUnitsUi.shown(),   // the energy flow as a picture (#420), energyflowui.js
   low: () => perfParam === 'low', toggleCables: () => power.toggle(), commitSettings: () => commitSettings(), cablesShown: () => power.cablesShown() });
 const energyUi = initEnergyUi({
   $, t, layout: () => layout, states: () => states, entities: () => entities, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),
   entityPicker: (...a) => entityPicker(...a), pickerField: (...a) => pickerField(...a), snapshot: () => snapshot(), changed: () => changed(false), refresh: () => power.update(),
   setup: energySetup, meterPart,                          // the meters of the page ⚡ Energie (#481, energymetersui.js)
+  units: energyUnitsUi,                                   // per building (4.70.0): where to write, what to count
 });
 
 let viewMode = 'normal';           // normal | temp | humid | co2 (room colouring by sensor values)
@@ -743,7 +755,7 @@ const namesOf = (re) => Object.fromEntries(entities.filter((e) => re.test(e.enti
 const pinboard = initPinboard({ t, lang: () => currentLanguage(), changed: () => { if (tabsUi.open() === 'today') todayPage.update(); if (tabsUi.open() === 'family') familyPage.changed(); } });   // the pinboard (#483, pinboardui.js)
 const todayPage = initTodayPage({                                // ☀ Heute (pagetoday.js, today.js)
   t, el: $('#tabPages [data-page=today]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => layout,
-  names: () => namesOf(/^(person|alarm_control_panel)\./),
+  powerUnits: () => energyUnitsUi.shown(), names: () => namesOf(/^(person|alarm_control_panel)\./),
   summary: () => ({ open: openings.items().map((x) => x.name), lights: lightGroups.count(), low: deviceList.low(),
     offline: offline.devices().filter((x) => x.reason !== 'unlinked').length }),
   act: (k) => todayAct(k), pinboard, family: () => tabsUi.has('family'), board,
@@ -788,6 +800,7 @@ const familyPage = initFamilyPage({                              // 👨‍👩�
 const energyPage = initEnergyPage({                              // ⚡ Energie (pageenergy.js, energyhistory.js)
   t, el: $('#tabPages [data-page=energy]'), lang: () => currentLanguage(), layout: () => layout, houseId: () => hs.id(),
   houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), changed: () => tabsUi.update(), board, states: () => states,
+  units: (l, h, withHouse) => energyUnits(l, h, { withHouse, unnamed: t('bld.unnamed') }), shownBuilding: () => buildingsUi?.shown() ?? null,   // per building (4.70.0)
   nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
 });
 /** a tap on a row of "Im Haus" on the page ☀ Heute: to the house and what the row is about (the power: to the page ⚡ Energie) */
@@ -1862,6 +1875,7 @@ if (params.get('debug')) {
     powerLinks: () => power.links(),
     powerInfo: () => power.info(),
     energy: () => energyBalance(states, layout),
+    energyUnits: () => energyUnitsUi.shown().map((u) => ({ bid: u.bid, name: u.name, bal: energyBalance(states, u.layout) })),   // per building (4.70.0), for tests
     ledShown(id) { return !!registry.get(id)?.userData.ledParts?.[0]?.visible; },
     isShown(id) { return !!registry.get(id)?.visible; },
     editNano(id) { const d = floor().devices.find((v) => v.id === id); if (d) editNano(d); },

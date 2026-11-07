@@ -380,6 +380,11 @@ t("houses",
   "second house several houses holiday home holiday flat apartment garden house neighbour's house parents switch house "
   "copy a house rename a house delete a house new house house beside side by side semi-detached two houses on one plot "
   "annex bridge position move turn")
+t("energy-buildings",
+  "Strom je Gebäude Gebäude im Plan zwei Gebäude Nebengebäude Anbau Gartenhaus Einliegerwohnung Doppelhaus Haupthaus Stromrechner je Haus "
+  "getrennt rechnen eigener Stromzähler Gebäude trennen Strom getrennt anzeigen zwei Häuser nebeneinander Bereiche",
+  "power per building buildings in a plan two buildings outbuilding wing garden house granny flat semi-detached main house "
+  "calculator per house count apart own power meter separate buildings show power apart two houses side by side areas")
 t("energy-calc",
   "Strom-Rechner Stromrechner Stromrechnung Rechnung einrichten Sensoren zuordnen welcher Sensor ist was Netzbezug "
   "Hausanschluss Stromzähler Smartmeter Wechselrichter Balkonkraftwerk Batteriespeicher Ladestand Hausverbrauch "

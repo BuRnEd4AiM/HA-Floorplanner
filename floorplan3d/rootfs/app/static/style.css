@@ -1198,6 +1198,21 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 .ef-val { font-size: 13px; font-weight: 700; fill: #fff; }
 .ef-sub { font-size: 11.5px; fill: #aeb9c6; }
 .ef-node .ef-side { text-anchor: start; }
+/* power per building (4.70.0, energyunitsui.js): with "🏘 Alle Gebäude" a smaller picture per building, side by side */
+#energyCard.multi { display: flex; gap: 10px; align-items: flex-start; }
+#energyCard.multi[hidden] { display: none; }
+#energyCard.multi svg { width: 210px; height: auto; }
+.ef-unit { min-width: 0; }
+#energyPill .epUnit { display: block; white-space: nowrap; }
+#energyPill .epUnit b, #meterPill .epUnit b { margin-right: 4px; }
+#meterPill .epUnit { display: block; }
+/* the head of the tab "⚡ Rechnung": per building on or off, the building whose calculation is set */
+#energyUnits { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+#energyUnits[hidden] { display: none; }
+.euChips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0; }
+.euChip { padding: 4px 10px; border-radius: 999px; }
+.euChip.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+@media (max-width: 760px) { #energyCard.multi { gap: 4px; } #energyCard.multi svg { width: 150px; } }   /* two pictures side by side on a phone */
 @media (max-width: 760px) {   /* phones (#442): small, in the middle under the top bar, only while "Strom" is pressed; the house stays in sight */
   #sideStack { left: 12px; align-items: center; }
   #energyCard { padding: 6px 8px 0; border-radius: 14px; }
@@ -1568,6 +1583,8 @@ button.tpChip:disabled { opacity: .35; }
 .tdGo { color: var(--muted); font-size: 20px; }
 .tdAllOk { margin: 0; color: #46a758; font-weight: 700; }
 .tdPowerRow { display: flex; flex-wrap: wrap; gap: 8px 18px; width: 100%; border: 0; background: none; color: var(--text); padding: 0; font-family: inherit; font-size: 20px; font-weight: 700; line-height: 1.4; text-align: left; cursor: pointer; }
+.tdPowerRow + .tdPowerRow { margin-top: 6px; }                     /* a row per building (4.70.0) */
+.tdPowerName { flex-basis: 100%; font-size: 13px; color: var(--muted); font-weight: 700; }
 .emPrices { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 10px; }
 .emPrices label { display: flex; flex-direction: column; gap: 4px; }
 .emKind { margin-top: 8px; }

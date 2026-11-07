@@ -6,7 +6,8 @@ import { wxIcon, weatherEntity, nextDays, agendaDays, people, houseRows, alarmPa
 import { isoLocal } from './energyhistory.js';
 import { energyBalance } from './energycalc.js';
 
-/** ctx: t, el (the page), lang(), settings(), states(), names() ({ entity: name }), layout(), summary() ({ open: [names], lights, low, offline }),
+/** ctx: t, el (the page), lang(), settings(), states(), names() ({ entity: name }), layout(), powerUnits() (what "Strom jetzt" counts: [{ bid, name,
+ *  layout }], the plan or its buildings apart, energyunitsui.js), summary() ({ open: [names], lights, low, offline }),
  *  act(key) (a tap on a row of "Im Haus": open | lights | alarm | low | offline | power; on the pinboard: family), pinboard (pinboardui.js),
  *  family() (the page 👨‍👩‍👧 Familie is in the bar: the pinboard card leads there and shows without notes too), board (pageboard.js: the
  *  order an admin chose, own cards, #484) */
@@ -130,17 +131,22 @@ export function initTodayPage(ctx) {
     }
     return c;
   }
+  /** what counts power: the plan, the building shown, or every building apart (4.70.0, energyunitsui.js) */
+  const units = () => ctx.powerUnits?.() || [{ name: '', layout: ctx.layout() }];
   function powerCard() {
-    const bal = energyBalance(ctx.states(), ctx.layout());
-    if (bal.prod == null && bal.load == null) return null;
+    const list = units().map((u) => ({ u, bal: energyBalance(ctx.states(), u.layout) })).filter(({ bal }) => bal.prod != null || bal.load != null);
+    if (!list.length) return null;
     const c = card('tdPower', t('td.power'));
-    const row = make('button', 'tdPowerRow'); row.type = 'button'; row.dataset.act = 'power';
-    if (bal.prod != null) row.append(make('span', '', `☀️ ${fmtW(bal.prod)}`));
-    if (bal.load != null) row.append(make('span', '', `🏠 ${fmtW(bal.load)}`));
-    if (bal.battery?.level != null) row.append(make('span', '', `🔋 ${Math.round(bal.battery.level)} %`));
-    if (bal.imp != null && bal.imp > 0) row.append(make('span', '', `⚡ ${fmtW(bal.imp)}`));
-    row.addEventListener('click', () => ctx.act('power'));
-    c.append(row);
+    list.forEach(({ u, bal }) => {
+      const row = make('button', 'tdPowerRow'); row.type = 'button'; row.dataset.act = 'power';
+      if (units().length > 1) { row.dataset.unit = u.bid || ''; row.append(make('b', 'tdPowerName', u.name)); }   // a row per building
+      if (bal.prod != null) row.append(make('span', '', `☀️ ${fmtW(bal.prod)}`));
+      if (bal.load != null) row.append(make('span', '', `🏠 ${fmtW(bal.load)}`));
+      if (bal.battery?.v != null) row.append(make('span', '', `🔋 ${Math.round(bal.battery.v)} %`));
+      if (bal.imp != null && bal.imp > 0) row.append(make('span', '', `⚡ ${fmtW(bal.imp)}`));
+      row.addEventListener('click', () => ctx.act('power'));
+      c.append(row);
+    });
     return c;
   }
 
@@ -151,10 +157,10 @@ export function initTodayPage(ctx) {
     let d = null;
     const days = () => d || (d = agendaDays(agenda.events, now, agenda.waste));
     const rows = () => houseRows({ ...ctx.summary(), alarm: alarmPanel(st, names) });
-    const powerText = () => {
-      const bal = energyBalance(st, ctx.layout());
-      return [bal.prod, bal.load, bal.imp > 0 ? bal.imp : null].map((w) => (w == null ? null : fmtW(w))).concat(bal.battery?.level != null ? Math.round(bal.battery.level) : null);
-    };
+    const powerText = () => units().map((u) => {
+      const bal = energyBalance(st, u.layout);
+      return [u.name, ...[bal.prod, bal.load, bal.imp > 0 ? bal.imp : null].map((w) => (w == null ? null : fmtW(w))), bal.battery?.v != null ? Math.round(bal.battery.v) : null];
+    });
     const spec = {
       clock: [() => [timeOf(now), day], () => clockCard(now)],
       weather: [() => [wx, st[wx]?.state, st[wx]?.wx?.t, st[wx]?.wx?.tu, forecast.entity === wx ? forecast.rows : null, day], () => weatherCard(wx, now)],

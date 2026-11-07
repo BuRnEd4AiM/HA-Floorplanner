@@ -6,7 +6,8 @@ import { energyBalance } from './energycalc.js';
 
 const ICON = { ok: '✅', todo: '○', warn: '⚠', info: 'ℹ' };
 
-/** ctx: $, t, layout(), states(), entities(), snapshot(), changed(), refresh() (the power overview), rerender() (the whole tab); for a
+/** ctx: $, t, layout(), units (energyunitsui.js: energyOf(), editLayout()), states(), entities(), snapshot(), changed(), refresh() (the power
+ *  overview), rerender() (the whole tab); for a
  *  meter of the energy dashboard put into the plan: floor(), center() ({ cx, cz } of the open floor), uid(), setStatus(txt), deviceY(type),
  *  onWall(device) (a wall meter onto the nearest wall), placed() (the plan built again) */
 export function initEnergySetup(ctx) {
@@ -14,7 +15,7 @@ export function initEnergySetup(ctx) {
   let prop = null, status = '', busy = false;                       // what the energy dashboard proposes, a line under the button
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const nameOf = (id) => { const n = ctx.entities().find((e) => e.entity_id === id)?.name; return n && n !== id ? `${n} (${id})` : id; };
-  const energy = () => { const L = ctx.layout(); if (!L.energy || typeof L.energy !== 'object') L.energy = {}; return L.energy; };
+  const energy = () => ctx.units.energyOf();                         // the plan's calculation, or the building's (energyunits.js)
 
   /** ask the add-on for the energy dashboard's settings */
   async function load() {
@@ -64,7 +65,7 @@ export function initEnergySetup(ctx) {
 
   /** the check list, drawn again at every state update while the window is open */
   function checklist() {
-    const L = ctx.layout(), states = ctx.states(), list = setupChecklist(energyBalance(states, L), L, states, prop);
+    const L = ctx.units.editLayout(), states = ctx.states(), list = setupChecklist(energyBalance(states, L), L, states, prop);
     const ul = el('ul', 'enChecklist'); ul.id = 'enChecklist';
     list.forEach((c) => {
       const li = el('li', `enCl ${c.level}`); li.dataset.key = c.key; li.dataset.level = c.level;
@@ -82,6 +83,7 @@ export function initEnergySetup(ctx) {
   function render() {
     const box = $('#energySetup');
     if (!box) return;
+    if (!ctx.units.editLayout()) { box.replaceChildren(); return; }   // per building, none chosen yet
     const out = [el('h3', '', t('energy.setup'))];
     const bar = el('div', 'stopTools'), go = el('button', '', t('energy.ha.load')); go.type = 'button'; go.id = 'enHaLoad'; go.title = t('energy.ha.loadTip'); go.disabled = busy;
     go.addEventListener('click', load);
@@ -98,6 +100,6 @@ export function initEnergySetup(ctx) {
     box.replaceChildren(...out);
   }
   /** the values changed: only the check list again */
-  function update() { const old = $('#enChecklist'); if (old) old.replaceWith(checklist()); }
+  function update() { const old = $('#enChecklist'); if (old && ctx.units.editLayout()) old.replaceWith(checklist()); }
   return { render, update };
 }

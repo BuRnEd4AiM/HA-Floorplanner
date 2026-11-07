@@ -2229,4 +2229,12 @@ export default {
   'rname.noAreas': 'Brak obszarów z Home Assistant. Gdy je tam dodasz (Ustawienia → Obszary), wybierzesz je tutaj jako nazwę.',
   'rname.linked': '🔗 Połączono z obszarem „{area}” z Home Assistant', 'rname.linkOne': '„{room}” nazywa się jak obszar: połącz',
   'rname.linkAll': '{n} pomieszczeń nazywa się jak obszar: połącz wszystkie', 'rname.linkedAll': '🔗 Połączono {n}: {rooms}',
+  'eu.per': '⚡ Osobne obliczenie dla każdego budynku',
+  'eu.offHint': 'Wyłączone: jedno obliczenie dla całego planu. Włączone: każdy budynek liczy osobno (własne czujniki, liczniki i ceny); wybór budynku u góry pokazuje jego prąd, „🏘 Wszystkie budynki” każdy osobno.',
+  'eu.onHint': 'Każdy budynek liczy osobno, z urządzeniami w swoich pomieszczeniach. Wybór budynku u góry pokazuje jego prąd, „🏘 Wszystkie budynki” każdy osobno.',
+  'eu.for': 'Obliczenie dla:', 'eu.pick': 'Wybierz budynek, aby ustawić jego obliczenie.',
+  'eu.splitDone': 'Każdy budynek liczy teraz osobno; dotychczasowe obliczenie należy do „{name}”.',
+  'eu.joinAsk': 'Znowu jedno obliczenie dla całego planu? Obliczenie „{name}” będzie obowiązywać dla wszystkiego, pozostałe budynki stracą swoje.',
+  'eu.joinDone': 'Jedno obliczenie dla całego planu (to z „{name}”).', 'pe.ownMetersB': 'Liczniki tego budynku (⚡ Rozliczenie)',
+  'pe.cmp.noteB': 'każdy budynek z własnymi licznikami',
 };

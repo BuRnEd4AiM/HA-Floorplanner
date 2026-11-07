@@ -39,7 +39,8 @@ export function flowSvg(fl, tx) {
 }
 
 /** ctx: $, t, settings(), states(), layout(), low() (fast performance mode), toggleCables() (what a tap on the line of numbers does), commitSettings(),
- *  cablesShown() (the button "Strom" is on, or the power editor) */
+ *  cablesShown() (the button "Strom" is on, or the power editor), units() (what it shows: [{ bid, name, layout }], the plan or the buildings
+ *  apart, a picture each, energyunitsui.js) */
 export function initEnergyFlow(ctx) {
   const { $, t } = ctx;
   const card = $('#energyCard');
@@ -50,14 +51,19 @@ export function initEnergyFlow(ctx) {
   function update() {
     const on = ctx.settings().energyCard !== false;
     $('#flowToggle').classList.toggle('active', on);
-    const fl = on ? energyFlows(energyBalance(ctx.states(), ctx.layout())) : null;   // in edit mode too: the owner wanted the picture there as well
-    document.body.classList.toggle('flowcard', !!fl);              // the line of numbers steps aside on wide screens (style.css), also while the card waits
-    const shown = !!fl && !!ctx.cablesShown?.();                   // only while "Strom" is pressed (#434)
+    const units = ctx.units?.() || [{ name: '', layout: ctx.layout() }];   // the plan, the building shown, or every building apart (4.70.0)
+    const flows = on ? units.map((u) => ({ u, fl: energyFlows(energyBalance(ctx.states(), u.layout)) })).filter((x) => x.fl) : [];   // in edit mode too: the owner wanted the picture there as well
+    document.body.classList.toggle('flowcard', flows.length > 0);  // the line of numbers steps aside on wide screens (style.css), also while the card waits
+    const shown = flows.length > 0 && !!ctx.cablesShown?.();       // only while "Strom" is pressed (#434)
     card.hidden = !shown;
     if (!shown) { last = ''; return; }
-    const meters = meterChips(meterReadings(ctx.states(), ctx.layout().floors.flatMap((f) => f.devices || [])), t);   // water, gas, heat: here, not at the top left
-    const html = `<div class="ef-title">${esc(t('flow.title'))}</div>${flowSvg(fl, flowTexts(fl, t))}`
-      + (meters.length ? `<div class="ef-meters">${meters.map((m) => `<span title="${esc(m.title)}">${esc(m.text)}</span>`).join('')}</div>` : '');
+    const one = ({ u, fl }) => {
+      const meters = meterChips(meterReadings(ctx.states(), u.layout.floors.flatMap((f) => f.devices || [])), t);   // water, gas, heat: here, not at the top left
+      return `<div class="ef-title">${esc(units.length > 1 ? u.name : t('flow.title'))}</div>${flowSvg(fl, flowTexts(fl, t))}`
+        + (meters.length ? `<div class="ef-meters">${meters.map((m) => `<span title="${esc(m.title)}">${esc(m.text)}</span>`).join('')}</div>` : '');
+    };
+    const html = units.length > 1 ? flows.map((x) => `<div class="ef-unit" data-unit="${esc(x.u.bid || '')}">${one(x)}</div>`).join('') : one(flows[0]);   // each building apart
+    card.classList.toggle('multi', units.length > 1);
     if (html !== last) { card.innerHTML = html; last = html; }
     card.classList.toggle('still', !!ctx.low());
     card.title = t('flow.tip');
