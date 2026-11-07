@@ -1,22 +1,25 @@
 /* The tab "⚡ Rechnung" of the power editor (#378): a window in which you set which Home Assistant sensor is what (grid, solar, battery,
  * house, rooms) and how it is counted, with the calculation live at the top and what does not add up (with a button to turn a sign
- * round). Saved with the house in layout.energy; the power overview at the top left (also in live mode) counts with it. The rules are
- * in energycalc.js (unit tests); this file only draws the window. */
+ * round). Saved with the house in layout.energy, or per building in building.energy (4.70.0, energyunits.js: the head of the window,
+ * energyunitsui.js); the power overview at the top left (also in live mode) counts with it. The rules are in energycalc.js (unit
+ * tests); this file only draws the window. */
 import { energyBalance, energySources, energyChecks, balanceRows, suggestRooms, flipSign, sensorWatts, fmtSigned, isPowerState, batteryNow } from './energycalc.js';
 
 /**
  * ctx: $, t, layout(), states(), entities(), entityPicker(list, room, current, onChange), pickerField(label, picker), snapshot(),
  * changed() (saves; nothing in 3D changes), refresh() (the power overview), areaOf(), pointInPoly(x, z, points), setup (the top of the
  * window: the energy dashboard and the check list, energysetup.js, #407), meterPart(helpers) (the meters of the page ⚡ Energie,
- * energymetersui.js, #481)
+ * energymetersui.js, #481), units (energyunitsui.js: energyOf() where to write, editLayout() the plan as the calculation set here sees
+ * it (with .energy; null: per building and no building chosen), editKey(), renderHead())
  */
 export function initEnergyUi(ctx) {
   const { $, t } = ctx;
   const dlg = $('#energyDialog'), result = $('#energyResult'), body = $('#energyBody');
-  let lives = [], drawn = null;                                    // [element, () => text]: the values that follow the states; the plan drawn
+  let lives = [], drawn = null, drawnKey = '';                    // [element, () => text]: the values that follow the states; the plan drawn
 
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-  const energy = () => { const L = ctx.layout(); if (!L.energy || typeof L.energy !== 'object') L.energy = {}; return L.energy; };
+  const energy = () => ctx.units.energyOf();                       // the plan's calculation, or the building's (energyunits.js)
+  const scope = () => ctx.units.editLayout();                      // the plan as this calculation sees it (only its building's rooms and devices)
   const part = (k) => { const e = energy(); if (!e[k] || typeof e[k] !== 'object') e[k] = {}; return e[k]; };
   /** a change: undo step, change, save, the overview and the window again */
   function edit(fn) { ctx.snapshot(); fn(); ctx.changed(); ctx.refresh(); render(); }
@@ -84,7 +87,8 @@ export function initEnergyUi(ctx) {
 
   /* ---------- the calculation at the top ---------- */
   function renderResult() {
-    const bal = energyBalance(ctx.states(), ctx.layout()), rows = balanceRows(bal, t), checks = energyChecks(bal);
+    if (!scope()) { result.replaceChildren(); return; }               // per building, none chosen: the head says to choose one
+    const bal = energyBalance(ctx.states(), scope()), rows = balanceRows(bal, t), checks = energyChecks(bal);
     const out = [el('h3', '', t('energy.result'))];
     if (!rows.length) out.push(el('p', 'sub', t('energy.empty')));
     else {
@@ -113,8 +117,10 @@ export function initEnergyUi(ctx) {
 
   /* ---------- the settings ---------- */
   function render() {
-    lives = []; drawn = ctx.layout();
-    const states = ctx.states(), L = ctx.layout(), cfg = L.energy || {};
+    lives = []; drawn = ctx.layout(); drawnKey = ctx.units.editKey();
+    ctx.units.renderHead();
+    if (!scope()) { body.replaceChildren(); renderResult(); ctx.setup?.render(); return; }
+    const states = ctx.states(), L = scope(), cfg = L.energy || {};
     const src = energySources(cfg, L.floors.flatMap((f) => f.devices || []), states);
     const out = [];
 
@@ -177,7 +183,7 @@ export function initEnergyUi(ctx) {
       const sug = el('button', '', t('energy.rooms.suggest')); sug.type = 'button'; sug.id = 'enSuggest'; sug.title = t('energy.rooms.suggestTip');
       const said = el('span', 'sub enSaid');
       sug.addEventListener('click', () => {
-        const found = suggestRooms(ctx.layout(), ctx.states(), ctx.areaOf(), ctx.pointInPoly), n = Object.values(found).flat().length;
+        const found = suggestRooms(scope(), ctx.states(), ctx.areaOf(), ctx.pointInPoly), n = Object.values(found).flat().length;
         if (n) edit(() => { const e = energy(); e.rooms = e.rooms || {}; Object.entries(found).forEach(([k, v]) => { e.rooms[k] = [...(e.rooms[k] || []), ...v]; }); });
         const msg = $('#energyBody .enSaid'); if (msg) msg.textContent = n ? t('energy.rooms.suggested', { n }) : t('energy.rooms.noneFound');
       });
@@ -198,7 +204,7 @@ export function initEnergyUi(ctx) {
       });
     }
     if (ctx.meterPart) out.push(...ctx.meterPart({ t, el, edit, energy, adder, entities: ctx.entities, states: ctx.states,   // the meters of the page ⚡ Energie (#481)
-      sources: () => energySources(energy(), ctx.layout().floors.flatMap((f) => f.devices || []), ctx.states()) }));       // "⤵ Von oben übernehmen"
+      sources: () => energySources(energy(), scope().floors.flatMap((f) => f.devices || []), ctx.states()) }));            // "⤵ Von oben übernehmen"
     body.replaceChildren(...out);
     renderResult();
     ctx.setup?.render();
@@ -208,7 +214,7 @@ export function initEnergyUi(ctx) {
    *  when the plan was replaced, e.g. by undo) */
   function update() {
     if (!dlg?.open) return;
-    if (ctx.layout() !== drawn) { render(); return; }
+    if (ctx.layout() !== drawn || ctx.units.editKey() !== drawnKey) { render(); return; }
     renderResult();
     ctx.setup?.update();
     lives.forEach(([node, fn]) => { node.textContent = fn(); });

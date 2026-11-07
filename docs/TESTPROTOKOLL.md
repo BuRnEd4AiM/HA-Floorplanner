@@ -18,6 +18,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 6. **Einzelnes im echten Home Assistant:** die Karte im eigenen Dashboard finden (46.3), Anwesenheit mit deinem Handy im WLAN (89.6), Energie mit dem Energie-Dashboard vergleichen (93.4), die Anleitung „📥 Für ohne Internet speichern“ (141.7, 141.8; das Herunterladen von GitHub ist bei Claude gesperrt).
 7. **Neu in 4.68.0: 🪜 Geschosshöhe und L-Treppe mit 2. Ecke** (Abschnitt 164, gefragt von Oely99 in #671): Claude hat 164.1 bis 164.5 geprüft; für dich im Add-on oder mit der Antwort von Oely99 164.6, nach dem Merge das Video 164.7.
 8. **Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan** (Abschnitt 165, dein Wunsch vom 2026-11-07): Claude hat 165.1 bis 165.5 geprüft; für dich im Add-on mit deinen echten Bereichen 165.6 und am Tablet mit dem Finger 165.7, nach dem Merge die Videos 165.8.
+9. **Neu in 4.70.0: ⚡ Strom je Gebäude** (Abschnitt 166, dein Wunsch vom 2026-11-07): Claude hat 166.1 bis 166.5 geprüft; für dich im Add-on mit deinen zwei Häusern in einem Plan 166.6, nach dem Merge das Video 166.7.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -439,7 +440,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 163. Repariert in 4.67.2: nach dem Pultdach kommt das Dach zurück, wie es war (#669) | 3 | 0 | 0 | 0 | – |
 | 164. Neu in 4.68.0: 🪜 Geschosshöhe je Haus, Stufen je Etage, L-Treppe mit 2. Ecke (#671) | 5 | 0 | 2 | 0 | 164.6, 164.7 |
 | 165. Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan | 5 | 0 | 3 | 0 | 165.6 bis 165.8 |
-| **Zusammen** | **1102** | **1** | **41** | **92** | |
+| 166. Neu in 4.70.0: ⚡ Strom je Gebäude | 5 | 0 | 2 | 0 | 166.6, 166.7 |
+| **Zusammen** | **1107** | **1** | **43** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2543,3 +2545,16 @@ Der Besitzer, 2026-11-07: „dass ich entweder der Home Assistant Bereiche ausw�
 | 165.6 | Im Add-on mit deinen echten Bereichen: einen Raum anklicken, „HA-Bereich“ aufklappen; „🔗 … alle verknüpfen“, wenn es erscheint | Deine Bereiche stehen da (die schon vergebenen unten mit ihrem Raum); ein Raum heißt danach wie sein Bereich und zeigt im Live-Modus dessen Geräte | ❓ |
 | 165.7 | Am Tablet oder Handy im 📅 Heizplan mit dem Finger eine Kante ziehen | Die Uhrzeit steht über dem Finger, gut lesbar; nach dem Loslassen weißt du, wohin du geschoben hast | ❓ |
 | 165.8 | Nach dem Merge auf der Seite der Anleitung die Videos „Raum nach einem Bereich aus Home Assistant benennen“ und „📅 Heizplan“ ansehen | Die Küche bekommt ihren Bereich, „Wohnküche“, „↺“, „alle verknüpfen“; im Heizplan die Uhrzeit über der Kante | ❓ |
+
+## 166. Neu in 4.70.0: ⚡ Strom je Gebäude
+Der Besitzer, 2026-11-07: „wenn man alle zwei Häuser, die man hat, wenn die nebeneinander stehen, in einem Haus die drin hat und dann über Bereiche sozusagen die Häuser trennt, dass dann auch für den einen Bereich einen eigenen Stromrechner gibt … wenn man dann auf den Bereich 2 schaltet, dass dann das alles für den Bereich 2 ist“; seine Wahl: mit „Alle Gebäude“ beides getrennt, „⚖ Vergleichen“ auch für Gebäude. Neu: im Reiter „⚡ Rechnung“ der Haken „⚡ Eigene Rechnung je Gebäude“ und „Rechnung für: …“; Strom-Anzeige, Strom-Bild, ☀ Heute und ⚡ Energie zeigen das Gebäude, das oben gewählt ist, bei „Alle Gebäude“ jedes für sich.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 166.1 | `node --test tests/energyunits.test.mjs` (mit `STATIC_DIR`, wie in CI) | Ohne Haken eine Rechnung für den Plan; mit Haken zählt jedes Gebäude nur die Stromgeräte in seinen Räumen (ein Gerät im Garten in keinem), die bisherige Rechnung bekommt das gewählte Gebäude; zurück: dessen Rechnung gilt für den Plan; ein Plan, von dem nur ein Gebäude mit Rechnung übrig ist, nimmt diese | ✅ (2026-11-07, Claude) |
+| 166.2 | Browser-Test Teil `76_energy_buildings` | Haken an: zwei Rechnungen (800 W und 300 W aus dem Netz), gespeichert je Gebäude; „Gartenhaus“ in „Rechnung für“ schaltet auch oben um, eine Einstellung ändert nur seine Rechnung; Strom-Anzeige mit „Gartenhaus“ nur 300 W, mit „Alle Gebäude“ eine Zeile je Gebäude; ☀ Heute eine Zeile je Gebäude; ⚡ Energie mit beiden Gebäuden, bei „Alle“ „⚖ Vergleichen“, mit „Haupthaus“ oben dessen eigene Zähler; Haken weg: wieder eine Rechnung | ✅ (2026-11-07, Claude im Browser-Test 76_energy_buildings, 14 Prüfungen) |
+| 166.3 | Browser-Test Teile `15_energy`, `32_today_energy`, `21_buildings`, `40_energy_counters` | Alles wie bisher: ein Plan ohne Gebäude oder ohne Haken rechnet wie vorher | ✅ (2026-11-07, Claude) |
+| 166.4 | Demo: „Bearbeiten“, „🏘 Gebäude in diesem Plan“: zwei Gebäude (Haupthaus: die Räume des Erdgeschosses, Anbau: Hauswirtschaft); „Strom“ → „Rechnung“ → „⚡ Eigene Rechnung je Gebäude“, „Rechnung für: Anbau“ | Der Anbau rechnet mit seiner Solaranlage und Batterie (2,70 kW, lädt 600 W), das Haupthaus mit seinem Zähler und dem Solardach | ✅ (2026-11-07, Claude in der neu gebauten Demo und im Video `energy-buildings`) |
+| 166.5 | Demo danach: „Live“, oben „🏘 Alle Gebäude“, unten „Strom“; dann oben „Haupthaus“; dann unten „Energie“ | Zwei Strom-Bilder („Haupthaus“, „Anbau“), mit „Haupthaus“ nur eins; ⚡ Energie hat Knöpfe für beide Gebäude und „⚖ Vergleichen“; ☀ Heute „Strom jetzt“ mit einer Zeile je Gebäude und dem Ladestand der Batterie | ✅ (2026-11-07, Claude in der neu gebauten Demo) |
+| 166.6 | Im Add-on: deine zwei Häuser in einem Plan als zwei Gebäude, „⚡ Eigene Rechnung je Gebäude“, für jedes die Sensoren und Zähler einstellen | Oben auf ein Gebäude schalten zeigt nur seinen Strom, „Alle Gebäude“ beide getrennt, ⚡ Energie vergleicht sie | ❓ |
+| 166.7 | Nach dem Merge auf der Seite der Anleitung das Video „⚡ Strom je Gebäude: zwei Häuser in einem Plan“ ansehen | Der Haken, „Rechnung für“, zwei Strom-Bilder, ⚡ Energie mit „⚖ Vergleichen“ | ❓ |

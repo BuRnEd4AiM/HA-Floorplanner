@@ -150,3 +150,5 @@ f("tiltangle", "edit", "Kippwinkel eines Fensters (5° bis 45°, auch für alle 
   ["window-tilt"], since="4.64.0")
 f("roomarea", "edit", "Raumname aus einem Home-Assistant-Bereich oder eigener Name, Räume verknüpfen", "Room name from a Home Assistant area or an own name, link rooms",
   ["room-area"], since="4.69.0")
+f("energybuildings", "edit", "⚡ Strom je Gebäude: eigene Rechnung für jedes Gebäude eines Plans, oben umschalten, alle getrennt, vergleichen",
+  "⚡ Power per building: a calculation of its own for each building of a plan, switch at the top, all apart, compare", ["energy-buildings"], since="4.70.0")

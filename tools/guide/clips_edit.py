@@ -1201,6 +1201,82 @@ def spot(r, sel, text=None, center=False):
     return x, y
 
 
+def two_buildings(r):
+    """prep: the demo house as two buildings in one plan (#409): the main house and the wing (Hauswirtschaft, with the garage under it)"""
+    pg = r.pg
+    pg.evaluate("window.__fp.switchFloor(1)")
+    pg.wait_for_timeout(400)
+    pg.evaluate("document.querySelector('#buildingPanel').open = true")
+    pg.click("#bldAdd")
+    pg.wait_for_timeout(200)
+    pg.click("#bldAdd")
+    pg.wait_for_timeout(300)
+    for i, n in enumerate(["Haupthaus", "Anbau"] if r.lang == "de" else ["Main house", "Wing"]):
+        inp = pg.locator("#buildingBody .bldName").nth(i)
+        inp.fill(n)
+        inp.dispatch_event("change")
+        pg.wait_for_timeout(200)
+    ids = pg.evaluate("window.__fp.layout.buildings.map((b) => b.id)")
+    for room in ("r1", "r2", "r3", "r4", "r5"):
+        pg.select_option(f"#buildingBody select[data-room={room}]", ids[0])
+        pg.wait_for_timeout(100)
+    pg.select_option("#buildingBody select[data-room=hw1]", ids[1])
+    pg.wait_for_timeout(300)
+    pg.evaluate("document.querySelector('#buildingPanel').open = false")
+    pg.wait_for_timeout(300)
+
+
+@clip("energy-buildings", "edit",
+      {"de": "⚡ Strom je Gebäude: zwei Häuser in einem Plan", "en": "⚡ Power per building: two houses in one plan"},
+      {"de": "Stehen zwei Gebäude in einem Plan, bekommt jedes mit „⚡ Eigene Rechnung je Gebäude“ seinen eigenen Strom-Rechner. Oben ein Gebäude "
+             "wählen zeigt nur seinen Strom, „🏘 Alle Gebäude“ jedes für sich, die Seite „Energie“ vergleicht sie.",
+       "en": "With two buildings in one plan, “⚡ A calculation of its own per building” gives each its own power bookkeeping. Choosing a "
+             "building at the top shows only its power, “🏘 All buildings” each one apart, the page “Energy” compares them."},
+      "Strom Gebäude zwei Häuser Haupthaus Anbau Gartenhaus Rechnung je Gebäude getrennt vergleichen "
+      "power building two houses main house wing bookkeeping per building apart compare",
+      query="mode=edit", prep=two_buildings)
+def _(r):
+    ids = r.js("window.__fp.layout.buildings.map((b) => b.id)")
+    r.say("Dieser Plan hat zwei Gebäude: das Haupthaus und den Anbau. Oben lässt sich umschalten.", "This plan has two buildings: the main house and the wing. You can switch at the top.")
+    r.move("#buildingSelect")
+    r.wait(1800)
+    r.say("Im Bearbeiten: „Strom“, dann „Rechnung“.", "While editing: “Power”, then “Bookkeeping”.")
+    r.click("#powerEditBtn")
+    r.wait(1500)
+    r.click("#energyBtn")
+    r.wait(1300)
+    r.say("Ganz oben: „⚡ Eigene Rechnung je Gebäude“.", "At the very top: “⚡ A calculation of its own per building”.")
+    r.click("#enPerBuilding")
+    r.wait(1600)
+    r.say("Jedes Gebäude rechnet jetzt für sich. „Rechnung für“ wählt, welches du einstellst.", "Each building counts on its own now. “Calculation for” picks the one you set.")
+    r.click(f"#energyUnits .euChip[data-building='{ids[1]}']")
+    r.wait(2500)                                                      # the wing alone: the plan is built again
+    r.say("Der Anbau: nur die Stromgeräte in seinen Räumen, hier Solar und Batterie.", "The wing: only the power devices in its rooms, here solar and battery.")
+    r.move(*spot(r, "#energyResult .enRow.sum", center=True))
+    r.poster()
+    r.wait(2200)
+    r.click("#energyClose")
+    r.wait(600)
+    r.click("[data-mode=live]")
+    r.wait(1500)
+    r.say("Oben „🏘 Alle Gebäude“: jedes Gebäude für sich, mit seinem eigenen Bild.", "At the top “🏘 All buildings”: each building on its own, with its own picture.")
+    r.loc("#buildingSelect").select_option("")
+    r.wait(800)
+    if not r.js("document.getElementById('powerBtn').classList.contains('active')"):   # still on from the power editor
+        r.click("#powerBtn")
+    r.move(*spot(r, "#energyCard"))
+    r.wait(2600)
+    r.say("Ein Gebäude oben gewählt: nur sein Strom.", "One building chosen at the top: only its power.")
+    r.click("#buildingSelect")
+    r.loc("#buildingSelect").select_option(ids[0])
+    r.wait(3500)                                                      # the main house alone: the plan is built again
+    r.say("Auf der Seite „Energie“ ist jedes Gebäude wie ein eigenes Haus, mit „⚖ Vergleichen“.", "On the page “Energy” each building is like a house of its own, with “⚖ Compare”.")
+    r.click("#tabBar [data-tab=energy]")
+    r.wait(1800)
+    r.click("[data-page=energy] [data-house=cmp]")
+    r.wait(2600)
+
+
 @clip("energy-calc", "edit",
       {"de": "⚡ Der Strom-Rechner: welcher Sensor ist was", "en": "⚡ The power bookkeeping: which sensor is what"},
       {"de": "Im Strom-Editor legt „Rechnung“ fest, welcher Sensor das Netz, die Solaranlage, die Batterie, das Haus und die Räume misst: "

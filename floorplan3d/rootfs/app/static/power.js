@@ -14,7 +14,8 @@ const dotGeo = new THREE.SphereGeometry(0.035, 8, 6);
  *   $, t, scene, camera, canvas, ray (the raycaster), registry (id -> object), layout(), states(), entities(), getSelection(), setSelection(s),
  *   refreshSelection(), renderProps(), plan() (the 2D editor), setStatus(txt), uid(), snapshot(), changed(), wake(), clearGroup(g), textSprite(txt, opts),
  *   getTool(), setTool(name), getDeviceType(), setDeviceType(v), setPaletteCat(v), rebuildPalette(), deleteItem(sel),
- *   field(label, input), pickerField(label, picker), entityPicker(list, room, current, onChange), roomAt(x, z)
+ *   field(label, input), pickerField(label, picker), entityPicker(list, room, current, onChange), roomAt(x, z),
+ *   powerUnits() (what the overview counts: [{ name, layout }], the plan or its buildings apart, energyunitsui.js)
  */
 export function initPower(ctx) {
   const { $, t } = ctx;
@@ -93,17 +94,22 @@ export function initPower(ctx) {
   /** the line of numbers (and the meters beside it); true when there is power to show */
   function updateEnergy() {
     const pill = $('#energyPill'); if (!pill) return false;
-    const txt = energyText(energyBalance(ctx.states(), ctx.layout()), t);   // with the settings of the tab "⚡ Rechnung" (#378)
-    pill.hidden = !txt;
-    pill.textContent = txt?.text || '';
-    pill.title = txt?.title || '';
+    const units = ctx.powerUnits?.() || [{ name: '', layout: ctx.layout() }];   // the plan, the building shown, or every building apart (4.70.0)
+    const txt = showUnits(pill, units, (u) => energyText(energyBalance(ctx.states(), u.layout), t));   // with the settings of the tab "⚡ Rechnung" (#378)
     pill.classList.toggle('active', cablesShown());
-    const mp = $('#meterPill'); if (!mp) return !!txt;                       // water, gas and heat in a pill of their own beside it (#237, #245)
-    const mt = meterText(meterReadings(ctx.states(), ctx.layout().floors.flatMap((f) => f.devices)), t);
-    mp.hidden = !mt;
-    mp.textContent = mt?.text || '';
-    mp.title = mt?.title || '';
-    return !!txt;
+    const mp = $('#meterPill'); if (!mp) return txt;                         // water, gas and heat in a pill of their own beside it (#237, #245)
+    showUnits(mp, units, (u) => meterText(meterReadings(ctx.states(), u.layout.floors.flatMap((f) => f.devices || [])), t));
+    return txt;
+  }
+  /** a pill with the text of one calculation, or a line per building ("Haupthaus ☀ 2 kW · ⌂ 1.1 kW"); true when it shows something */
+  function showUnits(pill, units, text) {
+    const list = units.map((u) => ({ u, x: text(u) })).filter((v) => v.x);
+    pill.hidden = !list.length;
+    if (units.length < 2) { pill.textContent = list[0]?.x.text || ''; pill.title = list[0]?.x.title || ''; return !!list.length; }
+    pill.replaceChildren(...list.map(({ u, x }) => { const l = document.createElement('span'); l.className = 'epUnit'; l.dataset.unit = u.bid || '';
+      const b = document.createElement('b'); b.textContent = u.name; l.append(b, document.createTextNode(` ${x.text}`)); return l; }));
+    pill.title = list.map(({ u, x }) => `${u.name}\n${x.title}`).join('\n\n');
+    return !!list.length;
   }
 
   /* ---------- picking in 3D (the power editor) ---------- */

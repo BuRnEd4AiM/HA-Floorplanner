@@ -73,7 +73,7 @@ What that means for you: the code is automatically tested (backend and browser t
 | 🌅 **See it at a glance** | Labels over the rooms and room tiles, power as a picture, the sky of the time of day with the weather and the moon, real floors |
 | 🗂️ **Your only dashboard** | Pages at the bottom for every day: ☀ Today, ⚡ Energy, 🌡 Climate, 📷 Cameras, 🎵 Music & TV, 🧺 Household, ▶ Routines, 👨‍👩‍👧 Family, arranged like a Home Assistant dashboard |
 | 🔥 **Heating that thinks** | Heating rules (window open → off, nobody home, night, schedule, boost, holidays), a **room sensor per thermostat** like Better Thermostat |
-| ⚡ **Energy at a glance** | Power as a picture (sun, grid, battery and house with flowing dots, cables in the house), today, the week, month or year with costs, several houses compared |
+| ⚡ **Energy at a glance** | Power as a picture (sun, grid, battery and house with flowing dots, cables in the house), today, the week, month or year with costs, several houses (or buildings of one plan) compared |
 | 🛡️ **Safe at home** | Warnings for smoke, gas, water and the alarm (also as a WhatsApp) and for windows open in the rain, the doorbell with its camera on every tablet, a recorded day played back in 3D |
 | 🧩 **Own routines** | *When … then …* from blocks like Node-RED, saved as **real Home Assistant automations**; scenes, *I'm leaving* and *Good night* checks |
 | 🎤 **Ask your house** | "Which windows are open?" and the view goes there; "Lights in the living room off" switches them |
@@ -138,7 +138,7 @@ In the live view a tab bar at the bottom turns the add-on into the only dashboar
 | Page | What is on it |
 | --- | --- |
 | ☀ **Today** | Time and date, the weather of the next days, a week calendar of several calendars with *＋ Event*, the pinboard, waste collection, who is home and **🚆 your train** (is it on time? delays, platform, also tomorrow's) |
-| ⚡ **Energy** | Today by the hour, a week, month or year: used, from the sun, from the grid, what the house made itself and what it cost; the battery, the biggest users, several houses compared |
+| ⚡ **Energy** | Today by the hour, a week, month or year: used, from the sun, from the grid, what the house made itself and what it cost; the battery, the biggest users, several houses or the buildings of one plan compared |
 | 🌡 **Climate** | A card per room with its thermostat as a circle like in Home Assistant, humidity and air (*air out*), open windows while it heats, **📋 heating rules** and **📅 the schedule** |
 | 📷 **Cameras** | Every camera by room, motion first |
 | 🎵 **Music & TV** | Every player with what plays, its picture and its buttons |
