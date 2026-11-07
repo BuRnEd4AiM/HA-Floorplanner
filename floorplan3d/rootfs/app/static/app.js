@@ -1599,7 +1599,7 @@ const props = initProps({
   multiBox: () => multiSel.box(), roofInfo: (id) => roofRectOf(id),
   $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, roomCtx: () => roomCtx, setRoomCtx: (id) => { roomCtx = id; },
   fields: { field, inp, lenInput, pickerField }, entityPicker: (...a) => entityPicker(...a), entities: () => entities, areas: () => areas,
-  findOpening: (id) => findOpening(id), snapshot: () => snapshot(), changed: () => changed(), build: () => build(), refreshSelection: () => refreshSelection(),
+  findOpening: (id) => findOpening(id), snapshot: () => snapshot(), changed: () => changed(), build: () => build(), refreshSelection: () => refreshSelection(), layout: () => layout,
   deleteItem: (sel) => deleteItem(sel), applyStates: () => applyStates(), setStatus: (x) => setStatus(x), renderObjList: () => renderObjList(),
   renderRoomEntities: () => renderRoomEntities(), stateText: (id) => stateText(id), roomAt: (x, z) => roomAt(x, z), pointInPoly, controlsTarget: () => controls.target,
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type, dev) => baseSize(type, dev), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),

@@ -20,6 +20,7 @@ import { initFinishUi } from './finishui.js';
 import { roomLevelFields, stepsFields } from './plateauui.js';
 import { balconyFields } from './balconyui.js';
 import { tiltAngleField } from './tiltui.js';
+import { roomNameFields } from './roomnameui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -44,7 +45,7 @@ export function stretchValue(n) {
  *  defaultLightColor() (settings: the colour of a lamp that reports none), yardProps(body, box, sel) (the plot and its areas, plotui.js),
  *  closetRoof(d) (the roof slopes over a cabinet's floor and the height of its bottom: { planes, baseY } or null), balconyFree(id) (the room
  *  hangs free: a balcony, #646), previewTilt(id) (a window leans in for a moment: its tilt angle changed), allOpenings() (every door and
- *  window of the house) */
+ *  window of the house), layout() (the open house: the rooms of every floor, roomnameui.js) */
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
@@ -163,18 +164,12 @@ export function initProps(ctx) {
   }
 
   function roomProps(body, it) {
-    const areas = ctx.areas();
-    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    roomNameFields(body, it, { t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(),   // its name: own, or a
+      setStatus: (x) => ctx.setStatus(x), areas: () => ctx.areas(), layout: () => ctx.layout() });                             // Home Assistant area (roomnameui.js)
     // the floor (#427, #448): one colour, or parquet, herringbone, tiles, stone, carpet ... with its colour, size and angle (the walls below)
     finishUi.floorFields(body, it, () => field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v), { id: 'roomColor' })));
     balconyFields(body, it, { t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), free: (id) => ctx.balconyFree?.(id) });   // a balcony / roof terrace (#646)
     roomLevelFields(body, it, levelUi);                         // its floor higher or lower than the storey (#566)
-    const asel = document.createElement('select');
-    asel.add(new Option(t('area.none'), ''));
-    areas.forEach((x) => asel.add(new Option(x.name, x.id)));
-    asel.value = it.area || '';
-    asel.addEventListener('change', () => { ctx.snapshot(); it.area = asel.value || undefined; if (!it.name || areas.some((x) => x.name === it.name)) { const ar = areas.find((x) => x.id === asel.value); if (ar) it.name = ar.name; } ctx.changed(); render(); });
-    body.append(field(t('prop.area'), asel));
     finishUi.wallFields(body, it);
     ctx.setRoomCtx(it.id);
     roomEntsBox(body);

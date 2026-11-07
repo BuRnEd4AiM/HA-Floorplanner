@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmxutQDa2cztZ7QgFhw",
+ "start": "2026-11-07",
+ "updated": "2026-11-07T10:10:34Z",
+ "branch": "claude/festive-brahmagupta-1i6xm4",
+ "source": "counted",
+ "input": 211,
+ "cache_write": 250147,
+ "cache_read": 22968812,
+ "output": 85266,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 211,
+   "cache_write": 250147,
+   "cache_read": 22968812,
+   "output": 85266,
+   "requests": 111
+  }
+ }
+}

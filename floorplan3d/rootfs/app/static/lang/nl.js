@@ -2226,4 +2226,13 @@ export default {
   'stair.winders2': 'Wigtreden (2e hoek)', 'stair.split2': 'Treden in de 2e trap',
   'stair.split2Hint': 'Hoeveel treden tussen de twee hoeken liggen; de rest komt na de 2e hoek.', 'stair.lastFlight': 'Na de 2e hoek: {n} treden',
   'stair.splitHint0': 'Hoeveel treden vóór de hoek liggen. 0: de trap begint meteen met de wigtreden, je stapt van opzij op.',
+  'rname.placeholder': 'bijv. Keuken', 'rname.own': 'Eigen naam (geen ruimte)', 'rname.free': 'Ruimtes uit Home Assistant',
+  'rname.taken': 'Al bij een andere kamer', 'rname.usedBy': 'al: {rooms}', 'rname.gone': 'niet meer in Home Assistant', 'rname.back': 'Naam uit Home Assistant',
+  'rname.hint.none': 'Kies een ruimte: de kamer heet dan zo en toont haar apparaten. Of typ hierboven een eigen naam.',
+  'rname.hint.same': '🔗 Gekoppeld: de apparaten en sensoren van de ruimte horen bij deze kamer.',
+  'rname.hint.own': '🔗 Gekoppeld aan ‘{area}’, met een eigen naam.',
+  'rname.hint.missing': '⚠ De ruimte ‘{area}’ bestaat niet meer in Home Assistant. Kies een andere of ‘Eigen naam’.',
+  'rname.noAreas': 'Geen ruimtes uit Home Assistant. Maak je daar ruimtes aan (Instellingen → Ruimtes), dan kun je ze hier als naam kiezen.',
+  'rname.linked': '🔗 Gekoppeld aan de Home Assistant-ruimte ‘{area}’', 'rname.linkOne': '‘{room}’ heet als een ruimte: koppelen',
+  'rname.linkAll': '{n} kamers heten als een ruimte: alle koppelen', 'rname.linkedAll': '🔗 {n} gekoppeld: {rooms}',
 };

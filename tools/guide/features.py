@@ -148,3 +148,5 @@ f("storeystairs", "edit", "Geschosshöhe je Haus, Stufen je Etage, L-Treppe mit 
   ["stairs-storey"], since="4.68.0")
 f("tiltangle", "edit", "Kippwinkel eines Fensters (5° bis 45°, auch für alle Fenster) und Flügelrahmen mit Griff", "Tilt angle of a window (5° to 45°, also for every window) and a sash with a handle",
   ["window-tilt"], since="4.64.0")
+f("roomarea", "edit", "Raumname aus einem Home-Assistant-Bereich oder eigener Name, Räume verknüpfen", "Room name from a Home Assistant area or an own name, link rooms",
+  ["room-area"], since="4.69.0")

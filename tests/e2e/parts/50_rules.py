@@ -1,8 +1,9 @@
 """4.28.0 (#546): the add-on's own heating rules and routines. 📋 Heiz-Regeln on 🌡 Klima switched on in the page; a window opens: the add-on
 switches the thermostat off by itself (no screen needed) and puts it back when it shuts, "Trotzdem heizen", 🚀 Boost; the room's line and
-its label "⏸️ pausiert"; 📅 Heizplan for a room, a thermostat turned by hand goes back to it after 10 minutes (4.32.0); 🔎 Wird benutzt (own rules, an automation of Home Assistant with what it does); ▶ Abläufe:
+its label "⏸️ pausiert"; 📅 Heizplan for a room (the time above an edge while it is dragged, 4.69.0), a thermostat turned by hand goes back to it after 10 minutes (4.32.0); 🔎 Wird benutzt (own rules, an automation of Home Assistant with what it does); ▶ Abläufe:
 a new routine "Wenn … dann …" in the editor, saved, its button starts it, "Was ist passiert"; read-only for a user who may not edit.
 """
+import re
 saved_rl = api_admin("api/layout")              # put back at the end
 st_rl = api("api/settings")
 set_setting("language", "de"); set_setting("units", "metric")
@@ -105,6 +106,24 @@ pgR.click("[data-page=climate] [data-view=plan]"); pgR.wait_for_timeout(600)
 pgR.click("[data-page=climate] .hpRooms [data-room=rl_r]"); pgR.wait_for_timeout(300)
 pgR.click("[data-page=climate] [data-act=createPlan]"); pgR.wait_for_timeout(300)
 blocks_rl = pgR.locator("[data-page=climate] .hpBar[data-day='0'] .hpBlock").count()
+# --- the time above an edge while it is dragged and a moment after letting go (the owner, 2026-11-07: „oben drüber die genaue Uhrzeit“)
+bb_rl = pgR.locator("[data-page=climate] .hpBar[data-day='0'] .hpHandle").first.bounding_box()
+x_rl, y_rl = bb_rl["x"] + 5, bb_rl["y"] + bb_rl["height"] / 2
+pgR.mouse.move(x_rl, y_rl); pgR.mouse.down()
+for i_rl in range(1, 8):
+    pgR.mouse.move(x_rl + i_rl * 8, y_rl); pgR.wait_for_timeout(40)
+tip_drag = pgR.evaluate("[...document.querySelectorAll('[data-page=climate] .hpTip')].map((e) => e.textContent)")
+tip_above = pgR.evaluate("(() => { const t = document.querySelector('[data-page=climate] .hpTip'), b = document.querySelector(\"[data-page=climate] .hpBar[data-day='0']\"); "
+                         "return !!t && t.getBoundingClientRect().bottom <= b.getBoundingClientRect().top; })()")
+pgR.mouse.up(); pgR.wait_for_timeout(400)
+tip_after = pgR.evaluate("[...document.querySelectorAll('[data-page=climate] .hpTip')].map((e) => e.textContent)")
+starts_rl = pgR.evaluate("[...document.querySelectorAll(\"[data-page=climate] .hpBar[data-day='0'] .hpBlock\")].map((e) => +e.dataset.from)")
+m_rl = int(tip_drag[0][:2]) * 60 + int(tip_drag[0][3:]) if len(tip_drag) == 1 and re.fullmatch(r"\d\d:\d\d", tip_drag[0]) else -1
+check("schedule: dragging an edge shows its time above the bar (on 15 minutes); after letting go it is still there and the block starts then",
+      tip_above and m_rl % 15 == 0 and m_rl in starts_rl and tip_after == tip_drag, (tip_drag, tip_above, tip_after, starts_rl))
+pgR.wait_for_timeout(2800)
+check("schedule: the time fades a moment after letting go",
+      pgR.evaluate("[...document.querySelectorAll('[data-page=climate] .hpTip')].every((e) => getComputedStyle(e).opacity === '0')"))
 pgR.click("[data-page=climate] [data-act=savePlan]")
 plan_rl = wait_rl(lambda: key_rl in api("api/rules")["heat"]["schedule"]["rooms"] and api("api/rules")["heat"]["schedule"]["on"])
 check("schedule: '＋ Plan anlegen' draws a week (Monday in 5 blocks), '✓ Speichern' keeps it in the add-on", blocks_rl == 5 and plan_rl, (blocks_rl, api("api/rules")["heat"]["schedule"]))

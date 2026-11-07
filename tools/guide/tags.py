@@ -174,9 +174,9 @@ t("climate",
   "notice cold warm degrees")
 t("heatplan",
   "Heizplan Zeitplan Wochenplan Heizzeiten Heizprofil Zeitsteuerung Nachtabsenkung Absenkung morgens abends Wochenende "
-  "Uhrzeiten Schedule Komfort Eco Nacht",
+  "Uhrzeiten Schedule Komfort Eco Nacht Uhrzeit verschieben Zeit ziehen genaue Uhrzeit Kante Leiste",
   "heating schedule schedule weekly plan heating times heating profile timer night setback setback morning evening "
-  "weekend times comfort eco night")
+  "weekend times comfort eco night move time drag time exact time edge bar")
 t("heatrules",
   "Heiz-Regeln Regel Fenster auf Heizung aus Fenster offen Heizung ausschalten lüften Abwesenheit niemand zu Hause "
   "Sommer Nacht Raumfühler externer Sensor zu warm Vorrang Automatik Heizung sparen Energie sparen",
@@ -250,6 +250,13 @@ t("rooms",
   "Räume automatisch erkennen",
   "create a room add a room room name name rename square metres m2 living area size area calculate find rooms "
   "automatically")
+t("room-area",
+  "Bereich Bereiche Home Assistant HA-Bereich Raum zuordnen Raumname wählen Raum umbenennen Name aus Home Assistant "
+  "verknüpfen Verknüpfung eigener Name Zimmer Bereich übernehmen Area Raumzuordnung Räume automatisch zuordnen "
+  "wie heißt der Raum gleicher Name wie in Home Assistant",
+  "area areas Home Assistant HA area assign room room name pick rename room name from Home Assistant link linked "
+  "own name custom name take over area room assignment link rooms automatically same name as in Home Assistant "
+  "what is the room called")
 t("openings",
   "Tür einsetzen Fenster einsetzen Tür hinzufügen Fenster hinzufügen Haustür Eingangstür Terrassentür Balkontür Schiebetür "
   "Glastür Garagentor Durchgang Öffnung Loch in der Wand",

@@ -2220,4 +2220,13 @@ export default {
   'stair.winders2': 'Stopnie zabiegowe (2. narożnik)', 'stair.split2': 'Stopnie w 2. biegu',
   'stair.split2Hint': 'Ile stopni leży między dwoma narożnikami; reszta jest po 2. narożniku.', 'stair.lastFlight': 'Po 2. narożniku: {n} stopni',
   'stair.splitHint0': 'Ile stopni leży przed narożnikiem. 0: schody zaczynają się od razu stopniami zabiegowymi, wchodzi się z boku.',
+  'rname.placeholder': 'np. Kuchnia', 'rname.own': 'Własna nazwa (bez obszaru)', 'rname.free': 'Obszary z Home Assistant',
+  'rname.taken': 'Już przy innym pomieszczeniu', 'rname.usedBy': 'już: {rooms}', 'rname.gone': 'już nie ma w Home Assistant',
+  'rname.back': 'Nazwa z Home Assistant',
+  'rname.hint.none': 'Wybierz obszar: pomieszczenie dostanie jego nazwę i pokaże jego urządzenia. Albo wpisz powyżej własną nazwę.',
+  'rname.hint.same': '🔗 Połączone: urządzenia i czujniki obszaru należą do tego pomieszczenia.', 'rname.hint.own': '🔗 Połączone z „{area}”, z własną nazwą.',
+  'rname.hint.missing': '⚠ Obszaru „{area}” nie ma już w Home Assistant. Wybierz inny albo „Własna nazwa”.',
+  'rname.noAreas': 'Brak obszarów z Home Assistant. Gdy je tam dodasz (Ustawienia → Obszary), wybierzesz je tutaj jako nazwę.',
+  'rname.linked': '🔗 Połączono z obszarem „{area}” z Home Assistant', 'rname.linkOne': '„{room}” nazywa się jak obszar: połącz',
+  'rname.linkAll': '{n} pomieszczeń nazywa się jak obszar: połącz wszystkie', 'rname.linkedAll': '🔗 Połączono {n}: {rooms}',
 };
