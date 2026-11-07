@@ -26,6 +26,8 @@ QUERIES = [
     ("alle Lichter aus", "de", "lightgroups"), ("brennt noch Licht", "de", "lightgroups"),
     ("Heizung wärmer stellen", "de", "heating climate"), ("Heizkörper", "de", "heating climate"),
     ("Nachtabsenkung", "de", "heatplan"), ("heating schedule", "en", "heatplan"),
+    ("Heizplan Uhrzeit verschieben", "de", "heatplan"), ("Bereich aus Home Assistant als Raumname", "de", "room-area"),
+    ("Raum einem Bereich zuordnen", "de", "room-area"), ("room name from Home Assistant area", "en", "room-area"),
     ("Fenster auf Heizung aus", "de", "heatrules"), ("warum heizt es nicht", "de", "heatdiag"),
     ("Wand malen", "de", "walls"), ("Haus zeichnen", "de", "walls"), ("draw walls", "en", "walls"),
     ("Bauplan hochladen", "de", "background"), ("Foto vom Grundriss abzeichnen", "de", "background"),

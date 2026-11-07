@@ -1156,6 +1156,11 @@ export function installDemoBackend() {
         { id: 'wohnzimmer', name: 'Wohnzimmer', entities: ['light.wohnzimmer', 'light.stehlampe', 'light.shapes_wz', 'light.tv_led', 'light.sofa_led', 'scene.wz_gemuetlich', 'scene.wz_aus', 'media_player.tv', 'cover.wohnzimmer', 'climate.wohnzimmer', 'sensor.wohnzimmer_leistung'] },
         { id: 'schlafzimmer', name: 'Schlafzimmer', entities: ['light.schlafzimmer', 'light.voute_bett', 'light.voute_fenster'] },
         { id: 'buero', name: 'Büro', entities: ['light.buero', 'sensor.buero_temp', 'climate.klima_buero'] },
+        { id: 'kueche', name: 'Küche', entities: [] },               // areas no room is linked to yet: the room's drop-down "HA-Bereich" offers them
+        { id: 'bad', name: 'Bad', entities: [] },                    // and "🔗 2 Räume heißen wie ein Bereich" links Küche and Bad (roomnameui.js)
+        { id: 'flur', name: 'Flur', entities: [] },
+        { id: 'kinderzimmer', name: 'Kinderzimmer', entities: [] },
+        { id: 'garage', name: 'Garage', entities: [] },
       ]);
     }
     if (path === 'api/entities') {

@@ -3863,4 +3863,10 @@ export default {
   'stair.corner2': '第二个转角', 'stair.corner2None': '无', 'stair.corner2Hint': '楼梯在第二段之后再向同一侧转一次，例如上下两端都是扇形踏步。', 'stair.winders2': '扇形踏步数（第二个转角）',
   'stair.split2': '第二段踏步数', 'stair.split2Hint': '两个转角之间有多少级踏步；其余的在第二个转角之后。', 'stair.lastFlight': '第二个转角之后：{n} 级踏步',
   'stair.splitHint0': '转角之前有多少级踏步。0：楼梯直接从扇形踏步开始，从侧面踏上。',
+  'rname.placeholder': '例如 厨房', 'rname.own': '自定义名称（无区域）', 'rname.free': 'Home Assistant 中的区域', 'rname.taken': '已被其他房间使用', 'rname.usedBy': '已用于：{rooms}',
+  'rname.gone': '已不在 Home Assistant 中', 'rname.back': '使用 Home Assistant 中的名称', 'rname.hint.none': '选择一个区域：房间将使用该名称并显示其设备。或在上方输入自定义名称。',
+  'rname.hint.same': '🔗 已关联：该区域的设备和传感器属于此房间。', 'rname.hint.own': '🔗 已关联到“{area}”，使用自定义名称。',
+  'rname.hint.missing': '⚠ Home Assistant 中已没有区域“{area}”。请选择其他区域或“自定义名称”。', 'rname.noAreas': 'Home Assistant 中没有区域。在那里添加区域后（设置 → 区域），即可在此选择作为名称。',
+  'rname.linked': '🔗 已关联到 Home Assistant 区域“{area}”', 'rname.linkOne': '“{room}”与某个区域同名：关联', 'rname.linkAll': '{n} 个房间与区域同名：全部关联',
+  'rname.linkedAll': '🔗 已关联 {n} 个：{rooms}',
 };

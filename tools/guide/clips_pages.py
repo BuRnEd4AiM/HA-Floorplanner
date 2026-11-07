@@ -141,9 +141,9 @@ def _(r):
 
 @clip("heatplan", "pages",
       {"de": "📅 Heizplan: wann welcher Raum warm ist", "en": "📅 Heating schedule: when which room is warm"},
-      {"de": "Im Heizplan bekommt jeder Raum eine Woche aus farbigen Blöcken: Nacht, Eco, Komfort.",
-       "en": "In the heating schedule every room gets a week of coloured blocks: night, eco, comfort."},
-      "Heizplan Zeitplan Woche Uhrzeit Nacht Eco Komfort Thermostat heating schedule plan week time night comfort")
+      {"de": "Im Heizplan bekommt jeder Raum eine Woche aus farbigen Blöcken: Nacht, Eco, Komfort. Beim Ziehen einer Kante steht die Uhrzeit darüber.",
+       "en": "In the heating schedule every room gets a week of coloured blocks: night, eco, comfort. Dragging an edge shows the time above it."},
+      "Heizplan Zeitplan Woche Uhrzeit ziehen Kante Nacht Eco Komfort Thermostat heating schedule plan week time drag edge night comfort")
 def _(r):
     tab(r, "climate")
     r.say("Unter „Klima“ oben auf „Heizplan“.", "Under “Climate” tap “Schedule” at the top.")
@@ -155,6 +155,11 @@ def _(r):
     r.poster()
     r.say("Jeder Tag ist eine Reihe aus Blöcken: dunkel ist Nacht, hell ist Komfort.", "Every day is a row of blocks: dark is night, bright is comfort.")
     r.wait(2200)
+    r.say("Die Kante eines Blocks ziehen: darüber steht die genaue Uhrzeit.", "Drag the edge of a block: the exact time shows above it.")
+    h = r.box("[data-page=climate] .hpBar[data-day='1'] .hpHandle")
+    x0, y0 = h["x"] + 6, h["y"] + h["height"] / 2
+    r.drag(x0, y0, x0 + 80, y0, ms=2000)
+    r.wait(2000)
     r.say("Oben stellst du ein, wie warm Nacht, Eco und Komfort sind.", "At the top you set how warm night, eco and comfort are.")
     r.wait(2000)
 

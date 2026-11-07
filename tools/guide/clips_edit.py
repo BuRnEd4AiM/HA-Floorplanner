@@ -111,6 +111,46 @@ def _(r):
     r.wait(1500)
 
 
+@clip("room-area", "edit",
+      {"de": "Raum nach einem Bereich aus Home Assistant benennen", "en": "Name a room after a Home Assistant area"},
+      {"de": "Unter dem Namen steht „HA-Bereich“: einen Bereich aus Home Assistant wählen (der Raum heißt dann so und zeigt seine "
+             "Geräte) oder „Eigener Name“. „🔗 alle verknüpfen“ ordnet alle Räume zu, die schon wie ein Bereich heißen.",
+       "en": "Under the name is “HA area”: pick an area from Home Assistant (the room is then called like it and shows its devices) "
+             "or “Own name”. “🔗 link them all” links every room that is already called like an area."},
+      "Bereich Home Assistant Raumname umbenennen zuordnen verknüpfen eigener Name area room name rename assign link own name",
+      query="mode=edit")
+def _(r):
+    at = lambda x, z: r.js(f"window.__fp.plan().toClient({x}, {z})")      # a point of the plan (metres) on the screen
+    r.click("#view2d")
+    r.wait(1000)
+    r.say("Einen Raum anklicken, hier die Küche.", "Click a room, here the kitchen.")
+    r.move(*at(8.6, 3.7))
+    r.js("window.__fp.select('room', 'r2')")
+    r.wait(600)
+    r.js("document.getElementById('props').scrollIntoView({ block: 'start', behavior: 'smooth' })")   # the room's fields at the top of the side panel
+    r.wait(900)
+    r.say("Rechts unter dem Namen: „HA-Bereich“ mit den Bereichen aus Home Assistant.", "On the right under the name: “HA area” with the areas from Home Assistant.")
+    r.click("#roomArea")
+    r.wait(700)
+    r.loc("#roomArea").select_option("kueche")
+    r.wait(1500)
+    r.poster()
+    r.say("Der Raum heißt jetzt wie der Bereich und zeigt seine Geräte.", "The room is now called like the area and shows its devices.")
+    r.wait(1800)
+    r.say("Ein eigener Name geht trotzdem: oben eintippen, der Bereich bleibt.", "An own name still works: type it at the top, the area stays.")
+    r.click("#roomName")
+    r.pg.keyboard.press("Control+A")
+    r.type("Wohnküche" if r.lang == "de" else "Kitchen-diner")
+    r.key("Enter")
+    r.wait(1600)
+    r.say("„↺ Name aus Home Assistant“ holt den Namen des Bereichs zurück.", "“↺ Name from Home Assistant” brings the area's name back.")
+    r.click("#roomAreaName")
+    r.wait(1400)
+    r.say("Heißen Räume schon wie ein Bereich: „🔗 alle verknüpfen“ ordnet sie auf einmal zu.", "Rooms already called like an area: “🔗 link them all” links them in one go.")
+    r.click("#roomAreaAll")
+    r.wait(2200)
+
+
 @clip("openings", "edit",
       {"de": "Türen und Fenster einsetzen", "en": "Put in doors and windows"},
       {"de": "„Tür/Fenster“ wählen, die Art aussuchen und auf eine Wand klicken. Tür, Haustür, Fenster, Balkontür und mehr.",

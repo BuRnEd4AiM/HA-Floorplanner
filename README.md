@@ -171,7 +171,7 @@ Admins arrange every page like a Home Assistant dashboard: drag cards, hide them
 <table>
 <tr>
 <td width="50%"><img src="docs/img/heatrules.jpg" alt="Heating rules with the card Room sensors for the thermostats on top"><br><sub><b>📋 Heating rules</b> with the room sensors of the thermostats</sub></td>
-<td width="50%"><img src="docs/img/heatplan.jpg" alt="The heating schedule of the living room as coloured blocks of a week"><br><sub><b>📅 Schedule</b>: tap a block for another level, drag its edge</sub></td>
+<td width="50%"><img src="docs/img/heatplan.jpg" alt="The heating schedule of the living room as coloured blocks of a week"><br><sub><b>📅 Schedule</b>: tap a block for another level, drag its edge (the exact time shows above it)</sub></td>
 </tr>
 <tr>
 <td colspan="2"><img src="docs/img/flowedit.jpg" alt="The routine editor: blocks on the left, the chain in the middle, the settings on the right, the routine in words below"><br><sub><b>Routine editor</b>: blocks, a chain, in words below; saved as a real automation of Home Assistant</sub></td>
@@ -280,7 +280,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Presence**: people (`person`, `device_tracker`) and presence / motion sensors appear as a glowing figure while they are home; room pills show a dot when somebody is in the room
 - **Heat and humidity views**: rooms are coloured by temperature or humidity
 - **Power as a picture**: press *Power* (*Strom*) and the card *Power now* shows sun, grid, battery and house with flowing dots, plus the water, gas and heat meters; cables with flowing dots run between the power devices in the house. In the power editor the tab **⚡ Rechnung**: which sensor is grid, solar, battery, house and room, signs, and the calculation live with a check that it adds up
-- **Home Assistant areas**: entities are grouped by your areas and assigned automatically
+- **Home Assistant areas**: entities are grouped by your areas and assigned automatically; a room takes its name from an area (or an own name), rooms called like an area are linked in one click
 
 <table>
 <tr>
