@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-06 · 113 Sitzungen
+Stand: 2026-11-07 · 114 Sitzungen
 
-**Insgesamt: 7,55 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 7,57 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 21,2 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 73,2 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 7,45 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 21,3 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 73,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 7,47 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 27 | 1,42 Mrd. | 3,5 Mio. |
+| 2026-11 | 28 | 1,44 Mrd. | 3,6 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-07 | [018pwcmx…](https://claude.ai/code/session_018pwcmxutQDa2cztZ7QgFhw) | claude/festive-brahmagupta-1i6xm4 | 23,3 Mio. | 85 Tsd. | gezählt |
 | 2026-11-06 | [018pwcmx…](https://claude.ai/code/session_018pwcmxad2DogQ9PVxk2G2X) | claude/nifty-clarke-1sw4k9 | 49,2 Mio. | 143 Tsd. | gezählt |
 | 2026-11-06 | [018pwcmv…](https://claude.ai/code/session_018pwcmvqAqTjbedoqaU8Qvm) | claude/tests-selbst-pruefen | 79,1 Mio. | 176 Tsd. | gezählt |
 | 2026-11-05 | [018pwcmw…](https://claude.ai/code/session_018pwcmwYymXU78zE1PZdFb8) | claude/mehr-als-grundriss | 22,0 Mio. | 85 Tsd. | gezählt |
