@@ -1,0 +1,30 @@
+{
+ "id": "heating",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe auf einen Raum: oben erscheint seine Heizung.",
+   "en": "Tap a room: its heating shows up at the top."
+  },
+  {
+   "t": 6.24,
+   "de": "„Heizen“ schaltet das Thermostat ein.",
+   "en": "“Heat” turns the thermostat on."
+  },
+  {
+   "t": 9.45,
+   "de": "Mit + und − stellst du die Wunsch-Temperatur.",
+   "en": "+ and − set the temperature you want."
+  },
+  {
+   "t": 14.53,
+   "de": "Eine Vorwahl wie „Eco“ oder „Boost“ geht mit einem Tipp.",
+   "en": "A preset like “Eco” or “Boost” is one tap."
+  }
+ ],
+ "duration": 23.1,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

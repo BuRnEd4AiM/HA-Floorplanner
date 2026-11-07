@@ -1,0 +1,30 @@
+{
+ "id": "voice",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten links neben der Lupe ist das 🎤 (am Tablet mit Mikrofon).",
+   "en": "Bottom left beside the magnifier is the 🎤 (on a tablet with a microphone)."
+  },
+  {
+   "t": 5.04,
+   "de": "Du fragst: „Welche Fenster sind offen?“",
+   "en": "You ask: “Which windows are open?”"
+  },
+  {
+   "t": 8.21,
+   "de": "Die Antwort steht oben, das Fenster ist im Bild markiert.",
+   "en": "The answer is at the top, the window is marked in the picture."
+  },
+  {
+   "t": 10.41,
+   "de": "Auch „Schalte das Licht im Wohnzimmer aus“ geht (mit Nachfrage beim ganzen Haus).",
+   "en": "“Turn off the light in the living room” works too (the whole house asks first)."
+  }
+ ],
+ "duration": 13.68,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

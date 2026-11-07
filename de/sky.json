@@ -1,0 +1,25 @@
+{
+ "id": "sky",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Der Himmel hinter dem Haus ist wie draußen: hier um 21:40 Uhr, mit Regen.",
+   "en": "The sky behind the house is as it is outside: here at 9:40 pm, with rain."
+  },
+  {
+   "t": 2.2,
+   "de": "Oben rechts: Tageszeit, Sonnenaufgang, der Mond und das Wetter.",
+   "en": "Top right: the time of day, sunrise, the moon and the weather."
+  },
+  {
+   "t": 6.13,
+   "de": "Dreh das Haus: der Mond steht da, wo er wirklich steht.",
+   "en": "Turn the house: the moon is where it really is."
+  }
+ ],
+ "duration": 12.12,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

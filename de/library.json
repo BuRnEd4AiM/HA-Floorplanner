@@ -1,0 +1,30 @@
+{
+ "id": "library",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.42,
+   "de": "„Gerät“: rechts die Bibliothek, nach Räumen sortiert.",
+   "en": "“Device”: the library on the right, sorted by room."
+  },
+  {
+   "t": 4.86,
+   "de": "Ein Stück wählen und in den Raum klicken.",
+   "en": "Pick a piece and click into the room."
+  },
+  {
+   "t": 8.5,
+   "de": "Rechts die genaue Größe in Metern.",
+   "en": "On the right the exact size in metres."
+  },
+  {
+   "t": 11.53,
+   "de": "„Sperren“: jetzt verrutscht es nicht mehr aus Versehen.",
+   "en": "“Lock”: now it cannot slip by accident."
+  }
+ ],
+ "duration": 15.02,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

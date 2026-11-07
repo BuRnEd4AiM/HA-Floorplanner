@@ -1,0 +1,35 @@
+{
+ "id": "viewmenu",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten rechts: „Ansicht“.",
+   "en": "Bottom right: “View”."
+  },
+  {
+   "t": 4.29,
+   "de": "„Durchsichtig“ ist an: die Wände zur Kamera und das Dach sind wie Glas.",
+   "en": "“See-through” is on: the walls facing the camera and the roof are like glass."
+  },
+  {
+   "t": 8.52,
+   "de": "„Auto“ senkt diese Wände stattdessen ab.",
+   "en": "“Auto” lowers these walls instead."
+  },
+  {
+   "t": 13.85,
+   "de": "Zurück zu „Durchsichtig“.",
+   "en": "Back to “See-through”."
+  },
+  {
+   "t": 18.24,
+   "de": "„Halbschnitt“: die Wände nur halb hoch, man sieht hinein.",
+   "en": "“Half cut”: the walls only half high, you see inside."
+  }
+ ],
+ "duration": 27.48,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

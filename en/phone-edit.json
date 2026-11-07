@@ -1,0 +1,55 @@
+{
+ "id": "phone-edit",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Auch am Handy kannst du bearbeiten: tippe oben links auf ☰.",
+   "en": "You can edit on the phone too: tap ☰ at the top left."
+  },
+  {
+   "t": 2.67,
+   "de": "Dann auf „Bearbeiten“.",
+   "en": "Then “Edit”."
+  },
+  {
+   "t": 5.14,
+   "de": "Oben stehen die Werkzeuge in einer Leiste: zur Seite wischen zeigt die anderen.",
+   "en": "The tools are in a strip at the top: swipe sideways for the others."
+  },
+  {
+   "t": 8.55,
+   "de": "„2D“ zeigt den Plan zum Zeichnen.",
+   "en": "“2D” shows the plan for drawing."
+  },
+  {
+   "t": 11.0,
+   "de": "„Wand“ und Punkt für Punkt tippen; zweimal tippen beendet die Wand.",
+   "en": "“Wall” and tap point by point; a double tap ends the wall."
+  },
+  {
+   "t": 17.48,
+   "de": "↶ nimmt sie wieder weg.",
+   "en": "↶ takes them away again."
+  },
+  {
+   "t": 20.78,
+   "de": "„Auswählen“ und ein Fenster antippen: unten stehen seine Einstellungen.",
+   "en": "“Select” and tap a window: its settings are below."
+  },
+  {
+   "t": 24.58,
+   "de": "Weiter unten der Kontakt aus Home Assistant, für jeden Flügel einer.",
+   "en": "Further down the contact from Home Assistant, one for every pane."
+  },
+  {
+   "t": 26.98,
+   "de": "Fertig? ☰ und „Live“ bringen dich zurück zum Haus.",
+   "en": "Done? ☰ and “Live” take you back to the house."
+  }
+ ],
+ "duration": 32.86,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

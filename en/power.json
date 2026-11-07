@@ -1,0 +1,25 @@
+{
+ "id": "power",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe unten auf „Strom“.",
+   "en": "Tap “Power” at the bottom."
+  },
+  {
+   "t": 6.19,
+   "de": "Jedes Gerät zeigt, wie viel es gerade braucht.",
+   "en": "Every device shows how much it uses right now."
+  },
+  {
+   "t": 7.99,
+   "de": "Die Punkte fließen vom Dach und vom Netz zu den Geräten.",
+   "en": "The dots flow from the roof and the grid to the devices."
+  }
+ ],
+ "duration": 15.34,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

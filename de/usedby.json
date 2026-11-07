@@ -1,0 +1,30 @@
+{
+ "id": "usedby",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Zum Beispiel beim Thermostat: unten „Klima“.",
+   "en": "For example with a thermostat: “Climate” at the bottom."
+  },
+  {
+   "t": 5.6,
+   "de": "Am Wohnzimmer: „🔎 Wird benutzt“.",
+   "en": "At the living room: “🔎 Used by”."
+  },
+  {
+   "t": 9.36,
+   "de": "Die Liste zeigt alles, was dieses Gerät schaltet: Automationen, Skripte, Szenen und Heiz-Regeln, und ob sie gerade laufen.",
+   "en": "The list shows everything that switches this device: automations, scripts, scenes and heating rules, and whether they run right now."
+  },
+  {
+   "t": 12.16,
+   "de": "Das 🔎 gibt es auch auf der Karte jedes Geräts im Haus.",
+   "en": "The 🔎 is also on the card of every device in the house."
+  }
+ ],
+ "duration": 15.67,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

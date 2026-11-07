@@ -1,0 +1,40 @@
+{
+ "id": "stairs-winder",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.42,
+   "de": "Oben: „Treppe“, rechts „L-Treppe“.",
+   "en": "At the top: “Stairs”, on the right “L stair”."
+  },
+  {
+   "t": 4.51,
+   "de": "„Ecke“: „Gewendelt (Keilstufen)“ statt „Podest“.",
+   "en": "“Corner”: “Winders (wedge steps)” instead of “Landing”."
+  },
+  {
+   "t": 6.59,
+   "de": "In den Raum klicken: die Treppe dreht sich in der Ecke mit Keilstufen.",
+   "en": "Click into the room: the stair turns in the corner with wedge steps."
+  },
+  {
+   "t": 9.59,
+   "de": "„Stufen im 1. Lauf“: 9 gibt einen langen ersten und einen kurzen zweiten Lauf.",
+   "en": "“Steps in flight 1”: 9 gives a long first and a short second flight."
+  },
+  {
+   "t": 12.88,
+   "de": "„Wendelstufen“: wie viele Keilstufen die Ecke dreht.",
+   "en": "“Winder steps”: how many wedge steps turn the corner."
+  },
+  {
+   "t": 15.51,
+   "de": "Im 3D-Bild: ein langer Lauf an der Wand, die Keilstufen, ein kurzer Lauf.",
+   "en": "In 3D: a long run along the wall, the wedge steps, a short run."
+  }
+ ],
+ "duration": 21.81,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

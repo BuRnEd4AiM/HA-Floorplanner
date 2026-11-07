@@ -1,0 +1,60 @@
+{
+ "id": "energy-houses",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Ein zweites Haus: oben wählen, hier das Nachbarhaus.",
+   "en": "A second house: choose it at the top, here the neighbour house."
+  },
+  {
+   "t": 8.21,
+   "de": "„Strom“ und „Rechnung“: jedes Haus hat seinen eigenen Strom-Rechner.",
+   "en": "“Power” and “Bookkeeping”: every house has its own power bookkeeping."
+  },
+  {
+   "t": 16.89,
+   "de": "„Eigener Sensor für den Hausverbrauch“: was dieses Haus gerade braucht.",
+   "en": "“Own sensor for the house consumption”: what this house uses right now."
+  },
+  {
+   "t": 21.02,
+   "de": "Ganz unten „Zähler für den Verlauf“: seine eigenen Zähler in kWh …",
+   "en": "At the very bottom “Meters for the history”: its own meters in kWh …"
+  },
+  {
+   "t": 25.02,
+   "de": "… und sein Strompreis. Das Energie-Dashboard von Home Assistant gibt es nur einmal, darum braucht jedes weitere Haus hier seine eigenen.",
+   "en": "… and its electricity price. Home Assistant has only one energy dashboard, so every further house needs its own ones here."
+  },
+  {
+   "t": 37.64,
+   "de": "In der Live-Ansicht: unten „Energie“.",
+   "en": "In the live view: “Energy” at the bottom."
+  },
+  {
+   "t": 47.08,
+   "de": "Oben ein Knopf je Haus.",
+   "en": "At the top a button per house."
+  },
+  {
+   "t": 50.11,
+   "de": "„Alle zusammen“ zählt alle Häuser zusammen.",
+   "en": "“All together” adds up every house."
+  },
+  {
+   "t": 53.01,
+   "de": "„⚖ Vergleichen“: jedes Haus in seiner Farbe, daneben die Leistung jetzt.",
+   "en": "“⚖ Compare”: every house in its colour, beside it the power now."
+  },
+  {
+   "t": 56.2,
+   "de": "Mit „Woche“, „Monat“ oder „Jahr“: ein Balken je Haus, und was jedes gekostet hat.",
+   "en": "With “Week”, “Month” or “Year”: a bar per house, and what each cost."
+  }
+ ],
+ "duration": 64.41,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

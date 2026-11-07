@@ -1,0 +1,60 @@
+{
+ "id": "window-tilt",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Klicke das Fenster an: es hat einen Flügel.",
+   "en": "Click the window: it has one pane."
+  },
+  {
+   "t": 2.9,
+   "de": "Es geht links auf: „Fenster öffnet“ auf „Links angeschlagen“.",
+   "en": "It opens on the left: “Window opens” to “Left hinged”."
+  },
+  {
+   "t": 6.75,
+   "de": "„Kontakt“: der Sensor, der „offen“ meldet.",
+   "en": "“Contact”: the sensor that reports “open”."
+  },
+  {
+   "t": 14.22,
+   "de": "Neu darunter: „Kontakt gekippt“, der zweite Sensor, der „gekippt“ meldet.",
+   "en": "New below it: “Tilt contact”, the second sensor that reports “tilted”."
+  },
+  {
+   "t": 24.09,
+   "de": "Er ist gerade auf: das Fenster ist gekippt. Es wird gelb, der Flügel mit Rahmen und Griff kippt nach innen.",
+   "en": "It is on right now: the window is tilted. It turns yellow, the pane with its sash and handle tilts in."
+  },
+  {
+   "t": 27.74,
+   "de": "Zu wenig zu sehen? „Kippwinkel (°)“ sagt, wie weit der Flügel im Bild kippt: normal 14°, hier 35°.",
+   "en": "Hard to see? “Tilt angle (°)” says how far the pane tilts in the picture: 14° normally, 35° here."
+  },
+  {
+   "t": 33.64,
+   "de": "„Diesen Winkel für alle Fenster“ nimmt ihn für jedes Fenster im Haus. Ist ein Fenster zu, kippt es beim Ändern kurz, damit man den Winkel sieht.",
+   "en": "“This angle for all windows” uses it for every window of the house. A shut window tilts for a moment when you change it, so you see the angle."
+  },
+  {
+   "t": 38.36,
+   "de": "Meldet der Kontakt „offen“, ist es offen: rot, der Flügel geht auf. „Offen“ gewinnt, auch wenn beide melden.",
+   "en": "When the contact reports “open”, it is open: red, the pane swings open. “Open” wins, also when both report."
+  },
+  {
+   "t": 41.42,
+   "de": "Beide zu: das Fenster ist geschlossen, mit grünem Rahmen.",
+   "en": "Both shut: the window is closed, with a green frame."
+  },
+  {
+   "t": 44.07,
+   "de": "Gekippt zählt wie offen: für die Heizung, den Alarm und die Regenwarnung. Ein Fenstergriff-Sensor, der selbst „gekippt“ meldet, braucht keinen zweiten Kontakt.",
+   "en": "Tilted counts like open: for the heating, the alarm and the rain warning. A handle sensor that reports “tilted” itself needs no second contact."
+  }
+ ],
+ "duration": 48.35,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

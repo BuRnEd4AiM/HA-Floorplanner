@@ -1,0 +1,35 @@
+{
+ "id": "media",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe unten auf „Musik & TV“.",
+   "en": "Tap “Music & TV” at the bottom."
+  },
+  {
+   "t": 5.55,
+   "de": "Jeder Lautsprecher und Fernseher hat seine Karte.",
+   "en": "Every speaker and TV has its card."
+  },
+  {
+   "t": 6.75,
+   "de": "Pause und weiter:",
+   "en": "Pause and play:"
+  },
+  {
+   "t": 10.92,
+   "de": "Mit dem Schieber wird es lauter.",
+   "en": "The slider makes it louder."
+  },
+  {
+   "t": 13.68,
+   "de": "Ein Radiosender startet mit einem Tipp.",
+   "en": "A radio station starts with one tap."
+  }
+ ],
+ "duration": 17.94,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

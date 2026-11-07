@@ -1,0 +1,40 @@
+{
+ "id": "plot-terrain",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Ist das Grundstück schräg? Oben „Grundstück“, dann „⛰ Gelände“.",
+   "en": "Is the plot on a slope? At the top “Plot”, then “⛰ Terrain”."
+  },
+  {
+   "t": 5.39,
+   "de": "„Hang in einem Schritt“: der Boden fällt um ein Geschoss, 3 m.",
+   "en": "“A slope in one step”: the ground falls by one storey, 3 m."
+  },
+  {
+   "t": 8.77,
+   "de": "Dann in den Plan tippen, wo der Boden tiefer liegt: hier die Straße.",
+   "en": "Then tap the plan where the ground lies lower: the street here."
+  },
+  {
+   "t": 12.65,
+   "de": "Im Plan zeigen Höhenlinien alle 50 cm, wie der Boden fällt.",
+   "en": "In the plan contour lines every 50 cm show how the ground falls."
+  },
+  {
+   "t": 15.05,
+   "de": "Jeder Höhenpunkt hat seine Höhe zum Eintippen; ein Tipp in den Plan setzt einen weiteren, ziehen verschiebt ihn.",
+   "en": "Every spot height has its height to type in; a tap in the plan sets another one, dragging moves it."
+  },
+  {
+   "t": 18.79,
+   "de": "Im 3D-Bild: vorne steht der Keller frei, mit dem Garagentor auf Straßenhöhe; Rasen, Wege und Bäume folgen dem Hang.",
+   "en": "In 3D: in front the basement stands free, its garage door at street level; lawn, paths and trees follow the slope."
+  }
+ ],
+ "duration": 27.18,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

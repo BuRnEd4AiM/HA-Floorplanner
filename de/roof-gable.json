@@ -1,0 +1,45 @@
+{
+ "id": "roof-gable",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Die Giebelwand: die Wand geht bis unters Dach, in der Farbe der Wände.",
+   "en": "The gable wall: the wall goes on up to the roof, in the colour of the walls."
+  },
+  {
+   "t": 2.6,
+   "de": "„Überstand am Giebel“: wie weit das Dach dort übersteht, hier 15 cm.",
+   "en": "“Overhang at the gables”: how far the roof sticks out there, 15 cm here."
+  },
+  {
+   "t": 7.78,
+   "de": "„＋ Vordach“ setzt ein Pultdach vor die lange Seite, gleich unter die Traufe.",
+   "en": "“+ Canopy” puts a shed roof in front of the long side, just under the eave."
+  },
+  {
+   "t": 12.59,
+   "de": "In seiner Karte: hohe Seite, Neigung, „Höher setzen“ und die Größe.",
+   "en": "In its card: the high side, the pitch, “Move up” and the size."
+  },
+  {
+   "t": 16.8,
+   "de": "Auch das ganze Dach kann ein Pultdach sein: „Dachform“ → „Pultdach“.",
+   "en": "The whole roof can be a shed roof too: “Roof shape” → “Shed roof”."
+  },
+  {
+   "t": 21.77,
+   "de": "„Hohe Seite“: hier hinten, die Wände gehen bis unters Dach.",
+   "en": "“High side”: at the back here, the walls go up under the roof."
+  },
+  {
+   "t": 25.39,
+   "de": "… und wieder ein Satteldach.",
+   "en": "… and a gable roof again."
+  }
+ ],
+ "duration": 30.22,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

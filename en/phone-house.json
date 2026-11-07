@@ -1,0 +1,30 @@
+{
+ "id": "phone-house",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Am Handy siehst du dein Haus wie am großen Bildschirm.",
+   "en": "On the phone you see your house as on a big screen."
+  },
+  {
+   "t": 1.9,
+   "de": "Tippe auf einen Raum.",
+   "en": "Tap a room."
+  },
+  {
+   "t": 4.73,
+   "de": "Tippe auf eine Lampe: ihre Karte öffnet sich.",
+   "en": "Tap a lamp: its card opens."
+  },
+  {
+   "t": 7.22,
+   "de": "„Aus“ und „An“ wie am PC.",
+   "en": "“Off” and “On” as on a computer."
+  }
+ ],
+ "duration": 12.73,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

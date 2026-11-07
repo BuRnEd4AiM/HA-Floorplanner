@@ -1,0 +1,30 @@
+{
+ "id": "security",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe oben auf „Sicherheit“.",
+   "en": "Tap “Security” at the top."
+  },
+  {
+   "t": 5.42,
+   "de": "Wähle einen Tag.",
+   "en": "Pick a day."
+  },
+  {
+   "t": 10.68,
+   "de": "Unten ist der Tag mit allem, was passiert ist.",
+   "en": "The day with everything that happened is at the bottom."
+  },
+  {
+   "t": 11.48,
+   "de": "Ziehe den Regler: das Haus zeigt genau diese Uhrzeit.",
+   "en": "Drag the slider: the house shows exactly that time."
+  }
+ ],
+ "duration": 26.69,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

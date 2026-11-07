@@ -1,0 +1,25 @@
+{
+ "id": "notify",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 5.3,
+   "de": "In den Einstellungen: „Warnungen & Alarm“.",
+   "en": "In the settings: “Warnings & alarm”."
+  },
+  {
+   "t": 10.4,
+   "de": "Wähle, wobei eine Nachricht kommen soll, und wohin: WhatsApp, Telegram oder die App.",
+   "en": "Choose what sends a message and where to: WhatsApp, Telegram or the app."
+  },
+  {
+   "t": 15.92,
+   "de": "Mit „Testen“ kommt sofort eine Probe-Nachricht.",
+   "en": "“Test” sends a sample message at once."
+  }
+ ],
+ "duration": 18.94,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

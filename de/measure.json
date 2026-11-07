@@ -1,0 +1,50 @@
+{
+ "id": "measure",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 6.54,
+   "de": "Oben: „Messen“.",
+   "en": "At the top: “Measure”."
+  },
+  {
+   "t": 8.66,
+   "de": "Zwei Punkte anklicken: der Abstand steht an der Linie, rechts mehr dazu.",
+   "en": "Click two points: the distance is on the line, more on the right."
+  },
+  {
+   "t": 15.96,
+   "de": "Jetzt zwei Wände: zuerst die, die stehen bleibt …",
+   "en": "Now two walls: first the one that stays …"
+  },
+  {
+   "t": 18.55,
+   "de": "… dann die, die sich bewegen soll.",
+   "en": "… then the one that is to move."
+  },
+  {
+   "t": 21.03,
+   "de": "Das Innenmaß eintippen und „Setzen“: die Wand rückt, die Wände an ihr und die Räume ziehen mit.",
+   "en": "Type the inside distance and “Set”: the wall moves, the walls joined to it and the rooms follow."
+  },
+  {
+   "t": 26.75,
+   "de": "„⇄ Die andere Wand bewegen“ tauscht, welche sich bewegt.",
+   "en": "“⇄ Move the other wall” swaps which one moves."
+  },
+  {
+   "t": 30.47,
+   "de": "Zwei Wände an einer Ecke: den Winkel eintippen, die Wand dreht sich um die Ecke.",
+   "en": "Two walls at a corner: type the angle and the wall turns round the corner."
+  },
+  {
+   "t": 40.66,
+   "de": "Strg+Z macht es rückgängig.",
+   "en": "Ctrl+Z undoes it."
+  }
+ ],
+ "duration": 43.61,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

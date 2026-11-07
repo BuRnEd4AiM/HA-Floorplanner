@@ -1,0 +1,30 @@
+{
+ "id": "stairs",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.42,
+   "de": "Oben: „Treppe“.",
+   "en": "At the top: “Stairs”."
+  },
+  {
+   "t": 2.56,
+   "de": "Rechts die Art wählen, zum Beispiel eine Wendeltreppe.",
+   "en": "Choose the kind on the right, for example a spiral staircase."
+  },
+  {
+   "t": 4.66,
+   "de": "In den Raum klicken: da steht sie.",
+   "en": "Click into the room: there it stands."
+  },
+  {
+   "t": 7.01,
+   "de": "Im 3D-Bild führt sie nach oben.",
+   "en": "In the 3D view it leads upwards."
+  }
+ ],
+ "duration": 11.92,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

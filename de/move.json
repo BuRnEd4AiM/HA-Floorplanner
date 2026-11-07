@@ -1,0 +1,35 @@
+{
+ "id": "move",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.42,
+   "de": "Klicke ein Möbel an, zum Beispiel das Sofa.",
+   "en": "Click a piece of furniture, for example the sofa."
+  },
+  {
+   "t": 2.21,
+   "de": "Ziehen verschiebt es.",
+   "en": "Dragging moves it."
+  },
+  {
+   "t": 4.68,
+   "de": "Q und E drehen es.",
+   "en": "Q and E turn it."
+  },
+  {
+   "t": 6.05,
+   "de": "Entf löscht es …",
+   "en": "Del deletes it …"
+  },
+  {
+   "t": 7.16,
+   "de": "… und ↶ holt es zurück.",
+   "en": "… and ↶ brings it back."
+  }
+ ],
+ "duration": 15.88,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

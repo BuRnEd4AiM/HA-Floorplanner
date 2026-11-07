@@ -1,0 +1,40 @@
+{
+ "id": "devices-place",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.42,
+   "de": "Oben: „Gerät“.",
+   "en": "At the top: “Device”."
+  },
+  {
+   "t": 2.5,
+   "de": "Rechts die Art wählen: eine Deckenlampe.",
+   "en": "Choose the kind on the right: a ceiling lamp."
+  },
+  {
+   "t": 4.56,
+   "de": "Darunter sagst du, welche Lampe in Home Assistant es ist.",
+   "en": "Below you say which lamp in Home Assistant it is."
+  },
+  {
+   "t": 7.04,
+   "de": "Dann in den Raum klicken: da hängt sie.",
+   "en": "Then click into the room: there it hangs."
+  },
+  {
+   "t": 9.45,
+   "de": "Genauso ein Sofa aus der Bibliothek.",
+   "en": "A sofa from the library works the same way."
+  },
+  {
+   "t": 16.79,
+   "de": "Im 3D-Bild steht alles, wie es wirklich ist.",
+   "en": "In the 3D view everything stands as it really does."
+  }
+ ],
+ "duration": 24.64,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

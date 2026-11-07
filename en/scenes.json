@@ -1,0 +1,30 @@
+{
+ "id": "scenes",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten stehen deine Szenen.",
+   "en": "Your scenes are at the bottom."
+  },
+  {
+   "t": 3.81,
+   "de": "Ein Tipp auf „TV-Abend“ startet die Szene.",
+   "en": "Tap “TV evening” to start the scene."
+  },
+  {
+   "t": 8.56,
+   "de": "Die zuletzt gestartete Szene ist markiert.",
+   "en": "The scene started last is marked."
+  },
+  {
+   "t": 9.76,
+   "de": "„Gute Nacht“ macht alles aus.",
+   "en": "“Good night” turns everything off."
+  }
+ ],
+ "duration": 16.46,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

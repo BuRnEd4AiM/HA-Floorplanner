@@ -1,0 +1,70 @@
+{
+ "id": "energy-calc",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben im Bearbeiten: „Strom“. Jetzt siehst du nur die Stromgeräte und „Strom jetzt“.",
+   "en": "At the top while editing: “Power”. Now you see only the power devices and “Power now”."
+  },
+  {
+   "t": 6.78,
+   "de": "Daneben: „Rechnung“, der Strom-Rechner.",
+   "en": "Next to it: “Bookkeeping”, the power calculator."
+  },
+  {
+   "t": 11.49,
+   "de": "Hier legst du fest, welcher Sensor aus Home Assistant was misst.",
+   "en": "Here you set which sensor of Home Assistant measures what."
+  },
+  {
+   "t": 12.69,
+   "de": "Am schnellsten: „⤵ Aus dem Energie-Dashboard übernehmen“.",
+   "en": "The quickest way: “⤵ Take over from the energy dashboard”."
+  },
+  {
+   "t": 18.01,
+   "de": "Es zeigt, was es gefunden hat. „✓ Übernehmen“ trägt alles ein.",
+   "en": "It shows what it found. “✓ Take over” fills it all in."
+  },
+  {
+   "t": 24.91,
+   "de": "Die Checkliste sagt, was fertig ist und was noch fehlt.",
+   "en": "The check list says what is done and what is still missing."
+  },
+  {
+   "t": 27.49,
+   "de": "„So wird gerade gerechnet“: Solar + Netz − Batterie = was das Haus braucht.",
+   "en": "“How it is counted right now”: solar + grid − battery = what the house uses."
+  },
+  {
+   "t": 30.25,
+   "de": "Darunter jeder Teil einzeln: ein Sensor oder zwei, und „Vorzeichen umdrehen“, wenn er andersherum zählt.",
+   "en": "Below, every part on its own: one sensor or two, and “turn the sign round” when it counts the other way."
+  },
+  {
+   "t": 35.62,
+   "de": "Bei „Räume“ ordnet „Vorschlagen“ die Zwischenstecker den Räumen zu.",
+   "en": "Under “Rooms”, “Suggest” puts the smart plugs into their rooms."
+  },
+  {
+   "t": 41.18,
+   "de": "Oben stehen dann die Räume und der „Rest“, den kein Raum misst.",
+   "en": "At the top you then see the rooms and the “rest” that no room measures."
+  },
+  {
+   "t": 44.11,
+   "de": "Zählt ein Sensor falsch herum oder doppelt, steht dort eine Warnung, mit einem Knopf zum Umdrehen.",
+   "en": "When a sensor counts the wrong way or twice, a warning comes up there, with a button to turn it round."
+  },
+  {
+   "t": 46.11,
+   "de": "Fertig: „Strom jetzt“ rechnet so, auch in der Live-Ansicht.",
+   "en": "Done: “Power now” counts like this, in the live view too."
+  }
+ ],
+ "duration": 56.67,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

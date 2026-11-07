@@ -1,0 +1,30 @@
+{
+ "id": "rooms",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Die Wände sind gezeichnet. „Erkennen“ findet die Räume darin.",
+   "en": "The walls are drawn. “Detect” finds the rooms in them."
+  },
+  {
+   "t": 3.21,
+   "de": "Tippe den Raum an.",
+   "en": "Tap the room."
+  },
+  {
+   "t": 5.43,
+   "de": "Rechts bekommt er einen Namen.",
+   "en": "On the right it gets a name."
+  },
+  {
+   "t": 9.03,
+   "de": "Der Name und die Fläche stehen im Plan.",
+   "en": "The name and the area are in the plan."
+  }
+ ],
+ "duration": 12.66,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

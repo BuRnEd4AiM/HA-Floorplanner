@@ -1,0 +1,30 @@
+{
+ "id": "effects",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "An der Wand im Wohnzimmer hängt ein Nanoleaf.",
+   "en": "A Nanoleaf hangs on the wall of the living room."
+  },
+  {
+   "t": 6.0,
+   "de": "Tippe auf seine Kugel.",
+   "en": "Tap its ball."
+  },
+  {
+   "t": 8.06,
+   "de": "Unten in der Karte: die Effekte des Leuchtmittels.",
+   "en": "At the bottom of the card: the effects of the light."
+  },
+  {
+   "t": 12.0,
+   "de": "Mit einem Tipp auf eine Farbe ist er wieder einfarbig.",
+   "en": "Tap a colour and it is one colour again."
+  }
+ ],
+ "duration": 16.5,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

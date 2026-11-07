@@ -1,0 +1,30 @@
+{
+ "id": "floors-add",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben: „＋ Etage“.",
+   "en": "At the top: “＋ Floor”."
+  },
+  {
+   "t": 3.39,
+   "de": "Die neue Etage ist leer; links steht sie über dem Erdgeschoss.",
+   "en": "The new floor is empty; on the left it sits above the ground floor."
+  },
+  {
+   "t": 5.7,
+   "de": "Ein Keller kommt unter „Etage verwalten“ dazu.",
+   "en": "A basement is added under “Manage floor”."
+  },
+  {
+   "t": 10.66,
+   "de": "So hat das Haus jetzt drei Etagen.",
+   "en": "Now the house has three floors."
+  }
+ ],
+ "duration": 14.29,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

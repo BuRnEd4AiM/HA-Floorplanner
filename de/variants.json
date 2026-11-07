@@ -1,0 +1,35 @@
+{
+ "id": "variants",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 5.79,
+   "de": "Unten rechts: „Bearbeiten“.",
+   "en": "Bottom right: “Edit”."
+  },
+  {
+   "t": 8.41,
+   "de": "Unter der Leiste: „Fassung“. „Für alle“ ist die normale Seite.",
+   "en": "Below the bar: “Version”. “For everyone” is the normal page."
+  },
+  {
+   "t": 11.04,
+   "de": "„＋ Neue Fassung“ macht eine eigene Seite, zum Beispiel für die Kinder.",
+   "en": "“＋ New version” makes a page of its own, for example for the children."
+  },
+  {
+   "t": 13.75,
+   "de": "Danach wählst du, wer diese Fassung sieht, und richtest sie ein wie jede Seite.",
+   "en": "Then you choose who sees this version and set it up like any page."
+  },
+  {
+   "t": 16.56,
+   "de": "„Ansehen als …“ zeigt die Seite so, wie ein Benutzer sie sieht.",
+   "en": "“View as …” shows the page the way a user sees it."
+  }
+ ],
+ "duration": 22.21,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

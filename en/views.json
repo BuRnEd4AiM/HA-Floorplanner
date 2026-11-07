@@ -1,0 +1,30 @@
+{
+ "id": "views",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben schaltest du zwischen 2D und 3D um.",
+   "en": "Switch between 2D and 3D at the top."
+  },
+  {
+   "t": 6.31,
+   "de": "2D zeigt den Grundriss von oben, mit Lampen und Fenstern.",
+   "en": "2D shows the floor plan from above, with lamps and windows."
+  },
+  {
+   "t": 7.81,
+   "de": "„2D + 3D“ zeigt beides nebeneinander.",
+   "en": "“2D + 3D” shows both side by side."
+  },
+  {
+   "t": 11.01,
+   "de": "Und zurück zum 3D-Bild.",
+   "en": "And back to the 3D view."
+  }
+ ],
+ "duration": 16.27,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

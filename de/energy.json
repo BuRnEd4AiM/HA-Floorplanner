@@ -1,0 +1,30 @@
+{
+ "id": "energy",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe unten auf „Energie“.",
+   "en": "Tap “Energy” at the bottom."
+  },
+  {
+   "t": 4.55,
+   "de": "Oben: Verbrauch, vom Dach, aus dem Netz und die Kosten.",
+   "en": "At the top: usage, from the roof, from the grid and the costs."
+  },
+  {
+   "t": 6.35,
+   "de": "Die Balken zeigen jede Stunde: orange vom Dach, blau aus dem Netz.",
+   "en": "The bars show every hour: orange from the roof, blue from the grid."
+  },
+  {
+   "t": 8.67,
+   "de": "„Woche“, „Monat“ oder „Jahr“ zeigt längere Zeiten.",
+   "en": "“Week”, “Month” or “Year” shows longer times."
+  }
+ ],
+ "duration": 15.47,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

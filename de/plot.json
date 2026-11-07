@@ -1,0 +1,30 @@
+{
+ "id": "plot",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.42,
+   "de": "Oben: „Grundstück“.",
+   "en": "At the top: “Plot”."
+  },
+  {
+   "t": 2.7,
+   "de": "„Grundstück um das Haus“ legt Rasen rundherum.",
+   "en": "“Plot around the house” puts lawn all around."
+  },
+  {
+   "t": 5.62,
+   "de": "Dann eine Fläche, zum Beispiel eine Terrasse, als Rechteck aufziehen.",
+   "en": "Then an area, for example a terrace, dragged as a rectangle."
+  },
+  {
+   "t": 11.62,
+   "de": "Im 3D-Bild liegt alles im Gelände.",
+   "en": "In the 3D view it all lies in the ground."
+  }
+ ],
+ "duration": 16.69,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

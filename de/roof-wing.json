@@ -1,0 +1,45 @@
+{
+ "id": "roof-wing",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Ein L-Haus mit Kniestock: das Dach liegt nur über einem Flügel.",
+   "en": "An L-shaped house on a knee wall: the roof covers one wing only."
+  },
+  {
+   "t": 2.6,
+   "de": "„＋ Weiteres Dach“ legt ein Dach über den zweiten Flügel.",
+   "en": "“+ Further roof” puts a roof over the second wing."
+  },
+  {
+   "t": 7.93,
+   "de": "„Sitzt auf: wie das Hauptdach“: gleich hoch, auch auf dem Kniestock.",
+   "en": "“Sits on: like the main roof”: the same height, on the knee wall too."
+  },
+  {
+   "t": 12.81,
+   "de": "Die beiden Dächer schneiden sich in den Kehlen, wie eine Gaube im Dach.",
+   "en": "The two roofs cut into each other in the valleys, like a dormer in the roof."
+  },
+  {
+   "t": 15.51,
+   "de": "„Firstrichtung“: 0° oder 90° hält den First fest, auch wenn sich die Größe ändert.",
+   "en": "“Ridge direction”: 0° or 90° keeps the ridge, also when the size changes."
+  },
+  {
+   "t": 21.92,
+   "de": "Im Dachgeschoss folgen die Wände beiden Dachschrägen.",
+   "en": "On the attic floor the walls follow both roof slopes."
+  },
+  {
+   "t": 28.43,
+   "de": "„Ganzes Haus“: beide Dächer auf gleicher Höhe.",
+   "en": "“Whole house”: both roofs at the same height."
+  }
+ ],
+ "duration": 35.46,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

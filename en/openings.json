@@ -1,0 +1,35 @@
+{
+ "id": "openings",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.42,
+   "de": "Oben: „Tür/Fenster“.",
+   "en": "At the top: “Door/Window”."
+  },
+  {
+   "t": 2.42,
+   "de": "Rechts die Art wählen, zum Beispiel „Haustür“.",
+   "en": "Choose the kind on the right, for example “Front door”."
+  },
+  {
+   "t": 4.4,
+   "de": "Mit der Maus über die Wand fahren und klicken.",
+   "en": "Move the mouse over the wall and click."
+  },
+  {
+   "t": 7.62,
+   "de": "Jetzt Fenster: links „Fenster“, dann auf die Wände.",
+   "en": "Now windows: “Window”, then click the walls."
+  },
+  {
+   "t": 12.71,
+   "de": "Im 3D-Bild sind Tür und Fenster gleich da.",
+   "en": "Door and windows are in the 3D view right away."
+  }
+ ],
+ "duration": 17.99,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

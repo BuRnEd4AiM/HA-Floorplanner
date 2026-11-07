@@ -1,0 +1,35 @@
+{
+ "id": "household",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe unten auf „Haushalt“.",
+   "en": "Tap “Household” at the bottom."
+  },
+  {
+   "t": 4.87,
+   "de": "Die Waschmaschine sagt, wann sie fertig ist.",
+   "en": "The washing machine says when it is done."
+  },
+  {
+   "t": 7.2,
+   "de": "„Saugen“ schickt den Saugroboter los.",
+   "en": "“Vacuum” sends the robot vacuum off."
+  },
+  {
+   "t": 10.02,
+   "de": "Auf die Einkaufsliste kommt etwas Neues …",
+   "en": "Something new goes on the shopping list …"
+  },
+  {
+   "t": 12.7,
+   "de": "… und ein Tipp hakt es ab.",
+   "en": "… and a tap ticks it off."
+  }
+ ],
+ "duration": 16.54,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

@@ -1,0 +1,60 @@
+{
+ "id": "nanoleaf-edit",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Rechts unter „Objekte“ den Nanoleaf suchen und antippen.",
+   "en": "On the right under “Objects”, search for the Nanoleaf and tap it."
+  },
+  {
+   "t": 6.79,
+   "de": "Er hängt an der Wand im Wohnzimmer.",
+   "en": "It hangs on the wall of the living room."
+  },
+  {
+   "t": 8.59,
+   "de": "Rechts: „✎ Layout bearbeiten“.",
+   "en": "On the right: “✎ Edit layout”."
+  },
+  {
+   "t": 11.8,
+   "de": "Oben die Form: Dreieck, kleines Dreieck, Sechseck, Quadrat oder Linie.",
+   "en": "At the top the shape: triangle, small triangle, hexagon, square or line."
+  },
+  {
+   "t": 19.36,
+   "de": "Ins Feld klicken: gelb zeigt, wo es hinkommt, die Kante rastet am Nachbarn ein.",
+   "en": "Click into the field: yellow shows where it goes, the edge snaps onto its neighbour."
+  },
+  {
+   "t": 27.55,
+   "de": "Ein Sechseck dazu.",
+   "en": "Add a hexagon."
+  },
+  {
+   "t": 33.67,
+   "de": "„Drehen“ (oder die Taste R) dreht das nächste Panel, ein Rechtsklick löscht eins.",
+   "en": "“Rotate” (or the key R) turns the next panel, a right click erases one."
+  },
+  {
+   "t": 41.21,
+   "de": "„Zurück“ nimmt den letzten Schritt zurück.",
+   "en": "“Undo” takes the last step back."
+  },
+  {
+   "t": 44.27,
+   "de": "Unten: wie viele Panels es sind; über der Form: wie groß sie wird.",
+   "en": "At the bottom: how many panels there are; above the shape: how big it gets."
+  },
+  {
+   "t": 47.59,
+   "de": "„Übernehmen“: an der Wand hängt die neue Form. Dann „Speichern“.",
+   "en": "“Apply”: the new shape hangs on the wall. Then “Save”."
+  }
+ ],
+ "duration": 56.4,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}

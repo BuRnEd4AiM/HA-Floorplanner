@@ -1,0 +1,30 @@
+{
+ "id": "lightgroups",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben siehst du, wie viele Lampen gerade an sind.",
+   "en": "At the top you see how many lamps are on right now."
+  },
+  {
+   "t": 3.39,
+   "de": "Ein Tipp zeigt sie nach Bereichen.",
+   "en": "A tap shows them by area."
+  },
+  {
+   "t": 6.83,
+   "de": "„Aus“ zweimal tippen: der ganze Bereich geht aus.",
+   "en": "Tap “Off” twice: the whole area goes off."
+  },
+  {
+   "t": 13.7,
+   "de": "Die Zahl oben zählt gleich mit.",
+   "en": "The number at the top counts along."
+  }
+ ],
+ "duration": 18.26,
+ "version": "4.69.0",
+ "date": "2026-11-07",
+ "slow": 2.0
+}
