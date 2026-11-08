@@ -101,7 +101,7 @@ export function initCards(ctx) {
     box.append(wrap);
   }
   function thermostat(c, box) {
-    const { el } = ctx.thermo.render(c.entity, c.size || 'big');     // the circle like Home Assistant's (#495, thermostatui.js)
+    const { el } = ctx.thermo.render(c.entity, c.size || 'big', { card: c });     // the circle like Home Assistant's (#495, thermostatui.js)
     if (el) box.append(el);
   }
   function light(c, box) {

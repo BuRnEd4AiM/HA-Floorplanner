@@ -120,7 +120,11 @@ export function initCardEditor(ctx) {
       field(t('ce.text'), area);
     }
     if (card.type === 'graph') field(t('ce.hours'), seg(HOURS, (h) => t(`ce.hours.${h}`), 'hours'));
-    if (card.type === 'thermostat') { draft.size = draft.size || 'big'; field(t('th.size'), seg(SIZES, (v) => t(`th.size.${v}`), 'size')); }   // the circle big or small (#495)
+    if (card.type === 'thermostat') {
+      draft.size = draft.size || 'big'; field(t('th.size'), seg(SIZES, (v) => t(`th.size.${v}`), 'size'));   // the circle big or small (#495)
+      draft.pause = draft.pause !== false;                                    // ⏸️ Heizplan aussetzen in this card (heatpauseui.js)
+      field(`⏸️ ${t('hp.card')}`, seg([true, false], (v) => t(v ? 'hp.card.show' : 'hp.card.hide'), 'pause'));
+    }
     if (card.type === 'cover') {                     // the quick positions under ▲ ■ ▼ (coverrow.js): tap to take one in or out, at most six
       draft.presets = cleanPresets(draft.presets);
       const row = make('div', 'ceSeg'); row.dataset.field = 'presets';

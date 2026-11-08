@@ -9,7 +9,7 @@ import { cameraPage } from './cameras.js';
 export function initCameraPage(ctx) {
   const { t, el } = ctx;
   let big = null, drawn = '';                     // the camera shown big (entity), what is drawn (so a state change that shows nothing new draws nothing)
-  const model = () => cameraPage(ctx.cams.list(), ctx.layout().floors);
+  const model = () => cameraPage(ctx.cams.list().filter((c) => ctx.shows?.(c.entity) !== false), ctx.layout().floors);   // not those of another building (#677)
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
   function head(title, sub, m) {

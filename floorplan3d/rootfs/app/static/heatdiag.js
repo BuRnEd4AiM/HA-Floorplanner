@@ -70,6 +70,7 @@ export function roomWords(s, t, deg) {
   else if (s.waiting) out = `🪟 ${t('hd.r.waiting')}`;
   else if (s.skip) out = `🔥 ${t('hr.line.skip')}`;
   else if (s.why === 'boost') out = `🚀 ${t('hr.boost')}`;
+  else if (s.why === 'pause') out = `⏸️ ${t('hr.mark.pause')}`;
   else if (s.why === 'warm') out = `🔥 ${warmText(s, t, deg)}`;
   else if (s.why === 'schedule' && s.hand) { const d = new Date(s.hand * 1000); out = `✋ ${t('hr.line.hand', { at: hhmm(d.getHours() * 60 + d.getMinutes()), level, v })}`; }
   else if (s.why) out = t(`hr.line.${s.why}`, { v, level });

@@ -21,6 +21,8 @@ export const TAB_KEYS = TABS.map(([k]) => k);
 export const HOME = 'house';
 /** own pages of an admin (#484): settings.customTabs [{ id: 'p_…', name, icon }], their place in the bar settings.tabOrder */
 export const CUSTOM_ID = /^p_[a-z0-9]{3,16}$/;
+/** a building of the plan an own page belongs to (#409, #677) */
+export const BUILDING_ID = /^[A-Za-z0-9_-]{1,40}$/;
 export const MAX_CUSTOM = 8;
 export const isTabKey = (k) => typeof k === 'string' && (TAB_KEYS.includes(k) || CUSTOM_ID.test(k));
 /** a lock of the users dialog (userlocks.js) that takes a tab away as well: no camera page for a user who may not see the cameras, no
@@ -66,7 +68,8 @@ export function cleanCustomTabs(list) {
   const ids = new Set();
   return (Array.isArray(list) ? list : []).filter((x) => x && typeof x === 'object' && CUSTOM_ID.test(x.id) && !ids.has(x.id) && ids.add(x.id))
     .slice(0, MAX_CUSTOM).map((x) => ({ id: x.id, name: (typeof x.name === 'string' && x.name.trim() ? x.name.trim() : '?').slice(0, 30),
-      icon: typeof x.icon === 'string' && x.icon.trim() && [...x.icon.trim()].length <= 8 ? x.icon.trim() : '⭐' }));
+      icon: typeof x.icon === 'string' && x.icon.trim() && [...x.icon.trim()].length <= 8 ? x.icon.trim() : '⭐',
+      ...(typeof x.building === 'string' && BUILDING_ID.test(x.building) ? { building: x.building } : {}) }));   // a page of one building (#677)
 }
 /** the order of the bar made safe: tab keys each once, never the house (it is always first), at most 30 */
 export const cleanTabOrder = (list) => [...new Set((Array.isArray(list) ? list : []).filter((k) => isTabKey(k) && k !== HOME))].slice(0, 30);

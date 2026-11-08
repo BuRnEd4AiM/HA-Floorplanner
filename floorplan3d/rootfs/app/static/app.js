@@ -138,7 +138,8 @@ import { initEnergySetup } from './energysetup.js';
 import { initNotifyUi } from './notifyui.js';
 import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.js';
 import { initGuardUi } from './guardui.js';
-import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding } from './buildings.js';
+import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding, buildingsOf } from './buildings.js';
+import { buildingSets, buildingFilter, cardShows, pageShows } from './buildingents.js';
 import { initBuildingsUi } from './buildingsui.js';
 import { initPicking } from './picking.js';
 import { batchModels, unbatch } from './meshmerge.js';
@@ -623,6 +624,21 @@ function roomHeat(room, f) {
   return v === null ? null : colorFromStops(settings[VIEW_STOPS[viewMode][0]], v);
 }
 const areaEntitiesOf = (room) => (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []);
+/* only what belongs to the building shown at the top, on every page (#677, buildingents.js): (entity) -> boolean, worked out again when the
+ * plan, the areas or the building change (and every few seconds while somebody edits) */
+let bldMemo = { key: '' };
+const inBuilding = (e) => {
+  const shown = buildingsUi?.shown() ?? null;
+  if (!shown) return true;
+  const key = `${shown}|${Math.floor(Date.now() / 4000)}`;
+  if (bldMemo.key !== key || bldMemo.layout !== layout || bldMemo.areas !== areas) {
+    const h = { devices: (f) => entityDevices(f).map((d) => d.entity), area: areaEntitiesOf,
+      openings: (f) => openingWalls(f).flatMap((w) => (w.openings || []).flatMap((o) => openingEntities(o))) };
+    bldMemo = { key, layout, areas, fn: buildingFilter(buildingSets(buildingsOf(layout).map((b) => b.id), (b) => viewOf(layout, b), h), shown) };
+  }
+  return bldMemo.fn(e);
+};
+const roomInBuilding = (id) => shownLayout().floors.some((f) => (f.rooms || []).some((r) => r.id === id));
 let partsOf = [null, {}];                                        // the sensors of thermostats' devices, worked out once per list of areas
 const partOf = () => (partsOf[0] === areas ? partsOf[1] : (partsOf = [areas, thermostatParts(areas)])[1]);
 /* favourites (#471): buttons in front of the room tiles, ☆ on a device's card, the list in ⚙ → "Quick access"; favoritesui.js */
@@ -637,7 +653,7 @@ const lightGroups = initLightGroups({ $, t, layout: () => shownLayout(), plan: (
   openSettings: () => openSettingsAt('quick'), commit: () => commitSettings(), isOpen: () => !$('#lightsMenu').hidden, close: () => toggleMenu($('#lightsMenu'), $('#lightsPill'), false) });
 const rulesUi = initRulesUi({                                    // the add-on's own heating rules and routines, 🔎 Wird benutzt (#546, rulesui.js)
   t, lang: () => currentLanguage(), settings: () => settings, states: () => states, entities: () => entities, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
-  canEdit: () => me.canEdit, locked: () => locks.has('control'), callService: (e, svc, data) => live.callService(e, svc, data), houseId: () => hs.id(),
+  canEdit: () => me.canEdit, locked: () => locks.has('control'), locks: () => locks, callService: (e, svc, data) => live.callService(e, svc, data), houseId: () => hs.id(),
   layout: () => shownLayout(), details: (e) => live.detailsButton(e, true), tabs: () => tabsUi, climate: () => climatePage, routines: () => routinesPage,
   redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); }, partOf, areas: () => areas, areaOf: () => areaOf,   // ▶ Abläufe by room (#590)
 });
@@ -745,10 +761,13 @@ const dash = initDashboards({                                    // the pages ar
   usedBy: (e) => rulesUi.usedBy.button(e),                       // 🔎 Wird benutzt in that window (#546)
   me: () => me, refill: () => settingsStore.fill(),              // the own versions of a page per user (#507)
   locked: () => locks.has('control'),                            // no scene bar for who may not switch (#597)
+  pause: rulesUi.pause,                                          // ⏸️ Heizplan aussetzen under − / + of every thermostat (heatpauseui.js)
+  shows: inBuilding, building: () => buildingsUi?.shown() ?? null,   // only what belongs to the building shown (#677): own cards, pages, scene bar
+  cardShows: (c, ents) => cardShows(c, ents, inBuilding, roomInBuilding), pageShows: (p) => pageShows(p, buildingsUi?.shown() ?? null),
 });
 const board = dash.board;
 const camPage = initCameraPage({
-  t, el: $('#tabPages [data-page=cameras]'), cams, layout: () => layout, settings: () => lockedSettings(settings, [...locks]), board,
+  t, el: $('#tabPages [data-page=cameras]'), cams, layout: () => layout, settings: () => lockedSettings(settings, [...locks]), board, shows: inBuilding,
   showDevice: (fi, id) => { tabsUi.show('house'); offline.show({ floor: fi, kind: 'device', id }); },
 });
 const namesOf = (re) => Object.fromEntries(entities.filter((e) => re.test(e.entity_id)).map((e) => [e.entity_id, e.name]));
@@ -763,14 +782,14 @@ const todayPage = initTodayPage({                                // ☀ Heute (p
 const climatePage = initClimatePage({                            // 🌡 Klima (pageclimate.js, climate.js, #483)
   t, el: $('#tabPages [data-page=climate]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => shownLayout(),
   placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf, isOpen: (e) => isOpen(e), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
-  callService: (e, svc, data) => live.callService(e, svc, data), openRoom: openRoomAt, board, thermo: dash.thermo,   // the thermostat as a circle (#495)
+  callService: (e, svc, data) => live.callService(e, svc, data), openRoom: openRoomAt, board, thermo: dash.thermo, shows: inBuilding,   // the thermostat as a circle (#495)
   heat: rulesUi.heat, plan: rulesUi.plan, diag: rulesUi.diag,     // 📋 Heiz-Regeln, 📅 Heizplan (#546), 🩺 Protokoll (#579)
 });
 const routinesPage = initRoutinesPage({                          // ▶ Abläufe (pageroutines.js, routines.js, #483)
   t, el: $('#tabPages [data-page=routines]'), states: () => states, settings: () => settings, canEdit: () => me.canEdit,
   names: () => namesOf(/^(scene|script|button|input_button|media_player|lock|automation)\./),
   openNames: () => openings.items().map((x) => x.name), litLights: () => lightGroups.lit(),
-  callService: (e, svc, data) => live.callService(e, svc, data), board, own: rulesUi.own,   // the own routines (#546)
+  callService: (e, svc, data) => live.callService(e, svc, data), board, own: rulesUi.own, shows: inBuilding,   // the own routines (#546)
   groups: rulesUi.groups, areaOf: () => areaOf,                   // by room (#590)
 });
 const roomOf = (e) => placeOf(layout, e)?.room || areas.find((a) => a.id === areaOf[e])?.name || '';   // the room of a device: in the plan, else its area
@@ -779,17 +798,17 @@ const logPage = initLogPage({                                    // 📜 Protoko
   rooms: () => [...new Set(shownLayout().floors.flatMap((f) => (f.rooms || []).map((r) => r.name).filter(Boolean)))],
   openings: () => new Set(shownLayout().floors.flatMap((f) => openingWalls(f).flatMap((w) => (w.openings || []).flatMap((o) => openingEntities(o))))),
   canEdit: () => me.canEdit, deg: (c) => { const v = settings.units === 'imperial' ? c * 9 / 5 + 32 : c; return `${v.toLocaleString(currentLanguage(), { maximumFractionDigits: 1 })}°`; },
-  usedBy: () => rulesUi.usedBy,
+  usedBy: () => rulesUi.usedBy, shows: inBuilding,
 });
 const mediaPage = initMediaPage({                                // 🎵 Musik & TV (pagemedia.js, media.js, #490)
   t, el: $('#tabPages [data-page=media]'), states: () => states, names: () => namesOf(/^media_player\./), roomOf, settings: () => settings,
-  canEdit: () => me.canEdit, callService: (e, svc, data) => live.callService(e, svc, data), board,
+  canEdit: () => me.canEdit, callService: (e, svc, data) => live.callService(e, svc, data), board, shows: inBuilding,
 });
 const householdPage = initHouseholdPage({                        // 🧺 Haushalt (pagehousehold.js, household.js, #490)
   t, el: $('#tabPages [data-page=household]'), lang: () => currentLanguage(), states: () => states, names: () => namesOf(/^vacuum\./),
   entities: () => entities, settings: () => settings,   // 🚗 the car and 🌱 the garden (#533)
   callService: (e, svc, data) => live.callService(e, svc, data), locked: () => locks.has('control'), builtin: (k) => todayPage.card(k),
-  changed: () => tabsUi.update(), board,
+  changed: () => tabsUi.update(), board, shows: inBuilding,
 });
 const familyPage = initFamilyPage({                              // 👨‍👩‍👧 Familie with the pinboard (pagefamily.js, family.js, #483)
   t, el: $('#tabPages [data-page=family]'), lang: () => currentLanguage(), states: () => states, names: () => namesOf(/^person\./), pinboard, board,
@@ -1105,6 +1124,7 @@ buildingsUi = initBuildingsUi({
   snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), confirm: (x) => confirm(x),
   shownChanged: () => {                                            // another building shown: its floor (the ground floor when the open one has nothing of it), framed
     refreshView();
+    if (tabsUi) { tabsUi.redraw(); tabsUi.render(tabsUi.open()); }   // the pages show only what belongs to it (#677)
     if (view && !floorShown(floorIdx, true)) {
       const ok = view.floors.map((_, i) => i).filter((i) => floorShown(i, true));
       if (ok.length) floorIdx = ok.find((i) => i >= groundIdx()) ?? ok[0];

@@ -11,7 +11,7 @@ export function initMediaPage(ctx) {
   let drawn = '', dlg = null, sliding = false, waiting = false;
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
-  const list = () => players(ctx.states(), { names: ctx.names(), roomOf: ctx.roomOf });
+  const list = () => players(ctx.states(), { names: ctx.names(), roomOf: ctx.roomOf }).filter((p) => ctx.shows?.(p.entity) !== false);   // not those of another building (#677)
   const stations = () => cleanStations(ctx.settings().radioStations);
   const nameOf = (p) => (p.room && p.room !== p.name ? `${p.room} · ${p.name}` : p.name);
   const stateWord = (s) => { const k = `mp.st.${s}`, w = t(k); return w === k ? s : w; };

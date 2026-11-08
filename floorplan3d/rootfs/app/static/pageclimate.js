@@ -15,7 +15,7 @@ import { openingEntities } from './openings.js';
 /** ctx: t, el (the page), lang(), settings(), states(), layout() (the building shown), placed(floor) (its devices with entities),
  *  areaEntities(room), partOf() (the sensors of thermostats, roomReading), isOpen(entity), nameOf(entity), callService(entity, service, data), openRoom(floorIndex, roomId), board (pageboard.js,
  *  #484: the cards in the order an admin chose; keys room:<id>, loose, tip), thermo (thermostatui.js, #495), heat (heatrulesui.js), plan
- *  (heatplanui.js) (#546), diag (heatdiagui.js, 🩺 Protokoll, #579) */
+ *  (heatplanui.js) (#546), diag (heatdiagui.js, 🩺 Protokoll, #579), shows(entity) (in the building shown, #677) */
 export function initClimatePage(ctx) {
   const { t, el } = ctx;
   const pending = new Map();                         // entity -> { v, timer }: a target tapped but not sent yet
@@ -107,7 +107,8 @@ export function initClimatePage(ctx) {
 
   function model() {
     const st = ctx.states(), list = climateRooms(rooms(), st, ctx.settings().co2Stops, ctx.partOf?.());
-    const loose = looseClimates(st, list.flatMap((r) => r.ids.filter((e) => e.startsWith('climate.') || e.startsWith('water_heater.'))));
+    const loose = looseClimates(st, list.flatMap((r) => r.ids.filter((e) => e.startsWith('climate.') || e.startsWith('water_heater.'))))
+      .filter((x) => ctx.shows?.(x.entity) !== false);   // not the thermostats of another building (#677)
     const wx = weatherEntity(ctx.settings(), st);
     return { rooms: list, loose, tips: climateTips(list), outside: st[wx]?.wx?.t ?? null };
   }

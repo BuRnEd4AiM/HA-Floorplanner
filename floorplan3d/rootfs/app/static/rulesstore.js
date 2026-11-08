@@ -46,7 +46,7 @@ export function initRulesStore(ctx) {
     get: () => data,
     status: (key) => data?.status?.rooms?.[key] || null,
     lane: (key) => data?.status?.lanes?.[key] || null,
-    room: async (key, act) => { const ok = !!(await send('POST', 'api/rules/room', { room: key, act })); later(); return ok; },
+    room: async (key, act, extra = {}) => { const ok = !!(await send('POST', 'api/rules/room', { ...extra, room: key, act })); later(); return ok; },   // extra: { for } of ⏸️
     run: async (flow, lane, test = false) => { const ok = !!(await send('POST', 'api/rules/run', { flow, lane, test })); later(); return ok; },
   };
 }

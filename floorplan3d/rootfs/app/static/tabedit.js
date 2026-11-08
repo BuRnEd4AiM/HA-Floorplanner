@@ -9,7 +9,8 @@ import { newCardId } from './pagelayout.js';
 export const ICONS = ['🌱', '🏊', '🚗', '🐶', '🎮', '🛏️', '🍳', '🧒', '🏡', '🔧', '🌤️', '🔒', '🎄', '🎉', '📚', '💼', '🧘', '🐔', '🚲', '⭐'];
 
 /** ctx: t, $, settings(), save(), areas() ([{ id, name, entities }]), states(), tabs() (the tabs of the bar now: [{ key, icon, name }]),
- *  tabName(key), changed() (the bar draws again), show(tab), board (pageboard.js) */
+ *  tabName(key), changed() (the bar draws again), show(tab), board (pageboard.js), buildings() (the buildings of the plan: a page can
+ *  belong to one, #677) */
 export function initTabEdit(ctx) {
   const { t, $ } = ctx;
   const bar = $('#tabBar'), help = $('#tabEditBar');
@@ -78,11 +79,19 @@ export function initTabEdit(ctx) {
     ICONS.forEach((i) => grid.append(btn('', i, () => { icon = i; mark(); })));
     mark();
     field(t('te.icon'), grid);
-    return { f, field, name, icon: () => icon };
+    const bs = ctx.buildings?.() || [];                                    // a page of one building: shows only with it (#677)
+    let sel = null;
+    if (bs.length >= 2) {
+      sel = make('select', 'ceSelect'); sel.dataset.role = 'building';
+      sel.append(new Option(`🏘 ${t('te.allBuildings')}`, ''), ...bs.map((b) => new Option(`🏠 ${b.name || b.id}`, b.id)));
+      sel.value = bs.some((b) => b.id === page?.building) ? page.building : '';
+      field(t('te.building'), sel, make('small', 'tpSub', t('te.buildingSub')));
+    }
+    return { f, field, name, icon: () => icon, building: () => sel?.value || page?.building || '' };
   }
   /** "＋ Seite": a new own page */
   function newPage() {
-    const d = open(), { f, field, name, icon } = form(null);
+    const d = open(), { f, field, name, icon, building } = form(null);
     let start = 'empty';
     const area = make('select', 'ceSelect'); area.dataset.role = 'area';
     const areas = ctx.areas().filter((a) => a.entities?.length);
@@ -104,7 +113,7 @@ export function initTabEdit(ctx) {
       const n = name.value.trim();
       if (!n) { name.focus(); return; }
       const s = ctx.settings(), list = custom(), id = newTabId(list.map((x) => x.id));
-      s.customTabs = cleanCustomTabs([...list, { id, name: n, icon: icon() }]);
+      s.customTabs = cleanCustomTabs([...list, { id, name: n, icon: icon(), building: building() }]);
       const keys = tabs.map((x) => x.key).filter((k) => k !== HOME), at = keys.indexOf(after.value);
       keys.splice(at < 0 ? keys.length : at + 1, 0, id);
       s.tabOrder = cleanTabOrder(keys);
@@ -126,11 +135,11 @@ export function initTabEdit(ctx) {
   function ownPage(id) {
     const page = custom().find((x) => x.id === id);
     if (!page) return;
-    const d = open(), { f, name, icon } = form(page);
+    const d = open(), { f, name, icon, building } = form(page);
     const save = btn('bdBtn primary', `✓ ${t('ce.save')}`, () => {
       const n = name.value.trim();
       if (!n) { name.focus(); return; }
-      ctx.settings().customTabs = custom().map((x) => (x.id === id ? { ...x, name: n, icon: icon() } : x));
+      ctx.settings().customTabs = custom().map((x) => (x.id === id ? { ...x, name: n, icon: icon(), building: building() } : x));
       ctx.save(); d.close(); ctx.changed();
     });
     const del = btn('bdBtn danger', `🗑 ${t('te.delete')}`, () => {

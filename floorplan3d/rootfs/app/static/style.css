@@ -1647,6 +1647,30 @@ button.tpChip:disabled { opacity: .35; }
 .thPM button { width: 46px; height: 46px; padding: 0; border-radius: 50%; font-size: 24px; font-weight: 700; }
 .th.small .thPM button { width: 40px; height: 40px; font-size: 20px; }
 .thSide { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; min-width: 0; }
+/* ⏸️ Heizplan aussetzen under − / + (heatpauseui.js): held down the bar fills, then the choice opens; paused: green with "fortsetzen" */
+.th.small { flex-wrap: wrap; }
+.hpBar { display: flex; align-items: stretch; gap: 8px; width: 100%; max-width: 340px; flex: none; }
+.hpBar.small { flex-basis: 100%; max-width: none; }
+.hpPause { position: relative; overflow: hidden; display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; padding: 7px 12px; border-radius: 14px;
+  border: 1px solid rgba(180, 140, 255, .65); background: rgba(180, 140, 255, .12); color: var(--text); text-align: left; touch-action: none;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.hpPause .hpIc { font-size: 18px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: rgba(180, 140, 255, .25); flex: none; position: relative; }
+.hpPause .hpTx { display: flex; flex-direction: column; min-width: 0; position: relative; }
+.hpPause .hpTx b { font-size: 14px; } .hpPause .hpTx small { color: var(--muted); font-size: 11.5px; font-weight: 600; }
+.hpPause::before { content: ''; position: absolute; inset: 0; width: 0; background: linear-gradient(90deg, rgba(180, 140, 255, .5), rgba(180, 140, 255, .22)); }
+.hpPause.hold::before { width: 100%; transition: width .7s linear; }
+.hpPause.hint .hpTx small { color: #d9c7ff; animation: hpHint .5s ease 2; }
+@keyframes hpHint { 50% { transform: translateX(4px); } }
+.hpPause.on { border-color: #46a758; background: rgba(70, 167, 88, .14); } .hpPause.on .hpIc { background: rgba(70, 167, 88, .3); }
+.hpMore { flex: none; }
+.hpDlg.ceDlg { width: min(420px, calc(100vw - 32px)); border: 1px solid #b48cff; }
+.hpDlg h3 { text-transform: none; letter-spacing: 0; }
+.hpDlg h3 { margin: 0 0 6px; font-size: 18px; } .hpDlg p { margin: 0 0 10px; }
+.hpOpts { display: flex; flex-direction: column; gap: 6px; }
+.hpOpt { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border-radius: 12px; background: var(--field); border: 1px solid var(--line); color: var(--text); text-align: left; font-size: 15px; }
+.hpOpt small { margin-left: auto; color: var(--muted); font-weight: 600; }
+.hpOpt:hover, .hpOpt:focus-visible { border-color: #b48cff; background: rgba(180, 140, 255, .2); }
+.hpFoot { display: flex; align-items: center; gap: 10px; margin-top: 12px; } .hpFoot small { flex: 1; }
 .thModes { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
 .thMode { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 56px; padding: 6px 8px; border-radius: 12px; }
 .thModes.small .thMode { min-width: 0; padding: 6px 9px; }

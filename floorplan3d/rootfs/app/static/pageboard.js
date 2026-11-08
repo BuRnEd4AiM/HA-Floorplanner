@@ -20,7 +20,7 @@ const ROW = 8, GAP = 14;
 /** ctx: t, settings(), canEdit(), save() (store the settings), cards (cardsui.js), pageName(page), redraw(page) (the page draws itself
  *  again), addCard(page) / editCard(page, card) (cardeditor.js), editTabs() (tabedit.js), editOwnPage(page) (an own page's name, icon),
  *  variants (variantsui.js, #507: shown(page, edit) the version of the page to show, bar(page) its strip in the edit mode, done(page)),
- *  editBar(page) (the window of the scene bar, #597) */
+ *  editBar(page) (the window of the scene bar, #597), cardShows(card) (an own card of the building shown, #677) */
 export function initBoard(ctx) {
   const { t } = ctx;
   let editing = null;
@@ -157,7 +157,8 @@ export function initBoard(ctx) {
       if (el) byKey.set(i.key, { ...i, el });
     });
     const all = arrange([...byKey.keys()], lay).filter((e) => e.own || byKey.has(e.key));
-    const entries = all.filter((e) => !e.hidden && (edit || !e.own?.popup));   // a hidden card is gone in the edit mode too, it is in the row "Ausgeblendet" (#595);
+    const entries = all.filter((e) => !e.hidden && (edit || !e.own?.popup)   // a hidden card is gone in the edit mode too, it is in the row "Ausgeblendet" (#595);
+      && (edit || !e.own || ctx.cardShows?.(e.own) !== false));               // a card of another building than the one shown only in the edit mode (#677)
                                                      // a light card shown as a window only in the edit mode (#597)
     const keep = new Map();
     const els = entries.map((e) => {

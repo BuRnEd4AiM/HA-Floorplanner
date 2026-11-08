@@ -76,6 +76,7 @@ export function cleanCard(c) {
   }
   if (c.type === 'graph' || c.type === 'value') out.color = COLORS.includes(c.color) ? c.color : 'blue';
   if (c.type === 'thermostat') out.size = SIZES.includes(c.size) ? c.size : 'big';      // the circle big or small (#495)
+  if (c.type === 'thermostat' && c.pause === false) out.pause = false;               // no ⏸️ Heizplan aussetzen in this card (only kept when off)
   if (c.type === 'cover') out.presets = cleanPresets(c.presets);                     // 0 % · 50 % · 75 % · 100 % under ▲ ■ ▼
   if (c.type === 'button') Object.assign(out, cleanLook(c));   // symbol, colour, shape, size, what it shows, tap and long press (#495)
   if (c.type === 'calendar') {                       // several calendars, each in its colour (#495)

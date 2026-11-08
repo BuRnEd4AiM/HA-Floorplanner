@@ -10,6 +10,11 @@ Two kinds of rules decide what a thermostat should do:
   too warm (🔥 Zu warm, the owner: "wenn es zu warm ist das dann die heizung runter geht ka so 5 grad das es nicht die ganze zeit heizt";
   his choice: 5° below the wish from 1° too warm, measured by the thermostat's room sensor, else by the thermostat; back at the wish;
   turned by hand meanwhile: lowered again after the minutes of "hand", like the schedule, #592).
+- ⏸️ a pause of the room (the owner, 2026-11-08: "gedrückt halten … Heizplan aussetzen für heute oder für eine halbe, dreiviertel
+  Stunde … dass man selbst manuell regeln kann"; pictures docs/ideen-4.71/): held on a thermostat's button, for some minutes, until the
+  next block of the schedule or the end of the day. Meanwhile it is the first level: the thermostat is left as it is (no level, no
+  "back after the minutes of hand"); the window and too warm only act when an admin chose so, a holiday, the summer pause, nobody at home
+  or the night that starts meanwhile ends it when an admin chose so. When it ends, the level of the moment is set (the schedule).
   Who goes first (the owner: "beachte die Prio von den ganzen Karten das die sich nicht gegenseitig überschreiben"): the window, then
   the boost, then too warm, then the level, as the list ORDER says; a level that changes meanwhile is the new wish, an override that
   ends puts back what was. Every rule decides on how a thermostat will be once it has reported what it was sent (expect, #588).
@@ -31,7 +36,8 @@ LEVELS = ("night", "eco", "comfort")
 # heizungsteureung muss stabiler sein"): this one list decides, step and room_level only go through it; the page says it in 📋 Heiz-Regeln
 # → "Wer hat Vorrang?" (hr.prio.text, tests/test_heatorder.py checks that it is the same order).
 OVERRIDES = ("window", "boost", "warm")                          # for a while, the first that applies: 🪟 window open, 🚀 boost, 🔥 too warm
-LEVEL_ORDER = ("holiday", "summer", "away", "schedule", "night")  # then the first level: ✈️ holiday, ☀️ summer, 🚶 away, 📅 schedule, 🌙 night
+LEVEL_ORDER = ("pause", "holiday", "summer", "away", "schedule", "night")   # then the first level: ⏸️ pause, ✈️ holiday, ☀️ summer,
+                                                                            # 🚶 away, 📅 schedule, 🌙 night
 ORDER = OVERRIDES + LEVEL_ORDER
 ROOM_KEY = re.compile(r"^[A-Za-z0-9_-]{1,40}/[A-Za-z0-9_-]{1,40}$")
 HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
@@ -61,7 +67,9 @@ DEFAULT = {
     "boost": {"on": True, "minutes": 30, "temp": 24.0},
     "holiday": {"on": False, "temp": 15.0, "until": "", "back": "14:00", "guard": False},
     "warm": {"on": False, "above": 1.0, "down": 5.0, "skip": []},
+    "pause": {"on": False, "opts": ["30", "45", "60", "block", "day"], "window": True, "warm": False, "levels": False},
 }
+PAUSE_OPTS = ("15", "30", "45", "60", "90", "120", "180", "block", "day")   # ⏸️ minutes, until the next block of the schedule, until midnight
 
 
 def _int(v, lo, hi, default):
@@ -112,7 +120,7 @@ def clean_rules(data) -> dict:
     """the heating rules as an admin set them, every value checked; what is missing or wrong takes its default"""
     d = data if isinstance(data, dict) else {}
     g = lambda k: d.get(k) if isinstance(d.get(k), dict) else {}   # noqa: E731
-    w, a, n, s, su, b, h, wa = g("window"), g("away"), g("night"), g("schedule"), g("summer"), g("boost"), g("holiday"), g("warm")
+    w, a, n, s, su, b, h, wa, pz = g("window"), g("away"), g("night"), g("schedule"), g("summer"), g("boost"), g("holiday"), g("warm"), g("pause")
     D = DEFAULT
     levels = s.get("levels") if isinstance(s.get("levels"), dict) else {}
     plans = {}
@@ -137,6 +145,9 @@ def clean_rules(data) -> dict:
                     "back": _time(h.get("back"), D["holiday"]["back"]), "guard": _bool(h.get("guard"), False)},
         "warm": {"on": _bool(wa.get("on"), False), "above": _deg(wa.get("above"), 0.5, 5.0, D["warm"]["above"]),
                  "down": _deg(wa.get("down"), 1.0, 15.0, D["warm"]["down"]), "skip": _rooms(wa.get("skip"))},
+        "pause": {"on": _bool(pz.get("on"), False), "opts": [k for k in PAUSE_OPTS if k in (pz.get("opts") if isinstance(pz.get("opts"), list) else D["pause"]["opts"])]
+                  or list(D["pause"]["opts"]), "window": _bool(pz.get("window"), True), "warm": _bool(pz.get("warm"), False),
+                  "levels": _bool(pz.get("levels"), False)},
         "sensors": rs.clean(d.get("sensors")),            # 🌡 Raumfühler: a sensor in the room for each thermostat (roomsensors.py, #573)
     }
 
@@ -255,6 +266,8 @@ def _heat_mode(states, e, cur=None):
 
 
 def apply_level(states, e, level) -> list:
+    if level.get("hold"):                              # ⏸️ a pause: left as it is
+        return []
     if level.get("off"):
         return _set(states, e, "off")
     return _set(states, e, _heat_mode(states, e, "heat"), level["temp"])
@@ -458,6 +471,7 @@ def _night(rules, room, local):
 
 
 _LEVEL = {                                                         # what each level wants now (None: it does not apply)
+    "pause": lambda rules, room, local, ctx: {"hold": True} if room["key"] in (ctx.get("paused") or ()) else None,
     "holiday": lambda rules, room, local, ctx: {"temp": rules["holiday"]["temp"]} if ctx["holiday"] else None,
     "summer": lambda rules, room, local, ctx: {"off": True} if ctx["summer"] else None,
     "away": lambda rules, room, local, ctx: {"temp": rules["away"]["temp"]} if ctx["away"] else None,
@@ -475,6 +489,46 @@ def room_level(rules, room, local, ctx):
     return None
 
 
+def _free(lv) -> bool:
+    """no level, or a pause (⏸️ regulated by hand): a level that comes then takes over"""
+    return lv is None or bool(lv.get("hold"))
+
+
+def _into_pause(view, e, t, base, at) -> list:
+    """an override ends during a pause (⏸️): the thermostat as it would be without the pause (base: the room's level without it, at: the
+    level when the override started), then it is left alone. Begun in a pause: as it was then."""
+    if (at or {}).get("hold"):
+        return restore(view, e, _kept(t, at))
+    if not t.get("moved") and _same(base, at) and (base or {}).get("why") == (at or {}).get("why"):
+        return restore(view, e, t.get("under"))
+    if base:
+        _takeover(t, at, t.get("under"))
+        return apply_level(view, e, base)
+    out = restore(view, e, (t.get("before") if (at or {}).get("why") in PASSING else None) or t.get("under"))
+    t.pop("before", None)
+    return out
+
+
+def _kept(t, at):
+    """what an override puts back that began during a pause (⏸️) or ends with no level: the thermostat as it was when it started; begun
+    during a pause that began in a passing level (the summer pause) and off then: the one from before the rules took over, when there is
+    one (off came from that level, the pause left it so)"""
+    under = t.get("under")
+    if (at or {}).get("hold") and at.get("from") in PASSING and (under or {}).get("mode") == "off" and t.get("before"):
+        return t["before"]
+    return under
+
+
+def _takeover(t, was, now_snap):
+    """a level takes over after was (the level before): from no level the thermostat as it is now is "before" (what comes back when a
+    passing level ends); after a pause the one from before the pause, if there was one (a pause during the summer pause: off is no
+    "before")"""
+    if was is None:
+        t["before"] = now_snap
+    elif was.get("hold") and not t.get("before"):
+        t["before"] = now_snap
+
+
 def _same(a, b) -> bool:
     """two levels set the thermostat alike (night 17° and away 17°: nothing to send)"""
     if a is None or b is None:
@@ -488,6 +542,8 @@ def clean_mem(m) -> dict:
     t = lambda k: m.get(k) if isinstance(m.get(k), (int, float)) and not isinstance(m.get(k), bool) else None   # noqa: E731
     return {"t": {k: v for k, v in d("t").items() if isinstance(v, dict)}, "open": {k: v for k, v in d("open").items() if isinstance(v, (int, float))},
             "boost": {k: v for k, v in d("boost").items() if isinstance(v, (int, float))}, "skip": {k: True for k, v in d("skip").items() if v},
+            "pause": {k: {"until": v["until"], "lv": v.get("lv") if isinstance(v.get("lv"), str) else None} for k, v in d("pause").items()
+                      if isinstance(v, dict) and isinstance(v.get("until"), (int, float)) and not isinstance(v.get("until"), bool)},
             "away": t("away"), "warm": t("warm")}
 
 
@@ -551,9 +607,12 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
             mem["boost"].pop(key, None)
         if not climates:
             continue
-        watched = rules["window"]["on"] and key not in rules["window"]["skip"]
+        room_lv = base_lv = room_level(rules, room, local, ctx)   # the level without a pause: it ends one when it starts (pause "levels")
+        pz = paused_room(rules, mem, key, (room_lv or {}).get("why"), now)
+        if pz:
+            room_lv = {**room_level(rules, room, local, {**ctx, "paused": (key,)}), "from": pz["lv"]}   # from: the level it began in
+        watched = rules["window"]["on"] and key not in rules["window"]["skip"] and (not pz or rules["pause"]["window"])
         due = watched and opened and not mem["skip"].get(key) and now - mem["open"][key] >= rules["window"]["delay"] * 60
-        room_lv = room_level(rules, room, local, ctx)
         for e in climates:
             ac = cools(states, e)                            # an air conditioner: only the window (levels, boost, too warm would heat)
             level = None if ac else room_lv
@@ -566,8 +625,8 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                     ov_e = k if due else None
                 elif k == "boost":
                     ov_e = k if not ac and key in mem["boost"] else None
-                elif k == "warm" and not ac:
-                    warm = too_warm(rules, view, e, level, t, key)
+                elif k == "warm" and not ac and (not pz or rules["pause"]["warm"]):
+                    warm = too_warm(rules, view, e, None if pz else level, t, key)   # paused: the wish is what the thermostat is set to
                     ov_e = k if warm else None
                 if ov_e:
                     break
@@ -587,21 +646,22 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                     out = apply_override(view, e, ov_e, rules, warm and warm[1])
                     t["moved"] = t.get("moved") or not same_lv
                 elif low is not None and not on_way and cur0 is not None and abs(cur0 - low) > half and same_lv:
-                    if level and t.get("lvAtOv") is None:   # turned by somebody while it was too warm: stays as turned (until the next
-                        t["before"] = t.get("under")         # block: one that starts now goes first)
+                    if level:                                # turned by somebody while it was too warm: stays as turned (until the next
+                        _takeover(t, t.get("lvAtOv"), t.get("under"))   # block: one that starts now goes first)
                     t.pop("under", None)
                     t.pop("lvAtOv", None)
                     t.pop("sent", None)
                 else:                                      # it ends: as it was, or the level that came meanwhile
                     at = t.get("lvAtOv")                     # moved: the level changed meanwhile (and came back): no "as it was"
-                    if _same(level, at) and (level or {}).get("why") == (at or {}).get("why") and same_lv and not t.get("moved"):
+                    if (level or {}).get("hold"):            # into a pause: as it would be without it, regulated by hand from there
+                        out = _into_pause(view, e, t, None if ac else base_lv, at)
+                    elif _same(level, at) and (level or {}).get("why") == (at or {}).get("why") and same_lv and not t.get("moved"):
                         out = restore(view, e, t.get("under"))
                     elif level:
-                        if at is None:
-                            t["before"] = t.get("under")
+                        _takeover(t, at, t.get("under"))
                         out = apply_level(view, e, level)
                     else:
-                        out = restore(view, e, (t.get("before") if (at or {}).get("why") in PASSING else None) or t.get("under"))
+                        out = restore(view, e, (t.get("before") if (at or {}).get("why") in PASSING else None) or _kept(t, at))
                         t.pop("before", None)
                     t.pop("under", None)
                     t.pop("lvAtOv", None)
@@ -610,13 +670,19 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
             elif ov_e and not same_lv:
                 t["moved"] = True                            # the level changed during the override (#588)
             elif not ov_e and not same_lv:
-                if level and not old_level:                # rules take over: remember how it was
-                    t["before"] = snap(view, e)
-                    out = apply_level(view, e, level)
-                elif level:
-                    out = [] if _same(level, old_level) else apply_level(view, e, level)
-                else:                                      # no rule any more: back after a passing situation, else left as it is
-                    if old_level.get("why") in PASSING:
+                lvx = level                                # into a pause: first as it would be without it (a passing level that ends
+                if (level or {}).get("hold") and not (old_level or {}).get("hold"):   # just now puts back), then left alone
+                    lvx = None if ac else base_lv
+                if lvx is not level and _same(lvx, old_level) and (lvx or {}).get("why") == (old_level or {}).get("why"):
+                    pass
+                elif lvx and _free(old_level):             # rules take over (also after a pause): remember how it was
+                    _takeover(t, old_level, snap(view, e))
+                    out = apply_level(view, e, lvx)
+                elif lvx:
+                    out = [] if _same(lvx, old_level) else apply_level(view, e, lvx)
+                elif old_level:                            # no rule any more: back after a passing situation, else left as it is
+                    if old_level.get("why") in PASSING or old_level.get("from") in PASSING:   # a pause begun in one that ended
+                                                                                                  # meanwhile: as after it
                         out = restore(view, e, t.get("before"))
                     t.pop("before", None)
             if ov_e == "warm" and old_ov == "warm" and not out and t.get("warmTo") != warm[1]:
@@ -674,6 +740,7 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
         lv, ov1 = first.get("level") or {}, first.get("ov")
         status[key] = {"why": ov1 or lv.get("why"), "temp": lv.get("temp"), "level": lv.get("level"),
                        "since": mem["open"].get(key) if ov1 == "window" else None, "until": mem["boost"].get(key) if ov1 == "boost" else None,
+                       "pause": round(pz["until"]) if pz else None,
                        "back": (first.get("under") or {}).get("temp") if ov1 else None, "open": opened,
                        "waiting": bool(watched and opened and not due and not mem["skip"].get(key)), "skip": bool(mem["skip"].get(key)),
                        "hand": first["hand"] + rules["schedule"]["hand"] * 60 if first.get("hand") else None,
@@ -689,6 +756,66 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
 def held(mem) -> set:
     """the thermostats the window rule holds now (off, or as cold as it goes): a sensor in the room moves nothing there (roomsensors, #577)"""
     return {e for e, t in (mem.get("t") or {}).items() if isinstance(t, dict) and t.get("ov") == "window"}
+
+
+def paused_room(rules, mem, key, base, now):
+    """⏸️ the pause of a room that goes on (its entry in mem["pause"]) or None; one that is over, switched off by an admin, or ended by a
+    holiday, summer pause, nobody at home or night that starts (base: the room's level without the pause; only with "levels") is
+    forgotten. The first look after the tap remembers the level then."""
+    pz = mem["pause"].get(key)
+    if not pz:
+        return None
+    if pz["until"] <= now or not rules["pause"]["on"]:
+        mem["pause"].pop(key)
+        return None
+    if pz["lv"] is None:
+        pz["lv"] = base or ""
+    elif rules["pause"]["levels"] and base in PASSING and base != pz["lv"]:
+        mem["pause"].pop(key)
+        return None
+    return pz
+
+
+def next_block(rules, key: str, local: datetime.datetime):
+    """the minutes until the room's schedule changes its level (the next block with another level), None without a schedule"""
+    s = rules["schedule"]
+    plan = s["rooms"].get(key) if s["on"] else None
+    if not plan:
+        return None
+    m0, wd = local.hour * 60 + local.minute, local.weekday()
+    now = plan_at(plan, wd, m0)
+    for d in range(8):
+        for m, lv in plan["days"][(wd + d) % 7]:
+            if (d > 0 or m > m0) and lv != now:
+                return d * 1440 + m - m0
+    return None
+
+
+def pause_until(rules, key: str, choice: str, now: float, local: datetime.datetime):
+    """when a pause of room key chosen now ends (seconds), None for a choice an admin does not offer, or "block" without a schedule"""
+    p = rules["pause"]
+    if not p["on"] or choice not in p["opts"]:
+        return None
+    if choice.isdigit():
+        return now + int(choice) * 60
+    if choice == "day":
+        return now + (1440 - local.hour * 60 - local.minute) * 60 - local.second
+    mins = next_block(rules, key, local)
+    return None if mins is None else now + mins * 60 - local.second
+
+
+def pause(mem, key: str, until, now: float, act: str = "pause") -> dict:
+    """⏸️ on a room: "pause" until then (a boost running stops: one regulates by hand now), "more" 15 minutes longer, "resume" ends it"""
+    mem = clean_mem(mem)
+    if act == "resume":
+        mem["pause"].pop(key, None)
+    elif act == "more":
+        if key in mem["pause"]:
+            mem["pause"][key]["until"] = max(mem["pause"][key]["until"], now) + 15 * 60
+    elif isinstance(until, (int, float)) and until > now:
+        mem["pause"][key] = {"until": until, "lv": (mem["pause"].get(key) or {}).get("lv")}
+        mem["boost"].pop(key, None)
+    return mem
 
 
 def boost(mem, key: str, now: float, rules) -> dict:

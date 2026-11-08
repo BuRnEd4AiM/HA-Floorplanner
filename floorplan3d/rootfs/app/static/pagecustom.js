@@ -2,7 +2,7 @@
  * One page object per own page, made when it first appears ({ el, render, update, has, reset } like the built-in pages of tabsui.js). */
 import { cleanCustomTabs } from './tabs.js';
 
-/** ctx: t, host (#tabPages), settings(), board, canEdit() */
+/** ctx: t, host (#tabPages), settings(), board, canEdit(), pageShows(page) (a page of one building only with it, #677) */
 export function initCustomPages(ctx) {
   const { t } = ctx;
   const pages = new Map();                           // id -> page
@@ -23,7 +23,7 @@ export function initCustomPages(ctx) {
       ctx.board.fill(id, grid, [], { min: 300 });
       if (!ctx.board.layout(id).cards.length) el.append(make('p', 'tpSub cpEmpty', ctx.canEdit() ? t('cp.emptyEdit') : t('cp.empty')));
     }
-    return { el, render, update: () => ctx.board.refresh(id), has: () => !!info(), reset: () => {} };
+    return { el, render, update: () => ctx.board.refresh(id), has: () => !!info() && ctx.pageShows?.(info()) !== false, reset: () => {} };
   }
   /** the page objects of the own pages that exist now (the section of a deleted one is removed) */
   function all() {
