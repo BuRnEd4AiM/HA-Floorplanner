@@ -2,7 +2,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
 import { hasShutter, curtainStyle, curtainSide, shutterSlats, curtainDepth, curtainHangDepth, SHUTTER_UP, SHUTTER_SPEED, CURTAIN_GATHER, CURTAIN_SPEED } from './shutters.js';
 import { mergeParts } from './meshmerge.js';
-import { windowPanes, paneHinge } from './windowpanes.js';
+import { windowPanes, paneHinge, glassBands } from './windowpanes.js';
 import { tiltAngle } from './windowtilt.js';
 import { sashParts } from './sash.js';
 
@@ -26,6 +26,7 @@ export const OPENING_DEFAULTS = {
   windowTall: { type: 'window', style: 'double',  width: 1.8, height: 2.1,  sill: 0 },
   windowBath: { type: 'window', style: 'single',  width: 0.6, height: 0.6,  sill: 1.5 },
   windowFixed:{ type: 'window', style: 'fixed',   width: 1.6, height: 1.4,  sill: 0.6 },
+  windowFloor:{ type: 'window', style: 'single',  width: 0.9, height: 2.2,  sill: 0, fixedBelow: 1.1 },   // from the floor, only the top opens (#679)
 };
 export const DOOR_STYLES = ['single', 'glass', 'double', 'sliding', 'open', 'gap', 'garage'];
 export const WINDOW_STYLES = ['single', 'double', 'triple', 'fixed'];
@@ -203,7 +204,8 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
     pivot.userData.max = 1.15;
   } else {
     if (o.sill > 0) g.add(boxMesh(x0, x1, s, s + ft, fd, mats.frame));
-    const shade = curtainStyle(o), panes = windowPanes(o), inner = h - 2 * ft;
+    const shade = curtainStyle(o), panes = windowPanes(o), bands = glassBands(o, ft);
+    const yA = s + bands.sash[0], ih = bands.sash[1] - bands.sash[0];   // the panes that open: above the fixed glass below, under the one above (#679)
     /** the sash of a pane that opens (sash.js): its bars and handle as one mesh in the frame's material, so it is tinted with the frame */
     const sash = (x0, x1, y0, y1, hingeAt) => {
       const parts = sashParts({ x0, x1, y0, y1, hingeAt, room: -side });
@@ -223,17 +225,17 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
       let pane, dir = flip * -side, axis = 'x', max = 0.4, glass;
       if (hinge === 'left' || hinge === 'right') {
         const atU1 = hinge === 'left' ? side > 0 : side < 0;   // the hinge on the left seen from inside the room
-        pv.position.set(atU1 ? u1 : u0, s + ft, 0);
-        pane = atU1 ? boxMesh(-pw, 0, 0, inner, 0.015, mats.glass) : boxMesh(0, pw, 0, inner, 0.015, mats.glass);
-        pane.position.y = inner / 2;
+        pv.position.set(atU1 ? u1 : u0, yA, 0);
+        pane = atU1 ? boxMesh(-pw, 0, 0, ih, 0.015, mats.glass) : boxMesh(0, pw, 0, ih, 0.015, mats.glass);
+        pane.position.y = ih / 2;
         dir = flip * (atU1 ? -side : side); axis = 'y'; max = 1.15;     // whatever the side: the pane swings inward unless 开向 says outward
-        glass = atU1 ? [-pw, 0, 0, inner, 'x1'] : [0, pw, 0, inner, 'x0'];
+        glass = atU1 ? [-pw, 0, 0, ih, 'x1'] : [0, pw, 0, ih, 'x0'];
       } else {
         const top = hinge === 'top';
-        pv.position.set(0, s + ft + (top ? inner : 0), 0);
-        pane = top ? boxMesh(u0, u1, -inner, 0, 0.015, mats.glass) : boxMesh(u0, u1, 0, inner, 0.015, mats.glass);
+        pv.position.set(0, yA + (top ? ih : 0), 0);
+        pane = top ? boxMesh(u0, u1, -ih, 0, 0.015, mats.glass) : boxMesh(u0, u1, 0, ih, 0.015, mats.glass);
         dir = flip * (top ? side : -side);
-        glass = top ? [u0, u1, -inner, 0, 'y1'] : [u0, u1, 0, inner, 'y0'];
+        glass = top ? [u0, u1, -ih, 0, 'y1'] : [u0, u1, 0, ih, 'y0'];
       }
       pv.add(pane);
       if (st !== 'fixed' && hinge !== 'fixed') {
@@ -242,8 +244,8 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
         pv.userData.dir = dir; pv.userData.axis = axis; pv.userData.max = max;
         // tilted (#624, windowtilt.js): the pane leans into the room round its bottom edge, whatever its hinge (a tilt-and-turn window)
         const tg = new THREE.Group();
-        tg.position.set(0, s + ft, 0);
-        pv.position.y -= s + ft;
+        tg.position.set(0, yA, 0);
+        pv.position.y -= yA;
         tg.add(pv); g.add(tg);
         tg.userData = { dir: flip * -side, axis: 'x', max: tiltAngle(o), target: 0 };   // its own angle (o.tiltDeg, 14° without one)
         tilts[i] = tg;
@@ -255,9 +257,19 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
     for (let i = 0; i < panes; i++) pvs.push(mkPane(x0 + ft + ((w - 2 * ft) * i) / panes, x0 + ft + ((w - 2 * ft) * (i + 1)) / panes, i));
     for (let i = 1; i < panes; i++) {
       const bx = x0 + ft + ((w - 2 * ft) * i) / panes;
-      const bar = boxMesh(bx - 0.015, bx + 0.015, 0, inner, 0.04, mats.frame);
-      bar.position.y = s + ft + inner / 2;
-      g.add(bar);
+      g.add(boxMesh(bx - 0.015, bx + 0.015, yA, yA + ih, 0.04, mats.frame));   // the bars between the panes, only where they open
+    }
+    // the fixed glass below / above the panes (#679, glassBands): one pane across the window and a bar to the panes that open. Its glass is
+    // its own (not in the tint list of openings.js): it has no contact, so it stays clear while the panes above turn red or yellow
+    if (bands.lo || bands.hi) {
+      const still = mats.glass.clone();
+      [bands.lo, bands.hi].forEach((b) => {
+        if (!b) return;
+        const m = boxMesh(x0 + ft, x1 - ft, s + b[0], s + b[1], 0.015, still);
+        m.userData.fixedGlass = true;                     // (and so a mesh of its own: the browser test reads its colour)
+        g.add(m);
+      });
+      bands.bars.forEach((y) => g.add(boxMesh(x0 + ft, x1 - ft, s + y - ft / 2, s + y + ft / 2, fd, mats.frame)));
     }
     if (st !== 'fixed') { pivot = pvs[0]; g.userData.panePivots = pvs; g.userData.tiltPivots = tilts; }
     if (o.sill > 0.2) g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge

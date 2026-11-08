@@ -122,8 +122,9 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
 | `windowTall` | Fenster | double | 1.8 × 2.1 m | 0 m |
 | `windowBath` | Fenster | single | 0.6 × 0.6 m | 1.5 m |
 | `windowFixed` | Fenster | fixed | 1.6 × 1.4 m | 0.6 m |
+| `windowFloor` | Fenster | single, unten 1,1 m fest | 0.9 × 2.2 m | 0 m |
 
-Überschreibbar: `width`, `height`, `sill`, `style`, `entity` (z. B. Fenstersensor), `name`. Statt `preset` geht auch `"type": "door"|"window"`. Ein Fenster mit **Rollladen**: `"shutter": true` und `"shutterEntity": "cover.rollladen_kueche"` (die Entität allein reicht auch); Türen haben keinen. Ein Fenster mit einem zweiten Kontakt, der **gekippt** meldet (4.59.0): `"tiltEntity": "binary_sensor.fenster_gekippt"`; `entity` meldet dann offen. Wie weit es im 3D-Bild gekippt aussieht (4.64.0): `"tiltDeg": 30` (5 bis 45 Grad, ohne Angabe 14).
+Überschreibbar: `width`, `height`, `sill`, `style`, `entity` (z. B. Fenstersensor), `name`. Statt `preset` geht auch `"type": "door"|"window"`. Ein Fenster mit **Rollladen**: `"shutter": true` und `"shutterEntity": "cover.rollladen_kueche"` (die Entität allein reicht auch); Türen haben keinen. Ein Fenster mit einem zweiten Kontakt, der **gekippt** meldet (4.59.0): `"tiltEntity": "binary_sensor.fenster_gekippt"`; `entity` meldet dann offen. Wie weit es im 3D-Bild gekippt aussieht (4.64.0): `"tiltDeg": 30` (5 bis 45 Grad, ohne Angabe 14). Eine **feste Scheibe unten** oder **oben** (4.72.0, #679): `"fixedBelow": 1.1` (Höhe in m ab der Unterkante des Fensters; z. B. ein bodentiefes Fenster, das nur oben kippt) bzw. `"fixedAbove": 0.4` (ein festes Oberlicht); sie hat keinen Kontakt, die Flügel darüber oder darunter behalten ihre. Mindestens 0,2 m, die Flügel behalten 0,3 m; 0 = keine.
 
 ### Geräte & Möbel
 

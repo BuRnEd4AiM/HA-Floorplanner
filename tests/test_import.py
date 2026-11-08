@@ -331,6 +331,39 @@ def test_tilt_angle_is_imported_and_exported():
     assert any(d.get("properties", {}).get("tiltDeg", {}).get("maximum") == 45 for d in schema["$defs"].values())
 
 
+def test_fixed_glass_below_and_above_is_imported_and_exported():
+    """#679 (markweiffenbach: tall windows whose lower part is fixed glazing, only the upper part opens or tilts): fixedBelow / fixedAbove
+    survive import and export, are cut to what fits (the panes keep 0.3 m), warned about on a door, fixed glazing or a wrong number;
+    the preset windowFloor has 1.1 m fixed below"""
+    room = [{"points": [[0, 0], [10, 0], [10, 3], [0, 3]]}]
+    f = square_flat(rooms=room, openings=[
+        {"preset": "windowFloor", "at": [1.0, 0], "entity": "binary_sensor.a"},
+        {"type": "window", "at": [2.5, 0], "height": 2.2, "sill": 0, "entity": "binary_sensor.b", "fixedBelow": 0.9, "fixedAbove": 0.4},
+        {"type": "window", "at": [4.0, 0], "height": 2.2, "sill": 0, "entity": "binary_sensor.c", "fixedBelow": 2.1},
+        {"type": "window", "at": [5.5, 0], "entity": "binary_sensor.d", "fixedBelow": 1.0, "fixedAbove": 0.3},
+        {"preset": "windowFloor", "at": [7.0, 0], "entity": "binary_sensor.e", "fixedBelow": 0},
+        {"preset": "windowFloor", "at": [8.5, 0], "entity": "binary_sensor.f", "style": "fixed"},
+        {"preset": "window", "at": [3, 3], "entity": "binary_sensor.g", "fixedBelow": "hoch"},
+        {"preset": "door", "at": [6, 3], "entity": "binary_sensor.h", "fixedAbove": 0.4}])
+    layout, _, rep, _ = importer.build_layout(f)
+    assert not rep.errors, rep.errors
+    ops = {o.get("entity"): o for w in layout["floors"][0]["walls"] for o in w["openings"]}
+    assert ops["binary_sensor.a"]["fixedBelow"] == 1.1 and ops["binary_sensor.a"]["height"] == 2.2 and "fixedAbove" not in ops["binary_sensor.a"]
+    assert (ops["binary_sensor.b"]["fixedBelow"], ops["binary_sensor.b"]["fixedAbove"]) == (0.9, 0.4)
+    assert ops["binary_sensor.c"]["fixedBelow"] == 1.9, "cut: the panes keep 0.3 m"
+    assert ops["binary_sensor.d"]["fixedBelow"] == 0.9 and "fixedAbove" not in ops["binary_sensor.d"], "a 1.2 m window: below cut, no room above"
+    assert not any(k in ops[e] for e in ("binary_sensor.e", "binary_sensor.f", "binary_sensor.g", "binary_sensor.h") for k in ("fixedBelow", "fixedAbove"))
+    warned = sorted(w["path"].rsplit(".", 1)[1] for w in rep.warnings if w["path"].endswith((".fixedBelow", ".fixedAbove")))
+    assert warned == ["fixedAbove", "fixedAbove", "fixedBelow", "fixedBelow", "fixedBelow"], rep.warnings   # c, d (2), g, h; f: the style
+    again, _, rep2, _ = importer.build_layout(importer.layout_to_property(layout, "x"))
+    ops2 = {o.get("entity"): o for w in again["floors"][0]["walls"] for o in w["openings"]}
+    assert (ops2["binary_sensor.b"]["fixedBelow"], ops2["binary_sensor.b"]["fixedAbove"]) == (0.9, 0.4) and ops2["binary_sensor.a"]["fixedBelow"] == 1.1
+    assert not rep2.errors and not rep2.warnings, rep2.warnings
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    props = next(d["properties"] for d in schema["$defs"].values() if "paneEntities" in d.get("properties", {}))
+    assert {"fixedBelow", "fixedAbove"} <= set(props) and "windowFloor" in props["preset"]["enum"]
+
+
 def test_schema_describes_covers_and_per_pane_hinges():
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     props = next(d["properties"] for d in schema["$defs"].values() if "paneEntities" in d.get("properties", {}))

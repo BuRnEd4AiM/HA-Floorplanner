@@ -36,6 +36,7 @@ OPENING_PRESETS = {                 # same table as OPENING_DEFAULTS in static/w
     "windowTall":  {"type": "window", "style": "double",  "width": 1.8, "height": 2.1,  "sill": 0},
     "windowBath":  {"type": "window", "style": "single",  "width": 0.6, "height": 0.6,  "sill": 1.5},
     "windowFixed": {"type": "window", "style": "fixed",   "width": 1.6, "height": 1.4,  "sill": 0.6},
+    "windowFloor": {"type": "window", "style": "single",  "width": 0.9, "height": 2.2,  "sill": 0, "fixedBelow": 1.1},
 }
 DOOR_STYLES = {"single", "glass", "double", "sliding", "open", "gap", "garage"}
 WINDOW_STYLES = {"single", "double", "triple", "fixed"}
@@ -44,6 +45,7 @@ PANE_HINGES = WINDOW_HINGES | {"fixed"}
 PANE_COUNTS = {"single": 1, "double": 2, "triple": 3, "fixed": 1}
 SHUTTER_STYLES = {"roller", "left", "right", "split"}
 MAX_PANES = 8
+FIXED_MIN, SASH_MIN = 0.2, 0.3      # fixed glass below / above the panes (#679): FIXED_MIN and SASH_MIN in static/windowpanes.js
 ROOF_TYPES = {"gable", "hip", "flat", "shed"}                  # shed: Pultdach (#628)
 SHED_HIGH = ("z0", "z1", "x0", "x1")                            # SHED_HIGH in static/roofshape.js
 FLOOR_KINDS = {"floor", "basement", "roof"}
@@ -448,7 +450,45 @@ def _opening_from(rep: Report, path: str, spec: dict):
                 del o["paneEntities"]
         if spec.get("rainWarn") is False:                         # this window may stay open in the rain: no warning for it (#419)
             o["rainWarn"] = False
+    _fixed_glass(rep, path, o, spec)
     return o
+
+
+def _fixed_glass(rep: Report, path: str, o: dict, spec: dict):
+    """the fixed glass below / above the panes of a window (#679): fixedBelow / fixedAbove in m, like fixedGlass in static/windowpanes.js:
+    below first, each at least FIXED_MIN, together only so high that the panes that open keep SASH_MIN; none on fixed glazing or a door"""
+    for k in ("fixedBelow", "fixedAbove"):
+        if k not in spec:
+            continue
+        v = spec[k]
+        if o["type"] != "window":
+            rep.warn(f"{path}.{k}", "only windows have fixed glass below / above their panes, ignored")
+        elif o.get("style") == "fixed":
+            rep.warn(f"{path}.{k}", "fixed glazing is one pane, ignored")
+            o.pop(k, None)
+        elif not _num(v, 0, 4):
+            rep.warn(f"{path}.{k}", f"{k} must be a number between 0 and 4 (metres), ignored")
+        elif v == 0:
+            o.pop(k, None)                                        # 0: none (also against a preset that has one)
+        else:
+            o[k] = round(float(v), 2)
+    if o["type"] != "window" or o.get("style") == "fixed":
+        o.pop("fixedBelow", None)
+        o.pop("fixedAbove", None)
+        return
+    room = max(0.0, o["height"] - SASH_MIN)
+    for k in ("fixedBelow", "fixedAbove"):
+        if k not in o:
+            continue
+        fit = round(min(o[k], room), 2)
+        if fit < FIXED_MIN:
+            rep.warn(f"{path}.{k}", f"no room for {k} (at least {FIXED_MIN} m, the panes that open keep {SASH_MIN} m of the height), ignored")
+            del o[k]
+            continue
+        if fit < o[k]:
+            rep.warn(f"{path}.{k}", f"{k} cut to {fit} m (the panes that open keep {SASH_MIN} m of the height)")
+        o[k] = fit
+        room -= fit
 
 
 def _place_opening(rep: Report, path: str, walls: list, o: dict, spec: dict, ids) -> bool:
@@ -1311,7 +1351,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "rainWarn", "heat") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "fixedBelow", "fixedAbove", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "rainWarn", "heat") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []

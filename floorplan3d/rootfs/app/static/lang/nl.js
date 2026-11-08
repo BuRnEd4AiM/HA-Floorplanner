@@ -2256,4 +2256,7 @@ export default {
   'lock.heatPause': 'Schema pauzeren (⏸️ op de thermostaat)',
   'te.building': 'Hoort bij gebouw', 'te.buildingSub': 'Is bovenaan een gebouw gekozen, dan verschijnt de pagina alleen bij dat gebouw.',
   'te.allBuildings': 'Alle gebouwen',
+  'op.windowFloor': 'Tot de vloer, onder vast', 'prop.fixedBelow': 'Vast glas onder', 'prop.fixedAbove': 'Vast glas boven',
+  'prop.fixedGlassHint': 'Hoogte van een vast glas onder / boven de vleugels die opengaan (over de hele breedte). Leeg of 0 = geen. De vleugels houden minstens 30 cm.',
+  'prop.fixedGlassSub': 'Voor ramen die alleen boven (of onder) opengaan, bijv. tot de vloer met een vast onderdeel. Het vaste glas heeft geen contact en kleurt niet als het raam open is.',
 };

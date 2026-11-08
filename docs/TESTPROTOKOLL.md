@@ -21,6 +21,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 9. **Neu in 4.70.0: ⚡ Strom je Gebäude** (Abschnitt 166, dein Wunsch vom 2026-11-07): Claude hat 166.1 bis 166.5 geprüft; für dich im Add-on mit deinen zwei Häusern in einem Plan 166.6, nach dem Merge das Video 166.7.
 10. **Neu in 4.70.1: bereit für Home Assistant 2026.11** (Abschnitt 167, deine Frage vom 2026-11-08 zu den neuen Namen): Claude hat 167.1 bis 167.4 geprüft, auch mit einem echten Home Assistant 2026.11.0; für dich nach dem Update im Add-on 167.5, und nur wenn du Geräte mit mehreren Teilen hast 167.6.
 11. **Neu in 4.71.0: ⏸️ Heizplan aussetzen und das Gebäude oben auf jeder Seite** (Abschnitt 168, deine Wünsche vom 2026-11-08, #677): Claude hat 168.1 und 168.2 geprüft (Tausende zufällige Heiz-Tage mit Pausen, Browser-Test); für dich in der Demo 168.3 bis 168.5, im Add-on mit deiner Heizung 168.6 und 168.7, mit deinen zwei Häusern 168.8 und 168.9, nach dem Merge die Videos 168.10.
+12. **Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben** (Abschnitt 169, gefragt von markweiffenbach in #679): Claude hat 169.1 und 169.2 geprüft; für dich in der Demo 169.3 bis 169.5, im Add-on mit deinen Fenstern 169.6, nach dem Merge das Video 169.7.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -445,7 +446,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 166. Neu in 4.70.0: ⚡ Strom je Gebäude | 5 | 0 | 2 | 0 | 166.6, 166.7 |
 | 167. Neu in 4.70.1: Bereit für Home Assistant 2026.11 (neue Namen, Teil-Geräte) | 4 | 0 | 2 | 0 | 167.5, 167.6 |
 | 168. Neu in 4.71.0: ⏸️ Heizplan aussetzen, das Gebäude oben gilt auf jeder Seite | 2 | 0 | 8 | 0 | 168.3 bis 168.10 |
-| **Zusammen** | **1113** | **1** | **53** | **92** | |
+| 169. Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben | 2 | 0 | 5 | 0 | 169.3 bis 169.7 |
+| **Zusammen** | **1115** | **1** | **58** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2590,3 +2592,16 @@ Der Besitzer, 2026-11-08: „in dieses Thermostat einen Knopf … wo man irgendw
 | 168.8 | Im Add-on mit deinen zwei Häusern in einem Plan: oben ein Gebäude wählen, dann Klima, Kameras, Musik & TV, Haushalt, Abläufe, Protokoll und deine eigenen Seiten ansehen | Nur noch Geräte dieses Gebäudes (und was zu keinem gehört: Garten, Wetter, Personen); mit „🏘 Alle Gebäude“ wieder alles | ❓ |
 | 168.9 | Im Add-on: eine eigene Seite bearbeiten (✎, „⚙️ Seite“), „Gehört zu Gebäude“ wählen | Die Seite steht nur bei diesem Gebäude in der Leiste, mit „🏘 Alle Gebäude“ immer | ❓ |
 | 168.10 | Nach dem Merge: Videos „⏸️ Heizplan aussetzen“ und „🏘 Ein Gebäude wählen“ auf der Seite der Anleitung | Zeigen Halten, Auswahl, Fortsetzen; das Gebäude oben und die Seiten | ❓ |
+
+## 169. Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben
+Gefragt von markweiffenbach in #679: hohe, schmale Fenster vom Boden bis zur Decke, „der untere Teil (etwa 0–1,10 m) ist fest verglast, nur der obere Teil (etwa 1,10–2,20 m) geht auf oder kippt“; in seiner Wohnung 6 Stück. Der Besitzer: „#679 schau dir das mal an“. Gleich gebaut (der Wunsch war klar).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 169.1 | `node --test tests/windowpanes.test.mjs tests/sash.test.mjs`, `pytest tests/test_import.py` | Höhe der festen Scheibe, gekürzt auf das, was passt (die Flügel behalten 30 cm); in 3D die Flügel, ihr Rahmen und das Kippen nur im Teil, der aufgeht, die feste Scheibe wird nicht eingefärbt; JSON-Import und -Export mit `fixedBelow` / `fixedAbove` und der Vorlage `windowFloor` | ✅ (2026-11-08, Claude) |
+| 169.2 | Browser-Test Teil `78_fixed_glass` (dazu `69_window_tilt`) | Felder „Feste Scheibe unten / oben“ (leer = keine), 1,1 m wird gespeichert, zu viel wird gekürzt; gekippt gelb, offen rot, die feste Scheibe behält ihre Farbe; „Fest“ entfernt sie; „Bodentief, unten fest“ in der Leiste | ✅ (2026-11-08, Claude) |
+| 169.3 | Demo: Bearbeiten, Erdgeschoss, im Wohnzimmer an der Wand links das schmale hohe Fenster „Fenster Wohnzimmer bodentief“ anklicken | Unten eine feste Scheibe bis 1,1 m, darüber ein Querholz und ein Flügel mit Griff; rechts „Feste Scheibe unten“ 1.1, „Feste Scheibe oben“ leer | ❓ |
+| 169.4 | Demo: bei diesem Fenster „Feste Scheibe oben“ auf 0.4 setzen, dann leer machen | Oben kommt eine feste Scheibe (Oberlicht) dazu, der Flügel wird kürzer; leer: wieder weg | ❓ |
+| 169.5 | Demo: „Tür/Fenster“ → „Bodentief, unten fest“, auf eine Wand klicken | Ein neues Fenster vom Boden bis 2,2 m, unten 1,1 m fest | ❓ |
+| 169.6 | Im Add-on: bei einem deiner Fenster „Feste Scheibe unten“ eintragen und den Kontakt öffnen oder kippen | Nur der Flügel oben wird gelb (gekippt) oder rot (offen) und bewegt sich, die feste Scheibe unten bleibt klar | ❓ |
+| 169.7 | Nach dem Merge: Video „Fenster mit fester Scheibe unten oder oben“ auf der Seite der Anleitung | Zeigt das Feld, gekippt und offen, das Oberlicht und die neue Fensterart | ❓ |

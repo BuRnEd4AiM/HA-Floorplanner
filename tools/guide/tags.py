@@ -274,6 +274,13 @@ t("window-tilt",
   "window tilted tilt position tilt window tilt and turn two sensors two contacts window handle handle sensor Homematic "
   "Aqara half open yellow tilted open closed tilt angle angle degrees tilt further tilt more see it better how far "
   "does the window tilt all windows sash window frame handle")
+t("window-fixed",
+  "Fenster unten fest oben kippen bodentiefes Fenster bodentief Unterlicht Oberlicht Festfeld festes Feld Brüstung aus Glas "
+  "Fenster bis zum Boden nur oben öffnen Kippflügel oben französisches Fenster Absturzsicherung Querholz Kämpfer Sprosse quer "
+  "Fenster geteilt oben unten zwei Scheiben übereinander feste Verglasung unten Glas unten fest",
+  "window fixed below opens at the top floor-length window floor to ceiling window transom fixed light lower fixed pane "
+  "only the top opens tilt at the top French window stacked panes two panes on top of each other horizontal bar mullion "
+  "sidelight fixed glazing below glass balustrade")
 t("devices-place",
   "Gerät einfügen Gerät hinzufügen Lampe hinzufügen Sensor hinzufügen Thermostat platzieren Steckdose Schalter setzen "
   "Entität zuordnen verknüpfen Home Assistant verbinden Deckenlampe aufhängen",

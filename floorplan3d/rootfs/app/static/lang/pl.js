@@ -2251,4 +2251,7 @@ export default {
   'lock.heatPause': 'Wstrzymaj harmonogram (⏸️ na termostacie)',
   'te.building': 'Należy do budynku', 'te.buildingSub': 'Gdy u góry wybrano budynek, strona pokazuje się tylko przy nim.',
   'te.allBuildings': 'Wszystkie budynki',
+  'op.windowFloor': 'Do podłogi, dół stały', 'prop.fixedBelow': 'Stała szyba na dole', 'prop.fixedAbove': 'Stała szyba na górze',
+  'prop.fixedGlassHint': 'Wysokość stałej szyby pod / nad skrzydłami, które się otwierają (na całą szerokość). Puste lub 0 = brak. Skrzydła zachowują co najmniej 30 cm.',
+  'prop.fixedGlassSub': 'Dla okien, które otwierają się tylko u góry (lub u dołu), np. do podłogi ze stałą dolną częścią. Stała szyba nie ma czujnika i nie zmienia koloru, gdy okno jest otwarte.',
 };

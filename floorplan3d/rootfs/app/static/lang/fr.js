@@ -2308,4 +2308,7 @@ export default {
   'lock.heatPause': 'Suspendre le programme (⏸️ au thermostat)',
   'te.building': 'Appartient au bâtiment', 'te.buildingSub': 'Si un bâtiment est choisi en haut, la page n’apparaît qu’avec celui-ci.',
   'te.allBuildings': 'Tous les bâtiments',
+  'op.windowFloor': 'Toute hauteur, bas fixe', 'prop.fixedBelow': 'Vitrage fixe en bas', 'prop.fixedAbove': 'Vitrage fixe en haut',
+  'prop.fixedGlassHint': 'Hauteur d’un vitrage fixe sous / au-dessus des vantaux qui s’ouvrent (sur toute la largeur). Vide ou 0 = aucun. Les vantaux gardent au moins 30 cm.',
+  'prop.fixedGlassSub': 'Pour les fenêtres qui ne s’ouvrent qu’en haut (ou en bas), p. ex. toute hauteur avec une partie basse fixe. Le vitrage fixe n’a pas de contact et ne change pas de couleur quand la fenêtre est ouverte.',
 };

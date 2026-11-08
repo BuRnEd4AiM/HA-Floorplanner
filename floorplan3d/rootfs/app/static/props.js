@@ -20,6 +20,7 @@ import { initFinishUi } from './finishui.js';
 import { roomLevelFields, stepsFields } from './plateauui.js';
 import { balconyFields } from './balconyui.js';
 import { tiltAngleField } from './tiltui.js';
+import { fixedGlassFields } from './fixedglassui.js';
 import { roomNameFields } from './roomnameui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
@@ -188,7 +189,7 @@ export function initProps(ctx) {
       fixed.checked = (it.style || 'double') === 'fixed';
       fixed.addEventListener('change', () => {
         ctx.snapshot();
-        if (fixed.checked) { it.style = 'fixed'; delete it.panes; delete it.paneHinges; delete it.paneEntities; delete it.tiltEntity; delete it.tiltDeg; }
+        if (fixed.checked) { it.style = 'fixed'; delete it.panes; delete it.paneHinges; delete it.paneEntities; delete it.tiltEntity; delete it.tiltDeg; delete it.fixedBelow; delete it.fixedAbove; }
         else it.style = 'single';
         ctx.changed(); render();
       });
@@ -246,6 +247,7 @@ export function initProps(ctx) {
       };
       if (nPanes <= 1) body.append(field(t('prop.hinge'), hingeSelect(0)));
       else for (let i = 0; i < nPanes; i++) body.append(field(`${t('pane.n', { n: i + 1 })} · ${t('prop.hinge')}`, hingeSelect(i)));
+      fixedGlassFields({ t, field, lenInput, toDisp: (m) => ctx.toDisp(m) }, body, it);   // fixed glass below / above the panes (#679)
     }
     if (!dormer) body.append(field(t('prop.position'), lenInput(() => it.pos, (v) => {
       const p = clampOpeningPos(wall, it.width, v);
