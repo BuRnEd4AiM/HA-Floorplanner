@@ -56,6 +56,22 @@ def test_several_without_a_word_are_not_guessed():
     assert counters.counter_for("sensor.p", "solar", one, [{"entity_id": e, "device_id": "d"} for e in one])["entity_id"] == "sensor.a"
 
 
+def test_a_device_split_into_parts():
+    """Home Assistant 2026.11 (#675): an energy meter with a part per clamp; each clamp's power has its counter on its own part, a power
+    sensor on the main device finds the counter of a part when there is none on the main device"""
+    s = {"sensor.k1_power": st("W", "Clamp 1 Power"), "sensor.k1_energy": st("kWh", "Clamp 1 Energy", "total_increasing"),
+         "sensor.k2_power": st("W", "Clamp 2 Power"), "sensor.k2_energy": st("kWh", "Clamp 2 Energy", "total_increasing"),
+         "sensor.pv_power": st("W", "PV Leistung"), "sensor.pv_energy": st("kWh", "PV Energie gesamt", "total_increasing")}
+    reg = [{"entity_id": e, "device_id": d} for e, d in (("sensor.k1_power", "c1"), ("sensor.k1_energy", "c1"), ("sensor.k2_power", "c2"),
+                                                        ("sensor.k2_energy", "c2"), ("sensor.pv_power", "pv"), ("sensor.pv_energy", "pv_total"))]
+    devices = [{"id": "meter"}, {"id": "c1", "parent_device_id": "meter"}, {"id": "c2", "parent_device_id": "meter"},
+               {"id": "pv"}, {"id": "pv_total", "parent_device_id": "pv"}]
+    assert counters.counter_for("sensor.k2_power", "solar", s, reg, devices)["entity_id"] == "sensor.k2_energy"
+    assert counters.counter_for("sensor.pv_power", "solar", s, reg, devices)["entity_id"] == "sensor.pv_energy"
+    assert counters.counter_for("sensor.pv_power", "solar", s, reg) is None                       # without the device list: as before
+    assert counters.find_counters({"solar": ["sensor.k1_power"]}, s, reg, devices)["solar"][0]["counter"]["entity_id"] == "sensor.k1_energy"
+
+
 def test_the_question_and_the_answer():
     q = counters.clean_sources({"solar": "sensor.wr_leistung,sensor.wr_leistung,light.x,sensor.lonely", "from": "", "batIn": "sensor.akku_laden", "x": "sensor.y"})
     assert q == {"solar": ["sensor.wr_leistung", "sensor.lonely"], "batIn": ["sensor.akku_laden"]}

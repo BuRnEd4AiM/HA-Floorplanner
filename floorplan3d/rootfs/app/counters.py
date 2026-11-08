@@ -8,6 +8,9 @@ Pure (no aiohttp, no Home Assistant): unit tests in tests/test_counters.py; serv
 """
 import re
 
+import hadevices
+import hanames
+
 KINDS = ("from", "to", "solar", "batIn", "batOut")
 ENERGY_UNITS = {"Wh", "kWh", "MWh"}
 POWER_UNITS = {"W", "kW"}
@@ -30,24 +33,20 @@ def _unit(st):
 
 
 def _name(st, eid):
-    n = ((st or {}).get("attributes") or {}).get("friendly_name")
-    return n if isinstance(n, str) and n else eid
+    return hanames.name(st, eid)
 
 
-def counter_for(power: str, kind: str, states: dict, registry: list):
+def counter_for(power: str, kind: str, states: dict, registry: list, devices=None):
     """The kWh counter of the power sensor `power` for a meter of `kind`, or None: {"entity_id", "name", "how": "helper" | "device"}.
     An integral helper made from it comes first; then a counter on the same device: in kWh, not one of a day or a month, its name
     fitting the kind (a total counter and one Home Assistant keeps as total_increasing are preferred); a solar inverter's only counter
-    fits solar too. states: {entity: state}, registry: Home Assistant's entity registry list."""
+    fits solar too. states: {entity: state}, registry: Home Assistant's entity registry list, devices: its device registry list (a
+    device split into parts, Home Assistant 2026.11, #675: the counters of the sensor's own part first, else those of the whole device)."""
     for eid, st in sorted(states.items()):
         a = (st or {}).get("attributes") or {}
         if eid.startswith("sensor.") and a.get("source") == power and _unit(st) in ENERGY_UNITS:
             return {"entity_id": eid, "name": _name(st, eid), "how": "helper"}
-    device = next((r.get("device_id") for r in registry or [] if isinstance(r, dict) and r.get("entity_id") == power), None)
-    if not device:
-        return None
-    mates = [r["entity_id"] for r in registry if isinstance(r, dict) and r.get("device_id") == device and isinstance(r.get("entity_id"), str)
-             and r["entity_id"] != power and r["entity_id"].startswith("sensor.") and _unit(states.get(r["entity_id"])) in ENERGY_UNITS]
+    mates = hadevices.Devices(registry, devices).near(power, lambda x: x.startswith("sensor.") and _unit(states.get(x)) in ENERGY_UNITS)
     if not mates:
         return None
     others = [k for k in KINDS if k != kind]
@@ -88,11 +87,11 @@ def has_stats(st) -> bool:
     return ((st or {}).get("attributes") or {}).get("state_class") in ("measurement", "total", "total_increasing")
 
 
-def find_counters(sources: dict, states: dict, registry: list) -> dict:
+def find_counters(sources: dict, states: dict, registry: list, devices=None) -> dict:
     """{kind: [{"power", "power_name", "unit", "stats", "counter"}]} for the power sensors per kind (counter: counter_for or None; stats:
     has_stats, the power sensor itself can be the meter)"""
     return {k: [{"power": p, "power_name": _name(states.get(p), p), "unit": _unit(states.get(p)), "stats": has_stats(states.get(p)),
-                 "counter": counter_for(p, k, states, registry)} for p in ids] for k, ids in sources.items()}
+                 "counter": counter_for(p, k, states, registry, devices)} for p in ids] for k, ids in sources.items()}
 
 
 def helper_input(source: str, name: str) -> dict:

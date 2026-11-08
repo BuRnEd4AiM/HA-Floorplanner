@@ -22,6 +22,8 @@ Pure (unit test: tests/test_heatlog.py)."""
 import datetime
 import json
 
+import hanames
+
 MAX = 500                  # entries kept
 OWN = 30 * 60              # s: a target the thermostat reports this long after the add-on sent it is the add-on's own
 KINDS = ("window", "outer", "counted", "inner")
@@ -95,7 +97,7 @@ def users(states) -> dict:
     out = {}
     for e, st in states.items():
         if e.startswith("person.") and isinstance(_attrs(st).get("user_id"), str):
-            out[_attrs(st)["user_id"]] = _attrs(st).get("friendly_name") or e
+            out[_attrs(st)["user_id"]] = hanames.name(st, e)
     return out
 
 
@@ -222,7 +224,7 @@ def compact(st) -> dict | None:
     if not st:
         return None
     a = _attrs(st)
-    out = {"s": st.get("state"), "n": a.get("friendly_name")}
+    out = {"s": st.get("state"), "n": hanames.name(st)}
     for k, key in (("t", "temperature"), ("c", "current_temperature"), ("m", "hvac_modes"), ("a", "hvac_action")):
         if a.get(key) is not None:
             out[k] = a[key]

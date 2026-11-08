@@ -6,6 +6,8 @@ import math
 import re
 from datetime import datetime, timezone
 
+import hanames
+
 KINDS = ("washer", "dryer", "dishwasher")
 ROLES = ("status", "running", "power", "finish", "remaining", "progress", "program")
 ENTITY = re.compile(r"^[a-z_]+\.[a-z0-9_]{1,200}$")
@@ -73,8 +75,7 @@ def _norm(s) -> str:
 
 
 def _text(st) -> str:
-    a = st.get("attributes") or {}
-    return f"{st.get('entity_id', '')} {a.get('friendly_name') or ''}".lower()
+    return f"{st.get('entity_id', '')} {hanames.name(st, '')}".lower()
 
 
 def kind_of(text: str):
@@ -313,7 +314,7 @@ def todo_lists(states) -> list:
     for st in states if isinstance(states, list) else []:
         eid = st.get("entity_id") if isinstance(st, dict) else None
         if isinstance(eid, str) and TODO_ID.match(eid) and st.get("state") != "unavailable":
-            out.append({"entity": eid, "name": str((st.get("attributes") or {}).get("friendly_name") or eid)[:60]})
+            out.append({"entity": eid, "name": str(hanames.name(st, eid))[:60]})
     shop = lambda x: any(w in f"{x['entity']} {x['name']}".lower() for w in SHOP)      # noqa: E731
     return sorted(out, key=lambda x: (not shop(x), x["name"].lower()))
 

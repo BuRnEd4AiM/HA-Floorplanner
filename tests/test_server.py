@@ -1089,6 +1089,12 @@ def test_energy_dashboard_sensors_and_their_devices():
            {"entity_id": "sensor.imp_kwh", "device_id": "meter"}, {"entity_id": "sensor.meter_w", "device_id": "meter"}, {"entity_id": "sensor.lonely", "device_id": None}]
     assert server.energy_siblings(prefs, reg) == {"sensor.imp_kwh": ["sensor.meter_w"], "sensor.pv_kwh": ["sensor.pv_w"]}
     assert server.energy_stat_ids(None) == set() and server.energy_siblings(None, reg) == {}
+    # Home Assistant 2026.11 (#675): the meter split into parts; the import counter's own part first, then the rest of the whole device
+    reg = [{"entity_id": "sensor.imp_kwh", "device_id": "phase_a"}, {"entity_id": "sensor.a_w", "device_id": "phase_a"},
+           {"entity_id": "sensor.total_w", "device_id": "meter"}, {"entity_id": "sensor.b_w", "device_id": "phase_b"}]
+    parts = [{"id": "meter"}, {"id": "phase_a", "parent_device_id": "meter"}, {"id": "phase_b", "parent_device_id": "meter"}]
+    assert server.energy_siblings(prefs, reg, parts) == {"sensor.imp_kwh": ["sensor.a_w", "sensor.b_w", "sensor.total_w"]}
+    assert server.energy_siblings(prefs, reg) == {"sensor.imp_kwh": ["sensor.a_w"]}
 
 
 async def test_energy_prefs_needs_home_assistant_and_an_editor(client, monkeypatch, tmp_path):
@@ -1411,6 +1417,8 @@ async def test_counters_of_the_power_sensors_and_a_new_one(aiohttp_client, aioht
             m = msg.json()
             if m.get("type") == "config/entity_registry/list":
                 await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": registry})
+            elif m.get("type") == "config/device_registry/list":      # the parts of a device (#675): none here
+                await ws.send_json({"id": m["id"], "type": "result", "success": False, "error": {"code": "unknown_command"}})
         return ws
 
     async def flow(request):

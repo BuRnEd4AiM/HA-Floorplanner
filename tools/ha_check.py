@@ -1,11 +1,15 @@
 """Let a real Home Assistant check the automations haflows.py writes (#548): its own validation of every block, and a run with stand-in
 devices (a window switches the heating off after it stayed open 5 s and closing it puts it back through scene.create; motion switches a
 light on and off); a scene of scenes.py (#549) played with scene.turn_on and scene.apply; and "Nur wenn: besonderer Tag" (📅
-specialdays.py): Home Assistant's own template engine says on many days the same as the add-on. Not in CI (Home Assistant is big); run it
-after changing haflows.py or scenes.py:
+specialdays.py): Home Assistant's own template engine says on many days the same as the add-on; and the names and the parts of devices
+(#675, hanames.py, hadevices.py): the name built from what Home Assistant's websocket lists is the friendly_name Home Assistant gives,
+a device split into parts (2026.11) keeps its thermostat and battery. Not in CI (Home Assistant is big); run it after changing
+haflows.py, scenes.py, hanames.py or hadevices.py, and when a new Home Assistant comes out (2026.11.0 needs Python 3.14):
 
-    python3.13 -m venv /tmp/havenv && /tmp/havenv/bin/pip install homeassistant==2026.2.3
+    uv venv -p 3.14 /tmp/havenv && VIRTUAL_ENV=/tmp/havenv uv pip install homeassistant==2026.11.0
     /tmp/havenv/bin/python -I tools/ha_check.py
+
+(2026.2.3 with Python 3.13 still works too.)
 
 It ends with "ALL OK" or names what Home Assistant did not take."""
 import asyncio
@@ -34,9 +38,19 @@ async def make_hass(folder):
     await hass.config.async_set_time_zone("Europe/Berlin")
     hass.config_entries = config_entries.ConfigEntries(hass, {})
     await hass.config_entries.async_initialize()
+    if hasattr(dr, "async_setup"):          # Home Assistant 2026.11: the device registry is set up before it is loaded
+        dr.async_setup(hass)
     for reg in (ar, cr, flr, lr, dr, er, ir):
         if hasattr(reg, "async_load"):
             await reg.async_load(hass)
+    from homeassistant.helpers import condition, frame, template, trigger
+    if hasattr(frame, "async_setup"):
+        frame.async_setup(hass)
+    if hasattr(template, "async_setup"):    # newer Home Assistant sets these up in its bootstrap (2026.11: the triggers)
+        template.async_setup(hass)
+    for helper in (condition, trigger):
+        if hasattr(helper, "async_setup"):
+            await helper.async_setup(hass)
     return hass
 
 
@@ -237,6 +251,75 @@ async def special(hass) -> int:
     return bad
 
 
+async def names(hass) -> int:
+    """#675: the names and the parts of devices as Home Assistant keeps them: hanames.registry_name built from what its websocket lists
+    (config/entity_registry/list, config/device_registry/list) = the friendly_name Home Assistant gives the entity; hadevices puts the
+    sensors of a device split into parts (Home Assistant 2026.11) on the whole device, a part in another area on its own; the area
+    template of server.py lists the entities of a part in the area of its main device."""
+    import types
+    import hadevices
+    import hanames
+    import server
+    from homeassistant.helpers.template import Template
+    entry = config_entries.ConfigEntry(data={}, discovery_keys=types.MappingProxyType({}), domain="mqtt", minor_version=1, options={},
+                                       source="user", subentries_data=None, title="Test", unique_id=None, version=1)
+    hass.config_entries._entries[entry.entry_id] = entry
+    areas, devs, ents = ar.async_get(hass), dr.async_get(hass), er.async_get(hass)
+    bad_area, cellar = areas.async_create("Bad"), areas.async_create("Keller")
+    trv = devs.async_get_or_create(config_entry_id=entry.entry_id, identifiers={("mqtt", "trv")}, name="Thermostat")
+    devs.async_update_device(trv.id, area_id=bad_area.id)
+    plug = devs.async_get_or_create(config_entry_id=entry.entry_id, identifiers={("mqtt", "plug")}, name="Smart plug 3")
+    devs.async_update_device(plug.id, name_by_user="Kaffeemaschine")
+    parts = hasattr(devs, "async_get_or_create_child")              # child devices: Home Assistant 2026.11
+    room = cell = None
+    if parts:
+        room = devs.async_get_or_create_child(config_entry_id=entry.entry_id, identifiers={("mqtt", "trv_room")}, name="Room Sensor",
+                                              parent_device_id=trv.id)
+        cell = devs.async_get_or_create_child(config_entry_id=entry.entry_id, identifiers={("mqtt", "trv_cell")}, name="Keller Sensor",
+                                              parent_device_id=trv.id)
+        devs.async_update_child_device(cell.id, area_id=cellar.id)
+
+    def add(domain, uid, device, original, **kw):
+        return ents.async_get_or_create(domain, "mqtt", uid, config_entry=entry, device_id=device.id, original_name=original,
+                                        has_entity_name=True, **kw).entity_id
+    clim, bat = add("climate", "c1", trv, None), add("sensor", "b1", trv, "Battery")
+    power, switch, energy = add("sensor", "p1", plug, "Power"), add("switch", "s1", plug, "Switch"), add("sensor", "e1", plug, "Energy")
+    ents.async_update_entity(power, name="Leistung")                # renamed in Home Assistant
+    ents.async_update_entity(switch, name="")                       # the main entity of its device (2026.11)
+    more = [add("sensor", "t1", room, "Air temperature"), add("sensor", "t2", cell, "Air temperature")] if parts else []
+    listed = [json.loads(e.partial_json_repr) for e in ents.entities.values()]
+    def entries_of(coll):                   # 2026.11: a collection of entries; before: a mapping of id -> entry
+        items = list(coll)
+        return [coll[k] for k in items] if items and isinstance(items[0], str) else items
+    devices = [json.loads(d.json_repr) for d in [*entries_of(devs.devices), *entries_of(getattr(devs, "child_devices", []))]]
+    want = {e.entity_id: er.async_get_legacy_friendly_name(hass, e) for e in ents.entities.values()} if hasattr(er, "async_get_legacy_friendly_name") else {}
+    bad = 0
+    got = hanames.registry_names(listed, devices)
+    for eid, name in want.items():
+        if got.get(eid) != (name or None):
+            bad += 1
+            print("NAME DIFFERENT", eid, repr(got.get(eid)), "Home Assistant:", repr(name))
+    print("names:", len(want), "compared,", got)
+    if parts:
+        d = hadevices.Devices(listed, devices)
+        warm, cold = more
+        checks = {"part on the whole device": d.near(warm, lambda x: x.startswith("climate.")) == [clim],
+                  "battery of the main device": d.near(warm, lambda x: x == bat) == [bat],
+                  "part in another area on its own": d.whole(cold) == [cold],
+                  "plug as before": sorted(d.whole(energy)) == sorted([power, switch, energy])}
+        rows = json.loads(Template(server.AREA_TEMPLATE, hass).async_render(parse_result=False))
+        in_bath = next((r["entities"] for r in rows if r["id"] == bad_area.id), [])
+        checks["area template: the part in its main device's area"] = warm in in_bath and cold not in in_bath and clim in in_bath
+        for what, ok in checks.items():
+            if not ok:
+                bad += 1
+                print("PARTS WRONG:", what)
+        print("parts of devices:", len(checks), "checks, wrong:", sum(not ok for ok in checks.values()))
+    else:
+        print("parts of devices: this Home Assistant has no child devices (before 2026.11), not checked")
+    return bad
+
+
 async def main():
     with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b, tempfile.TemporaryDirectory() as c:
         hass = await make_hass(a)
@@ -250,6 +333,10 @@ async def main():
         await hass.async_stop(force=True)
         hass = await make_hass(c)
         bad += await special(hass)
+        await hass.async_stop(force=True)
+    with tempfile.TemporaryDirectory() as d:
+        hass = await make_hass(d)
+        bad += await names(hass)
         await hass.async_stop(force=True)
     print("ALL OK" if not bad else f"{bad} PROBLEM(S)")
     sys.exit(1 if bad else 0)

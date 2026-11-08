@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3MvfYahz7cAueA6Q5H",
+ "start": "2026-11-08",
+ "updated": "2026-11-08T11:18:48Z",
+ "branch": "claude/elegant-faraday-858q3v",
+ "source": "counted",
+ "input": 251,
+ "cache_write": 249474,
+ "cache_read": 26381110,
+ "output": 95565,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 251,
+   "cache_write": 249474,
+   "cache_read": 26381110,
+   "output": 95565,
+   "requests": 131
+  }
+ }
+}

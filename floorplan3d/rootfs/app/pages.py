@@ -7,6 +7,7 @@ import re
 from datetime import datetime, timezone
 
 import controls
+import hanames
 
 STAT_ID = re.compile(r"^[a-z0-9_]+[.:][a-z0-9_]{1,200}$")      # an entity ("sensor.x") or an external statistic ("domain:x")
 CALENDAR_ID = re.compile(r"^calendar\.[a-z0-9_]{1,200}$")
@@ -427,7 +428,7 @@ def family(states, registry) -> list:
             battery, charging = phone_battery(tr, by_id, device_of, on_device)
             if battery is not None:
                 break
-        name = a.get("friendly_name") if isinstance(a.get("friendly_name"), str) and a.get("friendly_name") else eid[7:]
+        name = hanames.name(s, eid[7:])
         out.append({"id": eid, "name": name[:80], "state": str(s.get("state") or "")[:80],
                     "since": s.get("last_changed") if isinstance(s.get("last_changed"), str) and _when(s.get("last_changed")) else None,
                     "picture": person_picture(s) is not None, "battery": battery, "charging": charging,

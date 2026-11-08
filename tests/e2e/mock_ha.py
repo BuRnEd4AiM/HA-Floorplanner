@@ -7,7 +7,9 @@ CLIMATE = {"temperature": 21.0, "hvac_action": "heating"}
 SUBS = []          # websocket subscribers of state_changed (the add-on's live channel)
 REG_SUBS = []      # websocket subscribers of the registry events (the add-on's watch for renamed entities)
 REGISTRY = {e: "u_" + e for e in STATE}     # entity id -> unique id of its registry entry
-DEVICES = {"u_binary_sensor.rauch": "dev_rauch", "u_sensor.rauch_battery": "dev_rauch"}   # unique id -> device: the smoke alarm and its battery (#376)
+DEVICES = {"u_binary_sensor.rauch": "dev_rauch_melder", "u_sensor.rauch_battery": "dev_rauch"}   # unique id -> device: the smoke alarm and its battery (#376)
+PARTS = [{"id": "dev_rauch", "name": "Rauchmelder", "area_id": None, "parent_device_id": None},     # the device registry: the smoke alarm
+         {"id": "dev_rauch_melder", "name": "Melder", "area_id": None, "parent_device_id": "dev_rauch"}]   # split into parts (2026.11, #675)
 ALIAS = {}         # entity id the tests know -> its id after a rename (/_rename)
 COVER_POS = {}     # covers with a position (current_position), from set_cover_position on; /_set takes it away again
 ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_prefs, #407) and more registry entries (entity -> device): POST /_energy
@@ -189,6 +191,8 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
                                 + [{"entity_id": e, "platform": "mock", "unique_id": "energy_" + e, "device_id": d} for e, d in ENERGY["registry"].items()]
                                 + [{"entity_id": e, "platform": v.get("platform", "mock"), "unique_id": "extra_" + e, "device_id": v.get("device"), "config_entry_id": v.get("entry")}
                                    for e, v in EXTRA.items() if "platform" in v or "device" in v or "entry" in v]})
+        elif m.get("type") == "config/device_registry/list":    # the parts of a device (Home Assistant 2026.11, #675)
+            await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": PARTS})
         elif m.get("type") == "energy/get_prefs":               # the energy dashboard (#407): "not_found" while it is not set up
             ok = ENERGY["prefs"] is not None
             await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": ENERGY["prefs"] if ok else None,

@@ -17,6 +17,8 @@ e: [entities], sv: "domain.service", v: {data}, ok, err, u}} a command of the ad
 
 Pure (unit test: tests/test_devlog.py)."""
 
+import hanames
+
 WINDOW = 60.0              # s: a change this soon after a command for the device is that command's
 SLOW = 30 * 60             # s: … for a thermostat, when it is the value sent (a sleepy radiator thermostat reports late)
 OWN_ECHO = 5.0             # s: Home Assistant announces the add-on's own call this soon after it
@@ -85,7 +87,7 @@ class Who:
         for s in states or []:
             a = (s or {}).get("attributes") or {}
             if str(s.get("entity_id", "")).startswith("person.") and isinstance(a.get("user_id"), str):
-                self.people[a["user_id"]] = a.get("friendly_name") or s["entity_id"]
+                self.people[a["user_id"]] = hanames.name(s, s["entity_id"])
 
     def _by(self, ctx) -> dict | None:
         """who a context of Home Assistant is; None: the add-on itself"""

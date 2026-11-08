@@ -182,6 +182,59 @@ def test_battery_of_is_the_battery_sensor_of_each_entitys_device():
     assert rn.battery_of(entries, []) == {}
 
 
+def test_a_device_split_into_parts_keeps_its_thermostat_and_battery():
+    """Home Assistant 2026.11 splits a device into parts (#675): a Z-Wave thermostat's sensors sit on child devices, its battery on the main
+    device. They still belong to the thermostat and show its battery; a part put into another area counts as a device of its own."""
+    def ent(eid, dev):
+        return {**entry(eid, eid), "device_id": dev}
+    def bat(eid, dc=None):
+        return {"entity_id": eid, "state": "1", "attributes": {"device_class": dc} if dc else {}}
+    entries = [ent("climate.bad", "trv"), ent("sensor.bad_battery", "trv"), ent("sensor.room_temp", "trv_s1"), ent("sensor.room_hum", "trv_s1"),
+               ent("sensor.away_temp", "trv_s2"), ent("sensor.lonely", "solo")]
+    devices = [{"id": "trv", "area_id": "bad"}, {"id": "trv_s1", "area_id": None, "parent_device_id": "trv"},
+               {"id": "trv_s2", "area_id": "keller", "parent_device_id": "trv"}, {"id": "solo", "area_id": None}]
+    states = [bat("sensor.bad_battery", "battery"), bat("sensor.room_temp", "temperature")]
+    assert rn.climate_parts(entries, devices) == {"sensor.bad_battery": "climate.bad", "sensor.room_temp": "climate.bad", "sensor.room_hum": "climate.bad"}
+    assert rn.battery_of(entries, states, devices) == {"climate.bad": "sensor.bad_battery", "sensor.room_temp": "sensor.bad_battery",
+                                                       "sensor.room_hum": "sensor.bad_battery"}
+    assert rn.climate_parts(entries) == {"sensor.bad_battery": "climate.bad"}                     # without the device list: as before
+    kept = rn.look({}, entries, states, T, devices)[2]
+    assert kept["parts"] == rn.climate_parts(entries, devices) and kept["battery"] == rn.battery_of(entries, states, devices)
+
+
+async def test_run_watch_asks_the_devices_and_remembers_the_names_of_the_registries():
+    import hanames
+    entries = [{**entry("sensor.p", "1"), "device_id": "kaffee", "name": None, "original_name": "Power"}]
+    ha = FakeHa(entries, [{"entity_id": "sensor.p", "state": "5", "attributes": {}}], [{"id": "kaffee", "name": "Kaffeemaschine"}])
+    saved = []
+
+    @contextlib.asynccontextmanager
+    async def connect():
+        yield ha
+
+    async def apply(ids, names):
+        pass
+    task = asyncio.create_task(rn.run_watch(connect=connect, load=dict, save=saved.append, apply=apply, quiet=0.05))
+    await asyncio.sleep(0.2)
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task
+    try:
+        assert "config/device_registry/list" in [m["type"] for m in ha.sent]
+        assert hanames.name({"entity_id": "sensor.p", "attributes": {}}) == "Kaffeemaschine Power"     # no friendly_name: from the registries
+        assert saved[-1]["names"] == {"sensor.p": "Kaffeemaschine Power"}
+    finally:
+        hanames.remember({})
+
+
+async def test_device_list_is_only_a_help():
+    class NoDevices(FakeHa):
+        async def send_json(self, obj):
+            await self.queue.put(Msg({"id": obj["id"], "type": "result", "success": False, "error": {"code": "unknown_command"}}))
+    assert await rn.device_list(NoDevices([], []), 1, []) == []
+    assert await rn.device_list(FakeHa([], [], [{"id": "d"}]), 1, []) == [{"id": "d"}]
+
+
 def test_look_rename_and_new_name_together():
     _, _, state = rn.look({}, [entry("sensor.old_temperature", "u")], [st("sensor.old_temperature", "Alt Temperatur", "21")], T)
     renames, changes, state = rn.look(state, [entry("sensor.new_temperature", "u")], [st("sensor.new_temperature", "Neu Temperatur", "21")], T + 5)
@@ -201,12 +254,13 @@ class Msg:
 
 class FakeHa:
     """Home Assistant's websocket: subscriptions, the entity registry and the states; rename() changes an id and sends the events."""
-    def __init__(self, entries, states):
-        self.entries, self.states, self.sent, self.queue = entries, states, [], asyncio.Queue()
+    def __init__(self, entries, states, devices=()):
+        self.entries, self.states, self.devices, self.sent, self.queue = entries, states, list(devices), [], asyncio.Queue()
 
     async def send_json(self, obj):
         self.sent.append(obj)
-        result = {"subscribe_events": None, "config/entity_registry/list": self.entries, "get_states": self.states}[obj["type"]]
+        result = {"subscribe_events": None, "config/entity_registry/list": self.entries, "config/device_registry/list": self.devices,
+                  "get_states": self.states}[obj["type"]]
         await self.queue.put(Msg({"id": obj["id"], "type": "result", "success": True, "result": result}))
 
     async def receive(self):
