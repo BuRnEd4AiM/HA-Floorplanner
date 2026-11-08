@@ -28,6 +28,8 @@ route, set_wish; rulesrun.py runs it with the heating rules."""
 import math
 import re
 
+import hanames
+
 WAYS = ("auto", "cal", "shift", "show")
 CLIMATE = re.compile(r"^climate\.[a-z0-9_]{1,120}$")
 SENSOR = re.compile(r"^sensor\.[a-z0-9_]{1,120}$")
@@ -89,7 +91,7 @@ def _attrs(states, e) -> dict:
 
 def _words(states, e) -> str:
     """an entity's id and name as one lower-case text to look for words in"""
-    return re.sub(r"[^a-z0-9äöüß]+", "_", f"{e.split('.', 1)[-1]} {_attrs(states, e).get('friendly_name') or ''}".lower())
+    return re.sub(r"[^a-z0-9äöüß]+", "_", f"{e.split('.', 1)[-1]} {hanames.name(states.get(e), '')}".lower())
 
 
 def _ext_option(states, sel):
@@ -214,7 +216,7 @@ def _cal(cfg, states, e, t, room, meas, now, calls, log, st):
     lo, hi, step = _num(a.get("min")), _num(a.get("max")), _step_of(states, ent, "step", 0.1)
     cur = _num((states.get(ent) or {}).get("state"))
     due = now - t.get("calT", -1e12) >= every
-    st.update(kind=t["kind"], ent=ent, name=a.get("friendly_name") or ent)
+    st.update(kind=t["kind"], ent=ent, name=hanames.name(states.get(ent), ent))
     if t["kind"] == "off":
         if "cal0" not in t:
             t["cal0"] = cur                                   # how it was: back to it when the sensor is taken away

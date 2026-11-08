@@ -13,6 +13,7 @@ import logging
 import time
 
 import flows as fl
+import hanames
 import heatlog as hl
 import heatrules as hr
 import roommap as rm
@@ -210,7 +211,7 @@ def _ctx(states, cache, env, now, local, days=()):
     rooms = cache["rooms"]
     idx = rm.room_index(rooms)
     return {"states": states, "now": now, "local": local, "weather": env.weather(states), "days": list(days),
-            "names": {e: (s.get("attributes") or {}).get("friendly_name") or e for e, s in states.items()},
+            "names": {e: hanames.name(s, e) for e, s in states.items()},
             "room_of": lambda e: idx.get(e, ""), "in_room": lambda key, dom: rm.in_room(rooms, key, dom),
             "room_names": {r["key"]: r["name"] for r in rooms}}
 

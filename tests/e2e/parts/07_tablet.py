@@ -56,7 +56,8 @@ pg17.keyboard.press("Escape"); pg17.evaluate("(() => { const f = window.__fp.lay
 urllib.request.urlopen(HA + "/_set?e=sensor.temp&s=21.5"); pg17.wait_for_timeout(1200)
 check("offline: back online, off the list", not [x for x in pg17.evaluate("window.__fp.offline()") if x["id"] == "offA"])
 check("offline in 3D (#375): back online, its sign is gone", pg17.evaluate("window.__fp.offMark('offA')") is None)
-# --- the device overview (#376): every linked device by room, with its battery (here the smoke alarm's battery sensor of the same device)
+# --- the device overview (#376): every linked device by room, with its battery (here the smoke alarm's battery sensor of the same device;
+# the alarm itself sits on a part of that device, like Home Assistant 2026.11 splits devices, #675: the battery is found on the main device)
 pg17.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
   f.devices.push({ id: 'dlSmoke', type: 'smoke', x: 1.5, z: 1, y: 2.5, rot: 0, scale: 1, name: 'Rauchmelder Flur', entity: 'binary_sensor.rauch' }); window.__fp.rebuild(); })()""")
 pg17.wait_for_timeout(500)

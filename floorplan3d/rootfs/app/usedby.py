@@ -9,6 +9,7 @@ tests/test_usedby.py); server.py asks Home Assistant."""
 import re
 
 import flows as fl
+import hanames
 
 ENTITY = re.compile(r"^[a-z_]{1,32}\.[a-z0-9_]{1,100}$")
 MAX_ROWS = 30
@@ -132,7 +133,7 @@ def row(e: str, st: dict | None, cfg=None) -> dict:
     a = st.get("attributes") or {}
     kind = e.split(".")[0]
     cur = a.get("current")
-    return {"entity": e, "kind": kind, "name": str(a.get("friendly_name") or e)[:80], "on": st.get("state") == "on" if kind == "automation" else None,
+    return {"entity": e, "kind": kind, "name": str(hanames.name(st, e))[:80], "on": st.get("state") == "on" if kind == "automation" else None,
             "running": (cur if isinstance(cur, int) and not isinstance(cur, bool) else 0) > 0 or (kind == "script" and st.get("state") == "on"),
             "last": _epoch(a.get("last_triggered")) if kind != "scene" else _epoch(st.get("state")) or _epoch(st.get("last_changed")),
             "gone": not st or st.get("state") in ("unavailable", "unknown") and kind == "automation",

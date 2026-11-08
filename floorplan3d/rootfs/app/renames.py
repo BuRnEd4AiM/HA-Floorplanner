@@ -21,6 +21,9 @@ import logging
 import re
 import time
 
+import hadevices
+import hanames
+
 log = logging.getLogger("floorplan3d.renames")
 
 ENTITY = re.compile(r"^[a-z_]+\.[a-z0-9_]+$")
@@ -68,8 +71,8 @@ def friendly_names(states: list, before: dict | None = None) -> dict:
     out = dict(before or {})
     for s in states:
         eid, attrs = s.get("entity_id"), s.get("attributes") or {}
-        name = attrs.get("friendly_name")
-        if isinstance(eid, str) and isinstance(name, str) and name and s.get("state") not in NOT_REAL and not attrs.get("restored"):
+        name = hanames.name(s)
+        if isinstance(eid, str) and name and s.get("state") not in NOT_REAL and not attrs.get("restored"):
             out[eid] = name
     return out
 
@@ -142,15 +145,17 @@ def fix_stale(obj, history: dict, current: set, now: float) -> int:
     return rewrite(obj, ids) if ids else 0
 
 
-def look(state: dict, entries: list, states: list, now: float) -> tuple[dict, dict, dict]:
-    """One comparison: (renames {old: new}, name changes {id: [old, new]}, the state to keep)."""
+def look(state: dict, entries: list, states: list, now: float, devices=None) -> tuple[dict, dict, dict]:
+    """One comparison: (renames {old: new}, name changes {id: [old, new]}, the state to keep). devices: the device registry list (the
+    parts of a device, #675)."""
     renames, known = compare(state.get("known"), entries, now)
     names = friendly_names(states, {renames.get(k, k): v for k, v in (state.get("names") or {}).items()})
     changes = name_changes(state.get("names") or {}, names, renames) if state.get("names") else {}
     current = {x.get("entity_id") for x in (*entries, *states) if isinstance(x.get("entity_id"), str)}
     new_state = {"known": known, "names": {k: v for k, v in names.items() if k in current},
                  "history": remember(state.get("history") or {}, renames, now), "current": sorted(current), "side": side_entities(entries),
-                 "parts": climate_parts(entries), "battery": battery_of(entries, states), "plat": climate_platforms(entries)}
+                 "parts": climate_parts(entries, devices), "battery": battery_of(entries, states, devices),
+                 "plat": climate_platforms(entries)}
     return renames, changes, new_state
 
 
@@ -161,19 +166,18 @@ def side_entities(entries: list) -> list:
                    and (e.get("entity_category") in SIDE_CATEGORIES or e.get("hidden_by"))})
 
 
-def climate_parts(entries: list) -> dict:
+def climate_parts(entries: list, devices=None) -> dict:
     """{entity id: the climate entity of the same device} for the other entities of a thermostat's device (child lock, window detection,
     valve position ...): the room panel shows them with the heating, not among the room's switches and sensors (#370). A device with
-    several climate entities: the first by name."""
-    by_device = {}
-    for e in entries:
-        dev, eid = e.get("device_id"), e.get("entity_id")
-        if isinstance(dev, str) and dev and isinstance(eid, str):
-            by_device.setdefault(dev, []).append(eid)
+    several climate entities: the first by name. A device split into parts (Home Assistant 2026.11, devices: the device registry list,
+    hadevices.py, #675): the thermostat of the entity's own part first, else the one of the whole device."""
+    d = hadevices.Devices(entries, devices)
     out = {}
-    for ids in by_device.values():
-        heads = sorted(i for i in ids if i.startswith("climate."))
-        out.update({i: heads[0] for i in ids if heads and not i.startswith("climate.")})
+    for eid in d.device_of:
+        if not eid.startswith("climate."):
+            heads = d.near(eid, lambda x: x.startswith("climate."))
+            if heads:
+                out[eid] = heads[0]
     return out
 
 
@@ -184,22 +188,21 @@ def climate_platforms(entries: list) -> dict:
             and isinstance(e.get("platform"), str) and e["platform"]}
 
 
-def battery_of(entries: list, states: list) -> dict:
+def battery_of(entries: list, states: list, devices=None) -> dict:
     """{entity id: the battery entity of its device} for the entities of every device with a battery (#376): its level (a sensor with
     device_class battery, in %) or, without one, its "battery low" binary sensor; the device overview shows it next to the device. The
-    battery entities themselves are not keys. A device with several: the first sensor by name."""
+    battery entities themselves are not keys. A device with several: the first sensor by name. A device split into parts (Home Assistant
+    2026.11, hadevices.py, #675): the battery of the entity's own part first, else the one of the whole device (mostly the main device's)."""
     dc = {s.get("entity_id"): (s.get("attributes") or {}).get("device_class") for s in states if isinstance(s, dict)}
-    by_device = {}
-    for e in entries:
-        dev, eid = e.get("device_id"), e.get("entity_id")
-        if isinstance(dev, str) and dev and isinstance(eid, str):
-            by_device.setdefault(dev, []).append(eid)
+
+    def is_battery(i):
+        return dc.get(i) == "battery" and i.startswith(("sensor.", "binary_sensor."))
+    d = hadevices.Devices(entries, devices)
     out = {}
-    for ids in by_device.values():
-        bats = sorted(i for i in ids if dc.get(i) == "battery" and i.startswith(("sensor.", "binary_sensor.")))
+    for eid in d.device_of:
+        bats = [] if is_battery(eid) else d.near(eid, is_battery)
         if bats:
-            best = next((i for i in bats if i.startswith("sensor.")), bats[0])
-            out.update({i: best for i in ids if i not in bats})
+            out[eid] = next((i for i in bats if i.startswith("sensor.")), bats[0])
     return out
 
 
@@ -221,6 +224,16 @@ async def ask(ws, msg_id: int, cmd: dict, more: list):
             return data.get("result")
         if is_registry_event(data):
             more.append(1)
+
+
+async def device_list(ws, msg_id: int, more: list) -> list:
+    """Home Assistant's device registry (config/device_registry/list: the parts of a device, #675); [] when it does not answer it: the
+    devices are only a help."""
+    try:
+        got = await ask(ws, msg_id, {"type": "config/device_registry/list"}, more)
+    except LookupError:
+        return []
+    return got if isinstance(got, list) else []
 
 
 async def run_watch(*, connect, load, save, apply, quiet: float = QUIET):
@@ -251,8 +264,10 @@ async def run_watch(*, connect, load, save, apply, quiet: float = QUIET):
                         continue
                     more = []
                     entries = await ask(ws, next(ids), {"type": "config/entity_registry/list"}, more)
+                    devices = await device_list(ws, next(ids), more)
                     states = await ask(ws, next(ids), {"type": "get_states"}, more)
-                    renames, changes, state = look(state, entries or [], states or [], time.time())
+                    hanames.remember(hanames.registry_names(entries or [], devices))   # names in case friendly_name is gone (#675)
+                    renames, changes, state = look(state, entries or [], states or [], time.time(), devices)
                     if renames or changes:
                         await apply(renames, changes)
                     await asyncio.to_thread(save, state)

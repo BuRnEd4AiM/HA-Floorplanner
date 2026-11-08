@@ -3,6 +3,8 @@
 data folder). Pure functions (unit test: tests/test_garden.py); server.py asks Home Assistant and keeps the timers."""
 import re
 
+import hanames
+
 ENTITY = re.compile(r"^[a-z_]+\.[a-z0-9_]{1,200}$")
 ZONE = re.compile(r"^(valve|switch)\.[a-z0-9_]{1,200}$")
 CAR_ROLES = ("battery", "range", "charging", "power", "ends", "mode")
@@ -95,7 +97,7 @@ def find_zones(states, chosen) -> list:
         e = st.get("entity_id") if isinstance(st, dict) else None
         if not isinstance(e, str) or not ZONE.match(e):
             continue
-        text = (e + " " + str((st.get("attributes") or {}).get("friendly_name") or "")).lower()
+        text = (e + " " + str(hanames.name(st, ""))).lower()
         if e.startswith("valve.") or (any(w in text for w in WATER_WORDS) and not any(w in text for w in NOT_WATER)):
             out.append(e)
     return out[:MAX_ZONES]

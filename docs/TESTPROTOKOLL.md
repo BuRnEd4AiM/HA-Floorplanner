@@ -19,6 +19,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 7. **Neu in 4.68.0: 🪜 Geschosshöhe und L-Treppe mit 2. Ecke** (Abschnitt 164, gefragt von Oely99 in #671): Claude hat 164.1 bis 164.5 geprüft; für dich im Add-on oder mit der Antwort von Oely99 164.6, nach dem Merge das Video 164.7.
 8. **Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan** (Abschnitt 165, dein Wunsch vom 2026-11-07): Claude hat 165.1 bis 165.5 geprüft; für dich im Add-on mit deinen echten Bereichen 165.6 und am Tablet mit dem Finger 165.7, nach dem Merge die Videos 165.8.
 9. **Neu in 4.70.0: ⚡ Strom je Gebäude** (Abschnitt 166, dein Wunsch vom 2026-11-07): Claude hat 166.1 bis 166.5 geprüft; für dich im Add-on mit deinen zwei Häusern in einem Plan 166.6, nach dem Merge das Video 166.7.
+10. **Neu in 4.70.1: bereit für Home Assistant 2026.11** (Abschnitt 167, deine Frage vom 2026-11-08 zu den neuen Namen): Claude hat 167.1 bis 167.4 geprüft, auch mit einem echten Home Assistant 2026.11.0; für dich nach dem Update im Add-on 167.5, und nur wenn du Geräte mit mehreren Teilen hast 167.6.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -441,7 +442,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 164. Neu in 4.68.0: 🪜 Geschosshöhe je Haus, Stufen je Etage, L-Treppe mit 2. Ecke (#671) | 5 | 0 | 2 | 0 | 164.6, 164.7 |
 | 165. Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan | 5 | 0 | 3 | 0 | 165.6 bis 165.8 |
 | 166. Neu in 4.70.0: ⚡ Strom je Gebäude | 5 | 0 | 2 | 0 | 166.6, 166.7 |
-| **Zusammen** | **1107** | **1** | **43** | **92** | |
+| 167. Neu in 4.70.1: Bereit für Home Assistant 2026.11 (neue Namen, Teil-Geräte) | 4 | 0 | 2 | 0 | 167.5, 167.6 |
+| **Zusammen** | **1111** | **1** | **45** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2558,3 +2560,15 @@ Der Besitzer, 2026-11-07: „wenn man alle zwei Häuser, die man hat, wenn die n
 | 166.5 | Demo danach: „Live“, oben „🏘 Alle Gebäude“, unten „Strom“; dann oben „Haupthaus“; dann unten „Energie“ | Zwei Strom-Bilder („Haupthaus“, „Anbau“), mit „Haupthaus“ nur eins; ⚡ Energie hat Knöpfe für beide Gebäude und „⚖ Vergleichen“; ☀ Heute „Strom jetzt“ mit einer Zeile je Gebäude und dem Ladestand der Batterie | ✅ (2026-11-07, Claude in der neu gebauten Demo) |
 | 166.6 | Im Add-on: deine zwei Häuser in einem Plan als zwei Gebäude, „⚡ Eigene Rechnung je Gebäude“, für jedes die Sensoren und Zähler einstellen | Oben auf ein Gebäude schalten zeigt nur seinen Strom, „Alle Gebäude“ beide getrennt, ⚡ Energie vergleicht sie | ❓ |
 | 166.7 | Nach dem Merge auf der Seite der Anleitung das Video „⚡ Strom je Gebäude: zwei Häuser in einem Plan“ ansehen | Der Haken, „Rechnung für“, zwei Strom-Bilder, ⚡ Energie mit „⚖ Vergleichen“ | ❓ |
+
+## 167. Neu in 4.70.1: Bereit für Home Assistant 2026.11 (neue Namen, Teil-Geräte)
+Der Besitzer, 2026-11-08: „so es gibt 2026.11 das Home Assistant update schaue dir das update mal an und mache mir vorschläge was wir verändern müssen da sich das namenschema ja grundlegend verändert oder müssen wir nix machen“; seine Wahl: „Teil-Geräte“ und „Namen an einer Stelle“ (#675). Im Add-on geht durch das Update nichts kaputt. Neu: der Name einer Entität wird an einer Stelle gelesen (`hanames.py`, ohne `friendly_name` aus den Registern gebaut); Geräte, die Home Assistant in Teile aufteilt, finden ihren Akku, ihre Thermostat-Teile und ihre Zähler weiter (`hadevices.py`).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 167.1 | `pytest tests/test_hadevices.py tests/test_hanames.py tests/test_renames.py tests/test_counters.py tests/test_server.py` | Teil-Geräte: erst das eigene Teil, dann das ganze Gerät, ein Teil in einem anderen Bereich für sich; Namen wie Home Assistant (vor und ab 2026.11); kein Teil des Add-ons liest `friendly_name` selbst; ohne Geräteliste alles wie vorher | ✅ (2026-11-08, Claude) |
+| 167.2 | `tools/ha_check.py` mit einem echten Home Assistant 2026.11.0 (Python 3.14) | „ALL OK“: die Abläufe des Add-ons werden angenommen und laufen, Szenen und besondere Tage gehen; 7 Namen gleich wie der `friendly_name` von Home Assistant (umbenannt, Hauptentität, Teil-Gerät); 5 Prüfungen der Teil-Geräte und der Bereichs-Vorlage richtig | ✅ (2026-11-08, Claude) |
+| 167.3 | `tools/ha_check.py` mit Home Assistant 2026.2.3 (Python 3.13) | „ALL OK“ wie bisher (ohne Teil-Geräte) | ✅ (2026-11-08, Claude) |
+| 167.4 | Browser-Test Teile `07_tablet`, `11_live`, `22_energy_setup`, `40_energy_counters`, `33_climate_routines_family`, `43_battery_levels` (der nachgebaute Rauchmelder liegt jetzt auf einem Teil-Gerät, sein Akku am Hauptgerät) | Geräteübersicht zeigt den Akku des Rauchmelders (15 %, 🪫); Umbenennen, Energie-Dashboard übernehmen, „⤵ Von oben übernehmen“, Familie und Ladestand wie bisher | ✅ (2026-11-08, Claude, 248 Prüfungen) |
+| 167.5 | Im Add-on nach dem Update auf Home Assistant 2026.11: den Plan ansehen, „Geräte“ oben öffnen | Die Namen im Plan sind wie vorher, die Geräteübersicht zeigt die Akkus wie vorher | ❓ |
+| 167.6 | Nur wenn du Geräte mit mehreren Teilen hast (Steckdosenleiste mit Tuya, Z-Wave-Thermostat mit Fühlern, ESPHome, MQTT): in Home Assistant ein Gerät umbenennen | Der neue Name kommt von selbst in den Plan (außer bei Namen, die du im Plan selbst getippt hast); Akku und Heizungs-Teile stehen beim richtigen Gerät | ❓ |

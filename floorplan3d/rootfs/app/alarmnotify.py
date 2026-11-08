@@ -19,6 +19,7 @@ import logging
 import re
 import time
 
+import hanames
 from roommap import roof_windows
 
 log = logging.getLogger("floorplan3d.alarmnotify")
@@ -150,7 +151,7 @@ def notify_targets(services, states, registry) -> list:
     for st in states or []:
         eid = st.get("entity_id", "") if isinstance(st, dict) else ""
         if NOTIFY_ENTITY.match(eid):
-            name = (st.get("attributes") or {}).get("friendly_name") or eid
+            name = hanames.name(st, eid)
             out.append({"id": eid, "name": str(name)[:80], "origin": "integration", "platform": str(platform.get(eid, ""))[:40]})
     for d in services or []:
         if isinstance(d, dict) and d.get("domain") == "notify" and isinstance(d.get("services"), dict):
@@ -201,7 +202,7 @@ class Watcher:
 
     def change(self, eid, new, now, kinds=KINDS, clear=False):
         out, k, was = [], kind_of(new) if new else None, self.active.get(eid)
-        name = ((new or {}).get("attributes") or {}).get("friendly_name") or eid
+        name = hanames.name(new, eid)
         if k and not was:
             self.active[eid] = k
             if k in kinds and now - self.sent.get(eid, -1e18) >= self.cooldown and self._room(now):

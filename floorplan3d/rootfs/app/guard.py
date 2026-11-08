@@ -19,6 +19,8 @@ import re
 import secrets
 import time
 
+import hanames
+
 log = logging.getLogger("floorplan3d.guard")
 
 ENTITY = re.compile(r"^[a-z_]{1,32}\.[a-z0-9_]{1,100}$")
@@ -286,7 +288,7 @@ async def run_guard(*, connect, get, put, act, check: float = 1.0):
                         d = (data.get("event") or {}).get("data") or {} if data.get("type") == "event" else {}
                         eid, new = d.get("entity_id"), d.get("new_state") or {}
                         if eid in cfg["sensors"]:
-                            names[eid] = (new.get("attributes") or {}).get("friendly_name") or eid
+                            names[eid] = hanames.name(new, eid)
                             st, events = sensor(st, cfg, eid, new.get("state"), names[eid], time.time())
                     if not events:
                         st, events = tick(st, cfg, time.time(), names)

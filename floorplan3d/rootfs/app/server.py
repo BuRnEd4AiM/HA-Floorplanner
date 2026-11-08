@@ -31,7 +31,9 @@ import flows as fl
 import garden as gn
 import guard as gd
 import guide as vg
+import hadevices
 import haflows as hf
+import hanames
 import devlog as dl
 import heatlog as hlog
 import heatrules as hr
@@ -1274,7 +1276,7 @@ def slim_state(st):
     a = st.get("attributes") or {}
     return {
         "entity_id": st["entity_id"],
-        "name": a.get("friendly_name", st["entity_id"]),
+        "name": hanames.name(st, st["entity_id"]),        # friendly_name, or built from the registries (#675)
         "domain": st["entity_id"].split(".")[0],
         "state": st["state"],
         "unit": a.get("unit_of_measurement"),
@@ -2253,17 +2255,15 @@ def energy_stat_ids(prefs) -> set:
     return out
 
 
-def energy_siblings(prefs, registry: list) -> dict:
+def energy_siblings(prefs, registry: list, devices=None) -> dict:
     """{entity of the preferences: the other sensors of the same device}: an energy meter (kWh) usually has its power sensor (W) next
-    to it, which the power editor needs."""
-    by_device, device_of = {}, {}
-    for r in registry or []:
-        e, d = r.get("entity_id"), r.get("device_id")
-        if isinstance(e, str) and d:
-            device_of[e] = d
-            by_device.setdefault(d, []).append(e)
-    return {e: sorted(x for x in by_device.get(device_of[e], []) if x != e and x.startswith("sensor."))
-            for e in sorted(energy_stat_ids(prefs)) if e in device_of}
+    to it, which the power editor needs. A device split into parts (Home Assistant 2026.11, devices: the device registry list, #675):
+    those of the meter's own part first, then the rest of the whole device."""
+    d = hadevices.Devices(registry, devices)
+
+    def sensors(ids, e):
+        return sorted(x for x in ids if x != e and x.startswith("sensor."))
+    return {e: [*sensors(d.own(e), e), *sensors(set(d.whole(e)) - set(d.own(e)), e)] for e in sorted(energy_stat_ids(prefs)) if e in d.device_of}
 
 
 async def get_energy_prefs(request):
@@ -2281,9 +2281,10 @@ async def get_energy_prefs(request):
             except LookupError:
                 prefs = None                                     # "not_found": the energy dashboard is not set up yet
             registry = await rn.ask(ws, 2, {"type": "config/entity_registry/list"}, more) if prefs else []
+            devices = await rn.device_list(ws, 3, more) if prefs else []
     except (OSError, RuntimeError, ConnectionError, asyncio.TimeoutError, aiohttp.ClientError, LookupError) as err:
         return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
-    return web.json_response({"prefs": prefs, "siblings": energy_siblings(prefs, registry) if prefs else {}})
+    return web.json_response({"prefs": prefs, "siblings": energy_siblings(prefs, registry, devices) if prefs else {}})
 
 
 # ---------- the pages of the tab bar (#481, pages.py): ⚡ Energie (meters and statistics) and ☀ Heute (forecast, calendars) ----------
@@ -2318,9 +2319,10 @@ async def get_energy_counters(request):
         states = {x["entity_id"]: x for x in await ha_states() if isinstance(x, dict) and isinstance(x.get("entity_id"), str)}
         async with _HaSocket() as ws:
             registry = await rn.ask(ws, 1, {"type": "config/entity_registry/list"}, [])
+            devices = await rn.device_list(ws, 2, [])                 # the parts of a device (Home Assistant 2026.11, #675)
     except HA_DOWN as err:
         return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
-    return web.json_response({"found": counters.find_counters(sources, states, registry if isinstance(registry, list) else [])})
+    return web.json_response({"found": counters.find_counters(sources, states, registry if isinstance(registry, list) else [], devices)})
 
 
 async def make_energy_counter(request):
@@ -2341,7 +2343,7 @@ async def make_energy_counter(request):
         st = next((x for x in await ha_states() if isinstance(x, dict) and x.get("entity_id") == source), None)
         if not st or (st.get("attributes") or {}).get("unit_of_measurement") not in counters.POWER_UNITS:
             return web.json_response({"error": "not a power sensor (W, kW)"}, status=400)
-        name = counters.helper_name((st.get("attributes") or {}).get("friendly_name") or source)
+        name = counters.helper_name(hanames.name(st, source))
         async with aiohttp.ClientSession() as s:
             async with s.post(f"{HA_API}/config/config_entries/flow", headers=ha_headers(), json={"handler": "integration", "show_advanced_options": False}) as r:
                 flow = await r.json() if r.status == 200 else {}
@@ -3693,7 +3695,7 @@ async def get_related(request):
     mine = {x for x in ids if hf.ours(((states.get(x) or {}).get("attributes") or {}).get("id"))}
     out["rows"] = [x for x in rows if x["entity"] not in mine]        # the add-on's own automations are its routines (#548): once
     parts = request.app[KEY_RENAMES].get("parts") or {}
-    out["parts"] = [{"entity": p, "name": ((states.get(p) or {}).get("attributes") or {}).get("friendly_name") or p, "state": (states.get(p) or {}).get("state")}
+    out["parts"] = [{"entity": p, "name": hanames.name(states.get(p), p), "state": (states.get(p) or {}).get("state")}
                     for p, head in parts.items() if head == e and re.search(r"window|fenster", p)]
     return web.json_response(out)
 
