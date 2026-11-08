@@ -33,7 +33,7 @@ pgN.close()
 pgP = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
 pgP.goto(BASE + "?mode=edit"); pgP.wait_for_timeout(1200)
 pgP.click("[data-tool=opening]"); pgP.wait_for_timeout(200)
-check("opening palette: three groups with headings", pgP.locator("#openingPalette .opGroup").count() == 3 and pgP.locator("#openingPalette button[data-opening]").count() == 14)
+check("opening palette: three groups with headings", pgP.locator("#openingPalette .opGroup").count() == 3 and pgP.locator("#openingPalette button[data-opening]").count() == 15)   # 15 since 4.72.0 (#679)
 pgP.close()
 # --- users dialog: rooms grouped by house
 pgG = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
