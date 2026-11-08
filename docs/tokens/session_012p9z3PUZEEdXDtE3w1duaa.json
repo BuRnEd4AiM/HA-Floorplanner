@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3PUZEEdXDtE3w1duaa",
+ "start": "2026-11-08",
+ "updated": "2026-11-08T21:48:56Z",
+ "branch": "claude/cool-babbage-rpr5uz",
+ "source": "counted",
+ "input": 366,
+ "cache_write": 302815,
+ "cache_read": 44704595,
+ "output": 98393,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 366,
+   "cache_write": 302815,
+   "cache_read": 44704595,
+   "output": 98393,
+   "requests": 178
+  }
+ }
+}

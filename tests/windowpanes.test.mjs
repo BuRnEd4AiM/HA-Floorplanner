@@ -50,3 +50,67 @@ test('the room panel lists every pane with contacts of its own, also more than t
   assert.equal(W.contactRows({ type: 'door', entity: 'binary_sensor.d' }), 1);
   assert.equal(W.contactRows({ type: 'window', style: 'triple', paneEntities: 'bad' }), 1, 'broken data: one row');
 });
+
+test('fixed glass below / above the panes that open (#679): its height, cut to what fits, none for fixed glazing or a door', () => {
+  const tall = { type: 'window', style: 'single', height: 2.2, sill: 0 };
+  assert.deepEqual(W.fixedGlass(tall), { below: 0, above: 0 }, 'none set: none');
+  assert.deepEqual(W.fixedGlass({ ...tall, fixedBelow: 1.1 }), { below: 1.1, above: 0 }, 'the window of the issue: 0 .. 1.10 m fixed');
+  assert.deepEqual(W.fixedGlass({ ...tall, fixedAbove: 0.45 }), { below: 0, above: 0.45 }, 'a transom');
+  assert.deepEqual(W.fixedGlass({ ...tall, fixedBelow: 1, fixedAbove: 0.5 }), { below: 1, above: 0.5 }, 'both');
+  assert.deepEqual(W.fixedGlass({ ...tall, fixedBelow: 2.1 }), { below: 1.9, above: 0 }, 'the panes keep 30 cm');
+  assert.deepEqual(W.fixedGlass({ ...tall, fixedBelow: 1.5, fixedAbove: 0.6 }), { below: 1.5, above: 0.4 }, 'below first, then above');
+  assert.deepEqual(W.fixedGlass({ ...tall, fixedBelow: 1.8, fixedAbove: 0.6 }), { below: 1.8, above: 0 }, 'too little left above: none');
+  assert.deepEqual(W.fixedGlass({ ...tall, fixedBelow: 0.1 }), { below: 0, above: 0 }, 'less than 20 cm: none');
+  assert.deepEqual(W.fixedGlass({ ...tall, height: 0.45, fixedBelow: 0.3 }), { below: 0, above: 0 }, 'a small window has no room for it');
+  assert.deepEqual(W.fixedGlass({ ...tall, fixedBelow: 1.104 }), { below: 1.1, above: 0 }, 'whole cm');
+  assert.deepEqual(W.fixedGlass({ ...tall, style: 'fixed', fixedBelow: 1.1 }), { below: 0, above: 0 }, 'fixed glazing is one pane');
+  assert.deepEqual(W.fixedGlass({ type: 'door', height: 2.1, fixedAbove: 0.4 }), { below: 0, above: 0 }, 'a door has none');
+  assert.deepEqual(W.fixedGlass({ ...tall, fixedBelow: '1.1', fixedAbove: -1 }), { below: 0, above: 0 }, 'broken data: none');
+  assert.deepEqual(W.fixedGlass(null), { below: 0, above: 0 });
+  assert.equal(W.canFixGlass({ type: 'window' }), true, 'no style: a double window');
+  assert.equal(W.canFixGlass({ type: 'window', style: 'fixed' }), false);
+});
+
+test('setting the fixed glass: whole cm, 0 or too little removes it, more than fits is cut (#679)', () => {
+  const o = { type: 'window', style: 'single', height: 2.2, sill: 0 };
+  assert.equal(W.setFixedGlass(o, 'fixedBelow', 1.1), 1.1);
+  assert.equal(o.fixedBelow, 1.1);
+  assert.equal(W.setFixedGlass(o, 'fixedAbove', '0.333'), 0.33, 'a text from the field, whole cm');
+  assert.equal(o.fixedAbove, 0.33);
+  assert.equal(W.setFixedGlass(o, 'fixedAbove', 5), 0.8, 'cut to what fits beside the glass below');
+  assert.equal(o.fixedAbove, 0.8);
+  assert.equal(W.setFixedGlass(o, 'fixedAbove', 0), 0);
+  assert.ok(!('fixedAbove' in o), '0 removes it');
+  assert.equal(W.setFixedGlass(o, 'fixedBelow', 0.15), 0);
+  assert.ok(!('fixedBelow' in o), 'less than 20 cm removes it');
+  assert.equal(W.setFixedGlass(o, 'fixedBelow', ''), 0, 'an empty field removes it');
+  assert.equal(W.setFixedGlass(o, 'fixedBelow', 9), 1.9, 'the panes keep 30 cm');
+  o.fixedAbove = 0.5;
+  assert.equal(W.setFixedGlass(o, 'fixedAbove', 0.5), 0, 'no room left above: removed');
+  assert.ok(!('fixedAbove' in o));
+  assert.equal(W.setFixedGlass(o, 'nope', 1), 0, 'only the two keys');
+  assert.ok(!('nope' in o));
+  const fixed = { type: 'window', style: 'fixed', height: 2.2 };
+  assert.equal(W.setFixedGlass(fixed, 'fixedBelow', 1), 0);
+  assert.ok(!('fixedBelow' in fixed), 'fixed glazing gets none');
+});
+
+test('the parts of a window from bottom to top: fixed glass, bars, the panes that open (#679)', () => {
+  const ft = 0.05, o = { type: 'window', style: 'single', height: 2.2, sill: 0 };
+  assert.deepEqual(W.glassBands(o, ft), { lo: null, hi: null, sash: [ft, 2.2 - ft], bars: [] }, 'no fixed glass: the panes as before');
+  const b = W.glassBands({ ...o, fixedBelow: 1.1 }, ft);
+  assert.deepEqual(b.lo, [ft, 1.1 - ft / 2]);
+  assert.equal(b.hi, null);
+  assert.deepEqual(b.sash, [1.1 + ft / 2, 2.2 - ft]);
+  assert.deepEqual(b.bars, [1.1]);
+  const both = W.glassBands({ ...o, fixedBelow: 0.8, fixedAbove: 0.5 }, ft);
+  assert.deepEqual(both.lo, [ft, 0.8 - ft / 2]);
+  assert.ok(Math.abs(both.hi[0] - (1.7 + ft / 2)) < 1e-9 && Math.abs(both.hi[1] - (2.2 - ft)) < 1e-9, JSON.stringify(both.hi));
+  assert.ok(Math.abs(both.sash[0] - (0.8 + ft / 2)) < 1e-9 && Math.abs(both.sash[1] - (1.7 - ft / 2)) < 1e-9, JSON.stringify(both.sash));
+  assert.deepEqual(both.bars, [0.8, 1.7]);
+  for (const [below, above] of [[0.2, 0], [0, 0.2], [1.9, 0], [1.5, 0.4], [0.2, 0.2]]) {   // every part has a height, the panes keep theirs
+    const g = W.glassBands({ ...o, fixedBelow: below, fixedAbove: above }, ft);
+    [g.lo, g.hi, g.sash].filter(Boolean).forEach(([y0, y1]) => assert.ok(y1 > y0, JSON.stringify({ below, above, g })));
+    assert.ok(g.sash[1] - g.sash[0] >= W.SASH_MIN - 1.5 * ft - 1e-9, JSON.stringify({ below, above, g }));   // less half a bar and the frame
+  }
+});

@@ -2287,4 +2287,7 @@ export default {
   'hr.why.pause': 'Programma sospeso', 'lock.heatPause': 'Sospendi il programma (⏸️ sul termostato)',
   'te.building': 'Appartiene all’edificio', 'te.buildingSub': 'Con un edificio scelto in alto, la pagina appare solo con quello.',
   'te.allBuildings': 'Tutti gli edifici',
+  'op.windowFloor': 'A tutta altezza, parte bassa fissa', 'prop.fixedBelow': 'Vetro fisso in basso', 'prop.fixedAbove': 'Vetro fisso in alto',
+  'prop.fixedGlassHint': 'Altezza di un vetro fisso sotto / sopra le ante che si aprono (su tutta la larghezza). Vuoto o 0 = nessuno. Le ante mantengono almeno 30 cm.',
+  'prop.fixedGlassSub': 'Per finestre che si aprono solo in alto (o in basso), ad es. a tutta altezza con la parte bassa fissa. Il vetro fisso non ha contatto e non cambia colore quando la finestra è aperta.',
 };

@@ -156,3 +156,5 @@ f("heatpause", "pages", "⏸️ Heizplan aussetzen: gedrückt halten am Thermost
   "⏸️ Pause the schedule: hold on the thermostat, how long, regulate by hand, per user and per card", ["heat-pause"], since="4.71.0")
 f("buildingpages", "pages", "🏘 Oben ein Gebäude wählen: jede Seite und jede eigene Karte zeigt nur seins, eine Seite je Gebäude",
   "🏘 Choose a building at the top: every page and own card shows only its things, a page per building", ["buildings-pages"], since="4.71.0")
+f("fixedglass", "edit", "Fenster mit fester Scheibe unten oder oben (bodentief, nur oben kippen; Oberlicht), neue Art „Bodentief, unten fest“",
+  "A window with fixed glass below or above (floor-length, only the top tilts; transom), new kind “Floor-length, fixed below”", ["window-fixed"], since="4.72.0")

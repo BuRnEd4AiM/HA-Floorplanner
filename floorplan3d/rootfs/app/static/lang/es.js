@@ -2291,4 +2291,7 @@ export default {
   'hr.why.pause': 'Horario en pausa', 'lock.heatPause': 'Pausar el horario (⏸️ en el termostato)',
   'te.building': 'Pertenece al edificio', 'te.buildingSub': 'Con un edificio elegido arriba, la página solo aparece con ese.',
   'te.allBuildings': 'Todos los edificios',
+  'op.windowFloor': 'Hasta el suelo, parte baja fija', 'prop.fixedBelow': 'Cristal fijo abajo', 'prop.fixedAbove': 'Cristal fijo arriba',
+  'prop.fixedGlassHint': 'Altura de un cristal fijo debajo / encima de las hojas que se abren (en todo el ancho). Vacío o 0 = ninguno. Las hojas conservan al menos 30 cm.',
+  'prop.fixedGlassSub': 'Para ventanas que solo se abren arriba (o abajo), p. ej. hasta el suelo con la parte baja fija. El cristal fijo no tiene contacto y no cambia de color cuando la ventana está abierta.',
 };

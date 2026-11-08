@@ -366,7 +366,7 @@ nb = pg2.locator("#paletteGrid button.dev").count()
 check("library category filters", 5 <= nb <= 16, nb)       # the bathroom: 7 own pieces, 3 in Scandinavian style, 5 LED mirrors
 pg2.locator("#paletteCats button", has_text="All").click()
 pg2.click("button[data-tool=select]")
-check("14 door and window presets", pg2.locator("#openingPalette button").count() == 14)
+check("15 door and window presets (4.72.0: „Bodentief, unten fest“, #679)", pg2.locator("#openingPalette button").count() == 15)
 pg2.evaluate("""() => { const f = window.__fp.layout.floors[1], w = f.walls.find(v => v.id === 'wstop');
   [['door','double',1.6,2.05,0,-3],['door','sliding',1.8,2.1,0,-1],['door','open',1.0,2.05,0,1],['window','triple',2.4,1.2,0.9,3.2]].forEach(([type,style,width,height,sill,pos], i) => w.openings.push({id:'op'+i,type,style,width,height,sill,pos:pos+5}));
   f.devices.push({id:'pic1',type:'picture',x:-19.5,z:0,y:1.5,rot:0,scale:1,name:'Bild',entity:'',w:0.8,ar:0.75}); }""")

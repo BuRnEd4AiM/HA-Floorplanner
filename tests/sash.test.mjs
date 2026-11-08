@@ -95,3 +95,43 @@ test('every style, every hinge, every number of panes, opening in or out, both s
   }
   assert.ok(n > 300, n);
 });
+
+// fixed glass below / above the panes (#679): the panes, their sash and the tilt only in the part that opens; the fixed glass is a pane of
+// its own across the window that the contact does not tint
+test('fixed glass below / above: the panes open above it, it stays clear when the window is open', () => {
+  const box = (m) => new THREE.Box3().setFromObject(m);
+  for (const side of [1, -1]) for (const hinge of P.WINDOW_HINGES) {
+    const o = { type: 'window', style: 'single', hinge, width: 0.9, height: 2.2, sill: 0, fixedBelow: 1.1 };
+    const obj = build(o, side), label = JSON.stringify({ hinge, side });
+    obj.parent.updateMatrixWorld(true);
+    assert.equal(obj.userData.panePivots.length, 1, label);
+    assert.equal(sashesOf(obj).length, 1, label);
+    const tg = obj.userData.tiltPivots[0];
+    assert.ok(Math.abs(tg.position.y - 1.125) < 1e-6, `it tilts round the bottom of the pane that opens: ${tg.position.y} ${label}`);
+    const pb = box(obj.userData.panePivots[0].children[0]);
+    assert.ok(Math.abs(pb.min.y - 1.125) < 1e-6 && Math.abs(pb.max.y - 2.15) < 1e-6, `the pane: ${pb.min.y} .. ${pb.max.y} ${label}`);
+    const live = new Set(obj.userData.tint.map((x) => x.m));
+    const still = [];
+    obj.traverse((m) => { if (m.isMesh && m.material?.color?.getHexString() === '9cc9ee' && !live.has(m.material)) still.push(m); });   // the glass colour
+    assert.equal(still.length, 1, `one fixed glass of its own: ${label}`);
+    const sb = box(still[0]);
+    assert.ok(Math.abs(sb.min.y - 0.05) < 1e-6 && Math.abs(sb.max.y - 1.075) < 1e-6, `the fixed glass: ${sb.min.y} .. ${sb.max.y} ${label}`);
+    const before = still[0].material.color.getHex();
+    obj.userData.tint.forEach(({ m }) => m.color.setHex(0xff4a3d));   // what openings.js does with an open window
+    assert.equal(still[0].material.color.getHex(), before, `the fixed glass is not tinted: ${label}`);
+  }
+  // a transom above, three panes: the bars between the panes only in the part that opens, two panes with a sash, one fixed
+  const o = { type: 'window', style: 'triple', width: 2.4, height: 2.2, sill: 0, fixedAbove: 0.5, paneHinges: ['left', 'fixed', 'right'] };
+  const obj = build(o, 1);
+  obj.parent.updateMatrixWorld(true);
+  assert.equal(obj.userData.panePivots.length, 3);
+  assert.equal(sashesOf(obj).length, 2);
+  obj.userData.panePivots.forEach((pv) => { const b = box(pv.children[0]); assert.ok(b.max.y <= 1.7 - 0.025 + 1e-6, `under the transom: ${b.max.y}`); });
+  // both, on a dormer / roof window and without: built, and the panes keep their height
+  for (const extra of [{}, { bare: true }]) {
+    const ob = build({ type: 'window', style: 'double', width: 1.4, height: 2.4, sill: 0.1, fixedBelow: 0.9, fixedAbove: 0.4 }, -1, extra);
+    ob.parent.updateMatrixWorld(true);
+    const b = box(ob.userData.panePivots[0].children[0]);
+    assert.ok(Math.abs(b.min.y - (0.1 + 0.925)) < 1e-6 && Math.abs(b.max.y - (0.1 + 2.0 - 0.025)) < 1e-6, `${b.min.y} .. ${b.max.y}`);
+  }
+});

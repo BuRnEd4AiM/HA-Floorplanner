@@ -1222,6 +1222,9 @@ const DICT = {
     'lock.heatPause': 'Heizplan aussetzen (⏸️ am Thermostat)',
     'te.building': 'Gehört zu Gebäude', 'te.buildingSub': 'Ist oben ein Gebäude gewählt, zeigt sich die Seite nur bei diesem.',
     'te.allBuildings': 'Alle Gebäude',
+    'op.windowFloor': 'Bodentief, unten fest', 'prop.fixedBelow': 'Feste Scheibe unten', 'prop.fixedAbove': 'Feste Scheibe oben',
+    'prop.fixedGlassHint': 'Höhe eines festen Felds unter bzw. über den Flügeln (Unterlicht / Oberlicht), über die ganze Breite des Fensters. Leer oder 0 = keins. Die Flügel behalten mindestens 30 cm.',
+    'prop.fixedGlassSub': 'Für Fenster, die nur oben (oder unten) aufgehen, z. B. bodentief mit festem unteren Teil. Die feste Scheibe hat keinen Kontakt und färbt sich nicht, wenn das Fenster offen ist.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2392,6 +2395,9 @@ const DICT = {
     'lock.heatPause': 'Pause the schedule (⏸️ on the thermostat)',
     'te.building': 'Belongs to building', 'te.buildingSub': 'With a building chosen at the top, the page only shows with that one.',
     'te.allBuildings': 'All buildings',
+    'op.windowFloor': 'Floor-length, fixed below', 'prop.fixedBelow': 'Fixed glass below', 'prop.fixedAbove': 'Fixed glass above',
+    'prop.fixedGlassHint': 'Height of a fixed pane below / above the panes that open (across the whole window). Empty or 0 = none. The panes keep at least 30 cm.',
+    'prop.fixedGlassSub': 'For windows that only open at the top (or bottom), e.g. floor-length with a fixed lower part. The fixed glass has no contact and does not change colour when the window is open.',
   },
 };
 

@@ -87,7 +87,7 @@ const layout = {
       W('w6', [7, 7], [3, 7], 0.24, [Win('o7', 2, { shutter: true, shutterEntity: 'cover.rollladen_schlafzimmer' })]),
       W('w7', [3, 7], [0, 7], 0.24, [Win('o8', 1.5, { width: 0.7, height: 0.8, sill: 1.3 })]),
       W('w8', [0, 7], [0, 4.5], 0.24),
-      W('w9', [0, 4.5], [0, 0], 0.24, [Win('o9', 2.25, { width: 1.6 })]),
+      W('w9', [0, 4.5], [0, 0], 0.24, [Win('o9', 2.25, { width: 1.6 }), Win('o15', 3.8, { style: 'single', hinge: 'left', width: 0.8, height: 2.2, sill: 0, fixedBelow: 1.1, name: 'Fenster Wohnzimmer bodentief' })]),   // #679: only the top opens
       W('i1', [0, 4.5], [6, 4.5], 0.12, [D('o10', 1.5), D('o11', 4.5)]),
       W('i2', [6, 4.5], [10, 4.5], 0.12, [D('o12', 2)]),
       W('i3', [6, 0], [6, 4.5], 0.12, [D('o13', 2.25, { width: 1.3, entity: 'binary_sensor.tuer_wohnzimmer_kueche', name: 'Tür Wohnzimmer-Küche' })]),

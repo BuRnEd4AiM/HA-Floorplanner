@@ -319,6 +319,81 @@ def _(r):
     r.wait(3200)
 
 
+def tall_window_room(r):
+    """prep: an empty house with a tall window from the floor (one pane, 2.2 m high) in its front wall, seen in 3D from inside the room"""
+    empty_house(walls=True, rooms=True)(r)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f), len = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+      w.openings.push({ id: 'guideWin', type: 'window', style: 'single', pos: len / 2, width: 1.0, height: 2.2, sill: 0 });
+      fp.rebuild();
+    }""" % FRONT_WALL)
+    r.pg.click("#view3d")
+    r.pg.wait_for_timeout(900)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f);
+      const mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2, zs = f.walls.flatMap((x) => [x.a[1], x.b[1]]);
+      const cz = (Math.min(...zs) + Math.max(...zs)) / 2, back = Math.max(3, Math.min(5, (mz - cz) * 1.6));
+      fp.camAt(mx + 1.2, 1.5, mz - back, mx, mz + 12);             // inside the room, a little from the side: the whole tall window
+    }""" % FRONT_WALL)
+    r.pg.wait_for_timeout(900)
+
+
+@clip("window-fixed", "edit",
+      {"de": "Fenster mit fester Scheibe unten oder oben", "en": "A window with fixed glass below or above"},
+      {"de": "Ein bodentiefes Fenster, das nur oben aufgeht: „Feste Scheibe unten“ macht den unteren Teil fest (z. B. bis 1,10 m), der Flügel darüber hat den Kontakt, kippt und geht auf. Nur er wird gelb oder rot, die feste Scheibe bleibt klar. „Feste Scheibe oben“ ist ein festes Oberlicht. Neu einsetzen: „Bodentief, unten fest“.",
+       "en": "A floor-length window that only opens at the top: “Fixed glass below” makes the lower part fixed (e.g. up to 1.10 m); the pane above has the contact, tilts and opens. Only it turns yellow or red, the fixed glass stays clear. “Fixed glass above” is a fixed transom. To put one in: “Floor-length, fixed below”."},
+      "Fenster feste Scheibe unten oben Unterlicht Oberlicht bodentief fest verglast Festverglasung Kämpfer Flügel oben window fixed glass below above transom floor-length fixed glazing pane at the top",
+      query="mode=edit", prep=tall_window_room)
+def _(r):
+    r.say("Klicke das Fenster an: es geht vom Boden bis 2,20 m.", "Click the window: it goes from the floor up to 2.20 m.")
+    p = r.js("window.__fp.openingCenter('guideWin')")
+    r.click(p["x"], p["y"])
+    r.wait(1200)
+    r.say("Nur oben geht es auf: „Feste Scheibe unten“ auf 1,1 m.", "Only the top opens: “Fixed glass below” to 1.1 m.")
+    r.click("#fixedBelow")
+    r.pg.keyboard.press("Control+A")
+    r.type("1.1")
+    r.key("Enter")
+    r.wait(1800)
+    r.say("Unten ist jetzt eine feste Scheibe, darüber ein Querholz und der Flügel, der kippt und aufgeht.",
+          "Below there is fixed glass now, above it a bar and the pane that tilts and opens.")
+    r.wait(1800)
+    r.say("Der Flügel geht links auf, wie ein Dreh-Kipp-Fenster.", "The pane opens on the left, like a tilt-and-turn window.")
+    r.click("#winHinge")
+    r.loc("#winHinge").select_option("left")
+    r.wait(1000)
+    r.say("Der Kontakt gehört zum Flügel, darunter der Kontakt „gekippt“.", "The contact belongs to the pane, below it the tilt contact.")
+    r.click("#propsBody .entPicker input[type=search]", nth=0)
+    r.type("terrasse")
+    r.wait(500)
+    r.click("#propsBody .entItem[data-id='binary_sensor.fenster_wz_offen']")
+    r.wait(900)
+    r.click("#tiltContact .entPicker input[type=search]")
+    r.type("terrasse")
+    r.wait(500)
+    r.click("#tiltContact .entItem[data-id='binary_sensor.fenster_wz_gekippt']")
+    r.wait(1200)
+    r.say("Gekippt: nur der Flügel oben wird gelb und kippt nach innen. Die feste Scheibe unten bleibt, wie sie ist.",
+          "Tilted: only the pane at the top turns yellow and tilts in. The fixed glass below stays as it is.")
+    r.wait(2600)
+    r.poster()
+    r.say("Offen: der Flügel oben wird rot und geht auf.", "Open: the pane at the top turns red and swings open.")
+    r.js("""clearInterval(window.__guideHold); window.__guideHold = setInterval(() => window.__fp.fakeState('binary_sensor.fenster_wz_offen', 'on'), 150)""")
+    r.wait(3000)
+    r.say("„Feste Scheibe oben“ ist ein festes Oberlicht über dem Flügel, zum Beispiel 0,4 m.", "“Fixed glass above” is a fixed transom over the pane, for example 0.4 m.")
+    r.click("#fixedAbove")
+    r.pg.keyboard.press("Control+A")
+    r.type("0.4")
+    r.key("Enter")
+    r.wait(2600)
+    r.say("Leer lassen oder 0: keine feste Scheibe. Neue Fenster dieser Art gibt es unter „Tür/Fenster“ als „Bodentief, unten fest“.",
+          "Leave it empty or 0: no fixed glass. New windows like this are under “Door/Window” as “Floor-length, fixed below”.")
+    r.click("#tools [data-tool=opening]")
+    r.wait(600)
+    r.move("#openingPalette button[data-opening=windowFloor]")
+    r.wait(2600)
+
+
 @clip("devices-place", "edit",
       {"de": "Lampen und Geräte platzieren", "en": "Place lamps and devices"},
       {"de": "„Gerät“ wählen, eine Lampe oder einen Sensor aussuchen, mit Home Assistant verbinden und in den Raum klicken.",

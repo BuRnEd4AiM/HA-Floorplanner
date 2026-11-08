@@ -767,7 +767,8 @@
       "window3",
       "windowTall",
       "windowBath",
-      "windowFixed"
+      "windowFixed",
+      "windowFloor"
      ]
     },
     "at": {
@@ -886,6 +887,18 @@
     "openOutward": {
      "type": "boolean",
      "description": "Windows only: the panes open outward (to the facade) instead of inward (into the room)"
+    },
+    "fixedBelow": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 4,
+     "description": "Windows only: fixed glass below the panes that open, its height in metres from the bottom of the window (e.g. 1.1 for a window from the floor whose lower part does not open); it has no contact, the panes above keep theirs. At least 0.2, the panes keep 0.3 m; 0 = none"
+    },
+    "fixedAbove": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 4,
+     "description": "Windows only: fixed glass above the panes that open (a transom), its height in metres from the top of the window; at least 0.2, 0 = none"
     },
     "rainWarn": {
      "type": "boolean",

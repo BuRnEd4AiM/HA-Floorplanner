@@ -1926,6 +1926,7 @@ if (params.get('debug')) {
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData?.target ?? 0),   // a fixed pane has no target: 0
     tiltTargets: (id) => (registry.get(id)?.userData.tiltPivots || []).map((p) => p?.userData?.target ?? 0),   // a tilted pane (#624), its angle
     sashes: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.children.some((c) => c.userData?.sash)),   // a pane with a sash (sash.js)
+    fixedGlass: (id) => { const out = []; registry.get(id)?.traverse((m) => { if (m.userData?.fixedGlass) { m.geometry.computeBoundingBox(); const b = m.geometry.boundingBox; out.push({ y0: +(m.position.y + b.min.y).toFixed(3), y1: +(m.position.y + b.max.y).toFixed(3), hex: m.material.color.getHex() }); } }); return out; },   // #679: in the window's own frame (a lowered wall does not count)
     openLook: (id) => registry.get(id)?.userData.look ?? null,                                                 // 'open', 'tilted', 'closed' …
     shutterScale: (id) => { const sh = registry.get(id)?.userData.shutter; const p = Array.isArray(sh) ? sh[0] : sh; return p?.userData.target ?? null; },   // how far a window's cover closes (#331)
     liveOk: () => liveChan.ok(),

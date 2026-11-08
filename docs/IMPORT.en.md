@@ -120,8 +120,9 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
 | `windowTall` | Window | double | 1.8 × 2.1 m | 0 m |
 | `windowBath` | Window | single | 0.6 × 0.6 m | 1.5 m |
 | `windowFixed` | Window | fixed | 1.6 × 1.4 m | 0.6 m |
+| `windowFloor` | Window | single, lower 1.1 m fixed | 0.9 × 2.2 m | 0 m |
 
-Can be overridden: `width`, `height`, `sill`, `style`, `entity` (e.g. a window sensor), `name`. Instead of `preset` you can use `"type": "door"|"window"`. A window with a **roller shutter**: `"shutter": true` and `"shutterEntity": "cover.kitchen_shutter"` (the entity alone is enough too); doors have none. A window with a second contact that reports it **tilted** (4.59.0): `"tiltEntity": "binary_sensor.window_tilted"`; `entity` then reports it open. How far it leans in in 3D when tilted (4.64.0): `"tiltDeg": 30` (5 to 45 degrees, 14 when not given).
+Can be overridden: `width`, `height`, `sill`, `style`, `entity` (e.g. a window sensor), `name`. Instead of `preset` you can use `"type": "door"|"window"`. A window with a **roller shutter**: `"shutter": true` and `"shutterEntity": "cover.kitchen_shutter"` (the entity alone is enough too); doors have none. A window with a second contact that reports it **tilted** (4.59.0): `"tiltEntity": "binary_sensor.window_tilted"`; `entity` then reports it open. How far it leans in in 3D when tilted (4.64.0): `"tiltDeg": 30` (5 to 45 degrees, 14 when not given). **Fixed glass below** or **above** the panes (4.72.0, #679): `"fixedBelow": 1.1` (its height in m from the bottom of the window; e.g. a floor-to-ceiling window that only tilts at the top) or `"fixedAbove": 0.4` (a fixed transom); it has no contact, the panes keep theirs. At least 0.2 m, the panes keep 0.3 m; 0 = none.
 
 ### Devices and furniture
 

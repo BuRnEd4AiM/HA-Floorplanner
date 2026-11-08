@@ -3881,4 +3881,6 @@ export default {
   'hr.rule.pause': '暂停日程', 'hr.sub.pause': '在恒温器上长按', 'hr.line.pause': '日程暂停至 {at} · 手动调节', 'hr.mark.pause': '手动', 'hr.why.pause': '日程暂停',
   'lock.heatPause': '暂停日程（恒温器上的 ⏸️）',
   'te.building': '所属建筑', 'te.buildingSub': '在顶部选择建筑后，此页面只在该建筑下显示。', 'te.allBuildings': '所有建筑',
+  'op.windowFloor': '落地窗（下部固定）', 'prop.fixedBelow': '下部固定玻璃', 'prop.fixedAbove': '上部固定玻璃',
+  'prop.fixedGlassHint': '可开启窗扇下方/上方固定玻璃的高度（整窗宽度）。留空或 0 = 无。窗扇至少保留 30 厘米。', 'prop.fixedGlassSub': '用于只在上部（或下部）开启的窗户，例如下部固定的落地窗。固定玻璃没有传感器，窗户打开时不会变色。',
 };

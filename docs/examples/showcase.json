@@ -300,6 +300,7 @@
           { "preset": "windowTall",  "at": [12, 1.5] },
           { "preset": "window3",     "at": [4.9, 10], "shutterEntity": "cover.rollladen_essen" },
           { "preset": "doorSlide",   "at": [7.3, 10], "name": "Terrassentür", "entity": "binary_sensor.terrassentuer" },
+          { "preset": "windowFloor", "at": [10.2, 10], "name": "Fenster Essen (unten fest)" },
           { "preset": "doorGarage",  "at": [14.5, 3], "name": "Garagentor", "entity": "cover.garagentor" },
           { "preset": "door",        "at": [12.95, 10], "name": "Garagentür Garten" },
           { "preset": "window",      "at": [17, 4.2] }
