@@ -67,3 +67,21 @@ test('an own page of one building shows only with it or with all of them', () =>
   assert.equal(B.cleanPageBuilding('anbau'), 'anbau');
   assert.equal(B.cleanPageBuilding('x y'), '');
 });
+
+test('the filter of a screen is worked out again when the building, the plan or the time changes', () => {
+  let shown = 'anbau', n = 0, now = 0, layout = PLAN;
+  const f = B.makeBuildingFilter({ layout: () => layout, shown: () => shown, areas: () => AREAS, ids: () => ['haus', 'anbau'], now: () => now,
+    view: (b) => { n += 1; return viewOf(layout, b); }, members: () => [], ...H });
+  assert.equal(f.shows('climate.wz'), false);
+  assert.equal(f.shows('sensor.waschmaschine'), true);
+  assert.equal(n, 2);                                             // once per building, not per question
+  shown = 'haus';
+  assert.equal(f.shows('climate.wz'), true);
+  assert.equal(f.shows('sensor.waschmaschine'), false);
+  assert.equal(n, 4);
+  now = 5000;
+  f.shows('x');
+  assert.equal(n, 6);                                             // a few seconds later: anew (somebody may have edited)
+  shown = null;
+  assert.equal(f.shows('sensor.waschmaschine'), true);
+});

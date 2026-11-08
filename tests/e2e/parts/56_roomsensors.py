@@ -92,7 +92,7 @@ moved = wait_rs(lambda: [c for c in calls_rs("climate.rs_hm", n1) if c[0] == "se
 check("roomsensors: the target is moved: wish 20 + (23,0 − 19,5) = 23,5", moved and moved[0][2]["temperature"] == 23.5, moved)
 
 # --- 🌡 Klima: the circle shows the sensor and the wish; a temperature set on the page is the wish
-pgS.click("[data-page=climate] .tpTools .tpChip:not([data-view])"); pgS.wait_for_timeout(800)
+pgS.click("[data-page=climate] .tpTools [data-view=rooms]"); pgS.wait_for_timeout(800)
 seen_rs = wait_rs(lambda: pgS.evaluate("() => { const s = window.__fp.states()['climate.rs_hm']; return s && s.rs === 'sensor.rs_temp2' && s.ct === 19.5 && s.tt === 20 ? [s.ct, s.tt, s.ct0] : null; }"))
 check("roomsensors: the page shows the sensor's temperature and the wish for the thermostat", seen_rs == [19.5, 20, 23], seen_rs)
 line_rs = wait_rs(lambda: pgS.locator("[data-page=climate] .clCard .rsRoom[data-sensor='sensor.rs_temp']").count() == 1)

@@ -380,6 +380,16 @@ t("houses",
   "second house several houses holiday home holiday flat apartment garden house neighbour's house parents switch house "
   "copy a house rename a house delete a house new house house beside side by side semi-detached two houses on one plot "
   "annex bridge position move turn")
+t("heat-pause",
+  "Heizplan aussetzen Heizung pausieren Pause Heizplan ignorieren manuell heizen von Hand regeln Thermostat selbst einstellen "
+  "Heizplan überschreiben eine Stunde wärmer heute ohne Plan Zeitplan anhalten Override Ausnahme Party Besuch Knopf gedrückt halten",
+  "pause the schedule pause heating ignore schedule heat manually regulate by hand set thermostat yourself override the schedule "
+  "one hour warmer today without plan stop timetable exception party guests hold button long press")
+t("buildings-pages",
+  "Gebäude wählen Gebäude umschalten nur ein Gebäude Anbau Haupthaus Gartenhaus Nebengebäude Geräte filtern Seiten filtern "
+  "Dashboard je Gebäude Karten ausblenden falsches Haus Entitäten zuordnen Seite gehört zu Gebäude zwei Häuser",
+  "choose building switch building only one building wing main house garden house outbuilding filter devices filter pages "
+  "dashboard per building hide cards wrong house assign entities page belongs to building two houses")
 t("energy-buildings",
   "Strom je Gebäude Gebäude im Plan zwei Gebäude Nebengebäude Anbau Gartenhaus Einliegerwohnung Doppelhaus Haupthaus Stromrechner je Haus "
   "getrennt rechnen eigener Stromzähler Gebäude trennen Strom getrennt anzeigen zwei Häuser nebeneinander Bereiche",

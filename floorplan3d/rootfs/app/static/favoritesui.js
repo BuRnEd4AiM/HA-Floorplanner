@@ -8,7 +8,8 @@ const hex = (c) => '#' + c.map((v) => Math.round(Math.min(255, Math.max(0, v))).
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
 /** ctx: $, t, settings(), states(), ready() (states loaded), entities(), nameOf(entity), callService(entity, service),
- *  canEdit(), save() (store the settings as they are), changed() (draw the strip again), commit() (the settings form changed) */
+ *  canEdit(), save() (store the settings as they are), changed() (draw the strip again), commit() (the settings form changed),
+ *  shows(entity) (in the building chosen at the top: the strip leaves out another building's, #677) */
 export function initFavorites(ctx) {
   const { $, t } = ctx;
   const list = () => cleanFavorites(ctx.settings().favorites);
@@ -16,7 +17,7 @@ export function initFavorites(ctx) {
   /** the buttons for the strip (HTML), '' without favourites */
   function html() {
     const states = ctx.states();
-    return shownFavorites(list(), states, ctx.ready()).map((id) => {
+    return shownFavorites(list(), states, ctx.ready()).filter((id) => ctx.shows?.(id) !== false).map((id) => {
       const f = favTile(id, states[id], ctx.nameOf(id));
       const col = f.on ? (f.rgb ? hex(f.rgb) : '#ffcf70') : '';
       const value = favValue(f, states[id], t);

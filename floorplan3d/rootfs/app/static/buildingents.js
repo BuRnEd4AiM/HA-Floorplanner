@@ -46,6 +46,25 @@ export function buildingFilter(sets, shown, membersOf = () => []) {
   };
 }
 
+/**
+ * The filter of a screen, worked out again when the plan, the areas or the building shown change (and every few seconds while somebody
+ * edits): { shows(entity) }. ctx: layout(), shown() (the building chosen at the top, null: all), areas() (only compared), ids() (the
+ * plan's building ids), view(id) (buildings.viewOf), devices(floor), openings(floor), area(room), members(entity), now() (ms)
+ */
+export function makeBuildingFilter(ctx) {
+  let memo = { key: '' };
+  function shows(e) {
+    const shown = ctx.shown();
+    if (!shown) return true;
+    const key = `${shown}|${Math.floor((ctx.now?.() ?? Date.now()) / 4000)}`, layout = ctx.layout(), areas = ctx.areas?.();
+    if (memo.key !== key || memo.layout !== layout || memo.areas !== areas) {
+      memo = { key, layout, areas, fn: buildingFilter(buildingSets(ctx.ids(), ctx.view, ctx), shown, ctx.members) };
+    }
+    return memo.fn(e);
+  }
+  return { shows };
+}
+
 /** does an own card show (shows: buildingFilter): one with devices only when one of them shows; a card of a room only in its building;
  *  one without devices (text, built-in, calendar …) always. ents: its entities (cards.cardEntities), roomShows(room id): the room is in
  *  the building shown */

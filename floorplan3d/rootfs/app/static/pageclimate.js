@@ -119,7 +119,7 @@ export function initClimatePage(ctx) {
     if (m.outside !== null) h.append(make('span', 'tpSub', t('cl.outside', { v: deg(m.outside) })));
     const tools = make('div', 'tpTools');
     if (view === 'rooms') FILTERS.forEach((f) => { const b = btn(`tpChip${f === filter ? ' on' : ''}`, t(`cl.filter.${f}`), () => { filter = f; draw(true); }); b.dataset.filter = f; tools.append(b); });
-    else tools.append(btn('tpChip', t('cl.view.rooms'), () => show('rooms')));
+    else { const r = btn('tpChip', t('cl.view.rooms'), () => show('rooms')); r.dataset.view = 'rooms'; tools.append(r); }
     [['rules', `📋 ${t('cl.view.rules')}`], ['plan', `📅 ${t('cl.view.plan')}`], ...(ctx.diag ? [['diag', `🩺 ${t('cl.view.diag')}`]] : [])].forEach(([v, text]) => {
       const b = btn(`tpChip${view === v ? ' on' : ''}`, text, () => show(v)); b.dataset.view = v; tools.append(b);
     });

@@ -139,7 +139,7 @@ import { initNotifyUi } from './notifyui.js';
 import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.js';
 import { initGuardUi } from './guardui.js';
 import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding, buildingsOf } from './buildings.js';
-import { buildingSets, buildingFilter, cardShows, pageShows } from './buildingents.js';
+import { makeBuildingFilter, cardShows, pageShows } from './buildingents.js';
 import { initBuildingsUi } from './buildingsui.js';
 import { initPicking } from './picking.js';
 import { batchModels, unbatch } from './meshmerge.js';
@@ -624,28 +624,17 @@ function roomHeat(room, f) {
   return v === null ? null : colorFromStops(settings[VIEW_STOPS[viewMode][0]], v);
 }
 const areaEntitiesOf = (room) => (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []);
-/* only what belongs to the building shown at the top, on every page (#677, buildingents.js): (entity) -> boolean, worked out again when the
- * plan, the areas or the building change (and every few seconds while somebody edits) */
-let bldMemo = { key: '' };
-const inBuilding = (e) => {
-  const shown = buildingsUi?.shown() ?? null;
-  if (!shown) return true;
-  const key = `${shown}|${Math.floor(Date.now() / 4000)}`;
-  if (bldMemo.key !== key || bldMemo.layout !== layout || bldMemo.areas !== areas) {
-    const h = { devices: (f) => entityDevices(f).map((d) => d.entity), area: areaEntitiesOf,
-      openings: (f) => openingWalls(f).flatMap((w) => (w.openings || []).flatMap((o) => openingEntities(o))) };
-    bldMemo = { key, layout, areas, fn: buildingFilter(buildingSets(buildingsOf(layout).map((b) => b.id), (b) => viewOf(layout, b), h), shown,
-      (x) => states[x]?.members || []) };                          // a group in no building: by its lamps
-  }
-  return bldMemo.fn(e);
-};
+/* only what belongs to the building shown at the top, on every page (#677, buildingents.js) */
+const inBuilding = makeBuildingFilter({ layout: () => layout, shown: () => buildingsUi?.shown() ?? null, areas: () => areas,
+  ids: () => buildingsOf(layout).map((b) => b.id), view: (b) => viewOf(layout, b), area: areaEntitiesOf, members: (x) => states[x]?.members || [],
+  devices: (f) => entityDevices(f).map((d) => d.entity), openings: (f) => openingWalls(f).flatMap((w) => (w.openings || []).flatMap((o) => openingEntities(o))) }).shows;
 const roomInBuilding = (id) => shownLayout().floors.some((f) => (f.rooms || []).some((r) => r.id === id));
 let partsOf = [null, {}];                                        // the sensors of thermostats' devices, worked out once per list of areas
 const partOf = () => (partsOf[0] === areas ? partsOf[1] : (partsOf = [areas, thermostatParts(areas)])[1]);
 /* favourites (#471): buttons in front of the room tiles, ☆ on a device's card, the list in ⚙ → "Quick access"; favoritesui.js */
 const favorites = initFavorites({ $, t, settings: () => settings, states: () => states, ready: () => entities.length > 0, entities: () => entities,
   nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, callService: (e, svc) => live.callService(e, svc),
-  canEdit: () => me.canEdit, save: () => settingsStore.save(), changed: () => roomTiles.update(), commit: () => commitSettings() });
+  canEdit: () => me.canEdit, save: () => settingsStore.save(), changed: () => roomTiles.update(), commit: () => commitSettings(), shows: (e) => inBuilding(e) });
 /* light groups (#471): "💡 n an" at the top, the whole house or a group of rooms off with two taps; lightgroupsui.js */
 const isLit = (e) => ON_STATES.has(states[e]?.state);
 const lightGroups = initLightGroups({ $, t, layout: () => shownLayout(), plan: () => layout, settings: () => settings, placed: (f) => entityDevices(f),
