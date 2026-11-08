@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3MTTgg1hsKmerNxB2F",
+ "start": "2026-11-08",
+ "updated": "2026-11-08T12:29:34Z",
+ "branch": "claude/fervent-mendel-ce11vm",
+ "source": "counted",
+ "input": 99,
+ "cache_write": 182750,
+ "cache_read": 8538855,
+ "output": 34470,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 99,
+   "cache_write": 182750,
+   "cache_read": 8538855,
+   "output": 34470,
+   "requests": 49
+  }
+ }
+}
