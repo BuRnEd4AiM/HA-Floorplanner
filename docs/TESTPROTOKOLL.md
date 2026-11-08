@@ -442,8 +442,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 164. Neu in 4.68.0: 🪜 Geschosshöhe je Haus, Stufen je Etage, L-Treppe mit 2. Ecke (#671) | 5 | 0 | 2 | 0 | 164.6, 164.7 |
 | 165. Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan | 5 | 0 | 3 | 0 | 165.6 bis 165.8 |
 | 166. Neu in 4.70.0: ⚡ Strom je Gebäude | 5 | 0 | 2 | 0 | 166.6, 166.7 |
-| 167. Neu in 4.70.1: Bereit für Home Assistant 2026.11 (neue Namen, Teil-Geräte) | 3 | 0 | 3 | 0 | 167.4 bis 167.6 |
-| **Zusammen** | **1110** | **1** | **46** | **92** | |
+| 167. Neu in 4.70.1: Bereit für Home Assistant 2026.11 (neue Namen, Teil-Geräte) | 4 | 0 | 2 | 0 | 167.5, 167.6 |
+| **Zusammen** | **1111** | **1** | **45** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2569,6 +2569,6 @@ Der Besitzer, 2026-11-08: „so es gibt 2026.11 das Home Assistant update schaue
 | 167.1 | `pytest tests/test_hadevices.py tests/test_hanames.py tests/test_renames.py tests/test_counters.py tests/test_server.py` | Teil-Geräte: erst das eigene Teil, dann das ganze Gerät, ein Teil in einem anderen Bereich für sich; Namen wie Home Assistant (vor und ab 2026.11); kein Teil des Add-ons liest `friendly_name` selbst; ohne Geräteliste alles wie vorher | ✅ (2026-11-08, Claude) |
 | 167.2 | `tools/ha_check.py` mit einem echten Home Assistant 2026.11.0 (Python 3.14) | „ALL OK“: die Abläufe des Add-ons werden angenommen und laufen, Szenen und besondere Tage gehen; 7 Namen gleich wie der `friendly_name` von Home Assistant (umbenannt, Hauptentität, Teil-Gerät); 5 Prüfungen der Teil-Geräte und der Bereichs-Vorlage richtig | ✅ (2026-11-08, Claude) |
 | 167.3 | `tools/ha_check.py` mit Home Assistant 2026.2.3 (Python 3.13) | „ALL OK“ wie bisher (ohne Teil-Geräte) | ✅ (2026-11-08, Claude) |
-| 167.4 | Browser-Test Teile `07_tablet`, `11_live`, `22_energy_setup`, `40_energy_counters`, `33_climate_routines_family`, `43_battery_levels` (der nachgebaute Rauchmelder liegt jetzt auf einem Teil-Gerät, sein Akku am Hauptgerät) | Geräteübersicht zeigt den Akku des Rauchmelders (15 %, 🪫); Umbenennen, Energie-Dashboard übernehmen, „⤵ Von oben übernehmen“, Familie und Ladestand wie bisher | ❓ |
+| 167.4 | Browser-Test Teile `07_tablet`, `11_live`, `22_energy_setup`, `40_energy_counters`, `33_climate_routines_family`, `43_battery_levels` (der nachgebaute Rauchmelder liegt jetzt auf einem Teil-Gerät, sein Akku am Hauptgerät) | Geräteübersicht zeigt den Akku des Rauchmelders (15 %, 🪫); Umbenennen, Energie-Dashboard übernehmen, „⤵ Von oben übernehmen“, Familie und Ladestand wie bisher | ✅ (2026-11-08, Claude, 248 Prüfungen) |
 | 167.5 | Im Add-on nach dem Update auf Home Assistant 2026.11: den Plan ansehen, „Geräte“ oben öffnen | Die Namen im Plan sind wie vorher, die Geräteübersicht zeigt die Akkus wie vorher | ❓ |
 | 167.6 | Nur wenn du Geräte mit mehreren Teilen hast (Steckdosenleiste mit Tuya, Z-Wave-Thermostat mit Fühlern, ESPHome, MQTT): in Home Assistant ein Gerät umbenennen | Der neue Name kommt von selbst in den Plan (außer bei Namen, die du im Plan selbst getippt hast); Akku und Heizungs-Teile stehen beim richtigen Gerät | ❓ |
