@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-08 · 115 Sitzungen
+Stand: 2026-11-08 · 116 Sitzungen
 
-**Insgesamt: 7,64 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 7,75 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 21,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 74,0 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 7,55 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 21,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 75,0 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 7,65 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 29 | 1,52 Mrd. | 3,8 Mio. |
+| 2026-11 | 30 | 1,62 Mrd. | 4,0 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-08 | [012p9z3M…](https://claude.ai/code/session_012p9z3MTTgg1hsKmerNxB2F) | claude/fervent-mendel-ce11vm | 103,5 Mio. | 215 Tsd. | gezählt |
 | 2026-11-08 | [012p9z3M…](https://claude.ai/code/session_012p9z3MvfYahz7cAueA6Q5H) | claude/elegant-faraday-858q3v | 29,6 Mio. | 100 Tsd. | gezählt |
 | 2026-11-07 | [018pwcmx…](https://claude.ai/code/session_018pwcmxutQDa2cztZ7QgFhw) | claude/festive-brahmagupta-1i6xm4 | 67,4 Mio. | 190 Tsd. | gezählt |
 | 2026-11-06 | [018pwcmx…](https://claude.ai/code/session_018pwcmxad2DogQ9PVxk2G2X) | claude/nifty-clarke-1sw4k9 | 49,2 Mio. | 143 Tsd. | gezählt |
