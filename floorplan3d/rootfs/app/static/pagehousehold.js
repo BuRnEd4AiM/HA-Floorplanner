@@ -159,7 +159,7 @@ export function initHouseholdPage(ctx) {
   function draw(force = false) {
     loadMachines(); if (open) loadTodo();
     const focus = document.activeElement, typing = focus?.closest?.('.hhAdd') && el.contains(focus);
-    const vac = vacuums(ctx.states(), ctx.names()), waste = ctx.builtin('waste');   // the waste card of ☀ Heute (its calendar comes a moment later)
+    const vac = vacuums(ctx.states(), ctx.names()).filter((v) => ctx.shows?.(v.entity) !== false), waste = ctx.builtin('waste');   // #677   // the waste card of ☀ Heute (its calendar comes a moment later)
     const sig = JSON.stringify([machines.list, machines.tell, machines.note, outdoor.sig(), vac, vac.map((v) => ctx.states()[v.entity]?.ctl), todo.entity, todo.lists, todo.items, todo.note, ctx.locked(),
       waste?.textContent || '', new Date().getMinutes(), t('tab.household')]);
     if (!force && (sig === drawn || typing)) return;
@@ -167,7 +167,8 @@ export function initHouseholdPage(ctx) {
     const head = make('div', 'tpHead');
     head.append(make('h2', '', `🧺 ${t('tab.household')}`));
     const grid = make('div', 'hhGrid'), items = [];
-    machines.list.forEach((a) => items.push({ key: `ap:${a.kind}`, name: t(`hh.kind.${a.kind}`), el: machineCard(a), width: 1 }));
+    const mine = (a) => { const x = ctx.settings().appliances?.[a.kind] || {}, es = [x.power, x.status].filter(Boolean); return !es.length || es.some((e) => ctx.shows?.(e) !== false); };   // #677
+    machines.list.filter(mine).forEach((a) => items.push({ key: `ap:${a.kind}`, name: t(`hh.kind.${a.kind}`), el: machineCard(a), width: 1 }));
     vac.forEach((v) => items.push({ key: `vac:${v.entity}`, name: v.name, el: vacuumCard(v), width: 1 }));
     items.push(...outdoor.items());
     if (Object.keys(ctx.states()).some((id) => id.startsWith('todo.'))) items.push({ key: 'todo', el: todoCard(), width: 2 });

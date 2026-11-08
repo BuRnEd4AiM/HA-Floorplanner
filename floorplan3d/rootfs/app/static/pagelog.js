@@ -65,7 +65,8 @@ export function initLogPage(ctx) {
     .filter(Boolean).join(', ');
   const meta = (evs) => ({ version: data?.version, now: Date.now() / 1000, from: data?.from && dayText(dayOf(data.from)), to: data?.day && dayText(dayOf(data.day)),
     filters: filterText(), recording: data?.recording, n: evs.length });
-  const list = () => filterEvents(data?.events, f, words());     // the device on the side is only marked in the table
+  const inBuilding = (x) => { const es = x.k === 'c' ? x.e || [] : x.e ? [x.e] : []; return !es.length || es.some((e) => ctx.shows?.(e) !== false); };   // #677
+  const list = () => filterEvents(data?.events, f, words()).filter(inBuilding);     // the device on the side is only marked in the table
 
   async function quickCopy(b) {
     const ok = await copy(report(list(), words(), meta(list())));

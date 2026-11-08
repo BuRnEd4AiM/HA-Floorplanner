@@ -326,6 +326,7 @@ export function roomLine(s, now, t, deg) {
   if (s.skip) return { icon: '🔥', tone: '', text: t('hr.line.skip') };
   if (s.why === 'boost') { const d = new Date((s.until || now) * 1000); return { icon: '🚀', tone: 'boost', text: t('hr.line.boost', { at: hhmm(d.getHours() * 60 + d.getMinutes()) }) }; }
   if (s.why === 'warm') return { icon: '🔥', tone: 'warm', text: warmText(s, t, deg) };   // too warm: lowered until the room is back at the wish
+  if (s.why === 'pause') { const d = new Date((s.pause || now) * 1000); return { icon: '⏸️', tone: 'hand', text: t('hr.line.pause', { at: hhmm(d.getHours() * 60 + d.getMinutes()) }) }; }
   if (!s.why) return null;
   if (s.hand && s.why === 'schedule') {                          // turned by hand: the schedule's temperature comes back at s.hand (#546)
     const d = new Date(s.hand * 1000);
@@ -339,6 +340,7 @@ export function roomLine(s, now, t, deg) {
 export function roomMark(s, t) {
   if (s?.why === 'window') return `⏸️ ${t('hr.mark.window')}`;
   if (s?.why === 'boost') return `🚀 ${t('hr.boost')}`;
+  if (s?.why === 'pause') return `⏸️ ${t('hr.mark.pause')}`;            // ⏸️ Heizplan ausgesetzt (regulated by hand)
   return '';
 }
 

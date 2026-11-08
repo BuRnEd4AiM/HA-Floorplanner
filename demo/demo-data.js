@@ -5,6 +5,7 @@ import houseExample from '../floorplan3d/rootfs/app/examples/house.json';
 import showcaseExample from '../floorplan3d/rootfs/app/examples/showcase.json';
 import propertySchema from '../floorplan3d/rootfs/app/property.schema.json';
 import { approxSun, skyTimeOf } from '../floorplan3d/rootfs/app/static/sky.js';
+import { pauseChoices } from '../floorplan3d/rootfs/app/static/heatpause.js';
 
 const W = (id, a, b, thickness, openings = []) => ({ id, a, b, thickness, height: 2.6, openings });
 const D = (id, pos, extra = {}) => ({ id, type: 'door', pos, width: 0.9, height: 2.05, sill: 0, ...extra });
@@ -648,6 +649,7 @@ const rulesDemo = {
     schedule: { on: true, levels: { night: 17, eco: 19, comfort: 21 }, pre: 30, hand: 10, rooms: { 'main/r1': { days: [workDay, workDay, workDay, workDay, workDay, homeDay, homeDay] } } },
     summer: { on: false, above: 18, hours: 6 }, boost: { on: true, minutes: 30, temp: 24 }, holiday: { on: false, temp: 15, until: '', back: '14:00', guard: false },
     warm: { on: true, above: 1, down: 5, skip: [] },                                                            // 🔥 Zu warm
+    pause: { on: true, opts: ['30', '45', '60', 'block', 'day'], window: true, warm: false, levels: false },   // ⏸️ Heizplan aussetzen (held on a thermostat)
     sensors: { on: true, every: 10, min: 0.5, map: { 'climate.wohnzimmer': { s: 'sensor.wohnzimmer_temp', way: 'auto' } } } },   // 🌡 Raumfühler (#573)
   flows: [
     { id: 'f_flur', name: 'Flurlicht nachts', on: true, ha: true, lanes: [{ id: 'l1', blocks: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on' }, { k: 'if_sun', is: 'dark' },
@@ -661,7 +663,7 @@ const rulesDemo = {
   ],
   days: [{ id: 'd_ft', kind: 'holidays', name: '', icon: '🎉', region: 'BW' }, { id: 'd_xmas', kind: 'date', name: 'Heiligabend', icon: '🎄', md: '12-24' },   // 📅 Besondere Tage
     { id: 'd_hw', kind: 'date', name: 'Halloween', icon: '🎃', md: '10-31' }],
-  boost: {}, skip: {}, log: [],
+  boost: {}, skip: {}, pause: {}, log: [],
 };
 const nowS = () => Math.round(Date.now() / 1000);
 (() => {                                               // what happened today, as the add-on would have written it
@@ -679,12 +681,15 @@ function rulesStatus() {
   const t = nowS(), open = entities['binary_sensor.fenster_wohnzimmer']?.state === 'on', h = rulesDemo.heat;
   const rooms = {};
   const boost = rulesDemo.boost['main/r1'] > t;
+  const paused = h.pause?.on && rulesDemo.pause['main/r1'] > t;                                               // ⏸️ held on the thermostat
   const room = Number(entities['sensor.wohnzimmer_temp']?.state), w = h.warm || {};
-  const hot = w.on && !(w.skip || []).includes('main/r1') && room >= 21 + (w.above || 1);                    // 🔥 too warm: after window and boost
-  const wz = h.window.on && open && !rulesDemo.skip['main/r1'] ? 'window' : boost ? 'boost' : hot ? 'warm' : h.schedule.on ? 'schedule' : null;
+  const hot = w.on && !(w.skip || []).includes('main/r1') && room >= 21 + (w.above || 1) && (!paused || h.pause.warm);   // 🔥 too warm: after window and boost
+  const wz = h.window.on && open && !rulesDemo.skip['main/r1'] && (!paused || h.pause.window) ? 'window' : boost ? 'boost' : hot ? 'warm' : paused ? 'pause'
+    : h.schedule.on ? 'schedule' : null;
   rooms['main/r1'] = { why: wz, temp: wz === 'schedule' || wz === 'warm' ? 21 : null, level: wz === 'schedule' || wz === 'warm' ? 'comfort' : null, since: wz === 'window' ? pausedSince : null,
     until: wz === 'boost' ? rulesDemo.boost['main/r1'] : null, back: wz === 'window' || wz === 'boost' ? 22 : wz === 'warm' ? 21 : null, open: open ? ['binary_sensor.fenster_wohnzimmer'] : [],
-    waiting: false, skip: !!rulesDemo.skip['main/r1'], climates: ['climate.wohnzimmer'], warm: wz === 'warm' ? { wish: 21, room, to: 21 - (w.down || 5) } : null };
+    waiting: false, skip: !!rulesDemo.skip['main/r1'], climates: ['climate.wohnzimmer'], warm: wz === 'warm' ? { wish: 21, room, to: 21 - (w.down || 5) } : null,
+    pause: paused ? rulesDemo.pause['main/r1'] : null };
   rooms['main/r5'] = { why: null, temp: null, level: null, open: [], waiting: false, skip: false, climates: ['climate.klima_buero'] };   // an air conditioner: only the window rule
   const lanes = {};
   rulesDemo.flows.filter((f) => !f.ha).forEach((f) => f.lanes.forEach((l) => { lanes[`${f.id}/${l.id}`] = { running: false, wait: null, until: null, passed: {}, stop: null, end: null, t0: null, test: false }; }));
@@ -1317,6 +1322,14 @@ export function installDemoBackend() {
       const b = JSON.parse(init.body || '{}'), t = nowS();
       if (b.act === 'boost') rulesDemo.boost[b.room] = rulesDemo.boost[b.room] > t ? 0 : t + rulesDemo.heat.boost.minutes * 60;
       if (b.act === 'skip') rulesDemo.skip[b.room] = true;
+      if (b.act === 'pause' || b.act === 'more' || b.act === 'resume') {                          // ⏸️ Heizplan aussetzen
+        const c = pauseChoices(rulesDemo.heat, b.room, new Date()).find((x) => x.k === b.for);
+        if (b.act === 'pause' && c) { rulesDemo.pause[b.room] = Math.round(c.until / 1000); delete rulesDemo.boost[b.room]; }
+        if (b.act === 'more' && rulesDemo.pause[b.room] > t) rulesDemo.pause[b.room] += 15 * 60;
+        if (b.act === 'resume') delete rulesDemo.pause[b.room];
+        if (b.act === 'pause' && !c) return json({ error: 'not offered' }, 400);
+        return json({ ok: true });
+      }
       const heatOn = b.act === 'skip' || rulesDemo.boost[b.room] > t;
       if (b.room === 'main/r1') { entities['climate.wohnzimmer'].state = heatOn || !entities['binary_sensor.fenster_wohnzimmer'] || entities['binary_sensor.fenster_wohnzimmer'].state !== 'on' ? 'heat' : 'off'; entities['climate.wohnzimmer'].hvac = entities['climate.wohnzimmer'].state === 'heat' ? 'heating' : 'off'; }
       rulesDemo.log.push({ t, src: 'heat', ent: 'climate.wohnzimmer', act: b.act === 'boost' && heatOn ? 'temp' : 'mode', v: b.act === 'boost' && heatOn ? rulesDemo.heat.boost.temp : 'heat', why: b.act === 'boost' ? 'boost' : 'back', room: b.room });

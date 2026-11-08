@@ -57,7 +57,7 @@ if pgR.is_visible("#modeSwitch [data-mode=live]"): pgR.click("#modeSwitch [data-
 pgR.click("#tabBar [data-tab=climate]"); pgR.wait_for_timeout(800)
 pgR.click("[data-page=climate] [data-view=rules]"); pgR.wait_for_timeout(800)
 cards_rl = pgR.evaluate("[...document.querySelectorAll('[data-page=climate] [data-heat-rule]')].map((c) => c.dataset.heatRule)")
-check("rules: 📋 Heiz-Regeln shows the eight rules as cards (after 🌡 Raumfühler, #573; 🔥 Zu warm after the window)", cards_rl == ["sensors", "window", "warm", "away", "night", "schedule", "summer", "boost", "holiday"], cards_rl)
+check("rules: 📋 Heiz-Regeln shows the rules as cards (after 🌡 Raumfühler, #573; 🔥 Zu warm after the window; ⏸️ after 🚀, 4.71.0)", cards_rl == ["sensors", "window", "warm", "away", "night", "schedule", "summer", "boost", "pause", "holiday"], cards_rl)
 pgR.click("[data-heat-rule=window] input[data-rule=window]")
 for _ in range(2):
     pgR.click("[data-heat-rule=window] [data-field='window.delay'] button:first-child"); pgR.wait_for_timeout(150)
@@ -72,7 +72,7 @@ check("rules: a window opens, the add-on switches the room's thermostat off (no 
 st_rl_room = wait_rl(lambda: (api("api/rules")["status"]["rooms"].get(key_rl) or {}).get("why") == "window")
 check("rules: api/rules says the room is paused by the window", st_rl_room, api("api/rules")["status"]["rooms"])
 pgR.click("[data-page=climate] [data-view=rules]"); pgR.wait_for_timeout(300)
-pgR.click("[data-page=climate] .tpTools .tpChip:not([data-view])"); pgR.wait_for_timeout(800)
+pgR.click("[data-page=climate] .tpTools [data-view=rooms]"); pgR.wait_for_timeout(800)
 line_rl = wait_rl(lambda: pgR.locator(f"[data-page=climate] [data-room=rl_r] .hrLine[data-line=window]").count() == 1)
 check("rules: the room's card shows '⏸️ Heizung pausiert' with 'Trotzdem heizen'", line_rl and "Trotzdem heizen" in pgR.inner_text("[data-page=climate] [data-room=rl_r] .hrLine"))
 n1 = len(calldata_rl())
@@ -135,7 +135,7 @@ hand_rl = wait_rl(lambda: (api("api/rules")["status"]["rooms"].get(key_rl) or {}
 check("schedule: a thermostat turned by hand goes back to the plan in 10 minutes (api/rules says when)",
       hand_rl and abs(hand_rl - time.time() - 600) < 60, (lv_rl, api("api/rules")["status"]["rooms"].get(key_rl)))
 pgR.click("[data-page=climate] [data-view=rules]"); pgR.wait_for_timeout(300)
-pgR.click("[data-page=climate] .tpTools .tpChip:not([data-view])"); pgR.wait_for_timeout(800)
+pgR.click("[data-page=climate] .tpTools [data-view=rooms]"); pgR.wait_for_timeout(800)
 hand_line = wait_rl(lambda: pgR.locator("[data-page=climate] [data-room=rl_r] .hrLine[data-line=hand]").count() == 1
                     and pgR.inner_text("[data-page=climate] [data-room=rl_r] .hrLine[data-line=hand]"))
 check("schedule: the room's card says '✋ Von Hand gedreht · ab … wieder …'", hand_line and "Von Hand gedreht" in hand_line and "wieder" in hand_line, hand_line)

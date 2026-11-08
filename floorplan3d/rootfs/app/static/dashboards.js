@@ -18,7 +18,8 @@ import { initVariantsUi } from './variantsui.js';
 import { initSceneBar } from './scenebarui.js';
 import { initLightCard } from './lightcardui.js';
 import { lightCards, pickLightCard } from './lightslider.js';
-import { cleanCard } from './cards.js';
+import { cleanCard, cardEntities } from './cards.js';
+import { buildingsOf } from './buildings.js';
 import { variantsOf } from './pagevariants.js';
 import { cleanCustomTabs } from './tabs.js';
 import { roomSummary } from './roomtiles.js';
@@ -27,7 +28,8 @@ import { roomSummary } from './roomtiles.js';
  *  callService(entity, service, data), layout() (the building shown), placed(floor), areaEntities(room), partOf() (the sensors of thermostats, roomReading), isOn(entity), isOpen(entity),
  *  openingEntities(opening), openRoom(floorIndex, roomId), camImage(entity), openCamera(entity), builtin(key), tabsUi() (the tab bar,
  *  made after this), live() (livecontrols.js, made after this), me() (api/me), refill() (the settings dialog shows the settings again),
- *  usedBy(entity) (🔎 Wird benutzt, #546: a button), locked() (this user may not switch: no scene bar, #597) */
+ *  usedBy(entity) (🔎 Wird benutzt, #546: a button), locked() (this user may not switch: no scene bar, #597), pause (heatpauseui.js),
+ *  shows(entity), cardShows(card, entities), pageShows(page) (only what belongs to the building shown, #677, buildingents.js) */
 export function initDashboards(ctx) {
   const { $, t } = ctx;
   const bar = () => ctx.tabsUi();
@@ -47,7 +49,7 @@ export function initDashboards(ctx) {
 
   /** the thermostat as a circle (#495): the own card "Thermostat" and the page 🌡 Klima; a tap draws the open page again */
   const thermo = initThermostat({ t, lang: ctx.lang, settings: ctx.settings, states: ctx.states, callService: ctx.callService,
-    changed: () => bar().update() });
+    pause: ctx.pause, changed: () => bar().update() });                    // pause: ⏸️ Heizplan aussetzen under − / + (heatpauseui.js)
   /** the calendar card (#495): several calendars, a week / list / month, "＋ Termin" */
   const calendar = initCalendarCard({ t, lang: ctx.lang, callService: ctx.callService, changed: () => { board.refresh(bar().open()); editor.refresh(); } });
   /** 🚆 the train card (#550): the departures of a station, "mein Zug" */
@@ -70,7 +72,7 @@ export function initDashboards(ctx) {
   };
   const cards = initCards({
     t, lang: ctx.lang, states: ctx.states, settings: ctx.settings, nameOf: ctx.nameOf, stateText: ctx.stateText, callService: ctx.callService,
-    camImage: ctx.camImage, openCamera: ctx.openCamera, room,
+    camImage: ctx.camImage, openCamera: ctx.openCamera, room, shows: ctx.shows,   // shows: a light card's bars of the building shown (#677)
     openRoom: (id) => { const r = room(id); if (r) ctx.openRoom(r.fi, id); },
     builtin: ctx.builtin, thermo, calendar, train, controls: (e) => controls.open(e),
     moreInfo: (e) => { if (!canMoreInfo()) return false; openMoreInfo(e); return true; },
@@ -85,7 +87,7 @@ export function initDashboards(ctx) {
     redraw: (page) => bar().render(page), changed: () => bar().redraw(), refill: ctx.refill,
   });
   const board = initBoard({
-    t, settings: ctx.settings, canEdit: ctx.canEdit, save: ctx.save, cards, pageName, variants,
+    t, settings: ctx.settings, canEdit: ctx.canEdit, save: ctx.save, cards, pageName, variants, cardShows: (c) => ctx.cardShows?.(c, cardEntities(c)),   // #677
     redraw: (page) => bar().render(page), changed: () => bar().redraw(),
     addCard: (page) => editor.add(page), editCard: (page, card) => editor.edit(page, card),
     editTabs: () => tabEdit.start(), editOwnPage: (page) => tabEdit.ownPage(page), editBar: (page) => sceneBar.open(page),
@@ -93,7 +95,7 @@ export function initDashboards(ctx) {
   /** the scene bar over the tab bar (#597): the version of a page it follows is the one the board draws */
   const sceneBar = initSceneBar({
     $, t, settings: ctx.settings, save: ctx.save, canEdit: ctx.canEdit, states: ctx.states, entities: ctx.entities, callService: ctx.callService,
-    moreInfo: (e) => canMoreInfo() && openMoreInfo(e), controls: (e) => controls.open(e), locked: () => !!ctx.locked?.(),
+    moreInfo: (e) => canMoreInfo() && openMoreInfo(e), controls: (e) => controls.open(e), locked: () => !!ctx.locked?.(), shows: ctx.shows,
     version: (page) => variants.shown(page, board.editing() === page && ctx.canEdit()) || '', editing: () => board.editing(),
     pages: () => bar().tabs().map((x) => ({ key: x.key, name: pageName(x.key), icon: x.icon })), versions: (page) => variantsOf(ctx.settings(), page),
   });
@@ -101,8 +103,9 @@ export function initDashboards(ctx) {
   const tabEdit = initTabEdit({
     t, $, settings: ctx.settings, save: ctx.save, areas: ctx.areas, states: ctx.states, board,
     tabs: () => bar().tabs(), tabName: (k) => t(`tab.${k}`), changed: () => bar().redraw(), show: (k) => bar().show(k),
+    buildings: () => buildingsOf(ctx.layout()),                      // a page of one building (#677)
   });
-  const custom = initCustomPages({ t, host: $('#tabPages'), settings: ctx.settings, board, canEdit: ctx.canEdit });
+  const custom = initCustomPages({ t, host: $('#tabPages'), settings: ctx.settings, board, canEdit: ctx.canEdit, pageShows: ctx.pageShows });
   return {
     board, tabEdit, thermo, variants, sceneBar,
     /** after every change of the tab bar (states, tab, edit mode): the scene bar and an open light window follow (#597) */

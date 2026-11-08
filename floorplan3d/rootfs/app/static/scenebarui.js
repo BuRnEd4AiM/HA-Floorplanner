@@ -87,7 +87,7 @@ export function initSceneBar(ctx) {
   function update(tab = last.tab, shown = last.shown) {
     last = { tab, shown };
     const st = ctx.states(), edit = !!shown && ctx.canEdit() && ctx.editing() === tab;
-    const items = shown && !ctx.locked() ? itemsFor(ctx.settings().sceneBar, tab, ctx.version(tab)).filter((i) => edit || st[i.e]) : [];
+    const items = shown && !ctx.locked() ? itemsFor(ctx.settings().sceneBar, tab, ctx.version(tab)).filter((i) => edit || (st[i.e] && ctx.shows?.(i.e) !== false)) : [];   // #677
     const nm = names(), tiles = items.map((i) => tileOf(i, nm, routineIcon)), lastOne = lastFired(items, st);
     const sig = JSON.stringify([tiles, lastOne, [...flash], edit, t('sb.title')]);
     box.hidden = !tiles.length && !edit;

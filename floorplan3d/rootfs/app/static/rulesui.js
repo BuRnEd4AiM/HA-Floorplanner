@@ -17,12 +17,14 @@ import { initHaManage } from './hamanage.js';
 import { initRoomSensorsUi } from './roomsensorsui.js';
 import { initHeatDiagUi } from './heatdiagui.js';
 import { initRoomGroups } from './roomgroupsui.js';
+import { initHeatPause } from './heatpauseui.js';
 import { roomMark, roomKey } from './rules.js';
 
 /** ctx: t, lang(), settings(), states(), entities(), nameOf(entity), canEdit(), locked() (may not switch), callService(entity, service, data),
  *  houseId(), layout() (the building shown), details(entity) (Home Assistant's window: a button or null), tabs() (the tab bar), climate()
  *  (the page 🌡 Klima), routines() (the page ▶ Abläufe), redraw() (the room tiles, labels and the open page), partOf() (the entities of
- *  thermostats' devices, roomtiles.thermostatParts), areas() and areaOf() (Home Assistant's areas, {entity: area id}: ▶ Abläufe by room, #590) */
+ *  thermostats' devices, roomtiles.thermostatParts), areas() and areaOf() (Home Assistant's areas, {entity: area id}: ▶ Abläufe by room, #590),
+ *  locks() (what this user may not use: ⏸️ Heizplan aussetzen needs neither "control" nor "heatPause") */
 export function initRulesUi(ctx) {
   const { t } = ctx;
   const deg = (c) => {                                  // a temperature as the house shows it (°F only shown, the rules keep °C)
@@ -52,7 +54,13 @@ export function initRulesUi(ctx) {
   const usedBy = initUsedBy({ ...base, locked: ctx.locked, callService: ctx.callService, rules, roomName, deg, openRules, openFlow });
   const diag = initHeatDiagUi({ t, rules, deg, delta, nameOf: ctx.nameOf, layout: ctx.layout, houseId, sensorLog: (x) => sensors.log(x),   // 🩺 (#579)
     changed: () => ctx.climate()?.update() });
-  const heat = initHeatRulesUi({ ...base, rules, locked: ctx.locked, houseId, rooms, deg, delta, usedBy, editFlow, sensors, showPlan: () => ctx.climate().show('plan'),
+  const roomOfEntity = (e) => {                                  // the room key of a thermostat in the building shown (⏸️)
+    const r = (ctx.climate()?.sensorRooms() || []).find((x) => x.ids.includes(e));
+    return r ? roomKey(houseId(), r.id) : null;
+  };
+  const pause = initHeatPause({ t, rules, states: ctx.states, canEdit: ctx.canEdit, locks: () => ctx.locks?.() || new Set(), roomOf: roomOfEntity,   // ⏸️
+    roomName, changed: () => { ctx.climate()?.update(); ctx.redraw(); } });
+  const heat = initHeatRulesUi({ ...base, rules, locked: ctx.locked, houseId, rooms, deg, delta, usedBy, editFlow, sensors, pause, showPlan: () => ctx.climate().show('plan'),
     showDiag: (key) => { diag.room(key); ctx.climate().show('diag'); }, changed: () => ctx.climate()?.update() });
   const plan = initHeatPlanUi({ ...base, rules, houseId, rooms, deg, changed: () => ctx.climate()?.update(), back: () => ctx.climate().show('rules') });
   const manage = initHaManage({ t, changed: () => ctx.routines()?.update() });                                                     // #564
@@ -65,7 +73,7 @@ export function initRulesUi(ctx) {
     scenes, manage, groups, areaOf, sensorLog: (x) => sensors.log(x), changed: () => ctx.routines()?.update() });
   rules.load();
   return {
-    rules, usedBy, heat, plan, own, flowEdit, sceneEdit, sensors, diag, groups, days,
+    rules, usedBy, heat, plan, own, flowEdit, sceneEdit, sensors, diag, groups, days, pause,
     /** the page's states with the temperatures of the sensors in the rooms (🌡 Raumfühler, #573): after every change of the states */
     applySensors: () => sensors.apply(ctx.states()),
     /** the mark of a room's label and tile: "⏸️ pausiert", "🚀 Boost" or '' */

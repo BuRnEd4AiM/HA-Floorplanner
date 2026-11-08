@@ -56,7 +56,7 @@ class Rules:
             self.queue, self.wake = asyncio.Queue(), asyncio.Event()
 
     def ask(self, *req):
-        """a wish of a page for the loop ("room", key, act) | ("run", flow, lane, test) | ("cfg",) | ("plan",) (a plan was saved) |
+        """a wish of a page for the loop ("room", key, act[, choice]) | ("run", flow, lane, test) | ("cfg",) | ("plan",) (a plan was saved) |
         ("wish", thermostat, temperature)"""
         self.bind()
         self.queue.put_nowait(req)
@@ -75,7 +75,7 @@ class Rules:
         wish waiting"""
         h, f = self.mem["heat"], self.mem["flows"]
         return (hr.any_on(self.cfg["heat"]) or rs.any_on(self.cfg["heat"]["sensors"]) or bool(self.mem["sensors"]["t"])
-                or any(x["on"] for x in self.local()) or self.listen() or bool(h["boost"]) or bool(f["runs"])
+                or any(x["on"] for x in self.local()) or self.listen() or bool(h["boost"]) or bool(h["pause"]) or bool(f["runs"])
                 or any(t.get("ov") or t.get("level") for t in h["t"].values()) or bool(self.queue and not self.queue.empty()))
 
     def note(self, entries, now):
@@ -348,12 +348,17 @@ async def _wish(rules, req, states, cache, env):
             _journal(rules, cache, eid, old_state, new_state, states)
         await _look(rules, states, cache, env, changed=(eid, old, new))
     elif kind == "room":
-        _, key, act = req
+        key, act, choice = req[1], req[2], (req[3] if len(req) > 3 else None)
         now = time.time()
         if act == "boost":
             rules.mem["heat"] = hr.boost(rules.mem["heat"], key, now, rules.cfg["heat"])
         elif act == "skip":
             rules.mem["heat"] = hr.skip(rules.mem["heat"], key)
+        elif act in ("pause", "more", "resume"):               # ⏸️ Heizplan aussetzen (held on a thermostat's button)
+            until = hr.pause_until(rules.cfg["heat"], key, choice, now, env.local()) if act == "pause" else None
+            if act == "pause" and until is None:
+                return
+            rules.mem["heat"] = hr.pause(rules.mem["heat"], key, until, now, act)
         await _heat(rules, states, cache, env, now, env.local())
     elif kind == "run":
         _, fid, lane, test = req

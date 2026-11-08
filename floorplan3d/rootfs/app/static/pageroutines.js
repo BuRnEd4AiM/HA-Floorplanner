@@ -107,7 +107,8 @@ export function initRoutinesPage(ctx) {
   }
   function draw(force = false) {
     const st = ctx.states(), names = ctx.names(), s = ctx.settings();
-    const all = routineButtons(st, names, s.routines, CHECKS.map(linkedOf));
+    const shows = (e) => ctx.shows?.(e) !== false, mine = (r) => shows(r.entity) && !(st[r.entity]?.members?.length && !st[r.entity].members.some(shows));
+    const all = routineButtons(st, names, s.routines, CHECKS.map(linkedOf)).filter(mine);   // not those of another building (a scene: by its devices, #677)
     const grouped = !!ctx.groups?.on(), roomsFor = (r) => roomsOf(r.entity, st[r.entity]?.members || [], ctx.areaOf?.() || {});
     const buttons = grouped ? all.filter((r) => !roomsFor(r).length) : all;       // without a room: here on top, as before (#590)
     const inRooms = grouped ? all.filter((r) => roomsFor(r).length) : [];

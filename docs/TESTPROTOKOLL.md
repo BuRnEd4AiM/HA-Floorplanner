@@ -20,6 +20,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 8. **Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan** (Abschnitt 165, dein Wunsch vom 2026-11-07): Claude hat 165.1 bis 165.5 geprüft; für dich im Add-on mit deinen echten Bereichen 165.6 und am Tablet mit dem Finger 165.7, nach dem Merge die Videos 165.8.
 9. **Neu in 4.70.0: ⚡ Strom je Gebäude** (Abschnitt 166, dein Wunsch vom 2026-11-07): Claude hat 166.1 bis 166.5 geprüft; für dich im Add-on mit deinen zwei Häusern in einem Plan 166.6, nach dem Merge das Video 166.7.
 10. **Neu in 4.70.1: bereit für Home Assistant 2026.11** (Abschnitt 167, deine Frage vom 2026-11-08 zu den neuen Namen): Claude hat 167.1 bis 167.4 geprüft, auch mit einem echten Home Assistant 2026.11.0; für dich nach dem Update im Add-on 167.5, und nur wenn du Geräte mit mehreren Teilen hast 167.6.
+11. **Neu in 4.71.0: ⏸️ Heizplan aussetzen und das Gebäude oben auf jeder Seite** (Abschnitt 168, deine Wünsche vom 2026-11-08, #677): Claude hat 168.1 und 168.2 geprüft (Tausende zufällige Heiz-Tage mit Pausen, Browser-Test); für dich in der Demo 168.3 bis 168.5, im Add-on mit deiner Heizung 168.6 und 168.7, mit deinen zwei Häusern 168.8 und 168.9, nach dem Merge die Videos 168.10.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -443,7 +444,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 165. Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan | 5 | 0 | 3 | 0 | 165.6 bis 165.8 |
 | 166. Neu in 4.70.0: ⚡ Strom je Gebäude | 5 | 0 | 2 | 0 | 166.6, 166.7 |
 | 167. Neu in 4.70.1: Bereit für Home Assistant 2026.11 (neue Namen, Teil-Geräte) | 4 | 0 | 2 | 0 | 167.5, 167.6 |
-| **Zusammen** | **1111** | **1** | **45** | **92** | |
+| 168. Neu in 4.71.0: ⏸️ Heizplan aussetzen, das Gebäude oben gilt auf jeder Seite | 2 | 0 | 8 | 0 | 168.3 bis 168.10 |
+| **Zusammen** | **1113** | **1** | **53** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2572,3 +2574,19 @@ Der Besitzer, 2026-11-08: „so es gibt 2026.11 das Home Assistant update schaue
 | 167.4 | Browser-Test Teile `07_tablet`, `11_live`, `22_energy_setup`, `40_energy_counters`, `33_climate_routines_family`, `43_battery_levels` (der nachgebaute Rauchmelder liegt jetzt auf einem Teil-Gerät, sein Akku am Hauptgerät) | Geräteübersicht zeigt den Akku des Rauchmelders (15 %, 🪫); Umbenennen, Energie-Dashboard übernehmen, „⤵ Von oben übernehmen“, Familie und Ladestand wie bisher | ✅ (2026-11-08, Claude, 248 Prüfungen) |
 | 167.5 | Im Add-on nach dem Update auf Home Assistant 2026.11: den Plan ansehen, „Geräte“ oben öffnen | Die Namen im Plan sind wie vorher, die Geräteübersicht zeigt die Akkus wie vorher | ❓ |
 | 167.6 | Nur wenn du Geräte mit mehreren Teilen hast (Steckdosenleiste mit Tuya, Z-Wave-Thermostat mit Fühlern, ESPHome, MQTT): in Home Assistant ein Gerät umbenennen | Der neue Name kommt von selbst in den Plan (außer bei Namen, die du im Plan selbst getippt hast); Akku und Heizungs-Teile stehen beim richtigen Gerät | ❓ |
+
+## 168. Neu in 4.71.0: ⏸️ Heizplan aussetzen, das Gebäude oben gilt auf jeder Seite
+Der Besitzer, 2026-11-08: „in dieses Thermostat einen Knopf … wo man irgendwie gedrückt halten kann und dann sagen, Heizplan aussetzen für heute oder für eine halbe, dreiviertel Stunde, und das überschreibt halt alle anderen Sachen, dass man selbst manuell regeln kann … für bestimmte Benutzer oder für bestimmte Dashboards“; dann: „dass man dann auch wirklich nur in den Dashboards die Entitäten sieht, die dem Gebäude zugeordnet sind“ (#677). Bilder: `docs/ideen-4.71/`. Seine Wahl per Auswahl: der Admin stellt ein, was trotzdem gilt; gedrückt halten; je Benutzer und je Karte; Gebäude: Karten von selbst ausblenden und Seiten einem Gebäude zuordnen.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 168.1 | `pytest tests/test_heatrules.py tests/test_heatorder.py tests/test_rules_api.py tests/test_boards.py`, `node --test tests/heatpause.test.mjs tests/buildingents.test.mjs` | Pause: hält das Thermostat, kein „nach 10 Min zurück“, ein neuer Block wartet, danach der Heizplan; Fenster, Zu warm, Urlaub/Abwesend/Nacht nur wie eingestellt; Tausende zufällige Tage mit Pausen ohne Fehler; Sperre „heatPause“ lehnt ab; Gebäude-Filter mit Gruppen | ✅ (2026-11-08, Claude) |
+| 168.2 | Browser-Test Teil `77_pause_buildings` (dazu `50_rules`, `21_buildings`, `60_roomgroups`, `61_scenebar_lights`, `62_light_bars`, `63_free_grid`) | Knopf erst, wenn eingeschaltet; Antippen öffnet nichts, Halten die Auswahl; 45 Min pausiert, ＋15 Min, Fortsetzen setzt den Heizplan; gesperrter Benutzer ohne Knopf; Haus B oben: kein Thermostat von Haus A, die Seite von Haus A nicht in der Leiste | ✅ (2026-11-08, Claude) |
+| 168.3 | Demo: unten „Klima“, im Wohnzimmer unter − / + auf „⏸️ Heizplan aussetzen“ kurz tippen, dann gedrückt halten | Kurz: nur „gedrückt halten“ wackelt; gedrückt: eine Auswahl 30 Min, 45 Min, 1 Std, Bis zum nächsten Block, Für heute | ❓ |
+| 168.4 | Demo: „45 Min“ wählen, dann „＋15 Min“, dann „▶ Heizplan fortsetzen“ | Der Knopf wird grün „Heizplan fortsetzen · ausgesetzt bis …“, ＋15 Min schiebt die Zeit um 15 Minuten, Fortsetzen macht ihn wieder lila | ❓ |
+| 168.5 | Demo: „Klima“ → „📋 Heiz-Regeln“, Karte „⏸️ Heizplan aussetzen“ | Schalter, die Zeiten zum Antippen, 🪟 Fenster offen gilt trotzdem (an), 🔥 Zu warm, 🚶 Endet bei Urlaub … | ❓ |
+| 168.6 | Im Add-on: Heiz-Regeln → „⏸️ Heizplan aussetzen“ einschalten, an einem Thermostat mit Heizplan 45 Min wählen und von Hand wärmer drehen | Nach 10 Minuten dreht nichts zurück; nach 45 Minuten kommt die Temperatur des Heizplans; im 🩺 Protokoll „⏸️ von Hand“ | ❓ |
+| 168.7 | Im Add-on: ⚙ → Benutzer & Tablets, bei einem Tablet „Heizplan aussetzen (⏸️ am Thermostat)“ ankreuzen; an einer eigenen Thermostat-Karte „Knopf … Verstecken“ | Auf dem Tablet kein Knopf; in der Karte kein Knopf, auf 🌡 Klima weiter da | ❓ |
+| 168.8 | Im Add-on mit deinen zwei Häusern in einem Plan: oben ein Gebäude wählen, dann Klima, Kameras, Musik & TV, Haushalt, Abläufe, Protokoll und deine eigenen Seiten ansehen | Nur noch Geräte dieses Gebäudes (und was zu keinem gehört: Garten, Wetter, Personen); mit „🏘 Alle Gebäude“ wieder alles | ❓ |
+| 168.9 | Im Add-on: eine eigene Seite bearbeiten (✎, „⚙️ Seite“), „Gehört zu Gebäude“ wählen | Die Seite steht nur bei diesem Gebäude in der Leiste, mit „🏘 Alle Gebäude“ immer | ❓ |
+| 168.10 | Nach dem Merge: Videos „⏸️ Heizplan aussetzen“ und „🏘 Ein Gebäude wählen“ auf der Seite der Anleitung | Zeigen Halten, Auswahl, Fortsetzen; das Gebäude oben und die Seiten | ❓ |

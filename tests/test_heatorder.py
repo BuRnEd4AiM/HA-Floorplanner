@@ -1,7 +1,8 @@
 """Who goes first in the heating rules (heatrules.ORDER), and thousands of random days that check it holds (the owner: "die Reihenfolge der
 heizungsteureung muss stabiler sein und auch so das es da keine fehler gibt").
 
-A day: windows open and shut, somebody taps 🚀 boost, the room gets warmer and cooler, everybody leaves and comes back, the holiday alarm
+A day: windows open and shut, somebody taps 🚀 boost or holds ⏸️ (a pause of the room: left as it is, the window and too warm only when
+an admin chose so), the room gets warmer and cooler, everybody leaves and comes back, the holiday alarm
 is armed, it gets warm outside, somebody turns a thermostat by hand, and every thermostat reports what it was sent only after a while (a
 sleepy radiator thermostat: up to 10 minutes, its calls in the order they were sent). Now and then, once everything is reported, these
 must hold for every thermostat:
@@ -26,12 +27,12 @@ ROOMS = [{"key": "h/wz", "name": "Wohnzimmer", "climates": ["climate.wz"], "wind
          {"key": "h/bad", "name": "Bad", "climates": ["climate.bad"], "windows": ["binary_sensor.bad"], "doors": [], "outer": [], "entities": []}]
 WINDOW = {"h/wz": "binary_sensor.wz", "h/bad": "binary_sensor.bad"}
 CLIMATE = {"h/wz": "climate.wz", "h/bad": "climate.bad"}
-EMOJI = {"window": "🪟", "boost": "🚀", "warm": "🔥", "holiday": "✈️", "summer": "☀️", "away": "🚶", "schedule": "📅", "night": "🌙"}
+EMOJI = {"window": "🪟", "boost": "🚀", "warm": "🔥", "pause": "⏸️", "holiday": "✈️", "summer": "☀️", "away": "🚶", "schedule": "📅", "night": "🌙"}
 
 
 def test_the_page_says_the_same_order():
     """📋 Heiz-Regeln → "Wer hat Vorrang?" lists the rules in the order the add-on goes by"""
-    assert hr.ORDER == ("window", "boost", "warm", "holiday", "summer", "away", "schedule", "night") and set(EMOJI) == set(hr.ORDER)
+    assert hr.ORDER == ("window", "boost", "warm", "pause", "holiday", "summer", "away", "schedule", "night") and set(EMOJI) == set(hr.ORDER)
     texts = re.findall(r"'hr\.prio\.text': '([^']*)'", (ROOT / "floorplan3d/rootfs/app/static/i18n.js").read_text(encoding="utf-8"))
     assert len(texts) >= 2
     for text in texts:
@@ -41,12 +42,12 @@ def test_the_page_says_the_same_order():
 def test_the_first_level_that_applies_wins():
     plan = {"days": [[[0, "comfort"]]] * 7}
     rules = hr.clean_rules({"schedule": {"on": True, "rooms": {"h/wz": plan}}, "night": {"on": True, "from": "00:00", "to": "23:59"}})
-    ctx = {"holiday": True, "summer": True, "away": True}
+    ctx = {"paused": ("h/wz",), "holiday": True, "summer": True, "away": True}
     at = datetime.datetime(2026, 10, 26, 12, 0)
     got = []
     for k in hr.LEVEL_ORDER:
         got.append(hr.room_level(rules, ROOMS[0], at, ctx)["why"])
-        ctx[k] = False
+        ctx[k if k != "pause" else "paused"] = False
         if k == "schedule":
             rules["schedule"]["on"] = False
     assert got == list(hr.LEVEL_ORDER)
@@ -99,6 +100,9 @@ class Day:
         self.under = {}                                                 # {thermostat: (turned, level)} when an override started
         self.moved = {}                                                 # the level changed during the override
         self.room = {k: 20.0 for k in CLIMATE}
+        rp = self.rp = random.Random(seed * 31 + 7)                     # ⏸️ the pause has its own dice: the days without one stay as before
+        self.rules["pause"] = hr.clean_rules({"pause": {"on": rp.random() < 0.5, "window": rp.random() < 0.7, "warm": rp.random() < 0.5,
+                                                        "levels": rp.random() < 0.5, "opts": ["15", "30", "60", "block", "day"]}})["pause"]
 
     def report(self, everything=False):
         later = []
@@ -147,7 +151,7 @@ class Day:
             return t.get("warmTo")
         if ov == "boost":
             return self.rules["boost"]["temp"]
-        return lv["temp"] if not ov and lv and not lv.get("off") else None
+        return lv.get("temp") if not ov and lv and not lv.get("off") else None
 
     def follow(self, before, calls=()):
         """keeps track of whether a turn by hand still counts (the add-on keeps it until what the winner wants changes, and puts it back
@@ -192,6 +196,15 @@ class Day:
             self.queue = [q for q in self.queue if q[1] != e or q[2] != "set_temperature"]   # turned at the device: the target on its way is lost
             self.turned[e] = True
 
+    def pause(self):
+        """somebody holds ⏸️ on a thermostat of a room: a pause, 15 minutes more, or the end of it"""
+        rp, k = self.rp, self.rp.choice(list(CLIMATE))
+        x, choice = rp.random(), rp.choice(self.rules["pause"]["opts"])
+        act = "pause" if x < 0.6 else "more" if x < 0.8 else "resume"
+        until = hr.pause_until(self.rules, k, choice, self.now, self.local) if act == "pause" else None
+        if act != "pause" or until is not None:
+            self.mem = hr.pause(self.mem, k, until, self.now, act)
+
     def check(self):
         self.report(everything=True)
         for _ in range(4):                                             # everything reported: what follows from it
@@ -205,21 +218,25 @@ class Day:
             ov, lv, temp, mode = t.get("ov"), t.get("level"), st["attributes"]["temperature"], st["state"]
             w = self.rules["window"]
             due = (w["on"] and k not in w["skip"] and self.states[WINDOW[k]]["state"] == "on" and k in self.mem["open"]
-                   and self.now - self.mem["open"][k] >= w["delay"] * 60 and not self.mem["skip"].get(k))
+                   and self.now - self.mem["open"][k] >= w["delay"] * 60 and not self.mem["skip"].get(k)
+                   and (k not in self.mem["pause"] or self.rules["pause"]["window"]))
+            hold = bool((lv or {}).get("hold"))                         # ⏸️ paused: left as it is (as turned, as the override left it)
+            if hold != (k in self.mem["pause"]):
+                wrong.append(f"{e}: paused {k in self.mem['pause']}, but the level is {lv}")
             boosted = self.mem["boost"].get(k, 0) > self.now
             if due != (ov == "window"):
                 wrong.append(f"{e}: window open {due}, but the rule is {ov}")
             elif not due and boosted and ov != "boost":
                 wrong.append(f"{e}: boost, but the rule is {ov}")
-            elif not ov and lv and not lv.get("off") and self.rules["warm"]["on"] and self.room[k] >= lv["temp"] + 1:
+            elif not ov and lv and not hold and not lv.get("off") and self.rules["warm"]["on"] and self.room[k] >= lv["temp"] + 1:
                 wrong.append(f"{e}: {self.room[k]}° in the room for {lv['temp']}°, not lowered")
-            if self.turned[e]:
+            if self.turned[e] or (hold and not ov):
                 continue
             if ov == "window" and not hr.paused(seen, e):
                 wrong.append(f"{e}: window open, but {mode} {temp}")
             elif ov == "boost" and (mode == "off" or temp != self.rules["boost"]["temp"]):
                 wrong.append(f"{e}: boost, but {mode} {temp}")
-            elif ov == "warm" and (mode == "off" or temp != t.get("warmTo") or (lv and t["warmTo"] != max(5, lv["temp"] - 5))):
+            elif ov == "warm" and (mode == "off" or temp != t.get("warmTo") or (lv and not hold and t["warmTo"] != max(5, lv["temp"] - 5))):
                 wrong.append(f"{e}: too warm to {t.get('warmTo')} ({lv}), but {mode} {temp}")
             elif not ov and lv and (not hr.paused(seen, e) if lv.get("off") else (mode == "off" or temp != lv["temp"])):
                 wrong.append(f"{e}: {lv['why']} {lv.get('temp', 'off')}, but {mode} {temp}")
@@ -231,6 +248,8 @@ class Day:
         for _ in range(looks):
             if self.r.random() < 0.6:
                 self.happen()
+            if self.rules["pause"]["on"] and self.rp.random() < 0.08:
+                self.pause()
             self.look(self.r.choice([0.25, 1, 1, 3, 10]))
             if self.r.random() < 0.3:
                 wrong = self.check()

@@ -180,8 +180,8 @@ TABS = boards.TABS            # own pages of an admin (#484) are "p_…" (boards
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too;
 # "fullscreen" keeps the screen in full screen, only the code ends it (#487, api/fullscreen)
-LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "voice", "settings",
-         "timeline", "fullscreen", "doorbell")
+LOCKS = ("control", "heatPause", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search",
+         "voice", "settings", "timeline", "fullscreen", "doorbell")
 
 
 def clean_locks(val) -> dict:
@@ -3390,7 +3390,7 @@ async def guard_watcher(app):
 KEY_RULES = web.AppKey("rules", dict)           # {"rules": rulesrun.Rules, "areas": (time, {area: [entities]}), "states": (time, states), "autos": (time, rows)}
 RULE_DOMAINS = ("climate", "light", "switch", "fan", "input_boolean", "media_player", "cover", "scene", "script",   # what a rule may switch
                 "number", "select")             # 🌡 Raumfühler: the offset or external input of a thermostat's device (#573)
-RULE_ACTS = ("boost", "skip")
+RULE_ACTS = ("boost", "skip", "pause", "more", "resume")   # pause / more / resume: ⏸️ Heizplan aussetzen (lock "heatPause" too)
 
 
 def rules_path(request) -> Path:
@@ -3486,17 +3486,27 @@ async def put_rules(request):
 
 
 async def post_rules_room(request):
-    """🚀 boost a room, or "Trotzdem heizen" while its window is open; not for a user who may not switch (lock "control")"""
-    if "control" in user_locks(request):
-        return web.json_response({"error": "locked"}, status=403)
+    """🚀 boost a room, "Trotzdem heizen" while its window is open, or ⏸️ pause its heating rules for a while (act pause with "for": a
+    choice of heatrules.PAUSE_OPTS an admin offers, more: 15 minutes longer, resume: ends it); not for a user who may not switch (lock
+    "control"), the pause not for one with the lock "heatPause" either"""
+    locks = user_locks(request)
     try:
         body = await request.json()
     except ValueError:
         body = None
     key, act = (body.get("room"), body.get("act")) if isinstance(body, dict) else (None, None)
     if not isinstance(key, str) or not hr.ROOM_KEY.match(key) or act not in RULE_ACTS:
-        return web.json_response({"error": "room and act (boost | skip) expected"}, status=400)
-    rules_store(request).ask("room", key, act)
+        return web.json_response({"error": "room and act (boost | skip | pause | more | resume) expected"}, status=400)
+    if "control" in locks or (act in ("pause", "more", "resume") and "heatPause" in locks):
+        return web.json_response({"error": "locked"}, status=403)
+    r = rules_store(request)
+    if act == "pause":
+        choice = body.get("for")
+        if not r.cfg["heat"]["pause"]["on"] or choice not in r.cfg["heat"]["pause"]["opts"]:
+            return web.json_response({"error": "pause: off, or not offered"}, status=400)
+        r.ask("room", key, act, choice)
+    else:
+        r.ask("room", key, act)
     return web.json_response({"ok": True})
 
 

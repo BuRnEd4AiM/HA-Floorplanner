@@ -152,3 +152,7 @@ f("roomarea", "edit", "Raumname aus einem Home-Assistant-Bereich oder eigener Na
   ["room-area"], since="4.69.0")
 f("energybuildings", "edit", "⚡ Strom je Gebäude: eigene Rechnung für jedes Gebäude eines Plans, oben umschalten, alle getrennt, vergleichen",
   "⚡ Power per building: a calculation of its own for each building of a plan, switch at the top, all apart, compare", ["energy-buildings"], since="4.70.0")
+f("heatpause", "pages", "⏸️ Heizplan aussetzen: gedrückt halten am Thermostat, wie lange, selbst regeln, je Benutzer und je Karte",
+  "⏸️ Pause the schedule: hold on the thermostat, how long, regulate by hand, per user and per card", ["heat-pause"], since="4.71.0")
+f("buildingpages", "pages", "🏘 Oben ein Gebäude wählen: jede Seite und jede eigene Karte zeigt nur seins, eine Seite je Gebäude",
+  "🏘 Choose a building at the top: every page and own card shows only its things, a page per building", ["buildings-pages"], since="4.71.0")

@@ -18,6 +18,8 @@ import make_guide as mg  # noqa: E402
 
 # (what is typed, language of the page, the clip that must be among the first three; several ids: one of them)
 QUERIES = [
+    ("Heizplan pausieren", "de", "heat-pause"), ("Heizung von Hand regeln", "de", "heat-pause"), ("override heating schedule", "en", "heat-pause"),
+    ("nur ein Gebäude anzeigen", "de", "buildings-pages"), ("Seite für den Anbau", "de", "buildings-pages"),
     # other words for the same thing
     ("Rollo runter", "de", "shutter"), ("Jalousie schließen", "de", "shutter"), ("Rolladen", "de", "shutter"),
     ("Markise", "de", "shutter"), ("roller blind", "en", "shutter"), ("Gardine", "de", "window-setup"),

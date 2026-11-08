@@ -73,6 +73,9 @@ def is_tab_key(k) -> bool:
     return isinstance(k, str) and (k in TABS or bool(CUSTOM_ID.match(k)))
 
 
+BUILDING_ID = re.compile(r"^[A-Za-z0-9_-]{1,40}$")      # a building of the plan (#409), as BUILDING_ID in static/tabs.js
+
+
 def clean_custom_tabs(val) -> list:
     """own pages: [{"id", "name", "icon"}], ids each once, at most MAX_CUSTOM (cleanCustomTabs in static/tabs.js)"""
     out, ids = [], set()
@@ -83,6 +86,8 @@ def clean_custom_tabs(val) -> list:
         name = x["name"].strip() if isinstance(x.get("name"), str) and x["name"].strip() else "?"
         icon = x["icon"].strip() if isinstance(x.get("icon"), str) and x["icon"].strip() and len(x["icon"].strip()) <= 8 else "⭐"
         out.append({"id": x["id"], "name": name[:30], "icon": icon})
+        if isinstance(x.get("building"), str) and BUILDING_ID.match(x["building"]):   # a page of one building: only with it (#677)
+            out[-1]["building"] = x["building"]
         if len(out) >= MAX_CUSTOM:
             break
     return out
@@ -175,6 +180,8 @@ def clean_card(c):
         out["color"] = c["color"] if c.get("color") in COLORS else "blue"
     if kind == "thermostat":
         out["size"] = c["size"] if c.get("size") in SIZES else "big"
+        if c.get("pause") is False:                     # no ⏸️ Heizplan aussetzen in this card (only kept when off)
+            out["pause"] = False
     if kind == "cover":                                 # 0 % · 50 % · 75 % · 100 % under ▲ ■ ▼ (the owner, 2026-11-01)
         out["presets"] = clean_presets(c.get("presets"))
     if kind == "button":

@@ -676,3 +676,140 @@ def test_an_older_call_that_comes_late_is_no_turn_by_hand():
     assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 12.0})]
     run.reported()
     assert st["climate.wz"]["attributes"]["temperature"] == 12.0 and run.look(5) == []
+
+
+# ---- ⏸️ Heizplan aussetzen (the owner, 2026-11-08: "gedrückt halten … Heizplan aussetzen für heute oder für eine halbe, dreiviertel
+# Stunde … dass man selbst manuell regeln kann"; pictures docs/ideen-4.71/) ----
+PLAN = {"days": [[[0, "night"], [360, "comfort"], [480, "eco"], [1020, "comfort"], [1320, "night"]]] * 7}
+
+
+def paused_house(**pause):
+    st = house(**{"climate.wz": thermostat(temp=17.0)})
+    st["climate.wz"]["attributes"]["current_temperature"] = 18.5
+    run = Run({"schedule": {"on": True, "rooms": {"h/wz": PLAN}}, "pause": {"on": True, **pause}}, st, at=MON.replace(hour=12, minute=30))
+    run.look()                                                                  # 12:30: eco 19°
+    return st, run
+
+
+def hold(run, choice, key="h/wz"):
+    run.mem = hr.pause(run.mem, key, hr.pause_until(run.rules, key, choice, run.now, run.local), run.now)
+
+
+def test_the_pause_settings_are_cleaned():
+    assert hr.clean_rules({})["pause"] == {"on": False, "opts": ["30", "45", "60", "block", "day"], "window": True, "warm": False, "levels": False}
+    r = hr.clean_rules({"pause": {"on": True, "opts": ["day", "7", 30, "15", "block"], "window": False, "warm": "x"}})["pause"]
+    assert r == {"on": True, "opts": ["15", "block", "day"], "window": False, "warm": False, "levels": False}
+    assert hr.clean_rules({"pause": {"opts": []}})["pause"]["opts"] == ["30", "45", "60", "block", "day"]     # none: the usual ones
+    assert not hr.any_on(hr.clean_rules({"pause": {"on": True}}))               # only does something when somebody holds the button
+
+
+def test_how_long_a_pause_lasts():
+    rules = hr.clean_rules({"schedule": {"on": True, "rooms": {"h/wz": PLAN}}, "pause": {"on": True, "opts": ["45", "block", "day"]}})
+    at, now = MON.replace(hour=12, minute=30, second=20), 1_000_000.0
+    assert hr.pause_until(rules, "h/wz", "45", now, at) == now + 45 * 60
+    assert hr.pause_until(rules, "h/wz", "day", now, at) == now + (11 * 60 + 30) * 60 - 20       # until midnight
+    assert hr.pause_until(rules, "h/wz", "block", now, at) == now + (4 * 60 + 30) * 60 - 20      # the next block: 17:00 comfort
+    assert hr.next_block(rules, "h/wz", MON.replace(hour=23)) == 7 * 60          # the next day's comfort at 6:00 (night at 0:00 is no change)
+    assert hr.pause_until(rules, "h/bad", "block", now, at) is None             # no schedule in the bathroom
+    assert hr.pause_until(rules, "h/wz", "30", now, at) is None                 # not offered
+    rules["pause"]["on"] = False
+    assert hr.pause_until(rules, "h/wz", "45", now, at) is None
+
+
+def test_a_pause_leaves_the_thermostat_as_turned_and_the_schedule_comes_back_after_it():
+    st, run = paused_house()
+    assert st["climate.wz"]["attributes"]["temperature"] == 19.0
+    hold(run, "45")
+    assert run.look() == [] and run.status["h/wz"]["why"] == "pause" and run.status["h/wz"]["pause"] == run.now + 45 * 60
+    st["climate.wz"]["attributes"]["temperature"] = 23.5                        # turned by hand: no "back after 10 minutes"
+    assert run.look(30) == [] and run.status["h/wz"]["hand"] is None
+    run.mem = hr.pause(run.mem, "h/wz", None, run.now, "more")                  # ＋15 Min
+    assert run.look(14) == [] and run.status["h/wz"]["pause"] == run.now + 16 * 60
+    assert run.look(16) == [("climate.wz", "set_temperature", {"temperature": 19.0})] and run.status["h/wz"]["why"] == "schedule"
+    assert "h/wz" not in run.mem["pause"]
+
+
+def test_a_pause_resumed_early_and_one_switched_off_by_an_admin():
+    st, run = paused_house()
+    hold(run, "day")
+    run.look()
+    st["climate.wz"]["attributes"]["temperature"] = 22.0
+    run.look(5)
+    run.mem = hr.pause(run.mem, "h/wz", None, run.now, "resume")                # ▶ Heizplan fortsetzen
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 19.0})]
+    hold(run, "day")
+    run.look()
+    st["climate.wz"]["attributes"]["temperature"] = 22.0
+    run.rules["pause"]["on"] = False                                            # an admin switches the pause off: over
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 19.0})] and not run.mem["pause"]
+
+
+def test_a_new_block_during_the_pause_waits_until_it_ends():
+    st, run = paused_house()
+    hold(run, "day")
+    run.look()
+    st["climate.wz"]["attributes"]["temperature"] = 20.0
+    assert run.look(4 * 60 + 30) == [] and st["climate.wz"]["attributes"]["temperature"] == 20.0   # 17:00 comfort: waits
+    run.mem = hr.pause(run.mem, "h/wz", None, run.now, "resume")
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 21.0})]
+
+
+def test_the_window_during_a_pause_only_when_an_admin_chose_so():
+    st, run = paused_house()                                                    # the window counts (as set by default)
+    run.rules["window"].update(on=True, delay=0)
+    hold(run, "60")
+    run.look()
+    st["climate.wz"]["attributes"]["temperature"] = 23.0
+    run.look(1)
+    st["binary_sensor.fenster"]["state"] = "on"
+    assert run.look(1) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})] and run.status["h/wz"]["why"] == "window"
+    st["binary_sensor.fenster"]["state"] = "off"
+    assert run.look(1) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "heat"}), ("climate.wz", "set_temperature", {"temperature": 23.0})]
+    assert run.status["h/wz"]["why"] == "pause"                                 # as turned in the pause, and still paused
+    st, run = paused_house(window=False)
+    run.rules["window"].update(on=True, delay=0)
+    hold(run, "60")
+    run.look()
+    st["binary_sensor.fenster"]["state"] = "on"
+    assert run.look(1) == [] and run.look(5) == [] and run.status["h/wz"]["why"] == "pause"
+    assert run.look(55) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})]   # the pause over: now the window counts
+
+
+def test_too_warm_during_a_pause_takes_the_target_turned_as_the_wish():
+    st, run = paused_house(warm=True)
+    run.rules["warm"]["on"] = True
+    hold(run, "60")
+    run.look()
+    st["climate.wz"]["attributes"]["temperature"] = 22.0
+    run.look(1)
+    st["climate.wz"]["attributes"]["current_temperature"] = 23.5
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 17.0})] and run.status["h/wz"]["why"] == "warm"
+    st["climate.wz"]["attributes"]["current_temperature"] = 21.5
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 22.0})] and run.status["h/wz"]["why"] == "pause"
+    st, run = paused_house()                                                    # not chosen: too warm waits
+    run.rules["warm"]["on"] = True
+    hold(run, "60")
+    run.look()
+    st["climate.wz"]["attributes"]["current_temperature"] = 25.0
+    assert run.look(1) == [] and run.status["h/wz"]["why"] == "pause"
+
+
+def test_nobody_at_home_ends_a_pause_only_when_an_admin_chose_so():
+    for levels, ends in ((False, False), (True, True)):
+        st, run = paused_house(levels=levels)
+        run.rules["away"].update(on=True, delay=0, temp=16.0)
+        hold(run, "60")
+        run.look()
+        st["person.anna"]["state"] = "not_home"
+        calls = [c for c in run.look(1) if c[0] == "climate.wz"]                # (the bathroom has no pause)
+        assert ("h/wz" not in run.mem["pause"]) == ends
+        assert calls == ([("climate.wz", "set_temperature", {"temperature": 16.0})] if ends else [])
+
+
+def test_a_pause_stops_a_boost():
+    st, run = paused_house()
+    run.mem = hr.boost(run.mem, "h/wz", run.now, run.rules)
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 24.0})]
+    hold(run, "30")
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 19.0})]   # as before the boost, then regulated by hand
+    assert run.status["h/wz"]["why"] == "pause" and not run.mem["boost"]

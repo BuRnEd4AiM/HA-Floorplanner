@@ -60,6 +60,10 @@ def test_own_pages_and_the_order_of_the_bar():
     assert len(tabs) == boards.MAX_CUSTOM
     assert boards.clean_tab_order(["family", "house", "p_garten", "family", "bogus", 5]) == ["family", "p_garten"]
     assert boards.clean_custom_tabs(None) == [] and boards.clean_tab_order("x") == []
+    assert boards.clean_custom_tabs([{"id": "p_anbau", "name": "Anbau", "building": "b_anbau1"}, {"id": "p_xyz", "name": "X", "building": "bad id"}]) == [
+        {"id": "p_anbau", "name": "Anbau", "icon": "⭐", "building": "b_anbau1"}, {"id": "p_xyz", "name": "X", "icon": "⭐"}]   # a page of one building (#677)
+    th = boards.clean_card({"id": "c_th1", "type": "thermostat", "entity": "climate.wz", "pause": False})
+    assert th["pause"] is False and "pause" not in boards.clean_card({"id": "c_th1", "type": "thermostat", "entity": "climate.wz", "pause": True})
 
 
 def test_cards_are_checked_by_their_kind():

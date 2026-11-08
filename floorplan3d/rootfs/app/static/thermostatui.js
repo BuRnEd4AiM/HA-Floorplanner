@@ -1,6 +1,7 @@
 /* Draws the thermostat of thermostat.js (#495): the circle (drag the knob or tap the circle), − / +, the modes, presets and fan modes; big
  * (the whole card) or small (the circle with − / + beside it). Several taps on − / + and a drag become one call after a short pause
- * (HEAT_DELAY, as in the heating panel). Used by the page 🌡 Klima (pageclimate.js) and the own card "Thermostat" (cardsui.js). */
+ * (HEAT_DELAY, as in the heating panel). Used by the page 🌡 Klima (pageclimate.js) and the own card "Thermostat" (cardsui.js). Under
+ * − / + the button ⏸️ Heizplan aussetzen when the user and the card get it (heatpauseui.js). */
 import { thermoModel, angleOf, arcPath, pointAt, valueAt, START, SWEEP } from './thermostat.js';
 import { clampTarget, HEAT_DELAY, chipText } from './heatpanel.js';
 
@@ -9,7 +10,8 @@ const W = 220, H = 196, CX = 110, CY = 104, R = 88;
 const TONES = { heat: ['#ffc85a', '#ff5b2e'], cool: ['#9fe3ff', '#2f8cf0'], auto: ['#7ee0a0', '#ffb04a'], fan: ['#b6c4d2', '#6f8aa6'], off: ['#5b6875', '#5b6875'] };
 let uid = 0;
 
-/** ctx: t, lang(), settings() (units), states(), callService(entity, service, data), changed() (a target is waiting or was sent: draw again) */
+/** ctx: t, lang(), settings() (units), states(), callService(entity, service, data), changed() (a target is waiting or was sent: draw again),
+ *  pause (heatpauseui.js: button(entity, { card }), sig(entity), busy()) */
 export function initThermostat(ctx) {
   const { t } = ctx;
   const pending = new Map();                         // entity -> { v, timer }
@@ -117,8 +119,9 @@ export function initThermostat(ctx) {
     return row;
   }
 
-  /** the thermostat of an entity: { el, model } (el null without a state); size 'big' | 'small' */
-  function render(e, size = 'big') {
+  /** the thermostat of an entity: { el, model } (el null without a state); size 'big' | 'small'; opts.card: an own card (its switch
+   *  "pause" hides ⏸️) */
+  function render(e, size = 'big', opts = {}) {
     const s = ctx.states()[e], m = thermoModel(s, wanted(e));
     if (!m) return { el: null, model: null };
     const small = size === 'small';
@@ -128,8 +131,12 @@ export function initThermostat(ctx) {
       side.append(steps(e, m));
       if (m.modes.length) side.append(modes(e, m, true));
       el.append(dial(e, m, true), side);
+      const p = ctx.pause?.button(e, { card: opts.card });
+      if (p) { p.classList.add('small'); el.append(p); }
     } else {
       el.append(dial(e, m, false), steps(e, m));
+      const p = ctx.pause?.button(e, { card: opts.card });
+      if (p) el.append(p);
       if (m.modes.length) el.append(modes(e, m, false));
       if (m.presets) el.append(chips(e, m.presets, 'preset', 'set_preset_mode', 'preset_mode'));
       if (m.fans) el.append(chips(e, m.fans, 'fan', 'set_fan_mode', 'fan_mode'));
@@ -137,6 +144,6 @@ export function initThermostat(ctx) {
     return { el, model: m };
   }
   /** what a thermostat's card depends on (its states, a target being tapped) */
-  const sig = (e) => { const s = ctx.states()[e]; return s ? [s.state, s.ct, s.tt, s.hvac, s.modes, s.ctl?.preset, s.ctl?.fan, s.ctl?.presets, s.ctl?.fans, s.tmin, s.tmax, s.tstep, wanted(e)] : null; };
-  return { render, sig, busy: () => dragging !== null, wanted };
+  const sig = (e) => { const s = ctx.states()[e]; return s ? [s.state, s.ct, s.tt, s.hvac, s.modes, s.ctl?.preset, s.ctl?.fan, s.ctl?.presets, s.ctl?.fans, s.tmin, s.tmax, s.tstep, wanted(e), ctx.pause?.sig(e)] : null; };
+  return { render, sig, busy: () => dragging !== null || !!ctx.pause?.busy(), wanted };
 }

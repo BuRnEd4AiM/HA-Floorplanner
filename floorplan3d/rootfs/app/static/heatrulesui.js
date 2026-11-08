@@ -8,12 +8,12 @@
 import { roomLine, roomKey, LEVEL_COLOR, dayBlocks, dayStart, templates } from './rules.js';
 
 const RULES = ['window', 'warm', 'away', 'night', 'schedule', 'summer', 'boost', 'holiday'];
-const ICON = { window: '🪟', warm: '🔥', away: '🚶', night: '🌙', schedule: '📅', summer: '☀️', boost: '🚀', holiday: '✈️' };
+const ICON = { window: '🪟', warm: '🔥', away: '🚶', night: '🌙', schedule: '📅', summer: '☀️', boost: '🚀', holiday: '✈️', pause: '⏸️' };
 
 /** ctx: t, lang(), rules (rulesstore.js), canEdit(), locked() (may not switch), houseId(), rooms() (the rooms of the house shown with a
  *  thermostat: [{ id, name, climate }]), deg(v), delta(v) (a difference of degrees), states(), usedBy (usedbyui.js), editFlow(flow) (the editor of a routine), showPlan()
  *  (the view 📅 Heizplan), showDiag(room key) (the view 🩺 Protokoll of a room, #579), changed() (draw the page again), sensors
- *  (roomsensorsui.js: the card 🌡 Raumfühler and its line, #573) */
+ *  (roomsensorsui.js: the card 🌡 Raumfühler and its line, #573), pause (heatpauseui.js: the card ⏸️ Heizplan aussetzen) */
 export function initHeatRulesUi(ctx) {
   const { t } = ctx;
   let draft = null, timer = 0, saved = 0, openNight = false;
@@ -156,6 +156,7 @@ export function initHeatRulesUi(ctx) {
       kv(t('hr.summer.hours'), stepper(h.summer.hours, { step: 1, min: 0, max: 72, text: (x) => t('fl.hour', { n: x }), set: (v) => change((x) => { x.summer.hours = v; }), data: 'summer.hours' }))], activeChips('summer')));
     out.push(card('boost', h, [kv(t('hr.boost.minutes'), mins(h.boost.minutes, (v) => change((x) => { x.boost.minutes = v; }), 'boost.minutes', 240, 5)),
       kv(t('hr.temp'), temp(h.boost.temp, (v) => change((x) => { x.boost.temp = v; }), 'boost.temp')), kv(t('hr.window.after'), make('b', '', t('hr.back')))], activeChips('boost')));
+    if (ctx.pause) out.push(ctx.pause.card(h, { card, change, toggle, kv }));   // ⏸️ Heizplan aussetzen (held on a thermostat)
     const until = make('input', 'hrTime'); until.type = 'date'; until.value = h.holiday.until; until.disabled = !ctx.canEdit(); until.dataset.field = 'holiday.until';
     until.addEventListener('change', () => change((x) => { x.holiday.until = until.value; }));
     out.push(card('holiday', h, [kv(t('hr.temp'), temp(h.holiday.temp, (v) => change((x) => { x.holiday.temp = v; }), 'holiday.temp')), kv(t('hr.holiday.until'), until),

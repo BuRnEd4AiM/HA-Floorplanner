@@ -478,3 +478,105 @@ def _(r):
     r.wait(1800)
     r.key("Escape")
     r.wait(600)
+
+
+def heat_on(r):
+    """prep: the living room's thermostat heats (in the demo the window rule paused it)"""
+    r.js("""() => fetch('api/service', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ domain: 'climate', service: 'set_hvac_mode', entity_id: 'climate.wohnzimmer', data: { hvac_mode: 'heat' } }) })""")
+    r.wait(800)
+
+
+@clip("heat-pause", "pages",
+      {"de": "⏸️ Heizplan aussetzen: selbst regeln", "en": "⏸️ Pause the schedule: regulate by hand"},
+      {"de": "Unter − / + jedes Thermostats: gedrückt halten, dann wählen, wie lange (30 Min, 45 Min, 1 Std, bis zum nächsten Block, für heute). "
+             "So lange stellt keine Regel das Thermostat zurück. „＋15 Min“, „▶ Heizplan fortsetzen“; wer den Knopf bekommt, stellt der Admin ein.",
+       "en": "Under − / + of every thermostat: hold it, then choose how long (30 min, 45 min, 1 h, until the next block, for today). Meanwhile no "
+             "rule turns the thermostat back. “＋15 min”, “▶ Resume the schedule”; an admin chooses who gets the button."},
+      "Heizplan aussetzen Pause von Hand selbst regeln gedrückt halten pause schedule by hand hold", prep=heat_on)
+def _(r):
+    tab(r, "climate")
+    bar = "[data-page=climate] [data-room=r1] .hpPause"
+    r.say("Unter − und + jedes Thermostats: „⏸️ Heizplan aussetzen“.", "Under − and + of every thermostat: “⏸️ Pause the schedule”.")
+    r.move(bar)
+    r.wait(1600)
+    r.say("Kurz antippen tut nichts. Gedrückt halten …", "A short tap does nothing. Hold it …")
+    r.click(bar, hold=1100)
+    r.wait(900)
+    r.poster()
+    r.say("… dann wählen, wie lange: eine halbe Stunde, eine dreiviertel, eine Stunde, bis zum nächsten Block oder für heute.",
+          "… then choose how long: half an hour, three quarters, an hour, until the next block or for today.")
+    r.move(".hpDlg[open] .hpOpt[data-opt='45']")
+    r.wait(2200)
+    r.click(".hpDlg[open] .hpOpt[data-opt='45']")
+    r.wait(1800)
+    r.say("Jetzt regelst du selbst, keine Regel dreht zurück. Der Knopf sagt, bis wann.", "Now you regulate it yourself, no rule turns it back. The button says until when.")
+    r.move("[data-page=climate] [data-room=r1] .hpBar")
+    r.wait(2200)
+    r.say("„＋15 Min“ macht es länger.", "“＋15 min” makes it longer.")
+    r.click("[data-page=climate] [data-room=r1] .hpMore")
+    r.wait(1800)
+    r.say("„▶ Heizplan fortsetzen“: sofort wieder nach Plan.", "“▶ Resume the schedule”: back to the plan at once.")
+    r.click("[data-page=climate] [data-room=r1] .hpPause.on")
+    r.wait(1800)
+    r.say("In den Heiz-Regeln: an oder aus, welche Zeiten, und was trotzdem gilt, zum Beispiel ein offenes Fenster.",
+          "In the heating rules: on or off, which times, and what counts anyway, for example an open window.")
+    r.click("[data-page=climate] [data-view=rules]")
+    r.wait(1200)
+    r.js("() => document.querySelector('[data-heat-rule=pause]')?.scrollIntoView({ block: 'center' })")
+    r.wait(600)
+    r.move("[data-heat-rule=pause]")
+    r.wait(2600)
+    r.say("Wer den Knopf bekommt: je Benutzer unter ⚙ → Benutzer & Tablets und an jeder eigenen Thermostat-Karte.",
+          "Who gets the button: per user in ⚙ → Users & tablets and on every own thermostat card.")
+    r.wait(2600)
+
+
+def two_buildings_live(r):
+    """prep: the demo house as two buildings (clips_edit.two_buildings), then the live view"""
+    from clips_edit import two_buildings
+    two_buildings(r)
+    r.pg.click("[data-mode=live]")
+    r.pg.wait_for_timeout(1500)
+
+
+@clip("buildings-pages", "pages",
+      {"de": "🏘 Ein Gebäude wählen: jede Seite zeigt nur seins", "en": "🏘 Choose a building: every page shows only its things"},
+      {"de": "Mit zwei Gebäuden in einem Plan: oben eins wählen, dann zeigen Klima, Kameras, Musik, Haushalt, Abläufe, Protokoll und die eigenen "
+             "Karten nur noch, was zu diesem Gebäude gehört. Eine eigene Seite kann einem Gebäude gehören.",
+       "en": "With two buildings in one plan: choose one at the top, then climate, cameras, music, household, routines, log and the own cards "
+             "show only what belongs to it. An own page can belong to a building."},
+      "Gebäude wählen Anbau nur dieses Gebäude Seiten filtern building choose wing only this building pages filter",
+      query="mode=edit", prep=two_buildings_live)
+def _(r):
+    ids = r.js("window.__fp.layout.buildings.map((b) => b.id)")
+    r.say("Dieser Plan hat zwei Gebäude. Oben wählst du, welches du anschaust.", "This plan has two buildings. At the top you choose which one you look at.")
+    r.click("#buildingSelect")
+    r.loc("#buildingSelect").select_option(ids[1])
+    r.wait(1800)
+    tab(r, "climate")
+    r.say("„Klima“ zeigt jetzt nur die Räume und Thermostate des Anbaus.", "“Climate” now shows only the rooms and thermostats of the wing.")
+    r.poster()
+    r.wait(2400)
+    tab(r, "media")
+    r.say("„Musik & TV“: nur seine Lautsprecher, der Fernseher im Wohnzimmer fehlt.", "“Music & TV”: only its speakers, the TV in the living room is gone.")
+    r.wait(2400)
+    tab(r, "p_knoepfe")
+    r.say("Auch die eigenen Karten: was im anderen Gebäude steht, ist weg.", "The own cards too: what stands in the other building is gone.")
+    r.wait(2400)
+    r.say("Eine eigene Seite kann einem Gebäude gehören: beim Bearbeiten, „⚙️ Seite“, „Gehört zu Gebäude“.",
+          "An own page can belong to a building: while editing, “⚙️ Page”, “Belongs to building”.")
+    r.click("#tabBar .tbEdit")
+    r.wait(1000)
+    r.click("[data-page=p_knoepfe] [data-act=page]")
+    r.wait(1000)
+    r.move("[data-role=building]")
+    r.wait(2400)
+    r.key("Escape")
+    r.wait(500)
+    r.click("#tabBar .tbEdit")
+    r.wait(800)
+    r.say("„🏘 Alle Gebäude“: wieder alles.", "“🏘 All buildings”: everything again.")
+    r.click("#buildingSelect")
+    r.loc("#buildingSelect").select_option("")
+    r.wait(2000)

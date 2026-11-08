@@ -3,6 +3,7 @@
  * devices, room, text, train, a ready card of ☀ Heute). A history card asks the add-on for the
  * numbers (api/history, again after 5 minutes). Switching goes through live.callService like everywhere else. */
 import { TYPE_ICON, COLOR_HEX, cardEntities, tapService, valueOf, chartPaths, chartMany, seriesColor } from './cards.js';
+import { rowLamps } from './lightslider.js';
 import { initButtonCard } from './buttoncardui.js';
 import { presetRow } from './coverrow.js';
 
@@ -14,7 +15,8 @@ const ON = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'auto'
  *  null), openRoom(roomId), builtin(key) (a ready card of ☀ Heute, or null), changed() (a history arrived: draw the page again),
  *  thermo (thermostatui.js, #495), calendar (calcardui.js, #495), train (traincard.js, #550), controls(entity) (the window with the controls, ctlwindow.js, #495),
  *  moreInfo(entity) (Home Assistant's own window: true when it opened), showPage(key), pages() ([{ key, name }]), lights (lightcardui.js, #597),
- *  lightCards() ([{ id, name }]: the light cards a button can open), openLights(id) */
+ *  lightCards() ([{ id, name }]: the light cards a button can open), openLights(id), shows(entity) (in the building shown: a light card only
+ *  with the bars of its lamps, #677) */
 export function initCards(ctx) {
   const { t } = ctx;
   const history = new Map();                         // "entity|hours" -> { at, points, asking }
@@ -101,7 +103,7 @@ export function initCards(ctx) {
     box.append(wrap);
   }
   function thermostat(c, box) {
-    const { el } = ctx.thermo.render(c.entity, c.size || 'big');     // the circle like Home Assistant's (#495, thermostatui.js)
+    const { el } = ctx.thermo.render(c.entity, c.size || 'big', { card: c });     // the circle like Home Assistant's (#495, thermostatui.js)
     if (el) box.append(el);
   }
   function light(c, box) {
@@ -147,6 +149,8 @@ export function initCards(ctx) {
   }
 
   /** one card as an element (a ready card of ☀ Heute: that card itself) */
+  /** a light card with only the bars that have a lamp of the building shown (#677) */
+  const here = (c) => (ctx.shows && Array.isArray(c.rows) ? { ...c, rows: c.rows.filter((r) => rowLamps(r).some((e) => ctx.shows(e) !== false)) } : c);
   function render(c) {
     if (c.type === 'builtin') {
       const b = ctx.builtin(c.builtin);
@@ -155,7 +159,7 @@ export function initCards(ctx) {
     const box = make('div', `tpCard ocCard oc-${c.type}`); box.dataset.card = c.id;
     if (!st(c.entity) && c.entity) { box.append(head(c), make('p', 'tpSub', t('ct.missing', { e: c.entity }))); return box; }
     if (c.type === 'button') { button.render(c, box); return box; }
-    if (c.type === 'lights') { ctx.lights.render(c, box); return box; }      // 🎚 a bar per lamp, its own head (#597)
+    if (c.type === 'lights') { ctx.lights.render(here(c), box); return box; }      // 🎚 a bar per lamp, its own head (#597)
     if (c.type !== 'text') box.append(head(c));
     if (c.type === 'switch') { const r = make('div', 'ocLine'); r.append(make('b', 'ocState', word(c.entity)), sw(c.entity)); box.append(r); }
     else if (c.type === 'value') { const v = make('div', 'ocBig ocValue', shown(c.entity)); v.style.color = c.color === 'blue' ? '' : COLOR_HEX[c.color]; box.append(v); }
@@ -175,7 +179,7 @@ export function initCards(ctx) {
     return box;
   }
   /** what a card shows depends on: the states of its entities, its history, a pending target, a tap (it draws again when this changed) */
-  const sig = (c) => (c.type === 'lights' ? ctx.lights.sig(c, [ctx.lang()]) : JSON.stringify([c, cardEntities(c).map((e) => { const s = st(e); return s ? [s.state, s.brightness, s.position, s.ct, s.tt, s.hvac, s.rgb, s.unit] : null; }),
+  const sig = (c) => (c.type === 'lights' ? ctx.lights.sig(here(c), [ctx.lang()]) : JSON.stringify([c, cardEntities(c).map((e) => { const s = st(e); return s ? [s.state, s.brightness, s.position, s.ct, s.tt, s.hvac, s.rgb, s.unit] : null; }),
     c.type === 'graph' ? cardEntities(c).map((e) => history.get(`${e}|${c.hours}`)?.points?.length ?? -1) : 0, c.type === 'thermostat' ? ctx.thermo.sig(c.entity) : 0, c.type === 'calendar' ? ctx.calendar.sig(c) : 0, c.type === 'train' ? ctx.train.sig(c) : 0, c.type === 'button' ? button.sig(c) : 0,
     c.type === 'room' ? ctx.room(c.room) : 0, c.type === 'builtin' ? Math.floor(Date.now() / 20000) : 0, imperial(), ctx.lang()]));   // a ready card: every 20 s
   return { render, sig, buttonFields: button.fields };
