@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3L75ZVQqL276tL5GAg",
+ "start": "2026-11-08",
+ "updated": "2026-11-08T23:13:07Z",
+ "branch": "claude/sleepy-turing-w83zy6",
+ "source": "counted",
+ "input": 116,
+ "cache_write": 277325,
+ "cache_read": 12107759,
+ "output": 91584,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 116,
+   "cache_write": 277325,
+   "cache_read": 12107759,
+   "output": 91584,
+   "requests": 62
+  }
+ }
+}
