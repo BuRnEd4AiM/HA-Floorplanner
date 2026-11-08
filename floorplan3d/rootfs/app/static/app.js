@@ -634,7 +634,8 @@ const inBuilding = (e) => {
   if (bldMemo.key !== key || bldMemo.layout !== layout || bldMemo.areas !== areas) {
     const h = { devices: (f) => entityDevices(f).map((d) => d.entity), area: areaEntitiesOf,
       openings: (f) => openingWalls(f).flatMap((w) => (w.openings || []).flatMap((o) => openingEntities(o))) };
-    bldMemo = { key, layout, areas, fn: buildingFilter(buildingSets(buildingsOf(layout).map((b) => b.id), (b) => viewOf(layout, b), h), shown) };
+    bldMemo = { key, layout, areas, fn: buildingFilter(buildingSets(buildingsOf(layout).map((b) => b.id), (b) => viewOf(layout, b), h), shown,
+      (x) => states[x]?.members || []) };                          // a group in no building: by its lamps
   }
   return bldMemo.fn(e);
 };

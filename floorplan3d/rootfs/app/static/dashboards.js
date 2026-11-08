@@ -72,7 +72,7 @@ export function initDashboards(ctx) {
   };
   const cards = initCards({
     t, lang: ctx.lang, states: ctx.states, settings: ctx.settings, nameOf: ctx.nameOf, stateText: ctx.stateText, callService: ctx.callService,
-    camImage: ctx.camImage, openCamera: ctx.openCamera, room,
+    camImage: ctx.camImage, openCamera: ctx.openCamera, room, shows: ctx.shows,   // shows: a light card's bars of the building shown (#677)
     openRoom: (id) => { const r = room(id); if (r) ctx.openRoom(r.fi, id); },
     builtin: ctx.builtin, thermo, calendar, train, controls: (e) => controls.open(e),
     moreInfo: (e) => { if (!canMoreInfo()) return false; openMoreInfo(e); return true; },

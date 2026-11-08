@@ -40,6 +40,11 @@ test('the filter: what belongs to another building is left out, what belongs to 
   assert.equal(haus('sensor.waschmaschine'), false);
   assert.equal(haus('climate.wz'), true);
   assert.equal(B.buildingFilter(sets, null)('climate.wz'), true); // all buildings shown
+  const groups = { 'light.wz_alle': ['climate.wz', 'media_player.tv'], 'light.alle': ['climate.wz', 'sensor.waschmaschine'], 'scene.leer': [] };
+  const g = B.buildingFilter(sets, 'anbau', (e) => groups[e]);
+  assert.equal(g('light.wz_alle'), false);                        // a group in no building: all its members in the other one
+  assert.equal(g('light.alle'), true);                            // one of them here
+  assert.equal(g('scene.leer'), true);
   assert.equal(B.buildingFilter(sets, 'weg')('climate.wz'), true);   // an unknown one: everything
 });
 

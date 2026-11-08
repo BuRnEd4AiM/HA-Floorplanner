@@ -30,13 +30,20 @@ export function buildingSets(ids, view, h) {
 
 /**
  * Does an entity show while building `shown` is chosen: (entity) -> boolean. Everything shows with no building chosen (all of them) or
- * an unknown one; else what belongs to it, or to no building at all.
+ * an unknown one; else what belongs to it, or to no building at all. A group that is in no building itself (a light group of Home
+ * Assistant, a scene) by its members (membersOf(entity) -> [entity]): it shows when one of them does.
  */
-export function buildingFilter(sets, shown) {
+export function buildingFilter(sets, shown, membersOf = () => []) {
   if (!shown || !sets?.has(shown)) return () => true;
   const mine = sets.get(shown), other = new Set();
   sets.forEach((s, b) => { if (b !== shown) s.forEach((e) => other.add(e)); });
-  return (e) => !e || mine.has(e) || !other.has(e);
+  const one = (e) => mine.has(e) || !other.has(e);
+  return (e) => {
+    if (!e || mine.has(e)) return true;
+    if (other.has(e)) return false;
+    const m = (membersOf(e) || []).filter((x) => typeof x === 'string' && x && x !== e);
+    return !m.length || m.some(one);
+  };
 }
 
 /** does an own card show (shows: buildingFilter): one with devices only when one of them shows; a card of a room only in its building;

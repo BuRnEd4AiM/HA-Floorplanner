@@ -70,6 +70,26 @@ async def test_boost_and_heat_anyway_from_a_room(client, monkeypatch):
     assert (await client.post("/api/rules/run", json={"flow": "f_x", "lane": "l1"})).status == 404
 
 
+async def test_pause_the_heating_schedule_of_a_room(client, monkeypatch):
+    """⏸️ Heizplan aussetzen: only when an admin switched it on and offers the choice; the lock "heatPause" (or "control") refuses it"""
+    room = lambda act, **x: client.post("/api/rules/room", json={"room": "h1/r1", "act": act, **x})   # noqa: E731
+    assert (await room("pause", **{"for": "45"})).status == 400                     # off
+    await client.put("/api/rules", json={"heat": {"pause": {"on": True, "opts": ["45", "day"]}}})
+    assert (await room("pause", **{"for": "30"})).status == 400                     # not offered
+    assert (await room("pause", **{"for": "45"})).status == 200
+    assert (await room("more")).status == 200 and (await room("resume")).status == 200
+    rules = server.rules_store(server._AppCtx(client.server.app))
+    asked = []
+    while not rules.queue.empty():
+        asked.append(rules.queue.get_nowait())
+    assert [a for a in asked if a[0] == "room"] == [("room", "h1/r1", "pause", "45"), ("room", "h1/r1", "more"), ("room", "h1/r1", "resume")]
+    monkeypatch.setattr(server, "user_locks", lambda request: {"heatPause"})
+    assert (await room("pause", **{"for": "45"})).status == 403 and (await room("resume")).status == 403
+    assert (await room("boost")).status == 200                                      # the boost is no pause
+    monkeypatch.setattr(server, "user_locks", lambda request: {"control"})
+    assert (await room("pause", **{"for": "45"})).status == 403
+
+
 async def test_who_uses_a_device_without_home_assistant(client):
     h = (await (await client.get("/api/houses")).json())[0]["id"]
     await client.put("/api/layout", json=LAYOUT)
