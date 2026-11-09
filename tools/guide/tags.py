@@ -281,6 +281,13 @@ t("window-fixed",
   "window fixed below opens at the top floor-length window floor to ceiling window transom fixed light lower fixed pane "
   "only the top opens tilt at the top French window stacked panes two panes on top of each other horizontal bar mullion "
   "sidelight fixed glazing below glass balustrade")
+t("ui-v2",
+  "neue Oberfläche neue Leiste Version 2 neues Design neues Aussehen aufgeräumt übersichtlich zu viele Einstellungen zu unübersichtlich "
+  "einklappen ausklappen zuklappen Abschnitte Reiter Tabs alt neu umschalten klassisch zurück zur alten Ansicht Bearbeiten-Leiste rechts "
+  "Fenster als Bild Flügel antippen Fensterart Vorlage Böden als Bilder Bodenbelag auswählen Bodenhöhe Seitenansicht",
+  "new interface new panel version 2 new design new look tidy clear too many settings cluttered confusing collapse expand fold "
+  "sections tabs old new switch classic back to the old view edit sidebar right window as a picture tap a pane kind of window "
+  "preset floors as pictures choose a floor covering floor height side view redesign")
 t("devices-place",
   "Gerät einfügen Gerät hinzufügen Lampe hinzufügen Sensor hinzufügen Thermostat platzieren Steckdose Schalter setzen "
   "Entität zuordnen verknüpfen Home Assistant verbinden Deckenlampe aufhängen",

@@ -50,7 +50,8 @@ import { initPropFields } from './propfields.js';
 import { initEntityPicker } from './entitypicker.js';
 import { initObjList } from './objlist.js';
 import { initRoomEntities } from './roomentities.js';
-import { initProps } from './props.js';
+import { initProps, propsTitleKey } from './props.js';
+import { initUiV2 } from './uiv2ui.js';
 import { initOpenings, openKind, OPEN_KINDS, paneEntity, openingEntities } from './openings.js';
 import { tiltEntity } from './windowtilt.js';
 import { linkedEntities } from './shutters.js';
@@ -1618,8 +1619,15 @@ const roomEnts = initRoomEntities({
   autoPlace: (room, ids) => autoPlace(room, ids), setStatus: (x) => setStatus(x), snapshot: () => snapshot(), changed: () => changed(), uid: () => uid(),
   deviceY: (type) => DEVICE_TYPES[type]?.y || 0,
 });
+/* „Oberfläche 2“ (4.73.0): the switch old / new and the new order of the same fields (uiv2ui.js) */
+const uiV2 = initUiV2({
+  $, t, selection: () => selection, select: (sel) => { selection = sel; lockedSel = false; refreshSelection(); }, floor: () => floor(), houseName: () => hs.current()?.name || '',
+  findOpening: (id) => findOpening(id), roomAt: (x, z) => roomAt(x, z), catOf, stateText: (e) => stateText(e), entityName: (e) => entities.find((x) => x.entity_id === e)?.name || e,
+  fmtLen: (m) => fmtLen(m), imperial: () => imperial(), snapshot: () => snapshot(), changed: () => changed(), renderProps: () => renderProps(), setStatus: (x) => setStatus(x),
+  propsTitle: (k, it) => t(propsTitleKey(k, it)),
+});
 const props = initProps({
-  multiBox: () => multiSel.box(), roofInfo: (id) => roofRectOf(id),
+  multiBox: () => multiSel.box(), roofInfo: (id) => roofRectOf(id), v2: (...a) => uiV2.decorate(...a),
   $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, roomCtx: () => roomCtx, setRoomCtx: (id) => { roomCtx = id; },
   fields: { field, inp, lenInput, pickerField }, entityPicker: (...a) => entityPicker(...a), entities: () => entities, areas: () => areas,
   findOpening: (id) => findOpening(id), snapshot: () => snapshot(), changed: () => changed(), build: () => build(), refreshSelection: () => refreshSelection(), layout: () => layout,

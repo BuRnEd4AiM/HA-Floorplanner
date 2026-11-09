@@ -22,6 +22,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 10. **Neu in 4.70.1: bereit für Home Assistant 2026.11** (Abschnitt 167, deine Frage vom 2026-11-08 zu den neuen Namen): Claude hat 167.1 bis 167.4 geprüft, auch mit einem echten Home Assistant 2026.11.0; für dich nach dem Update im Add-on 167.5, und nur wenn du Geräte mit mehreren Teilen hast 167.6.
 11. **Neu in 4.71.0: ⏸️ Heizplan aussetzen und das Gebäude oben auf jeder Seite** (Abschnitt 168, deine Wünsche vom 2026-11-08, #677): Claude hat 168.1 und 168.2 geprüft (Tausende zufällige Heiz-Tage mit Pausen, Browser-Test); für dich in der Demo 168.3 bis 168.5, im Add-on mit deiner Heizung 168.6 und 168.7, mit deinen zwei Häusern 168.8 und 168.9, nach dem Merge die Videos 168.10.
 12. **Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben** (Abschnitt 169, gefragt von markweiffenbach in #679): Claude hat 169.1 und 169.2 geprüft; für dich in der Demo 169.3 bis 169.5, im Add-on mit deinen Fenstern 169.6, nach dem Merge das Video 169.7.
+13. **Neu in 4.73.0: ✨ Oberfläche 2** (Abschnitt 170, dein Wunsch vom 2026-11-08): Claude hat 170.1 und 170.2 geprüft; für dich in der Demo 170.3 bis 170.7, dein Eindruck 170.8, nach dem Merge das Video 170.9.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -447,7 +448,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 167. Neu in 4.70.1: Bereit für Home Assistant 2026.11 (neue Namen, Teil-Geräte) | 4 | 0 | 2 | 0 | 167.5, 167.6 |
 | 168. Neu in 4.71.0: ⏸️ Heizplan aussetzen, das Gebäude oben gilt auf jeder Seite | 2 | 0 | 8 | 0 | 168.3 bis 168.10 |
 | 169. Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben | 2 | 0 | 5 | 0 | 169.3 bis 169.7 |
-| **Zusammen** | **1115** | **1** | **58** | **92** | |
+| 170. Neu in 4.73.0: ✨ Oberfläche 2 (die neue Bearbeiten-Leiste, umschaltbar) | 2 | 0 | 7 | 0 | 170.3 bis 170.9 |
+| **Zusammen** | **1117** | **1** | **65** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2605,3 +2607,18 @@ Gefragt von markweiffenbach in #679: hohe, schmale Fenster vom Boden bis zur Dec
 | 169.5 | Demo: „Tür/Fenster“ → „Bodentief, unten fest“, auf eine Wand klicken | Ein neues Fenster vom Boden bis 2,2 m, unten 1,1 m fest | ❓ |
 | 169.6 | Im Add-on: bei einem deiner Fenster „Feste Scheibe unten“ eintragen und den Kontakt öffnen oder kippen | Nur der Flügel oben wird gelb (gekippt) oder rot (offen) und bewegt sich, die feste Scheibe unten bleibt klar | ❓ |
 | 169.7 | Nach dem Merge: Video „Fenster mit fester Scheibe unten oder oben“ auf der Seite der Anleitung | Zeigt das Feld, gekippt und offen, das Oberlicht und die neue Fensterart | ❓ |
+
+## 170. Neu in 4.73.0: ✨ Oberfläche 2 (die neue Bearbeiten-Leiste, umschaltbar)
+Dein Wunsch vom 2026-11-08 („so unendlich viele Einstellmöglichkeiten … dass man zwischen alt und neu wechseln kann … mit Sachen ein- und ausklappen“), deine Wahl der Bilder am 2026-11-09 (1–5, 7–10, 12–14; das Fenster „halb offen“, Bild 17 B). Erster Teil: Fenster, Tür, Raum, Gerät, Wand. Noch nicht gebaut: 5 (Noppel), 9 (Haus als Baum), 10 (Etage), 12 (Suchen), 13 (Übernehmen), das Handy.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 170.1 | `node --test tests/uiv2.test.mjs` | Welche Felder in welchen Abschnitt kommen, die Zeilen („1,20 × 1,20 m · Brüstung 0,90 m“), was ein Flügel tut (wie die alten Felder), die Fensterarten, die Bilder (halb offen, Boden von der Seite) | ✅ (2026-11-09, Claude) |
+| 170.2 | Browser-Test Teil `79_ui_v2` (dazu `78_fixed_glass`, `75_room_area`, `69_window_tilt`, `55_levels` mit der alten Leiste) | ?ui=2 schaltet um und bleibt; Pfad, Kopf, „Löschen“ oben; die Abschnitte in der Reihenfolge, auf- und zuklappen bleibt; Flügel antippen und wählen, Anzahl, nach außen; Fensterart „Bodentief, unten fest“; Raum mit Reitern, Boden antippen, Höhe −15; „Klassisch“ zeigt die alte Leiste; ⚙ → Allgemein „Oberfläche“; im Add-on gespeichert | ✅ (2026-11-09, Claude) |
+| 170.3 | Demo: Bearbeiten, oben „✨ Neu“ antippen, im Wohnzimmer ein Fenster anklicken | Rechts oben der Weg (Demo-Haus › Erdgeschoss › Wohnzimmer › Fenster), der Kopf mit Name und „Löschen“, darunter Abschnitte mit einer Zeile, was eingestellt ist; „Fensterart“, „Feste Scheibe“, „Home Assistant“ … zu, „Größe & Lage“ und „Flügel & Öffnen“ offen | ❓ |
+| 170.4 | Demo: im Bild des Fensters auf einen Flügel tippen, „Drehen, Scharnier links“ wählen | Der Flügel ist zur Seite gedreht gezeichnet, darunter „dreht“; im 3D-Bild geht er so auf | ❓ |
+| 170.5 | Demo: „Fensterart“ aufklappen, „Bodentief, unten fest“ antippen | Das Fenster ist jetzt bodentief mit fester Scheibe unten; die Zeile sagt „Bodentief, unten fest“ | ❓ |
+| 170.6 | Demo: einen Raum anklicken, Reiter „Boden“, oben „Fliesen“, eine Fliese antippen; „Boden höher als die Etage“ auf −0.15 | Der Boden im 3D-Bild wechselt; das kleine Bild zeigt den Raum 15 cm tiefer | ❓ |
+| 170.7 | Demo: oben „Klassisch“ antippen | Die alte Leiste, genau wie vorher | ❓ |
+| 170.8 | Gefällt es dir? Was fehlt, was ist zu viel, was soll anders heißen? | Deine Antwort (z. B. als Text bei „Other“) | ❓ |
+| 170.9 | Nach dem Merge: Video „Die neue Leiste (Oberfläche 2)“ auf der Seite der Anleitung | Zeigt das Umschalten, die Abschnitte, das Fenster halb offen, die Fensterarten und den Raum mit Böden | ❓ |

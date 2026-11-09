@@ -158,3 +158,5 @@ f("buildingpages", "pages", "🏘 Oben ein Gebäude wählen: jede Seite und jede
   "🏘 Choose a building at the top: every page and own card shows only its things, a page per building", ["buildings-pages"], since="4.71.0")
 f("fixedglass", "edit", "Fenster mit fester Scheibe unten oder oben (bodentief, nur oben kippen; Oberlicht), neue Art „Bodentief, unten fest“",
   "A window with fixed glass below or above (floor-length, only the top tilts; transom), new kind “Floor-length, fixed below”", ["window-fixed"], since="4.72.0")
+f("uiv2", "edit", "✨ Oberfläche 2: neue Bearbeiten-Leiste, umschaltbar (Abschnitte zum Auf- und Zuklappen, Fenster halb offen, Fensterarten und Böden als Bilder, Raum mit Reitern)",
+  "✨ Oberfläche 2: a new edit panel, switchable (sections that fold, the window half open, kinds of window and floors as pictures, a room with tabs)", ["ui-v2"], since="4.73.0")

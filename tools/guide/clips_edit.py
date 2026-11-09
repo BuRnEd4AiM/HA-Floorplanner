@@ -394,6 +394,47 @@ def _(r):
     r.wait(2600)
 
 
+@clip("ui-v2", "edit",
+      {"de": "Die neue Leiste (Oberfläche 2)", "en": "The new panel (Oberfläche 2)"},
+      {"de": "Oben „✨ Neu“ schaltet die neue Bearbeiten-Leiste ein (gilt für dieses Gerät, „Klassisch“ holt die alte zurück): dieselben Einstellungen, aufgeräumt in Abschnitte zum Auf- und Zuklappen, jede mit einer Zeile, was eingestellt ist. Das Fenster ist halb offen gezeichnet: einen Flügel antippen und wählen, wie er aufgeht. Fensterarten als Bilder, ein Raum mit Reitern und Böden als kleine Bilder.",
+       "en": "At the top, “✨ New” switches on the new edit panel (for this device; “Classic” brings the old one back): the same settings, tidied up into sections that fold in and out, each with a line saying what is set. The window is drawn half open: tap a pane and choose how it opens. Kinds of window as pictures, a room with tabs and its floors as small pictures."},
+      "neue Leiste Oberfläche 2 Version 2 neu klassisch umschalten aufgeräumt einklappen ausklappen Abschnitte Reiter new panel interface version 2 classic switch fold sections tabs",
+      query="mode=edit", prep=window_room)
+def _(r):
+    r.say("Oben „✨ Neu“ schaltet die neue Leiste ein.", "At the top, “✨ New” switches on the new panel.")
+    r.click("#uiSwitch [data-ui=v2]")
+    r.wait(800)
+    r.say("Klicke das Fenster an.", "Click the window.")
+    p = r.js("window.__fp.openingCenter('guideWin')")
+    r.click(p["x"], p["y"])
+    r.wait(1500)
+    r.say("Oben der Weg und der Name, darunter Abschnitte: jede Zeile sagt, was eingestellt ist.",
+          "On top the path and the name, below them sections: each line says what is set.")
+    r.wait(2200)
+    r.say("Das Fenster ist halb offen gezeichnet. Tippe den Flügel an …", "The window is drawn half open. Tap the pane …")
+    r.click("#v2Window [data-pane='0']")
+    r.wait(900)
+    r.say("… und wähle, wie er aufgeht: links angeschlagen.", "… and choose how it opens: hinged on the left.")
+    r.click("#v2PaneMenu [data-kind=left]")
+    r.wait(1600)
+    r.poster()
+    r.say("„Fensterart“: ein Tipp stellt Größe, Brüstung und Flügel auf einmal ein.", "“Kind of window”: one tap sets size, sill and panes at once.")
+    r.click(".v2Sec[data-sec=kind] > .hd")
+    r.wait(800)
+    r.click("#v2Kinds [data-kind=window2]")
+    r.wait(1600)
+    r.say("Ein Raum hat Reiter. Unter „Boden“ sind die Böden kleine Bilder.", "A room has tabs. Under “Floor” the floors are small pictures.")
+    r.js("(() => { const fp = window.__fp; fp.select('room', fp.layout.floors[fp.floorIdx()].rooms[0].id); })()")
+    r.wait(900)
+    r.click("#v2RoomTabs [data-tab=floor]")
+    r.wait(800)
+    r.click("#v2Floors .v2Tile", nth=3)
+    r.wait(1600)
+    r.say("„Klassisch“ bringt die alte Leiste zurück.", "“Classic” brings the old panel back.")
+    r.click("#uiSwitch [data-ui=classic]")
+    r.wait(1500)
+
+
 @clip("devices-place", "edit",
       {"de": "Lampen und Geräte platzieren", "en": "Place lamps and devices"},
       {"de": "„Gerät“ wählen, eine Lampe oder einen Sensor aussuchen, mit Home Assistant verbinden und in den Raum klicken.",

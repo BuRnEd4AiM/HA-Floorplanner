@@ -33,3 +33,6 @@ können später kommen. Gebaut würde die neue Leiste in eigenen Modulen; die al
 
 **Wahl des Besitzers (2026-11-09):** gut: 1, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14 („5 können wir machen“). Nicht gewählt: 6, 11, 15, 16.
 Zu 1 bis 4: „diese vielen gestrichelten Linien auf den Fenstern sind seltsam“ → Bild 17 mit vier anderen Darstellungen.
+
+**Gebaut in 4.73.0 (erster Teil):** 1, 2, 3 (mit dem Fenster „halb offen“, Bild 17 B), 4, 7, 8 (die Leiste ist jetzt so kurz), 14; dazu Tür und
+Wand mit Abschnitten. Noch offen: 5, 9, 10, 12, 13; das Handy (16) entscheidet der Besitzer später.

@@ -2721,3 +2721,72 @@ dialog.guideDlg[open] { display: flex; }
 .gvGrow { flex: 1; }
 .gvOut { text-decoration: none; padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--text); }
 .gvFrame { flex: 1; width: 100%; border: 0; background: #0d1016; }
+
+/* ---- „Oberfläche 2“ (4.73.0, uiv2ui.js): the switch, and the same fields of the properties panel in sections that fold in and out ---- */
+#uiSwitch { border: 1px solid #b48cff; border-radius: 10px; padding: 2px; }
+#uiSwitch button { border: 0; background: transparent; }
+#uiSwitch button.active { background: #b48cff; color: #1a0f2e; }
+body.uiV2 #panel:has(> #props.v2:not([hidden])) > :not(#props) { display: none; }
+@media (min-width: 801px) { body.uiV2 #panel { width: var(--panel-w, 360px); } }   /* the new panel is a little wider unless the width was dragged */
+#props.v2 > h3 { display: none; }
+#props.v2 #propsBody { display: flex; flex-direction: column; gap: 10px; }
+#props.v2 .v2Gone { display: none; }
+.v2Crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.v2Crumbs button { padding: 3px 7px; border-radius: 8px; border: 0; background: var(--field); color: var(--muted); font: inherit; cursor: pointer; }
+.v2Crumbs button.last { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--text); cursor: default; opacity: 1; }
+.v2Crumbs i { font-style: normal; opacity: .55; }
+.v2Head { display: grid; grid-template-columns: 44px 1fr; gap: 2px 12px; align-items: center; padding: 12px; border-radius: 14px; background: var(--field); border: 1px solid var(--line); }
+.v2Head .ic { grid-row: span 2; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 24px; background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.v2Head > b { font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v2Head > small { color: var(--muted); font-size: 12px; font-weight: 600; }
+.v2Head .chips { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.v2Head .acts { grid-column: 1 / -1; display: flex; gap: 6px; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+.v2Head .acts button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; border-radius: 10px; font-size: 17px; border: 1px solid transparent;
+  background: color-mix(in srgb, var(--text) 5%, transparent); color: var(--text); cursor: pointer; }
+.v2Head .acts button small { font-size: 10.5px; color: var(--muted); }
+.v2Head .acts button.del small { color: #ff8a80; }
+.v2Head .acts button.on { border-color: #ffc400; }
+.v2Chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; background: color-mix(in srgb, var(--text) 7%, transparent);
+  border: 1px solid var(--line); white-space: nowrap; }
+.v2Chip.ok { background: rgba(70, 167, 88, .18); border-color: rgba(70, 167, 88, .6); }
+.v2Chip.warn { background: rgba(255, 196, 0, .15); border-color: rgba(255, 196, 0, .55); }
+.v2Top > .prop:last-child { margin-bottom: 0; }
+.v2Sec { border-radius: 12px; border: 1px solid var(--line); background: color-mix(in srgb, var(--text) 3%, transparent); }
+.v2Sec.open { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.v2Sec > .hd { display: flex; align-items: center; gap: 9px; width: 100%; padding: 10px 11px; border: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.v2Sec.open > .hd { border-bottom: 1px solid var(--line); }
+.v2Sec > .hd .i { font-size: 17px; width: 22px; text-align: center; flex: none; }
+.v2Sec > .hd b { font-size: 14px; flex: none; }
+.v2Sec > .hd .sum { flex: 1; min-width: 0; color: var(--muted); font-size: 12px; font-weight: 600; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v2Sec > .hd .chev { color: var(--muted); font-size: 12px; flex: none; }
+.v2Sec > .bd { padding: 10px 11px 4px; }
+.v2Sec > .bd > .prop:last-child, .v2TabBody > .prop:last-child { margin-bottom: 8px; }
+.v2Hint { margin: 4px 0 8px; color: var(--muted); font-size: 12px; }
+.v2WinBox { display: flex; justify-content: center; margin-bottom: 6px; }
+.v2WinBox svg { max-width: 100%; height: auto; }
+.v2Pane:hover rect:first-child { stroke: var(--accent); }
+.v2PaneMenu { display: flex; flex-direction: column; gap: 2px; padding: 8px; margin-bottom: 8px; border-radius: 12px; border: 1px solid #ffd45c; background: var(--field); }
+.v2PaneMenu h5 { margin: 0 0 4px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.v2Opt { display: flex; align-items: center; gap: 9px; padding: 7px 9px; border-radius: 9px; border: 0; background: transparent; color: var(--text); font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.v2Opt .ico { width: 20px; text-align: center; }
+.v2Opt.on { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.v2F { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.v2F > label { color: var(--muted); }
+.v2Seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 10px; background: var(--field); border: 1px solid var(--line); }
+.v2Seg.wide { display: flex; }
+.v2Seg button { flex: 1; padding: 4px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer; white-space: nowrap; }
+.v2Seg button.on { background: var(--accent); color: var(--accent-text); }
+.v2Grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 7px; margin-bottom: 8px; }
+.v2Tile { display: flex; flex-direction: column; padding: 0; border-radius: 10px; overflow: hidden; border: 2px solid transparent; background: var(--field); color: var(--text);
+  font: inherit; cursor: pointer; text-align: left; position: relative; }
+.v2Tile .pv { height: 56px; display: grid; place-items: center; background-size: cover; background-position: center; }
+.v2Tile .pv svg { max-height: 54px; width: auto; }
+.v2Tile .nm { font-size: 11px; font-weight: 700; padding: 4px 6px 5px; line-height: 1.2; }
+.v2Tile.on { border-color: var(--accent); }
+.v2Tile.on::after { content: '✓'; position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--accent-text);
+  display: grid; place-items: center; font-weight: 900; font-size: 11px; }
+.v2Tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); }
+.v2Tabs button { padding: 7px 10px 8px; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; background: transparent; color: var(--muted); font: inherit; font-weight: 700; cursor: pointer; }
+.v2Tabs button.on { color: var(--text); border-bottom-color: var(--accent); }
+.v2Floors { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.v2LevelBox { display: flex; justify-content: center; margin-bottom: 6px; }

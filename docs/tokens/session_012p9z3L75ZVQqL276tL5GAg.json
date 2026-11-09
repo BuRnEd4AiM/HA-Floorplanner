@@ -1,20 +1,20 @@
 {
  "session": "session_012p9z3L75ZVQqL276tL5GAg",
  "start": "2026-11-08",
- "updated": "2026-11-09T08:00:29Z",
+ "updated": "2026-11-09T08:31:49Z",
  "branch": "claude/sleepy-turing-w83zy6",
  "source": "counted",
- "input": 153,
- "cache_write": 890690,
- "cache_read": 18164690,
- "output": 110967,
+ "input": 326,
+ "cache_write": 1110397,
+ "cache_read": 61639227,
+ "output": 224922,
  "models": {
   "claude-opus-5-5": {
-   "input": 153,
-   "cache_write": 890690,
-   "cache_read": 18164690,
-   "output": 110967,
-   "requests": 81
+   "input": 326,
+   "cache_write": 1110397,
+   "cache_read": 61639227,
+   "output": 224922,
+   "requests": 167
   }
  }
 }

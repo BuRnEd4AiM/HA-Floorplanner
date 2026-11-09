@@ -74,6 +74,8 @@ export function initProps(ctx) {
     const d = selection?.kind === 'device' ? ctx.floor()?.devices.find((v) => v.id === selection.id) : null;
     el.textContent = d?.entity ? `${d.entity} · ${ctx.stateText(d.entity)}` : '';
   }
+  /** where the next fields belong in the new panel (4.73.0, uiv2.js): an invisible mark; the classic panel ignores it */
+  const mark = (body, key) => { const m = document.createElement('i'); m.className = 'v2mark'; m.dataset.sec = key; m.hidden = true; body.append(m); };
   const roomEntsBox = (body) => { const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts'; body.append(ents); ctx.renderRoomEntities(); };
   const pickFrom = (list) => list.slice(0, 1500);
 
@@ -91,6 +93,7 @@ export function initProps(ctx) {
     ctx.renderObjList();
     const box = $('#props'), body = $('#propsBody');
     body.innerHTML = '';
+    box.classList.remove('v2');
     const selection = ctx.selection();
     if (!selection || ctx.isLive()) { ctx.setRoomCtx(null); box.hidden = true; return; }
     const f = ctx.floor();
@@ -125,19 +128,22 @@ export function initProps(ctx) {
     if (selection.kind !== 'room') {                    // an object of the room picked from its list: the list stays below
       const rc = ctx.roomCtx(), rm = rc && f.rooms.find((r) => r.id === rc);
       const inRoom = rm && (selection.kind === 'device' ? ctx.pointInPoly(it.x, it.z, rm.points) : selection.kind === 'opening' && roomOpenings(rm, f).some((o) => o.id === it.id));
-      if (inRoom) roomEntsBox(body); else ctx.setRoomCtx(null);
+      if (inRoom) { mark(body, 'inroom'); roomEntsBox(body); } else ctx.setRoomCtx(null);
     }
+    mark(body, 'del');
     const del = document.createElement('button');
-    del.textContent = t('panel.delete');
+    del.textContent = t('panel.delete'); del.id = 'propsDelete';
     del.addEventListener('click', () => { ctx.snapshot(); ctx.deleteItem(ctx.selection()); });
     body.append(del);
+    ctx.v2?.(body, selection, it, !!multi);                     // the new panel orders the same fields (uiv2ui.js)
   }
 
   function wallProps(body, it) {
+    mark(body, 'wsize');
     body.append(field(t('prop.thickness'), lenInput(() => it.thickness, (v) => (it.thickness = Math.max(0.05, v)))));
     body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3, step: 0.1 })));
-    wallSplitBox(body, it);
-    finishUi.faceFields(body, it);                             // one side of this wall otherwise: an accent wall (#448)
+    mark(body, 'split'); wallSplitBox(body, it);
+    mark(body, 'finish'); finishUi.faceFields(body, it);                             // one side of this wall otherwise: an accent wall (#448)
   }
 
   /* split the wall at an exact distance from its start, or into equal parts (wallsplit.js); the first piece stays selected */
@@ -165,25 +171,30 @@ export function initProps(ctx) {
   }
 
   function roomProps(body, it) {
+    mark(body, 'general');
     roomNameFields(body, it, { t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(),   // its name: own, or a
       setStatus: (x) => ctx.setStatus(x), areas: () => ctx.areas(), layout: () => ctx.layout() });                             // Home Assistant area (roomnameui.js)
     // the floor (#427, #448): one colour, or parquet, herringbone, tiles, stone, carpet ... with its colour, size and angle (the walls below)
+    mark(body, 'floor');
     finishUi.floorFields(body, it, () => field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v), { id: 'roomColor' })));
+    mark(body, 'balcony');
     balconyFields(body, it, { t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), free: (id) => ctx.balconyFree?.(id) });   // a balcony / roof terrace (#646)
-    roomLevelFields(body, it, levelUi);                         // its floor higher or lower than the storey (#566)
-    finishUi.wallFields(body, it);
+    mark(body, 'level'); roomLevelFields(body, it, levelUi);    // its floor higher or lower than the storey (#566)
+    mark(body, 'walls'); finishUi.wallFields(body, it);
     ctx.setRoomCtx(it.id);
-    roomEntsBox(body);
+    mark(body, 'devices'); roomEntsBox(body);
   }
 
   function openingProps(body, it, f) {
     const { wall } = ctx.findOpening(it.id);
     const entities = ctx.entities(), rc = ctx.roomCtx(), dormer = !!wall.dormer;   // a dormer window: size and place come from the dormer (roof panel)
     const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p; };
+    mark(body, 'size');
     if (dormer) { const p = document.createElement('p'); p.className = 'sub'; p.id = 'dormerWinHint'; p.textContent = t(wall.skylight ? 'skylight.winHint' : 'dormer.winHint'); body.append(p); }   // a roof window (#643): set on the roof too
     if (!dormer) body.append(field(t('prop.width'), lenInput(() => it.width, (v) => { it.width = Math.max(MIN_OPENING, v); refit(); }, { min: MIN_OPENING })));
     if (!dormer) body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3 })));
     if (it.type === 'window' && !dormer) body.append(field(t('prop.sill'), lenInput(() => it.sill, (v) => (it.sill = v))));
+    mark(body, it.type === 'window' ? 'panesList' : 'style');   // the new panel draws the panes of a window as a picture (uiv2ui.js)
     if (it.type === 'window') {                            // the panes are set by count and a fixed tick: no style dropdown (it would duplicate the count)
       const fixed = document.createElement('input'); fixed.type = 'checkbox'; fixed.id = 'winFixed';
       fixed.checked = (it.style || 'double') === 'fixed';
@@ -247,13 +258,15 @@ export function initProps(ctx) {
       };
       if (nPanes <= 1) body.append(field(t('prop.hinge'), hingeSelect(0)));
       else for (let i = 0; i < nPanes; i++) body.append(field(`${t('pane.n', { n: i + 1 })} · ${t('prop.hinge')}`, hingeSelect(i)));
-      fixedGlassFields({ t, field, lenInput, toDisp: (m) => ctx.toDisp(m) }, body, it);   // fixed glass below / above the panes (#679)
+      mark(body, 'fixed'); fixedGlassFields({ t, field, lenInput, toDisp: (m) => ctx.toDisp(m) }, body, it);   // fixed glass below / above the panes (#679)
     }
+    mark(body, 'size');
     if (!dormer) body.append(field(t('prop.position'), lenInput(() => it.pos, (v) => {
       const p = clampOpeningPos(wall, it.width, v);
       if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p;
     })));
-    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    mark(body, 'top'); body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    mark(body, 'contact');
     const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
     const room = rc ? f.rooms.find((r) => r.id === rc) : null;
     body.append(pickerField(t('prop.contact'), ctx.entityPicker(pickFrom(contact.length ? contact : entities), room, it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
@@ -264,10 +277,12 @@ export function initProps(ctx) {
       tf.id = 'tiltContact'; tf.title = t('prop.tiltContactHint');
       const hint = document.createElement('p'); hint.className = 'sub'; hint.id = 'tiltContactHint'; hint.textContent = t('prop.tiltContactSub');
       body.append(tf, hint);
+      mark(body, 'more');
       tiltAngleField({ t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), preview: (id) => ctx.previewTilt(id),   // how far it tilts in 3D
         windows: () => ctx.allOpenings(), setStatus: (x) => ctx.setStatus(x) }, body, it);
     }
-    if (it.type === 'window') { rainProps(body, it); shutterProps(body, it, entities, room); }   // right under the contact: the rain warning (#419), the roller shutter (#331)
+    if (it.type === 'window') { mark(body, 'contact'); rainProps(body, it); mark(body, 'shutter'); shutterProps(body, it, entities, room); }
+    mark(body, 'contact');   // right under the contact: the rain warning (#419), the roller shutter (#331)
     const count = paneCount(it);
     if (count) {
       const h = document.createElement('h4'); h.textContent = t('pane.title'); body.append(h);
@@ -283,13 +298,14 @@ export function initProps(ctx) {
       }
     }
     if (it.type === 'door') {
+      mark(body, 'style');
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!it.flip;
       cb.addEventListener('change', () => { ctx.snapshot(); it.flip = cb.checked; ctx.changed(); });
       body.append(field(t('prop.flip'), cb));
       const ci = document.createElement('input'); ci.type = 'checkbox'; ci.checked = !!it.inv; ci.id = 'doorInv';
       ci.addEventListener('change', () => { ctx.snapshot(); it.inv = ci.checked; ctx.changed(); });
       body.append(field(t('prop.inv'), ci));
-      if (it.entity || (it.paneEntities || []).some(Boolean)) heatProps(body, it);
+      mark(body, 'contact'); if (it.entity || (it.paneEntities || []).some(Boolean)) heatProps(body, it);
     }
   }
 
@@ -340,30 +356,35 @@ export function initProps(ctx) {
 
   function deviceProps(body, it) {
     const entities = ctx.entities();
-    const bring = document.createElement('button'); bring.type = 'button'; bring.textContent = t('prop.bringHere');
+    mark(body, 'place');
+    const bring = document.createElement('button'); bring.type = 'button'; bring.textContent = t('prop.bringHere'); bring.id = 'devBring';
     bring.addEventListener('click', () => { ctx.snapshot(); const c = ctx.controlsTarget(); it.x = +c.x.toFixed(2); it.z = +c.z.toFixed(2); if (ctx.wallTypes.has(it.type)) ctx.snapToWall(it, 0.8); ctx.changed(); ctx.build(); ctx.refreshSelection(); });
     body.append(bring);
     const lk = document.createElement('input'); lk.type = 'checkbox'; lk.checked = !!it.locked; lk.id = 'devLock';
     lk.addEventListener('change', () => { ctx.snapshot(); if (lk.checked) it.locked = true; else delete it.locked; ctx.changed(); render(); ctx.renderObjList(); });
     const lkl = document.createElement('label'); lkl.className = 'chk'; lkl.append(lk, document.createTextNode(' ' + t('prop.lock')));
     body.append(lkl);
+    mark(body, 'look');
     if (canHideModel(it, { ledLike: ctx.ledLike, catOf: ctx.catOf })) {     // aesthetics: hide the model, keep the light / the presence dot at the top
       const hv = document.createElement('input'); hv.type = 'checkbox'; hv.checked = !!it.hideModel; hv.id = 'devHide';
       hv.addEventListener('change', () => { ctx.snapshot(); if (hv.checked) it.hideModel = true; else delete it.hideModel; ctx.changed(); ctx.applyStates(); });
       const hl = document.createElement('label'); hl.className = 'chk'; hl.title = t(it.type === 'presence' ? 'prop.hideModelPresenceHint' : 'prop.hideModelHint'); hl.append(hv, document.createTextNode(' ' + t(it.type === 'presence' ? 'prop.hideModelPresence' : 'prop.hideModel')));
       body.append(hl);
     }
+    mark(body, 'special');
     if (it.type === 'nanoleaf') {
       const eb = document.createElement('button'); eb.type = 'button'; eb.id = 'nanoEdit'; eb.textContent = '✎ ' + t('nano.edit');
       eb.addEventListener('click', () => { if (!it.locked) ctx.editNano(it); else ctx.setStatus(t('prop.lockedHint')); });
       body.append(eb);
     }
     if (it.type === 'closet') closetUi.props(body, it);
-    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    mark(body, 'top'); body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    mark(body, 'place');
     body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
     body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => { it.rot = ((+v % 360) + 360) % 360; }, { step: 15 })));
     body.append(field(t('prop.elev'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
+    mark(body, 'dsize');
     if (it.type !== 'closet') body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
     if (it.type !== 'picture' && it.type !== 'tv_arm' && it.type !== 'closet') {   // the TV on its arm: its size is chosen below (tvArmProps), a cabinet in its editor
       const base = ctx.baseDims(it.type, it);
@@ -378,11 +399,13 @@ export function initProps(ctx) {
         body.append(stretch('sx', t('prop.stretchX')), stretch('sy', t('prop.stretchY')), stretch('sz', t('prop.stretchZ')));
       }
     }
+    mark(body, 'tilt');
     const angle = (key) => inp('number', it[key] || 0, (v) => { const a = ((+v % 360) + 360) % 360; if (a) it[key] = a; else delete it[key]; }, { step: 15 });
     body.append(field(t('prop.tiltX'), angle('tiltX')), field(t('prop.tiltZ'), angle('tiltZ')));
     const cm = document.createElement('input'); cm.type = 'checkbox'; cm.checked = !!it.mirror; cm.id = 'devMirror';
     cm.addEventListener('change', () => { ctx.snapshot(); if (cm.checked) it.mirror = true; else delete it.mirror; ctx.changed(); });
     body.append(field(t('prop.mirror'), cm));
+    mark(body, 'look');
     if (variantChoices(it.type)) variantField(body, it);
     if (finishChoices(it.type)) finishField(body, it);
     if (it.type === 'picture') {
@@ -394,11 +417,13 @@ export function initProps(ctx) {
       body.append(field(t('pic.width'), lenInput(() => it.w || 0.6, (v) => (it.w = Math.max(0.1, v)), { min: 0.1 })));
       if (!it.img) { const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('pic.help'); body.append(hp); }
     }
+    mark(body, 'place');
     if (ctx.wallTypes.has(it.type)) {
       const sb = document.createElement('button'); sb.type = 'button'; sb.id = 'snapWall'; sb.textContent = t('pic.snap');
       sb.addEventListener('click', () => { ctx.snapshot(); ctx.snapToWall(it, 3, true); ctx.changed(); render(); });
       body.append(sb);
     }
+    mark(body, 'special');
     if (it.type === 'ledring') ringProps(body, it);
     if (it.type === 'kitchenrun') kitchenProps(body, it);
     if (it.type === 'solarpanel') solarProps(body, it);
@@ -406,12 +431,15 @@ export function initProps(ctx) {
     if (it.type === 'steps') stepsFields(body, it, levelUi);    // outdoor steps (#566)
     if (it.type === 'tv_arm') tvArmProps(body, it);
     if (ctx.power().isType(it.type)) ctx.power().deviceProps(body, it);
+    mark(body, 'entity');
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), ctx.entityPicker(pickFrom(entities), ctx.roomAt(it.x, it.z), it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
     if (wantsLightColor(it)) lightColorField(body, it);
     if (zoneKeys(it.type, it).length) zoneFields(body, it);
     if (it.type === 'camera') {                                  // #69: field of view cone on the floor
+      mark(body, 'special');
       body.append(field(t('cam.fov'), inp('number', it.fov ?? 90, (v) => { it.fov = Math.max(0, Math.min(180, +v || 0)); }, { step: 5, min: 0, max: 180 })));
       body.append(field(t('cam.range'), lenInput(() => it.range ?? 4, (v) => (it.range = Math.max(0.5, v)), { min: 0.5, step: 0.5 })));
+      mark(body, 'entity');
       body.append(pickerField(t('cam.motionSensor'), ctx.entityPicker(pickFrom(entities.filter((e) => e.domain === 'binary_sensor')), ctx.roomAt(it.x, it.z), it.motionEntity || '', (v) => { ctx.snapshot(); if (v) it.motionEntity = v; else delete it.motionEntity; ctx.changed(); })));
     }
     if (it.type === 'tv' || it.type === 'tv_wall' || it.type === 'tv_arm') {          // built-in backlight: shown behind the TV, shines into the room
