@@ -511,6 +511,12 @@ def _place_opening(rep: Report, path: str, walls: list, o: dict, spec: dict, ids
     return _put(rep, path, w, o, pos, ids)
 
 
+def _span(o: dict) -> tuple:
+    """the heights a door / window takes in its wall: (sill, sill + height) in m over the floor"""
+    s = float(o.get("sill") or 0)
+    return s, s + float(o.get("height") or 0)
+
+
 def _put(rep: Report, path: str, w: dict, o: dict, pos: float, ids) -> bool:
     length = math.hypot(w["b"][0] - w["a"][0], w["b"][1] - w["a"][1])
     half = o["width"] / 2
@@ -518,11 +524,17 @@ def _put(rep: Report, path: str, w: dict, o: dict, pos: float, ids) -> bool:
         rep.warn(path, f"wall is only {length:.2f} m long, a {o['width']} m {o['type']} does not fit: skipped")
         return True
     pos = max(half + EDGE, min(length - half - EDGE, pos))
+    lo, hi = _span(o)
     for e in w["openings"]:
         if abs(e["pos"] - pos) < (e["width"] + o["width"]) / 2:
-            rep.warn(path, "overlaps another opening on the same wall: skipped")
-            return True
+            e_lo, e_hi = _span(e)
+            if lo < e_hi - 1e-6 and e_lo < hi - 1e-6:   # one above the other is fine (#694): only when their heights overlap too
+                rep.warn(path, f"overlaps another opening on the same wall (also in height: {e_lo:g}–{e_hi:g} m and {lo:g}–{hi:g} m): skipped")
+                return True
     w["openings"].append({"id": ids("o"), **o, "pos": round(pos, 3)})
+    wall_h = float(w.get("height") or 0)
+    if wall_h and hi > wall_h + 1e-6:
+        rep.warn(path, f"reaches up to {hi:g} m, higher than its wall ({wall_h:g} m): give the wall a \"height\" (or building.wallHeight)")
     return True
 
 

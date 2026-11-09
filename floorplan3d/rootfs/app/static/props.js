@@ -22,6 +22,8 @@ import { balconyFields } from './balconyui.js';
 import { tiltAngleField } from './tiltui.js';
 import { fixedGlassFields } from './fixedglassui.js';
 import { roomNameFields } from './roomnameui.js';
+import { trySpan } from './openingstack.js';
+import { stackFields } from './openingstackui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -46,7 +48,8 @@ export function stretchValue(n) {
  *  defaultLightColor() (settings: the colour of a lamp that reports none), yardProps(body, box, sel) (the plot and its areas, plotui.js),
  *  closetRoof(d) (the roof slopes over a cabinet's floor and the height of its bottom: { planes, baseY } or null), balconyFree(id) (the room
  *  hangs free: a balcony, #646), previewTilt(id) (a window leans in for a moment: its tilt angle changed), allOpenings() (every door and
- *  window of the house), layout() (the open house: the rooms of every floor, roomnameui.js) */
+ *  window of the house), layout() (the open house: the rooms of every floor, roomnameui.js), select(sel) (selects that thing instead, e.g. the
+ *  window above a door, openingstackui.js), uid() */
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
@@ -196,15 +199,23 @@ export function initProps(ctx) {
     mark(body, 'devices'); roomEntsBox(body);
   }
 
+  let clash = null;                                            // { id, t }: the door / window whose height or sill was just refused (#694): its panel says why for a few seconds
   function openingProps(body, it, f) {
     const { wall } = ctx.findOpening(it.id);
     const entities = ctx.entities(), rc = ctx.roomCtx(), dormer = !!wall.dormer;   // a dormer window: size and place come from the dormer (roof panel)
-    const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p; };
+    const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id, it)) it.pos = p; };
     mark(body, 'size');
     if (dormer) { const p = document.createElement('p'); p.className = 'sub'; p.id = 'dormerWinHint'; p.textContent = t(wall.skylight ? 'skylight.winHint' : 'dormer.winHint'); body.append(p); }   // a roof window (#643): set on the roof too
     if (!dormer) body.append(field(t('prop.width'), lenInput(() => it.width, (v) => { it.width = Math.max(MIN_OPENING, v); refit(); }, { min: MIN_OPENING })));
-    if (!dormer) body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3 })));
-    if (it.type === 'window' && !dormer) body.append(field(t('prop.sill'), lenInput(() => it.sill, (v) => (it.sill = v))));
+    // height and sill: not into a door / window above or below it (#694, openingstack.js); refused, the fields show the old value again
+    // and a line under them says why (the status line would at once say "unsaved")
+    const span = (key, v) => {
+      if (trySpan(wall, it, key, v)) { clash = null; body.querySelector('#stackClash')?.remove(); return; }
+      clash = { id: it.id, t: performance.now() }; render();                     // (the panel may be drawn again right after: the line stays)
+    };
+    if (!dormer) body.append(field(t('prop.height'), Object.assign(lenInput(() => it.height, (v) => span('height', Math.max(0.3, v)), { min: 0.3 }), { id: 'opHeight' })));
+    if (it.type === 'window' && !dormer) body.append(field(t('prop.sill'), Object.assign(lenInput(() => it.sill, (v) => span('sill', v)), { id: 'opSill' })));
+    if (clash?.id === it.id && performance.now() - clash.t < 6000) { const p = document.createElement('p'); p.className = 'sub stackClash'; p.id = 'stackClash'; p.textContent = t('stack.clash'); body.append(p); }
     mark(body, it.type === 'window' ? 'panesList' : 'style');   // the new panel draws the panes of a window as a picture (uiv2ui.js)
     if (it.type === 'window') {                            // the panes are set by count and a fixed tick: no style dropdown (it would duplicate the count)
       const fixed = document.createElement('input'); fixed.type = 'checkbox'; fixed.id = 'winFixed';
@@ -274,8 +285,10 @@ export function initProps(ctx) {
     mark(body, 'size');
     if (!dormer) body.append(field(t('prop.position'), lenInput(() => it.pos, (v) => {
       const p = clampOpeningPos(wall, it.width, v);
-      if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p;
+      if (p !== null && !openingOverlaps(wall, p, it.width, it.id, it)) it.pos = p;
     })));
+    stackFields({ t, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), select: (s) => ctx.select(s), setStatus: (x) => ctx.setStatus(x),   // the one above / below,
+      uid: () => ctx.uid(), fmtLen: (m) => ctx.fmtLen(m) }, body, it, wall);                                                                             // a window above (#694)
     mark(body, 'top'); body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     mark(body, 'contact');
     const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));

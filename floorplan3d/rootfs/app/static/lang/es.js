@@ -2375,4 +2375,8 @@ export default {
   'rf.own': 'Guardar mi tejado', 'rf.ownSub': 'también para otra casa', 'rf.ownName': 'Nombre de este tejado:', 'rf.ownDefault': 'Mi tejado',
   'rf.ownKept': '⭐ «{n}» guardado', 'rf.ownDel': '¿Borrar «{n}»?',
   'rf.sec.steps': 'Escalones en el alero',
+  'stack.above': 'Encima', 'stack.below': 'Debajo', 'stack.add': 'Ventana encima',
+  'stack.addHint': 'Coloca encima una ventana del mismo ancho, con pared entre ambas (p. ej. una ventana alta sobre la puerta de la terraza). Tiene su propio contacto y su propia persiana.',
+  'stack.added': 'Ventana añadida encima: antepecho {sill}, altura {h}. Puedes cambiar ambos.',
+  'stack.clash': 'No es posible: chocaría con la puerta o ventana de encima o de debajo.',
 };

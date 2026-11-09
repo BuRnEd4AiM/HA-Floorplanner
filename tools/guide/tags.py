@@ -281,6 +281,14 @@ t("window-fixed",
   "window fixed below opens at the top floor-length window floor to ceiling window transom fixed light lower fixed pane "
   "only the top opens tilt at the top French window stacked panes two panes on top of each other horizontal bar mullion "
   "sidelight fixed glazing below glass balustrade")
+t("window-stacked",
+  "Fenster über der Tür Fenster über Terrassentür Oberlicht über Tür Fenster darüber Fenster darunter übereinander zwei Fenster übereinander "
+  "Öffnung über Öffnung gleiche Stelle hohe Wand hohe Decke Galerie Lichtband Oberlichtband Obergaden Kämpferfenster Sturz Wand dazwischen "
+  "zweiter Rollladen eigener Rollladen KNX Jalousie oben Brüstung hoch hochliegendes Fenster überschneidet sich Öffnung übersprungen "
+  "overlaps another opening skipped wie setze ich ein Fenster über die Tür",
+  "window above the door window over the terrace door transom over a door window above window below stacked two windows on top of each other "
+  "opening above opening same place high wall high ceiling gallery clerestory ribbon window high window lintel wall in between "
+  "second roller shutter own shutter KNX blind at the top high sill overlaps another opening skipped how do I put a window above a door")
 t("ui-v2",
   "neue Oberfläche neue Leiste Version 2 neues Design neues Aussehen aufgeräumt übersichtlich zu viele Einstellungen zu unübersichtlich "
   "einklappen ausklappen zuklappen Abschnitte Reiter Tabs alt neu umschalten klassisch zurück zur alten Ansicht Bearbeiten-Leiste rechts "

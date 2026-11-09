@@ -16,7 +16,7 @@ REGELN
 - Alle Längen in Metern. x geht nach rechts (Osten), z nach unten (Süden), Norden ist oben. Ursprung (0,0) ist die linke obere Außenecke des Gebäudes.
 - Gebäude: "building" mit "footprint" (Außenumriss als Liste von [x,z]-Punkten, Wand-Mittellinie, ohne den ersten Punkt am Ende zu wiederholen) und "floors" (Liste von Etagen, kind: "floor" | "basement" | "roof"). Alle Etagen nutzen dasselbe Koordinatensystem.
 - Räume: pro Etage "rooms": [{ "name", "points": [[x,z],...] }]. Räume überlappen nicht, grenzen lückenlos aneinander und teilen sich Eckpunkte mit IDENTISCHEN Koordinaten. Die Wände werden automatisch aus Umriss und Räumen erzeugt - gib keine "walls" an.
-- Türen und Fenster: pro Etage "openings": [{ "preset": "...", "at": [x,z] }]; "at" ist ein Punkt auf der Wand (Mitte der Öffnung). Optional width, height, sill (Brüstung), entity (Kontaktsensor).
+- Türen und Fenster: pro Etage "openings": [{ "preset": "...", "at": [x,z] }]; "at" ist ein Punkt auf der Wand (Mitte der Öffnung). Optional width, height, sill (Brüstung), entity (Kontaktsensor). Zwei Öffnungen an derselben Stelle nur übereinander, wenn sich ihre Höhen (sill bis sill + height) nicht überschneiden (z. B. ein hohes Fenster über der Terrassentür, "at" gleich).
   Presets: ${presets.join(', ')}
 - Möbel, Lampen, Sensoren: pro Etage "devices": [{ "type", "x", "z", "rot" (Grad), "y" (Höhe in m, optional), "name", "entity" }]. Nur diese Typen: ${types.join(', ')}
 - Treppen (optional): pro Etage "stairs": [{ "type": "straight|L|U|spiral|wall", "x", "z", "rot" (Grad), "w" (Breite m), "floors" (1-6 Etagen), "dir": "up|down" }]. Wandtreppe ("wall") zusätzlich "path": [[0,0],[x,z],...] entlang der Wand (jeder Knick ein Podest).
@@ -36,7 +36,7 @@ RULES
 - All lengths in metres. x runs right (east), z runs down (south), north is up. Origin (0,0) is the top-left outer corner of the building.
 - Building: "building" with "footprint" (outer outline as a list of [x,z] points, wall centre line, do not repeat the first point at the end) and "floors" (list of floors, kind: "floor" | "basement" | "roof"). All floors use the same coordinate system.
 - Rooms: per floor "rooms": [{ "name", "points": [[x,z],...] }]. Rooms do not overlap, touch without gaps and share corner points with IDENTICAL coordinates. Walls are generated automatically from the outline and the rooms - do not give "walls".
-- Doors and windows: per floor "openings": [{ "preset": "...", "at": [x,z] }]; "at" is a point on the wall (centre of the opening). Optional width, height, sill, entity (contact sensor).
+- Doors and windows: per floor "openings": [{ "preset": "...", "at": [x,z] }]; "at" is a point on the wall (centre of the opening). Optional width, height, sill, entity (contact sensor). Two openings at the same place only one above the other, when their heights (sill to sill + height) do not overlap (e.g. a high window over the terrace door, same "at").
   Presets: ${presets.join(', ')}
 - Furniture, lamps, sensors: per floor "devices": [{ "type", "x", "z", "rot" (degrees), "y" (height in m, optional), "name", "entity" }]. Only these types: ${types.join(', ')}
 - Stairs (optional): per floor "stairs": [{ "type": "straight|L|U|spiral|wall", "x", "z", "rot" (degrees), "w" (width m), "floors" (1-6 floors), "dir": "up|down" }]. A wall stair ("wall") also needs "path": [[0,0],[x,z],...] along the wall (every bend is a landing).

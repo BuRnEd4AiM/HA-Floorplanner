@@ -5,6 +5,7 @@ import { mergeParts } from './meshmerge.js';
 import { windowPanes, paneHinge, glassBands } from './windowpanes.js';
 import { tiltAngle } from './windowtilt.js';
 import { sashParts } from './sash.js';
+import { blocked, solidParts } from './openingstack.js';
 
 /* Wall geometry with real openings (doors/windows).
  * Wall data: { id, a:[x,z], b:[x,z], thickness, height, openings:[{id,type,pos,width,height,sill}] }
@@ -57,8 +58,10 @@ export function clampOpeningPos(w, width, pos) {
   return Math.min(Math.max(pos, Math.min(half, len / 2)), Math.max(len - half, len / 2));
 }
 
-export function openingOverlaps(w, pos, width, ignoreId) {
-  return (w.openings || []).some((o) => o.id !== ignoreId && Math.abs(o.pos - pos) < (o.width + width) / 2 + 0.02);
+/** is the place `width` wide at `pos` on wall w taken by another door / window than ignoreId? With `span` (the opening, or { sill,
+ *  height }) one above the other is fine when their heights do not overlap (#694, openingstack.js); without it any opening there takes it */
+export function openingOverlaps(w, pos, width, ignoreId, span) {
+  return blocked(w, pos, width, ignoreId, span);
 }
 
 function boxMesh(x0, x1, y0, y1, depth, material) {
@@ -332,21 +335,16 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
   };
 
   const half = len / 2;
-  let cursor = -half - t / 2;
+  // the wall before, below and above each opening; between two openings one above the other too (#694, openingstack.js)
+  solidParts(len, t, H, openings).forEach((p) => solid(p.x0, p.x1, p.y0, p.y1));
   for (const o of openings) {
     const c = o.pos - half;
-    const x0 = c - o.width / 2, x1 = c + o.width / 2;
-    solid(cursor, x0, 0, H);                              // wall before the opening
-    solid(x0, x1, o.sill + o.height, H);                  // above
-    if (o.sill > 0) solid(x0, x1, 0, o.sill);             // below (windows)
-    cursor = x1;
     if (!low) {
       const og = buildOpening({ ...o }, t, o.type === 'window' ? winMats : mats, low, shutterMat, shutterSide && (hasShutter(o) || o.type === 'window') ? shutterSide(o) : 1, curtainMat);
       og.position.x = c;
       group.add(og);
     }
   }
-  solid(cursor, half + t / 2, 0, H);
   if (dress && pieces.length) dress(group, pieces, len);
   mergeParts(group);                                     // the pieces round the openings in one mesh (the doors and windows stay apart)
   return group;

@@ -462,7 +462,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 175. Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten (#686, #687, #689, #690) | 4 | 0 | 4 | 0 | 175.3, 175.4, 175.7, 175.8 |
 | 176. Verbessert in 5.2.3: ⛰ Keller halb aus der Erde (#691) | 4 | 0 | 2 | 0 | 176.5, 176.6 |
 | 177. Repariert in 5.2.4: Backup einspielen ohne Größengrenze (#693) | 3 | 0 | 2 | 0 | 177.3, 177.4 |
-| **Zusammen** | **1147** | **1** | **92** | **92** | |
+| 178. Neu in 5.3.0: 🪟 zwei Türen oder Fenster übereinander (#694) | 4 | 0 | 5 | 0 | 178.5 bis 178.9 |
+| **Zusammen** | **1151** | **1** | **97** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2734,3 +2735,18 @@ Gemeldet vom Besitzer am 2026-11-09 mit einem Bild: „Backup einspielen…“ z
 | 177.2a | Browser-Test Teil `03_houses` | „Backup einspielen…“ über die Seite (neue Route) spielt das Backup ein, der Plan und die Pinnwand kommen zurück | ✅ (2026-11-09, Claude, 135/135) |
 | 177.3 | Nach dem Merge im Add-on (Beta, 5.2.4): ⚙ → „Backup & Sicherheit“ → „Backup einspielen…“ mit derselben Datei wie auf dem Bild | „Backup eingespielt: … Häuser“, die Seite lädt neu, Häuser, Bilder und Modelle sind da | ❓ |
 | 177.4 | Nach dem Merge im Add-on (Beta): ein 3D-Modell oder ein Bild hochladen, eine Einstellung ändern, einen Raum verschieben | Alles speichert wie vorher (der Supervisor reicht jetzt jede Anfrage durch, statt sie erst einzulesen) | ❓ |
+
+## 178. Neu in 5.3.0: 🪟 zwei Türen oder Fenster übereinander (#694)
+Gefragt von ChrisSN86 am 2026-11-09 (#694): in seinem höheren Mittelteil (etwa 3,60 m) sitzt über jeder Terrassentür und über dem Küchenfenster ein eigenes, hoch liegendes Fenster gleicher Breite, mit Wand dazwischen, jedes mit eigenem Rollladen (KNX). Bisher verwarf der Import und der Editor die zweite Öffnung an derselben Stelle. Jetzt dürfen zwei übereinander sitzen, wenn sich ihre Höhen nicht überschneiden.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 178.1 | Unit-Test `openingstack.test.mjs`, Import-Tests `test_openings_one_above_the_other_are_kept`, `test_opening_above_its_wall_is_warned` | Übereinander geht, nebeneinander bleiben 2 cm Wand; die Wandteile nebeneinander wie vorher, übereinander bleibt die Wand dazwischen; der Import behält Tür und Fenster darüber mit je eigenem Rollladen | ✅ (2026-11-09, Claude) |
+| 178.2 | Browser-Test Teil `82_stacked_openings` | „＋ Fenster darüber“ bei einer Tür in einer Wand von 3,80 m; das neue Fenster 25 cm über der Tür, gleiche Breite; Brüstung 2,95 / Höhe 0,65; tiefer in die Tür wird abgelehnt mit einer Zeile; im 3D-Bild Wand zwischen Tür und Fenster; „⇅ Darunter / Darüber“; im 2D-Plan oben gestrichelt, zweiter Klick wählt das andere | ✅ (2026-11-09, Claude, 16/16) |
+| 178.3 | Browser-Test Teile `02_tools`, `20_editing`, `27_finishes`, `78_fixed_glass`, `79_ui_v2`, `80_ui_v2_more` | Nichts anderes hat sich geändert (Türen und Fenster setzen, verschieben, kopieren, Wandbeläge, Fensterarten, Übernehmen) | ✅ (2026-11-09, Claude) |
+| 178.4 | Video „Fenster über der Tür“ probeweise aufnehmen (deutsch und englisch) | Tür anklicken, „＋ Fenster darüber“, Brüstung 2,95 und Höhe 0,65, „Geht nicht“, „⇅ Darunter“, im 2D-Plan gestrichelt und zweiter Klick | ✅ (2026-11-09, Claude, beide Sprachen) |
+| 178.5 | Demo: ⚙ → Wandhöhe 3,80 m, dann eine Tür anklicken | In den Eigenschaften steht „＋ Fenster darüber“; antippen setzt ein Fenster gleicher Breite darüber, im 3D-Bild mit Wand dazwischen | ❓ |
+| 178.6 | Demo: beim neuen Fenster „Brüstung“ auf 1 setzen | Geht nicht: der alte Wert bleibt, darunter steht „Geht nicht: so stößt es an …“ | ❓ |
+| 178.7 | Demo, 2D-Plan: die Tür anklicken, dann noch einmal auf dieselbe Stelle | Das Fenster darüber ist gestrichelt; der zweite Klick wählt das Fenster, ein dritter wieder die Tür | ❓ |
+| 178.8 | Nach dem Merge im Add-on (Beta): eine echte Wand höher machen (Wand anklicken → Höhe), Tür/Fenster darunter → „＋ Fenster darüber“, beiden je einen Rollladen geben | Beide Rollläden haben ihre eigene Kugel und bewegen sich getrennt; in der Live-Ansicht öffnet ein Tippen auf die obere bzw. untere Kugel den richtigen Rollladen | ❓ |
+| 178.9 | Nach dem Merge in der Anleitung: Video „Fenster über der Tür“, Suche „Fenster über der Tür“ | Die Suche findet das Video | ❓ |

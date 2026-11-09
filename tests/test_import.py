@@ -86,6 +86,27 @@ def test_overlapping_openings_are_skipped():
     assert summary["openings"] == 1 and any("overlaps" in w["message"] for w in rep.warnings)
 
 
+def test_openings_one_above_the_other_are_kept():
+    # #694 (ChrisSN86): a terrace door 1.60 x 2.20 m and a window of the same width above it from 2.95 m, each with its own roller shutter
+    f = {"schemaVersion": 1, "building": {"wallHeight": 3.8, "floors": [{"name": "EG", "kind": "floor",
+         "rooms": [{"points": [[0, 0], [6, 0], [6, 4], [0, 4]]}],
+         "openings": [{"preset": "windowTall", "at": [3, 0], "width": 1.6, "height": 2.2, "shutterEntity": "cover.jalousie_terrasse_links"},
+                      {"preset": "window", "at": [3, 0], "width": 1.6, "height": 0.65, "sill": 2.95, "shutterEntity": "cover.lichterbereich_terrasse_links"},
+                      {"preset": "window", "at": [3.2, 0], "width": 1.6, "sill": 2, "height": 0.8}]}]}}
+    layout, _, rep, summary = importer.build_layout(f)
+    assert not rep.errors and summary["openings"] == 2, rep.warnings
+    ops = sorted((o for w in layout["floors"][0]["walls"] for o in w["openings"]), key=lambda o: o["sill"])
+    assert [(o["pos"], o["sill"], o["height"], o["shutterEntity"]) for o in ops] == [
+        (3, 0, 2.2, "cover.jalousie_terrasse_links"), (3, 2.95, 0.65, "cover.lichterbereich_terrasse_links")]
+    assert len(rep.warnings) == 1 and "also in height" in rep.warnings[0]["message"], "the third runs into both: skipped"
+
+
+def test_opening_above_its_wall_is_warned():
+    f = square_flat(rooms=[{"points": [[0, 0], [6, 0], [6, 3], [0, 3]]}], openings=[{"preset": "window", "at": [3, 0], "sill": 2.5, "height": 0.6}])
+    _, _, rep, summary = importer.build_layout(f)
+    assert summary["openings"] == 1 and any("higher than its wall (2.6 m)" in w["message"] for w in rep.warnings)
+
+
 def test_errors_carry_json_paths():
     bad = square_flat(rooms=[{"name": "bow tie", "points": [[0, 0], [4, 3], [4, 0], [0, 3]]}, {"points": [[0, 0], [1, 1]]}])
     layout, _, rep, _ = importer.build_layout(bad)

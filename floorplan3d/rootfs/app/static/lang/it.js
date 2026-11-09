@@ -2368,4 +2368,8 @@ export default {
   'rf.tplSub.canopy': 'falda sopra la porta', 'rf.tplDone': '✓ {n} – ↶ annulla', 'rf.own': 'Salva il mio tetto', 'rf.ownSub': 'anche per un’altra casa',
   'rf.ownName': 'Nome di questo tetto:', 'rf.ownDefault': 'Il mio tetto', 'rf.ownKept': '⭐ «{n}» salvato', 'rf.ownDel': 'Eliminare «{n}»?',
   'rf.sec.steps': 'Gradini nella gronda',
+  'stack.above': 'Sopra', 'stack.below': 'Sotto', 'stack.add': 'Finestra sopra',
+  'stack.addHint': 'Mette sopra una finestra della stessa larghezza, con del muro in mezzo (p. es. una finestra alta sopra la porta finestra). Ha un proprio contatto e una propria tapparella.',
+  'stack.added': 'Finestra aggiunta sopra: davanzale {sill}, altezza {h}. Puoi modificarli.',
+  'stack.clash': 'Non possibile: toccherebbe la porta o la finestra sopra o sotto.',
 };
