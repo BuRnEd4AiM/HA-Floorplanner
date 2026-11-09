@@ -160,9 +160,20 @@ window.mkV2 = (() => {
 
   // ---------- a window drawn from the front, like in a window catalogue ----------
   // panes: t = 'dk' (Dreh-Kipp), 'd' (only turns), 'k' (only tilts), 'f' (fixed); g = hinge side 'l' / 'r'
-  function winSvg({ w = 1.2, hh = 1.2, panes = [{ t: 'dk', g: 'l' }, { t: 'dk', g: 'r' }], below = 0, px = 150, sel = -1, dims = false, sill = null, lbl = false }) {
+  // how a pane shows how it opens (wish of 2026-11-09: the dashed lines are "seltsam"): 'lines' (window catalogue), 'chips' (a label
+  // under each pane), 'open' (drawn half open), 'icons' (a small sign in the pane), 'plain' (glass and handle only)
+  let LOOK = 'lines';
+  const NAME = { dk: 'Dreh-Kipp', d: 'Drehen', k: 'Kippen', f: 'fest' };
+  function icon(t, cx, cy) {     // a small round sign: turn = curved arrow, tilt = arrow down into the room, fixed = lock
+    const c = '#1d3550', st = `stroke="${c}" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"`;
+    const g = (body) => `<g transform="translate(${cx} ${cy})"><circle r="17" fill="#fff" stroke="#c4d0dc" stroke-width="1.5"/>${body}</g>`;
+    if (t === 'd') return g(`<path d="M-8 5 A9 9 0 1 1 6 6" ${st}/><path d="M6 6 l1 -6 M6 6 l-6 1" ${st}/>`);
+    if (t === 'k') return g(`<path d="M-8 -8 L-1 8 M-1 8 h9" ${st}/><path d="M-1 8 l-1 -6 M-1 8 l4 -4" ${st}/>`);
+    return g(`<rect x="-7" y="-2" width="14" height="11" rx="2" fill="${c}"/><path d="M-4 -2 v-4 a4 4 0 0 1 8 0 v4" ${st}/>`);
+  }
+  function winSvg({ w = 1.2, hh = 1.2, panes = [{ t: 'dk', g: 'l' }, { t: 'dk', g: 'r' }], below = 0, px = 150, sel = -1, dims = false, sill = null, lbl = false, look = LOOK }) {
     const H = px, W = Math.round(px * w / hh), pad = dims ? 34 : 6, F = 7, padL = sill != null ? 44 : pad;
-    const VW = W + pad + padL, VH = H + pad * 2 + (sill != null ? 26 : 0);
+    const chipH = look === 'chips' || look === 'open' ? 30 : 0, VW = W + pad + padL, VH = H + pad * 2 + (sill != null ? 26 : 0) + chipH;
     const bandH = below ? Math.round(H * below / hh) : 0;
     let s = `<svg viewBox="${pad - padL} 0 ${VW} ${VH}" width="${VW}" height="${VH}" style="display:block;margin:0 auto;overflow:visible;max-width:100%;height:auto">
       <defs><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9fd3ff" stop-opacity=".55"/><stop offset="1" stop-color="#5d8fc4" stop-opacity=".35"/></linearGradient></defs>
@@ -171,18 +182,47 @@ window.mkV2 = (() => {
     panes.forEach((p, i) => {
       const x = pad + F + i * pw + 2, y = top + 2, ww = pw - 4, hh2 = inH - 4;
       const on = i === sel;
-      s += `<rect x="${x}" y="${y}" width="${ww}" height="${hh2}" fill="url(#gl)" stroke="${on ? '#ffd45c' : '#c4d0dc'}" stroke-width="${on ? 4 : 3}"/>`;
-      const dash = 'stroke="#2c4a66" stroke-width="1.6" stroke-dasharray="6 4" fill="none"';
-      if (p.t === 'd' || p.t === 'dk') {
-        s += p.g === 'l' ? `<polyline points="${x + ww},${y} ${x},${y + hh2 / 2} ${x + ww},${y + hh2}" ${dash}/>` : `<polyline points="${x},${y} ${x + ww},${y + hh2 / 2} ${x},${y + hh2}" ${dash}/>`;
+      const stroke = `stroke="${on ? '#ffd45c' : '#c4d0dc'}" stroke-width="${on ? 4 : 3}"`;
+      const handle = () => {       // on the side opposite the hinge (only tilting: on top)
+        if (p.t === 'f') return '';
+        if (p.t === 'k') return `<rect x="${x + ww / 2 - 8}" y="${y + 4}" width="16" height="5" rx="2" fill="#4b5d70"/>`;
+        const hx = p.g === 'l' ? x + ww - 9 : x + 4; return `<rect x="${hx}" y="${y + hh2 / 2 - 9}" width="5" height="18" rx="2" fill="#4b5d70"/>`;
+      };
+      if (look === 'open' && p.t !== 'f') {
+        s += `<rect x="${x}" y="${y}" width="${ww}" height="${hh2}" fill="#2b3946" ${stroke}/>`;   // the hole behind the open pane
+        if (p.t === 'k') {         // tilted: the top comes into the room
+          const d = ww * 0.12;
+          s += `<polygon points="${x + d},${y + hh2 * 0.14} ${x + ww - d},${y + hh2 * 0.14} ${x + ww},${y + hh2} ${x},${y + hh2}" fill="#bfe0fb" stroke="#c4d0dc" stroke-width="3"/>
+            <rect x="${x + ww / 2 - 8}" y="${y + hh2 * 0.14 + 4}" width="16" height="5" rx="2" fill="#4b5d70"/>`;
+        } else {                   // turned: the free side swings into the room
+          const fx = p.g === 'l' ? x + ww * 0.62 : x + ww * 0.38, hx = p.g === 'l' ? x : x + ww;
+          s += `<polygon points="${hx},${y} ${fx},${y - hh2 * 0.06} ${fx},${y + hh2 * 1.06} ${hx},${y + hh2}" fill="#bfe0fb" stroke="#c4d0dc" stroke-width="3"/>
+            <rect x="${p.g === 'l' ? fx - 8 : fx + 3}" y="${y + hh2 / 2 - 9}" width="5" height="18" rx="2" fill="#4b5d70"/>`;
+        }
+      } else {
+        s += `<rect x="${x}" y="${y}" width="${ww}" height="${hh2}" fill="url(#gl)" ${stroke}/>`;
+        if (look === 'lines') {
+          const dash = 'stroke="#2c4a66" stroke-width="1.6" stroke-dasharray="6 4" fill="none"';
+          if (p.t === 'd' || p.t === 'dk') {
+            s += p.g === 'l' ? `<polyline points="${x + ww},${y} ${x},${y + hh2 / 2} ${x + ww},${y + hh2}" ${dash}/>` : `<polyline points="${x},${y} ${x + ww},${y + hh2 / 2} ${x},${y + hh2}" ${dash}/>`;
+          }
+          if (p.t === 'k' || p.t === 'dk') s += `<polyline points="${x},${y} ${x + ww / 2},${y + hh2} ${x + ww},${y}" ${dash}/>`;
+          if (p.t === 'f') s += `<text x="${x + ww / 2}" y="${y + hh2 / 2 + 5}" text-anchor="middle" font-size="14" font-weight="800" fill="#2c4a66">fest</text>`;
+        } else if (look === 'icons') {
+          const cx = x + ww / 2, cy = y + hh2 / 2;
+          if (p.t === 'dk') s += icon('d', cx, cy - 20) + icon('k', cx, cy + 20); else s += icon(p.t, cx, cy);
+        } else if (look === 'open') {
+          s += `<text x="${x + ww / 2}" y="${y + hh2 / 2 + 5}" text-anchor="middle" font-size="13" font-weight="800" fill="#2c4a66">fest</text>`;
+        }
+        s += handle();
       }
-      if (p.t === 'k' || p.t === 'dk') s += `<polyline points="${x},${y} ${x + ww / 2},${y + hh2} ${x + ww},${y}" ${dash}/>`;
-      if (p.t === 'f') s += `<text x="${x + ww / 2}" y="${y + hh2 / 2 + 5}" text-anchor="middle" font-size="14" font-weight="800" fill="#2c4a66">fest</text>`;
-      if (p.t !== 'f') {   // the handle on the side opposite the hinge (only tilting: on top)
-        if (p.t === 'k') s += `<rect x="${x + ww / 2 - 8}" y="${y + 4}" width="16" height="5" rx="2" fill="#4b5d70"/>`;
-        else { const hx = p.g === 'l' ? x + ww - 9 : x + 4; s += `<rect x="${hx}" y="${y + hh2 / 2 - 9}" width="5" height="18" rx="2" fill="#4b5d70"/>`; }
+      if (look === 'chips') {
+        const t = NAME[p.t], cw = t.length * 7.4 + 16, cx = x + ww / 2, cy = pad + H + 8;
+        s += `<rect x="${cx - cw / 2}" y="${cy}" width="${cw}" height="21" rx="10.5" fill="${p.t === 'f' ? '#3a4552' : '#3fa9f5'}"/>
+          <text x="${cx}" y="${cy + 15}" text-anchor="middle" font-size="12" font-weight="800" fill="${p.t === 'f' ? '#dfe7ef' : '#04121f'}">${t}</text>`;
       }
-      if (lbl) s += `<text x="${x + ww / 2}" y="${y + hh2 - 8}" text-anchor="middle" font-size="11" font-weight="800" fill="#1d3550">${{ dk: 'Dreh-Kipp', d: 'Dreh', k: 'Kipp', f: '' }[p.t]}</text>`;
+      if (look === 'open') s += `<text x="${x + ww / 2}" y="${pad + H + 22}" text-anchor="middle" font-size="12" font-weight="700" fill="#9fb3c8">${{ dk: 'dreht + kippt', d: 'dreht', k: 'kippt', f: 'fest' }[p.t]}</text>`;
+      if (lbl && look === 'lines') s += `<text x="${x + ww / 2}" y="${y + hh2 - 8}" text-anchor="middle" font-size="11" font-weight="800" fill="#1d3550">${{ dk: 'Dreh-Kipp', d: 'Dreh', k: 'Kipp', f: '' }[p.t]}</text>`;
     });
     if (bandH) {
       const y = pad + H - F - bandH;
@@ -686,5 +726,28 @@ window.mkV2 = (() => {
     }, 500);
   }
 
-  return { ueberblick, umschalten, fensterBild, vorlagen, noppel, kontextleiste, raumBoden, vorherNachher, struktur, etage, werkzeuge, suche, uebernehmen, geraet, kontextReiter, handy };
+  // 17 the window without the dashed lines: which look?
+  function fensterLook() {
+    const panes = [{ t: 'dk', g: 'l' }, { t: 'f' }, { t: 'k' }];
+    const card = (k, name, txt, look, old) => `<div style="flex:1;min-width:0;background:var(--panel);border:2px solid ${old ? 'var(--line)' : '#b48cff'};border-radius:18px;padding:16px;
+      display:flex;flex-direction:column;gap:12px;${old ? 'filter:saturate(.4) brightness(.75)' : ''}">
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font:900 24px system-ui;
+        background:${old ? 'var(--field)' : '#b48cff'};color:${old ? 'var(--muted)' : '#1a0f2e'}">${k}</span><b style="font-size:17px">${name}</b></div>
+      <div style="height:250px;display:grid;place-items:center;background:rgba(255,255,255,.03);border-radius:12px">${winSvg({ w: 1.8, hh: 1.2, px: 150, panes, look })}</div>
+      <div class="v2Hint" style="font-size:13.5px;color:var(--text);line-height:1.45">${txt}</div></div>`;
+    const ov = h(`<div style="position:fixed;inset:0;z-index:91;background:rgba(5,9,14,.9);display:flex;flex-direction:column;gap:18px;padding:110px 28px 28px;color:var(--text)">
+      <div style="text-align:center;font-size:16px;font-weight:700;color:var(--muted)">Dasselbe Fenster mit drei Flügeln: links <b style="color:var(--text)">Dreh-Kipp</b>, Mitte <b style="color:var(--text)">fest</b>, rechts <b style="color:var(--text)">nur kippen</b></div>
+      <div style="display:flex;gap:16px;align-items:stretch">
+      ${card('–', 'bisher (Bild 3)', 'Gestrichelte Linien wie im Fensterkatalog: die Spitze zeigt zum Scharnier. Für Laien schwer zu lesen.', 'lines', true)}
+      ${card('A', 'Schildchen', 'Nur Glas und Griff. Unter jedem Flügel steht in Worten, wie er aufgeht. Blau = geht auf, grau = fest.', 'chips')}
+      ${card('B', 'Halb offen', 'Jeder Flügel ist so gezeichnet, wie er offen aussieht: zur Seite gedreht oder oben gekippt. Wie im 3D-Bild.', 'open')}
+      ${card('C', 'Kleine Zeichen', 'Ein rundes Zeichen im Glas: ↻ drehen, ↘ kippen, 🔒 fest. Dreh-Kipp hat beide.', 'icons')}
+      ${card('D', 'Ganz schlicht', 'Nur Glas und Griff. Wie der Flügel aufgeht, steht erst nach dem Antippen im kleinen Menü (wie Bild 3).', 'plain')}
+      </div></div>`);
+    lay().append(ov);
+    title('⑰', 'Fenster ohne Striche', 'welche Darstellung?', 30);
+  }
+  const setLook = (x) => { LOOK = x; };
+
+  return { fensterLook, setLook, ueberblick, umschalten, fensterBild, vorlagen, noppel, kontextleiste, raumBoden, vorherNachher, struktur, etage, werkzeuge, suche, uebernehmen, geraet, kontextReiter, handy };
 })();

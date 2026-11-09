@@ -28,6 +28,7 @@ PICS = [
     ("14-geraet", "geraet", "room"),
     ("15-reiter-oben", "kontextReiter", "near"),
     ("16-handy", "handy", "phone"),
+    ("17-fenster-look", "fensterLook", None),   # 2026-11-09: the dashed lines are "seltsam", which look instead?
 ]
 CAMS = {  # x, y, z, target x, target z (the living room is x 0..6, z 0..4.5 on the ground floor, the window o1 at x 1.6 on z = 0)
     "near": (7.5, 9.5, 10.5, 2.0, 0.5),
