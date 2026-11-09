@@ -60,7 +60,7 @@ export function pasteInto(f, clip, uid) {
   for (const { kind, obj } of clip.things) {
     const o = shifted(kind, structuredClone(obj), d, d);
     o.id = ids.get(obj.id);
-    delete o.locked;
+    delete o.locked; delete o.lockOpts;                              // a copy is free to move (a locked room's lock, 5.1.0)
     if (kind === 'wall') o.openings = (o.openings || []).map((op) => ({ ...op, id: uid() }));
     if (kind === 'device' && ids.has(o.room)) o.room = ids.get(o.room);   // an LED ring copied with its room follows the copied room
     f[LISTS[kind]] = [...(f[LISTS[kind]] || []), o];

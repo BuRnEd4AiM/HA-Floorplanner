@@ -9,7 +9,7 @@ import { treeRows, FLOOR_ICON, storeySvg } from './uiv2more.js';
 
 /** ctx: $, t, mode() ('v2' / 'classic'), isLive(), selection(), tool(), layout(), floorIdx(), switchFloor(i), select(sel), houses() [{ id,
  *  name }], houseId(), switchHouse(id), addFloorOf(kind), moveFloorTo(from, to), renderFloorPanel(), storeyText() (the storey height as
- *  shown), fmtArea(m2) */
+ *  shown), fmtArea(m2), roomLock (the locks of rooms, floors and the plan, roomlockui.js), roofEdit (the roof editor, roofeditui.js) */
 export function initUiV2Home(ctx) {
   const { $, t } = ctx;
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -43,6 +43,7 @@ export function initUiV2Home(ctx) {
     });
     box.append(segs);
     if (seg !== 'house') return;
+    if (ctx.roomLock) box.append(ctx.roomLock.planBox());      // „🔒 Grundriss fertig“ (5.1.0, roomlockui.js)
     box.append(tree());
     const add = el('div', 'v2Adds'); add.id = 'v2Adds';
     add.append(btn('v2Btn', `＋ ${t('v2.home.addFloor')}`, () => ctx.addFloorOf('floor')), btn('v2Btn', `＋ ${t('v2.home.addBasement')}`, () => ctx.addFloorOf('basement')),
@@ -68,6 +69,8 @@ export function initUiV2Home(ctx) {
         else {
           const rr = el('div', 'n room tap'); rr.dataset.room = r.id;
           rr.append(el('span', 'ar', ''), el('span', 'ic', '▢'), el('span', 'nm', r.name || t('prop.room')), el('small', '', ctx.fmtArea(r.area)));
+          const room = lay.floors[r.i]?.rooms?.find((x) => x.id === r.id);
+          if (room && ctx.roomLock) { rr.append(ctx.roomLock.treeLock('room', room)); if (room.locked) rr.classList.add('locked'); }   // a lock per room (5.1.0)
           rr.addEventListener('click', () => { if (r.i !== ctx.floorIdx()) ctx.switchFloor(r.i); ctx.select({ kind: 'room', id: r.id }); });
           wrap.append(rr);
         }
@@ -81,6 +84,8 @@ export function initUiV2Home(ctx) {
     if (current) ar.disabled = true;
     const grip = el('span', 'grip', '⠿'); grip.title = t('v2.home.drag');
     row.append(ar, grip, el('span', 'ic', FLOOR_ICON[r.kind] || '▤'), el('span', 'nm', r.name), el('small', '', t('v2.home.rooms', { n: r.rooms })));
+    const fl = ctx.layout()?.floors?.[r.i];
+    if (fl && ctx.roomLock && r.kind !== 'roof') row.append(ctx.roomLock.treeLock('floor', fl));   // a lock per floor: all its rooms (5.1.0)
     row.addEventListener('click', () => { if (r.i !== ctx.floorIdx()) ctx.switchFloor(r.i); floorOpen = true; scrollTo = true; render(); });
     row.draggable = true;
     row.addEventListener('dragstart', (e) => { dragFrom = r.i; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(r.i)); });
@@ -137,7 +142,10 @@ export function initUiV2Home(ctx) {
       hd.addEventListener('click', () => { bd.hidden = !bd.hidden; sec.classList.toggle('open', !bd.hidden); hd.lastChild.textContent = bd.hidden ? '▾' : '▴'; });
       sec.append(hd, bd); card.append(sec);
     };
-    fold('roof', '⌂', t('v2.floor.roof'), rest, true);
+    if (f.kind === 'roof' && ctx.roofEdit) {                     // the new roof editor (5.1.0, roofeditui.js) instead of the long list
+      const host = el('div', 'v2RoofHost'); host.id = 'v2Roof'; card.append(host);
+      ctx.roofEdit.render(host, { fi, head: false });
+    } else fold('roof', '⌂', t('v2.floor.roof'), rest, true);
     const del = $('#delFloor');
     if (adds) adds.hidden = true;
     if (del) { const keep = el('div', 'stopTools'); keep.append(del); fold('delete', '🗑', t('floor.delete'), [keep], false); }

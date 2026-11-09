@@ -1136,7 +1136,7 @@ export function installDemoBackend() {
         items: [...shopping.filter((x) => !x.done), ...shopping.filter((x) => x.done)], ok: true });
     }
     if (path.startsWith('api/media/')) return json({ error: 'no picture' }, 404);   // the demo's players have no pictures: the ♪ shows
-    if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all', locks: new URLSearchParams(location.search).has('vollbild') ? ['fullscreen'] : [] });
+    if (path === 'api/me') return json({ user: 'demo', canEdit: true, admin: true, room: null, view: 'all', locks: new URLSearchParams(location.search).has('vollbild') ? ['fullscreen'] : [] });
     if (path === 'api/fullscreen') {
       if (method === 'PUT') {
         const c = String(JSON.parse(init.body || '{}').code ?? '');

@@ -484,6 +484,119 @@ def _(r):
     r.wait(1500)
 
 
+def screen3d(r, x, y, z):
+    """the screen point of a point of the 3D picture (metres), from the camera of the next picture drawn"""
+    return r.js("""([x, y, z]) => { let cam = null; const fp = window.__fp, rd = fp.renderer, o = rd.render.bind(rd);
+      rd.render = (s, c) => { cam = c; return o(s, c); }; fp.frame(); rd.render = o;
+      const V = fp.scene.position.constructor, v = new V(x, y, z).project(cam), b = document.querySelector('#view').getBoundingClientRect();
+      return [b.left + (v.x + 1) / 2 * b.width, b.top + (1 - v.y) / 2 * b.height]; }""", [x, y, z])
+
+
+def v2_on(r):
+    """prep: the new panel (Oberfläche 2)"""
+    r.pg.click("#uiSwitch [data-ui=v2]")
+    r.pg.wait_for_timeout(600)
+
+
+@clip("roof-editor", "edit",
+      {"de": "Das neue Dach: Form, von der Seite, von oben, Vorlagen", "en": "The new roof: shape, from the side, from above, templates"},
+      {"de": "Ein Klick aufs Dach öffnet es: oben, was das Dach hat; „Form“ mit der Dachform als Bildern und dem Dach von der Seite (Punkte ziehen: Neigung, Firsthöhe, Kniestock, Überstand; grün, wo man stehen kann; ⤢ groß); „Auf dem Dach“ mit Gauben und Dachfenstern von oben zum Ziehen (auch direkt im 3D-Bild); „Vorlagen“ mit fertigen Dächern, auch L-Dach und Kreuzdach (+), und „⭐ Mein Dach merken“.",
+       "en": "A click on the roof opens it: at the top what the roof has; “Shape” with the roof shapes as pictures and the roof from the side (drag the points: pitch, ridge height, knee wall, overhang; green where one can stand; ⤢ big); “On the roof” with dormers and roof windows from above to drag (also right in the 3D picture); “Templates” with ready-made roofs, also an L roof and a cross roof (+), and “⭐ Keep my roof”."},
+      "Dach bearbeiten Dachform Neigung ziehen Firsthöhe Kniestock Überstand Stehhöhe Gaube verschieben Dachfenster von oben Vorlage L-Dach Kreuzdach Mein Dach merken roof edit shape pitch drag ridge height knee wall overhang headroom dormer move roof window from above template L roof cross roof keep my roof",
+      query="mode=edit", prep=v2_on)
+def _(r):
+    r.say("Die Etage „Dach“ öffnen …", "Open the floor “Roof” …")
+    r.click("#v2Tree .n.floor[data-i='4']")
+    r.wait(1500)
+    r.js("window.__fp.camAt(1.0, 11.5, -7.5, 5.0, 2.0)")
+    r.wait(1200)
+    r.say("… und aufs Dach im Bild klicken: das Dach-Fenster geht auf, oben steht, was das Dach hat.", "… and click the roof in the picture: the roof panel opens, the top says what the roof has.")
+    r.click(*screen3d(r, 4.5, 7.6, -0.2))
+    r.wait(2000)
+    r.poster()
+    r.say("Die Dachform als Bilder: ein Tipp, und das Dach ändert sich.", "The roof shapes as pictures: one tap and the roof changes.")
+    r.click("#roofShapes [data-type=hip]")
+    r.wait(2200)
+    r.click("#roofShapes [data-type=gable]")
+    r.wait(1800)
+    r.say("Von der Seite: den Punkt am Bogen ziehen ändert die Neigung; grün ist, wo man aufrecht stehen kann.", "From the side: dragging the point on the arc changes the pitch; green is where one can stand upright.")
+    x, y = spot(r, "#roofProfile [data-h=pitch]")
+    r.drag(x, y, x - 4, y - 10, ms=1200)
+    r.wait(1800)
+    r.say("⤢ zeigt es groß, mit Firsthöhe, Kniestock und Überstand zum Ziehen.", "⤢ shows it big, with ridge height, knee wall and overhang to drag.")
+    r.click("#roofProfileBigBtn")
+    r.wait(2400)
+    r.click("#roofBig .rfBigHead button")
+    r.wait(600)
+    r.say("Im 3D-Bild eine Gaube anfassen und am Dach entlang ziehen: rechts geht „Auf dem Dach“ mit ihr auf.", "In the 3D picture grab a dormer and drag it along the roof: on the right “On the roof” opens with it.")
+    x, y = screen3d(r, 7.4, 8.93, 1.3)                               # the flat dormer of the demo's atelier, on its roof
+    r.drag(x, y, x + 50, y, ms=1400)
+    r.wait(2200)
+    r.say("Von oben: Gauben und Dachfenster ziehen statt Zahlen tippen.", "From above: drag dormers and roof windows instead of typing numbers.")
+    r.click("#roofTabs [data-tab=top]")
+    r.wait(1200)
+    x, y = spot(r, "#roofMap [data-part=dormer][data-i='1'] rect")
+    r.drag(x, y, x + 30, y, ms=1200)
+    r.wait(2000)
+    r.say("„Vorlagen“: fertige Dächer, auch ein Kreuzdach (+) und ein L-Dach.", "“Templates”: ready-made roofs, also a cross roof (+) and an L roof.")
+    r.click("#roofTabs [data-tab=tpl]")
+    r.wait(1200)
+    r.click("#roofTemplates [data-tpl=cross]")
+    r.wait(2600)
+    r.click("#roofTemplates [data-tpl=lshape]")
+    r.wait(2600)
+    r.say("„⭐ Mein Dach merken“ hebt es auf, auch für ein anderes Haus; ↶ macht alles rückgängig.", "“⭐ Keep my roof” keeps it, also for another house; ↶ undoes everything.")
+    r.prompt = "Mein Dach" if r.lang == "de" else "My roof"
+    r.click("#roofKeep")
+    r.prompt = None
+    r.wait(1800)
+
+
+@clip("room-lock", "edit",
+      {"de": "Räume sperren und „Grundriss fertig“", "en": "Lock rooms and “Floor plan finished”"},
+      {"de": "🔒 oben beim Raum sperrt ihn: Wände und Ecken (auch die Wand zum Nachbarraum) bleiben, dazu nach Wahl Fenster und Türen, die Geräte im Raum und seine Einstellungen; für den Raum, die Etage oder das ganze Haus. Wer trotzdem zieht, bekommt einen Hinweis. „🔒 Grundriss fertig“ sperrt alle Wände und Räume auf einmal (Geräte bleiben frei, nach Wahl nur ein Admin entsperrt), oben steht dann „🔒 Grundriss gesperrt“. „Ansicht“ → „🔒 Gesperrte zeigen“ blendet die Streifen aus. Ein einzelnes Gerät sperrt 🔒 beim Gerät.",
+       "en": "🔒 at the top of a room locks it: walls and corners (also the wall to the room next to it) stay, and as chosen its windows and doors, the devices in it and its settings; for the room, the floor or the whole house. Whoever drags anyway gets a note. “🔒 Floor plan finished” locks every wall and room at once (devices stay free, as chosen only an admin unlocks), then the top says “🔒 Floor plan locked”. “View” → “🔒 Show locked” hides the stripes. 🔒 at a device locks a single device."},
+      "sperren Raum sperren gesperrt nicht verschieben verrutschen festhalten Schloss Grundriss fertig Wände sperren Gerät sperren nur Admin entsperren lock room locked cannot move fixed padlock floor plan finished lock walls lock device admin unlock",
+      query="mode=edit", prep=v2_on)
+def _(r):
+    r.js("window.__fp.switchFloor(1)")
+    r.wait(800)
+    r.say("Einen Raum antippen, oben 🔒 „Sperren“.", "Tap a room, at the top 🔒 “Lock”.")
+    r.click("#v2Tree .n.room[data-room=r1]")
+    r.wait(1500)
+    r.click("#v2Lock")
+    r.wait(1500)
+    r.poster()
+    r.say("Wähle, was fest bleibt – zum Beispiel auch die Geräte im Raum – und für welche Räume.", "Choose what stays fixed – for example the devices in the room too – and for which rooms.")
+    r.click("#lockPop [data-key=devices]")
+    r.wait(1500)
+    r.click("#lockPop .v2Btn.pri")
+    r.wait(800)
+    r.say("Im 2D-Plan lässt sich die Wand nicht mehr ziehen, ein Hinweis sagt, warum.", "In the 2D plan the wall can no longer be dragged, a note says why.")
+    r.click("#view2d")
+    r.wait(1500)
+    x, y = r.js("(() => { const p = window.__fp.plan().toClient(6, 2.6); return [p[0], p[1]]; })()")
+    r.drag(x, y, x + 60, y, ms=1100)
+    r.wait(2200)
+    r.say("„🔒 Grundriss fertig“ sperrt alle Wände und Räume auf einmal, Geräte bleiben frei.", "“🔒 Floor plan finished” locks every wall and room at once, devices stay free.")
+    r.click("#v2Crumbs button.c", nth=0)                             # „🏠 Demo-Haus“ at the top: nothing selected, the tree shows
+    r.wait(1200)
+    r.click("#planLockSwitch")
+    r.wait(1800)
+    r.say("Oben steht dann „🔒 Grundriss gesperrt“; antippen entsperrt wieder.", "The top then says “🔒 Floor plan locked”; a tap unlocks it again.")
+    r.move("#planLockPill")
+    r.wait(1500)
+    r.say("„Ansicht“ → „🔒 Gesperrte zeigen“ blendet die Streifen im 3D-Bild aus.", "“View” → “🔒 Show locked” hides the stripes in the 3D picture.")
+    r.click("#view3d")
+    r.wait(1500)
+    r.click("#viewMenuBtn")
+    r.wait(700)
+    r.click("#lockHatchToggle")
+    r.wait(1500)
+    r.click("#planLockPill")
+    r.wait(1500)
+
+
 @clip("ui-v2-tools", "edit",
       {"de": "Oberfläche 2: Suchen, Reiter an der Seite, Übernehmen", "en": "Oberfläche 2: search, tabs at the side, pass on"},
       {"de": "In der neuen Leiste: „🔍 Einstellung suchen“ zeigt nur die Felder mit dem Wort (und wie viele in ⚙ sind); die Abschnitte hängen links als Reiter an der Leiste, ein Tipp zieht einen in ein Seitenfach; „⇉ Übernehmen“ gibt dieselben Einstellungen an die anderen Fenster im Raum, auf der Etage oder im ganzen Haus weiter (↶ macht es rückgängig).",
@@ -1624,9 +1737,9 @@ def _(r):
 
 @clip("objlist", "edit",
       {"de": "Die Liste aller Objekte", "en": "The list of all objects"},
-      {"de": "Rechts im Bearbeiten: alles nach Räumen, mit Suche; ein Tipp wählt es aus, der Haken davor sperrt es.",
-       "en": "On the right while editing: everything by room, with a search; a tap selects it, the tick in front locks it."},
-      "Objekte Liste Suche alle Geräte Raum auswählen sperren finden objects list search all devices room select lock find",
+      {"de": "Rechts im Bearbeiten: alles nach Räumen, mit Suche; ein Tipp wählt es aus, der Haken davor sperrt es. Ganz oben „🔒 Grundriss fertig“: alle Wände und Räume auf einmal sperren.",
+       "en": "On the right while editing: everything by room, with a search; a tap selects it, the tick in front locks it. At the very top “🔒 Floor plan finished”: lock every wall and room at once."},
+      "Objekte Liste Suche alle Geräte Raum auswählen sperren finden Grundriss fertig objects list search all devices room select lock find floor plan finished",
       query="mode=edit")
 def _(r):
     r.click("#view2d")

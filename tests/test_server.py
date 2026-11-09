@@ -1542,3 +1542,24 @@ async def test_backup_holds_the_recordings_and_only_adds_to_them(client, tmp_pat
     await client.put("/api/settings", json={**s, "backupRecording": False})   # ⚙ switched off: without them
     assert "recording" not in await (await client.get("/api/backup")).json()
     assert (await (await client.get("/api/backup?recording=1")).json())["recording"]["days"]
+
+
+async def test_settings_roof_templates(client):
+    """own ready-made roofs („⭐ Mein Dach merken“, 5.1.0): a name and the shape of the roof with its dormers, cleaned, at most 12"""
+    s = await (await client.get("/api/settings")).json()
+    assert s["roofTemplates"] == []
+    junk = [{"name": " Mein Dach ", "roof": {"type": "weird", "pitch": 99, "overhang": 0.6, "knee": 9, "gableWall": False, "ridge": "q", "high": "x1", "skylights": [1],
+                                           "dormers": [{"side": 1, "pos": 2, "w": 0.1, "type": "shed", "window": {"id": "w"}, "win": False}, "x"]}},
+            {"name": "", "roof": {}}, "x", {"name": "ohne Dach"}] + [{"name": f"d{i}", "roof": {"type": "hip"}} for i in range(20)]
+    s = await (await client.put("/api/settings", json={"roofTemplates": junk})).json()
+    t = s["roofTemplates"]
+    assert len(t) == 12
+    assert t[0] == {"name": "Mein Dach", "roof": {"type": "gable", "pitch": 70, "overhang": 0.6, "knee": 3, "gableWall": False, "high": "x1",
+                                                 "dormers": [{"side": 1, "type": "shed", "pos": 1, "w": 0.6, "win": False}]}}
+    assert t[1] == {"name": "d0", "roof": {"type": "hip", "pitch": 35}}
+
+
+async def test_me_says_admin(client):
+    """api/me says whether the user is an administrator (5.1.0: „nur Admins dürfen entsperren“); standalone everybody is"""
+    me = await (await client.get("/api/me")).json()
+    assert me["admin"] is True

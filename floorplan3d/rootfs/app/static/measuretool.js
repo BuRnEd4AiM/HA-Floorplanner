@@ -9,6 +9,7 @@ const COLOR = 0xffd84a;
 const TOL_3D = { corner: 0.18, wall: 0.1 };                 // in the 3D view a click is less exact than in the plan
 
 /** ctx: $, t, floor(), floorIdx(), elev(i), scene, textSprite(text, opts), fmtLen(m), toDisp(m), fromDisp(v), imperial(), snapshot(),
+ *  pointsLockWhy(pts), sayLock(why) (a locked room or the plan, roomlockui.js),
  *  changed(), setStatus(txt), renderPlan() */
 export function initMeasureTool(ctx) {
   const { $, t } = ctx;
@@ -57,8 +58,11 @@ export function initMeasureTool(ctx) {
     w.append(lb, row);
     return w;
   }
+  let lastWhy = null;                                    // why the last change was refused: a locked room or the plan (5.1.0)
+  const fixed = (pts) => { lastWhy = ctx.pointsLockWhy?.(pts) || null; return !!lastWhy; };
   function result(r) {
     if (r === 'ok') { ctx.changed(); refresh(true); ctx.setStatus(t('ms.done')); return; }
+    if (r === 'locked' && lastWhy) { ctx.sayLock(lastWhy); return; }
     ctx.setStatus(t(r === 'locked' ? 'prop.lockedHint' : 'ms.cannot'));
   }
   const unit = () => (ctx.imperial() ? 'ft' : 'm');
@@ -76,10 +80,10 @@ export function initMeasureTool(ctx) {
       if (pr.parallel && pr.inline) body.append(el('p', 'sub', t('ms.inline')));
       else if (pr.parallel) {
         body.append(
-          setRow(t('ms.clear'), disp(pr.clear), unit(), ctx.imperial() ? 0.1 : 0.01, (v) => result(setDistance(f, m, ctx.fromDisp(v), 'clear', ctx.snapshot)), 'msClear'),
-          setRow(t('ms.center'), disp(pr.center), unit(), ctx.imperial() ? 0.1 : 0.01, (v) => result(setDistance(f, m, ctx.fromDisp(v), 'center', ctx.snapshot)), 'msCenter'));
+          setRow(t('ms.clear'), disp(pr.clear), unit(), ctx.imperial() ? 0.1 : 0.01, (v) => result(setDistance(f, m, ctx.fromDisp(v), 'clear', ctx.snapshot, fixed)), 'msClear'),
+          setRow(t('ms.center'), disp(pr.center), unit(), ctx.imperial() ? 0.1 : 0.01, (v) => result(setDistance(f, m, ctx.fromDisp(v), 'center', ctx.snapshot, fixed)), 'msCenter'));
       } else body.append(el('p', 'sub', t('ms.notParallel')));
-      if (!pr.inline) body.append(setRow(t('ms.angle'), +pr.angle.toFixed(2), '°', 1, (v) => result(setAngle(f, m, v, ctx.snapshot)), 'msAngle'));
+      if (!pr.inline) body.append(setRow(t('ms.angle'), +pr.angle.toFixed(2), '°', 1, (v) => result(setAngle(f, m, v, ctx.snapshot, fixed)), 'msAngle'));
       const sw = el('button', null, t('ms.swap'));
       sw.type = 'button'; sw.id = 'msSwap';
       sw.addEventListener('click', () => { m = swapPair(m); refresh(true); ctx.renderPlan(); });

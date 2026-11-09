@@ -2848,3 +2848,100 @@ body.live .v2Nops, body.live .v2Drawer { display: none; }
 .v2CopyBox .v2Opt.on .rd { border-color: var(--accent); background: radial-gradient(var(--accent) 45%, transparent 50%); }
 .v2CopyBox .v2Opt small { margin-left: auto; color: var(--muted); }
 .v2Check { display: flex; align-items: center; gap: 8px; padding: 4px 9px; font-weight: 600; cursor: pointer; }
+
+/* ---- locked rooms and „Grundriss fertig“ (5.1.0, roomlockui.js) ---- */
+.lockPop { position: fixed; z-index: 60; display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 14px; background: var(--panel);
+  border: 1px solid #ffb74d; box-shadow: 0 18px 50px rgba(0, 0, 0, .55); color: var(--text); font-size: 13.5px; }
+.lockPop h5 { margin: 6px 0 4px; font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.lockPop h5:first-child { margin-top: 0; }
+.lockPop .v2Opt small { margin-left: auto; color: var(--muted); font-size: 11.5px; font-weight: 600; }
+.lockPop .v2Opt:disabled { opacity: .75; cursor: default; }
+.lockPop .v2Opt .bx { width: 17px; height: 17px; border-radius: 5px; border: 2px solid var(--muted); flex: none; display: grid; place-items: center; font-size: 11px; font-weight: 900; }
+.lockPop .v2Opt .bx.on { background: #ffb74d; border-color: #ffb74d; color: #2a1d10; }
+.lockPop .v2Opt.on { background: rgba(255, 183, 77, .12); }
+.lockPop .v2Seg button.on { background: #ffb74d; color: #2a1d10; }
+.v2Chip.lock { background: rgba(255, 183, 77, .16); border-color: #ffb74d; color: #ffd8a1; }
+.v2Head .acts button#v2Lock.on { border-color: #ffb74d; background: rgba(255, 183, 77, .16); }
+.lockRow { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; margin-bottom: 10px; border-radius: 10px; border: 1px solid rgba(255, 183, 77, .55); background: rgba(255, 183, 77, .07); }
+.lockRow .lockOpt { margin-left: 20px; font-size: 13px; }
+.lockRow button { align-self: flex-start; margin-top: 4px; }
+#props.v2 #roomLockRow { display: none; }                        /* the new panel has 🔒 in the head */
+.lockNote { color: #ffd8a1 !important; }
+.lockPlan { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--text) 3%, transparent); margin-bottom: 8px; }
+.lockPlan.on { border: 2px solid #ffb74d; background: rgba(255, 183, 77, .08); }
+.lockPlanTop { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0; border: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.lockPlanTop .ic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-size: 20px; background: rgba(255, 183, 77, .18); flex: none; }
+.lockPlanTop .txt { flex: 1; min-width: 0; } .lockPlanTop b { display: block; font-size: 14.5px; } .lockPlanTop small { display: block; color: var(--muted); font-size: 12px; font-weight: 600; }
+.lockPlanTop .tog { width: 40px; height: 23px; border-radius: 999px; background: var(--field); border: 1px solid var(--line); position: relative; flex: none; }
+.lockPlanTop .tog::after { content: ''; position: absolute; top: 3px; left: 3px; width: 15px; height: 15px; border-radius: 50%; background: #8b98a5; transition: left .15s; }
+.lockPlanTop .tog.on { background: #46a758; border-color: #46a758; } .lockPlanTop .tog.on::after { left: 20px; background: #fff; }
+.lockAdmin { font-size: 12.5px; color: var(--muted); }
+.v2Tree .n .lk { flex: none; width: 24px; height: 22px; padding: 0; border: 0; border-radius: 6px; background: transparent; font-size: 12.5px; cursor: pointer; opacity: .35; }
+.v2Tree .n .lk:hover { background: color-mix(in srgb, var(--text) 8%, transparent); opacity: .8; }
+.v2Tree .n .lk.all, .v2Tree .n .lk.plan { opacity: 1; } .v2Tree .n .lk.some { opacity: .6; filter: grayscale(.6); }
+.v2Tree .n.locked .nm { color: #ffd8a1; }
+#planLockPill { border: 2px solid #ffb74d; background: rgba(255, 183, 77, .15); color: #ffd8a1; font-weight: 800; }
+#planLockPill[hidden], body.live #planLockPill { display: none; }
+.lockPop .v2Seg button { white-space: normal; font-size: 12px; padding: 5px 4px; line-height: 1.15; }
+
+/* ---- the new roof editor (5.1.0, roofeditui.js) ---- */
+.roofEd { display: flex; flex-direction: column; gap: 10px; }
+.roofEd .v2Head .ic svg { width: 36px; height: auto; }
+.roofEd .roofWhere { margin: -4px 2px 0; font-size: 11.5px; }
+.roofEd .v2Tabs button em { font-style: normal; font-size: 11px; padding: 1px 6px; border-radius: 999px; background: var(--field); margin-left: 4px; }
+.roofTab { display: flex; flex-direction: column; gap: 10px; }
+.rfTiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+.rfTiles.three { grid-template-columns: repeat(3, 1fr); }
+.rfTiles.tpl { grid-template-columns: repeat(3, 1fr); }
+.rfTile { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px 6px; border-radius: 12px; border: 2px solid transparent;
+  background: var(--field); color: var(--text); font: inherit; cursor: pointer; text-align: center; }
+.rfTile svg { width: 100%; max-width: 92px; height: auto; }
+.rfTile .nm { font-size: 11.5px; font-weight: 800; line-height: 1.15; }
+.rfTile small { color: var(--muted); font-size: 10.5px; font-weight: 600; line-height: 1.15; }
+.rfTile:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.rfTile.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--field)); }
+.rfTile.on::after { content: '✓'; position: absolute; top: 3px; right: 3px; width: 17px; height: 17px; border-radius: 50%; background: var(--accent); color: var(--accent-text);
+  display: grid; place-items: center; font-weight: 900; font-size: 11px; }
+.rfTile.keep { border: 2px dashed var(--line); background: transparent; justify-content: center; }
+.rfTile.keep .big { font-size: 26px; }
+.rfTile .rfDel { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 0; background: rgba(0, 0, 0, .35); color: #fff; cursor: pointer; }
+.rfCard { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--text) 3%, transparent); }
+.rfPic svg .rfH { cursor: grab; }
+.rfVals { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 6px; }
+.rfVal { display: flex; flex-direction: column; gap: 2px; padding: 5px 6px; border-radius: 10px; background: var(--field); border: 1px solid var(--line); }
+.rfVal small { color: var(--muted); font-size: 10.5px; font-weight: 700; }
+.rfVal input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--text); font: inherit; font-weight: 800; font-size: 14px; padding: 0; }
+.rfFoot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rfFoot .v2Hint { flex: 1; margin: 0; }
+.rfBig { position: fixed; z-index: 55; padding: 14px 16px; border-radius: 18px; background: var(--panel); border: 1px solid color-mix(in srgb, var(--accent) 60%, var(--line));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .6); max-height: calc(100vh - 100px); overflow: auto; }
+.rfBigHead { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; } .rfBigHead b { font-size: 16px; }
+.rfBigHead small { flex: 1; color: var(--muted); font-weight: 600; }
+.rfBig .rfCard { border: 0; padding: 0; background: transparent; }
+.rfMap { border-radius: 14px; background: color-mix(in srgb, var(--text) 3%, transparent); border: 1px solid var(--line); padding: 4px; }
+.rfMap [data-part] { cursor: grab; }
+.rfAdd { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px; }
+.rfAdd button { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 6px; border-radius: 11px; border: 1px dashed var(--line); background: transparent;
+  color: var(--text); font: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+.rfAdd button i { font-style: normal; font-size: 17px; }
+.rfParts { display: flex; flex-direction: column; gap: 6px; }
+.rfPart { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); background: color-mix(in srgb, var(--text) 3%, transparent);
+  color: var(--text); font: inherit; font-size: 13.5px; text-align: left; cursor: pointer; }
+.rfPart .ic { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font-size: 15px; background: color-mix(in srgb, var(--text) 6%, transparent); flex: none; }
+.rfPart b { flex: none; } .rfPart .sum { flex: 1; min-width: 0; text-align: right; color: var(--muted); font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rfPart .eye { color: var(--muted); flex: none; }
+.rfPart.hi { border-color: #ffd45c; background: rgba(255, 212, 92, .08); }
+.rfPartBox.open { border-radius: 12px; border: 1px solid #ffd45c; }
+.rfPartBox.open > .rfPart { border: 0; border-bottom: 1px solid var(--line); border-radius: 12px 12px 0 0; }
+.rfPartBody { padding: 8px 10px; display: flex; flex-direction: column; gap: 8px; }
+.rfPartBody .dormerCard { border: 0; margin: 0; padding: 24px 0 0; }
+.rfGone, .rfHidden[hidden] { display: none !important; }
+.rfInfo { align-self: flex-start; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; }
+.rfHelp { padding: 6px 8px; border-radius: 10px; background: var(--field); }
+.rfHelp[hidden] { display: none; }
+.rfMore .roofPartCard.hi { border-color: #ffd45c; box-shadow: 0 0 0 2px rgba(255, 212, 92, .4); }
+.v2RoofHost { margin-top: 4px; }
+.roofEd .v2Tabs { gap: 0; }
+.roofEd .v2Tabs button { padding: 7px 7px 8px; font-size: 12.5px; white-space: nowrap; }
+.roofEd .v2Sec > .hd b { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.roofEd .v2Sec > .hd .sum { flex: 1 1 40%; }

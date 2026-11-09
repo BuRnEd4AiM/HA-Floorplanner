@@ -632,3 +632,15 @@ regen regnet rain
 temperatur temperaturen grad temperature degrees
 thermostat thermostate thermostats
 """.strip().splitlines()]
+t("roof-editor",
+  "Dach ändern Dach einstellen wie ändere ich das Dach Dachneigung steiler flacher Dachschräge Firsthöhe Drempel Kniestock Dachüberstand "
+  "Stehhöhe wo kann ich stehen Gaube verschieben Dachgaube bewegen Dachfenster verschieben Velux Roto Dachform ändern Walmdach Pultdach "
+  "Flachdach Vorlage fertiges Dach Kreuzdach Plus-Dach Zwerchgiebel Winkeldach L-Dach eigenes Dach speichern",
+  "change the roof how do I change the roof roof pitch steeper flatter slope ridge height knee wall roof overhang eaves headroom where can I "
+  "stand move a dormer drag dormer move roof window Velux Roto roof shape hip roof shed roof flat roof template ready-made roof cross gable "
+  "plus roof L roof save my roof")
+t("room-lock",
+  "Raum sperren Raum festmachen Raum fixieren Wand verrutscht aus Versehen verschoben nicht mehr verschieben Grundriss sperren Grundriss fertig "
+  "Schloss abschließen schützen Wände schützen Gerät sperren Gerät fixieren nur Admin Streifen ausblenden gesperrt anzeigen entsperren",
+  "lock a room fix a room pin room wall moved by accident stop moving lock the floor plan floor plan finished padlock protect walls "
+  "lock a device pin device admin only hide stripes show locked unlock freeze layout")

@@ -666,7 +666,8 @@ export function createPlan(ctx) {
       if (!rm.name) return;
       const c = rm.points.reduce((a, p) => [a[0] + p[0] / rm.points.length, a[1] + p[1] / rm.points.length], [0, 0]);
       const area = ctx.area(rm.points);
-      o += `<text x="${sx(c[0])}" y="${sy(c[1])}" text-anchor="middle" font-size="14" font-weight="700" fill="${C.text}" stroke="rgba(3,21,71,.85)" stroke-width="4" paint-order="stroke">${esc(rm.name)}</text>`;
+      const lk = !live && ctx.isItemLocked?.('room', rm.id) ? '🔒 ' : '';   // a locked room (5.1.0, roomlock.js)
+      o += `<text x="${sx(c[0])}" y="${sy(c[1])}" text-anchor="middle" font-size="14" font-weight="700" fill="${lk ? '#ffd8a1' : C.text}" stroke="rgba(3,21,71,.85)" stroke-width="4" paint-order="stroke"${lk ? ' data-locked="1"' : ''}>${lk}${esc(rm.name)}</text>`;
       o += `<text x="${sx(c[0])}" y="${sy(c[1]) + 15}" text-anchor="middle" font-size="11" fill="rgba(210,235,255,.85)" stroke="rgba(3,21,71,.85)" stroke-width="3" paint-order="stroke">${esc(area)}</text>`;
       const h = up.any ? Math.round(up.room(rm) * 100) / 100 : 0;
       if (h) o += `<text class="roomLift" x="${sx(c[0])}" y="${sy(c[1]) + 30}" text-anchor="middle" font-size="11" font-weight="700" fill="#9fe0a0" stroke="rgba(3,21,71,.85)" stroke-width="3" paint-order="stroke">${h > 0 ? '▲ +' : '▼ −'}${esc(ctx.fmtLen(Math.abs(h)))}</text>`;
@@ -674,11 +675,13 @@ export function createPlan(ctx) {
 
     /* selection handles */
     if (!live && sel) {
-      const hnd = (p, fill = '#fff') => `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="6" fill="${fill}" stroke="${C.sel}" stroke-width="2"/>`;
+      const fixed = !!ctx.isItemLocked?.(sel.kind, sel.id);        // locked (5.1.0): its corners show as small orange dots, they cannot be dragged
+      const hnd = (p, fill = '#fff') => (fixed ? `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="4" fill="#ffb74d" stroke="#2a1d10" stroke-width="1.5" data-lockdot="1"/>`
+        : `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="6" fill="${fill}" stroke="${C.sel}" stroke-width="2"/>`);
       if (sel.kind === 'wall') { const w = f.walls.find((q) => q.id === sel.id); if (w) o += hnd(w.a) + hnd(w.b); }
       if (sel.kind === 'device') {
         const d = f.devices.find((q) => q.id === sel.id);
-        if (d && d.type !== 'picture' && d.type !== 'ledring' && d.type !== 'kitchenrun' && !d.locked) { const hs = devHandles(d); ['x', 'z'].forEach((k) => { o += `<rect x="${sx(hs[k][0]) - 6}" y="${sy(hs[k][1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; }); }
+        if (d && d.type !== 'picture' && d.type !== 'ledring' && d.type !== 'kitchenrun' && !fixed) { const hs = devHandles(d); ['x', 'z'].forEach((k) => { o += `<rect x="${sx(hs[k][0]) - 6}" y="${sy(hs[k][1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; }); }
       }
       if (sel.kind === 'stair') {
         const st = (f.stairs || []).find((q) => q.id === sel.id), hs = st && stairHandles(st, H3);
@@ -884,7 +887,7 @@ export function createPlan(ctx) {
         return;
       }
       const hd = handleAt(px, py);
-      if (hd) { drag = { ...startHandleDrag(hd), px, py }; return; }
+      if (hd) { const d1 = startHandleDrag(hd), pw = d1?.type === 'points' && ctx.pointsLockWhy?.(d1.refs.map((r) => r.q)); drag = pw ? { type: 'locked', why: pw, px, py } : { ...d1, px, py }; return; }
       if (ctx.isLocked() && sel) {                               // locked: only the selection reacts
         const d0 = startDrag(sel, x, z, px, py, e);
         drag = d0 || { type: 'pan', px, py, tx, ty, locked: true };
@@ -938,7 +941,15 @@ export function createPlan(ctx) {
     }
     return { type: 'points', refs: [{ q: hd.room.points[hd.i], ox: hd.room.points[hd.i][0], oz: hd.room.points[hd.i][1] }], start: [...hd.room.points[hd.i]], single: true };
   }
+  /** a press on thing h: the drag that moves it; a locked thing (or one whose drag would move a point of a locked room, roomlock.js)
+   *  gives a drag of the type 'locked' that only says why once the pointer moves */
   function startDrag(h, x, z, px, py) {
+    const why = ctx.lockWhy?.(h.kind, h.id);
+    if (why) return { type: 'locked', why, px, py };
+    const d = startDragOf(h, x, z, px, py), pw = d?.type === 'points' && ctx.pointsLockWhy?.(d.refs.map((r) => r.q));
+    return pw ? { type: 'locked', why: pw, px, py } : d;
+  }
+  function startDragOf(h, x, z, px, py) {
     const f = floor();
     if (ctx.isItemLocked?.(h.kind, h.id)) return null;                  // locked: selectable, but not movable
     if (h.kind === 'device') {
@@ -970,6 +981,8 @@ export function createPlan(ctx) {
   /** drag of several selected things together: the one under the pointer snaps, all others move by the same amount */
   function startGroupDrag(h, many, x, z, px, py) {
     const f = floor(), g = groupTargets(f, many, (k, id) => !!ctx.isItemLocked?.(k, id));
+    const pw = ctx.pointsLockWhy?.(g.points.map((p) => p.q));                // a corner of a locked room would move (5.1.0)
+    if (pw) return { type: 'locked', why: pw, px, py };
     const own = h.kind === 'device' ? g.devices.find((v) => v.d.id === h.id) : h.kind === 'stair' ? g.stairs.find((v) => v.st.id === h.id) : null;
     const w = h.kind === 'wall' ? f.walls.find((q) => q.id === h.id) : null, r = POLY_KINDS.has(h.kind) ? polyOf(f, h.kind).find((q) => q.id === h.id) : null;
     const first = own ? [own.ox, own.oz] : w ? [...w.a] : r?.points?.length ? [...r.points[0]] : g.points[0] ? [g.points[0].ox, g.points[0].oz] : g.devices[0] ? [g.devices[0].ox, g.devices[0].oz] : [x, z];
@@ -996,6 +1009,7 @@ export function createPlan(ctx) {
     if (drag) {
       const moved = Math.hypot(px - drag.px, py - drag.py) > 4;
       if (drag.type === 'pan') { tx = drag.tx + (px - drag.px); ty = drag.ty + (py - drag.py); render(); return; }
+      if (drag.type === 'locked') { if (moved && !drag.said) { drag.said = true; ctx.sayLock?.(drag.why); } return; }
       if (drag.type === 'multi') { if (moved) { drag.b = [x, z]; render(); } return; }
       if (drag.type === 'tpoint') {                                   // a spot height of the terrain (#629)
         if (moved || drag.moved) { snapshotOnce(); const p = snapPt(x, z, { free: e.altKey }); ctx.terrainMove(drag.id, p[0], p[1]); drag.moved = true; scheduleRebuild(); render(); }
@@ -1329,6 +1343,7 @@ export function createPlan(ctx) {
       if (h?.kind === 'device') { ctx.deviceDoubleClick(h.id); return; }
       const hd = handleAt(px, py);
       if (hd?.type === 'room-pt') {                                  // double click on a corner removes it (a room keeps at least 3)
+        if (ctx.lockWhy?.('room', hd.room.id)) { ctx.sayLock(ctx.lockWhy('room', hd.room.id)); return; }
         if (hd.room.points.length > 3) { ctx.snapshot(); hd.room.points.splice(hd.i, 1); ctx.commit(); }
         return;
       }
@@ -1339,6 +1354,8 @@ export function createPlan(ctx) {
       }
       const edge = edgeAt(x, z);
       if (edge) {                                                    // double click on an edge adds a corner there
+        const ew = ctx.lockWhy?.(edge.kind, edge.poly.id);
+        if (ew) { ctx.sayLock(ew); return; }
         ctx.snapshot();
         edge.poly.points.splice(edge.i + 1, 0, [+edge.pt[0].toFixed(3), +edge.pt[1].toFixed(3)]);
         ctx.setSelection({ kind: edge.kind, id: edge.poly.id });
@@ -1357,6 +1374,8 @@ export function createPlan(ctx) {
   /* split a wall in two at the point of it closest to (x, z) (wallsplit.js). Returns false when there is no room for it
    * (too close to an end or inside a door / window). */
   function splitWallAt(w, x, z) {
+    const lw = ctx.lockWhy?.('wall', w.id);
+    if (lw) { ctx.sayLock(lw); return true; }                          // a locked wall gets no corner (5.1.0)
     const d = distAlong(w, x, z);
     if (!canSplitAt(w, d)) return false;
     ctx.snapshot();

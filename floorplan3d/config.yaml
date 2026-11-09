@@ -1,5 +1,5 @@
 name: "3D Floorplan"
-version: "5.0.0"
+version: "5.1.0"
 slug: floorplan3d
 description: "More than a floor plan: your smart home in 3D. Lights, heating, energy, security, cameras and routines right where they are, with ready-made dashboard pages"
 url: "https://github.com/BuRnEd4AiM/HA-Floorplanner"
