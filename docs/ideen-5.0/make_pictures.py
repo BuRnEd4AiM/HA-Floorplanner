@@ -66,6 +66,11 @@ async def shot(b, name, fn, cam):
         await pg.add_script_tag(content=MOCK)
         await pg.evaluate(f"() => mkV2.{fn}()")
         await pg.wait_for_timeout(1500)
+    # the picture's number, big in the top left corner (wish of 2026-11-09: "Nummern geben im Bild")
+    await pg.evaluate("""([n, size]) => { const b = document.createElement('div'); b.textContent = n;
+      Object.assign(b.style, { position: 'fixed', left: '8px', top: '8px', zIndex: 2147483647, width: `${size}px`, height: `${size}px`, borderRadius: '18px',
+        display: 'grid', placeItems: 'center', background: '#b48cff', color: '#1a0f2e', font: `900 ${size * 0.62}px system-ui, sans-serif`,
+        border: '4px solid #fff', boxShadow: '0 8px 24px rgba(0,0,0,.6)' }); document.body.append(b); }""", [name.split("-")[0], 54 if phone else 76])
     await pg.screenshot(path=f"{S}/{name}.png")
     print(name, errs[:2])
     await ctx.close()
