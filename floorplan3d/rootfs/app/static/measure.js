@@ -191,23 +191,24 @@ export function measureInfo(f, m) {
   return { a, b, line: lineInfo(a, b), pair: pw ? wallPair(pw.stay, pw.moves, m.pair.o) : null };
 }
 /** move the second wall of the pair (with the whole straight wall it belongs to) so the distance becomes `target` m (kind 'clear' | 'center');
- *  before(): called just before anything changes (the undo step). 'ok', 'locked' (a wall that moves is locked), 'no' (not possible) */
-export function setDistance(f, m, target, kind = 'clear', before = () => {}) {
+ *  before(): called just before anything changes (the undo step). 'ok', 'locked' (a wall that moves is locked, or fixed(points) says a
+ *  point that would move must stay: a corner of a locked room, roomlock.js), 'no' (not possible) */
+export function setDistance(f, m, target, kind = 'clear', before = () => {}, fixed = null) {
   const pw = pairWalls(f, m);
   const sh = pw && distanceShift(pw.stay, pw.moves, target, kind);
   if (!sh) return 'no';
   const run = wallRun(f, pw.moves, pw.stay);
-  if (run.some((w) => w.locked)) return 'locked';
+  if (run.some((w) => w.locked) || fixed?.(pointsOn(f, run, pw.stay))) return 'locked';
   before();
   pointsOn(f, run, pw.stay).forEach((p) => { p[0] = r4(p[0] + sh[0]); p[1] = r4(p[1] + sh[1]); });
   return 'ok';
 }
 /** turn the second wall of the pair so the angle becomes `deg`; before() as in setDistance; 'ok', 'locked', 'no' */
-export function setAngle(f, m, deg, before = () => {}) {
+export function setAngle(f, m, deg, before = () => {}, fixed = null) {
   const pw = pairWalls(f, m);
   const tr = pw && angleTurn(pw.stay, pw.moves, m.pair.o, deg);
   if (!tr) return 'no';
-  if (pw.moves.locked) return 'locked';
+  if (pw.moves.locked || fixed?.(pointsOn(f, [pw.moves], pw.stay).filter((p) => !same(p, tr.pivot)))) return 'locked';
   before();
   pointsOn(f, [pw.moves], pw.stay).filter((p) => !same(p, tr.pivot)).forEach((p) => {
     const q = turn(sub(p, tr.pivot), tr.turn);

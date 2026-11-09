@@ -32,7 +32,7 @@ export function objectGroups(f, env) {
 }
 
 /** ctx: $, t, floor(), isLive(), selection(), locked(), lockTo(sel) (select it and lock), releaseLock(), registry, tool(), setTool(name),
- *  itemOf(kind, id), snapshot(), changed(), renderProps(), plan(), pointInPoly */
+ *  itemOf(kind, id), snapshot(), changed(), renderProps(), plan(), pointInPoly, planBox() (the switch „Grundriss fertig“, roomlockui.js) */
 export function initObjList(ctx) {
   const { $, t } = ctx;
   const groupOpen = {};
@@ -54,6 +54,7 @@ export function initObjList(ctx) {
       lockBar.append(rb);
     }
     body.append(lockBar);
+    if (ctx.planBox) body.append(ctx.planBox());                  // „🔒 Grundriss fertig“ for the whole house (5.1.0, roomlockui.js)
     const fi = document.createElement('input'); fi.type = 'search'; fi.className = 'objfilter'; fi.placeholder = t('obj.filter'); fi.value = filter;
     fi.addEventListener('input', () => { filter = fi.value; const pos = fi.selectionStart; render(); const n = $('#objListBody .objfilter'); n?.focus(); n?.setSelectionRange(pos, pos); });
     body.append(fi);

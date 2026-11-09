@@ -72,7 +72,8 @@ export function keyCommand(k, mods, s) {
 /** ctx: t, floor(), floorIdx(), floors() (how many), settings(), selection(), setSelection(sel), isLive(), tool(), snapshot(), changed(),
  *  setStatus(txt), undo(), redo(), clip ({ copy(), paste(), duplicate() }, clipboard.js), moveDeviceTo(d, x, z), power ({ deleteCable(id), dropCablesTo(id) }), multi ({ items(), deleteAll() }),
  *  switchFloor(i), setTool(name), moveRoof(id, dx, dz) (#255), yard ({ remove(kind, id), pointsOf(kind, id) }: the plot and its areas, plotui.js #538), escape() (stop drawing, close popups ...), finishDraft() (true when Enter closed an outline),
- *  deleted() (something was deleted: the note "Gelöscht · Rückgängig", undotoast.js #471), help() (the card with every key, shortcuts.js #471) */
+ *  deleted() (something was deleted: the note "Gelöscht · Rückgängig", undotoast.js #471), help() (the card with every key, shortcuts.js #471),
+ *  lockWhy(kind, id), pointsLockWhy(pts), sayLock(why) (locked rooms and the plan, roomlockui.js; without them only `locked` counts) */
 export function initEditItems(ctx) {
   /** delete one thing; batch: several in a row (#211), the caller rebuilds once */
   function deleteItem({ kind, id }, batch = false) {
@@ -85,7 +86,8 @@ export function initEditItems(ctx) {
       return;
     }
     const f = ctx.floor();
-    if (itemIn(f, kind, id)?.locked) { ctx.setStatus(ctx.t('prop.lockedHint')); return; }
+    const why = ctx.lockWhy ? ctx.lockWhy(kind, id) : itemIn(f, kind, id)?.locked ? { own: true } : null;   // locked by itself, its room, the plan (roomlock.js)
+    if (why) { if (ctx.sayLock) ctx.sayLock(why); else ctx.setStatus(ctx.t('prop.lockedHint')); return; }
     removeFrom(f, kind, id);
     if (kind === 'device') ctx.power.dropCablesTo(id);
     if (ctx.selection()?.id === id) ctx.setSelection(null);
@@ -99,6 +101,8 @@ export function initEditItems(ctx) {
     if (sel.kind === 'opening') {
       const found = openingIn(f, sel.id);
       if (!found || found.opening.locked || isDormerWall(found.wall)) return;   // a dormer window is moved with its dormer (roof panel)
+      const ow = ctx.lockWhy?.('opening', sel.id);
+      if (ow) { ctx.sayLock(ow); return; }
       const o = found.opening;
       const p = clampOpeningPos(found.wall, o.width, o.pos + (dx || dz));
       if (p === null || p === o.pos || openingOverlaps(found.wall, p, o.width, o.id)) return;
@@ -111,6 +115,8 @@ export function initEditItems(ctx) {
     }
     const item = itemIn(f, sel.kind, sel.id);
     if (item?.locked) return;
+    const lw = ctx.lockWhy?.(sel.kind, sel.id);
+    if (lw) { ctx.sayLock(lw); return; }
     if (sel.kind === 'device') {
       if (item) { ctx.snapshot(); ctx.moveDeviceTo(item, item.x + dx, item.z + dz); ctx.changed(); }
       return;
@@ -122,6 +128,8 @@ export function initEditItems(ctx) {
     // like dragging in the 2D editor: walls joined at the corners stretch along
     const pts = sel.kind === 'wall' ? (item ? jointPoints(f, item) : null) : ['room', 'block', 'hole'].includes(sel.kind) ? item?.points || null
       : ctx.yard?.pointsOf(sel.kind, sel.id) || null;                   // the plot or one of its areas (#538)
+    const pw = pts?.length && ctx.pointsLockWhy?.(pts);                 // a corner of a locked room would move along (5.1.0)
+    if (pw) { ctx.sayLock(pw); return; }
     if (pts?.length) { ctx.snapshot(); pts.forEach((q) => { q[0] = +(q[0] + dx).toFixed(4); q[1] = +(q[1] + dz).toFixed(4); }); ctx.changed(); }
   }
   window.addEventListener('keydown', (e) => {

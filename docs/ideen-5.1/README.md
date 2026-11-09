@@ -28,3 +28,6 @@ Objektliste) und hält den Raum nicht fest: man kann ihn nicht als Ganzes ziehen
 Vorschlag von Claude: ①, ②, ③, ⑥ gehören zusammen (das neue Dach-Fenster); ④ und ⑤ können danach kommen. Beim Sperren ⑦ und ⑧
 zusammen (dabei die Lücke von heute schließen), ⑨ dazu oder später. Gebaut würde alles in eigenen Modulen (z. B. `roofui2.js`,
 `roofmap.js` rein mit Test, `roomlock.js` rein mit Test), app.js bekommt nur das `init…`.
+
+**Wahl des Besitzers (2026-11-09):** Dach: alle (1–6), „der Editor sieht echt mega aus“; bei den fertigen Dächern auch ein L-Dach und ein
+„+“-Dach (Kreuzdach). Sperren: 7 und 9 (nicht 8), dazu „dass man auch einzelne Geräte sperren kann“. „Anfangen zu bauen“.

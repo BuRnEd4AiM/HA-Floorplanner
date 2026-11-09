@@ -136,6 +136,7 @@ export function initProps(ctx) {
     del.addEventListener('click', () => { ctx.snapshot(); ctx.deleteItem(ctx.selection()); });
     body.append(del);
     ctx.v2?.(body, selection, it, !!multi);                     // the new panel orders the same fields (uiv2ui.js)
+    if (selection.kind === 'room') ctx.lockFreeze?.(body, it);  // a locked room that keeps its settings: read only (roomlockui.js)
   }
 
   function wallProps(body, it) {
@@ -153,7 +154,9 @@ export function initProps(ctx) {
     const at = document.createElement('input'); at.type = 'number'; at.id = 'wallSplitAt'; at.step = ctx.imperial() ? 0.1 : 0.05; at.min = 0;
     at.value = (+ctx.toDisp(L / 2)).toFixed(2);
     const go = document.createElement('button'); go.type = 'button'; go.id = 'wallSplitBtn'; go.textContent = t('wall.splitBtn');
+    const locked = () => { const w = ctx.lockWhy?.('wall', it.id); if (w) ctx.sayLock(w); return !!w; };   // a wall of a locked room (5.1.0)
     go.addEventListener('click', () => {
+      if (locked()) return;
       const d = ctx.fromDisp(+at.value);
       if (!canSplitAt(it, d)) { ctx.setStatus(t('wall.splitNo')); return; }
       ctx.snapshot(); splitWall(f, it, d, ctx.uid); ctx.changed(); render();
@@ -162,6 +165,7 @@ export function initProps(ctx) {
     for (let n = 2; n <= 10; n++) parts.add(new Option(t('wall.parts', { n }), String(n)));
     const goN = document.createElement('button'); goN.type = 'button'; goN.id = 'wallPartsBtn'; goN.textContent = t('wall.splitBtn');
     goN.addEventListener('click', () => {
+      if (locked()) return;
       ctx.snapshot();
       if (!splitEqual(f, it, +parts.value, ctx.uid)) { ctx.setStatus(t('wall.splitNo')); return; }
       ctx.changed(); render();
@@ -171,6 +175,8 @@ export function initProps(ctx) {
   }
 
   function roomProps(body, it) {
+    const lr = ctx.lockRow?.(it);                                // 🔒 lock the room (5.1.0, roomlockui.js; the new panel has it in the head)
+    if (lr) body.append(lr);
     mark(body, 'general');
     roomNameFields(body, it, { t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(),   // its name: own, or a
       setStatus: (x) => ctx.setStatus(x), areas: () => ctx.areas(), layout: () => ctx.layout() });                             // Home Assistant area (roomnameui.js)

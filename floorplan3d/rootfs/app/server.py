@@ -397,6 +397,17 @@ async def can_edit(request) -> bool:
     return bool(admins and admins & ids)
 
 
+async def is_admin(request) -> bool:
+    """An administrator of Home Assistant (5.1.0: only they may switch „Grundriss fertig“ off when it says so). Standalone, or when the
+    administrators cannot be found out, everybody counts as one: the lock is there against mistakes, nobody is shut out by it."""
+    if not SUPERVISOR_TOKEN:
+        return True
+    admins = await load_admin_ids()
+    if admins is None:
+        return bool((request.get(KEY_SESSION) or {}).get("admin")) if HA_LOGIN else True
+    return bool(admins & current_user(request)["ids"])
+
+
 def forbidden():
     return web.json_response({"error": "editing is not allowed for this user"}, status=403)
 
@@ -417,7 +428,7 @@ async def get_me(request):
     buildings = read_settings(request).get("userBuildings", {})
     building = next((v for k, v in buildings.items() if str(k).strip().lower() in user["ids"]), None) if isinstance(buildings, dict) else None
     tabs = next((v for k, v in clean_user_tabs(read_settings(request).get("userTabs", {})).items() if k.strip().lower() in user["ids"]), {})
-    return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view, "preset": preset, "start": start, "building": building, "tabs": tabs,
+    return web.json_response({"user": user["name"], "canEdit": edit, "admin": await is_admin(request), "room": room, "view": view, "preset": preset, "start": start, "building": building, "tabs": tabs,
                               "locks": [k for k in LOCKS if k in user_locks(request)],
                               "adminCheck": (not SUPERVISOR_TOKEN) or HA_LOGIN or _admin_cache["ids"] is not None, "login": HA_LOGIN})
 

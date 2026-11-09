@@ -108,13 +108,16 @@ export function initUiV2(ctx) {
     const sub = el('small', '', subLine(pk, sel, it, room));
     h.append(nm, sub);
     const chips = el('div', 'chips');
-    for (const [text, cls] of chipList(pk, it)) chips.append(el('span', `v2Chip ${cls}`, text));
+    for (const [text, cls] of chipList(pk, it, sel.kind)) chips.append(el('span', `v2Chip ${cls}`, text));
     if (chips.childElementCount) h.append(chips);
     const acts = el('div', 'acts');
     const act = (id, icon, label, on, cls = '') => { const b = btn(cls, null, on); b.id = id; b.append(el('span', '', icon), el('small', '', label)); acts.append(b); return b; };
     if (pk === 'device') {
       act('v2Bring', '🎯', t('v2.act.bring'), () => $('#devBring')?.click());
       act('v2Lock', it.locked ? '🔒' : '🔓', t(it.locked ? 'v2.act.locked' : 'v2.act.lock'), () => $('#devLock')?.click(), it.locked ? 'on' : '');
+    }
+    if (pk === 'room' && ctx.roomLock) {                     // 🔒 a room (5.1.0): locked at once, „Was bleibt fest?“ opens (roomlockui.js)
+      act('v2Lock', it.locked ? '🔒' : '🔓', t(it.locked ? 'v2.act.locked' : 'v2.act.lock'), (e) => ctx.roomLock.roomButton(e.currentTarget, it), it.locked ? 'on' : '');
     }
     if (['window', 'door', 'room', 'device'].includes(pk)) act('v2CopyBtn', '⇉', t('v2.act.copy'), () => tools.toggleCopy(sel), tools.copyOpen(sel.id) ? 'on' : '');
     act('v2Delete', '🗑', t('panel.delete'), () => $('#propsDelete')?.click(), 'del');
@@ -133,8 +136,10 @@ export function initUiV2(ctx) {
     const what = ctx.propsTitle(sel.kind, it);
     return room && pk !== 'wall' ? `${what} · ${room.name || ''}` : what;
   }
-  function chipList(pk, it) {
+  function chipList(pk, it, kind) {
     const out = [];
+    const lw = ctx.roomLock?.why(kind, it.id);              // locked by its room or the plan (5.1.0): say so on top
+    if (lw && !lw.own && pk !== 'room') out.push([lw.plan ? `🔒 ${t('rlock.chipPlan')}` : `🔒 ${t('rlock.chipRoom', { n: lw.room || t('prop.room') })}`, 'lock']);
     if (pk === 'window' || pk === 'door') {
       out.push([`↔ ${ctx.fmtLen(it.width)} × ${ctx.fmtLen(it.height)}`, '']);
       if (it.entity) out.push([`🔗 ${t('v2.chip.contact')}`, 'ok']); else out.push([t('v2.sum.noContact'), '']);
@@ -142,6 +147,7 @@ export function initUiV2(ctx) {
       if (it.entity) out.push([`🔗 ${ctx.stateText(it.entity)}`, 'ok']);
       if (it.locked) out.push([`🔒 ${t('v2.act.locked')}`, 'warn']);
     } else if (pk === 'room') {
+      if (it.locked || lw?.plan) out.push([`🔒 ${t(lw?.plan ? 'rlock.chipPlan' : 'v2.act.locked')}`, 'lock']);
       if (it.area) out.push([`🔗 ${t('v2.chip.area')}`, 'ok']);
     }
     return out;

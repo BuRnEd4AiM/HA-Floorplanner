@@ -24,7 +24,8 @@ export function openingSpot(wall, point, defWidth, ignoreId = null) {
  *  isLive(), houseMode(), lockedSel(), selection(), setSelection(s), refreshSelection(), floor(), settings(), uid(), findOpening(id),
  *  findWall(id), pick(e), pickHit(e), groundPoint(e), snap(p, fine), snapshot(), changed(rebuild), build(), moveDeviceTo(d, x, z),
  *  multi ({ toggle(h), clear() }), liveTap(e), cableClick(id), deleteItem(sel), newDevice(x, z), holdPlaced(), editNano(d), switchDevice(d),
- *  roofBox(id) (the base box of a roof on the open floor), dragRoof(id, dx, dz) (moves the drawn roof, #255 #257) */
+ *  roofBox(id) (the base box of a roof on the open floor), dragRoof(id, dx, dz) (moves the drawn roof, #255 #257), lockWhy(kind, id) and
+ *  sayLock(why) (locked rooms and the plan, roomlockui.js) */
 export function initDraw3d(ctx) {
   let drawPts = [], cursor = null, down = null, preview = null;   // preview: { wall, pos, width, valid } of a door / window to place
 
@@ -134,6 +135,8 @@ export function initDraw3d(ctx) {
     const gp = ctx.groundPoint(e), tool = ctx.tool();
     if (down?.dev && gp) {
       if (down.dev.d.locked) return;
+      const dw = ctx.lockWhy?.('device', down.dev.d.id);                // in a locked room that keeps its devices (5.1.0, roomlock.js)
+      if (dw) { if (down.drag && !down.said) { down.said = true; ctx.sayLock(dw); } return; }
       if (!down.dev.moved) { ctx.snapshot(); down.dev.moved = true; }
       const [x, z] = ctx.snap([gp[0] + down.dev.dx, gp[1] + down.dev.dz], true);
       ctx.moveDeviceTo(down.dev.d, x, z);
@@ -152,6 +155,8 @@ export function initDraw3d(ctx) {
     if (down?.op && down.drag) {
       const { wall, opening } = down.op;
       if (opening.locked) return;
+      const ow = ctx.lockWhy?.('opening', opening.id);                 // in a wall of a locked room, or the plan is locked (5.1.0)
+      if (ow) { if (!down.said) { down.said = true; ctx.sayLock(ow); } return; }   // (down.drag is true here)
       const tgt = openingTarget(e, opening.id, opening, wall);
       if (tgt?.valid && Math.abs(tgt.pos - opening.pos) > 1e-6) {
         if (!down.op.moved) { ctx.snapshot(); down.op.moved = true; }

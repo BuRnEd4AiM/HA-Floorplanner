@@ -2848,3 +2848,38 @@ body.live .v2Nops, body.live .v2Drawer { display: none; }
 .v2CopyBox .v2Opt.on .rd { border-color: var(--accent); background: radial-gradient(var(--accent) 45%, transparent 50%); }
 .v2CopyBox .v2Opt small { margin-left: auto; color: var(--muted); }
 .v2Check { display: flex; align-items: center; gap: 8px; padding: 4px 9px; font-weight: 600; cursor: pointer; }
+
+/* ---- locked rooms and „Grundriss fertig“ (5.1.0, roomlockui.js) ---- */
+.lockPop { position: fixed; z-index: 60; display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 14px; background: var(--panel);
+  border: 1px solid #ffb74d; box-shadow: 0 18px 50px rgba(0, 0, 0, .55); color: var(--text); font-size: 13.5px; }
+.lockPop h5 { margin: 6px 0 4px; font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.lockPop h5:first-child { margin-top: 0; }
+.lockPop .v2Opt small { margin-left: auto; color: var(--muted); font-size: 11.5px; font-weight: 600; }
+.lockPop .v2Opt:disabled { opacity: .75; cursor: default; }
+.lockPop .v2Opt .bx { width: 17px; height: 17px; border-radius: 5px; border: 2px solid var(--muted); flex: none; display: grid; place-items: center; font-size: 11px; font-weight: 900; }
+.lockPop .v2Opt .bx.on { background: #ffb74d; border-color: #ffb74d; color: #2a1d10; }
+.lockPop .v2Opt.on { background: rgba(255, 183, 77, .12); }
+.lockPop .v2Seg button.on { background: #ffb74d; color: #2a1d10; }
+.v2Chip.lock { background: rgba(255, 183, 77, .16); border-color: #ffb74d; color: #ffd8a1; }
+.v2Head .acts button#v2Lock.on { border-color: #ffb74d; background: rgba(255, 183, 77, .16); }
+.lockRow { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; margin-bottom: 10px; border-radius: 10px; border: 1px solid rgba(255, 183, 77, .55); background: rgba(255, 183, 77, .07); }
+.lockRow .lockOpt { margin-left: 20px; font-size: 13px; }
+.lockRow button { align-self: flex-start; margin-top: 4px; }
+#props.v2 #roomLockRow { display: none; }                        /* the new panel has 🔒 in the head */
+.lockNote { color: #ffd8a1 !important; }
+.lockPlan { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--text) 3%, transparent); margin-bottom: 8px; }
+.lockPlan.on { border: 2px solid #ffb74d; background: rgba(255, 183, 77, .08); }
+.lockPlanTop { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0; border: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.lockPlanTop .ic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-size: 20px; background: rgba(255, 183, 77, .18); flex: none; }
+.lockPlanTop .txt { flex: 1; min-width: 0; } .lockPlanTop b { display: block; font-size: 14.5px; } .lockPlanTop small { display: block; color: var(--muted); font-size: 12px; font-weight: 600; }
+.lockPlanTop .tog { width: 40px; height: 23px; border-radius: 999px; background: var(--field); border: 1px solid var(--line); position: relative; flex: none; }
+.lockPlanTop .tog::after { content: ''; position: absolute; top: 3px; left: 3px; width: 15px; height: 15px; border-radius: 50%; background: #8b98a5; transition: left .15s; }
+.lockPlanTop .tog.on { background: #46a758; border-color: #46a758; } .lockPlanTop .tog.on::after { left: 20px; background: #fff; }
+.lockAdmin { font-size: 12.5px; color: var(--muted); }
+.v2Tree .n .lk { flex: none; width: 24px; height: 22px; padding: 0; border: 0; border-radius: 6px; background: transparent; font-size: 12.5px; cursor: pointer; opacity: .35; }
+.v2Tree .n .lk:hover { background: color-mix(in srgb, var(--text) 8%, transparent); opacity: .8; }
+.v2Tree .n .lk.all, .v2Tree .n .lk.plan { opacity: 1; } .v2Tree .n .lk.some { opacity: .6; filter: grayscale(.6); }
+.v2Tree .n.locked .nm { color: #ffd8a1; }
+#planLockPill { border: 2px solid #ffb74d; background: rgba(255, 183, 77, .15); color: #ffd8a1; font-weight: 800; }
+#planLockPill[hidden], body.live #planLockPill { display: none; }
+.lockPop .v2Seg button { white-space: normal; font-size: 12px; padding: 5px 4px; line-height: 1.15; }

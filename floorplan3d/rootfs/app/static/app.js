@@ -165,6 +165,7 @@ import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefau
 import { initRenames } from './renames.js';
 import { initMeasureTool } from './measuretool.js';
 import { initLogin } from './login.js';
+import { initRoomLock } from './roomlockui.js';
 window.fp3dBooted = true;           // every module is loaded: the boot guard (bootguard.js) stands down (#328)
 window.fp3dReadySupported = true;   // init() will report fp3dReady: the integration's boot splash can wait for it instead of guessing
 
@@ -182,6 +183,7 @@ let welcomeUi = null;           // the welcome card of an empty house (set up fu
 let mode = 'edit';                 // 'edit' | 'live'
 let tool = 'select';
 let uiV2 = null;                   // „Oberfläche 2“ (uiv2ui.js), set further down
+let roomLocks = null;              // locked rooms and „Grundriss fertig“ (roomlockui.js, 5.1.0), set further down
 let roomCtx = null;                // room whose entity list stays visible while one of its objects is selected
 let lockedSel = false;            // selected from the side list: only that object reacts to the mouse
 let selection = null;              // { kind: 'wall'|'room'|'device'|'opening', id }
@@ -555,7 +557,9 @@ function build() {
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
     if (!ghost && !holo) statics.push({ g, models: f.devices.filter(staticDevice).map((d) => registry.get(d.id)).filter(Boolean) });
     floorBuild.inside(g, part);
+    if (!ghost && !houseMode && i === floorIdx) roomLocks?.draw3d(g, f);   // locked rooms hatched while editing (roomlockui.js)
   });
+  roomLocks?.update();
   const overRi = houseMode ? -1 : coverRoofFloor(layout.floors, floorIdx);   // the roof over the floor shown (not drawn yet: it is a floor above), see-through
   if (iso ? overRi >= 0 && roofsUi.overRoom(overRi, floorIdx, iso.points) : overRi > floorIdx) { const g = new THREE.Group(); g.position.y = elev(overRi); world.add(g); roofsUi.over(g, overRi, iso ? iso.points : null, holo); }   // a focused room: only the part over it, and only under a slope or a dormer (#306)
   if (!iso) neighbors.build(world, { upTo: houseMode ? Infinity : elev(floorIdx), holo });   // the neighbour house next to this one (#220)
@@ -1191,13 +1195,17 @@ function snapToWall(d, maxDist = 2, keepFacing = false) { return snapOnWall(d, f
 const pictures = initPictures({ snapshot: () => snapshot(), changed: () => changed(), renderProps: () => renderProps() });
 function setPicture(model, d) { pictures.setPicture(model, d); }
 function uploadPicture(file, d) { return pictures.uploadPicture(file, d); }
+/* ---- locked rooms and „Grundriss fertig“ (5.1.0): what may not move and why; the code lives in roomlockui.js and roomlock.js ---- */
+roomLocks = initRoomLock({ $, t, layout: () => layout, floor: () => floor(), setStatus: (x) => setStatus(x), snapshot: () => snapshot(), changed: () => { changed(); renderProps(); },
+  isAdmin: () => me.admin !== false, isLive: () => isLive() });
+const lockCtx = { lockWhy: (k, id) => roomLocks.why(k, id), pointsLockWhy: (pts) => roomLocks.pointsWhy(pts), sayLock: (w) => roomLocks.say(w) };
 /* ---- measuring (tool "Messen", key M): distance of two points, distance / angle of two walls; the code lives in measuretool.js and measure.js ---- */
-const measureTool = initMeasureTool({
+const measureTool = initMeasureTool({ ...lockCtx,
   $, t, floor: () => floor(), floorIdx: () => floorIdx, elev: (i) => elev(i), scene, textSprite: (...a) => textSprite(...a), fmtLen: (m) => fmtLen(m),
   toDisp, fromDisp, imperial, snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), renderPlan: () => plan?.render(),
 });
 /* ================= Pointer events: select, drag, draw, place, double click; the code lives in draw3d.js ================= */
-draw3d = initDraw3d({
+draw3d = initDraw3d({ ...lockCtx,
   canvas, controls, temp, t, setStatus: (x) => setStatus(x), fmtLen: (m) => fmtLen(m), clearGroup: (g) => clearGroup(g), elev: () => elev(),
   tool: () => tool, openingType: () => openingType, isLive: () => isLive(), houseMode: () => houseMode, lockedSel: () => lockedSel,
   selection: () => selection, setSelection: (s) => { selection = s; }, refreshSelection: () => refreshSelection(), floor: () => floor(), settings: () => settings,
@@ -1225,7 +1233,7 @@ const clipboard = initClipboard({
   select: (items) => multiSel.selectOnly(items), snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), uid: () => uid(),
 });
 /* ---- Delete, arrow keys, Q / E and the shortcut keys; the code lives in edititems.js ---- */
-const editItems = initEditItems({
+const editItems = initEditItems({ ...lockCtx,
   t, floor: () => floor(), floorIdx: () => floorIdx, floors: () => layout.floors.length, settings: () => settings,
   selection: () => selection, setSelection: (s) => { selection = s; }, isLive: () => isLive(), tool: () => tool,
   snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), undo: () => undo(), redo: () => redo(), clip: clipboard,
@@ -1358,6 +1366,7 @@ function setMode(next) {
   if (isLive()) tapBalls.remeasure();                                 // devices may have been moved while editing
   stairTool.showUpper(scene, !isLive());                              // stairs over several floors: whole height only in the editor (#246)
   if (plotLoop) plotLoop.visible = !isLive();
+  roomLocks?.showHatch(!isLive()); roomLocks?.closePop();
   batchStatics();
   applyViewPolicy();
   applyStates();
@@ -1609,7 +1618,7 @@ function releaseLock() {                 // back to the room (if the object came
   selection = roomCtx && floor()?.rooms.some((r) => r.id === roomCtx) ? { kind: 'room', id: roomCtx } : null;
   refreshSelection();
 }
-const objList = initObjList({
+const objList = initObjList({ planBox: () => roomLocks.planBox('Obj'),
   $, t, floor: () => shownFloor(), isLive: () => isLive(), selection: () => selection, locked: () => lockedSel, lockTo: (sel) => { selection = sel; lockedSel = true; refreshSelection(); },
   releaseLock: () => releaseLock(), registry, tool: () => tool, setTool: (x) => setTool(x), itemOf: (k, id) => itemOf(k, id), snapshot: () => snapshot(), changed: () => changed(),
   renderProps: () => renderProps(), plan: () => plan, pointInPoly,
@@ -1630,10 +1639,11 @@ uiV2 = initUiV2({
   layout: () => layout, floorIdx: () => floorIdx, isLive: () => isLive(), tool: () => tool, switchFloor: (i) => switchFloor(i),   // the tree (5.0.0)
   houses: () => hs.list(), houseId: () => hs.id(), switchHouse: (id) => switchHouse(id), addFloorOf: (k) => addFloorOf(k),
   moveFloorTo: (a, b) => floorPanel.moveFloorTo(a, b), renderFloorPanel: () => renderFloorPanel(), storeyText: () => fmtLen(floorH()),
-  fmtArea: (m2) => fmtArea(m2, imperial()),
+  fmtArea: (m2) => fmtArea(m2, imperial()), roomLock: roomLocks,           // 🔒 at a room, the locks in the tree (5.1.0)
 });
 const props = initProps({
   multiBox: () => multiSel.box(), roofInfo: (id) => roofRectOf(id), v2: (...a) => uiV2.decorate(...a), v2Reset: () => uiV2?.reset(),
+  lockRow: (r) => roomLocks.roomRow(r), lockFreeze: (body, r) => roomLocks.freeze(body, r), lockWhy: (k, id) => roomLocks.why(k, id), sayLock: (w) => roomLocks.say(w),
   $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, roomCtx: () => roomCtx, setRoomCtx: (id) => { roomCtx = id; },
   fields: { field, inp, lenInput, pickerField }, entityPicker: (...a) => entityPicker(...a), entities: () => entities, areas: () => areas,
   findOpening: (id) => findOpening(id), snapshot: () => snapshot(), changed: () => changed(), build: () => build(), refreshSelection: () => refreshSelection(), layout: () => layout,
@@ -1779,7 +1789,7 @@ plan = createPlan({
   setSelection: (h) => { multiSel.clear(); selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); }, toggleMulti: (h) => multiSel.toggle(h), addMulti: (items) => multiSel.addAll(items), multiItems: () => multiSel.items(),
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate: (a, b) => bgUi.calibrate(a, b),
   bgChanged: () => bgUi.render(), floorH, neighborOutlines: () => neighbors.outlines(elev(floorIdx)), ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: (p) => plotUi.drawn(p), placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
-  moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
+  moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => roomLocks.isLocked(k, id), ...lockCtx,   // locked rooms, the plan (roomlockui.js)
  
   liveMoveDevice: (d) => liveMove(d),
   roofRects: () => roofRectsHere(), dragRoof: (id, dx, dz) => dragRoofBy(id, dx, dz),   // roofs on the roof floor (#255, #257)

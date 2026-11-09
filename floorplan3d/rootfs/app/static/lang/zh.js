@@ -3907,4 +3907,12 @@ export default {
   'v2.copy.window.house': '房屋中所有窗户', 'v2.copy.door.room': '{name} 的门', 'v2.copy.door.floor': '{name} 的门', 'v2.copy.door.house': '房屋中所有门',
   'v2.copy.room.floor': '{name} 的其他房间', 'v2.copy.room.house': '房屋中所有其他房间', 'v2.copy.device.room': '{name} 中的相同设备', 'v2.copy.device.floor': '{name} 的相同设备',
   'v2.copy.device.house': '房屋中所有同类设备',
+  'rlock.plan': '🔒 平面图已锁定 – 点击顶部“🔒 平面图已锁定”即可修改。', 'rlock.room': '🔒 “{n}”已锁定 – 请先点击房间的 🔒 解锁。', 'rlock.what': '哪些保持固定？', 'rlock.walls': '墙和角',
+  'rlock.wallsSub': '形状、大小', 'rlock.openings': '窗和门', 'rlock.openingsSub': '留在墙上', 'rlock.devices': '房间内的设备', 'rlock.devicesOn': '保持不动',
+  'rlock.devicesOff': '可自由移动', 'rlock.settings': '名称和设置', 'rlock.settingsSub': '仅查看', 'rlock.scope': '适用于', 'rlock.scopeRoom': '仅此房间', 'rlock.scopeFloor': '整层',
+  'rlock.scopeHouse': '整栋房子', 'rlock.unlock': '解锁', 'rlock.done': '完成', 'rlock.roomRow': '锁定房间（不可移动）', 'rlock.roomHelp': '其墙、角、窗和门将无法再拖动或删除。',
+  'rlock.floorAll': '以此锁定本层所有房间', 'rlock.frozen': '🔒 已锁定：名称和设置仅可查看。', 'rlock.adminOnly': '🔒 只有管理员可以解锁平面图。', 'rlock.planOn': '🔒 平面图已锁定：墙和房间保持不动，设备仍可移动。',
+  'rlock.planOff': '🔓 平面图已解锁。', 'rlock.planTitle': '平面图已完成', 'rlock.planSub': '锁定整栋房子的墙和房间。设备不受影响。', 'rlock.adminOnlyBox': '仅管理员可解锁',
+  'rlock.floorSome': '部分房间已锁定 – 点击锁定全部', 'rlock.floorLock': '锁定本层所有房间', 'rlock.floorUnlock': '解锁本层所有房间', 'rlock.roomLock': '锁定房间', 'rlock.roomUnlock': '解锁房间',
+  'rlock.pill': '平面图已锁定', 'rlock.pillAsk': '解锁平面图？之后墙和房间可再次移动。', 'rlock.pillTip': '墙和房间已锁定。点击解锁。', 'rlock.chipPlan': '平面图已锁定', 'rlock.chipRoom': '固定：{n} 已锁定',
 };
