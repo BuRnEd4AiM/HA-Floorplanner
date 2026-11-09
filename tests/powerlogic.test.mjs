@@ -76,3 +76,14 @@ test('numbers in the language of the screen (German comma, English point), no th
   assert.equal(fmtNum(-0.04, 1, 0, 'de'), '0');
   assert.equal(fmtNum(-2.25, 1, 0, 'de'), '-2,3');
 });
+test('the power editor keeps nothing selected, a cable or a power thing; a room, a window or a lamp is let go (2026-11-09)', () => {
+  const typeOf = (id) => ({ fb: 'fusebox', wm: 'watermeter', lamp: 'light' })[id];
+  assert.equal(P.keepsInPowerEditor(null, typeOf), true);
+  assert.equal(P.keepsInPowerEditor({ kind: 'cable', id: 'c1' }, typeOf), true);
+  assert.equal(P.keepsInPowerEditor({ kind: 'device', id: 'fb' }, typeOf), true);
+  assert.equal(P.keepsInPowerEditor({ kind: 'device', id: 'wm' }, typeOf), true);
+  assert.equal(P.keepsInPowerEditor({ kind: 'device', id: 'lamp' }, typeOf), false);
+  assert.equal(P.keepsInPowerEditor({ kind: 'device', id: 'gone' }, typeOf), false);
+  assert.equal(P.keepsInPowerEditor({ kind: 'room', id: 'r1' }, typeOf), false);
+  assert.equal(P.keepsInPowerEditor({ kind: 'opening', id: 'o1' }, typeOf), false);
+});

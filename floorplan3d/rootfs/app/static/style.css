@@ -369,6 +369,9 @@ body[data-tool="wall"] #plan2d, body[data-tool="room"] #plan2d, body[data-tool="
 body.live #plan2d { cursor: pointer; }
 
 body:not(.live) #roomPanel { display: none !important; }   /* edit mode: the side panel already lists the room's entities */
+/* … and so does the heating beside it (it opened with a room picked at the top left while editing and stayed in the middle of the picture,
+ * the owner 2026-11-09: „die ganze Zeit in der Mitte des Bildschirms, wenn ich was bearbeite, ist dieses Heizungsfenster“) */
+body:not(.live) #heatPanel { display: none !important; }
 
 .prop.stack { flex-direction: column; align-items: stretch; gap: 4px; }
 .prop.stack > label { flex: none; }
@@ -2729,6 +2732,8 @@ body.phoneview #uiSwitch { display: none !important; }   /* the phone keeps the 
 #uiSwitch button { border: 0; background: transparent; }
 #uiSwitch button.active { background: #b48cff; color: #1a0f2e; }
 body.uiV2 #panel:has(> #props.v2:not([hidden])) > :not(#props) { display: none; }
+/* a tool chosen while something is selected (the power editor, „Gerät“, „Tür/Fenster“ …): its library stays on top, as in the classic panel */
+body.uiV2:not([data-tool=select]) #panel:has(> #props.v2:not([hidden])) > :is(#devicePalette, #openingPalette, #stairPalette, #blockPalette, #plotPalette, #measurePanel):not([hidden]) { display: block; }
 @media (min-width: 801px) { body.uiV2 #panel { width: var(--panel-w, 360px); } }   /* the new panel is a little wider unless the width was dragged */
 #props.v2 > h3 { display: none; }
 #props.v2 #propsBody { display: flex; flex-direction: column; gap: 10px; }

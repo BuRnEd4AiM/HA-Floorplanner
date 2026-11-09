@@ -1,6 +1,6 @@
 {
  "version": "5.2.2",
- "buildHash": "235080629a33e504e49277599f7100fb0e2569b501cbafe3d51d73a019397c9f",
+ "buildHash": "16b96607eea7f8e3e45c9970411a303c749898c2f762c10386108149a1037692",
  "files": {
   "alarmnotify.py": "4ad6881ea1778c9854989abd91fecccf1c34f559e7f4207383be911df8d61514",
   "boards.py": "cedc4441461114e83b42afa893c476670110675311289e15e02d3709d4df1b3c",
@@ -349,8 +349,8 @@
   "static/plateau3d.js": "710cee6a0bdd975a214e6845acdd201758d073df6588b2e0a421a7f5b9075420",
   "static/plateauui.js": "9296a1a47862783ee4f9240ecca111acc4e9ef4d7c4035f8c355cd69bced5b4f",
   "static/plotui.js": "1cb66f1ea946b2a64c83eefe81998dc60e2dab5969d03bcbd2222c2d36e67446",
-  "static/power.js": "52f116379eec51ce724ecd3328517a1071869466072f802abb961665068e1aa3",
-  "static/powerlogic.js": "7287da156a8b21d74bf361ffbc2840b5685fce840efa562e315a15280b8cd919",
+  "static/power.js": "034bd77f16b6aa1de6f3ecfae7b34c4d0b84490003b7b6c16db746734618919d",
+  "static/powerlogic.js": "2f82ddf7073867a39b5a919ac73bbae9dda5d63bc923d7a639c4b5e9d3449cdd",
   "static/presenceprefs.js": "004ab8b2f784944e2a36e80add6653af86b00991ed052c245296424b738965c3",
   "static/propfields.js": "b3a8275bdfe9e6bff327c604cd7a03dca1264a73d0abb9e8a299b1fe6f160c25",
   "static/props.js": "e211e64884fdec9f3cf3d272c15f71d71cbf4629fab67faacb95ef9143c3e253",
@@ -415,7 +415,7 @@
   "static/stairs.js": "9d613d33982997e3d0292f246e023468fa83d300a66e01ef38a4c5d707009a5e",
   "static/stairtool.js": "80f613a111fa8573add5c139dd67531fc9828c0218786222ffcd77ea580eb11d",
   "static/startview.js": "da8d6d4ce30c1a3bd866e4f95d0bfa2190f08220178c381c0b5b85b31894a634",
-  "static/style.css": "bac50af0a76bcb9a0f291e9d4c6dbe8cd6d2f1b9ab44cf66995ad0ff7a90a16b",
+  "static/style.css": "c19b288cdd9200683cdcfabd0cf40b262d57bc0e0f6189a09b203d61f0a16322",
   "static/tabedit.js": "ec8ac797d4a32d3f62e0b2bd1c01fe8aa909a28ad49fa9e766978034e03a7012",
   "static/tabs.js": "a2d3611a8a5632f5cc6353ed90a5002d713504c240626debdc354e49f5c53a3f",
   "static/tabsui.js": "83651bb8cab2dacf9a1db5a2813d2d60037dc3183c1ccbfa62bd2a4884398d2e",

@@ -27,7 +27,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 15. **Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren** (Abschnitt 172, dein Wunsch vom 2026-11-09): Claude hat 172.1 bis 172.12 geprüft (auch alle Schritte in der Demo, am 2026-11-09 auf deine Frage „Kannst du das nicht selber testen?“); für dich nur noch dein Eindruck 172.13 und nach dem Merge die Videos 172.14.
 16. **Neu in 5.2.0: Normal und Beta** (Abschnitt 173, deine Frage vom 2026-11-09): Claude hat 173.1 und 173.2 geprüft; für dich nach dem Merge in Home Assistant 173.3 bis 173.9, bei der nächsten Freigabe 173.10.
 17. **Repariert in 5.2.1: die große Seitenansicht des Dachs (⤢)** (Abschnitt 174, #684, gefunden beim Durchgehen von 172): Claude hat 174.1 bis 174.3 geprüft; nach dem Merge in der Demo 174.4.
-18. **Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen** (Abschnitt 175, deine Fotos vom 2026-11-09, #686, #687): Claude hat 175.1 und 175.2 geprüft; für dich nach dem Merge in der Beta am iPad 175.3 und 175.4.
+18. **Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten** (Abschnitt 175, deine Fotos und Meldungen vom 2026-11-09, #686, #687, #689, #690): Claude hat 175.1, 175.2, 175.5 und 175.6 geprüft; für dich nach dem Merge in der Beta am iPad 175.3, 175.4, 175.7 und 175.8.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -458,8 +458,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 172. Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren | 12 | 0 | 2 | 0 | 172.13, 172.14 |
 | 173. Neu in 5.2.0: Normal und Beta | 2 | 0 | 8 | 0 | 173.3 bis 173.10 |
 | 174. Repariert in 5.2.1: die große Seitenansicht des Dachs (⤢) (#684) | 3 | 0 | 1 | 0 | 174.4 |
-| 175. Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen (#686, #687) | 2 | 0 | 2 | 0 | 175.3, 175.4 |
-| **Zusammen** | **1138** | **1** | **86** | **92** | |
+| 175. Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten (#686, #687, #689, #690) | 4 | 0 | 4 | 0 | 175.3, 175.4, 175.7, 175.8 |
+| **Zusammen** | **1140** | **1** | **88** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2695,12 +2695,16 @@ Gefunden, als Claude am 2026-11-09 den Abschnitt 172 in der Demo durchgegangen i
 | 174.3 | Browser-Test Teil `81_roof_lock` | Große Ansicht zeigt die getippte Neigung; Esc schließt sie; sie geht zu, wenn das Dach nicht mehr ausgewählt ist | ✅ (2026-11-09, Claude, 115/115) |
 | 174.4 | Nach dem Merge in der Demo: Dach, „⤢ groß“, Neigung tippen, Esc | Wie 174.1 und 174.2 | ❓ |
 
-## 175. Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen (#686, #687)
-Gemeldet vom Besitzer am 2026-11-09 mit Fotos vom iPad: war oben links nur ein Raum gewählt, lagen die Streifen der anderen gesperrten Räume weiter auf der Wiese (#686); die Reiter links an der Leiste zeigten bei einem Fenster nur Zeichen, keine Namen (#687). Jetzt zeigt ein Raum allein nur seine eigenen Streifen, und jeder Reiter hat seinen Namen (hochkant, wenn alle passen, sonst quer unter dem Zeichen).
+## 175. Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten (#686, #687, #689, #690)
+Gemeldet vom Besitzer am 2026-11-09 mit Fotos vom iPad: war oben links nur ein Raum gewählt, lagen die Streifen der anderen gesperrten Räume weiter auf der Wiese (#686); die Reiter links an der Leiste zeigten bei einem Fenster nur Zeichen, keine Namen (#687). Jetzt zeigt ein Raum allein nur seine eigenen Streifen, und jeder Reiter hat seinen Namen (hochkant, wenn alle passen, sonst quer unter dem Zeichen). Gleich danach: mit „✨ Neu“ zeigte der Strom-Editor keine Strom-Geräte, wenn vorher ein Raum oder Fenster ausgewählt war (#689), und beim Bearbeiten stand das Heizungsfenster mitten im Bild (#690).
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 175.1 | Browser-Test Teil `81_roof_lock` | Im 3D-Bild hat der gesperrte Raum Streifen; nur die Küche gewählt: keine Streifen; nur der gesperrte Raum: seine Streifen; alle Räume: wie vorher |✅ (2026-11-09, Claude, 31/31; dazu in der Demo: Keller, drei Räume gesperrt, nur die Garage gewählt: keine Streifen) |
-| 175.2 | Browser-Test Teil `80_ui_v2_more` | Jeder Reiter zeigt seinen Namen: hochkant, wenn alle passen; bei niedrigem Fenster quer unter dem Zeichen und alle auf dem Bildschirm; sehr niedrig: die Reiter lassen sich schieben | ✅ (2026-11-09, Claude, 25/25; dazu in der Demo in iPad-Größe: Fenster quer mit Namen, Tür hochkant und „Home Assistant“ ganz) |
+| 175.1 | Browser-Test Teil `81_roof_lock` | Im 3D-Bild hat der gesperrte Raum Streifen; nur die Küche gewählt: keine Streifen; nur der gesperrte Raum: seine Streifen; alle Räume: wie vorher |✅ (2026-11-09, Claude, 31/31, mit 175.6 32/32; dazu in der Demo: Keller, drei Räume gesperrt, nur die Garage gewählt: keine Streifen) |
+| 175.2 | Browser-Test Teil `80_ui_v2_more` | Jeder Reiter zeigt seinen Namen: hochkant, wenn alle passen; bei niedrigem Fenster quer unter dem Zeichen und alle auf dem Bildschirm; sehr niedrig: die Reiter lassen sich schieben | ✅ (2026-11-09, Claude, 25/25, mit 175.5 28/28; dazu in der Demo in iPad-Größe: Fenster quer mit Namen, Tür hochkant und „Home Assistant“ ganz) |
 | 175.3 | Im Add-on (Beta) am iPad: einen Raum sperren, oben links einen anderen Raum wählen, dann den gesperrten | Beim anderen Raum keine Streifen mehr auf der Wiese; beim gesperrten Raum nur seine eigenen | ❓ |
 | 175.4 | Im Add-on (Beta) am iPad: „✨ Neu“, ein Fenster anklicken | Links an der Leiste hat jeder Reiter seinen Namen (Fensterart, Größe & Lage, Flügel & Öffnen …), nicht nur Zeichen | ❓ |
+| 175.5 | Browser-Test Teil `80_ui_v2_more` (Werkzeug bei Auswahl) | „Gerät“ mit ausgewähltem Fenster: die Bibliothek oben, die Leiste des Fensters darunter; „Strom“: das Fenster ist nicht mehr ausgewählt, die Strom-Geräte stehen da |✅ (2026-11-09, Claude, 28/28; dazu `05_power` 54/54, `15_energy` 22/22, `22_energy_setup` 10/10; in der Demo: Küche gewählt, „Strom“ zeigt die Strom-Geräte) |
+| 175.6 | Browser-Test Teil `81_roof_lock` (Heizungsfenster) | Ein Raum beim Bearbeiten gewählt: kein Heizungsfenster im Bild |✅ (2026-11-09, Claude, 32/32; dazu `04_lights` 32/32 mit dem Heizungsfenster in Live; in der Demo: Wohnzimmer gewählt, kein Heizungsfenster) |
+| 175.7 | Im Add-on (Beta) am iPad: „✨ Neu“, oben links einen Raum wählen, dann oben „Strom“ | Rechts stehen die Strom-Geräte (Zählerkasten, Wechselrichter …) zum Setzen | ❓ |
+| 175.8 | Im Add-on (Beta) am iPad: Bearbeiten, oben links einen Raum mit Heizung wählen | Kein Heizungsfenster mitten im Bild; in „Live“ ist es beim Raum wie bisher da | ❓ |

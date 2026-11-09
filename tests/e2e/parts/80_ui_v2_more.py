@@ -2,7 +2,8 @@
 and nothing selected the house is a tree (🗂 Haus / 🔍 Objekte / ❔ Hilfe; the floors from the top down, a floor dragged elsewhere, the
 rooms to tap), a floor tapped opens with its kind as three buttons and the storey height with the house from the side; for a selected
 object a search for a setting (also into ⚙), the sections as tabs on the panel that pull one out into a drawer, and „⇉ Übernehmen“ (the
-same settings for the other windows in the room / on the floor / in the house, one undo step).
+same settings for the other windows in the room / on the floor / in the house, one undo step); a tool's library and the power editor while
+something is selected.
 """
 saved_v3 = api_admin("api/layout")              # put back at the end
 st_v3 = api("api/settings")
@@ -113,6 +114,20 @@ check("ui v2 tabs: the field in the drawer works (a roller shutter now) and the 
 pgW.click("#v2Nops [data-sec=shutter]"); pgW.wait_for_timeout(400)
 check("ui v2 tabs: a tap again puts it back", not pgW.locator("#v2Drawer").is_visible() and pgW.locator(".v2Sec.out").count() == 0
       and pgW.locator(".v2Sec[data-sec=shutter] #openShutter").count() == 1, None)
+
+# a tool chosen while the window is selected (the owner, 2026-11-09: „wenn ich in der neuen Ansicht bin und den Stromeditor öffnen möchte,
+# funktioniert das nicht … ich sehe da nichts“): „Gerät“ shows its library on top of the window's panel; the power editor lets the window go
+pgW.click("#tools [data-tool=device]"); pgW.wait_for_timeout(400)
+check("ui v2 tool: „Gerät“ with a window selected: the library shows on top, the window's panel stays below",
+      pgW.locator("#devicePalette").is_visible() and pgW.locator("#props").is_visible(), None)
+pgW.click("#tools [data-tool=select]"); pgW.wait_for_timeout(300)
+check("ui v2 tool: back to „Auswählen“: only the window's panel", not pgW.locator("#devicePalette").is_visible() and pgW.locator("#props").is_visible(), None)
+pgW.click("#powerEditBtn"); pgW.wait_for_timeout(500)
+check("ui v2 power editor: switched on with a window selected: the window is let go, the library of power devices shows",
+      pgW.evaluate("window.__fp.selection()") is None and pgW.locator("#devicePalette").is_visible() and not pgW.locator("#props").is_visible()
+      and not pgW.locator("#v2Nops").is_visible(), pgW.evaluate("window.__fp.selection()"))
+pgW.click("#powerEditBtn"); pgW.wait_for_timeout(400)
+pgW.evaluate("window.__fp.select('opening', 'v3_a')"); pgW.wait_for_selector("#v2Search", timeout=10000)
 
 pgW.click("#v2CopyBtn"); pgW.wait_for_selector("#v2CopyBox", timeout=5000)
 scopes_v3 = pgW.evaluate("[...document.querySelectorAll('#v2CopyBox [data-scope]')].map((b) => [b.dataset.scope, b.querySelector('small').textContent])")
