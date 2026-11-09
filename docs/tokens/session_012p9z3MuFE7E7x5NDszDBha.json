@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3MuFE7E7x5NDszDBha",
+ "start": "2026-11-09",
+ "updated": "2026-11-09T17:32:55Z",
+ "branch": "claude/room-lock-display-issue-6jzqw1",
+ "source": "counted",
+ "input": 253,
+ "cache_write": 287806,
+ "cache_read": 30794007,
+ "output": 76899,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 253,
+   "cache_write": 287806,
+   "cache_read": 30794007,
+   "output": 76899,
+   "requests": 130
+  }
+ }
+}

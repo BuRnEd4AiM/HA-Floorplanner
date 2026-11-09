@@ -166,13 +166,16 @@ export function initRoomLock(ctx) {
     stripes = new THREE.CanvasTexture(c); stripes.wrapS = stripes.wrapT = THREE.RepeatWrapping; stripes.repeat.set(2, 2);
     return stripes;
   }
-  /** the rooms of floor f that are locked (by themselves or by the plan) get stripes on their floor and a dashed outline (group g) */
-  function draw3d(g, f) {
+  /** the rooms of floor f that are locked (by themselves or by the plan) get stripes on their floor and a dashed outline (group g);
+   *  only: the room shown on its own (a room tapped on the left, „nur ein Raum“): the other rooms are not drawn, so neither are their
+   *  stripes (the owner, 2026-11-09: „dann sehe ich trotzdem noch von jedem anderen Raum, dass der auch gesperrt ist“) */
+  function draw3d(g, f, only = null) {
     shown.length = 0;
     if (!f) return;
     const plan = planLockOf(ctx.layout()).on;
     (f.rooms || []).forEach((r) => {
       if (!(plan || r.locked) || !(r.points?.length >= 3)) return;
+      if (only && r.id !== only.id) return;
       const shape = new THREE.Shape(r.points.map(([x, z]) => new THREE.Vector2(x, -z)));
       const m = new THREE.Mesh(new THREE.ShapeGeometry(shape).rotateX(-Math.PI / 2),
         new THREE.MeshBasicMaterial({ map: texture(), transparent: true, opacity: 0.32, depthWrite: false, side: THREE.DoubleSide }));

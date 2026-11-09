@@ -6,6 +6,10 @@ export const POWER_TYPES = new Set(['solarpanel', 'inverter', 'powermeter', 'hou
 export const METER_TYPES = new Set(['watermeter', 'gasmeter', 'heatmeter']);
 /** what the power editor shows */
 export const showsInPowerEditor = (type) => POWER_TYPES.has(type) || METER_TYPES.has(type);
+/** does a selection stay when the power editor is switched on: nothing, a cable or a thing the editor shows; anything else (a room, a
+ *  window, a lamp …) is let go, else its panel stays and covers the library of power devices (the owner, 2026-11-09: „wenn ich in der
+ *  neuen Ansicht bin und den Stromeditor öffnen möchte, funktioniert das nicht … ich sehe da nichts“). typeOf(id): the type of a device */
+export const keepsInPowerEditor = (sel, typeOf) => !sel || sel.kind === 'cable' || (sel.kind === 'device' && showsInPowerEditor(typeOf(sel.id)));
 export const CABLE_ROUTES = ['floor', 'through', 'air'];
 /** what a cable carries decides its colour: grid (the connection to the public grid, also what is fed in), own solar, battery, consumption */
 export const CABLE_KINDS = { grid: '#ff6b6b', solar: '#7dff9a', battery: '#5aa9ff', load: '#ffb347' };
