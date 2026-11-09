@@ -78,7 +78,7 @@ async def test_without_a_login_nothing_but_the_way_to_it(aiohttp_client, tmp_pat
     forged = {"X-Remote-User-Name": "admin", "X-Remote-User-Id": "u1"}                   # anybody could send these
     assert (await c.get("/api/me", headers=forged)).status == 401
     assert (await c.post("/api/service", json={"domain": "light", "service": "turn_on"}, headers=forged)).status == 401
-    assert (await c.post("/api/backup", json={}, headers=forged)).status == 401                    # also the restore (its own sub-app)
+    assert (await c.post("/api/backup", json={}, headers=forged)).status == 401                    # also the restore (its own size limit, #693)
     assert (await c.get("/api/live")).status == 401
     c.session.cookie_jar.update_cookies({hl.SESSION_COOKIE: hl.sign({"id": "u1", "exp": 9e9}, b"x" * 32)})
     assert (await c.get("/api/me")).status == 401                                        # a cookie not signed by this add-on

@@ -185,7 +185,7 @@ export default {
   'backup.import': '恢复备份…',
   'backup.confirm': '恢复备份？所有房屋和设置都会被文件内容替换（当前状态会先在服务器上另存一份安全备份）。',
   'backup.done': '备份已恢复：{h} 栋房屋',
-  'backup.failed': '备份失败',
+  'backup.failed': '备份失败', 'backup.tooBig': '文件太大（{mb} MB），没有送到加载项。不含记录的备份更小。',
   'house.new': '+ 新建房屋',
   'house.rename': '重命名',
   'house.copy': '创建副本',

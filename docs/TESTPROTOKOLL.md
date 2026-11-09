@@ -461,7 +461,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 174. Repariert in 5.2.1: die große Seitenansicht des Dachs (⤢) (#684) | 3 | 0 | 1 | 0 | 174.4 |
 | 175. Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten (#686, #687, #689, #690) | 4 | 0 | 4 | 0 | 175.3, 175.4, 175.7, 175.8 |
 | 176. Verbessert in 5.2.3: ⛰ Keller halb aus der Erde (#691) | 4 | 0 | 2 | 0 | 176.5, 176.6 |
-| **Zusammen** | **1144** | **1** | **90** | **92** | |
+| 177. Repariert in 5.2.4: Backup einspielen ohne Größengrenze (#693) | 3 | 0 | 2 | 0 | 177.3, 177.4 |
+| **Zusammen** | **1147** | **1** | **92** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2722,3 +2723,14 @@ Gefragt von st03psn am 2026-11-09 (#691): ein Keller, der zur Hälfte aus der Er
 | 176.4 | Die Antwort im Issue #691 | Die drei Bilder (Geschosshöhe, ein Höhenpunkt, vorher/nachher) sind da | ✅ (2026-11-09, Claude: die Bild-Adressen antworten mit dem Bild) |
 | 176.5 | Nach dem Merge in der Beta: Keller öffnen, „Etage verwalten“, „⛰ Gelände einstellen“, einmal in den Plan tippen, −1,5 eintippen, dann „Ganzes Haus“ | Der Keller schaut zur Hälfte aus dem Rasen, seine Fenster sind zu sehen | ❓ |
 | 176.6 | Nach dem Merge in der Anleitung: Video „Gelände am Hang“, Suche „Keller halb aus der Erde“ | Die Suche findet das Video, am Ende der halbe Keller | ❓ |
+
+## 177. Repariert in 5.2.4: Backup einspielen ohne Größengrenze (#693)
+Gemeldet vom Besitzer am 2026-11-09 mit einem Bild: „Backup einspielen…“ zeigte nur „Backup fehlgeschlagen: 413“ (413 = „zu groß“). Das Add-on nahm höchstens 10 MB an, der Supervisor von Home Assistant höchstens 16 MB; ein Backup mit Bildern und 3D-Modellen ist größer. Sein Wunsch: „es sollte keine grenze geben“. Jetzt hat das Einspielen keine Grenze, und der Supervisor reicht die Datei durch (`ingress_stream: true`).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 177.1 | Test `test_backup_restore_has_no_size_limit` | Ein Backup mit etwa 28 MB wird eingespielt (auch in Stücken ohne Länge, wie vom Supervisor); andere Anfragen über 10 MB bekommen weiter 413 | ✅ (2026-11-09, Claude) |
+| 177.2 | Test `test_ingress_passes_large_uploads_on` | `config.yaml` hat `ingress_stream: true` | ✅ (2026-11-09, Claude) |
+| 177.2a | Browser-Test Teil `03_houses` | „Backup einspielen…“ über die Seite (neue Route) spielt das Backup ein, der Plan und die Pinnwand kommen zurück | ✅ (2026-11-09, Claude, 135/135) |
+| 177.3 | Nach dem Merge im Add-on (Beta, 5.2.4): ⚙ → „Backup & Sicherheit“ → „Backup einspielen…“ mit derselben Datei wie auf dem Bild | „Backup eingespielt: … Häuser“, die Seite lädt neu, Häuser, Bilder und Modelle sind da | ❓ |
+| 177.4 | Nach dem Merge im Add-on (Beta): ein 3D-Modell oder ein Bild hochladen, eine Einstellung ändern, einen Raum verschieben | Alles speichert wie vorher (der Supervisor reicht jetzt jede Anfrage durch, statt sie erst einzulesen) | ❓ |

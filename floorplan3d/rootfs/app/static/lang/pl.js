@@ -146,7 +146,7 @@ export default {
   'backup.import': 'Przywróć kopię…',
   'backup.confirm': 'Przywrócić kopię zapasową? Wszystkie domy i ustawienia zostaną zastąpione zawartością pliku (bieżący stan zostanie wcześniej skopiowany na serwerze do kopii zabezpieczającej).',
   'backup.done': 'Kopia przywrócona: domów – {h}',
-  'backup.failed': 'Kopia zapasowa nie powiodła się',
+  'backup.failed': 'Kopia zapasowa nie powiodła się', 'backup.tooBig': 'Plik jest za duży ({mb} MB) i nie dotarł do dodatku. Bez nagrań kopia jest mniejsza.',
   'house.new': '+ Nowy dom',
   'house.rename': 'Zmień nazwę',
   'house.copy': 'Duplikuj',

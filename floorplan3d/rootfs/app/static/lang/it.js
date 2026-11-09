@@ -146,7 +146,7 @@ export default {
   'backup.import': 'Ripristina backup…',
   'backup.confirm': 'Ripristinare il backup? Tutte le case e le impostazioni vengono sostituite dal file (lo stato attuale viene prima copiato in un backup di sicurezza sul server).',
   'backup.done': 'Backup ripristinato: {h} casa/e',
-  'backup.failed': 'Backup non riuscito',
+  'backup.failed': 'Backup non riuscito', 'backup.tooBig': 'Il file è troppo grande ({mb} MB) e non è arrivato all’add-on. Senza le registrazioni il backup è più piccolo.',
   'house.new': '+ Nuova casa',
   'house.rename': 'Rinomina',
   'house.copy': 'Duplica',

@@ -146,7 +146,7 @@ export default {
   'backup.import': 'Restaurar copia…',
   'backup.confirm': '¿Restaurar la copia? Todas las casas y ajustes se reemplazan por el archivo (antes, el estado actual se copia en el servidor como copia de seguridad).',
   'backup.done': 'Copia restaurada: {h} casa(s)',
-  'backup.failed': 'Error en la copia de seguridad',
+  'backup.failed': 'Error en la copia de seguridad', 'backup.tooBig': 'El archivo es demasiado grande ({mb} MB) y no llegó al complemento. Sin las grabaciones, la copia es más pequeña.',
   'house.new': '+ Nueva casa',
   'house.rename': 'Renombrar',
   'house.copy': 'Duplicar',

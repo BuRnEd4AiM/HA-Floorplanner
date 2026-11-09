@@ -1,3 +1,5 @@
+import json
+import re
 import sys
 from pathlib import Path
 
@@ -714,6 +716,32 @@ async def test_backup_roundtrip(client):
     assert {h["name"] for h in await (await client.get("/api/houses")).json()} == {"Haus", "Eltern"}
     assert (await (await client.get("/api/layout")).json()) == layout
     assert (await client.get(f"/api/backgrounds/{bg}")).status == 200
+
+
+async def test_backup_restore_has_no_size_limit(client):
+    """#693: a backup with pictures and models is far larger than the 10 MB of every other request ("Backup fehlgeschlagen: 413").
+    The restore has no limit (the owner's wish); a sub-app with its own client_max_size did not help (aiohttp takes the main app's)."""
+    import base64
+    backup = await (await client.get("/api/backup")).json()
+    png = b"\x89PNG\r\n\x1a\n" + b"0" * (7 * 1024 * 1024)
+    backup["backgrounds"] = {f"{i:012x}.png": base64.b64encode(png).decode() for i in range(1, 4)}      # about 28 MB of JSON
+    r = await client.post("/api/backup", json=backup)
+    assert r.status == 200 and (await r.json())["pictures"] == 3
+    assert (await client.get("/api/backgrounds/000000000001.png")).status == 200
+
+    async def chunks(raw):                     # with ingress_stream the Supervisor passes the body on in pieces, without a length
+        for i in range(0, len(raw), 1 << 20):
+            yield raw[i:i + (1 << 20)]
+    r = await client.post("/api/backup", data=chunks(json.dumps(backup).encode()), headers={"Content-Type": "application/json"})
+    assert r.status == 200 and (await r.json())["pictures"] == 3
+    assert (await client.put("/api/layout", data=b"{" + b" " * (server.MAX_LAYOUT_BYTES + 10) + b"}",
+                             headers={"Content-Type": "application/json"})).status == 413          # the others keep their limit
+
+
+def test_ingress_passes_large_uploads_on():
+    """#693: without ingress_stream the Supervisor reads every request first and refuses one over 16 MB with 413"""
+    cfg = (Path(__file__).parent.parent / "floorplan3d" / "config.yaml").read_text("utf-8")
+    assert re.search(r"^ingress_stream: true\b", cfg, re.M)
 
 
 async def test_backup_rejects_bad_input(client):
