@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-08 · 117 Sitzungen
+Stand: 2026-11-09 · 118 Sitzungen
 
-**Insgesamt: 7,79 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 7,94 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 21,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 75,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 7,69 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 22,2 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 76,6 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 7,84 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 31 | 1,66 Mrd. | 4,1 Mio. |
+| 2026-11 | 32 | 1,81 Mrd. | 4,4 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-08 | [012p9z3L…](https://claude.ai/code/session_012p9z3L75ZVQqL276tL5GAg) | claude/sleepy-turing-w83zy6 | 148,1 Mio. | 341 Tsd. | gezählt |
 | 2026-11-08 | [012p9z3P…](https://claude.ai/code/session_012p9z3PUZEEdXDtE3w1duaa) | claude/cool-babbage-rpr5uz | 45,1 Mio. | 98 Tsd. | gezählt |
 | 2026-11-08 | [012p9z3M…](https://claude.ai/code/session_012p9z3MTTgg1hsKmerNxB2F) | claude/fervent-mendel-ce11vm | 103,5 Mio. | 215 Tsd. | gezählt |
 | 2026-11-08 | [012p9z3M…](https://claude.ai/code/session_012p9z3MvfYahz7cAueA6Q5H) | claude/elegant-faraday-858q3v | 29,6 Mio. | 100 Tsd. | gezählt |
