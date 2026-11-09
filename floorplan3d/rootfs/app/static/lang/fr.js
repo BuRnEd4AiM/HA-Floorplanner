@@ -2393,4 +2393,8 @@ export default {
   'rf.ownSub': 'aussi pour une autre maison', 'rf.ownName': 'Nom de ce toit :', 'rf.ownDefault': 'Mon toit', 'rf.ownKept': '⭐ « {n} » gardé',
   'rf.ownDel': 'Supprimer « {n} » ?',
   'rf.sec.steps': 'Décrochés de l’avant-toit',
+  'stack.above': 'Au-dessus', 'stack.below': 'En dessous', 'stack.add': 'Fenêtre au-dessus',
+  'stack.addHint': 'Place au-dessus une fenêtre de même largeur, avec du mur entre les deux (p. ex. une fenêtre haute au-dessus de la porte-fenêtre). Elle a son propre contact et son propre volet roulant.',
+  'stack.added': 'Fenêtre ajoutée au-dessus : allège {sill}, hauteur {h}. Vous pouvez les modifier.',
+  'stack.clash': 'Impossible : elle toucherait la porte ou la fenêtre au-dessus ou en dessous.',
 };

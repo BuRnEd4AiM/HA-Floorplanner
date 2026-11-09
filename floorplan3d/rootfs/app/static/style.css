@@ -2959,3 +2959,7 @@ body.live .v2Nops, body.live .v2Drawer { display: none; }
 .roofEd .v2Tabs button { padding: 7px 7px 8px; font-size: 12.5px; white-space: nowrap; }
 .roofEd .v2Sec > .hd b { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .roofEd .v2Sec > .hd .sum { flex: 1 1 40%; }
+/* two doors / windows one above the other (#694, openingstackui.js): the other one of the pair, "＋ Fenster darüber" */
+.stackRow { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 10px; }
+.stackRow .stackBtn { flex: 1 1 auto; padding: 6px 8px; font-size: 13px; text-align: left; }
+.stackClash { color: var(--warn, #ffb04a); }

@@ -2339,4 +2339,8 @@ export default {
   'rf.tplDone': '✓ {n} – ↶ maakt het ongedaan', 'rf.own': 'Mijn dak bewaren', 'rf.ownSub': 'ook voor een ander huis', 'rf.ownName': 'Naam voor dit dak:',
   'rf.ownDefault': 'Mijn dak', 'rf.ownKept': '⭐ „{n}” bewaard', 'rf.ownDel': '„{n}” verwijderen?',
   'rf.sec.steps': 'Sprongen in de goot',
+  'stack.above': 'Erboven', 'stack.below': 'Eronder', 'stack.add': 'Raam erboven',
+  'stack.addHint': 'Zet er een raam van dezelfde breedte boven, met muur ertussen (bijv. een hoog raam boven de terrasdeur). Het krijgt een eigen contact en rolluik.',
+  'stack.added': 'Raam erboven geplaatst: borstwering {sill}, hoogte {h}. Je kunt beide aanpassen.',
+  'stack.clash': 'Gaat niet: dan raakt het de deur of het raam erboven of eronder.',
 };

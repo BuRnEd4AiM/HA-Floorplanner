@@ -3936,4 +3936,6 @@ export default {
   'rf.tplSub.cross': '中间横向山墙', 'rf.tplSub.canopy': '门上方单坡顶', 'rf.tplDone': '✓ {n} – ↶ 可撤销', 'rf.own': '保存我的屋顶', 'rf.ownSub': '也可用于其他房屋', 'rf.ownName': '此屋顶的名称：',
   'rf.ownDefault': '我的屋顶', 'rf.ownKept': '⭐ 已保存“{n}”', 'rf.ownDel': '删除“{n}”？',
   'rf.sec.steps': '檐口错位',
+  'stack.above': '上方', 'stack.below': '下方', 'stack.add': '上方加窗', 'stack.addHint': '在上方放一扇同宽的窗户，中间留有墙体（例如露台门上方的高窗）。它有自己的门窗传感器和卷帘。',
+  'stack.added': '已在上方加窗：窗台 {sill}，高度 {h}。两者都可以修改。', 'stack.clash': '无法设置：会与上方或下方的门窗重叠。',
 };

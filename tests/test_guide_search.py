@@ -44,6 +44,8 @@ QUERIES = [
     ("Fenstergriff Sensor", "de", "window-tilt"), ("zweiflügeliges Fenster", "de", "window-setup"),
     ("bodentiefes Fenster", "de", "window-fixed"), ("Fenster unten fest oben kippen", "de", "window-fixed"), ("Oberlicht", "de", "window-fixed"),
     ("transom", "en", "window-fixed"), ("window fixed glazing below", "en", "window-fixed"),
+    ("Fenster über der Tür", "de", "window-stacked"), ("zwei Fenster übereinander", "de", "window-stacked"), ("Fenster über Terrassentür mit eigenem Rollladen", "de", "window-stacked"),
+    ("window above the door", "en", "window-stacked"), ("overlaps another opening on the same wall", "en", "window-stacked"), ("clerestory", "en", "window-stacked"),
     ("Sofa", "de", "library devices-place move"), ("Möbel einfügen", "de", "library"), ("add furniture", "en", "library"),
     ("Kleiderschrank Dachschräge", "de", "closet"), ("Wendeltreppe", "de", "stairs"), ("Treppe mit Kurve", "de", "stairs-winder stairs"), ("Geschosshöhe", "de", "stairs-storey"),
     ("Treppe hat zu viele Stufen", "de", "stairs-storey"), ("storey height", "en", "stairs-storey"), ("Etagenhöhe ändern", "de", "stairs-storey"),

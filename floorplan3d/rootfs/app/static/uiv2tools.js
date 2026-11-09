@@ -218,9 +218,9 @@ export function initUiV2Tools(ctx) {
     for (const x of targets) {
       const before = JSON.parse(JSON.stringify(x.it));
       copyGroups(pk, src, x.it, groups);
-      if (x.wall && (x.it.width !== before.width)) {                 // a wider window must still fit its wall
+      if (x.wall && (x.it.width !== before.width || x.it.sill !== before.sill || x.it.height !== before.height)) {   // a wider / other window must still fit its wall
         const p = clampOpeningPos(x.wall, x.it.width, x.it.pos);
-        if (p === null || openingOverlaps(x.wall, p, x.it.width, x.it.id)) { Object.keys(x.it).forEach((k) => delete x.it[k]); Object.assign(x.it, before); skipped++; continue; }
+        if (p === null || openingOverlaps(x.wall, p, x.it.width, x.it.id, x.it)) { Object.keys(x.it).forEach((k) => delete x.it[k]); Object.assign(x.it, before); skipped++; continue; }
         x.it.pos = p;
       }
       done++;

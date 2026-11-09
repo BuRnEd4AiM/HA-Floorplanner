@@ -2333,4 +2333,8 @@ export default {
   'rf.tplSub.canopy': 'jednospad nad drzwiami', 'rf.tplDone': '✓ {n} – ↶ cofa', 'rf.own': 'Zapamiętaj mój dach', 'rf.ownSub': 'też dla innego domu',
   'rf.ownName': 'Nazwa tego dachu:', 'rf.ownDefault': 'Mój dach', 'rf.ownKept': '⭐ „{n}” zapamiętany', 'rf.ownDel': 'Usunąć „{n}”?',
   'rf.sec.steps': 'Uskoki okapu',
+  'stack.above': 'Powyżej', 'stack.below': 'Poniżej', 'stack.add': 'Okno powyżej',
+  'stack.addHint': 'Wstawia powyżej okno tej samej szerokości, ze ścianą pomiędzy (np. wysokie okno nad drzwiami tarasowymi). Ma własny czujnik i własną roletę.',
+  'stack.added': 'Dodano okno powyżej: parapet {sill}, wysokość {h}. Możesz je zmienić.',
+  'stack.clash': 'Nie da się: zachodziłoby na drzwi lub okno powyżej lub poniżej.',
 };

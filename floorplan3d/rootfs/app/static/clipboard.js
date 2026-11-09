@@ -46,7 +46,7 @@ export function freeSpot(w, o, from) {
   for (let k = 1; k <= 40; k++) {
     for (const dir of [1, -1]) {
       const want = from + dir * k * step, pos = clampOpeningPos(w, o.width, want);
-      if (pos !== null && Math.abs(pos - want) < 1e-6 && !openingOverlaps(w, pos, o.width)) return r4(pos);
+      if (pos !== null && Math.abs(pos - want) < 1e-6 && !openingOverlaps(w, pos, o.width, null, o)) return r4(pos);
     }
   }
   return null;

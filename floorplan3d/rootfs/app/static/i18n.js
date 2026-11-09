@@ -1297,6 +1297,10 @@ const DICT = {
     'rf.tplDone': '✓ {n} – ↶ macht es rückgängig', 'rf.own': 'Mein Dach merken', 'rf.ownSub': 'auch fürs Nachbarhaus', 'rf.ownName': 'Name für dieses Dach:',
     'rf.ownDefault': 'Mein Dach', 'rf.ownKept': '⭐ „{n}“ gemerkt', 'rf.ownDel': '„{n}“ löschen?',
     'rf.sec.steps': 'Absätze in der Traufe',
+    'stack.above': 'Darüber', 'stack.below': 'Darunter', 'stack.add': 'Fenster darüber',
+    'stack.addHint': 'Setzt ein eigenes Fenster gleicher Breite darüber, mit Wand dazwischen (z. B. ein hohes Fenster über der Terrassentür). Es bekommt einen eigenen Kontakt und Rollladen.',
+    'stack.added': 'Fenster darüber gesetzt: Brüstung {sill}, Höhe {h}. Höhe und Brüstung kannst du anpassen.',
+    'stack.clash': 'Geht nicht: so stößt es an die Tür oder das Fenster darüber oder darunter.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2540,6 +2544,10 @@ const DICT = {
     'rf.tplDone': '✓ {n} – ↶ undoes it', 'rf.own': 'Keep my roof', 'rf.ownSub': 'also for another house', 'rf.ownName': 'Name for this roof:',
     'rf.ownDefault': 'My roof', 'rf.ownKept': '⭐ “{n}” kept', 'rf.ownDel': 'Delete “{n}”?',
     'rf.sec.steps': 'Steps in the eaves',
+    'stack.above': 'Above', 'stack.below': 'Below', 'stack.add': 'Window above',
+    'stack.addHint': 'Puts a window of the same width above it, with wall in between (e.g. a high window over the terrace door). It gets its own contact and roller shutter.',
+    'stack.added': 'Window above added: sill {sill}, height {h}. You can change both.',
+    'stack.clash': 'Not possible: it would run into the door or window above or below.',
   },
 };
 

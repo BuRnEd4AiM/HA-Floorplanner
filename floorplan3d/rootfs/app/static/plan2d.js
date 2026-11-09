@@ -18,6 +18,7 @@ import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
 import { addStepAt, moveSection, moveCorner, removeStep } from './roofsteps.js';
 import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
 import { hasShutter, curtainStyle, curtainSide, shutterEntity, linkedEntities, shutterSide, shutterText } from './shutters.js';
+import { alongGaps, isAbove, nextInStack } from './openingstack.js';
 import { SCANDI, SCANDI_TYPES, footOf as scandiFoot, variantOf } from './scandi.js';
 import { LEISURE_FLAT } from './leisure.js';
 import { GARAGE_FLAT } from './garage.js';
@@ -179,13 +180,15 @@ export function createPlan(ctx) {
   function openingAt(x, z) {
     const tol = Math.max(0.12, 8 / s);
     let best = null, bd = Infinity;
+    const sel = ctx.getSelection?.(), selId = sel?.kind === 'opening' ? sel.id : null;   // two one above the other (#694): the selected one stays picked
     shown().walls.forEach((w) => {
       const [ux, uz, L] = dirOf(w);
       (w.openings || []).forEach((o) => {
         const cx = w.a[0] + ux * o.pos, cz = w.a[1] + uz * o.pos;
         const along = Math.abs((x - cx) * ux + (z - cz) * uz), across = Math.abs(-(x - cx) * uz + (z - cz) * ux);
         const swing = o.type === 'door' ? o.width : 0;                  // door leaf area counts a bit
-        if (along <= o.width / 2 + tol && across <= Math.max(w.thickness / 2 + tol, swing * 0.15) && along + across < bd) { bd = along + across; best = { kind: 'opening', id: o.id }; }
+        const k = along + across;
+        if (along <= o.width / 2 + tol && across <= Math.max(w.thickness / 2 + tol, swing * 0.15) && (k < bd - 1e-6 || (k < bd + 1e-6 && o.id === selId))) { bd = k; best = { kind: 'opening', id: o.id }; }
       });
     });
     return best;
@@ -502,7 +505,7 @@ export function createPlan(ctx) {
     /* walls (split around openings) */
     f.walls.forEach((w) => {
       const [ux, uz, L] = dirOf(w);
-      const ops = [...(w.openings || [])].sort((a, b) => a.pos - b.pos);
+      const gaps = alongGaps(w.openings);                  // two openings one above the other leave one gap (#694)
       let cur = 0;
       const t = w.thickness;
       const isSel = sel?.kind === 'wall' && sel.id === w.id;
@@ -512,9 +515,8 @@ export function createPlan(ctx) {
         const a = [w.a[0] + ux * from, w.a[1] + uz * from], b = [w.a[0] + ux * to, w.a[1] + uz * to];
         o += `<polygon points="${pts(wallPoly(a, b, t, extA, extB))}" fill="${col}" stroke="${col}" stroke-width="0.5"/>`;
       };
-      ops.forEach((op, i) => { seg(cur, op.pos - op.width / 2, i === 0 ? t / 2 : 0, 0); cur = op.pos + op.width / 2; });
-      seg(cur, L, ops.length ? 0 : t / 2, t / 2);
-      if (!ops.length) { /* solid wall: caps handled above (both ends extended) */ }
+      gaps.forEach(([g0, g1], i) => { seg(cur, g0, i === 0 ? t / 2 : 0, 0); cur = g1; });
+      seg(cur, L, gaps.length ? 0 : t / 2, t / 2);
     });
     /* openings */
     f.walls.forEach((w) => {
@@ -527,6 +529,8 @@ export function createPlan(ctx) {
         const col = isSel ? C.sel : open ? C.warn : C.line;
         const P = (u, n) => [sx(cx + ux * u + nx * n), sy(cz + uz * u + nz * n)];
         const t = w.thickness / 2;
+        const up = isAbove(w, op);                                // over another door / window (#694): dashed, like everything above the cut
+        if (up) o += `<g class="opAbove" data-id="${esc(op.id)}" stroke-dasharray="5 3">`;
         const jamb = [P(-hw, -t), P(-hw, t), P(hw, -t), P(hw, t)];
         o += `<path d="M${jamb[0]}L${jamb[1]}M${jamb[2]}L${jamb[3]}" stroke="${col}" stroke-width="2" fill="none"/>`;
         if (op.type === 'door' && (op.style === 'open' || op.style === 'gap' || op.style === 'garage' || op.style === 'sliding')) {
@@ -557,7 +561,7 @@ export function createPlan(ctx) {
             const k = shutterSide(w, op, f.rooms), hang = curtainSide(op) === 'out' ? k : -k;
             o += `<path class="shutter2d" d="M${P(-hw, hang * t * .8)}L${P(hw, hang * t * .8)}" stroke="${isSel ? C.sel : C.accent}" stroke-width="3" stroke-dasharray="2 2" fill="none"/>`;
             const se = shutterEntity(op);
-            const off = t + 0.35 + (hang < 0 && op.entity ? 0.3 : 0);  // the contact's state stands on the -1 side: one line further out
+            const off = t + 0.35 + (hang < 0 && op.entity ? 0.3 : 0) + (up ? 0.6 : 0);  // the contact's state stands on the -1 side: one line further out; the upper one of two further still
             // the plan is a top view and can be turned with the camera: a left/right arrow there would often point the other way,
             // so a cloth curtain only shows the generic ⇔ (text arrow, no emoji); the 3D label still names its side
             if (live && se) { const p = P(0, hang * off), icon = curtainStyle(op) === 'roller' ? '↕' : '⇔'; o += `<text class="shutterText" x="${p[0]}" y="${p[1]}" fill="${C.text}" font-size="10" text-anchor="middle">${icon} ${esc(shutterText(ctx.states()[se], ctx.t, op))}</text>`; }
@@ -566,9 +570,10 @@ export function createPlan(ctx) {
         const hit = `M${P(-hw, -t - 0.15)}L${P(hw, -t - 0.15)}L${P(hw, t + 0.15)}L${P(-hw, t + 0.15)}Z`;
         if (isSel) o += `<path d="${hit}" fill="rgba(255,176,74,.12)" stroke="${C.sel}" stroke-dasharray="4 3"/>`;
         if (live && (op.entity || op.tiltEntity)) {          // the word of the whole window: also "Gekippt" by its tilt contact (#624)
-          const p = P(0, -t - 0.35), word = ctx.windowText ? ctx.windowText(op) : ctx.openText(op.entity), alert = word !== ctx.t('state.closed') && word !== '—';
+          const p = P(0, -t - 0.35 - (up ? 0.3 : 0)), word = ctx.windowText ? ctx.windowText(op) : ctx.openText(op.entity), alert = word !== ctx.t('state.closed') && word !== '—';
           o += `<text x="${p[0]}" y="${p[1]}" fill="${open || alert ? C.warn : C.text}" font-size="10" text-anchor="middle">${esc(word)}</text>`;
         }
+        if (up) o += '</g>';
       });
     });
 
@@ -839,6 +844,23 @@ export function createPlan(ctx) {
   const pointers = new Map();
   let pinch = null;
 
+  /** live: a second tap on two doors / windows one above the other (#694) opens the other one (if it has a contact or a cover), then
+   *  the first again; a tap somewhere else or after 8 s starts over */
+  let lastStackTap = null;
+  function stackTap(h) {
+    const now = performance.now();
+    if (h?.kind === 'opening' && lastStackTap && now - lastStackTap.t < 8000) {
+      const fo = ctx.findOpening(h.id), st = fo ? [h.id] : [];
+      for (let nx = fo && nextInStack(fo.wall, h.id); nx && !st.includes(nx); nx = nextInStack(fo.wall, nx)) st.push(nx);
+      const i = st.indexOf(lastStackTap.id);
+      if (i >= 0) {
+        const pick = st.slice(i + 1).concat(st.slice(0, i + 1)).find((id) => linkedEntities(ctx.findOpening(id)?.opening || {}).length);
+        if (pick) h = { kind: 'opening', id: pick };
+      }
+    }
+    lastStackTap = h?.kind === 'opening' ? { id: h.id, t: now } : null;
+    return h;
+  }
   function pickIfAllowed(x, z) {
     const h = pickAt(x, z);
     if (isLive() && h && h.kind === 'opening') {
@@ -904,8 +926,10 @@ export function createPlan(ctx) {
         if (!was) ctx.setSelection(h);
         drag = r ? { type: 'roof', id: h.id, start: { ...r.box }, sx: x, sz: z, moved: false, px, py } : { type: 'pan', px, py, tx, ty };
       } else if (h) {
+        const again = h.kind === 'opening' && sel?.kind === 'opening' && sel.id === h.id;   // a second click on a door / window: the one above or below it (#694)
         ctx.setSelection(h);
         drag = startDrag(h, x, z, px, py, e) || { type: 'pan', px, py, tx, ty };
+        if (again) drag.again = h.id;
       } else {
         drag = { type: 'pan', px, py, tx, ty, clear: true };
       }
@@ -1118,7 +1142,7 @@ export function createPlan(ctx) {
         const { wall, opening } = drag;
         const raw = Math.round(ctx.projectOnWall(wall, [x, z]) / 0.05) * 0.05;
         const pos = ctx.clampOpeningPos(wall, opening.width, raw);
-        if (pos !== null && !ctx.openingOverlaps(wall, pos, opening.width, opening.id) && Math.abs(pos - opening.pos) > 1e-6) {
+        if (pos !== null && !ctx.openingOverlaps(wall, pos, opening.width, opening.id, opening) && Math.abs(pos - opening.pos) > 1e-6) {   // above / below another one is fine (#694)
           snapshotOnce();
           opening.pos = pos; drag.moved = true;
           scheduleRebuild(); render();
@@ -1180,7 +1204,7 @@ export function createPlan(ctx) {
     const fit = width === def.width ? def : { ...def, width };
     const pos = ctx.clampOpeningPos(best, width, raw);
     if (pos === null) return null;
-    return { wall: best, pos, valid: !ctx.openingOverlaps(best, pos, width, null), def: fit };
+    return { wall: best, pos, valid: !ctx.openingOverlaps(best, pos, width, null, fit), def: fit };
   }
 
   root.addEventListener('pointerup', (e) => {
@@ -1193,6 +1217,10 @@ export function createPlan(ctx) {
     const x = wx(px), z = wz(py);
     const moved = Math.hypot(px - (d.px ?? px), py - (d.py ?? py)) > 4;
     const tool = ctx.getTool();
+    if (d.again && !moved && !d.moved) {                              // clicked the selected door / window again: the next one of its stack (#694)
+      const fo = ctx.findOpening(d.again), nx = fo && nextInStack(fo.wall, d.again);
+      if (nx) { ctx.setSelection({ kind: 'opening', id: nx }); snapDone = false; return; }
+    }
 
     if (d.type === 'devsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'tpoint') { if (d.moved) ctx.commit(); else ctx.terrainPick?.(d.id); snapDone = false; return; }
@@ -1207,7 +1235,7 @@ export function createPlan(ctx) {
       }
       return;
     }
-    if (d.type === 'tap') { if (!moved) { const h = pickIfAllowed(x, z); ctx.liveTap(h); } return; }
+    if (d.type === 'tap') { if (!moved) ctx.liveTap(stackTap(pickIfAllowed(x, z))); return; }
     if (d.type === 'pan') {
       if (!moved && d.clear && !d.locked) { ctx.setSelection(null); }
       return;

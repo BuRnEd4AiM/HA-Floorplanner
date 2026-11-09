@@ -394,6 +394,78 @@ def _(r):
     r.wait(2600)
 
 
+def high_door_room(r):
+    """prep: an empty house with high walls (3.80 m) and a terrace door 1.60 m wide in its front wall, seen in 3D from inside the room"""
+    empty_house(walls=True, rooms=True)(r)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f), len = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+      f.walls.forEach((x) => { x.height = 3.8; });
+      w.openings.push({ id: 'guideDoor', type: 'door', style: 'glass', pos: len / 2, width: 1.6, height: 2.2, sill: 0, name: 'Terrassentür' });
+      fp.rebuild();
+    }""" % FRONT_WALL)
+    r.pg.click("#view3d")
+    r.pg.wait_for_timeout(900)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f);
+      const mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2, zs = f.walls.flatMap((x) => [x.a[1], x.b[1]]);
+      const cz = (Math.min(...zs) + Math.max(...zs)) / 2, back = Math.max(3.5, Math.min(4.8, (mz - cz) * 1.85));
+      fp.camAt(mx + 1.2, 2.6, mz - back, mx, mz + 12);             // inside the room, a little from the side and high: the door and the wall up to 3.80 m
+    }""" % FRONT_WALL)
+    r.pg.wait_for_timeout(900)
+
+
+@clip("window-stacked", "edit",
+      {"de": "Fenster über der Tür (zwei Öffnungen übereinander)", "en": "A window above the door (two openings one above the other)"},
+      {"de": "In einer hohen Wand sitzt über der Terrassentür ein eigenes Fenster, mit Wand dazwischen: „＋ Fenster darüber“ setzt es in gleicher Breite darüber. Jedes hat seinen eigenen Kontakt und Rollladen. „⇅ Darüber“ / „⇅ Darunter“ wählt das andere; im 2D-Plan ist das obere gestrichelt, ein zweiter Klick wählt das andere. Auch im Import: gleiches „at“, die Höhen dürfen sich nicht überschneiden.",
+       "en": "In a high wall a window of its own sits over the terrace door, with wall in between: “＋ Window above” puts it there in the same width. Each has its own contact and roller shutter. “⇅ Above” / “⇅ Below” selects the other one; in the 2D plan the upper one is dashed, a second click picks the other. In the import too: the same “at”, the heights must not overlap."},
+      "Fenster über Tür Oberlicht Fenster darüber übereinander zwei Öffnungen gleiche Stelle hohe Wand window above door stacked two openings same place high wall clerestory",
+      query="mode=edit", prep=high_door_room)
+def _(r):
+    r.say("Die Wände sind hier 3,80 m hoch. Klicke die Terrassentür an.", "The walls are 3.80 m high here. Click the terrace door.")
+    p = r.js("window.__fp.openingCenter('guideDoor')")
+    r.click(p["x"], p["y"])
+    r.wait(1200)
+    r.say("„＋ Fenster darüber“ setzt ein eigenes Fenster in gleicher Breite darüber, mit 25 cm Wand dazwischen.",
+          "“＋ Window above” puts a window of its own above it in the same width, with 25 cm of wall in between.")
+    r.click("#stackAdd")
+    r.wait(2200)
+    r.say("Brüstung und Höhe passen wir an: ab 2,95 m, 0,65 m hoch.", "We adjust the sill and the height: from 2.95 m, 0.65 m high.")
+    r.click("#opSill")
+    r.pg.keyboard.press("Control+A")
+    r.type("2.95")
+    r.key("Enter")
+    r.wait(900)
+    r.click("#opHeight")
+    r.pg.keyboard.press("Control+A")
+    r.type("0.65")
+    r.key("Enter")
+    r.wait(2000)
+    r.poster()
+    r.say("Tiefer als die Tür geht es nicht: dann sagt eine Zeile „Geht nicht“, und der alte Wert bleibt.",
+          "It cannot go down into the door: a line then says “Not possible” and the old value stays.")
+    r.click("#opSill")
+    r.pg.keyboard.press("Control+A")
+    r.type("2")
+    r.key("Enter")
+    r.wait(2600)
+    r.say("Das Fenster hat seinen eigenen Kontakt und Rollladen, die Tür ihre. „⇅ Darunter“ wählt die Tür.",
+          "The window has its own contact and roller shutter, the door has its own. “⇅ Below” selects the door.")
+    r.click("#stackBelow")
+    r.wait(2200)
+    r.say("Im 2D-Plan ist das obere Fenster gestrichelt. Ein zweiter Klick auf die gewählte Tür wählt das Fenster darüber.",
+          "In the 2D plan the upper window is dashed. A second click on the selected door picks the window above.")
+    r.click("#view2d")
+    r.wait(1500)
+    p = r.js("""(() => { const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = f.walls.find((x) => (x.openings || []).some((o) => o.id === 'guideDoor'));
+      const o = w.openings.find((v) => v.id === 'guideDoor'), L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]), k = o.pos / L;
+      const [x, y] = fp.plan().toClient(w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k); return { x, y }; })()""")
+    r.click(p["x"], p["y"])
+    r.wait(2200)
+    r.say("Beim Import geht es auch: beide mit demselben „at“, ihre Höhen (Brüstung bis Brüstung + Höhe) dürfen sich nicht überschneiden.",
+          "It works in the import too: both with the same “at”, their heights (sill to sill + height) must not overlap.")
+    r.wait(3200)
+
+
 @clip("ui-v2", "edit",
       {"de": "Die neue Leiste (Oberfläche 2)", "en": "The new panel (Oberfläche 2)"},
       {"de": "Oben „✨ Neu“ schaltet die neue Bearbeiten-Leiste ein (gilt für dieses Gerät, „Klassisch“ holt die alte zurück): dieselben Einstellungen, aufgeräumt in Abschnitte zum Auf- und Zuklappen, jede mit einer Zeile, was eingestellt ist. Das Fenster ist halb offen gezeichnet: einen Flügel antippen und wählen, wie er aufgeht. Fensterarten als Bilder, ein Raum mit Reitern und Böden als kleine Bilder.",

@@ -11,13 +11,13 @@ export const samePoint = (p, q) => !!p && !!q && Math.hypot(p[0] - q[0], p[1] - 
 
 /** where a door / window of `defWidth` goes on `wall` for a pointer at `point` ([x, z]): 5 cm steps, made narrower when the wall is short,
  *  kept on the wall; { wall, pos, width, valid (no overlap with another opening than ignoreId) } or null when it does not fit */
-export function openingSpot(wall, point, defWidth, ignoreId = null) {
+export function openingSpot(wall, point, defWidth, ignoreId = null, span = null) {
   const raw = Math.round(projectOnWall(wall, point) / 0.05) * 0.05;
   const width = fitOpeningWidth(wall, defWidth);
   if (width === null) return null;
   const pos = clampOpeningPos(wall, width, raw);
   if (pos === null) return null;
-  return { wall, pos, width, valid: !openingOverlaps(wall, pos, width, ignoreId) };
+  return { wall, pos, width, valid: !openingOverlaps(wall, pos, width, ignoreId, span) };   // span: its heights, above / below another one is fine (#694)
 }
 
 /** ctx: canvas, controls, temp (the group for the drawing preview), t, setStatus(txt), fmtLen(m), clearGroup(g), elev(), tool(), openingType(),
@@ -84,7 +84,7 @@ export function initDraw3d(ctx) {
       point = [h.point.x, h.point.z];
     } else point = ctx.groundPoint(e);
     if (!wall || !point) return null;
-    return openingSpot(wall, point, def.width, ignoreId);
+    return openingSpot(wall, point, def.width, ignoreId, def);
   }
   const { canvas, controls } = ctx;
   const select = (h) => { ctx.setSelection(h); ctx.refreshSelection(); };
