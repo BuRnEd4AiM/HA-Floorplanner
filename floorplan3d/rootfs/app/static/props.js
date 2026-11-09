@@ -93,7 +93,7 @@ export function initProps(ctx) {
     ctx.renderObjList();
     const box = $('#props'), body = $('#propsBody');
     body.innerHTML = '';
-    box.classList.remove('v2');
+    box.classList.remove('v2'); ctx.v2Reset?.();
     const selection = ctx.selection();
     if (!selection || ctx.isLive()) { ctx.setRoomCtx(null); box.hidden = true; return; }
     const f = ctx.floor();

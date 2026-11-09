@@ -3898,4 +3898,13 @@ export default {
   'v2.pane.fixed': '固定（不能打开）', 'v2.kinds.own': '自定义尺寸', 'v2.kinds.hint': '点一下即可同时设置尺寸、窗台、窗扇和固定玻璃。之后仍可调整。', 'v2.kinds.noFit': '这种窗户放不进这面墙（太宽）。',
   'v2.tab.general': '常规', 'v2.tab.floor': '地板', 'v2.tab.walls': '墙', 'v2.tab.devices': '设备', 'v2.level.storey': '楼层', 'v2.level.title': '地面高度',
   'v2.chip.contact': '传感器 ✓',
+  'v2.home.house': '房屋', 'v2.home.objects': '对象', 'v2.home.help': '帮助', 'v2.home.addFloor': '楼层', 'v2.home.addBasement': '地下室', 'v2.home.addRoof': '屋顶',
+  'v2.home.addHouse': '房屋', 'v2.home.drag': '拖动以移动楼层', 'v2.home.rooms': '{n} 个房间', 'v2.floor.sub': '第 {n} 层，共 {of} 层 · {r} 个房间', 'v2.floor.height': '高度',
+  'v2.floor.roof': '屋顶', 'v2.search.ph': '🔍 查找设置…（例如：倾斜、高度）', 'v2.search.hits': '找到 {n} 项', 'v2.search.none': '此处未找到', 'v2.search.settings': '⚙ 设置中：{n} →',
+  'v2.nop.hint': '已从面板拉出。点按标签或 ✕ 放回。', 'v2.nop.out': '在侧边抽屉中', 'v2.act.copy': '应用到其他', 'v2.copy.title': '这些设置也用于…', 'v2.copy.nobody': '没有其他同类对象。',
+  'v2.copy.where': '哪些？', 'v2.copy.what': '什么？', 'v2.copy.cancel': '取消', 'v2.copy.go': '应用到 {n} 个 ✓', 'v2.copy.done': '已应用到 {n} 个（↶ 撤销）',
+  'v2.copy.doneSkipped': '已应用到 {n} 个，{k} 个放不进墙（↶ 撤销）', 'v2.copy.window.room': '{name} 的窗户', 'v2.copy.window.floor': '{name} 的窗户',
+  'v2.copy.window.house': '房屋中所有窗户', 'v2.copy.door.room': '{name} 的门', 'v2.copy.door.floor': '{name} 的门', 'v2.copy.door.house': '房屋中所有门',
+  'v2.copy.room.floor': '{name} 的其他房间', 'v2.copy.room.house': '房屋中所有其他房间', 'v2.copy.device.room': '{name} 中的相同设备', 'v2.copy.device.floor': '{name} 的相同设备',
+  'v2.copy.device.house': '房屋中所有同类设备',
 };

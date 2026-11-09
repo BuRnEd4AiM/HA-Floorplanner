@@ -435,6 +435,95 @@ def _(r):
     r.wait(1500)
 
 
+def two_windows_room(r):
+    """prep: an empty house with two windows of one pane in its front wall, seen in 3D from inside the room"""
+    empty_house(walls=True, rooms=True)(r)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f), len = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+      w.openings.push({ id: 'guideWin', type: 'window', style: 'single', pos: len / 3, width: 1.0, height: 1.3, sill: 0.8 },
+                      { id: 'guideWin2', type: 'window', style: 'single', pos: (2 * len) / 3, width: 1.0, height: 1.3, sill: 0.8 });
+      fp.rebuild();
+    }""" % FRONT_WALL)
+    r.pg.click("#view3d")
+    r.pg.wait_for_timeout(900)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f);
+      const mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2, zs = f.walls.flatMap((x) => [x.a[1], x.b[1]]);
+      const cz = (Math.min(...zs) + Math.max(...zs)) / 2, back = Math.max(3, Math.min(5, (mz - cz) * 1.6));
+      fp.camAt(mx, 1.75, mz - back, mx, mz + 12);
+    }""" % FRONT_WALL)
+    r.pg.wait_for_timeout(900)
+
+
+@clip("ui-v2-house", "edit",
+      {"de": "Oberfläche 2: das Haus als Baum, eine Etage öffnen", "en": "Oberfläche 2: the house as a tree, open a floor"},
+      {"de": "In der Oberfläche 2 und mit nichts ausgewählt steht rechts das Haus als Baum: die Häuser, die Etagen von oben nach unten (mit ⠿ an eine andere Stelle ziehen), die Räume zum Antippen; daneben „🔍 Objekte“ und „❔ Hilfe“. Eine Etage antippen: ihre Art als drei Knöpfe, die Geschosshöhe mit dem Haus von der Seite, „Etage löschen“ eingeklappt.",
+       "en": "In Oberfläche 2 with nothing selected, the right side shows the house as a tree: the houses, the floors from the top down (drag ⠿ to put one elsewhere), the rooms to tap; beside it “🔍 Objects” and “❔ Help”. Tap a floor: its kind as three buttons, the storey height with the house seen from the side, “Delete floor” folded away."},
+      "Haus Baum Etagen Räume Etage verwalten Geschosshöhe Keller Dach Oberfläche 2 house tree floors rooms storey height basement roof panel version 2",
+      query="mode=edit", prep=empty_house(walls=True, rooms=True))
+def _(r):
+    r.say("Oben auf „Version 2“ schalten: ist nichts ausgewählt, steht rechts das Haus als Baum.", "Switch to “version 2” at the top: with nothing selected the right side shows the house as a tree.")
+    r.click("#uiSwitch [data-ui=v2]")
+    r.wait(1500)
+    r.say("„＋ Keller“: darunter kommt ein Keller dazu.", "“＋ Basement”: a basement goes below.")
+    r.prompt = "Keller" if r.lang == "de" else "Basement"
+    r.click("#v2Adds button", nth=1)
+    r.prompt = None
+    r.wait(1800)
+    r.say("Tippe eine Etage an: ihre Art als Knöpfe und die Geschosshöhe mit dem Haus von der Seite.",
+          "Tap a floor: its kind as buttons and the storey height with the house seen from the side.")
+    r.click("#v2Tree .n.floor[data-i='1']")                         # the floor with the room (the new basement is below it)
+    r.wait(2000)
+    r.poster()
+    r.say("Die Etagen lassen sich mit ⠿ an eine andere Stelle ziehen; ein Raum im Baum wird angetippt und ausgewählt.",
+          "Drag ⠿ to put a floor elsewhere; a room in the tree is tapped and selected.")
+    r.click("#v2Tree .n.room", nth=0)
+    r.wait(1800)
+    r.say("„Klassisch“ bringt die alte Leiste zurück.", "“Classic” brings the old panel back.")
+    r.click("#uiSwitch [data-ui=classic]")
+    r.wait(1500)
+
+
+@clip("ui-v2-tools", "edit",
+      {"de": "Oberfläche 2: Suchen, Reiter an der Seite, Übernehmen", "en": "Oberfläche 2: search, tabs at the side, pass on"},
+      {"de": "In der neuen Leiste: „🔍 Einstellung suchen“ zeigt nur die Felder mit dem Wort (und wie viele in ⚙ sind); die Abschnitte hängen links als Reiter an der Leiste, ein Tipp zieht einen in ein Seitenfach; „⇉ Übernehmen“ gibt dieselben Einstellungen an die anderen Fenster im Raum, auf der Etage oder im ganzen Haus weiter (↶ macht es rückgängig).",
+       "en": "In the new panel: “🔍 Find a setting” shows only the fields with the word (and how many are in ⚙); the sections hang as tabs on the left of the panel, a tap pulls one out into a side drawer; “⇉ Pass on” gives the same settings to the other windows in the room, on the floor or in the whole house (↶ undoes it)."},
+      "suchen Einstellung finden Reiter Seitenfach übernehmen für alle Fenster kopieren search setting tabs drawer pass on copy to all windows",
+      query="mode=edit", prep=two_windows_room)
+def _(r):
+    r.click("#uiSwitch [data-ui=v2]")
+    r.wait(600)
+    r.say("Klicke ein Fenster an.", "Click a window.")
+    p = r.js("window.__fp.openingCenter('guideWin')")
+    r.click(p["x"], p["y"])
+    r.wait(1300)
+    r.say("Ein Wort in „Einstellung suchen“, z. B. „kipp“: nur die passenden Felder bleiben.", "A word in “Find a setting”, e.g. “tilt”: only the matching fields stay.")
+    r.click("#v2Search")
+    r.type("kipp" if r.lang == "de" else "tilt")
+    r.wait(2000)
+    r.pg.keyboard.press("Control+A")
+    r.key("Backspace")
+    r.wait(900)
+    r.say("Links hängen die Abschnitte als Reiter. Ein Tipp zieht einen ins Seitenfach.", "The sections hang as tabs on the left. A tap pulls one out into the drawer.")
+    r.click("#v2Nops [data-sec=shutter]")
+    r.wait(1800)
+    r.poster()
+    r.click("#v2Nops [data-sec=shutter]")
+    r.wait(800)
+    r.say("Dieser Flügel geht links auf …", "This pane opens on the left …")
+    r.click("#v2Window [data-pane='0']")
+    r.wait(700)
+    r.click("#v2PaneMenu [data-kind=left]")
+    r.wait(1200)
+    r.say("… „⇉ Übernehmen“ gibt das an das andere Fenster weiter.", "… “⇉ Pass on” gives that to the other window.")
+    r.click("#v2CopyBtn")
+    r.wait(1200)
+    r.click("#v2CopyGo")
+    r.wait(1800)
+    r.click("#uiSwitch [data-ui=classic]")
+    r.wait(1000)
+
+
 @clip("devices-place", "edit",
       {"de": "Lampen und Geräte platzieren", "en": "Place lamps and devices"},
       {"de": "„Gerät“ wählen, eine Lampe oder einen Sensor aussuchen, mit Home Assistant verbinden und in den Raum klicken.",

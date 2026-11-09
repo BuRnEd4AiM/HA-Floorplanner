@@ -13,12 +13,16 @@ import { polyArea } from './rooms.js';
 import { fmtArea } from './i18n.js';
 import { drawPattern } from './patterns.js';
 import { resolve } from './finishes.js';
+import { initUiV2Tools } from './uiv2tools.js';
+import { initUiV2Home } from './uiv2homeui.js';
 
 const KIND_KEYS = ['window', 'window2', 'window3', 'windowTall', 'windowFloor', 'windowBath', 'windowFixed'];   // the window kinds shown
 const PANE_ICON = { left: '⇤', right: '⇥', bottom: '⤓', top: '⤒', fixed: '▭' };
 
 /** ctx: $, t, selection(), select(sel) (null: nothing), floor(), houseName(), findOpening(id), roomAt(x, z), catOf(type), stateText(e),
- *  entityName(e), fmtLen(m), imperial(), snapshot(), changed(), renderProps(), setStatus(txt), propsTitle(kind, it) */
+ *  entityName(e), fmtLen(m), imperial(), snapshot(), changed(), renderProps(), setStatus(txt), propsTitle(kind, it); for the tree and the
+ *  tools (5.0.0): layout(), floorIdx(), isLive(), tool(), switchFloor(i), houses(), houseId(), switchHouse(id), addFloorOf(kind),
+ *  moveFloorTo(from, to), renderFloorPanel(), storeyText(), fmtArea(m2) */
 export function initUiV2(ctx) {
   const { $, t } = ctx;
   let mode = 'classic';
@@ -30,6 +34,8 @@ export function initUiV2(ctx) {
   let paneSel = { id: null, i: -1 };                       // the pane tapped in the picture (its menu is open)
   let roomTab = 'general', floorGroup = null;              // the tab of a room, the group of floors shown
   const thumbs = new Map();                                // pattern -> picture (data URL)
+  const tools = initUiV2Tools(ctx);                        // 🔍 search, „Noppel“, „⇉ Übernehmen“ (uiv2tools.js)
+  const home = initUiV2Home({ ...ctx, mode: () => mode });  // nothing selected: the house as a tree, a floor (uiv2homeui.js)
 
   function store() { try { localStorage.setItem(UI_KEY, mode); } catch { /* a private window: for now */ } }
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -53,7 +59,7 @@ export function initUiV2(ctx) {
   gen?.append(row, hint);                                  // last: language and design stay the first tiles side by side (28_settings)
 
   function setMode(m) {
-    mode = cleanUi(m); store(); show(); ctx.renderProps();
+    mode = cleanUi(m); store(); show(); tools.reset(); ctx.renderProps(); home.sync();
   }
   function show() {
     document.body.classList.toggle('uiV2', mode === 'v2');
@@ -72,14 +78,15 @@ export function initUiV2(ctx) {
     const groups = groupMarked(kids, (e) => (e.classList?.contains('v2mark') ? e.dataset.sec : null));
     body.textContent = '';
     $('#props').classList.add('v2');
-    body.append(...head(pk, sel, it));
+    const [path, hd] = head(pk, sel, it);
+    body.append(path, hd);
     const top = groups.get('top') || [];
     if (top.length) { const box = el('div', 'v2Top'); box.append(...top); body.append(box); }
-    if (pk === 'room') roomTabs(body, groups, it);
-    else sections(body, pk, groups, it);
+    const secs = pk === 'room' ? roomTabs(body, groups, it) : sections(body, pk, groups, it);
     const hidden = el('div', 'v2Hidden'); hidden.hidden = true;           // the classic delete button and pane fields: kept, not shown
     hidden.append(...(groups.get('del') || []), ...(groups.get('panesList') || []));
     body.append(hidden);
+    tools.decorate(body, hd, pk, sel, it, secs, pk === 'room' ? secs.map((s) => s.bd) : null);   // search, tabs on the panel, „Übernehmen“
   }
 
   /** the path and the head: sign, name, what it is, a few chips, the buttons */
@@ -107,6 +114,7 @@ export function initUiV2(ctx) {
       act('v2Bring', '🎯', t('v2.act.bring'), () => $('#devBring')?.click());
       act('v2Lock', it.locked ? '🔒' : '🔓', t(it.locked ? 'v2.act.locked' : 'v2.act.lock'), () => $('#devLock')?.click(), it.locked ? 'on' : '');
     }
+    if (['window', 'door', 'room', 'device'].includes(pk)) act('v2CopyBtn', '⇉', t('v2.act.copy'), () => tools.toggleCopy(sel), tools.copyOpen(sel.id) ? 'on' : '');
     act('v2Delete', '🗑', t('panel.delete'), () => $('#propsDelete')?.click(), 'del');
     h.append(acts);
     return [path, h];
@@ -139,6 +147,7 @@ export function initUiV2(ctx) {
 
   /** the sections of a window, door, device or wall */
   function sections(body, pk, groups, it) {
+    const out = [];
     const dormer = pk === 'window' && !!ctx.findOpening(it.id)?.wall?.dormer;
     const drawn = pk === 'window' ? (dormer ? ['panes'] : ['kind', 'panes']) : [];
     for (const [key, icon, def] of sectionOrder(pk, groups, drawn)) {
@@ -159,7 +168,9 @@ export function initUiV2(ctx) {
       bd.append(...(groups.get(key) || []));
       sec.append(hd, bd);
       body.append(sec);
+      out.push({ key, icon, title: t(`v2.sec.${key}`), sec, hd, bd, rows: [...bd.children] });
     }
+    return out;
   }
 
   /** the panes of a window as a picture: tap a pane, choose what it does; how many, which way they open */
@@ -240,6 +251,7 @@ export function initUiV2(ctx) {
     body.append(tabs, ...panes.map(([, p]) => p));
     floorTiles(it);
     levelPicture(it);
+    return panes.map(([key, p]) => ({ key, icon: '', title: t(`v2.tab.${key}`), sec: null, hd: null, bd: p, rows: [...p.children] }));
   }
   function thumb(key) {
     if (!thumbs.has(key)) {
@@ -297,5 +309,7 @@ export function initUiV2(ctx) {
     r.before(el('h4', 'finHead', t('v2.level.title')), box);
   }
 
-  return { decorate, mode: () => mode, setMode };
+  /** props.js draws the panel anew: what we put beside it goes until decorate puts it back */
+  function reset() { tools.reset(); }
+  return { decorate, reset, homeSync: () => home.sync(), mode: () => mode, setMode };
 }

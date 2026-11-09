@@ -36,3 +36,6 @@ Zu 1 bis 4: „diese vielen gestrichelten Linien auf den Fenstern sind seltsam�
 
 **Gebaut in 4.73.0 (erster Teil):** 1, 2, 3 (mit dem Fenster „halb offen“, Bild 17 B), 4, 7, 8 (die Leiste ist jetzt so kurz), 14; dazu Tür und
 Wand mit Abschnitten. Noch offen: 5, 9, 10, 12, 13; das Handy (16) entscheidet der Besitzer später.
+
+**Gebaut in 5.0.0 (zweiter Teil):** 5 (Reiter an der Leiste mit Seitenfach), 9 (Haus als Baum mit Haus / Objekte / Hilfe), 10 (eine Etage),
+12 (Einstellung suchen, auch in ⚙), 13 („⇉ Übernehmen“). Damit ist alles gebaut, was der Besitzer gewählt hat; offen ist nur das Handy (16).

@@ -2790,3 +2790,60 @@ body.uiV2 #panel:has(> #props.v2:not([hidden])) > :not(#props) { display: none; 
 .v2Tabs button.on { color: var(--text); border-bottom-color: var(--accent); }
 .v2Floors { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
 .v2LevelBox { display: flex; justify-content: center; margin-bottom: 6px; }
+/* „Oberfläche 2“, second part (5.0.0): nothing selected (uiv2homeui.js), search, tabs on the panel, „Übernehmen“ (uiv2tools.js) */
+body.uiV2 #panel.v2home > :not(#v2Home) { display: none; }
+body.uiV2 #panel.v2home[data-v2seg=house] > #housePanel, body.uiV2 #panel.v2home[data-v2seg=house] > #buildingPanel,
+body.uiV2 #panel.v2home[data-v2seg=house] > #bgPanel { display: block; }
+body.uiV2 #panel.v2home[data-v2seg=objects] > #objList:not([hidden]), body.uiV2 #panel.v2home[data-v2seg=help] > #hint,
+body.uiV2 #panel.v2home[data-v2seg=help] > #controlsHelp { display: block; }
+body.uiV2 #panel.v2home > details { margin-top: 8px; border-radius: 12px; border: 1px solid var(--line); padding: 8px 11px; background: color-mix(in srgb, var(--text) 3%, transparent); }
+#v2Home { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
+#v2Home[hidden] { display: none; }
+.v2Tree { display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; }
+.v2Tree .n { display: flex; align-items: center; gap: 7px; padding: 6px 8px; border-radius: 9px; font-weight: 600; }
+.v2Tree .n.tap { cursor: pointer; } .v2Tree .n.tap:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+.v2Tree .n .ar { width: 16px; flex: none; color: var(--muted); font-size: 11px; border: 0; background: transparent; padding: 0; cursor: pointer; }
+.v2Tree .n .ic { width: 20px; flex: none; text-align: center; }
+.v2Tree .n .nm { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v2Tree .n small { color: var(--muted); font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+.v2Tree .n.h { font-weight: 800; }
+.v2Tree .n.floor { margin-left: 14px; } .v2Tree .n.room { margin-left: 34px; }
+.v2Tree .n.on { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 3px 0 0 var(--accent); }
+.v2Tree .n.drop { outline: 2px dashed var(--accent); }
+.v2Tree .grip { color: var(--muted); cursor: grab; letter-spacing: -2px; }
+.v2Adds { display: flex; flex-wrap: wrap; gap: 6px; }
+.v2Btn { padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--text); font: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+.v2Btn.pri { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.v2Btn:disabled { opacity: .5; cursor: default; }
+.v2Row { display: flex; gap: 8px; margin-top: 8px; } .v2Row > * { flex: 1; }
+.v2FloorCard { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.v2FloorCard .finHead { margin: 6px 0 0; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.v2Seg.big button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 7px 4px; }
+.v2Seg.big button i { font-style: normal; font-size: 18px; }
+.v2StoreyBox { display: flex; gap: 10px; align-items: center; } .v2StoreyBox .side { flex: 1; min-width: 0; }
+.v2StoreyBox .side .prop { flex-direction: column; align-items: stretch; gap: 4px; } .v2StoreyBox .side .prop label { flex-basis: auto; }
+.v2SearchRow { display: flex; } .v2Search { flex: 1; width: 100%; }
+.v2SearchRes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; font-weight: 600; }
+.v2SearchRes[hidden] { display: none; }
+#props.v2 .v2Miss { display: none !important; }
+.v2TabBody.v2Searching { border-top: 1px dashed var(--line); padding-top: 6px; }
+.v2Sec.out { border-style: dashed; opacity: .75; }
+.v2Nops { position: fixed; z-index: 30; display: flex; flex-direction: column; gap: 6px; }
+.v2Nops[hidden], .v2Drawer[hidden] { display: none; }
+body.live .v2Nops, body.live .v2Drawer { display: none; }
+.v2Nop { width: 34px; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 0; border-radius: 10px 0 0 10px; border: 1px solid var(--line); border-right: 0;
+  background: var(--field); color: var(--muted); font: inherit; font-weight: 800; font-size: 11.5px; cursor: pointer; box-shadow: -3px 3px 10px rgba(0,0,0,.25); }
+.v2Nop .i { font-size: 15px; } .v2Nop .tx { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: 84px; overflow: hidden; text-overflow: ellipsis; }
+.v2Nops.compact .v2Nop .tx { display: none; }
+.v2Nop.on { background: var(--panel); color: var(--text); border-color: var(--accent); box-shadow: none; }
+.v2Drawer { position: fixed; z-index: 31; width: 320px; overflow-y: auto; padding: 12px; border-radius: 14px 0 0 14px; background: var(--panel); border: 1px solid var(--accent); border-right: 0;
+  box-shadow: -14px 10px 40px rgba(0,0,0,.45); color: var(--text); }
+.v2Drawer .dh { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; } .v2Drawer .dh b { flex: 1; font-size: 15px; }
+.v2Drawer .dh .x { border: 0; background: transparent; color: var(--muted); font-size: 16px; cursor: pointer; }
+.v2CopyBox { display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 12px; border: 1px solid #ffd45c; background: var(--field); }
+.v2CopyBox h5 { margin: 0 0 4px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.v2CopyBox .lbl { margin: 6px 0 2px; font-weight: 800; font-size: 12.5px; }
+.v2CopyBox .v2Opt .rd { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--muted); flex: none; }
+.v2CopyBox .v2Opt.on .rd { border-color: var(--accent); background: radial-gradient(var(--accent) 45%, transparent 50%); }
+.v2CopyBox .v2Opt small { margin-left: auto; color: var(--muted); }
+.v2Check { display: flex; align-items: center; gap: 8px; padding: 4px 9px; font-weight: 600; cursor: pointer; }

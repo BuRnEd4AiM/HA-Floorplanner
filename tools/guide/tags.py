@@ -288,6 +288,16 @@ t("ui-v2",
   "new interface new panel version 2 new design new look tidy clear too many settings cluttered confusing collapse expand fold "
   "sections tabs old new switch classic back to the old view edit sidebar right window as a picture tap a pane kind of window "
   "preset floors as pictures choose a floor covering floor height side view redesign")
+t("ui-v2-house",
+  "Übersicht umsortieren Reihenfolge ändern nach oben schieben nach unten schieben Geschosshöhe ändern Raumliste Räume finden "
+  "Baumansicht Explorer Struktur Ordner Hausübersicht alle Häuser wechseln Dachstuhl",
+  "overview reorder change the order move up move down change storey height room list find rooms tree view explorer structure "
+  "folders house overview switch houses roof space")
+t("ui-v2-tools",
+  "Einstellung finden wo ist die Einstellung Suche in der Leiste Kippwinkel finden Seitenleiste Reiter Seitenfach ausklappen "
+  "für alle Fenster gleich alle Fenster gleich einstellen auf andere übertragen Einstellungen kopieren übernehmen Boden für alle Räume",
+  "where is the setting search the panel find tilt angle side tabs drawer pull out same for all windows set every window alike "
+  "transfer settings copy settings to others apply to all floor for every room")
 t("devices-place",
   "Gerät einfügen Gerät hinzufügen Lampe hinzufügen Sensor hinzufügen Thermostat platzieren Steckdose Schalter setzen "
   "Entität zuordnen verknüpfen Home Assistant verbinden Deckenlampe aufhängen",

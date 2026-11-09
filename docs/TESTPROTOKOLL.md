@@ -23,6 +23,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 11. **Neu in 4.71.0: ⏸️ Heizplan aussetzen und das Gebäude oben auf jeder Seite** (Abschnitt 168, deine Wünsche vom 2026-11-08, #677): Claude hat 168.1 und 168.2 geprüft (Tausende zufällige Heiz-Tage mit Pausen, Browser-Test); für dich in der Demo 168.3 bis 168.5, im Add-on mit deiner Heizung 168.6 und 168.7, mit deinen zwei Häusern 168.8 und 168.9, nach dem Merge die Videos 168.10.
 12. **Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben** (Abschnitt 169, gefragt von markweiffenbach in #679): Claude hat 169.1 und 169.2 geprüft; für dich in der Demo 169.3 bis 169.5, im Add-on mit deinen Fenstern 169.6, nach dem Merge das Video 169.7.
 13. **Neu in 4.73.0: ✨ Oberfläche 2** (Abschnitt 170, dein Wunsch vom 2026-11-08): Claude hat 170.1 und 170.2 geprüft; für dich in der Demo 170.3 bis 170.7, dein Eindruck 170.8, nach dem Merge das Video 170.9.
+14. **Neu in 5.0.0: ✨ Oberfläche 2 komplett** (Abschnitt 171, dein Wunsch vom 2026-11-09): Claude hat 171.1 und 171.2 geprüft; für dich in der Demo 171.3 bis 171.8, dein Eindruck 171.9, nach dem Merge die Videos 171.10.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -449,7 +450,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 168. Neu in 4.71.0: ⏸️ Heizplan aussetzen, das Gebäude oben gilt auf jeder Seite | 2 | 0 | 8 | 0 | 168.3 bis 168.10 |
 | 169. Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben | 2 | 0 | 5 | 0 | 169.3 bis 169.7 |
 | 170. Neu in 4.73.0: ✨ Oberfläche 2 (die neue Bearbeiten-Leiste, umschaltbar) | 2 | 0 | 7 | 0 | 170.3 bis 170.9 |
-| **Zusammen** | **1117** | **1** | **65** | **92** | |
+| 171. Neu in 5.0.0: ✨ Oberfläche 2 komplett (Haus als Baum, Etage, Suchen, Reiter an der Leiste, Übernehmen) | 2 | 0 | 8 | 0 | 171.3 bis 171.10 |
+| **Zusammen** | **1119** | **1** | **73** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2622,3 +2624,19 @@ Dein Wunsch vom 2026-11-08 („so unendlich viele Einstellmöglichkeiten … das
 | 170.7 | Demo: oben „Klassisch“ antippen | Die alte Leiste, genau wie vorher | ❓ |
 | 170.8 | Gefällt es dir? Was fehlt, was ist zu viel, was soll anders heißen? | Deine Antwort (z. B. als Text bei „Other“) | ❓ |
 | 170.9 | Nach dem Merge: Video „Die neue Leiste (Oberfläche 2)“ auf der Seite der Anleitung | Zeigt das Umschalten, die Abschnitte, das Fenster halb offen, die Fensterarten und den Raum mit Böden | ❓ |
+
+## 171. Neu in 5.0.0: ✨ Oberfläche 2 komplett (Haus als Baum, Etage, Suchen, Reiter an der Leiste, Übernehmen)
+Dein Wunsch vom 2026-11-09: „5, 9, 10, 12, 13 – kannst du das weiter machen?“ (Bilder 5, 9, 10, 12, 13 in `docs/ideen-5.0/`). Alles mit „✨ Neu“ oben.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 171.1 | `node --test tests/uiv2more.test.mjs` | Baum (Etagen von oben nach unten, Räume mit Größe), Etage verschieben, Etagen von der Seite, Suche (ohne Umlaute und Großbuchstaben), was übernommen wird (Kontakte und Namen nie, ein festes Fenster bleibt heil) | ✅ (2026-11-09, Claude) |
+| 171.2 | Browser-Test Teil `80_ui_v2_more` (dazu `79_ui_v2`, `09_floors`) | Baum mit Haus / Objekte / Hilfe; Etage öffnen, Art umschalten; Etage ziehen und ↶; Raum antippen; Suchen „kipp“ und „Sprache“ (⚙); Reiter an der Leiste, Seitenfach; „⇉ Übernehmen“ für das andere Fenster im Raum und ↶ | ✅ (2026-11-09, Claude) |
+| 171.3 | Demo: Bearbeiten, „✨ Neu“, nichts anklicken (Esc) | Rechts oben „🗂 Haus · 🔍 Objekte · ❔ Hilfe“, darunter das Demo-Haus mit Dach, Dachgeschoss, Obergeschoss, Erdgeschoss (offen, mit seinen Räumen) und Keller | ❓ |
+| 171.4 | Demo: im Baum auf „Erdgeschoss“ tippen | Die Etage öffnet sich: Name, Art als drei Knöpfe, die Geschosshöhe mit dem Haus von der Seite (Erdgeschoss leuchtet) | ❓ |
+| 171.5 | Demo: im Baum eine Etage mit ⠿ auf eine andere ziehen, dann ↶ | Die Etage steht an der neuen Stelle (im 3D-Bild auch); ↶ stellt es zurück | ❓ |
+| 171.6 | Demo: ein Fenster anklicken, oben „kipp“ suchen | Nur „Kontakt gekippt“ und „Kippwinkel“ bleiben; die Zeile sagt die Zahl der Treffer | ❓ |
+| 171.7 | Demo: links an der Leiste auf den Reiter „Rollladen“ tippen | Der Abschnitt kommt in ein Seitenfach neben der Leiste; noch ein Tipp legt ihn zurück | ❓ |
+| 171.8 | Demo: bei einem Fenster einen Flügel auf „Drehen links“ stellen, dann „⇉ Übernehmen“ → „Für … übernehmen“ | Die anderen Fenster der Etage gehen auch links auf; ↶ macht es rückgängig | ❓ |
+| 171.9 | Gefällt es dir? Was fehlt noch, was ist zu viel? | Deine Antwort | ❓ |
+| 171.10 | Nach dem Merge: die Videos „Oberfläche 2: das Haus als Baum …“ und „… Suchen, Reiter an der Seite, Übernehmen“ | Zeigen Baum, Etage, Suchen, Seitenfach und Übernehmen | ❓ |
