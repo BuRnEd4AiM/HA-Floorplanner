@@ -146,7 +146,7 @@ export default {
   'backup.import': 'Back-up herstellen…',
   'backup.confirm': 'Back-up herstellen? Alle huizen en instellingen worden vervangen door het bestand (de huidige status wordt eerst als veiligheidskopie op de server opgeslagen).',
   'backup.done': 'Back-up hersteld: {h} huis/huizen',
-  'backup.failed': 'Back-up mislukt',
+  'backup.failed': 'Back-up mislukt', 'backup.tooBig': 'Het bestand is te groot ({mb} MB) en kwam niet aan bij de add-on. Zonder de opnames is een back-up kleiner.',
   'house.new': '+ Nieuw huis',
   'house.rename': 'Hernoemen',
   'house.copy': 'Dupliceren',

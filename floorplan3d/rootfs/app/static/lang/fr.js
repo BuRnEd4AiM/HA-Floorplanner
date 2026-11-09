@@ -146,7 +146,7 @@ export default {
   'backup.import': 'Restaurer la sauvegarde…',
   'backup.confirm': 'Restaurer la sauvegarde ? Toutes les maisons et tous les réglages sont remplacés par le fichier (l\'état actuel est d\'abord copié dans une sauvegarde de secours sur le serveur).',
   'backup.done': 'Sauvegarde restaurée : {h} maison(s)',
-  'backup.failed': 'Échec de la sauvegarde',
+  'backup.failed': 'Échec de la sauvegarde', 'backup.tooBig': 'Le fichier est trop volumineux ({mb} Mo) et n’est pas arrivé jusqu’à l’add-on. Sans les enregistrements, une sauvegarde est plus petite.',
   'house.new': '+ Nouvelle maison',
   'house.rename': 'Renommer',
   'house.copy': 'Dupliquer',

@@ -50,6 +50,8 @@ export function initHouseLoad(ctx) {
       await ctx.flush();
       const r = await fetch('api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: await file.text() });
       const j = await r.json().catch(() => ({}));
+      // 413: a proxy on the way (or the add-on) would not take a file this large; say so instead of the bare number (#693)
+      if (r.status === 413) throw new Error(t('backup.tooBig', { mb: (file.size / 1048576).toFixed(1) }));
       if (!r.ok) throw new Error(j.error || r.status);
       ctx.alert(t('backup.done', { h: j.houses }));
       ctx.reload();
