@@ -1,0 +1,5 @@
+{
+ "version": "5.2.0",
+ "from": "worktree",
+ "note": "the normal add-on, written by tools/stable.py: do not edit"
+}

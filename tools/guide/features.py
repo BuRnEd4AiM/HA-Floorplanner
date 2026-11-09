@@ -168,3 +168,7 @@ f("roofeditor", "edit", "🔺 Das neue Dach: Klick aufs Dach öffnet es, Dachfor
   "🔺 The new roof: a click on the roof opens it, roof shapes as pictures, the roof from the side to drag (pitch, ridge height, knee wall, overhang, headroom), dormers and roof windows dragged from above and in 3D, templates with an L roof and a cross roof (+), keep your own roof", ["roof-editor"], since="5.1.0")
 f("roomlock", "edit", "🔒 Räume sperren (Wände, Ecken, nach Wahl Fenster, Türen, Geräte, Einstellungen; Raum, Etage oder Haus), „Grundriss fertig“ für alles (nur Admins entsperren), Streifen im 3D-Bild ausblendbar",
   "🔒 Lock rooms (walls, corners, as chosen windows, doors, devices, settings; room, floor or house), “Floor plan finished” for everything (only admins unlock), stripes in 3D can be hidden", ["room-lock", "objlist"], since="5.1.0")
+f("channels", "settings", "Normal und Beta: zwei Add-ons im Store; die Beta bekommt jede neue Version sofort und pausiert, solange das normale läuft (⏸ Beta pausiert)",
+  "Normal and Beta: two add-ons in the store; the beta gets every new version at once and pauses while the normal one runs (⏸ Beta paused)",
+  why="geschieht im Store von Home Assistant, die Demo hat kein zweites Add-on; das Schild oben zeigt „Beta“ (Video „Version und Prüfsumme“)",
+  since="5.2.0")

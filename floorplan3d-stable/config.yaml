@@ -1,0 +1,25 @@
+# The NORMAL add-on: a copy of floorplan3d/ (the beta) at version 5.2.0, written by tools/stable.py.
+# Do not edit: change floorplan3d/, then release the version (workflow "Release to everyone").
+name: "3D Floorplan"
+version: "5.2.0"
+slug: floorplan3d
+description: "More than a floor plan: your smart home in 3D. Lights, heating, energy, security, cameras and routines right where they are, with ready-made dashboard pages"
+url: "https://github.com/BuRnEd4AiM/HA-Floorplanner"
+arch:
+  - amd64
+  - aarch64
+init: false
+ingress: true
+panel_icon: mdi:floor-plan
+panel_title: "3D Floorplan"
+panel_admin: false          # everyone may open the panel; only administrators (and users in `editors`) may EDIT
+homeassistant_api: true
+map:
+  - addon_config:rw
+options:
+  log_level: info
+  editors: []
+schema:
+  log_level: list(debug|info|warning|error)?
+  editors:
+    - str?

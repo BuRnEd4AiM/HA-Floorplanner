@@ -115,12 +115,23 @@ async def _ask_ws(ws, msg_id, msg, pending):
 async def run_rules(rules: Rules, *, connect, env, check: float = CHECK, idle: float = 5.0):
     """Runs while the add-on runs; never raises. env: async rooms() (roommap.rooms_of of every house), local() (the time of day in Home
     Assistant's zone), call(domain, service, data) -> bool, notify(text), save(mem), publish(status), guard_armed(), weather(states) (the
-    weather entity)"""
+    weather entity), paused() (optional: the beta while the normal add-on runs, channel.py; nothing runs then, wishes of the pages are
+    dropped)"""
     rules.bind()
     rules.journal([{"t": round(time.time()), "k": "start", "v": getattr(env, "version", None)}])
     delay = 1
     while True:
         try:
+            if _paused(env):
+                rules.connected = False
+                while not rules.queue.empty():                  # a boost or "Jetzt ausprobieren": the normal add-on does it
+                    log.info("beta paused, not done: %s", rules.queue.get_nowait()[0])
+                rules.wake.clear()
+                try:
+                    await asyncio.wait_for(rules.wake.wait(), idle)
+                except asyncio.TimeoutError:
+                    pass
+                continue
             if not rules.active():
                 rules.connected = False
                 rules.wake.clear()
@@ -150,6 +161,10 @@ async def run_rules(rules: Rules, *, connect, env, check: float = CHECK, idle: f
             delay = min(60, delay * 2)
 
 
+def _paused(env) -> bool:
+    return bool(getattr(env, "paused", None) and env.paused())
+
+
 def _save_trace(rules, env):
     if rules.dirty and hasattr(env, "save_trace"):
         rules.dirty = False
@@ -176,7 +191,7 @@ async def _loop(rules: Rules, ws, states: dict, pending: list, env, check: float
         cache["idx"], rules.rooms = hl.index(cache["rooms"]), cache["rooms"]
         await _look(rules, states, cache, env, clock=True)
         last_tick = time.time()
-        while rules.active() or not q.empty():
+        while not _paused(env) and (rules.active() or not q.empty()):
             try:
                 req = await asyncio.wait_for(q.get(), max(0.05, check - (time.time() - last_tick)))
             except asyncio.TimeoutError:

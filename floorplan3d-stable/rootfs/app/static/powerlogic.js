@@ -1,0 +1,60 @@
+/* Power add-on, the pure part (no three.js, no DOM, so it can be tested): power device types, cables (route, kind, colour), watts of a
+ * sensor and the meters' pill. The overview of the power (production, grid, consumption, battery, rooms) and its pill are energycalc.js. */
+import { fmtNum } from './i18n.js';
+export const POWER_TYPES = new Set(['solarpanel', 'inverter', 'powermeter', 'houseentry', 'fusebox', 'battery', 'wallbox']);
+/** meters of water, gas and heat: energy too, so the power editor keeps showing them (#207), but they have no cables */
+export const METER_TYPES = new Set(['watermeter', 'gasmeter', 'heatmeter']);
+/** what the power editor shows */
+export const showsInPowerEditor = (type) => POWER_TYPES.has(type) || METER_TYPES.has(type);
+export const CABLE_ROUTES = ['floor', 'through', 'air'];
+/** what a cable carries decides its colour: grid (the connection to the public grid, also what is fed in), own solar, battery, consumption */
+export const CABLE_KINDS = { grid: '#ff6b6b', solar: '#7dff9a', battery: '#5aa9ff', load: '#ffb347' };
+export const KIND_OF_TYPE = { houseentry: 'grid', powermeter: 'grid', solarpanel: 'solar', inverter: 'solar', battery: 'battery', fusebox: 'load', wallbox: 'load' };
+export const cableKind = (d, c) => (c.kind in CABLE_KINDS ? c.kind : KIND_OF_TYPE[d.type] || 'load');
+export const cableColor = (d, c) => CABLE_KINDS[cableKind(d, c)];
+/** the cables of a device; the single `feeds` of the first version counts as an air cable */
+export const cablesOf = (d) => (Array.isArray(d.cables) ? d.cables : d.feeds ? [{ id: `${d.id}-f`, to: d.feeds, route: 'air' }] : []);
+/** the cables array of a device for editing: an old `feeds` is turned into a real cable first */
+export function ownCables(d) {
+  if (!Array.isArray(d.cables)) { d.cables = cablesOf(d).map((c) => ({ ...c })); delete d.feeds; }
+  return d.cables;
+}
+/** W per unit: kW and MW are converted */
+export const unitFactor = (unit) => (/^k/i.test(unit || '') ? 1000 : /^m/i.test(unit || '') ? 1e6 : 1);
+/** watts of a device's entity (kW and MW are converted), null if it has no number; a cable can carry its own sensor */
+export function powerWatts(states, d, c) {
+  const e = c?.entity || d.entity, s = e ? states[e] : null;
+  if (s && s.unit === '%') return null;                                  // a charge level is not a power
+  const n = s ? parseFloat(s.state) : NaN;
+  return Number.isFinite(n) ? n * unitFactor(s.unit) : null;
+}
+export const fmtWatts = (w) => (Math.abs(w) >= 1000 ? `${fmtNum(Math.abs(w) / 1000, 2, 2)} kW` : `${Math.round(Math.abs(w))} W`);   // "3,20 kW" in German
+
+/** the points [x, y, z] of a cable: `air` hangs between the two, `floor` runs along the floor of the first and then up,
+ *  `through` goes through the floors first, then along the floor of the second; fyA / fyB are the floor levels of the two ends */
+export function cablePoints(route, pa, pb, fyA, fyB) {
+  if (route === 'air') {
+    const len = Math.hypot(pb[0] - pa[0], pb[1] - pa[1], pb[2] - pa[2]);
+    return [pa, [(pa[0] + pb[0]) / 2, (pa[1] + pb[1]) / 2 + 0.2 + len * 0.05, (pa[2] + pb[2]) / 2], pb];
+  }
+  const lift = 0.05, yA = fyA + lift, yB = fyB + lift;
+  if (route === 'through') return [pa, [pa[0], yA, pa[2]], [pa[0], yB, pa[2]], [pb[0], yB, pa[2]], [pb[0], yB, pb[2]], pb];
+  return [pa, [pa[0], yA, pa[2]], [pb[0], yA, pa[2]], [pb[0], yA, pb[2]], pb];
+}
+
+const METER_ICON = { watermeter: '🚰', gasmeter: '🔥', heatmeter: '♨' };
+/** the readings of the water, gas and heat meters for their pill (#237, #245): [{ type, name, text }], in that order, only meters whose
+ *  sensor has a value, rounded to 0.1 like the badges */
+export function meterReadings(states, devices) {
+  return (devices || []).filter((d) => METER_TYPES.has(d.type) && d.entity)
+    .map((d) => ({ d, s: states[d.entity] })).filter(({ s }) => s && s.state !== '' && s.state != null && Number.isFinite(parseFloat(s.state)))
+    .sort((a, b) => Object.keys(METER_ICON).indexOf(a.d.type) - Object.keys(METER_ICON).indexOf(b.d.type))
+    .map(({ d, s }) => ({ type: d.type, name: d.name || '', text: `${METER_ICON[d.type]} ${fmtNum(parseFloat(s.state))}${s.unit ? ` ${s.unit}` : ''}` }));   // rounded like the badges
+}
+/** the text of the meter pill beside the power overview (#245; water, gas and heat apart from the power, which lights up with the cables)
+ *  and its tooltip naming each meter, null without meters. meters: from meterReadings */
+export function meterText(meters, t) {
+  if (!meters?.length) return null;
+  return { text: meters.map((m) => m.text).join(' · '),
+    title: meters.map((m) => `${t(`dev.${m.type}`)}${m.name ? ` (${m.name})` : ''}: ${m.text.slice(m.text.indexOf(' ') + 1)}`).join('\n') };
+}

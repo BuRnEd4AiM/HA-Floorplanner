@@ -21,6 +21,7 @@ QUERIES = [
     ("Etagen umsortieren", "de", "ui-v2-house"), ("reorder floors", "en", "ui-v2-house"), ("alle Fenster gleich einstellen", "de", "ui-v2-tools"),
     ("copy settings to other windows", "en", "ui-v2-tools"), ("wo ist die Einstellung", "de", "ui-v2-tools"),
     ("neue Oberfläche einschalten", "de", "ui-v2"), ("Leiste einklappen", "de", "ui-v2"), ("zurück zur alten Ansicht", "de", "ui-v2"), ("new interface", "en", "ui-v2"),
+    ("Beta Version", "de", "version"), ("beta paused", "en", "version"),
     ("Heizplan pausieren", "de", "heat-pause"), ("Heizung von Hand regeln", "de", "heat-pause"), ("override heating schedule", "en", "heat-pause"),
     ("nur ein Gebäude anzeigen", "de", "buildings-pages"), ("Seite für den Anbau", "de", "buildings-pages"),
     # other words for the same thing

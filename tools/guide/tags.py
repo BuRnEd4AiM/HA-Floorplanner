@@ -507,9 +507,9 @@ t("notify",
   "water alarm burglary inform test message")
 t("version",
   "Version Update aktualisieren aktuell neueste Version Prüfsumme Cache leeren neu laden alter Stand veraltet "
-  "Browser Cache Fehler nach Update",
+  "Browser Cache Fehler nach Update Beta Betaversion Testversion normale Version stabil pausiert",
   "version update upgrade up to date latest version checksum clear the cache reload old version outdated browser cache "
-  "problem after an update")
+  "problem after an update beta beta version test version normal version stable released paused")
 
 # ---------- phone and tablet (clips_phone.py) ----------
 t("phone-house",

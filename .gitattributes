@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# the normal add-on: a copy of floorplan3d/ written by tools/stable.py (collapsed in pull requests)
+floorplan3d-stable/** linguist-generated=true
