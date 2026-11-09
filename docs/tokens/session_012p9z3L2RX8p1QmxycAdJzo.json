@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3L2RX8p1QmxycAdJzo",
+ "start": "2026-11-09",
+ "updated": "2026-11-09T18:09:26Z",
+ "branch": "claude/focused-mendel-llr2jj",
+ "source": "counted",
+ "input": 120,
+ "cache_write": 153270,
+ "cache_read": 9053230,
+ "output": 39442,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 120,
+   "cache_write": 153270,
+   "cache_read": 9053230,
+   "output": 39442,
+   "requests": 61
+  }
+ }
+}
