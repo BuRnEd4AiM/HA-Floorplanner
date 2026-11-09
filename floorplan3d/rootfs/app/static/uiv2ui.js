@@ -34,8 +34,10 @@ export function initUiV2(ctx) {
   let paneSel = { id: null, i: -1 };                       // the pane tapped in the picture (its menu is open)
   let roomTab = 'general', floorGroup = null;              // the tab of a room, the group of floors shown
   const thumbs = new Map();                                // pattern -> picture (data URL)
+  /** the new panel is shown: chosen, and not on a phone (the owner decides the phone later, 2026-11-09: the classic sheet stays there) */
+  const active = () => mode === 'v2' && !document.body.classList.contains('phoneview');
   const tools = initUiV2Tools(ctx);                        // 🔍 search, „Noppel“, „⇉ Übernehmen“ (uiv2tools.js)
-  const home = initUiV2Home({ ...ctx, mode: () => mode });  // nothing selected: the house as a tree, a floor (uiv2homeui.js)
+  const home = initUiV2Home({ ...ctx, mode: () => (active() ? 'v2' : 'classic') });  // nothing selected: the house as a tree, a floor (uiv2homeui.js)
 
   function store() { try { localStorage.setItem(UI_KEY, mode); } catch { /* a private window: for now */ } }
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -71,7 +73,7 @@ export function initUiV2(ctx) {
   /* ---- the new panel ---- */
   /** props.js has drawn the fields of selection sel (object it) into body: order them (nothing for several things or other kinds) */
   function decorate(body, sel, it, multi) {
-    if (mode !== 'v2' || multi || !sel || !it) return;
+    if (!active() || multi || !sel || !it) return;
     const pk = panelKind(sel.kind, it);
     if (!['window', 'door', 'room', 'device', 'wall'].includes(pk)) return;
     const kids = [...body.children];

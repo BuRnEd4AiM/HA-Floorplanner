@@ -2724,6 +2724,7 @@ dialog.guideDlg[open] { display: flex; }
 
 /* ---- „Oberfläche 2“ (4.73.0, uiv2ui.js): the switch, and the same fields of the properties panel in sections that fold in and out ---- */
 #uiSwitch { border: 1px solid #b48cff; border-radius: 10px; padding: 2px; }
+body.phoneview #uiSwitch { display: none !important; }   /* the phone keeps the classic panel for now (the owner decides later) */
 #uiSwitch button { border: 0; background: transparent; }
 #uiSwitch button.active { background: #b48cff; color: #1a0f2e; }
 body.uiV2 #panel:has(> #props.v2:not([hidden])) > :not(#props) { display: none; }
