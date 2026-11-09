@@ -24,6 +24,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 12. **Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben** (Abschnitt 169, gefragt von markweiffenbach in #679): Claude hat 169.1 und 169.2 geprüft; für dich in der Demo 169.3 bis 169.5, im Add-on mit deinen Fenstern 169.6, nach dem Merge das Video 169.7.
 13. **Neu in 4.73.0: ✨ Oberfläche 2** (Abschnitt 170, dein Wunsch vom 2026-11-08): Claude hat 170.1 und 170.2 geprüft; für dich in der Demo 170.3 bis 170.7, dein Eindruck 170.8, nach dem Merge das Video 170.9.
 14. **Neu in 5.0.0: ✨ Oberfläche 2 komplett** (Abschnitt 171, dein Wunsch vom 2026-11-09): Claude hat 171.1 und 171.2 geprüft; für dich in der Demo 171.3 bis 171.8, dein Eindruck 171.9, nach dem Merge die Videos 171.10.
+15. **Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren** (Abschnitt 172, dein Wunsch vom 2026-11-09): Claude hat 172.1 und 172.2 geprüft; für dich in der Demo 172.3 bis 172.12, dein Eindruck 172.13, nach dem Merge die Videos 172.14.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -451,7 +452,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 169. Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben | 2 | 0 | 5 | 0 | 169.3 bis 169.7 |
 | 170. Neu in 4.73.0: ✨ Oberfläche 2 (die neue Bearbeiten-Leiste, umschaltbar) | 2 | 0 | 7 | 0 | 170.3 bis 170.9 |
 | 171. Neu in 5.0.0: ✨ Oberfläche 2 komplett (Haus als Baum, Etage, Suchen, Reiter an der Leiste, Übernehmen) | 2 | 0 | 8 | 0 | 171.3 bis 171.10 |
-| **Zusammen** | **1119** | **1** | **73** | **92** | |
+| 172. Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren | 2 | 0 | 12 | 0 | 172.3 bis 172.14 |
+| **Zusammen** | **1121** | **1** | **85** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2640,3 +2642,23 @@ Dein Wunsch vom 2026-11-09: „5, 9, 10, 12, 13 – kannst du das weiter machen?
 | 171.8 | Demo: bei einem Fenster einen Flügel auf „Drehen links“ stellen, dann „⇉ Übernehmen“ → „Für … übernehmen“ | Die anderen Fenster der Etage gehen auch links auf; ↶ macht es rückgängig | ❓ |
 | 171.9 | Gefällt es dir? Was fehlt noch, was ist zu viel? | Deine Antwort | ❓ |
 | 171.10 | Nach dem Merge: die Videos „Oberfläche 2: das Haus als Baum …“ und „… Suchen, Reiter an der Seite, Übernehmen“ | Zeigen Baum, Etage, Suchen, Seitenfach und Übernehmen | ❓ |
+
+## 172. Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren
+Dein Wunsch vom 2026-11-09: „das Dach neu aufmachen, dass es geiler und übersichtlicher ist“ und „Räume sperren, dass diese nicht verschoben werden“ (Bilder in `docs/ideen-5.1/`: Dach alle, Sperren 7 und 9, dazu L-Dach und „+“-Dach, Geräte einzeln sperren, die Streifen blasser und ausschaltbar).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 172.1 | `node --test tests/roomlock.test.mjs tests/roofedit.test.mjs tests/rooftemplates.test.mjs` | Was gesperrt ist und warum (auch die Wand zum Nachbarraum), „Grundriss fertig“, nur Admins; Dach von der Seite, Karte von oben, Ziehen; Vorlagen mit L- und Kreuzdach, eigenes Dach | ✅ (2026-11-09, Claude) |
+| 172.2 | Browser-Test Teil `81_roof_lock` (dazu `10_roofs`, `72_skylights`, `80_ui_v2_more`, `12_roofsteps`, `66_gables`, `71_roof_cut`, `79_ui_v2`) | 🔒 beim Raum, Wand bleibt, Pfeiltasten und Entf, Grundriss fertig mit Schild oben, Gesperrte zeigen, klassische Zeile; Dach: Form, Neigung tippen und ziehen, Gaube auf der Karte ziehen, ＋ Gaube, Kreuz- und L-Dach, Mein Dach merken | ✅ (2026-11-09, Claude) |
+| 172.3 | Demo: Bearbeiten, „✨ Neu“, Etage „Dach“, dann aufs Dach im Bild klicken | Rechts das neue Dach: oben „2 Gauben · 1 Dachfenster · Module · ausgebaut“, darunter Form / Auf dem Dach / Mehr Dächer / Vorlagen | ❓ |
+| 172.4 | Demo: unter „Form“ auf „Walmdach“ tippen, dann wieder „Satteldach“ | Das Dach im Bild ändert sich sofort; die Gauben sind danach wieder da | ❓ |
+| 172.5 | Demo: im Dach von der Seite den Punkt am Bogen nach oben ziehen; dann ⤢ | Das Dach wird steiler (die Zahl darunter auch), grün zeigt, wo man stehen kann; ⤢ zeigt es groß | ❓ |
+| 172.6 | Demo: „Auf dem Dach“, eine Gaube auf der Karte zur Seite ziehen | Sie wandert im Bild mit, ihre Karte geht auf, „… vom Giebel“ steht daneben | ❓ |
+| 172.7 | Demo: das Dach ist ausgewählt, eine Gaube im 3D-Bild anfassen und am Dach entlang ziehen | Die Gaube rutscht am Dach entlang; rechts geht „Auf dem Dach“ mit ihr auf | ❓ |
+| 172.8 | Demo: „Vorlagen“ → „Kreuzdach (+)“, dann „L-Dach“, dann ↶ | Ein Giebel quer über die Mitte; dann ein zweiter Giebel an einem Ende; ↶ holt das alte Dach zurück | ❓ |
+| 172.9 | Demo: „⭐ Mein Dach merken“, Namen eingeben, dann eine andere Vorlage und dein Dach antippen | Dein Dach steht als ⭐-Bild bei den Vorlagen und kommt mit einem Tipp zurück | ❓ |
+| 172.10 | Demo: Erdgeschoss, Wohnzimmer antippen, oben 🔒 | Der Raum ist gesperrt, „Was bleibt fest?“ geht auf; im Bild sind seine Böden blass gestreift | ❓ |
+| 172.11 | Demo: 2D, an der Wand zwischen Wohnzimmer und Küche ziehen | Sie bleibt stehen, unten steht „🔒 „Wohnzimmer“ ist gesperrt …“ | ❓ |
+| 172.12 | Demo: nichts ausgewählt, im Baum „🔒 Grundriss fertig“; dann „Ansicht“ → „🔒 Gesperrte zeigen“; dann oben „🔒 Grundriss gesperrt“ antippen | Alle Räume gesperrt, Geräte lassen sich weiter ziehen; die Streifen gehen aus und an; nach der Rückfrage ist alles wieder frei | ❓ |
+| 172.13 | Gefällt dir das neue Dach und das Sperren? Was fehlt noch? | Deine Antwort | ❓ |
+| 172.14 | Nach dem Merge: die Videos „Das neue Dach …“ und „Räume sperren und „Grundriss fertig““ | Zeigen Form, Seitenansicht, Karte, Vorlagen; Schloss, Grundriss fertig, Gesperrte zeigen | ❓ |

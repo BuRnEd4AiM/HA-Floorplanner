@@ -25,7 +25,8 @@ export function openingSpot(wall, point, defWidth, ignoreId = null) {
  *  findWall(id), pick(e), pickHit(e), groundPoint(e), snap(p, fine), snapshot(), changed(rebuild), build(), moveDeviceTo(d, x, z),
  *  multi ({ toggle(h), clear() }), liveTap(e), cableClick(id), deleteItem(sel), newDevice(x, z), holdPlaced(), editNano(d), switchDevice(d),
  *  roofBox(id) (the base box of a roof on the open floor), dragRoof(id, dx, dz) (moves the drawn roof, #255 #257), lockWhy(kind, id) and
- *  sayLock(why) (locked rooms and the plan, roomlockui.js) */
+ *  sayLock(why) (locked rooms and the plan, roomlockui.js), roofPart ({ start(hit data), move(dx, dz), end() }: a dormer or roof window
+ *  dragged along the ridge of the selected roof, roofeditui.js) */
 export function initDraw3d(ctx) {
   let drawPts = [], cursor = null, down = null, preview = null;   // preview: { wall, pos, width, valid } of a door / window to place
 
@@ -124,6 +125,8 @@ export function initDraw3d(ctx) {
       }
     } else if (h?.kind === 'roof') {                // a roof (#255): the first click selects it, a press on the selected roof drags it
       const box = ctx.roofBox(h.id), gp = ctx.groundPoint(e), wasSelected = sel?.kind === 'roof' && sel.id === h.id;
+      const part = wasSelected && gp ? ctx.pickHit(e)?.data : null;   // a dormer or roof window of the selected roof: dragged along the ridge (5.1.0)
+      if (part && (part.dormerIdx != null || part.skyIdx != null) && ctx.roofPart?.start(part)) { down.rpart = { gp }; controls.enabled = false; return; }
       select(h);
       if (wasSelected && box && gp) { down.roof = { id: h.id, gp, start: { ...box }, moved: false }; controls.enabled = false; }
     }
@@ -142,6 +145,7 @@ export function initDraw3d(ctx) {
       ctx.moveDeviceTo(down.dev.d, x, z);
       return;
     }
+    if (down?.rpart && down.drag && gp) { ctx.roofPart.move(gp[0] - down.rpart.gp[0], gp[1] - down.rpart.gp[1]); return; }   // roofeditui.js
     if (down?.roof && down.drag && gp) {
       const r = down.roof, now = ctx.roofBox(r.id);
       if (!now) return;
@@ -182,6 +186,7 @@ export function initDraw3d(ctx) {
     if (st.dev?.moved) { ctx.changed(false); ctx.refreshSelection(); return; }
     if (st.op?.moved) { ctx.changed(false); ctx.refreshSelection(); return; }
     if (st.roof?.moved) { ctx.changed(); ctx.refreshSelection(); return; }
+    if (st.rpart) { ctx.roofPart.end(); return; }
     if (st.drag) return;                         // camera drag, not a click
     if (ctx.isLive()) { ctx.liveTap(e); return; }
 

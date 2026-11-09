@@ -1216,6 +1216,7 @@ draw3d = initDraw3d({ ...lockCtx,
   cableClick: (id) => power.cableClick(id), deleteItem: (sel) => deleteItem(sel), newDevice: (x, z) => newDevice(x, z), holdPlaced: () => holdPlaced(),
   editNano: (d) => editNano(d), switchDevice: (d) => deviceEntities(d).forEach((e) => live.quickAction(e)),   // #251
   roofBox: (id) => roofRectOf(id)?.box || null, dragRoof: (id, dx, dz) => dragRoofBy(id, dx, dz), measure: measureTool,
+  roofPart: { start: (d) => roofEdit.roofPart.start(d), move: (dx, dz) => roofEdit.roofPart.move(dx, dz), end: () => roofEdit.roofPart.end() },   // 5.1.0
 });
 
 /** a device was just placed: it stays selected and can be moved at once; the next click on empty space deselects it and placing goes on */

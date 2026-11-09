@@ -71,6 +71,7 @@ export function initRoofEdit(ctx) {
   const edit = (fn) => { ctx.snapshot(); fn(); ctx.changed(); rerender(); };
 
   function render(host, opts = {}) {
+    if (cur?.host && cur.host !== host && cur.host.isConnected) cur.host.textContent = '';   // one editor on the page (the tree's card or the panel)
     cur = { host, opts };
     const lay = ctx.layout(), fi = opts.fi ?? ctx.floorIdx(), f = lay?.floors?.[fi];
     host.textContent = '';
@@ -407,7 +408,11 @@ export function initRoofEdit(ctx) {
         c.forEach((q) => { const e = Math.hypot(q[0] - e0[0], q[1] - e0[1]) < Math.hypot(q[0] - e1[0], q[1] - e1[1]) ? e0 : e1; g += `<line x1="${X(q[0])}" y1="${Z(q[1])}" x2="${X(e[0])}" y2="${Z(e[1])}" stroke="#4a1b11" stroke-width="2"/>`; });
       }
     }
-    m.sides.forEach((sd) => { g += `<text x="${X(sd.at[0])}" y="${Z(sd.at[1]) + 4}" text-anchor="middle" font-size="12" font-weight="800" fill="rgba(255,240,230,.85)" stroke="rgba(60,20,10,.6)" stroke-width="3" paint-order="stroke">${t(sd.side === 1 ? 'dormer.sideB' : 'dormer.sideA')}</text>`; });
+    m.sides.forEach((sd) => {                                          // „Seite A / B“ outside the roof, at its eave (nothing on the roof hides it)
+      const name = t(sd.side === 1 ? 'dormer.sideB' : 'dormer.sideA'), txt = (x, y, anchor) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="11.5" font-weight="800" fill="var(--muted)">${name}</text>`;
+      if (m.alongX) g += txt(X(o.x0) + 2, sd.side === 1 ? Z(o.z1) + 15 : Z(o.z0) - 7, 'start');
+      else g += txt(sd.side === 1 ? X(o.x1) : X(o.x0), Z(o.z0) - 7, sd.side === 1 ? 'end' : 'start');
+    });
     sol.forEach((p, i) => {
       const hw = p.w / 2, hd = p.d / 2, on = open?.kind === 'solar' && open.i === i;
       let cells = '';                                                  // one line between each column and row of panels
@@ -485,5 +490,31 @@ export function initRoofEdit(ctx) {
     body.append(grid);
   }
 
-  return { render, refresh: rerender, open: (o) => { if (o?.tab) tab = o.tab; if ('part' in (o || {})) open = o.part; } };
+  /* ---------------- a dormer or roof window dragged in the 3D picture (picture 4): along the ridge of the selected main roof ---------------- */
+  let drag3 = null;
+  const roofPart = {
+    start(data) {
+      const fi = ctx.floorIdx(), f = ctx.layout().floors[fi], r = f?.roof, bb = ctx.roofBox(fi);
+      if (f?.kind !== 'roof' || !r || !bb || data.roofPart !== 'main') return false;
+      const kind = data.dormerIdx != null ? 'dormer' : 'sky', i = kind === 'dormer' ? data.dormerIdx : data.skyIdx, m = roofMap(bb, r);
+      const st = kind === 'dormer' ? m.dormers[i] : m.skylights[i], it = kind === 'dormer' ? r.dormers?.[i] : r.skylights?.[i];
+      if (!st || st.fit === false || !it) return false;
+      drag3 = { kind, i, st, it, r, bb, alongX: m.alongX, moved: false };
+      tab = 'top'; open = { kind, i };
+      rerender();
+      return true;
+    },
+    move(dx, dz) {
+      if (!drag3) return;
+      if (!drag3.moved) { ctx.snapshot(); drag3.moved = true; }
+      const { da } = alongAcross(drag3.alongX, dx, dz), { kind, it, r, bb, st } = drag3;
+      if (kind === 'dormer') dragDormer(bb, r, it, st, da, 0); else dragSkylight(bb, r, it, st, da, 0);
+      const now = roofMap(bb, r)[kind === 'dormer' ? 'dormers' : 'skylights'][drag3.i];
+      if (now?.rect) ctx.setStatus?.(t('rf.fromGable', { d: ctx.fmtLen(Math.max(0, (drag3.alongX ? now.rect.x0 - bb.x0 : now.rect.z0 - bb.z0))) }));
+      preview();
+    },
+    end() { if (drag3?.moved) ctx.changed(); drag3 = null; rerender(); },
+  };
+
+  return { render, refresh: rerender, roofPart, open: (o) => { if (o?.tab) tab = o.tab; if ('part' in (o || {})) open = o.part; } };
 }
