@@ -1,0 +1,606 @@
+/* Properties panel (edit mode): the fields of the selected object: wall, room (with its entity list), placeholder block, floor opening, stair
+ * (stairtool.js), door / window (with a window's roller shutter, #331), device (position, size, tilt, picture, LED ring sections, kitchen
+ * run, a cabinet built in its editor (closetui.js), power cables, entity, a lamp's light colour, camera, TV backlight, the LED zones of a piece), and a power cable (power.js). Which fields a device gets is decided by pure functions
+ * (tested); initProps draws the panel. */
+import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange, sectionHex } from './ledring.js';
+import { DOOR_STYLES, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
+import { WINDOW_HINGES, PANE_HINGES, MAX_PANES, windowPanes, stylePanes, paneHinge } from './windowpanes.js';
+import { roomOpenings } from './roompanel.js';
+import { initKitchenUi } from './kitchenui.js';
+import { initClosetUi } from './closetui.js';
+import { MOUNTS, MAX_FIELD } from './solarroof.js';
+import { BRIDGE, bridgeSize } from './bridge.js';
+import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
+import { hasShutter, setShutter, setShutterEntity, setShutterStyle, curtainStyle, curtainSide, shutterChoices, SHUTTER_STYLES } from './shutters.js';
+import { wantsLightColor } from './lamplight.js';
+import { finishChoices, finishOf, variantChoices, variantOf, variantLabel, variantHint } from './scandi.js';
+import { zoneKeys, setZone, fitZones } from './ledzones.js';
+import { TV_SIZES, ARM, armPose } from './tvmount.js';
+import { initFinishUi } from './finishui.js';
+import { roomLevelFields, stepsFields } from './plateauui.js';
+import { balconyFields } from './balconyui.js';
+import { tiltAngleField } from './tiltui.js';
+import { fixedGlassFields } from './fixedglassui.js';
+import { roomNameFields } from './roomnameui.js';
+
+/** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
+export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
+/** can the model of a device be hidden (a lamp keeps its light, a presence sensor its dot)? */
+export const canHideModel = (d, { ledLike, catOf }) => d.type in ledLike || catOf(d.type) === 'lighting' || /^light\./.test(d.entity || '') || d.type === 'presence';
+/** windows with more than one pane can have one contact per pane: how many (0 = none) */
+export const paneCount = (o) => {
+  if (o.type !== 'window' || o.style === 'fixed') return 0;
+  const n = windowPanes(o);
+  return n > 1 ? n : 0;
+};
+/** a stretch factor typed by the user: limited to 0.1 .. 10, 1 (no stretch) is dropped (null) */
+export function stretchValue(n) {
+  const v = Math.max(0.1, Math.min(10, n));
+  return Math.abs(v - 1) < 0.005 ? null : v;
+}
+
+/** ctx: $, t, floor(), isLive(), selection(), roomCtx(), setRoomCtx(id), fields: { field, inp, lenInput, pickerField }, entityPicker(list, room, current, onChange),
+ *  entities(), areas(), findOpening(id), snapshot(), changed(), build(), refreshSelection(), deleteItem(sel), applyStates(), setStatus(txt),
+ *  renderObjList(), renderRoomEntities(), stateText(id), roomAt(x, z), pointInPoly, controlsTarget() ({x, z}), wallTypes, ledLike, catOf, baseDims(type, dev),
+ *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH(), power(), stairTool(), fmtLen(m), toDisp(m), imperial(),
+ *  defaultLightColor() (settings: the colour of a lamp that reports none), yardProps(body, box, sel) (the plot and its areas, plotui.js),
+ *  closetRoof(d) (the roof slopes over a cabinet's floor and the height of its bottom: { planes, baseY } or null), balconyFree(id) (the room
+ *  hangs free: a balcony, #646), previewTilt(id) (a window leans in for a moment: its tilt angle changed), allOpenings() (every door and
+ *  window of the house), layout() (the open house: the rooms of every floor, roomnameui.js) */
+export function initProps(ctx) {
+  const { $, t } = ctx;
+  const { field, inp, lenInput, pickerField } = ctx.fields;
+  /** what the fields of plateauui.js need: a floor higher than its storey, the outdoor steps (#566) */
+  const levelUi = { t, field, lenInput, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), fmtLen: (m) => ctx.fmtLen(m) };
+  const finishUi = initFinishUi({   // floors, walls and accent walls (#448)
+    t, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), floor: () => ctx.floor(), imperial: () => ctx.imperial(),
+    setStatus: (x) => ctx.setStatus(x),
+  });
+  const kitchenProps = initKitchenUi({
+    t, changed: () => ctx.changed(), snapshot: () => ctx.snapshot(), renderProps: () => render(),
+    field, lenInput, toDisp: (m) => ctx.toDisp(m), imperial: () => ctx.imperial(),
+  });
+
+  const closetUi = initClosetUi({   // the cabinet builder: its part of the panel and the editor window
+    t, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), renderProps: () => render(), imperial: () => ctx.imperial(),
+    setStatus: (x) => ctx.setStatus(x), roof: (d) => ctx.closetRoof?.(d) ?? null,
+  });
+
+  /** the live state of the selected device's entity, under its fields */
+  function renderEntState() {
+    const el = $('#entState');
+    if (!el) return;
+    const selection = ctx.selection();
+    const d = selection?.kind === 'device' ? ctx.floor()?.devices.find((v) => v.id === selection.id) : null;
+    el.textContent = d?.entity ? `${d.entity} · ${ctx.stateText(d.entity)}` : '';
+  }
+  /** where the next fields belong in the new panel (4.73.0, uiv2.js): an invisible mark; the classic panel ignores it */
+  const mark = (body, key) => { const m = document.createElement('i'); m.className = 'v2mark'; m.dataset.sec = key; m.hidden = true; body.append(m); };
+  const roomEntsBox = (body) => { const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts'; body.append(ents); ctx.renderRoomEntities(); };
+  const pickFrom = (list) => list.slice(0, 1500);
+
+  /** a roof on the open roof floor (#255): where it is, and how to move it; its shape stays in the floor panel */
+  function roofCard(body, box, r) {
+    if (!r) { box.hidden = true; return; }
+    box.hidden = false;
+    if (ctx.roofEdit) {                                       // the new roof editor (5.1.0, roofeditui.js): a click on the roof opens it
+      $('#propsTitle').textContent = t('rf.roof'); box.classList.add('v2');
+      ctx.roofEdit.render(body, { part: r.main ? null : r.id });
+      return;
+    }
+    $('#propsTitle').textContent = r.name || t('prop.roof');
+    const b = r.box, p = document.createElement('p'); p.id = 'roofWhere';
+    p.textContent = t('roof.where', { x: ctx.fmtLen(b.x0), z: ctx.fmtLen(b.z0), w: ctx.fmtLen(b.x1 - b.x0), d: ctx.fmtLen(b.z1 - b.z0) });
+    const hint = document.createElement('p'); hint.className = 'sub'; hint.textContent = t('roof.moveHint');
+    body.append(p, hint);
+  }
+  function render() {
+    ctx.renderObjList();
+    const box = $('#props'), body = $('#propsBody');
+    body.innerHTML = '';
+    box.classList.remove('v2'); ctx.v2Reset?.();
+    const selection = ctx.selection();
+    if (!selection || ctx.isLive()) { ctx.setRoomCtx(null); box.hidden = true; return; }
+    const f = ctx.floor();
+    if (selection.kind === 'cable') { ctx.power().cableProps(body, box); return; }
+    if (selection.kind === 'roof') { roofCard(body, box, ctx.roofInfo?.(selection.id)); return; }
+    if (selection.kind === 'yard' || selection.kind === 'plot') { ctx.yardProps(body, box, selection); return; }   // the plot and its areas: plotui.js (#538)
+    let it = null;
+    if (selection.kind === 'wall') it = f.walls.find((x) => x.id === selection.id);
+    else if (selection.kind === 'room') it = f.rooms.find((x) => x.id === selection.id);
+    else if (selection.kind === 'device') it = f.devices.find((x) => x.id === selection.id);
+    else if (selection.kind === 'stair') it = (f.stairs || []).find((x) => x.id === selection.id);
+    else if (selection.kind === 'block') it = (f.blocks || []).find((x) => x.id === selection.id);
+    else if (selection.kind === 'hole') it = (f.holes || []).find((x) => x.id === selection.id);
+    else if (selection.kind === 'opening') it = ctx.findOpening(selection.id)?.opening;
+    if (!it) { box.hidden = true; return; }
+    box.hidden = false;
+    $('#propsTitle').textContent = t(propsTitleKey(selection.kind, it));
+    const multi = ctx.multiBox?.();                            // several things selected (#211): their count and "delete all" on top
+    if (multi) body.append(multi);
+
+    if (selection.kind === 'wall') wallProps(body, it);
+    else if (selection.kind === 'room') roomProps(body, it);
+    else if (selection.kind === 'block') {
+      body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+      body.append(field(t('prop.height'), lenInput(() => it.h || ctx.floorH(), (v) => (it.h = Math.max(0.5, v)), { min: 0.5, step: 0.1 })));
+      const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('block.help'); body.append(hp);
+    } else if (selection.kind === 'hole') {
+      const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('hole.help'); body.append(hp);
+    } else if (selection.kind === 'stair') ctx.stairTool().renderProps(body, it);
+    else if (selection.kind === 'opening') openingProps(body, it, f);
+    else deviceProps(body, it);
+    if (selection.kind !== 'room') {                    // an object of the room picked from its list: the list stays below
+      const rc = ctx.roomCtx(), rm = rc && f.rooms.find((r) => r.id === rc);
+      const inRoom = rm && (selection.kind === 'device' ? ctx.pointInPoly(it.x, it.z, rm.points) : selection.kind === 'opening' && roomOpenings(rm, f).some((o) => o.id === it.id));
+      if (inRoom) { mark(body, 'inroom'); roomEntsBox(body); } else ctx.setRoomCtx(null);
+    }
+    mark(body, 'del');
+    const del = document.createElement('button');
+    del.textContent = t('panel.delete'); del.id = 'propsDelete';
+    del.addEventListener('click', () => { ctx.snapshot(); ctx.deleteItem(ctx.selection()); });
+    body.append(del);
+    ctx.v2?.(body, selection, it, !!multi);                     // the new panel orders the same fields (uiv2ui.js)
+    if (selection.kind === 'room') ctx.lockFreeze?.(body, it);  // a locked room that keeps its settings: read only (roomlockui.js)
+  }
+
+  function wallProps(body, it) {
+    mark(body, 'wsize');
+    body.append(field(t('prop.thickness'), lenInput(() => it.thickness, (v) => (it.thickness = Math.max(0.05, v)))));
+    body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3, step: 0.1 })));
+    mark(body, 'split'); wallSplitBox(body, it);
+    mark(body, 'finish'); finishUi.faceFields(body, it);                             // one side of this wall otherwise: an accent wall (#448)
+  }
+
+  /* split the wall at an exact distance from its start, or into equal parts (wallsplit.js); the first piece stays selected */
+  function wallSplitBox(body, it) {
+    const f = ctx.floor(), L = wallLength(it);
+    const head = document.createElement('p'); head.className = 'sub'; head.textContent = `${t('wall.split')} (${ctx.fmtLen(L)})`;
+    const at = document.createElement('input'); at.type = 'number'; at.id = 'wallSplitAt'; at.step = ctx.imperial() ? 0.1 : 0.05; at.min = 0;
+    at.value = (+ctx.toDisp(L / 2)).toFixed(2);
+    const go = document.createElement('button'); go.type = 'button'; go.id = 'wallSplitBtn'; go.textContent = t('wall.splitBtn');
+    const locked = () => { const w = ctx.lockWhy?.('wall', it.id); if (w) ctx.sayLock(w); return !!w; };   // a wall of a locked room (5.1.0)
+    go.addEventListener('click', () => {
+      if (locked()) return;
+      const d = ctx.fromDisp(+at.value);
+      if (!canSplitAt(it, d)) { ctx.setStatus(t('wall.splitNo')); return; }
+      ctx.snapshot(); splitWall(f, it, d, ctx.uid); ctx.changed(); render();
+    });
+    const parts = document.createElement('select'); parts.id = 'wallParts';
+    for (let n = 2; n <= 10; n++) parts.add(new Option(t('wall.parts', { n }), String(n)));
+    const goN = document.createElement('button'); goN.type = 'button'; goN.id = 'wallPartsBtn'; goN.textContent = t('wall.splitBtn');
+    goN.addEventListener('click', () => {
+      if (locked()) return;
+      ctx.snapshot();
+      if (!splitEqual(f, it, +parts.value, ctx.uid)) { ctx.setStatus(t('wall.splitNo')); return; }
+      ctx.changed(); render();
+    });
+    const row = (...els) => { const r = document.createElement('div'); r.className = 'splitRow'; r.append(...els); return r; };
+    body.append(head, field(t('wall.splitAt'), row(at, go)), field(t('wall.splitEqual'), row(parts, goN)));
+  }
+
+  function roomProps(body, it) {
+    const lr = ctx.lockRow?.(it);                                // 🔒 lock the room (5.1.0, roomlockui.js; the new panel has it in the head)
+    if (lr) body.append(lr);
+    mark(body, 'general');
+    roomNameFields(body, it, { t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(),   // its name: own, or a
+      setStatus: (x) => ctx.setStatus(x), areas: () => ctx.areas(), layout: () => ctx.layout() });                             // Home Assistant area (roomnameui.js)
+    // the floor (#427, #448): one colour, or parquet, herringbone, tiles, stone, carpet ... with its colour, size and angle (the walls below)
+    mark(body, 'floor');
+    finishUi.floorFields(body, it, () => field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v), { id: 'roomColor' })));
+    mark(body, 'balcony');
+    balconyFields(body, it, { t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), free: (id) => ctx.balconyFree?.(id) });   // a balcony / roof terrace (#646)
+    mark(body, 'level'); roomLevelFields(body, it, levelUi);    // its floor higher or lower than the storey (#566)
+    mark(body, 'walls'); finishUi.wallFields(body, it);
+    ctx.setRoomCtx(it.id);
+    mark(body, 'devices'); roomEntsBox(body);
+  }
+
+  function openingProps(body, it, f) {
+    const { wall } = ctx.findOpening(it.id);
+    const entities = ctx.entities(), rc = ctx.roomCtx(), dormer = !!wall.dormer;   // a dormer window: size and place come from the dormer (roof panel)
+    const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p; };
+    mark(body, 'size');
+    if (dormer) { const p = document.createElement('p'); p.className = 'sub'; p.id = 'dormerWinHint'; p.textContent = t(wall.skylight ? 'skylight.winHint' : 'dormer.winHint'); body.append(p); }   // a roof window (#643): set on the roof too
+    if (!dormer) body.append(field(t('prop.width'), lenInput(() => it.width, (v) => { it.width = Math.max(MIN_OPENING, v); refit(); }, { min: MIN_OPENING })));
+    if (!dormer) body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3 })));
+    if (it.type === 'window' && !dormer) body.append(field(t('prop.sill'), lenInput(() => it.sill, (v) => (it.sill = v))));
+    mark(body, it.type === 'window' ? 'panesList' : 'style');   // the new panel draws the panes of a window as a picture (uiv2ui.js)
+    if (it.type === 'window') {                            // the panes are set by count and a fixed tick: no style dropdown (it would duplicate the count)
+      const fixed = document.createElement('input'); fixed.type = 'checkbox'; fixed.id = 'winFixed';
+      fixed.checked = (it.style || 'double') === 'fixed';
+      fixed.addEventListener('change', () => {
+        ctx.snapshot();
+        if (fixed.checked) { it.style = 'fixed'; delete it.panes; delete it.paneHinges; delete it.paneEntities; delete it.tiltEntity; delete it.tiltDeg; delete it.fixedBelow; delete it.fixedAbove; }
+        else it.style = 'single';
+        ctx.changed(); render();
+      });
+      body.append(field(t('st.fixed'), fixed));
+    } else {
+      const ssel = document.createElement('select'); ssel.id = 'openStyle';
+      DOOR_STYLES.forEach((v) => ssel.add(new Option(t(`st.${v}`), v)));
+      ssel.value = it.style || 'single';
+      ssel.addEventListener('change', () => { ctx.snapshot(); it.style = ssel.value; ctx.changed(); });
+      body.append(field(t('prop.style'), ssel));
+    }
+    if (it.type === 'window' && (it.style || 'double') !== 'fixed') {
+      const pin = document.createElement('input'); pin.type = 'number'; pin.id = 'winPanes'; pin.min = '1'; pin.max = String(MAX_PANES); pin.step = '1';
+      pin.value = String(windowPanes(it));
+      pin.addEventListener('change', () => {
+        ctx.snapshot();
+        const n = Math.max(1, Math.min(MAX_PANES, Math.round(+pin.value || 1)));
+        const base = stylePanes(it.style);
+        if (n === base) delete it.panes; else it.panes = n;                  // the style stays the look, the number overrides its panes
+        const arr = (it.paneEntities || []).slice(0, Math.max(0, n > 1 ? n : 0));
+        it.paneEntities = arr.some(Boolean) ? arr : undefined;
+        if (n <= 1) delete it.paneHinges; else if (Array.isArray(it.paneHinges)) it.paneHinges = it.paneHinges.slice(0, n);
+        ctx.changed(); render();
+      });
+      body.append(field(t('prop.panes'), pin));
+      const osel = document.createElement('select'); osel.id = 'winOpenDir';
+      [['in', 'opendir.in'], ['out', 'opendir.out']].forEach(([v, k]) => osel.add(new Option(t(k), v)));
+      osel.value = it.openOutward ? 'out' : 'in';
+      osel.addEventListener('change', () => { ctx.snapshot(); if (osel.value === 'out') it.openOutward = true; else delete it.openOutward; ctx.changed(); });
+      body.append(field(t('prop.openDir'), osel));
+      const nPanes = windowPanes(it);
+      const hingeSelect = (i) => {
+        const sel = document.createElement('select');
+        sel.id = nPanes > 1 ? `winHinge${i + 1}` : 'winHinge';
+        (nPanes > 1 ? PANE_HINGES : WINDOW_HINGES).forEach((v) => sel.add(new Option(t(`hinge.${v}`), v)));
+        sel.value = paneHinge(it, i);
+        sel.addEventListener('change', () => {
+          ctx.snapshot();
+          if (nPanes <= 1) {                                   // one pane: the window's own hinge
+            if (sel.value === 'bottom') delete it.hinge; else it.hinge = sel.value;
+            delete it.paneHinges;
+          } else {                                             // every pane its own edge
+            const base = WINDOW_HINGES.includes(it.hinge) ? it.hinge : 'bottom';
+            const arr = Array.from({ length: nPanes }, (_, k) => paneHinge(it, k));
+            arr[i] = sel.value;
+            if (sel.value === 'fixed') {                       // a fixed pane cannot have a contact of its own
+              const pe = Array.isArray(it.paneEntities) ? it.paneEntities.slice() : [];
+              pe[i] = ''; it.paneEntities = pe.some(Boolean) ? pe : undefined;
+            }
+            if (arr.some((h) => h !== base)) it.paneHinges = arr; else delete it.paneHinges;
+          }
+          ctx.changed();
+        });
+        return sel;
+      };
+      if (nPanes <= 1) body.append(field(t('prop.hinge'), hingeSelect(0)));
+      else for (let i = 0; i < nPanes; i++) body.append(field(`${t('pane.n', { n: i + 1 })} · ${t('prop.hinge')}`, hingeSelect(i)));
+      mark(body, 'fixed'); fixedGlassFields({ t, field, lenInput, toDisp: (m) => ctx.toDisp(m) }, body, it);   // fixed glass below / above the panes (#679)
+    }
+    mark(body, 'size');
+    if (!dormer) body.append(field(t('prop.position'), lenInput(() => it.pos, (v) => {
+      const p = clampOpeningPos(wall, it.width, v);
+      if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p;
+    })));
+    mark(body, 'top'); body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    mark(body, 'contact');
+    const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
+    const room = rc ? f.rooms.find((r) => r.id === rc) : null;
+    body.append(pickerField(t('prop.contact'), ctx.entityPicker(pickFrom(contact.length ? contact : entities), room, it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
+    if (it.type === 'window' && (it.style || 'double') !== 'fixed') {   // a second contact that says "gekippt" (#624, windowtilt.js)
+      const tf = pickerField(t('prop.tiltContact'), ctx.entityPicker(pickFrom(contact.length ? contact : entities), room, it.tiltEntity || '', (v) => {
+        ctx.snapshot(); if (v) it.tiltEntity = v; else delete it.tiltEntity; ctx.changed(); render();
+      }));
+      tf.id = 'tiltContact'; tf.title = t('prop.tiltContactHint');
+      const hint = document.createElement('p'); hint.className = 'sub'; hint.id = 'tiltContactHint'; hint.textContent = t('prop.tiltContactSub');
+      body.append(tf, hint);
+      mark(body, 'more');
+      tiltAngleField({ t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), preview: (id) => ctx.previewTilt(id),   // how far it tilts in 3D
+        windows: () => ctx.allOpenings(), setStatus: (x) => ctx.setStatus(x) }, body, it);
+    }
+    if (it.type === 'window') { mark(body, 'contact'); rainProps(body, it); mark(body, 'shutter'); shutterProps(body, it, entities, room); }
+    mark(body, 'contact');   // right under the contact: the rain warning (#419), the roller shutter (#331)
+    const count = paneCount(it);
+    if (count) {
+      const h = document.createElement('h4'); h.textContent = t('pane.title'); body.append(h);
+      for (let i = 0; i < count; i++) {
+        if (paneHinge(it, i) === 'fixed') {                    // fixed pane: no contact field, it never opens
+          const p = document.createElement('p'); p.className = 'sub'; p.textContent = `${t('pane.n', { n: i + 1 })} · ${t('hinge.fixed')}`; body.append(p);
+          continue;
+        }
+        body.append(pickerField(t('pane.n', { n: i + 1 }), ctx.entityPicker(pickFrom(contact.length ? contact : entities), room, (it.paneEntities || [])[i] || '', (v) => {
+          ctx.snapshot(); const arr = Array.isArray(it.paneEntities) ? it.paneEntities.slice() : []; while (arr.length < count) arr.push(''); arr[i] = v;
+          it.paneEntities = arr.some(Boolean) ? arr : undefined; ctx.changed();
+        })));
+      }
+    }
+    if (it.type === 'door') {
+      mark(body, 'style');
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!it.flip;
+      cb.addEventListener('change', () => { ctx.snapshot(); it.flip = cb.checked; ctx.changed(); });
+      body.append(field(t('prop.flip'), cb));
+      const ci = document.createElement('input'); ci.type = 'checkbox'; ci.checked = !!it.inv; ci.id = 'doorInv';
+      ci.addEventListener('change', () => { ctx.snapshot(); it.inv = ci.checked; ctx.changed(); });
+      body.append(field(t('prop.inv'), ci));
+      mark(body, 'contact'); if (it.entity || (it.paneEntities || []).some(Boolean)) heatProps(body, it);
+    }
+  }
+
+  /** a door with a contact: "Zählt für die Heizung" (the owner, 2026-10-28: the rooms' doors lead to the corridor, which has no heating):
+   *  the window rule of the add-on (heatrules.py) counts it for every room beside it like a window; off, a door between two rooms does
+   *  not count (a door to the outside counts anyway, with "Türen nach draußen") */
+  function heatProps(body, it) {
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = it.heat === true; cb.id = 'doorHeat';
+    cb.addEventListener('change', () => { ctx.snapshot(); if (cb.checked) it.heat = true; else delete it.heat; ctx.changed(); });
+    const lb = document.createElement('label'); lb.className = 'chk'; lb.title = t('prop.heatDoorHint'); lb.append(cb, document.createTextNode(' ' + t('prop.heatDoor')));
+    const p = document.createElement('p'); p.className = 'propHint'; p.id = 'doorHeatHint'; p.textContent = t('prop.heatDoorSub');
+    body.append(lb, p);
+  }
+
+  /** a window with a contact warns when it is open in the rain; one that may stay open then is taken out by the tick (#419) */
+  function rainProps(body, it) {
+    if (!it.entity && !it.tiltEntity && !(it.paneEntities || []).some(Boolean)) return;
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = it.rainWarn !== false; cb.id = 'openRainWarn';
+    cb.addEventListener('change', () => { ctx.snapshot(); if (cb.checked) delete it.rainWarn; else it.rainWarn = false; ctx.changed(); ctx.applyStates(); });
+    const lb = document.createElement('label'); lb.className = 'chk'; lb.title = t('prop.rainWarnHint'); lb.append(cb, document.createTextNode(' ' + t('prop.rainWarn')));
+    body.append(lb);
+  }
+
+  /** the roller shutter of a window, also of a dormer window (#331): the tick, then its own cover entity (the contact above stays the
+   *  window's sensor) */
+  function shutterProps(body, it, entities, room) {
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = hasShutter(it); cb.id = 'openShutter';
+    cb.addEventListener('change', () => { ctx.snapshot(); setShutter(it, cb.checked); ctx.changed(); render(); });
+    const lb = document.createElement('label'); lb.className = 'chk'; lb.title = t('prop.shutterHint'); lb.append(cb, document.createTextNode(' ' + t('prop.shutter')));
+    body.append(lb);
+    if (!hasShutter(it)) return;
+    const ssel = document.createElement('select'); ssel.id = 'curtainStyle';
+    SHUTTER_STYLES.forEach((v) => ssel.add(new Option(t(`sh.${v}`), v)));
+    ssel.value = curtainStyle(it);
+    ssel.addEventListener('change', () => { ctx.snapshot(); setShutterStyle(it, ssel.value); ctx.changed(); render(); });
+    body.append(field(t('prop.shutterStyle'), ssel));
+    const side = document.createElement('select'); side.id = 'curtainSide';
+    [['in', 'curtain.inside'], ['out', 'curtain.outside']].forEach(([v, k]) => side.add(new Option(t(k), v)));
+    side.value = curtainSide(it);
+    side.addEventListener('change', () => {
+      ctx.snapshot();
+      if (side.value === curtainSide(it)) delete it.curtainSide; else it.curtainSide = side.value;
+      ctx.changed();
+    });
+    body.append(field(t('prop.curtainSide'), side));
+    body.append(pickerField(t('prop.shutterEntity'), ctx.entityPicker(pickFrom(shutterChoices(entities)), room, it.shutterEntity || '', (v) => { ctx.snapshot(); setShutterEntity(it, v); ctx.changed(); })));
+  }
+
+  function deviceProps(body, it) {
+    const entities = ctx.entities();
+    mark(body, 'place');
+    const bring = document.createElement('button'); bring.type = 'button'; bring.textContent = t('prop.bringHere'); bring.id = 'devBring';
+    bring.addEventListener('click', () => { ctx.snapshot(); const c = ctx.controlsTarget(); it.x = +c.x.toFixed(2); it.z = +c.z.toFixed(2); if (ctx.wallTypes.has(it.type)) ctx.snapToWall(it, 0.8); ctx.changed(); ctx.build(); ctx.refreshSelection(); });
+    body.append(bring);
+    const lk = document.createElement('input'); lk.type = 'checkbox'; lk.checked = !!it.locked; lk.id = 'devLock';
+    lk.addEventListener('change', () => { ctx.snapshot(); if (lk.checked) it.locked = true; else delete it.locked; ctx.changed(); render(); ctx.renderObjList(); });
+    const lkl = document.createElement('label'); lkl.className = 'chk'; lkl.append(lk, document.createTextNode(' ' + t('prop.lock')));
+    body.append(lkl);
+    mark(body, 'look');
+    if (canHideModel(it, { ledLike: ctx.ledLike, catOf: ctx.catOf })) {     // aesthetics: hide the model, keep the light / the presence dot at the top
+      const hv = document.createElement('input'); hv.type = 'checkbox'; hv.checked = !!it.hideModel; hv.id = 'devHide';
+      hv.addEventListener('change', () => { ctx.snapshot(); if (hv.checked) it.hideModel = true; else delete it.hideModel; ctx.changed(); ctx.applyStates(); });
+      const hl = document.createElement('label'); hl.className = 'chk'; hl.title = t(it.type === 'presence' ? 'prop.hideModelPresenceHint' : 'prop.hideModelHint'); hl.append(hv, document.createTextNode(' ' + t(it.type === 'presence' ? 'prop.hideModelPresence' : 'prop.hideModel')));
+      body.append(hl);
+    }
+    mark(body, 'special');
+    if (it.type === 'nanoleaf') {
+      const eb = document.createElement('button'); eb.type = 'button'; eb.id = 'nanoEdit'; eb.textContent = '✎ ' + t('nano.edit');
+      eb.addEventListener('click', () => { if (!it.locked) ctx.editNano(it); else ctx.setStatus(t('prop.lockedHint')); });
+      body.append(eb);
+    }
+    if (it.type === 'closet') closetUi.props(body, it);
+    mark(body, 'top'); body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    mark(body, 'place');
+    body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
+    body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
+    body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => { it.rot = ((+v % 360) + 360) % 360; }, { step: 15 })));
+    body.append(field(t('prop.elev'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
+    mark(body, 'dsize');
+    if (it.type !== 'closet') body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
+    if (it.type !== 'picture' && it.type !== 'tv_arm' && it.type !== 'closet') {   // the TV on its arm: its size is chosen below (tvArmProps), a cabinet in its editor
+      const base = ctx.baseDims(it.type, it);
+      if (base) {                                                     // real dimensions in metres, type them in directly
+        const dim = (key, axis, label) => field(label, lenInput(() => base[axis] * (it.scale || 1) * (it[key] || 1), (v) => {
+          const n = Math.max(0.1, Math.min(10, v / (base[axis] * (it.scale || 1))));
+          if (Math.abs(n - 1) < 0.005) delete it[key]; else it[key] = +n.toFixed(4);
+        }, { min: 0.02, step: 0.05 }));
+        body.append(dim('sx', 'x', t('prop.dimW')), dim('sy', 'y', t('prop.dimH')), dim('sz', 'z', t('prop.dimD')));
+      } else {
+        const stretch = (key, label) => field(label, inp('number', it[key] || 1, (v) => { const n = stretchValue(+v || 1); if (n === null) delete it[key]; else it[key] = +n.toFixed(3); }, { step: 0.1, min: 0.1 }));
+        body.append(stretch('sx', t('prop.stretchX')), stretch('sy', t('prop.stretchY')), stretch('sz', t('prop.stretchZ')));
+      }
+    }
+    mark(body, 'tilt');
+    const angle = (key) => inp('number', it[key] || 0, (v) => { const a = ((+v % 360) + 360) % 360; if (a) it[key] = a; else delete it[key]; }, { step: 15 });
+    body.append(field(t('prop.tiltX'), angle('tiltX')), field(t('prop.tiltZ'), angle('tiltZ')));
+    const cm = document.createElement('input'); cm.type = 'checkbox'; cm.checked = !!it.mirror; cm.id = 'devMirror';
+    cm.addEventListener('change', () => { ctx.snapshot(); if (cm.checked) it.mirror = true; else delete it.mirror; ctx.changed(); });
+    body.append(field(t('prop.mirror'), cm));
+    mark(body, 'look');
+    if (variantChoices(it.type)) variantField(body, it);
+    if (finishChoices(it.type)) finishField(body, it);
+    if (it.type === 'picture') {
+      const lab = document.createElement('label'); lab.className = 'uploadBtn';
+      const span = document.createElement('span'); span.textContent = t(it.img ? 'pic.replace' : 'pic.load');
+      const file = document.createElement('input'); file.type = 'file'; file.hidden = true; file.id = 'picFile'; file.accept = 'image/png,image/jpeg,image/webp';
+      file.addEventListener('change', async () => { const fl = file.files[0]; file.value = ''; try { await ctx.uploadPicture(fl, it); } catch (err) { alert(`${t('panel.uploadFailed')}: ${err.message}`); } });
+      lab.append(span, file); body.append(lab);
+      body.append(field(t('pic.width'), lenInput(() => it.w || 0.6, (v) => (it.w = Math.max(0.1, v)), { min: 0.1 })));
+      if (!it.img) { const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('pic.help'); body.append(hp); }
+    }
+    mark(body, 'place');
+    if (ctx.wallTypes.has(it.type)) {
+      const sb = document.createElement('button'); sb.type = 'button'; sb.id = 'snapWall'; sb.textContent = t('pic.snap');
+      sb.addEventListener('click', () => { ctx.snapshot(); ctx.snapToWall(it, 3, true); ctx.changed(); render(); });
+      body.append(sb);
+    }
+    mark(body, 'special');
+    if (it.type === 'ledring') ringProps(body, it);
+    if (it.type === 'kitchenrun') kitchenProps(body, it);
+    if (it.type === 'solarpanel') solarProps(body, it);
+    if (it.type === 'bridge') bridgeProps(body, it);
+    if (it.type === 'steps') stepsFields(body, it, levelUi);    // outdoor steps (#566)
+    if (it.type === 'tv_arm') tvArmProps(body, it);
+    if (ctx.power().isType(it.type)) ctx.power().deviceProps(body, it);
+    mark(body, 'entity');
+    body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), ctx.entityPicker(pickFrom(entities), ctx.roomAt(it.x, it.z), it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
+    if (wantsLightColor(it)) lightColorField(body, it);
+    if (zoneKeys(it.type, it).length) zoneFields(body, it);
+    if (it.type === 'camera') {                                  // #69: field of view cone on the floor
+      mark(body, 'special');
+      body.append(field(t('cam.fov'), inp('number', it.fov ?? 90, (v) => { it.fov = Math.max(0, Math.min(180, +v || 0)); }, { step: 5, min: 0, max: 180 })));
+      body.append(field(t('cam.range'), lenInput(() => it.range ?? 4, (v) => (it.range = Math.max(0.5, v)), { min: 0.5, step: 0.5 })));
+      mark(body, 'entity');
+      body.append(pickerField(t('cam.motionSensor'), ctx.entityPicker(pickFrom(entities.filter((e) => e.domain === 'binary_sensor')), ctx.roomAt(it.x, it.z), it.motionEntity || '', (v) => { ctx.snapshot(); if (v) it.motionEntity = v; else delete it.motionEntity; ctx.changed(); })));
+    }
+    if (it.type === 'tv' || it.type === 'tv_wall' || it.type === 'tv_arm') {          // built-in backlight: shown behind the TV, shines into the room
+      body.append(pickerField(t('prop.ledEntity'), ctx.entityPicker(pickFrom(entities.filter((e) => /^(light|switch)\./.test(e.entity_id))), ctx.roomAt(it.x, it.z), it.ledEntity || '', (v) => { ctx.snapshot(); if (v) it.ledEntity = v; else delete it.ledEntity; ctx.changed(); })));
+    }
+    const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
+    body.append(es);
+    renderEntState();
+  }
+
+  /** the LED zones of a piece (ledzones.js: a mirror's light behind it and in front ...): an entity for each, empty: the zone follows the
+   *  device's entity; the colour on the left is the zone's colour in the 3D view while editing (like the sections of an LED ring) */
+  function zoneFields(body, it) {
+    const h = document.createElement('h4'); h.textContent = t('zone.title'); body.append(h);
+    const lights = pickFrom(ctx.entities().filter((e) => /^(light|switch)\./.test(e.entity_id)));
+    zoneKeys(it.type, it).forEach((key, i) => {
+      const box = document.createElement('div'); box.className = 'ringSec'; box.dataset.zone = i; box.style.borderLeftColor = sectionHex(i);
+      const head = document.createElement('div'); head.className = 'ringSecHead';
+      const lb = document.createElement('b'); lb.textContent = t(`led.${key}`); head.append(lb);
+      box.append(head, ctx.entityPicker(lights, ctx.roomAt(it.x, it.z), it.leds?.[i] || '', (v) => { ctx.snapshot(); setZone(it, i, v); ctx.changed(); }));
+      body.append(box);
+    });
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('zone.help'); body.append(hp);
+  }
+
+  /** the variant of a piece (the PC desk: how its monitors stand, a bar counter: what hangs from the ceiling over it, leisure.js); the first
+   *  one is the default and is not stored. Drawn anew: the size fields and the LED zones follow the variant */
+  function variantField(body, it) {
+    const list = variantChoices(it.type), sel = document.createElement('select'); sel.id = 'devVariant';
+    list.forEach((v) => sel.add(new Option(t(`var.${v}`), v)));
+    sel.value = variantOf(it.type, it);
+    sel.addEventListener('change', () => { ctx.snapshot(); if (sel.value === list[0]) delete it.variant; else it.variant = sel.value; fitZones(it); ctx.changed(); render(); });
+    body.append(field(t(variantLabel(it.type)), sel));
+    if (variantHint(it.type)) { const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t(variantHint(it.type)); body.append(hp); }
+  }
+
+  /** the finish of a piece in Scandinavian style (scandi.js): white, black-brown, oak ...; the first one is the default and is not stored */
+  function finishField(body, it) {
+    const list = finishChoices(it.type), sel = document.createElement('select'); sel.id = 'devFinish';
+    list.forEach((f) => sel.add(new Option(t(`fin.${f}`), f)));
+    sel.value = finishOf(it.type, it);
+    sel.addEventListener('change', () => { ctx.snapshot(); if (sel.value === list[0]) delete it.finish; else it.finish = sel.value; ctx.changed(); });
+    body.append(field(t('prop.finish'), sel));
+  }
+
+  /** the colour of a lamp's light where its entity reports none (#367): a lamp switched by a relay, a white-only light; ↺: back to the
+   *  default light colour of the settings */
+  function lightColorField(body, it) {
+    const ci = inp('color', it.lightColor || ctx.defaultLightColor(), (v) => { it.lightColor = v; ctx.applyStates(); }, { id: 'devLightColor' });
+    const row = field(t('prop.lightColor'), ci);
+    const rb = document.createElement('button'); rb.type = 'button'; rb.id = 'devLightColorReset'; rb.textContent = '↺'; rb.title = t('prop.lightColorReset'); rb.disabled = !it.lightColor;
+    rb.addEventListener('click', () => { ctx.snapshot(); delete it.lightColor; ctx.changed(); ctx.applyStates(); render(); });
+    row.append(rb);
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('prop.lightColorHint');
+    body.append(row, hp);
+  }
+
+  /** Metal bridge (#189): length, width, railing */
+  function bridgeProps(body, it) {
+    const b = bridgeSize(it);
+    body.append(field(t('bridge.len'), lenInput(() => b.len, (v) => { it.len = bridgeSize({ len: v }).len; }, { min: BRIDGE.minLen, step: 0.1 })));
+    body.append(field(t('bridge.width'), lenInput(() => b.width, (v) => { it.w = bridgeSize({ w: v }).width; }, { min: BRIDGE.minWidth, step: 0.1 })));
+    body.append(field(t('bridge.rise'), lenInput(() => b.rise, (v) => { const r = bridgeSize({ rise: v }).rise; if (Math.abs(r) >= 0.005) it.rise = +r.toFixed(3); else delete it.rise; }, { min: -BRIDGE.maxRise, step: 0.05 })));   // the far end higher or lower (#222)
+    const rc = document.createElement('input'); rc.type = 'checkbox'; rc.checked = !it.noRail; rc.id = 'bridgeRail';
+    rc.addEventListener('change', () => { ctx.snapshot(); if (rc.checked) delete it.noRail; else it.noRail = true; ctx.changed(); });
+    body.append(field(t('bridge.rail'), rc));
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('bridge.help'); body.append(hp);
+  }
+
+  /** Wall TV on a swivel arm (tvmount.js): its size, how far it is swung to the side, how far it stands off the wall, how far it is tilted
+   *  down; a value at its default is not stored. Swung far, the arm pulls it further out than asked for: the note says how far */
+  function tvArmProps(body, it) {
+    const p = armPose(it), sel = document.createElement('select'); sel.id = 'tvSize';
+    Object.keys(TV_SIZES).forEach((k) => sel.add(new Option(`${k}″ (${Math.round(k * 2.54)} cm)`, k)));
+    sel.value = p.size;
+    sel.addEventListener('change', () => { ctx.snapshot(); if (sel.value === ARM.size) delete it.tvSize; else it.tvSize = sel.value; ctx.changed(); note(); });
+    const deg = (key, max, step) => inp('number', p[key === 'armSwing' ? 'swing' : 'tilt'], (v) => {
+      const a = Math.round(Math.max(-max, Math.min(max, +v || 0)));
+      if (a) it[key] = a; else delete it[key];
+      note();
+    }, { step, min: -max, max, id: key });
+    const reach = lenInput(() => p.reach, (v) => { const r = +Math.max(ARM.minReach, Math.min(ARM.maxReach, v)).toFixed(3); if (r === ARM.reach) delete it.armReach; else it.armReach = r; note(); }, { min: ARM.minReach, step: 0.05 });
+    reach.id = 'armReach';
+    body.append(field(t('tvarm.size'), sel), field(t('tvarm.swing'), deg('armSwing', ARM.swing, 5)), field(t('tvarm.reach'), reach), field(t('tvarm.tilt'), deg('armTilt', ARM.tilt, 1)));
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.id = 'tvArmNote';
+    function note() {                                            // swung far, the arm pulls the TV further out than asked for: say how far
+      const q = armPose(it);
+      hp.textContent = t('tvarm.help') + (q.out > q.reach + 0.005 ? ` ${t('tvarm.pulled', { len: ctx.fmtLen(q.out) })}` : '');
+    }
+    note();
+    body.append(hp);
+  }
+
+  /** Solar panels (#176): a field of columns x rows; on the roof floor it lies on the roof surface, or stands on a rack */
+  function solarProps(body, it) {
+    const count = (k) => inp('number', it[k] || 1, (v) => { const n = Math.max(1, Math.min(MAX_FIELD, Math.round(+v) || 1)); if (n > 1) it[k] = n; else delete it[k]; }, { min: 1, max: MAX_FIELD, step: 1, id: `solar_${k}` });
+    body.append(field(t('solar.cols'), count('cols')), field(t('solar.rows'), count('rows')));
+    const ms = document.createElement('select'); ms.id = 'solarMount';
+    MOUNTS.forEach((m) => ms.add(new Option(t(`solar.mount.${m}`), m)));
+    ms.value = it.mount || 'auto';
+    ms.addEventListener('change', () => { ctx.snapshot(); if (ms.value === 'auto') delete it.mount; else it.mount = ms.value; ctx.changed(); });
+    body.append(field(t('solar.mount'), ms));
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t(ctx.floor()?.kind === 'roof' ? 'solar.onRoof' : 'solar.roofHint');
+    body.append(hp);
+  }
+
+  /** LED ring properties: closed or open, distance to the walls, refit to the room, one light per section */
+  function refitRing(d) {
+    const room = ctx.floor().rooms.find((r) => r.id === d.room) || ctx.roomAt(d.x, d.z);
+    if (!room) { ctx.setStatus(t('ring.noRoom')); return; }
+    const keep = d.segs || [], ranged = hasRanges(d), closed = d.closed;
+    Object.assign(d, ringFromRoom(room.points, d.inset ?? RING_DEFAULT_INSET), { rot: 0, scale: 1, room: room.id });
+    delete d.sx; delete d.sz; delete d.mirror;
+    if (closed === false) d.closed = false;
+    d.segs = ranged ? keep : d.segs.map((sg, i) => keep[i] || sg);   // sections keep their lights (and their start / end)
+    fitSegs(d);
+  }
+  function ringProps(body, it) {
+    const redo = (fn) => () => { if (it.locked) { ctx.setStatus(t('prop.lockedHint')); return; } ctx.snapshot(); fn(); ctx.changed(); render(); };
+    const btn = (id, label, fn, title = '') => { const b = document.createElement('button'); b.type = 'button'; if (id) b.id = id; b.textContent = label; b.title = title; b.addEventListener('click', redo(fn)); return b; };
+    const h = document.createElement('h4'); h.textContent = t('ring.sections'); body.append(h);
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = it.closed !== false; cb.id = 'ringClosed';
+    cb.addEventListener('change', () => { ctx.snapshot(); it.closed = cb.checked; fitSegs(it); ctx.changed(); render(); });
+    const cl = document.createElement('label'); cl.className = 'chk'; cl.append(cb, document.createTextNode(' ' + t('ring.closed')));
+    body.append(cl);
+    body.append(field(t('ring.inset'), lenInput(() => it.inset ?? RING_DEFAULT_INSET, (v) => { it.inset = Math.min(2, v); if (!it.locked) refitRing(it); queueMicrotask(render); }, { min: 0, step: 0.05 })));
+    body.append(btn('ringFit', t('ring.fit'), () => refitRing(it)));
+    const total = document.createElement('div'); total.className = 'sub'; total.textContent = t('ring.total', { len: ctx.fmtLen(pathLength(it)) }); body.append(total);
+    // how many sections: spread evenly over the whole band, or one per wall
+    const cnt = document.createElement('input'); cnt.type = 'number'; cnt.id = 'ringCount'; cnt.min = 1; cnt.max = 60; cnt.step = 1; cnt.value = ringCount(it);
+    body.append(field(t('ring.count'), cnt));
+    const row = document.createElement('div'); row.className = 'stopTools';
+    row.append(btn('ringEven', t('ring.even'), () => splitEven(it, +cnt.value || 1)), btn('ringPerWall', t('ring.perWall'), () => perWall(it)));
+    body.append(row);
+    const lights = pickFrom(ctx.entities().filter((e) => /^(light|switch)\./.test(e.entity_id)));
+    ringSectionsWorld(it).forEach((e) => {
+      const box = document.createElement('div'); box.className = 'ringSec'; box.dataset.seg = e.i; box.style.borderLeftColor = sectionHex(e.i);   // the colour of the section in the plan (#325)
+      const head = document.createElement('div'); head.className = 'ringSecHead';
+      const lb = document.createElement('b'); lb.textContent = t('ring.seg', { n: e.i + 1, len: ctx.fmtLen(e.len) });
+      head.append(lb, btn('', '✂', () => splitSection(it, e.i), t('ring.split')));
+      if (ringCount(it) > 1) head.append(btn('', '🗑', () => removeSection(it, e.i), t('ring.remove')));
+      box.append(head);
+      box.append(field(t('ring.from'), lenInput(() => e.from, (v) => { setRange(it, e.i, v, null); queueMicrotask(render); }, { min: 0, step: 0.05 })));
+      box.append(field(t('ring.to'), lenInput(() => e.to, (v) => { setRange(it, e.i, null, v); queueMicrotask(render); }, { min: 0, step: 0.05 })));
+      box.append(ctx.entityPicker(lights, ctx.roomAt(e.mid[0], e.mid[1]), it.segs?.[e.i]?.entity || '', (v) => {
+        ctx.snapshot(); fitSegs(it); const sg = it.segs[e.i] || (it.segs[e.i] = {}); if (v) sg.entity = v; else delete sg.entity; ctx.changed();
+      }));
+      body.append(box);
+    });
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('ring.help'); body.append(hp);
+  }
+  return { render, renderEntState, editCloset: (d) => closetUi.open(d) };
+}

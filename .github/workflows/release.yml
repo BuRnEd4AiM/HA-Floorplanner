@@ -6,11 +6,14 @@ name: Release
 #  - Actions → "Release" → Run workflow (optionally with "backfill" to also fill old gaps).
 # Several merges in a row used to skip versions: GitHub keeps only one waiting run per queue and cancels the others. Every run therefore
 # creates ALL missing releases (tools/release_versions.py, tested): the versions in the changelog newer than the newest release, each tagged
-# at the commit that brought that version into config.yaml, oldest first; only the version in config.yaml becomes "latest".
+# at the commit that brought that version into config.yaml, oldest first.
+# Normal and Beta (5.2.0): floorplan3d/ is the beta, floorplan3d-stable/ the normal add-on (tools/stable.py). The version the normal add-on has
+# is the "latest" release (HACS gives the dashboard card of the latest one); a newer version is only in the beta yet: a pre-release, until the
+# workflow "Release to everyone" (stable.yml) gives it to everyone.
 on:
   push:
     branches: [main]
-    paths: ["floorplan3d/config.yaml"]
+    paths: ["floorplan3d/config.yaml", "floorplan3d-stable/config.yaml"]
     tags: ["v*"]
   workflow_dispatch:
     inputs:
@@ -43,6 +46,7 @@ jobs:
         run: |
           set -euo pipefail
           cfg="$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d/config.yaml)"
+          stable="$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d-stable/config.yaml 2>/dev/null || true)"
           v="${INPUT_VERSION:-}"; v="${v#v}"
           if [ -n "$v" ] && [ "$v" != "$cfg" ]; then echo "config.yaml says $cfg, not $v"; exit 1; fi
           tags="$(gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" --paginate -q '.[].tag_name')"
@@ -64,14 +68,27 @@ jobs:
               [ "$ver" = "$cfg" ] || { echo "v$ver was never in config.yaml, skipped"; continue; }
               target="$GITHUB_SHA"
             fi
-            latest=false; [ "$ver" = "$cfg" ] && latest=true
+            flags=(--latest=false)
+            case "$(python3 tools/release_versions.py --kind "$ver" "$stable")" in
+              latest) flags=(--latest=true) ;;
+              pre) flags=(--prerelease --latest=false) ;;
+            esac
             # the dashboard card of that commit goes into the release itself: once a release has files attached (the demo), HACS
             # downloads only those (#348). gh uploads them before it publishes the release, so HACS never sees it without the card.
             card=()
             if git show "$target:dist/floorplan3d-card.js" > "$RUNNER_TEMP/floorplan3d-card.js" 2>/dev/null; then card=("$RUNNER_TEMP/floorplan3d-card.js"); fi
-            echo "Release v$ver at $target (latest: $latest, card: ${#card[@]})"
-            gh release create "v$ver" ${card[@]+"${card[@]}"} --target "$target" --title "3D Floorplan $ver" --notes "$notes" --latest="$latest" || echo "v$ver could not be created"
+            echo "Release v$ver at $target (${flags[*]}, card: ${#card[@]})"
+            gh release create "v$ver" ${card[@]+"${card[@]}"} --target "$target" --title "3D Floorplan $ver" --notes "$notes" "${flags[@]}" || echo "v$ver could not be created"
           done
+      - name: The version of the normal add-on is the latest release
+        # also repairs it when "Release to everyone" ran before its release existed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          stable="$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d-stable/config.yaml 2>/dev/null || true)"
+          [ -n "$stable" ] || exit 0
+          gh release view "v$stable" >/dev/null 2>&1 || { echo "no release v$stable yet"; exit 0; }
+          gh release edit "v$stable" --prerelease=false --latest
       - name: The release of this version carries the dashboard card
         # also for a release made before the card was attached (Actions -> Release -> Run workflow repairs it); HACS needs it (#348)
         env:

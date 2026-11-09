@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3P3GhVTZPghFyi7JZk",
+ "start": "2026-11-09",
+ "updated": "2026-11-09T15:58:00Z",
+ "branch": "claude/awesome-cori-o6d0or",
+ "source": "counted",
+ "input": 257,
+ "cache_write": 304249,
+ "cache_read": 34165844,
+ "output": 147315,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 257,
+   "cache_write": 304249,
+   "cache_read": 34165844,
+   "output": 147315,
+   "requests": 128
+  }
+ }
+}

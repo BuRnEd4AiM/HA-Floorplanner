@@ -31,3 +31,11 @@ test('updateAvailable: only when GitHub is newer', () => {
   for (const state of ['same', 'differs', 'unreachable']) assert.equal(V.updateAvailable({ state }), false);
   assert.equal(V.updateAvailable(null), false);
 });
+test('betaPill: only the beta, only while it pauses or has not asked yet (5.2.0)', () => {
+  assert.equal(V.betaPill(null), null);
+  assert.equal(V.betaPill({ channel: 'stable', state: null }), null);
+  assert.equal(V.betaPill({ channel: 'beta', state: 'alone' }), null);
+  assert.deepEqual(V.betaPill({ channel: 'beta', state: 'paused', stable: '5.2.0' }), { key: 'ver.pausedPill', v: '5.2.0' });
+  assert.deepEqual(V.betaPill({ channel: 'beta', state: 'paused', stable: null }), { key: 'ver.pausedPill', v: '?' });
+  assert.deepEqual(V.betaPill({ channel: 'beta', state: 'looking' }), { key: 'ver.lookingPill', v: '' });
+});

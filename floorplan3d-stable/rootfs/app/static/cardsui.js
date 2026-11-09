@@ -1,0 +1,186 @@
+/* Own cards on the pages of the tab bar (#484): draws one card of the fifteen kinds of cards.js (button, switch, value, history, light,
+ * the light card with a bar per lamp (lightcardui.js, #597), thermostat, roller shutter, camera, calendar (calcardui.js, #495), several
+ * devices, room, text, train, a ready card of ☀ Heute). A history card asks the add-on for the
+ * numbers (api/history, again after 5 minutes). Switching goes through live.callService like everywhere else. */
+import { TYPE_ICON, COLOR_HEX, cardEntities, tapService, valueOf, chartPaths, chartMany, seriesColor } from './cards.js';
+import { rowLamps } from './lightslider.js';
+import { initButtonCard } from './buttoncardui.js';
+import { presetRow } from './coverrow.js';
+
+const TOGGLE = new Set(['light', 'switch', 'input_boolean', 'fan', 'automation']);
+const ON = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only', 'unlocked', 'home']);
+
+/** ctx: t, lang(), states(), settings(), nameOf(entity), stateText(entity), callService(entity, service, data) (-> true when taken),
+ *  camImage(entity) (an <img> renewed while shown), openCamera(entity), room(roomId) ({ name, floor, temp, lights, open, occupied } or
+ *  null), openRoom(roomId), builtin(key) (a ready card of ☀ Heute, or null), changed() (a history arrived: draw the page again),
+ *  thermo (thermostatui.js, #495), calendar (calcardui.js, #495), train (traincard.js, #550), controls(entity) (the window with the controls, ctlwindow.js, #495),
+ *  moreInfo(entity) (Home Assistant's own window: true when it opened), showPage(key), pages() ([{ key, name }]), lights (lightcardui.js, #597),
+ *  lightCards() ([{ id, name }]: the light cards a button can open), openLights(id), shows(entity) (in the building shown: a light card only
+ *  with the bars of its lamps, #677) */
+export function initCards(ctx) {
+  const { t } = ctx;
+  const history = new Map();                         // "entity|hours" -> { at, points, asking }
+  const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', (e) => { e.stopPropagation(); on(e); }); return b; };
+  const st = (e) => ctx.states()[e];
+  const nm = (c, e = c.entity) => c.name || (c.type === 'room' ? ctx.room(c.room)?.name : null) || (c.more?.length ? t('ct.type.graph') : null)   // several lines: "Verlauf"
+    || ctx.nameOf(e) || e || t(`ct.type.${c.type}`);
+  /** a state in words: the texts the app has for it (open, closed, docked, armed …), on / off, else as Home Assistant says it */
+  const word = (e) => {
+    const s = st(e);
+    if (!s) return '–';
+    const k = String(s.state);
+    for (const key of [`dc.st.${k}`, `state.${k}`]) { const x = t(key); if (x !== key) return x; }
+    if (k === 'off') return t('ct.off');
+    if (ON.has(k)) return t('ct.on');
+    return ctx.stateText(e);
+  };
+  const shown = (e) => { const s = st(e); if (!s) return '–'; const v = valueOf(s, ctx.lang()); return v.num === null ? word(e) : `${v.v}${v.unit ? ` ${v.unit}` : ''}`; };
+  const isOn = (e) => ON.has(st(e)?.state);
+  const imperial = () => ctx.settings().units === 'imperial';
+  const deg = (c) => (typeof c === 'number' ? `${(imperial() ? c * 9 / 5 + 32 : c).toLocaleString(ctx.lang(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })}°` : '–');
+
+  function head(c, e) {
+    const h = make('h3', 'peH ocHead');
+    h.append(make('span', 'ocIcon', TYPE_ICON[c.type]), document.createTextNode(` ${nm(c, e)}`));
+    return h;
+  }
+  function sw(e) {
+    const lab = make('label', 'sw'); lab.title = t('live.toggle');
+    const cb = make('input'); cb.type = 'checkbox'; cb.checked = isOn(e);
+    cb.addEventListener('change', () => ctx.callService(e, cb.checked ? 'turn_on' : 'turn_off'));
+    lab.addEventListener('click', (ev) => ev.stopPropagation());
+    lab.append(cb, make('span'));
+    return lab;
+  }
+  /** the button card: its look, a tap and a long press (buttoncardui.js, #495) */
+  const button = initButtonCard({ t, states: ctx.states, name: (c) => nm(c), word, tapService, callService: ctx.callService, controls: ctx.controls,
+    moreInfo: ctx.moreInfo, showPage: ctx.showPage, pages: ctx.pages, changed: ctx.changed, lightCards: ctx.lightCards, openLights: ctx.openLights });
+  function loadHistory(c, e = c.entity) {
+    const key = `${e}|${c.hours}`, h = history.get(key);
+    if (h && (h.asking || Date.now() - h.at < 300000)) return h;
+    const next = { at: Date.now(), points: h?.points || null, asking: true };
+    history.set(key, next);
+    fetch(`api/history?entity=${encodeURIComponent(e)}&hours=${c.hours}`).then((r) => (r.ok ? r.json() : null))
+      .then((x) => { next.points = Array.isArray(x?.points) ? x.points : next.points || []; }).catch(() => { next.points = next.points || []; })
+      .finally(() => { next.asking = false; ctx.changed(); });
+    return next;
+  }
+  /** a history card: one sensor (its value now, min / max, the line with its area) or several in one chart (#495: a line each in its own
+   *  colour and a legend with the value now) */
+  function graph(c, box) {
+    const es = cardEntities(c), hs = es.map((e) => loadHistory(c, e)), many = es.length > 1;
+    const s = st(c.entity), unit = s?.unit || '';
+    const W = 300, H = 120, pad = { l: 0, r: 0, t: 6, b: 6 };                                   // stretched to the card's width, the labels beside it
+    const p = many ? chartMany(hs.map((h) => h.points || []), W, H, pad) : chartPaths(hs[0].points || [], W, H, pad);
+    const fmt = (v) => valueOf({ state: String(v), unit }, ctx.lang()).v;
+    if (many) {
+      const leg = make('div', 'ocLegend');
+      es.forEach((e, i) => { const r = make('span', 'ocSeries'); const sw = make('i', 'peSwatch'); sw.style.background = seriesColor(c, i); r.append(sw, make('span', 'ocSeriesName', ctx.nameOf(e) || e), make('b', '', shown(e))); leg.append(r); });
+      box.append(leg);
+    } else {
+      const top = make('div', 'ocBig');
+      top.append(make('b', '', shown(c.entity)));
+      if (p) top.append(make('small', 'tpSub', t('ct.minMax', { max: fmt(p.max), min: fmt(p.min) })));
+      box.append(top);
+    }
+    if (!p) { box.append(make('p', 'tpSub', hs.every((h) => h.points) ? t('ct.noHistory') : t('tp.today.loading'))); return; }
+    const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('preserveAspectRatio', 'none'); svg.setAttribute('class', 'ocChart');
+    const add = (tag, attrs) => { const n = document.createElementNS(ns, tag); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v)); svg.append(n); return n; };
+    const wrap = make('div', 'ocChartBox');
+    p.ticks.forEach((v) => {
+      add('line', { x1: 0, x2: W, y1: p.y(v), y2: p.y(v), class: 'ocGrid', 'vector-effect': 'non-scaling-stroke' });
+      const lab = make('span', 'ocAxis', fmt(v)); lab.style.top = `${(p.y(v) / H) * 100}%`; wrap.append(lab);
+    });
+    if (many) p.lines.forEach((d, i) => { if (d) add('path', { d, fill: 'none', stroke: seriesColor(c, i), 'stroke-width': 2.2, 'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke', 'data-series': i }); });
+    else {
+      const col = seriesColor(c, 0);
+      add('path', { d: p.area, fill: col, 'fill-opacity': 0.18 });
+      add('path', { d: p.line, fill: 'none', stroke: col, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke' });
+    }
+    wrap.prepend(svg);
+    box.append(wrap);
+  }
+  function thermostat(c, box) {
+    const { el } = ctx.thermo.render(c.entity, c.size || 'big', { card: c });     // the circle like Home Assistant's (#495, thermostatui.js)
+    if (el) box.append(el);
+  }
+  function light(c, box) {
+    const e = c.entity, s = st(e), on = isOn(e);
+    const row = make('div', 'ocLine');
+    row.append(make('b', 'ocState', on ? (s?.brightness != null ? `${t('ct.on')} · ${Math.round(s.brightness)} %` : t('ct.on')) : t('ct.off')), sw(e));
+    box.append(row);
+    const r = make('input', 'ocRange'); r.type = 'range'; r.min = 1; r.max = 100; r.value = on ? Math.round(s?.brightness ?? 100) : 0;
+    r.setAttribute('aria-label', t('ct.brightness'));
+    if (Array.isArray(s?.rgb)) r.style.accentColor = `rgb(${s.rgb.join(',')})`;
+    r.addEventListener('change', () => ctx.callService(e, 'turn_on', { brightness_pct: Number(r.value) }));
+    r.addEventListener('click', (ev) => ev.stopPropagation());
+    box.append(r);
+  }
+  function cover(c, box) {
+    const e = c.entity, s = st(e);
+    box.append(make('div', 'ocBig', s?.position != null ? `${Math.round(s.position)} %` : word(e)));
+    const row = make('div', 'ocBtns');
+    row.append(btn('', '▲', () => ctx.callService(e, 'open_cover'), t('ct.open')), btn('', '■', () => ctx.callService(e, 'stop_cover'), t('ct.stop')),
+      btn('', '▼', () => ctx.callService(e, 'close_cover'), t('ct.close')));
+    box.append(row);
+    const pre = presetRow(e, s, c.presets, { t, callService: ctx.callService });   // 0 % · 50 % · 75 % · 100 % (coverrow.js)
+    if (pre) box.append(pre);
+  }
+  function entities(c, box) {
+    c.entities.forEach((e) => {
+      const r = make('div', 'ocRow');
+      r.append(make('span', 'tdWhat', ctx.nameOf(e) || e));
+      r.append(TOGGLE.has(e.split('.')[0]) && st(e) ? sw(e) : make('b', '', shown(e)));
+      box.append(r);
+    });
+  }
+  function room(c, box) {
+    const r = ctx.room(c.room);
+    if (!r) { box.append(make('p', 'tpSub', t('ct.noRoom'))); return; }
+    box.append(make('div', 'ocBig', deg(r.temp)));
+    const tags = make('div', 'clTags');
+    tags.append(make('span', 'tpChip', `💡 ${r.lights ? t('tile.on', { n: r.lights }) : t('tile.off')}`));
+    if (r.open) tags.append(make('span', 'tpChip alert', `🪟 ${t('tile.open')}`));
+    if (r.occupied) tags.append(make('span', 'tpChip green', '👤'));
+    box.append(tags);
+    box.classList.add('tdOpen'); box.addEventListener('click', () => ctx.openRoom(c.room));
+  }
+
+  /** one card as an element (a ready card of ☀ Heute: that card itself) */
+  /** a light card with only the bars that have a lamp of the building shown (#677) */
+  const here = (c) => (ctx.shows && Array.isArray(c.rows) ? { ...c, rows: c.rows.filter((r) => rowLamps(r).some((e) => ctx.shows(e) !== false)) } : c);
+  function render(c) {
+    if (c.type === 'builtin') {
+      const b = ctx.builtin(c.builtin);
+      if (b) { b.classList.add('ocCard'); b.dataset.card = c.id; return b; }
+    }
+    const box = make('div', `tpCard ocCard oc-${c.type}`); box.dataset.card = c.id;
+    if (!st(c.entity) && c.entity) { box.append(head(c), make('p', 'tpSub', t('ct.missing', { e: c.entity }))); return box; }
+    if (c.type === 'button') { button.render(c, box); return box; }
+    if (c.type === 'lights') { ctx.lights.render(here(c), box); return box; }      // 🎚 a bar per lamp, its own head (#597)
+    if (c.type !== 'text') box.append(head(c));
+    if (c.type === 'switch') { const r = make('div', 'ocLine'); r.append(make('b', 'ocState', word(c.entity)), sw(c.entity)); box.append(r); }
+    else if (c.type === 'value') { const v = make('div', 'ocBig ocValue', shown(c.entity)); v.style.color = c.color === 'blue' ? '' : COLOR_HEX[c.color]; box.append(v); }
+    else if (c.type === 'graph') graph(c, box);
+    else if (c.type === 'light') light(c, box);
+    else if (c.type === 'thermostat') thermostat(c, box);
+    else if (c.type === 'cover') cover(c, box);
+    else if (c.type === 'calendar') ctx.calendar.render(c, box);
+    else if (c.type === 'train') ctx.train.render(c, box);              // 🚆 (#550, traincard.js)
+    else if (c.type === 'camera') {
+      const img = ctx.camImage(c.entity); img.classList.add('ocCam');
+      box.append(img); box.classList.add('tdOpen'); box.addEventListener('click', () => ctx.openCamera(c.entity));
+    } else if (c.type === 'entities') entities(c, box);
+    else if (c.type === 'room') room(c, box);
+    else if (c.type === 'text') { if (c.name) box.append(make('h3', 'ocTextHead', c.name)); if (c.text) box.append(make('p', 'ocText', c.text)); }
+    else if (c.type === 'builtin') box.append(make('p', 'tpSub', t('ct.noBuiltin')));
+    return box;
+  }
+  /** what a card shows depends on: the states of its entities, its history, a pending target, a tap (it draws again when this changed) */
+  const sig = (c) => (c.type === 'lights' ? ctx.lights.sig(here(c), [ctx.lang()]) : JSON.stringify([c, cardEntities(c).map((e) => { const s = st(e); return s ? [s.state, s.brightness, s.position, s.ct, s.tt, s.hvac, s.rgb, s.unit] : null; }),
+    c.type === 'graph' ? cardEntities(c).map((e) => history.get(`${e}|${c.hours}`)?.points?.length ?? -1) : 0, c.type === 'thermostat' ? ctx.thermo.sig(c.entity) : 0, c.type === 'calendar' ? ctx.calendar.sig(c) : 0, c.type === 'train' ? ctx.train.sig(c) : 0, c.type === 'button' ? button.sig(c) : 0,
+    c.type === 'room' ? ctx.room(c.room) : 0, c.type === 'builtin' ? Math.floor(Date.now() / 20000) : 0, imperial(), ctx.lang()]));   // a ready card: every 20 s
+  return { render, sig, buttonFields: button.fields };
+}

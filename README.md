@@ -363,6 +363,8 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 
 **Home Assistant Container (Docker, no add-on store):** run 3D Floorplan as a second container next to Home Assistant; you log in with your Home Assistant user. The steps are in [container/README.md](container/README.md).
 
+**Normal or Beta?** The store has two add-ons. **3D Floorplan** is the normal one: it gets a new version only when it has been tested and released. **3D Floorplan Beta** gets every new version at once, to try new things early (it shows up only with *Advanced mode* in your user profile). Each has its own data; bring your house over with a backup (🗄️ → download, then restore in the other one). While the normal add-on runs, the beta switches nothing by itself (no heating rules, routines or messages), so the two never do things twice.
+
 <a href="https://www.paypal.com/donate/?hosted_button_id=693YLE2BGE4FA"><img src="docs/img/donate.svg" alt="Donate with PayPal: a cup of tea prevents brain overflow" height="52"></a>
 
 <sub>Installed and happy? A small donation via PayPal helps me keep building. 💛</sub>

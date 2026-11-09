@@ -27,6 +27,7 @@ from aiohttp import web
 
 import alarmnotify as an
 import boards
+import channel as chn
 import flows as fl
 import garden as gn
 import guard as gd
@@ -2797,6 +2798,8 @@ def household_store(request) -> dict:
 async def household_tell(request, answer=None) -> None:
     """🔔 "Sag mir Bescheid" (#531): a message for every machine that is done and was asked for (or with "always" on). Runs every minute
     (household_teller) and after each look at the page; nothing without a set-up message channel."""
+    if beta_paused(request):                              # the beta while the normal add-on runs: that one tells
+        return
     store = household_store(request)
     always = validate_settings(read_settings(request)).get("householdTell")
     cfg = notify_cfg(request)
@@ -3208,7 +3211,9 @@ async def alarm_notifier(app):
                         app[KEY_NOTIFY]["lang"] = str((await r.json()).get("language") or "") if r.status == 200 else ""
             except Exception:  # noqa: BLE001 - English then
                 pass
-            await an.run_watch(connect=_HaSocket, config=lambda: notify_cfg(ctx), send=lambda msg: send_notify(notify_cfg(ctx), msg),
+            # the beta while the normal add-on runs: as if the messages were off (the normal one sends them, channel.py)
+            await an.run_watch(connect=_HaSocket, config=lambda: {**notify_cfg(ctx), "on": False} if beta_paused(ctx) else notify_cfg(ctx),
+                               send=lambda msg: send_notify(notify_cfg(ctx), msg),
                                places=lambda: notify_places(ctx, cache), lang=lambda: notify_lang(ctx),
                                clock=lambda: datetime.datetime.now(tz).strftime("%d.%m. %H:%M"))
 
@@ -3431,8 +3436,13 @@ async def guard_watcher(app):
             def put(st):
                 guard_save(ctx, st)
 
-            await gd.run_guard(connect=_HaSocket, get=lambda: (guard_store(ctx)["cfg"], guard_store(ctx)["state"]), put=put,
-                               act=lambda events: guard_act(ctx, events))
+            async def act(events):
+                if beta_paused(ctx):                         # the beta while the normal add-on runs: that one sounds the alarm
+                    log.info("holiday alarm: %d events not acted on, the normal add-on runs", len(events))
+                    return
+                await guard_act(ctx, events)
+
+            await gd.run_guard(connect=_HaSocket, get=lambda: (guard_store(ctx)["cfg"], guard_store(ctx)["state"]), put=put, act=act)
 
         task = asyncio.create_task(start())
     yield
@@ -3691,6 +3701,9 @@ async def rules_runner(app):
 
             def platforms(self):
                 return app[KEY_RENAMES].get("plat") or {}
+
+            def paused(self):
+                return beta_paused(ctx)                  # the beta while the normal add-on runs (channel.py)
 
         async def start():
             await asyncio.sleep(4)
@@ -4209,22 +4222,47 @@ async def get_timeline_day(request):
 
 
 # ---------- version and checksums: is this really the version I think it is? ----------
-MANIFEST_URL = os.environ.get("MANIFEST_URL", "https://raw.githubusercontent.com/BuRnEd4AiM/HA-Floorplanner/main/floorplan3d/rootfs/app/manifest.json")
+CHANNEL = chn.channel_of(os.environ.get("FP_CHANNEL"))   # "stable" (the normal add-on), "beta" or "" (a test): channel.py
+# the normal add-on compares itself with the last released version, the beta with the newest one
+MANIFEST_URL = os.environ.get("MANIFEST_URL") or chn.manifest_url(CHANNEL)
+KEY_CHANNEL = web.AppKey("channel", chn.Watch)
+
+
+def beta_paused(request) -> bool:
+    """True while this is the beta and the normal add-on runs too (or the beta has not asked yet): it switches nothing by itself then"""
+    w = app_state(request).get(KEY_CHANNEL)
+    return bool(w and w.paused())
+
+
+async def channel_watcher(app):
+    """Background task: the normal add-on says it runs, the beta listens (channel.py). Only with Home Assistant."""
+    app[KEY_CHANNEL] = chn.Watch(CHANNEL, (mf.load_manifest(Path(__file__).parent) or {}).get("version"), ha=bool(SUPERVISOR_TOKEN))
+    task = asyncio.create_task(chn.run(app[KEY_CHANNEL], connect=_HaSocket)) if SUPERVISOR_TOKEN and CHANNEL else None
+    yield
+    if task:
+        task.cancel()
+
+
+async def get_channel(request):
+    """normal or beta, and whether the beta pauses: {channel, state, stable}"""
+    w = request.app.get(KEY_CHANNEL)
+    return web.json_response(w.info() if w else {"channel": CHANNEL or None, "state": None, "stable": None})
 
 
 async def get_version(request):
     """Version, build checksum, the check of the files that are really installed and the checksums of the files the browser loads."""
     m = mf.load_manifest(Path(__file__).parent)
     if not m:
-        return web.json_response({"known": False, "version": "?", "buildHash": "", "short": "?"})
+        return web.json_response({"known": False, "version": "?", "buildHash": "", "short": "?", "channel": CHANNEL or None})
     server = await asyncio.to_thread(mf.compare, Path(__file__).parent, m)
     static = {k[len("static/"):]: v for k, v in m["files"].items() if k.startswith("static/") and not k.startswith("static/vendor/")}
     return web.json_response({"known": True, "version": m["version"], "buildHash": m["buildHash"], "short": m["buildHash"][:7],
-                              "server": server, "staticFiles": static})
+                              "server": server, "staticFiles": static, "channel": CHANNEL or None})
 
 
 async def get_version_remote(request):
-    """Compare this add-on with the manifest on GitHub (main). Only for editors: it makes a request to the internet."""
+    """Compare this add-on with the manifest on GitHub (main: the newest version, or for the normal add-on the last released one). Only for
+    editors: it makes a request to the internet."""
     if not await can_edit(request):
         return forbidden()
     local = mf.load_manifest(Path(__file__).parent)
@@ -4372,6 +4410,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.on_startup.append(seed_users_file)
     app.on_response_prepare.append(no_stale_files)
     app.on_cleanup.append(stop_live)
+    app.cleanup_ctx.append(channel_watcher)            # first: the others ask it whether the beta pauses
     app.cleanup_ctx.append(backup_scheduler)
     app.cleanup_ctx.append(timeline_recorder)
     app.cleanup_ctx.append(rename_watcher)
@@ -4396,6 +4435,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/backup", get_backup),
         web.get("/api/version", get_version),
         web.get("/api/version/remote", get_version_remote),
+        web.get("/api/channel", get_channel),
         web.get("/api/backups", get_backups),
         web.post("/api/backups", post_backups),
         web.post("/api/backups/test", post_backups_test),

@@ -19,14 +19,17 @@
  * https://github.com/BuRnEd4AiM/HA-Floorplanner (LICENSE, NOTICE.md) */
 (() => {
   const TAG = 'floorplan3d-card';
-  const SLUG = 'floorplan3d';                       // the add-on's slug (floorplan3d/config.yaml)
+  const SLUG = 'floorplan3d';                       // the add-on's slug (floorplan3d-stable/config.yaml, the normal add-on)
+  const BETA = 'floorplan3d_beta';                  // the beta's (floorplan3d/config.yaml, 5.2.0): tried after the normal one
   const MIN_ADDON = '3.75.0';                       // the first add-on version that knows ?card=1
   const MIN_VIEW = '3.78.0';                        // ... and view=room / view=panel (only one room, only its room panel)
   // The Supervisor names an add-on "<first 8 hex digits of sha1(repository address in lower case)>_<slug>", "local_<slug>" for a copy in
   // /addons. The card looks for the add-on's sidebar panel first; these are tried when it is hidden ("Show in sidebar" off): the
   // repository added as https://github.com/BuRnEd4AiM/HA-Floorplanner, with "/" or with ".git" at the end, or a local copy. Then, for
-  // an administrator, the list of installed add-ons (the repository added under another address, #352).
-  const KNOWN = ['05edeb72', '986a80b9', 'b9c4c5d0', 'local'].map((h) => `${h}_${SLUG}`);
+  // an administrator, the list of installed add-ons (the repository added under another address, #352). With both installed the card
+  // takes the normal one (option "addon" picks the beta).
+  const HASHES = ['05edeb72', '986a80b9', 'b9c4c5d0', 'local'];
+  const KNOWN = [...HASHES.map((h) => `${h}_${SLUG}`), ...HASHES.map((h) => `${h}_${BETA}`)];
   const DEFAULT_HEIGHT = '400px';
   const OPTIONS = {                                 // the choices of the editor's drop-downs; "default" = as set in the add-on (left out)
     view: ['3d', 'room', 'panel'],
@@ -198,7 +201,8 @@
     if (other) throw { kind: 'failed', message: other.message || other.code || String(other) };
     throw { kind: 'notFound', tried };
   }
-  const isOurs = (s) => typeof s === 'string' && (s === SLUG || s.endsWith(`_${SLUG}`));
+  const isOurs = (s) => typeof s === 'string' && [SLUG, BETA].some((x) => s === x || s.endsWith(`_${x}`));
+  const normalFirst = (list) => [...list].sort((a, b) => a.endsWith(BETA) - b.endsWith(BETA));
 
   class Floorplan3dCard extends HTMLElement {
     /* ---- pure helpers (tests/card.test.mjs) ---- */
@@ -208,11 +212,11 @@
     static slugs(panels, want) {
       if (want) return [String(want).trim()];
       const fromPanels = Object.values(panels || {}).flatMap((p) => [p?.config?.addon, p?.config?.ingress]).filter(isOurs);
-      return [...new Set([...fromPanels, ...KNOWN])];
+      return [...new Set([...normalFirst(fromPanels), ...KNOWN])];
     }
     /** the slugs of this add-on in the Supervisor's list of installed add-ons ({ addons: [{ slug }] }, { apps: [...] } in a newer API) */
     static slugsFromList(data) {
-      return [...new Set([].concat(data?.addons || data?.apps || []).map((a) => a?.slug).filter(isOurs))];
+      return normalFirst(new Set([].concat(data?.addons || data?.apps || []).map((a) => a?.slug).filter(isOurs)));
     }
 
     /** true when version a is older than b ("3.74.2" < "3.75.0"); an unknown version is not older (a dev build) */

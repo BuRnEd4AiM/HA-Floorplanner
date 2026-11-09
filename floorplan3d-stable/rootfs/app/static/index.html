@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D Floorplan</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="nightDim" hidden></div>
+<div id="app">
+  <header id="toolbar">
+    <div class="group" id="modeSwitch">
+      <button data-mode="edit" class="active" data-i18n="mode.edit"></button>
+      <button data-mode="live" data-i18n="mode.live" data-i18n-title="mode.liveTip"></button>
+    </div>
+    <div class="group edit-only" id="tools">
+      <button data-tool="select" class="active" data-i18n-title="tip.select"><span class="tLabel" data-i18n="tool.select"></span></button>
+      <button data-tool="wall" data-i18n-title="tip.wall"><span class="tLabel" data-i18n="tool.wall"></span></button>
+      <button data-tool="room" data-i18n-title="tip.room"><span class="tLabel" data-i18n="tool.room"></span></button>
+      <button id="autoRooms" data-i18n-title="tip.autoRooms" data-full="tool.autoRooms"><span class="tLabel" data-i18n="tool.s.autoRooms"></span></button>
+      <button data-tool="block" data-i18n-title="tip.block"><span class="tLabel" data-i18n="tool.block"></span></button>
+      <button data-tool="plot" data-i18n-title="tip.plot"><span class="tLabel" data-i18n="tool.plot"></span></button>
+      <button data-tool="stairs" data-i18n-title="tip.stairs"><span class="tLabel" data-i18n="tool.stairs"></span></button>
+      <button data-tool="hole" data-i18n-title="tip.hole" data-full="tool.hole"><span class="tLabel" data-i18n="tool.s.hole"></span></button>
+      <button data-tool="opening" data-i18n-title="tip.opening"><span class="tLabel" data-i18n="tool.opening"></span></button>
+      <button data-tool="device" data-i18n-title="tip.device"><span class="tLabel" data-i18n="tool.device"></span></button>
+      <button data-tool="measure" data-i18n-title="tip.measure"><span class="tLabel" data-i18n="tool.measure"></span></button>
+      <button data-tool="erase" data-i18n-title="tip.erase"><span class="tLabel" data-i18n="tool.erase"></span></button>
+      <button id="powerEditBtn" type="button" data-i18n-title="tip.power" data-full="tool.power"><span class="tLabel" data-i18n="tool.s.power"></span></button>
+      <button id="cableBtn" data-tool="cable" type="button" hidden data-i18n-title="tip.cable"><span class="tLabel" data-i18n="tool.cable"></span></button>
+      <button id="energyBtn" type="button" hidden data-i18n-title="tip.energy" data-full="tool.energy"><span class="tLabel" data-i18n="tool.s.energy"></span></button>
+      <button id="dormerBtn" type="button" data-i18n-title="tip.dormer"><span class="tLabel" data-i18n="tool.dormer"></span></button>
+      <button id="importBtn" type="button" data-i18n-title="tip.import" data-full="tool.import"><span class="tLabel" data-i18n="tool.s.import"></span></button>
+      <button id="toolsMoreBtn" type="button" hidden aria-haspopup="true" aria-expanded="false" data-i18n-title="tip.more" data-full="tool.more"><span class="tLabel" data-i18n="tool.s.more"></span></button>
+      <div id="toolsMore" hidden></div>
+      <button id="toolsEditBtn" type="button" class="icon" data-i18n-title="tbar.edit" aria-label="Customise tools">✎</button>
+    </div>
+    <div class="group">
+      <button id="view2d" data-i18n="view.2d"></button>
+      <button id="view3d" class="active" data-i18n="view.3d"></button>
+      <button id="viewSplit" data-i18n="view.split"></button>
+      <button id="fitBtn" data-i18n="view.fit"></button>
+    </div>
+    <div class="group">
+      <button id="addFloor" class="edit-only" data-i18n="floor.add"></button>
+    </div>
+    <div class="group" id="houseGroup" hidden>
+      <select id="houseSelect" aria-label="House"></select>
+    </div>
+    <div class="group" id="buildingGroup" hidden>
+      <select id="buildingSelect" aria-label="Building" data-i18n-title="bld.switchTip"></select>
+    </div>
+    <div class="group right">
+      <span id="status"></span>
+      <button id="versionPill" class="pill ver-wait" type="button" hidden></button>
+      <button id="betaPill" class="pill" type="button" hidden></button>
+      <button id="guideBtn" class="admin-only" type="button" data-i18n="vg.btn" data-i18n-title="vg.tip"></button>
+      <button id="backupBtn" class="admin-only" data-i18n="bk.btn" data-i18n-title="bk.tip"></button>
+      <button id="undoBtn" class="icon edit-only" type="button" disabled data-i18n-title="tip.undo" aria-label="Undo">↶</button>
+      <button id="redoBtn" class="icon edit-only" type="button" disabled data-i18n-title="tip.redo" aria-label="Redo">↷</button>
+      <button id="saveBtn" class="primary edit-only" data-i18n="save"></button>
+      <button id="settingsBtn" class="icon" data-i18n-title="settings" aria-label="Settings">⚙</button>
+      <button id="logoutBtn" type="button" data-i18n="login.out" hidden></button>
+    </div>
+  </header>
+
+  <main>
+    <div id="stage">
+      <canvas id="view"></canvas>
+      <div id="wxFall" hidden><i></i></div>
+      <div id="tabPages" hidden><section class="tabPage" data-page="today" hidden></section><section class="tabPage" data-page="energy" hidden></section><section class="tabPage" data-page="climate" hidden></section><section class="tabPage" data-page="cameras" hidden></section><section class="tabPage" data-page="media" hidden></section><section class="tabPage" data-page="household" hidden></section><section class="tabPage" data-page="routines" hidden></section><section class="tabPage" data-page="family" hidden></section><section class="tabPage" data-page="log" hidden></section></div>
+      <div id="welcome" hidden>
+        <button id="welClose" type="button" class="dlgClose" aria-label="Close" data-i18n-title="close">✕</button>
+        <h2 data-i18n="wel.title"></h2>
+        <p data-i18n="wel.text"></p>
+        <div class="welBtns">
+          <button id="welDraw" type="button" class="primary" data-i18n="wel.draw"></button>
+          <button id="welExample" type="button" data-i18n="wel.example"></button>
+          <button id="welImport" type="button" data-i18n="wel.import"></button>
+        </div>
+      </div>
+      <nav id="navBar">
+        <div id="floorPills" class="pills"></div>
+        <span class="sep" id="navSep"></span>
+        <div id="roomPills" class="pills"><button id="roomMenuBtn" class="pill" type="button" hidden aria-haspopup="true" aria-expanded="false" data-i18n-title="nav.roomsTip"></button></div>
+        <button id="energyPill" class="pill" hidden type="button"></button>
+        <span id="meterPill" class="pill" hidden></span>
+        <span class="spacer"></span>
+        <button id="guardBtn" class="pill" hidden type="button" data-i18n-title="gd.btnTip"></button>
+        <button id="houseToggle" class="pill" hidden></button>
+        <button id="lightsPill" class="pill" hidden type="button" aria-haspopup="true" aria-expanded="false"></button>
+        <button id="devicesPill" class="pill" hidden type="button" aria-expanded="false" data-i18n-title="dl.tip"></button>
+        <button id="offlinePill" class="pill" hidden data-i18n-title="off.tip"></button>
+        <button id="openPill" class="pill" hidden></button>
+        <button id="camPill" class="pill" hidden data-i18n-title="cam.pillTip"></button>
+      </nav>
+      <div id="roomMenu" hidden></div>
+      <div id="lightsMenu" hidden></div>
+      <div id="camMenu" hidden>
+        <p class="sub" data-i18n="cam.hint"></p>
+        <div id="camGrid"></div>
+      </div>
+      <div id="viewMenu" hidden>
+        <button id="autoToggle" class="pill" data-i18n="nav.auto" data-i18n-title="nav.autoTip"></button>
+        <button id="seeToggle" class="pill" data-i18n="nav.see" data-i18n-title="nav.seeTip"></button>
+        <button id="explodeToggle" class="pill" hidden data-i18n="nav.explode" data-i18n-title="nav.explodeTip"></button>
+        <button id="stackToggle" class="pill" hidden data-i18n="nav.stack" data-i18n-title="nav.stackTip"></button>
+        <button id="halfToggle" class="pill" data-i18n="nav.half" data-i18n-title="nav.halfTip"></button>
+        <button id="belowLabelsToggle" class="pill" data-i18n="nav.belowLabels" data-i18n-title="nav.belowLabelsTip"></button>
+        <button id="wallToggle" class="pill"></button>
+        <button id="planFloorsToggle" class="pill" data-i18n-title="nav.planFloorsTip"></button>
+        <button id="flowToggle" class="pill" data-i18n="nav.flow" data-i18n-title="nav.flowTip"></button>
+        <button id="tilesToggle" class="pill" data-i18n="nav.tiles" data-i18n-title="nav.tilesTip"></button>
+        <button id="roomLabelsToggle" class="pill" data-i18n-title="nav.roomLabelsTip"></button>
+      </div>
+      <button id="navLeft" class="navArrow" type="button" hidden aria-label="‹">‹</button>
+      <button id="navRight" class="navArrow" type="button" hidden aria-label="›">›</button>
+      <div id="modeBar"><button class="pill active" data-vm="normal" data-i18n="vm.normal"></button><button class="pill" data-vm="temp" data-i18n="vm.temp"></button><button class="pill" data-vm="humid" data-i18n="vm.humid"></button><button class="pill" data-vm="co2" data-i18n="vm.co2"></button><button id="powerBtn" class="pill" type="button" hidden data-i18n="vm.power" data-i18n-title="vm.powerTip"></button><button id="viewMenuBtn" class="pill" type="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.view" data-i18n-title="nav.viewTip"></button></div>
+      <div id="planFloorsChip">
+        <button id="planFloorsBtn" class="pill" type="button" data-i18n-title="nav.planFloorsTip"></button>
+        <button id="planRotateBtn" class="pill" type="button" data-i18n="plan.rotate" data-i18n-title="plan.rotateTip"></button>
+        <ul id="planFloorsList"></ul>
+      </div>
+      <div id="viewLegend" hidden></div>
+      <button id="guardBar" type="button" hidden data-i18n-title="gd.barTip"></button>
+      <div id="alertBar" hidden></div>
+      <div id="compass" aria-hidden="true"><svg viewBox="-32 -32 64 64"><g id="compassRose"><circle r="29" class="cRing"/><text y="-19" class="cL cLn">N</text><text x="21" y="3" class="cL">O</text><text y="25" class="cL">S</text><text x="-21" y="3" class="cL">W</text></g><g id="compassNeedle"><path d="M0 -15 L4.5 0 L-4.5 0 Z" class="cN"/><path d="M0 12 L4.5 0 L-4.5 0 Z" class="cS"/><circle r="1.8" class="cHub"/></g></svg><span id="compassFrom"></span></div>
+      <div id="skyLine" hidden></div>
+      <button id="findBtn" type="button" class="pill" data-i18n-title="find.title" aria-label="Search">🔍</button>
+      <button id="voiceBtn" type="button" class="pill" hidden data-i18n-title="vq.mic" aria-label="Voice search">🎤</button>
+      <div id="findBox" hidden>
+        <div class="findRow"><input id="findInput" type="search" autocomplete="off" data-i18n-placeholder="find.placeholder"><button id="findMic" type="button" class="pill" hidden data-i18n-title="vq.mic" aria-label="Voice search">🎤</button></div>
+        <p id="findAnswer" role="status" hidden></p>
+        <ul id="findList"></ul>
+        <p id="findNone" class="sub" data-i18n="find.none" hidden></p>
+      </div>
+      <div id="floorRail"></div>
+      <div id="floorCards"></div>
+      <div id="roomLabels" hidden></div>
+      <div id="livePopup" hidden></div>
+      <div id="undoToast" hidden role="status"><span></span><button type="button"></button></div>
+      <aside id="roomPanel" hidden></aside>
+      <div id="sideStack"><div id="skyChips" hidden></div><button id="energyCard" class="glass" type="button" hidden></button></div>
+      <div id="roomTiles" hidden></div>
+      <button id="tilesLeft" class="tileArrow" type="button" hidden aria-label="‹">‹</button>
+      <button id="tilesRight" class="tileArrow" type="button" hidden aria-label="›">›</button>
+      <aside id="heatPanel" hidden></aside>
+      <aside id="devicePanel" hidden></aside>
+    </div>
+
+    <div id="panelResizer" role="separator" aria-orientation="vertical" data-i18n-title="panel.resize"></div>
+    <aside id="panel">
+      <section id="hint">
+        <h3 data-i18n="panel.hint"></h3>
+        <p id="hintText"></p>
+      </section>
+
+      <details id="housePanel" class="edit-only">
+        <summary data-i18n="house.panel"></summary>
+        <div id="houseBody"></div>
+        <h4 data-i18n="nb.title"></h4>
+        <div id="neighborBody"></div>
+        <h4 data-i18n="imp.section"></h4>
+        <p class="sub" data-i18n="imp.sectionHint"></p>
+        <div class="stopTools">
+          <button type="button" id="importOpen" data-i18n="imp.open"></button>
+          <button type="button" id="propExport" data-i18n="imp.exportProp"></button>
+        </div>
+      </details>
+
+      <details id="buildingPanel" class="edit-only">
+        <summary data-i18n="bld.panel"></summary>
+        <div id="buildingBody"></div>
+      </details>
+
+      <details id="floorPanel" class="edit-only">
+        <summary data-i18n="floor.panel"></summary>
+        <div id="floorBody"></div>
+      </details>
+
+      <details id="bgPanel" class="edit-only">
+        <summary data-i18n="bg.title"></summary>
+        <div id="bgBody"></div>
+      </details>
+
+      <section id="devicePalette" hidden>
+        <h3 data-i18n="panel.deviceType"></h3>
+        <input id="paletteSearch" type="search" data-i18n-placeholder="pal.search">
+        <div id="paletteCats"></div>
+        <div id="paletteRecent" hidden></div>
+        <div id="paletteGrid" class="palette thumbs"></div>
+        <h3 data-i18n="panel.models"></h3>
+        <div id="modelGrid" class="palette"></div>
+        <label class="uploadBtn"><span data-i18n="panel.upload"></span>
+          <input id="modelFile" type="file" accept=".glb,model/gltf-binary" hidden>
+        </label>
+        <h3 data-i18n="panel.entity"></h3>
+        <input id="entitySearch" type="search" data-i18n-placeholder="panel.entitySearch">
+        <select id="entitySelect" size="6"></select>
+      </section>
+
+
+
+      <section id="measurePanel" hidden>
+        <h3 data-i18n="ms.title"></h3>
+        <p class="sub" data-i18n="ms.help"></p>
+        <div id="measureBody"></div>
+      </section>
+
+      <section id="plotPalette" hidden>
+        <h3 data-i18n="plot.title"></h3>
+        <p class="sub" id="plotHelp" data-i18n="plot.help"></p>
+        <div id="plotBody"></div>
+        <div class="stopTools"><button type="button" id="plotClear" data-i18n="plot.clear"></button></div>
+      </section>
+
+      <section id="blockPalette" hidden>
+        <h3 data-i18n="block.title"></h3>
+        <div class="prop"><label for="blockFloor" data-i18n="block.belongsTo"></label>
+          <select id="blockFloor"><option value="below" data-i18n="block.below"></option><option value="this" data-i18n="block.this"></option></select></div>
+        <p class="sub" data-i18n="block.help"></p>
+      </section>
+
+      <section id="stairPalette" hidden>
+        <h3 data-i18n="stair.title"></h3>
+        <div class="palette" id="stairTypes">
+          <button data-stair="straight" class="active" data-i18n="stair.straight"></button>
+          <button data-stair="L" data-i18n="stair.L"></button>
+          <button data-stair="U" data-i18n="stair.U"></button>
+          <button data-stair="spiral" data-i18n="stair.spiral"></button>
+          <button data-stair="wall" data-i18n="stair.wall"></button>
+          <button data-stair="shaft" data-i18n="stair.shaft"></button>
+        </div>
+        <div class="prop"><label for="stairDir" data-i18n="stair.dir"></label>
+          <select id="stairDir"><option value="up" data-i18n="stair.up"></option><option value="down" data-i18n="stair.down"></option></select></div>
+        <div class="prop"><label for="stairTurn" data-i18n="stair.turn"></label>
+          <select id="stairTurn"><option value="right" data-i18n="stair.right"></option><option value="left" data-i18n="stair.left"></option></select></div>
+        <div class="prop"><label for="stairFloors" data-i18n="stair.floors"></label><input id="stairFloors" type="number" step="1" min="1" max="6" value="1"></div>
+        <div class="prop" hidden><label for="stairCorner" data-i18n="stair.corner"></label>
+          <select id="stairCorner"><option value="landing" data-i18n="stair.cornerLanding"></option><option value="winder" data-i18n="stair.cornerWinder"></option></select></div>
+        <div class="prop" hidden><label for="stairLanding" data-i18n="stair.landing"></label><input id="stairLanding" type="number" step="0.1" min="0" max="3" value="0"></div>
+        <div class="prop"><label for="stairRot" data-i18n="prop.rotation"></label><input id="stairRot" type="number" step="15" value="0"></div>
+        <p class="sub" data-i18n="stair.help2"></p>
+      </section>
+
+      <section id="openingPalette" hidden>
+        <h3 data-i18n="panel.openingType"></h3>
+        <h4 class="opGroup" data-i18n="op.groupDoors"></h4>
+        <div class="palette">
+          <button data-opening="door" class="active" data-i18n="op.door"></button>
+          <button data-opening="doorEntry" data-i18n="op.doorEntry"></button>
+          <button data-opening="doorGlass" data-i18n="op.doorGlass"></button>
+          <button data-opening="doorDouble" data-i18n="op.doorDouble"></button>
+          <button data-opening="doorSlide" data-i18n="op.doorSlide"></button>
+        </div>
+        <h4 class="opGroup" data-i18n="op.groupPassages"></h4>
+        <div class="palette">
+          <button data-opening="doorGap" data-i18n="op.doorGap"></button>
+          <button data-opening="doorOpen" data-i18n="op.doorOpen"></button>
+          <button data-opening="doorGarage" data-i18n="op.doorGarage"></button>
+        </div>
+        <h4 class="opGroup" data-i18n="op.groupWindows"></h4>
+        <div class="palette">
+          <button data-opening="window" data-i18n="op.window"></button>
+          <button data-opening="window2" data-i18n="op.window2"></button>
+          <button data-opening="window3" data-i18n="op.window3"></button>
+          <button data-opening="windowTall" data-i18n="op.windowTall"></button>
+          <button data-opening="windowBath" data-i18n="op.windowBath"></button>
+          <button data-opening="windowFixed" data-i18n="op.windowFixed"></button>
+          <button data-opening="windowFloor" data-i18n="op.windowFloor"></button>
+        </div>
+      </section>
+
+      <section id="objList" hidden>
+        <h3 data-i18n="panel.objects"></h3>
+        <div id="objListBody"></div>
+      </section>
+
+      <section id="props" hidden>
+        <h3 id="propsTitle"></h3>
+        <div id="propsBody"></div>
+      </section>
+
+      <section id="controlsHelp">
+        <h3 data-i18n="panel.controls"></h3>
+        <ul class="keys">
+          <li data-i18n="keys.rotate"></li>
+          <li data-i18n="keys.pan"></li>
+          <li data-i18n="keys.zoom"></li>
+          <li data-i18n="keys.qe"></li>
+          <li data-i18n="keys.del"></li>
+          <li data-i18n="keys.multi"></li>
+          <li data-i18n="keys.measure"></li>
+          <li data-i18n="keys.esc"></li>
+          <li data-i18n="keys.undo"></li>
+          <li data-i18n="keys.redo"></li>
+          <li data-i18n="keys.copy"></li>
+        </ul>
+        <button id="keysBtn" type="button" class="keysBtn" data-i18n="kc.btn"></button>
+      </section>
+    </aside>
+  </main>
+  <div id="tabEditBar" hidden></div>
+  <div id="sceneBar" hidden></div>
+  <nav id="tabBar" hidden></nav>
+</div>
+
+<dialog id="importDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="imp.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="sub" data-i18n="imp.hint"></p>
+    <div class="impBar">
+      <label class="btn"><span data-i18n="imp.file"></span><input type="file" id="importFile" accept=".json,.geojson,application/json" hidden></label>
+      <button type="button" id="importExFlat" data-i18n="imp.exFlat"></button>
+      <button type="button" id="importExHouse" data-i18n="imp.exHouse"></button>
+      <button type="button" id="importExShow" data-i18n="imp.exShow"></button>
+      <button type="button" id="importPrompt" data-i18n="imp.prompt"></button>
+    </div>
+    <textarea id="importText" spellcheck="false" data-i18n-placeholder="imp.placeholder"></textarea>
+    <input type="text" id="importName" data-i18n-placeholder="imp.name">
+    <div id="importResult"></div>
+    <div class="impFoot">
+      <button type="button" id="importCheck" data-i18n="imp.check"></button>
+      <button type="button" id="importRun" class="primary" disabled data-i18n="imp.run"></button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="conflictDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="conf.title"></h2></div>
+    <p data-i18n="conf.text"></p>
+    <div class="stopTools">
+      <button type="submit" value="reload" id="conflictReload" class="primary" data-i18n="conf.reload"></button>
+      <button type="submit" value="keep" id="conflictKeep" data-i18n="conf.keep"></button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="keysDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="kc.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="sub" data-i18n="kc.hint"></p>
+    <div id="keysList"></div>
+  </form>
+</dialog>
+
+<dialog id="offlineDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="off.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="sub" data-i18n="off.hint"></p>
+    <p id="offlineNone" data-i18n="off.none" hidden></p>
+    <ul id="offlineList"></ul>
+  </form>
+</dialog>
+
+<dialog id="bellDlg" class="bellDlg">
+  <div class="bellHead"><span class="bellIcon">🔔</span><b id="bellName"></b><span id="bellTime"></span></div>
+  <div id="bellCam" class="bellCam"></div>
+  <div class="bellBtns"><button type="button" id="bellOpen" class="bellOpen"></button><span id="bellHa"></span><button type="button" id="bellClose" class="bellClose" data-i18n="bell.close"></button></div>
+</dialog>
+
+<dialog id="openDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="open.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="sub" data-i18n="open.hint"></p>
+    <p id="openNone" data-i18n="open.allClosed" hidden></p>
+    <ul id="openList"></ul>
+  </form>
+</dialog>
+
+<dialog id="versionDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="ver.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <div id="versionBody"></div>
+    <div class="stopTools">
+      <button type="button" id="versionCheck" data-i18n="ver.check"></button>
+      <button type="button" id="versionReload" data-i18n="ver.reload" hidden></button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="toolsDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="tbar.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="hint" data-i18n="tbar.hint"></p>
+    <div class="tbHead"><span data-i18n="tbar.show"></span><span data-i18n="tbar.tool"></span><span data-i18n="tbar.fold"></span></div>
+    <div id="toolsList"></div>
+    <div class="stopTools"><button type="button" id="toolsReset" data-i18n="tbar.reset"></button></div>
+  </form>
+</dialog>
+
+<dialog id="backupDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="bk.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <h4 data-i18n="backup.title"></h4>
+    <p class="sub" data-i18n="backup.hint"></p>
+    <div class="stopTools">
+      <a id="backupExport" class="btn" href="api/backup" download data-i18n="backup.export"></a>
+      <button type="button" id="backupImport" data-i18n="backup.import"></button>
+      <input type="file" id="backupFile" accept=".json,application/json" hidden>
+    </div>
+    <div class="row check"><input id="setBackupRecording" type="checkbox"><label for="setBackupRecording" data-i18n="backup.recording"></label></div>
+    <div class="row check"><input id="setBackupSecrets" type="checkbox"><label for="setBackupSecrets" data-i18n="backup.secrets"></label></div>
+    <div id="autoBackup" hidden>
+      <h4 data-i18n="ab.title"></h4>
+      <p class="sub" data-i18n="ab.hint"></p>
+      <div class="row check"><input id="setAutoBackup" type="checkbox"><label for="setAutoBackup" data-i18n="ab.enable"></label></div>
+      <div class="prop stack"><label for="setBackupEvery" data-i18n="ab.every"></label><input id="setBackupEvery" type="number" min="1" max="720" step="1"></div>
+      <div class="prop stack"><label for="setBackupKeepDays" data-i18n="ab.keepDays"></label><input id="setBackupKeepDays" type="number" min="1" max="3650" step="1"></div>
+      <div class="prop stack"><label for="setBackupKeepCount" data-i18n="ab.keepCount"></label><input id="setBackupKeepCount" type="number" min="1" max="500" step="1"></div>
+      <div class="stopTools">
+        <button type="button" id="abNow" data-i18n="ab.now"></button>
+        <button type="button" id="abTest" data-i18n="ab.test"></button>
+      </div>
+      <p class="sub" id="abStatus"></p>
+      <div id="abList"></div>
+    </div>
+    <h4 data-i18n="tl.setTitle"></h4>
+    <p class="sub" data-i18n="tl.setHint"></p>
+    <div class="row check"><input id="setTimelineOn" type="checkbox"><label for="setTimelineOn" data-i18n="tl.setOn"></label></div>
+    <div class="prop stack"><label for="setTimelineKeep" data-i18n="tl.setKeep"></label><input id="setTimelineKeep" type="number" min="1" max="31" step="1"></div>
+    <div id="tlSetDays"></div>
+  </form>
+</dialog>
+
+<dialog id="energyDialog">
+  <div class="dlgHead"><h2 data-i18n="energy.title"></h2><button type="button" id="energyClose" class="dlgClose" aria-label="Close" data-i18n-title="close">✕</button></div>
+  <p class="hint" data-i18n="energy.hint"></p>
+  <div id="energyUnits" hidden></div>
+  <div id="energySetup"></div>
+  <div id="energyResult"></div>
+  <div id="energyBody"></div>
+</dialog>
+
+
+<dialog id="settingsDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="settings"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button>
+      <div class="sgBar"><input id="setSearch" type="search" autocomplete="off" data-i18n-placeholder="sg.search" data-i18n-title="sg.searchTip"><button type="button" id="sgAll"></button></div></div>
+    <p id="sgNone" class="hint" data-i18n="sg.none" hidden></p>
+
+    <details class="setGroup" data-group="general">
+      <summary><span class="sgIcon">⚙️</span><span class="sgText"><b data-i18n="sg.general"></b><small data-i18n="sg.general.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setLanguage" data-i18n="set.language"></label>
+          <select id="setLanguage"><option value="auto">Auto</option><option value="de">Deutsch</option><option value="en">English</option><option value="fr">Français</option><option value="es">Español</option><option value="it">Italiano</option><option value="nl">Nederlands</option><option value="pl">Polski</option><option value="zh">简体中文</option></select></div>
+        <div class="row"><label for="setTheme" data-i18n="set.theme"></label>
+          <select id="setTheme"><option value="holo" data-i18n="set.theme.holo"></option><option value="dark" data-i18n="set.theme.dark"></option><option value="light" data-i18n="set.theme.light"></option></select></div>
+        <div class="row"><label for="setUnits" data-i18n="set.units"></label>
+          <select id="setUnits"><option value="metric" data-i18n="set.units.metric"></option><option value="imperial" data-i18n="set.units.imperial"></option></select></div>
+        <div class="row check"><input id="setUpdateCheck" type="checkbox"><label for="setUpdateCheck" data-i18n="set.updateCheck"></label></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="drawing">
+      <summary><span class="sgIcon">✏️</span><span class="sgText"><b data-i18n="sg.drawing"></b><small data-i18n="sg.drawing.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setGrid" data-i18n="set.grid"></label>
+          <select id="setGrid"><option value="0.05">5 cm</option><option value="0.1">10 cm</option><option value="0.25">25 cm</option><option value="0.5">50 cm</option><option value="1">1 m</option></select></div>
+        <div class="row"><label for="setWallHeight" data-i18n="set.wallHeight"></label>
+          <input id="setWallHeight" type="number" step="any"></div>
+        <p class="sub" data-i18n="set.storeyHint"></p>
+        <div class="row"><label for="setWallThickness" data-i18n="set.wallThickness"></label>
+          <input id="setWallThickness" type="number" step="any"></div>
+        <div class="row"><label for="setAutosave" data-i18n="set.autosave"></label>
+          <input id="setAutosave" type="number" step="any"></div>
+        <div class="row check"><input id="setWallStop" type="checkbox"><label for="setWallStop" data-i18n="set.wallStop"></label></div>
+        <div class="row check"><input id="setPlaceSelect" type="checkbox"><label for="setPlaceSelect" data-i18n="set.placeSelect"></label></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="view">
+      <summary><span class="sgIcon">🧊</span><span class="sgText"><b data-i18n="sg.view"></b><small data-i18n="sg.view.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setPerf" data-i18n="set.perf"></label>
+          <select id="setPerf"><option value="auto" data-i18n="set.perf.auto"></option><option value="high" data-i18n="set.perf.high"></option><option value="low" data-i18n="set.perf.low"></option></select></div>
+        <p class="sub" data-i18n="set.perfHint"></p>
+        <div class="row"><label for="setEdges" data-i18n="set.edges"></label>
+          <select id="setEdges"><option value="default" data-i18n="set.edges.default"></option><option value="msaa" data-i18n="set.edges.msaa"></option><option value="still" data-i18n="set.edges.still"></option><option value="fxaa" data-i18n="set.edges.fxaa"></option><option value="auto" data-i18n="set.edges.auto"></option><option value="off" data-i18n="set.edges.off"></option></select></div>
+        <p class="sub" data-i18n="set.edgesHint"></p>
+        <div class="row check"><input id="setShadows" type="checkbox"><label for="setShadows" data-i18n="set.shadows"></label></div>
+        <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
+        <div class="row check"><input id="setSeeThrough" type="checkbox"><label for="setSeeThrough" data-i18n="set.seeThrough"></label></div>
+        <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
+        <div class="row"><label for="setWallOpacity" data-i18n="set.wallOpacity"></label><input id="setWallOpacity" type="number" step="any" min="0.2" max="1"></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="show">
+      <summary><span class="sgIcon">🏷️</span><span class="sgText"><b data-i18n="sg.show"></b><small data-i18n="sg.show.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setLabels" data-i18n="set.labels"></label>
+          <select id="setLabels"><option value="important" data-i18n="set.labels.important"></option><option value="all" data-i18n="set.labels.all"></option><option value="none" data-i18n="set.labels.none"></option></select></div>
+        <div class="row check"><input id="setRoomTiles" type="checkbox"><label for="setRoomTiles" data-i18n="set.roomTiles"></label></div>
+        <div class="row check"><input id="setRoomLabels" type="checkbox"><label for="setRoomLabels" data-i18n="set.roomLabels"></label></div>
+        <div class="row check"><input id="setEnergyCard" type="checkbox"><label for="setEnergyCard" data-i18n="set.energyCard"></label></div>
+        <div class="row check"><input id="setCameraImages" type="checkbox"><label for="setCameraImages" data-i18n="set.cameraImages" data-i18n-title="set.cameraImagesHint"></label></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="quick">
+      <summary><span class="sgIcon">⭐</span><span class="sgText"><b data-i18n="sg.quick"></b><small data-i18n="sg.quick.sub"></small></span></summary>
+      <div class="sgBody">
+        <h4 data-i18n="fav.title"></h4>
+        <p class="hint" data-i18n="fav.help"></p>
+        <div id="favList"></div>
+        <p id="favNone" class="sub" data-i18n="fav.none"></p>
+        <div class="stopTools favAddRow"><input id="favAdd" type="text" list="favChoices" autocomplete="off" data-i18n-placeholder="fav.addPh"> <button type="button" id="favAddBtn" data-i18n="fav.addBtn"></button></div>
+        <datalist id="favChoices"></datalist>
+        <p id="favMsg" class="sub favMsg"></p>
+        <h4 data-i18n="lg.groupsTitle"></h4>
+        <p class="hint" data-i18n="lg.help"></p>
+        <div id="lgGroups"></div>
+        <div class="stopTools"><button type="button" id="lgAdd" data-i18n="lg.add"></button></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="voice">
+      <summary><span class="sgIcon">🎤</span><span class="sgText"><b data-i18n="sg.voice"></b><small data-i18n="sg.voice.sub"></small></span></summary>
+      <div class="sgBody">
+        <p class="hint" data-i18n="vc.help"></p>
+        <div class="row"><label for="setVoiceEngine" data-i18n="vc.engine"></label>
+          <select id="setVoiceEngine"><option value="auto" data-i18n="vc.engine.auto"></option><option value="browser" data-i18n="vc.engine.browser"></option><option value="assist" data-i18n="vc.engine.assist"></option><option value="keyboard" data-i18n="vc.engine.keyboard"></option><option value="off" data-i18n="vc.engine.off"></option></select></div>
+        <p class="hint" data-i18n="vc.keysHelp"></p>
+        <ul id="vcStatus"></ul>
+        <div id="vkBox" class="vkBox"><b data-i18n="vk.title"></b>
+          <p class="hint" data-i18n="vk.help"></p>
+          <div class="stopTools"><button type="button" id="vkMic" data-i18n="vk.mic"></button> <button type="button" id="vkRec" data-i18n="vk.rec"></button>
+            <button type="button" id="vkCopy" data-i18n="vk.copy"></button></div>
+          <div id="vkLevelBox" hidden>
+            <div class="vkMeter" aria-hidden="true"><i id="vkLevel"></i></div>
+            <div class="row"><label for="vkDevice" data-i18n="vk.device"></label><select id="vkDevice"></select></div></div>
+          <ul id="vkResult"></ul>
+          <textarea id="vkReport" rows="7" readonly hidden></textarea></div>
+        <div id="vcGuide" class="vcGuide"><b data-i18n="vc.guide"></b>
+          <ol><li data-i18n="vc.guide1"></li><li data-i18n="vc.guide2"></li><li data-i18n="vc.guide3"></li><li data-i18n="vc.guide4"></li></ol>
+          <a href="https://my.home-assistant.io/redirect/voice_assistants/" target="_blank" rel="noopener" data-i18n="vc.openHa"></a></div>
+        <h4 data-i18n="vc.words"></h4>
+        <p class="hint" data-i18n="vc.wordsHelp"></p>
+        <div id="vcAliases"></div>
+        <p id="vcNone" class="sub" data-i18n="vc.none"></p>
+        <div class="stopTools"><button type="button" id="vcAdd" data-i18n="vc.add"></button> <button type="button" id="vcTry" data-i18n="vc.try"></button></div>
+        <datalist id="vcUsers"></datalist>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="floors">
+      <summary><span class="sgIcon">🏢</span><span class="sgText"><b data-i18n="sg.floors"></b><small data-i18n="sg.floors.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setBelowMode" data-i18n="set.belowMode"></label>
+          <select id="setBelowMode"><option value="dim" data-i18n="set.belowMode.dim"></option><option value="stacked" data-i18n="set.belowMode.stacked"></option><option value="hidden" data-i18n="set.belowMode.hidden"></option></select></div>
+        <div class="row"><label for="setBelow" data-i18n="set.below"></label><input id="setBelow" type="number" step="any" min="0.05" max="1"></div>
+        <div class="row check"><input id="setBelowLabels" type="checkbox"><label for="setBelowLabels" data-i18n="set.belowLabels" data-i18n-title="set.belowLabelsHint"></label></div>
+        <div class="row"><label for="setHouseFloors" data-i18n="set.houseFloors" data-i18n-title="set.houseFloorsHint"></label>
+          <select id="setHouseFloors"><option value="normal" data-i18n="set.houseFloors.normal"></option><option value="apart" data-i18n="set.houseFloors.apart"></option><option value="stacked" data-i18n="set.houseFloors.stacked"></option></select></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="outside">
+      <summary><span class="sgIcon">🌳</span><span class="sgText"><b data-i18n="sg.outside"></b><small data-i18n="sg.outside.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setFacade" data-i18n="set.facade" data-i18n-title="set.facadeHint"></label><select id="setFacade"></select></div>
+        <div class="row"><label for="setFacadeColor" data-i18n="set.facadeColor"></label><input id="setFacadeColor" type="color"></div>
+        <div class="row"><label for="setWindowFrames" data-i18n="set.windowFrames"></label>
+          <select id="setWindowFrames"><option value="white" data-i18n="set.windowFrames.white"></option><option value="anthracite" data-i18n="set.windowFrames.anthracite"></option></select></div>
+        <div class="row"><label for="setEarth" data-i18n="set.earth"></label>
+          <select id="setEarth"><option value="solid" data-i18n="set.earth.solid"></option><option value="glass" data-i18n="set.earth.glass"></option><option value="off" data-i18n="set.earth.off"></option></select></div>
+        <div class="row"><label for="setEarthMargin" data-i18n="set.earthMargin"></label><input id="setEarthMargin" type="number" step="any"></div>
+        <p id="earthMarginNote" class="sub" data-i18n="set.earthMarginPlot" hidden></p>
+        <div class="row"><label for="setSky" data-i18n="set.sky" data-i18n-title="set.skyHint"></label>
+          <select id="setSky"><option value="time" data-i18n="set.sky.time"></option><option value="off" data-i18n="set.sky.off"></option></select></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="light">
+      <summary><span class="sgIcon">💡</span><span class="sgText"><b data-i18n="sg.light"></b><small data-i18n="sg.light.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setGlowRadius" data-i18n="set.glowRadius"></label><input id="setGlowRadius" type="number" step="any"></div>
+        <div class="row"><label for="setGlowStrength" data-i18n="set.glowStrength"></label><input id="setGlowStrength" type="number" step="any"></div>
+        <div class="row"><label for="setGlowHeight" data-i18n="set.glowHeight"></label><input id="setGlowHeight" type="number" step="any"></div>
+        <div class="row"><label for="setDefaultLight" data-i18n="set.defaultLight"></label><input id="setDefaultLight" type="color"></div>
+        <div class="row"><label for="setBgTop" data-i18n="set.bgTop"></label><input id="setBgTop" type="color"></div>
+        <div class="row"><label for="setBgBottom" data-i18n="set.bgBottom"></label><input id="setBgBottom" type="color"></div>
+        <div class="row"><label for="setBgGlow" data-i18n="set.bgGlow"></label><input id="setBgGlow" type="color"></div>
+        <div class="row"><label for="setBgGlowStrength" data-i18n="set.bgGlowStrength"></label><input id="setBgGlowStrength" type="range" min="0" max="1" step="0.05"></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="alarm">
+      <summary><span class="sgIcon">🚨</span><span class="sgText"><b data-i18n="sg.alarm"></b><small data-i18n="sg.alarm.sub"></small></span></summary>
+      <div class="sgBody">
+        <p class="hint" data-i18n="sg.alarm.help"></p>
+        <div class="row check"><input id="setAlerts" type="checkbox"><label for="setAlerts" data-i18n="set.alerts"></label></div>
+        <div class="row check"><input id="setAlertJump" type="checkbox"><label for="setAlertJump" data-i18n="set.alertJump"></label></div>
+        <div class="row"><label for="setWeather" data-i18n="set.weather"></label><input id="setWeather" type="text" placeholder="weather.home" list="weatherList"></div>
+        <datalist id="weatherList"></datalist>
+        <div class="sgInfo">
+          <h4 data-i18n="sg.alarm.what"></h4>
+          <p class="sub" data-i18n="sg.alarm.whatHelp"></p>
+          <p id="alarmPanels" class="sub"></p>
+        </div>
+        <div id="guardBox" class="gdBox"></div>
+        <h4 id="alarmNotifyTitle" data-i18n="an.title" hidden></h4>
+        <div id="alarmNotify" hidden></div>
+        <p id="alarmNotifyOff" class="sub" data-i18n="sg.alarm.notifyOff" hidden></p>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="tabs">
+      <summary><span class="sgIcon">🗂️</span><span class="sgText"><b data-i18n="sg.tabs"></b><small data-i18n="sg.tabs.sub"></small></span></summary>
+      <div class="sgBody">
+        <p class="hint" data-i18n="sg.tabs.help"></p>
+        <div class="row check"><input id="setTabBar" type="checkbox"><label for="setTabBar" data-i18n="set.tabBar" data-i18n-title="set.tabBarTip"></label></div>
+        <h4 data-i18n="tp.today.title"></h4>
+        <p class="sub" data-i18n="tp.today.calsHelp"></p>
+        <div id="setAgendaCals" class="calList"></div>
+        <div class="row"><label for="setWasteCal" data-i18n="tp.today.waste"></label><select id="setWasteCal"></select></div>
+        <h4 data-i18n="tp.energy.title"></h4>
+        <p class="sub" data-i18n="tp.energy.help"></p>
+        <h4 data-i18n="rt.prefs"></h4>
+        <p class="sub" data-i18n="rt.prefsHelp"></p>
+        <div id="setRoutines" class="calList"></div>
+        <div class="row"><label for="setRoutineLeave" data-i18n="rt.prefLeave"></label><select id="setRoutineLeave"></select></div>
+        <div class="row"><label for="setRoutineNight" data-i18n="rt.prefNight"></label><select id="setRoutineNight"></select></div>
+        <h4 data-i18n="pb.prefs"></h4>
+        <p class="sub" data-i18n="pb.prefsHelp"></p>
+        <h4 data-i18n="pr.title"></h4>
+        <p class="sub" data-i18n="pr.help"></p>
+        <div class="row"><label for="setPresenceRule" data-i18n="pr.rule"></label><select id="setPresenceRule"><option value="ha" data-i18n="pr.rule.ha"></option><option value="any" data-i18n="pr.rule.any"></option><option value="two" data-i18n="pr.rule.two"></option></select></div>
+        <div class="row"><label for="setPresenceSsids" data-i18n="pr.ssids"></label><input id="setPresenceSsids" type="text" maxlength="400" data-i18n-placeholder="pr.ssidsPh"></div>
+        <h4 data-i18n="mp.prefs"></h4>
+        <p class="sub" data-i18n="mp.prefsHelp"></p>
+        <div id="setStations"></div>
+        <div class="stopTools"><button type="button" id="addStation" data-i18n="mp.addStation"></button></div>
+        <h4 data-i18n="hh.prefs"></h4>
+        <p class="sub" data-i18n="hh.prefsHelp"></p>
+        <div class="row"><label for="setShoppingList" data-i18n="hh.prefList"></label><select id="setShoppingList"></select></div>
+        <div id="setAppliances"></div>
+        <div class="row check"><input id="setHouseholdTell" type="checkbox"><label for="setHouseholdTell" data-i18n="hh.tellAlways"></label></div>
+        <h4 data-i18n="car.prefs"></h4>
+        <p class="sub" data-i18n="car.prefsHelp"></p>
+        <div id="setCar" class="odPrefs"></div>
+        <div class="row"><label for="setCarName" data-i18n="car.name"></label><input id="setCarName" type="text" maxlength="40" data-i18n-placeholder="car.namePh"></div>
+        <p class="sub" data-i18n="car.moreHelp"></p>
+        <div id="setCars"></div>
+        <div class="stopTools"><button type="button" id="addCar" data-i18n="car.add"></button></div>
+        <h4 data-i18n="garden.prefs"></h4>
+        <p class="sub" data-i18n="garden.prefsHelp"></p>
+        <div id="setZones" class="calList"></div>
+        <div class="row"><label for="setWaterMinutes" data-i18n="garden.minutesLabel"></label><select id="setWaterMinutes"></select></div>
+        <p id="outdoorFound" class="sub"></p>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="tablet">
+      <summary><span class="sgIcon">📱</span><span class="sgText"><b data-i18n="sg.tablet"></b><small data-i18n="sg.tablet.sub"></small></span></summary>
+      <div class="sgBody">
+        <p class="hint" data-i18n="sg.tablet.help"></p>
+        <div class="tabletGuide">
+          <h4 data-i18n="tg.title"></h4>
+          <ol>
+            <li data-i18n="tg.step1"></li>
+            <li data-i18n="tg.step2"></li>
+            <li data-i18n="tg.step3"></li>
+            <li data-i18n="tg.step4"></li>
+            <li data-i18n="tg.step5"></li>
+          </ol>
+          <pre id="tgYaml">type: custom:floorplan3d-card
+fill: true
+tabs: true
+kiosk: true</pre>
+          <div class="stopTools"><button type="button" id="tgCopy" data-i18n="tg.copy"></button></div>
+          <p class="sub" data-i18n="tg.note"></p>
+        </div>
+        <div class="row"><label data-i18n="sv.title"></label><span id="svState" class="sub"></span></div>
+        <p class="sub" data-i18n="sv.help"></p>
+        <div class="stopTools"><button type="button" id="svTake" data-i18n="sv.take"></button> <button type="button" id="svAuto" data-i18n="sv.auto"></button></div>
+        <div class="row"><label for="setIdleReturn" data-i18n="set.idleReturn"></label><input id="setIdleReturn" type="number" min="0" step="1"></div>
+        <div class="row check"><input id="setIdleOrbit" type="checkbox"><label for="setIdleOrbit" data-i18n="set.idleOrbit"></label></div>
+        <div class="row"><label for="setNightDim" data-i18n="set.nightDim"></label>
+          <select id="setNightDim"><option value="off" data-i18n="set.nightDim.off"></option><option value="sun" data-i18n="set.nightDim.sun"></option><option value="time" data-i18n="set.nightDim.time"></option></select></div>
+        <div class="row"><label for="setNightFrom" data-i18n="set.nightFrom"></label><input id="setNightFrom" type="time"></div>
+        <div class="row"><label for="setNightTo" data-i18n="set.nightTo"></label><input id="setNightTo" type="time"></div>
+        <h4 data-i18n="bell.prefs"></h4>
+        <p class="sub" data-i18n="bell.prefsHelp"></p>
+        <div class="row check"><input id="setBellOn" type="checkbox"><label for="setBellOn" data-i18n="bell.on"></label></div>
+        <div class="row check"><input id="setBellSound" type="checkbox"><label for="setBellSound" data-i18n="bell.sound"></label></div>
+        <div id="setBells"></div>
+        <p id="bellFound" class="sub"></p>
+        <div class="stopTools"><button type="button" id="addBell" data-i18n="bell.add"></button> <button type="button" id="bellTest" data-i18n="bell.test"></button></div>
+      </div>
+    </details>
+
+    <details class="setGroup admin-only" data-group="users">
+      <summary><span class="sgIcon">👥</span><span class="sgText"><b data-i18n="sg.users"></b><small data-i18n="sg.users.sub"></small></span></summary>
+      <div class="sgBody">
+        <p class="hint" data-i18n="set.tabletHelp"></p>
+        <datalist id="haUsers"></datalist>
+        <div id="tabletRows"></div>
+        <div class="stopTools"><button type="button" id="addTablet" data-i18n="set.addTablet"></button> <button type="button" id="pvTableBtn" data-i18n="pv.tableBtn" data-i18n-title="pv.tableSub"></button></div>
+        <div id="fullCodeBox"></div>
+        <h4 data-i18n="users.fileTitle"></h4>
+        <p class="hint" data-i18n="users.fileHelp"></p>
+        <div class="stopTools"><button type="button" id="usersSave" data-i18n="users.saveBtn" data-i18n-title="users.saveTip"></button> <button type="button" id="usersSync" data-i18n="users.syncBtn" data-i18n-title="users.syncTip"></button></div>
+        <p class="sub" id="usersFileStatus"></p>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="colors">
+      <summary><span class="sgIcon">🌡️</span><span class="sgText"><b data-i18n="sg.colors"></b><small data-i18n="sg.colors.sub"></small></span></summary>
+      <div class="sgBody">
+        <h4 data-i18n="set.section.tempColors"></h4>
+        <div id="tempStops" class="stops"></div>
+        <h4 data-i18n="set.section.humidColors"></h4>
+        <div id="humidStops" class="stops"></div>
+        <h4 data-i18n="set.section.co2Colors"></h4>
+        <div id="co2Stops" class="stops"></div>
+      </div>
+    </details>
+
+    <menu><button value="close" class="primary" data-i18n="close"></button></menu>
+  </form>
+</dialog>
+
+<div id="guardScreen" hidden role="dialog" aria-modal="true"></div>
+
+<script src="bootguard.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

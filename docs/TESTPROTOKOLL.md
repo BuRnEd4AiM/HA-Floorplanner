@@ -25,6 +25,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 13. **Neu in 4.73.0: ✨ Oberfläche 2** (Abschnitt 170, dein Wunsch vom 2026-11-08): Claude hat 170.1 und 170.2 geprüft; für dich in der Demo 170.3 bis 170.7, dein Eindruck 170.8, nach dem Merge das Video 170.9.
 14. **Neu in 5.0.0: ✨ Oberfläche 2 komplett** (Abschnitt 171, dein Wunsch vom 2026-11-09): Claude hat 171.1 und 171.2 geprüft; für dich in der Demo 171.3 bis 171.8, dein Eindruck 171.9, nach dem Merge die Videos 171.10.
 15. **Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren** (Abschnitt 172, dein Wunsch vom 2026-11-09): Claude hat 172.1 und 172.2 geprüft; für dich in der Demo 172.3 bis 172.12, dein Eindruck 172.13, nach dem Merge die Videos 172.14.
+16. **Neu in 5.2.0: Normal und Beta** (Abschnitt 173, deine Frage vom 2026-11-09): Claude hat 173.1 und 173.2 geprüft; für dich nach dem Merge in Home Assistant 173.3 bis 173.9, bei der nächsten Freigabe 173.10.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -453,7 +454,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 170. Neu in 4.73.0: ✨ Oberfläche 2 (die neue Bearbeiten-Leiste, umschaltbar) | 2 | 0 | 7 | 0 | 170.3 bis 170.9 |
 | 171. Neu in 5.0.0: ✨ Oberfläche 2 komplett (Haus als Baum, Etage, Suchen, Reiter an der Leiste, Übernehmen) | 2 | 0 | 8 | 0 | 171.3 bis 171.10 |
 | 172. Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren | 2 | 0 | 12 | 0 | 172.3 bis 172.14 |
-| **Zusammen** | **1121** | **1** | **85** | **92** | |
+| 173. Neu in 5.2.0: Normal und Beta | 2 | 0 | 8 | 0 | 173.3 bis 173.10 |
+| **Zusammen** | **1123** | **1** | **93** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2662,3 +2664,19 @@ Dein Wunsch vom 2026-11-09: „das Dach neu aufmachen, dass es geiler und übers
 | 172.12 | Demo: nichts ausgewählt, im Baum „🔒 Grundriss fertig“; dann „Ansicht“ → „🔒 Gesperrte zeigen“; dann oben „🔒 Grundriss gesperrt“ antippen | Alle Räume gesperrt, Geräte lassen sich weiter ziehen; die Streifen gehen aus und an; nach der Rückfrage ist alles wieder frei | ❓ |
 | 172.13 | Gefällt dir das neue Dach und das Sperren? Was fehlt noch? | Deine Antwort | ❓ |
 | 172.14 | Nach dem Merge: die Videos „Das neue Dach …“ und „Räume sperren und „Grundriss fertig““ | Zeigen Form, Seitenansicht, Karte, Vorlagen; Schloss, Grundriss fertig, Gesperrte zeigen | ❓ |
+
+## 173. Neu in 5.2.0: Normal und Beta
+Deine Frage vom 2026-11-09: „wäre es nicht viel sinnvoller, wenn das Projekt einen offiziellen Release … und vielleicht auch noch eine Beta Version gibt“; deine Wahl: bauen, und die Beta pausiert von selbst, solange das normale Add-on läuft. Im Store gibt es jetzt „3D Floorplan“ (nur freigegebene Versionen) und „3D Floorplan Beta“ (jede neue Version sofort). Freigeben: im Chat „Gib 5.3.0 frei“ sagen, oder auf GitHub Actions → „Release to everyone“ → „Run workflow“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 173.1 | `python3 -m pytest tests/test_channel.py tests/test_stable.py tests/test_release.py tests/test_rulesrun.py`, `node --test tests/card.test.mjs`, `tests/version.test.mjs` | Normal oder Beta, „ich laufe“ über Home Assistant, die Pause der Heiz-Regeln und Abläufe, die Kopie des normalen Add-ons (nur neuere Versionen, die Version so, wie sie zuletzt auf main war), Vorabversionen, die Karte findet beide | ✅ (2026-11-09, Claude) |
+| 173.2 | Browser-Test Teil `02_tools` (dazu `50_rules`, `24_alarm_notify`, `29_guard`) | Oben „Beta“ im Schild, „⏸ Beta pausiert“ mit Erklärung; ohne Kanal pausiert nichts | ✅ (2026-11-09, Claude) |
+| 173.3 | Nach dem Merge: in Home Assistant Einstellungen → Apps, dein „3D Floorplan“ | Es bietet 5.2.0 an; nach dem Update steht oben „✓ v5.2.0 · …“ ohne „Beta“ | ❓ |
+| 173.4 | Dein Profil (unten links dein Name) → „Erweiterter Modus“ an; dann App-Store → ⋮ → „Nach Updates suchen“ | Neben „3D Floorplan“ steht jetzt auch „3D Floorplan Beta“ | ❓ |
+| 173.5 | „3D Floorplan Beta“ installieren und starten, dann in der Seitenleiste „3D Floorplan Beta“ öffnen | Oben „v5.2.0 Beta“; nach ein paar Sekunden daneben orange „⏸ Beta pausiert“ (dein normales läuft ja) | ❓ |
+| 173.6 | In der Beta auf „⏸ Beta pausiert“ tippen | Ein Fenster erklärt: das normale 3D Floorplan (5.2.0) läuft auch, die Beta schaltet nichts von selbst | ❓ |
+| 173.7 | Das normale „3D Floorplan“ stoppen, 5 Minuten warten, die Beta neu laden; dann das normale wieder starten | Ohne das normale ist „⏸ Beta pausiert“ weg; nach dem Start ist es in höchstens einer Minute wieder da | ❓ |
+| 173.8 | Im normalen 🗄️ → Backup herunterladen, in der Beta 🗄️ → die Datei zurückspielen | Dein Haus ist auch in der Beta; im normalen ändert sich nichts | ❓ |
+| 173.9 | Deine Dashboard-Karte ansehen (beide Add-ons installiert) | Sie zeigt weiter das normale Add-on | ❓ |
+| 173.10 | Bei der nächsten Version: „Gib 5.3.0 frei“ im Chat (oder Actions → „Release to everyone“ → „Run workflow“) | Das normale „3D Floorplan“ bietet danach 5.3.0 an; vorher nur die Beta | ❓ |

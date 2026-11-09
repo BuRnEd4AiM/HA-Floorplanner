@@ -57,3 +57,16 @@ def test_every_release_carries_the_dashboard_card():
     assert f"dist/{name}" in wf and "gh release upload" in wf
     create = next(l for l in wf.splitlines() if "gh release create" in l)
     assert "card[@]" in create                                   # attached when the release is made, not after it is published
+
+
+def test_a_version_only_in_the_beta_is_a_pre_release():
+    """5.2.0: the normal add-on's version is the latest release, newer ones are pre-releases, older ones stay as they are"""
+    assert rv.kind("5.2.0", "5.2.0") == "latest"
+    assert rv.kind("5.3.0", "5.2.0") == "pre" and rv.kind("5.10.0", "5.9.0") == "pre"
+    assert rv.kind("5.1.0", "5.2.0") == "old"
+    assert rv.kind("5.2.0", "") == "latest"                     # no normal add-on known: as before
+
+
+def test_the_release_workflow_marks_pre_releases_and_the_latest():
+    wf = (Path(__file__).parent.parent / ".github" / "workflows" / "release.yml").read_text()
+    assert "release_versions.py --kind" in wf and "--prerelease" in wf and "floorplan3d-stable/config.yaml" in wf
