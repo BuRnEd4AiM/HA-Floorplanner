@@ -67,7 +67,7 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `setgroups.js` | ~210 | Einstellungen in Gruppen zum Auf- und Zuklappen (#450): `openSettingsAt` (aus `app.js` hierher) und `reveal` rollen eine Gruppe oder den 🩺 Mikrofon-Test unter die feste Kopfzeile (#523); die Gruppen sind `<details class="setGroup">` in `index.html`; merkt sich pro Browser, welche offen sind, „Alle aufklappen / zuklappen“, die Suche oben (nur passende Gruppen, aufgeklappt, Treffer markiert; `searchGroups`, `fold`, `readOpen` mit Unit-Tests, dazu prüft der Test, dass jedes Feld des Fensters in einer Gruppe liegt), die Zeiten von „Nachts abdunkeln“ nur bei „Nach Uhrzeit“; auf breitem Bildschirm (4.35.0, #562) fast das ganze Fenster: links die Liste der Gruppen (`#sgNav`), rechts eine Gruppe mit ihren Einstellungen als Kacheln (`.sgTile`, `tileRuns`, `pickGroup` mit Unit-Tests) |
 | `toolbar.js` | 88 | Anpassbare Werkzeugleiste |
 | `backups.js` | ~80 | Backup-Fenster oben (🗄️, #321): ganzes Backup, automatische Sicherung, Einstellungen der Sicherheit |
-| `version.js` | 122 | Versionsanzeige und Datei-Prüfung |
+| `version.js` | ~145 | Versionsanzeige und Datei-Prüfung; Normal oder Beta, „⏸ Beta pausiert“ (5.2.0, `betaPill` rein, Test `tests/version.test.mjs`) |
 | `welcome.js` | 21 | Willkommenskarte |
 | `import.js` | 112 | Import-Dialog |
 | `moreinfo.js` | 27 | Home-Assistant-Dialog |

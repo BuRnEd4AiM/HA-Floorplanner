@@ -25,6 +25,17 @@ The card `custom:floorplan3d-card` shows the live 3D view of this add-on on any 
 
 With a room chosen, the option **Show** (`view`) makes a card for that one room: *Only the room in 3D* (`view: room`) shows the room and never leaves it, without the room panel over it; *Only the room's controls* (`view: panel`) shows just its room panel (lights, heating, shutters, doors and windows) filling the card, without 3D. Two cards side by side give the room and its controls at the same time.
 
+## Normal and Beta
+
+There are two add-ons in the store:
+
+- **3D Floorplan**, the normal one: a new version comes only when it has been tested and released.
+- **3D Floorplan Beta**: every new version at once, to try new things early. It shows up in the store only with *Advanced mode* (your user profile). The top bar says "Beta" next to the version.
+
+Each has its own data and its own sidebar panel. To try the beta with your house: in the normal add-on 🗄️ → download a backup, in the beta restore it.
+
+**Both running:** the beta then switches nothing by itself: no heating rules, no routines, no alarm, holiday alarm or household messages (the normal one does all that). The top bar shows **⏸ Beta paused**; what you tap on the page still works. Stop the normal add-on and the beta goes on by itself within 5 minutes. The two find each other over Home Assistant's event bus (events `floorplan3d_running` and `floorplan3d_ping`).
+
 ## Without the add-on store (Docker)
 
 With Home Assistant Container (Home Assistant as a plain Docker container) there is no add-on store: 3D Floorplan then runs as its own container with its own address, and whoever opens it logs in with their Home Assistant user. The steps are in [container/README.md](https://github.com/BuRnEd4AiM/HA-Floorplanner/blob/main/container/README.md).

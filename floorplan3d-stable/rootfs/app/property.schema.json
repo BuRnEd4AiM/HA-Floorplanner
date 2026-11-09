@@ -1,0 +1,1526 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/BuRnEd4AiM/HA-Floorplanner/property.schema.json",
+ "title": "3D Floorplan property description (schema version 1)",
+ "description": "Describes a plot and a building. POST it to /api/import (or paste it into 'Houses & backup' > 'Import house from JSON') to build a new house. All lengths are metres.",
+ "type": "object",
+ "required": [
+  "building"
+ ],
+ "properties": {
+  "schemaVersion": {
+   "const": 1
+  },
+  "name": {
+   "type": "string",
+   "maxLength": 60,
+   "description": "Name of the new house."
+  },
+  "plot": {
+   "type": "object",
+   "description": "The plot (Grundstück). Same coordinate frame as the building after 'origin' is applied.",
+   "properties": {
+    "boundary": {
+     "$ref": "#/$defs/polygon"
+    },
+    "objects": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/device"
+     },
+     "description": "Garden objects: lawn, terrace, path, tree, bush, fence, pool, car ... Coordinates are plot coordinates."
+    },
+    "areas": {
+     "type": "array",
+     "maxItems": 60,
+     "description": "Areas on the plot (#538): a yard of paving, a terrace, the drive, a bed, a pond ... Plot coordinates, like the boundary.",
+     "items": {
+      "type": "object",
+      "required": [
+       "points"
+      ],
+      "properties": {
+       "name": {
+        "type": "string",
+        "maxLength": 40,
+        "description": "Its name (Hof, Einfahrt ...); empty: the name of its surface."
+       },
+       "surface": {
+        "type": "string",
+        "enum": [
+         "lawn",
+         "paving",
+         "cobble",
+         "slabs",
+         "flagstone",
+         "deck",
+         "gravel",
+         "bed",
+         "concrete",
+         "asphalt",
+         "sand",
+         "water"
+        ],
+        "description": "What lies on it."
+       },
+       "points": {
+        "$ref": "#/$defs/polygon"
+       },
+       "rise": {
+        "type": "number",
+        "minimum": 0.01,
+        "maximum": 5,
+        "description": "A plateau (#566): the area lies this many metres over the lawn. Everything of the house that stands on it (rooms, walls, doors, windows, devices, stairs, the roof over it) goes up with it, on every floor. Without it the area lies on the lawn."
+       },
+       "edge": {
+        "enum": ["wall", "slope"],
+        "description": "Only with rise: its edge, a retaining wall (default) or a bank of lawn that runs down to the lawn (2 : 3)."
+       },
+       "wall": {
+        "enum": ["stone", "concrete", "brick", "gabion"],
+        "description": "Only with rise and edge wall: what the wall is of, natural stone (default), concrete, clinker or gabions."
+       }
+      }
+     }
+    }
+   }
+  },
+  "building": {
+   "type": "object",
+   "required": [
+    "floors"
+   ],
+   "properties": {
+    "origin": {
+     "$ref": "#/$defs/point",
+     "description": "Where the building's (0,0) lies on the plot. Default [0,0]."
+    },
+    "wallHeight": {
+     "type": "number",
+     "minimum": 1.8,
+     "maximum": 10,
+     "default": 2.6
+    },
+    "storeyHeight": {
+     "type": "number",
+     "minimum": 2.2,
+     "maximum": 6,
+     "default": 3,
+     "description": "Storey height in metres, floor to floor, the same for every floor: how far the floors stand apart, and how many steps the stairs get (one about 18 cm high)."
+    },
+    "outerWall": {
+     "type": "number",
+     "minimum": 0.05,
+     "maximum": 1.5,
+     "default": 0.3,
+     "description": "Thickness of outer walls."
+    },
+    "innerWall": {
+     "type": "number",
+     "minimum": 0.03,
+     "maximum": 1,
+     "default": 0.12,
+     "description": "Thickness of inner walls."
+    },
+    "footprint": {
+     "$ref": "#/$defs/polygon",
+     "description": "Outline of the building (wall centre line). Used by every floor that has no footprint of its own."
+    },
+    "roof": {
+     "$ref": "#/$defs/roof",
+     "description": "Adds a roof on top of the building."
+    },
+    "floors": {
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 20,
+     "items": {
+      "$ref": "#/$defs/floor"
+     }
+    }
+   }
+  }
+ },
+ "$defs": {
+  "hex": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+  "look": {
+   "type": "object",
+   "properties": {
+    "color": { "$ref": "#/$defs/hex", "description": "The main colour (tiles, wood, paint)." },
+    "color2": { "$ref": "#/$defs/hex", "description": "The second colour: grout, the motif of a wallpaper, the gaps." },
+    "size": { "type": "number", "minimum": 0.01, "maximum": 5, "description": "One element in metres: a tile, the width of a plank, a motif." },
+    "angle": { "type": "number", "description": "Degrees the pattern is turned (0, 45 diagonal, 90 across)." }
+   }
+  },
+  "sideFinish": {
+   "type": "object",
+   "required": ["pattern"],
+   "properties": { "pattern": { "enum": ["paint", "woodchip", "plaster", "limewash", "concreteWall", "wpStripes", "wpDamask", "wpDots", "wpDiamond", "wpLeaves", "wpScallop", "wpZigzag", "wpPlaid", "wpLinen", "wTiles", "wTilesSmall", "wMetro", "wMetroHerring", "wTilesLarge", "wHex", "wMosaic", "wMarble", "wZellige", "brick", "brickWhite", "brickDark", "brickYellow", "stoneWall", "woodPanel", "woodSlats", "woodCladding", "woodGrey", "shingles", "facadePanels"] }, "color": { "$ref": "#/$defs/hex" }, "color2": { "$ref": "#/$defs/hex" }, "size": { "type": "number" }, "angle": { "type": "number" } }
+  },
+  "stair": {
+   "type": "object",
+   "description": "A stair. It belongs to the floor it starts on; with dir 'up' it climbs `floors` floors (a hole is cut into each of them), with dir 'down' it comes up from below and ends on this floor.",
+   "required": [
+    "type",
+    "x",
+    "z"
+   ],
+   "properties": {
+    "type": {
+     "enum": [
+      "straight",
+      "L",
+      "U",
+      "spiral",
+      "wall"
+     ],
+     "description": "'wall' is a light stair hanging on a wall (thin step plates, a landing at every bend of its path); it needs `path`."
+    },
+    "x": {
+     "type": "number",
+     "description": "Start of the stair in metres (bottom, middle of the first step; for a spiral its centre)."
+    },
+    "z": {
+     "type": "number"
+    },
+    "rot": {
+     "type": "number",
+     "description": "Rotation around (x, z) in degrees.",
+     "default": 0
+    },
+    "w": {
+     "type": "number",
+     "minimum": 0.4,
+     "maximum": 4,
+     "description": "Width of the steps in metres (radius of a spiral)."
+    },
+    "tread": {
+     "type": "number",
+     "minimum": 0.1,
+     "maximum": 0.45,
+     "default": 0.27,
+     "description": "Depth of one step in metres (not used by spiral and wall stairs)."
+    },
+    "turn": {
+     "enum": [
+      "left",
+      "right"
+     ],
+     "default": "right",
+     "description": "Side the stair turns to (L, U, spiral). For a wall stair: the side the steps stick out to, seen in walking direction."
+    },
+    "dir": {
+     "enum": [
+      "up",
+      "down"
+     ],
+     "default": "up"
+    },
+    "floors": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 6,
+     "default": 1,
+     "description": "How many floors the stair climbs. Straight, L and U stairs repeat on every storey, so they arrive on each floor; a spiral makes one turn per floor."
+    },
+    "name": {
+     "type": "string"
+    },
+    "path": {
+     "type": "array",
+     "minItems": 2,
+     "maxItems": 30,
+     "items": {
+      "$ref": "#/$defs/point"
+     },
+     "description": "Only for type 'wall': the line along the wall in metres, relative to (x, z); the first point is [0, 0] (another start is moved there). Every bend between two stretches becomes a landing, and so does a point in the middle of a straight stretch."
+    },
+    "corner": {
+     "enum": ["landing", "winder"],
+     "description": "Types 'L' and 'U': how the stair turns: a landing (default) or winder steps (wedge-shaped steps, 'viertelgewendelt' / 'halbgewendelt')."
+    },
+    "winders": {
+     "type": "integer",
+     "minimum": 2,
+     "maximum": 10,
+     "description": "With corner 'winder': how many winder steps turn the corner (L 2 to 6, U 3 to 10; default: about as deep as the straight steps on the walking line)."
+    },
+    "split": {
+     "type": "integer",
+     "minimum": 0,
+     "description": "Types 'L' and 'U': treads in the first flight (default about half), e.g. a long first and a short second flight. 0 only with corner 'winder': the stair starts right away with the winders (you step on from the side)."
+    },
+    "corner2": {
+     "enum": ["landing", "winder"],
+     "description": "Type 'L': the stair turns a second time, to the same side, after its middle flight ('unten und oben viertelgewendelt'), with a landing or winder steps. Without it the stair turns once."
+    },
+    "winders2": {
+     "type": "integer",
+     "minimum": 2,
+     "maximum": 6,
+     "description": "With corner2 'winder': how many winder steps turn the second corner (default: as at a first corner)."
+    },
+    "split2": {
+     "type": "integer",
+     "minimum": 0,
+     "description": "With corner2: treads in the middle flight between the two corners (default about two thirds of what is left); the rest is the last flight."
+    },
+    "steps": {
+     "type": "integer",
+     "minimum": 2,
+     "maximum": 40,
+     "description": "Treads per floor, as counted on the real stair (the step onto the floor above does not count). Default: from the storey height, a step about 18 cm high; kept between 25 cm and 12 cm high."
+    },
+    "solid": {
+     "type": "boolean",
+     "description": "Type 'wall': solid steps down to the floor instead of thin plates."
+    },
+    "landing": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 3,
+     "description": "Type 'wall': after every bend the stair stays flat for this many metres (default 0: only the corner). Types 'L' and 'U': the landing at the turn is this many metres deeper (default 0: as wide as the stair)."
+    }
+   }
+  },
+  "block": {
+   "type": "object",
+   "required": [
+    "points"
+   ],
+   "description": "Placeholder block: a part of the house without detail (e.g. an annex), drawn as a solid body on this floor.",
+   "properties": {
+    "name": {
+     "type": "string"
+    },
+    "points": {
+     "$ref": "#/$defs/polygon"
+    },
+    "h": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 30,
+     "description": "Height in metres (default: one floor)."
+    }
+   }
+  },
+  "hole": {
+   "type": "object",
+   "required": [
+    "points"
+   ],
+   "description": "Floor opening: a hole cut into this floor (and into a placeholder block below it), e.g. for a void.",
+   "properties": {
+    "points": {
+     "$ref": "#/$defs/polygon"
+    }
+   }
+  },
+  "point": {
+   "type": "array",
+   "items": {
+    "type": "number"
+   },
+   "minItems": 2,
+   "maxItems": 2,
+   "description": "[x, z] in metres. x runs east (right), z runs south (down)."
+  },
+  "polygon": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/point"
+   },
+   "minItems": 3,
+   "maxItems": 100,
+   "description": "Closed polygon, listed in order. The last point is NOT repeated."
+  },
+  "roof": {
+   "type": "object",
+   "properties": {
+    "type": {
+     "enum": [
+      "gable",
+      "hip",
+      "flat",
+      "shed"
+     ],
+     "description": "gable (Satteldach), hip (Walmdach), flat (Flachdach) or shed (Pultdach: one slope up to its high side)."
+    },
+    "pitch": {
+     "type": "number",
+     "minimum": 5,
+     "maximum": 70,
+     "default": 35
+    },
+    "overhang": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 3,
+     "default": 0.4
+    },
+    "gableOver": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 3,
+     "description": "Gable and shed roofs: the overhang at the gables (Ortgang; a shed roof: at its sides) in metres. Default: the same as overhang."
+    },
+    "gableWall": {
+     "type": "boolean",
+     "default": true,
+     "description": "Gable and shed roofs: the wall under each gable (a shed roof: its sides and its high side) goes on up to the roof in the colour of the walls. false: no wall there (an open carport, a canopy)."
+    },
+    "ridge": {
+     "enum": [
+      "x",
+      "z"
+     ],
+     "description": "Direction of the ridge: x (0°, along x) or z (90°, along z); without it along the longer side of the box, so a roof turns by 90° when its other side gets longer."
+    },
+    "high": {
+     "enum": [
+      "z0",
+      "z1",
+      "x0",
+      "x1"
+     ],
+     "default": "z0",
+     "description": "Only for a shed roof: the edge of its base that is high (z0 top, z1 bottom, x0 left, x1 right in the plan). The high side has no overhang."
+    },
+    "box": {
+     "type": "object",
+     "description": "optional: roof base in metres (building frame, moved with building.origin like the rooms) instead of the automatic size (before the overhang)",
+     "required": [
+      "x0",
+      "x1",
+      "z0",
+      "z1"
+     ],
+     "properties": {
+      "x0": {
+       "type": "number"
+      },
+      "x1": {
+       "type": "number"
+      },
+      "z0": {
+       "type": "number"
+      },
+      "z1": {
+       "type": "number"
+      }
+     }
+    },
+    "dormers": {
+     "type": "array",
+     "maxItems": 20,
+     "description": "Roof dormers (Gauben). Ignored on a flat or shed roof.",
+     "items": {
+      "type": "object",
+      "properties": {
+       "side": {
+        "description": "Which roof slope: 0 / 1 (or \"a\" / \"b\").",
+        "enum": [
+         0,
+         1,
+         "a",
+         "b",
+         "A",
+         "B"
+        ],
+        "default": 0
+       },
+       "pos": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "default": 0.5,
+        "description": "Position along the ridge, 0 = start, 1 = end."
+       },
+       "w": {
+        "type": "number",
+        "minimum": 0.6,
+        "maximum": 30,
+        "default": 1.6,
+        "description": "Width in metres, up to 30 m along the roof (a wide gable dormer gets a flatter roof by itself, so that it stays under the ridge)."
+       },
+       "hw": {
+        "type": "number",
+        "minimum": 0.4,
+        "maximum": 3,
+        "default": 1.2,
+        "description": "Height of the front wall in metres (limited so that the dormer stays under the ridge)."
+       },
+       "eave": {
+        "type": "number",
+        "minimum": 0.2,
+        "maximum": 10,
+        "default": 0.8,
+        "description": "Distance of the front wall from the eave, measured along the slope's floor plan, in metres."
+       },
+       "type": {
+        "enum": [
+         "gable",
+         "flat",
+         "shed"
+        ],
+        "default": "gable",
+        "description": "Roof of the dormer: gable, flat or shed (Schleppgaube, its roof slopes down to the front wall)."
+       },
+       "sp": {
+        "type": "number",
+        "minimum": 2,
+        "maximum": 60,
+        "default": 15,
+        "description": "Only for a shed dormer: pitch of its roof in degrees."
+       },
+       "gp": {
+        "type": "number",
+        "minimum": 5,
+        "maximum": 60,
+        "default": 28,
+        "description": "Only for a gable dormer: pitch of its little roof in degrees (flatter by itself when the dormer is too wide for it)."
+       },
+       "win": {
+        "type": "boolean",
+        "default": true,
+        "description": "Window in the front wall."
+       }
+      }
+     }
+    },
+    "skylights": {
+     "type": "array",
+     "maxItems": 20,
+     "description": "Roof windows (Dachfenster, #643): plain windows lying in a slope of the roof, without a dormer. Ignored on a flat roof; on a shed roof they lie in its one slope.",
+     "items": {
+      "type": "object",
+      "properties": {
+       "side": {
+        "description": "Which roof slope: 0 / 1 (or \"a\" / \"b\"); a shed roof has only one.",
+        "enum": [0, 1, "a", "b", "A", "B"],
+        "default": 0
+       },
+       "pos": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "default": 0.5,
+        "description": "Position along the ridge, 0 = start, 1 = end."
+       },
+       "w": {
+        "type": "number",
+        "minimum": 0.3,
+        "maximum": 3,
+        "default": 0.78,
+        "description": "Width in metres (along the ridge)."
+       },
+       "h": {
+        "type": "number",
+        "minimum": 0.3,
+        "maximum": 3,
+        "default": 1.18,
+        "description": "Height in metres, measured in the slope (as the sizes of roof windows are given: 78 x 118 cm)."
+       },
+       "eave": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 20,
+        "description": "Distance of its lower edge from the eave (the edge of the overhang) in metres, measured flat in the plan. Without it: 1 m over the floor under the roof."
+       }
+      }
+     }
+    },
+    "steps": {
+     "type": "array",
+     "maxItems": 20,
+     "description": "Steps in the eaves (main roof only, not on a hip or shed roof): from 'at' on, the eave of one side lies 'out' metres further out (negative: in), e.g. a house narrower at the front.",
+     "items": {
+      "type": "object",
+      "required": [
+       "at",
+       "out"
+      ],
+      "properties": {
+       "side": {
+        "description": "Which eave: 0 / 1 (or \"a\" / \"b\"); a is the low edge across the ridge (small z when the ridge runs along x).",
+        "enum": [
+         0,
+         1,
+         "a",
+         "b",
+         "A",
+         "B"
+        ],
+        "default": 0
+       },
+       "at": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1000,
+        "description": "Metres along the ridge from the gable at its low end."
+       },
+       "out": {
+        "type": "number",
+        "minimum": -20,
+        "maximum": 20,
+        "description": "How far the eave lies further out from here on, in metres (negative: in)."
+       }
+      }
+     }
+    },
+    "parts": {
+     "type": "array",
+     "maxItems": 8,
+     "description": "Further roofs on the same building, e.g. a flat roof over an annex. Each one needs a box (its base in metres) and may sit on top of a lower floor (level).",
+     "items": {
+      "$ref": "#/$defs/roofPart"
+     }
+    }
+   }
+  },
+  "floor": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string"
+    },
+    "kind": {
+     "enum": [
+      "floor",
+      "basement",
+      "roof"
+     ],
+     "default": "floor"
+    },
+    "footprint": {
+     "$ref": "#/$defs/polygon"
+    },
+    "rooms": {
+     "type": "array",
+     "maxItems": 200,
+     "items": {
+      "type": "object",
+      "required": [
+       "points"
+      ],
+      "properties": {
+       "name": {
+        "type": "string"
+       },
+       "points": {
+        "$ref": "#/$defs/polygon"
+       },
+       "color": {
+        "type": "string",
+        "pattern": "^#[0-9a-fA-F]{6}$"
+       },
+       "area": {
+        "type": "string",
+        "description": "Home Assistant area id the room belongs to."
+       },
+       "terrace": {
+        "type": "boolean",
+        "description": "Balcony / roof terrace / open area: no roof above it, a railing along every edge without a wall. Its edges that no other room shares get no wall. Where it reaches out beyond the floor below (on the ground floor: over a slope) it is a balcony on a plate of its own."
+       },
+       "rail": {
+        "type": "string",
+        "enum": ["metal", "glass", "wood"],
+        "description": "With terrace: how its railing looks: metal bars (the default), glass panes or wooden slats."
+       },
+       "posts": {
+        "type": "boolean",
+        "description": "With terrace: a balcony that hangs free gets supports from its outer corners down to the ground."
+       },
+       "raise": {
+        "type": "number",
+        "minimum": -3,
+        "maximum": 3,
+        "description": "Its floor lies this many metres higher (minus: lower) than the storey (#566): its furniture and devices go up with it, the ceiling and what hangs from it stay; doors and windows in its walls go up with the higher side, a door to a floor of another height gets steps on the lower side."
+       },
+       "steps": {
+        "type": "boolean",
+        "description": "Only with raise: false = no steps at its doors (default: steps)."
+       },
+       "covering": {
+        "enum": ["parquet", "parquetLight", "parquetDark", "plankWide", "herringbone", "chevron", "basket", "laminate", "deck", "cork", "tiles", "tilesSmall", "tilesDark", "tilesLarge", "tilesWood", "checker", "hexFloor", "mosaic", "cement", "terrazzo", "marble", "slate", "stoneSlabs", "flagstone", "paving", "cobble", "concrete", "carpet", "carpetTiles"],
+        "description": "The floor of the room: wood (parquet, wide planks, herringbone, chevron, basket weave, laminate, decking, cork), tiles (30 cm, small, anthracite 60 cm, large 120 x 60, wood look, checkerboard, hexagons, mosaic, cement tiles, terrazzo, marble), stone (slate, natural stone, flagstones, paving, cobbles), concrete or carpet instead of one colour (`color` is then left aside). Without it the floor has its colour."
+       },
+       "floorLook": {
+        "$ref": "#/$defs/look",
+        "description": "How the covering looks: its colour, second colour (grout, motif, gaps), the size of one tile or plank and the angle it is laid at. Without it the covering's own."
+       },
+       "wallLook": {
+        "type": "object",
+        "required": ["pattern"],
+        "description": "The finish of the room's walls on its side (paint, woodchip, plaster, wallpapers, tiles, brick, wood ...), with its colour, size and angle like `floorLook`. Without it the walls have the house's wall colour.",
+        "properties": { "pattern": { "enum": ["paint", "woodchip", "plaster", "limewash", "concreteWall", "wpStripes", "wpDamask", "wpDots", "wpDiamond", "wpLeaves", "wpScallop", "wpZigzag", "wpPlaid", "wpLinen", "wTiles", "wTilesSmall", "wMetro", "wMetroHerring", "wTilesLarge", "wHex", "wMosaic", "wMarble", "wZellige", "brick", "brickWhite", "brickDark", "brickYellow", "stoneWall", "woodPanel", "woodSlats"] }, "color": { "$ref": "#/$defs/hex" }, "color2": { "$ref": "#/$defs/hex" }, "size": { "type": "number" }, "angle": { "type": "number" } }
+       },
+       "wallBelow": {
+        "type": "object",
+        "required": ["pattern"],
+        "description": "The lower part of the room's walls up to `height` metres (e.g. tiles up to 1.20 m), like `wallLook`.",
+        "properties": { "pattern": { "enum": ["paint", "woodchip", "plaster", "limewash", "concreteWall", "wpStripes", "wpDamask", "wpDots", "wpDiamond", "wpLeaves", "wpScallop", "wpZigzag", "wpPlaid", "wpLinen", "wTiles", "wTilesSmall", "wMetro", "wMetroHerring", "wTilesLarge", "wHex", "wMosaic", "wMarble", "wZellige", "brick", "brickWhite", "brickDark", "brickYellow", "stoneWall", "woodPanel", "woodSlats"] }, "color": { "$ref": "#/$defs/hex" }, "color2": { "$ref": "#/$defs/hex" }, "size": { "type": "number" }, "angle": { "type": "number" }, "height": { "type": "number", "minimum": 0.05, "maximum": 3, "default": 1.2 } }
+       }
+      }
+     }
+    },
+    "walls": {
+     "type": "array",
+     "description": "Optional. If present, EXACTLY these walls are used (nothing is derived from rooms). Without it, walls are derived from footprint and room outlines; edges shared by two rooms become one inner wall.",
+     "items": {
+      "type": "object",
+      "required": [
+       "a",
+       "b"
+      ],
+      "properties": {
+       "a": {
+        "$ref": "#/$defs/point"
+       },
+       "b": {
+        "$ref": "#/$defs/point"
+       },
+       "thickness": {
+        "type": "number"
+       },
+       "height": {
+        "type": "number"
+       },
+       "openings": {
+        "type": "array",
+        "items": {
+         "$ref": "#/$defs/opening"
+        }
+       },
+       "faces": {
+        "type": "object",
+        "description": "An accent wall: a finish of its own over the whole height on the left and / or right side (walking from a to b in the plan, x to the right, z down), instead of the room's finish or the facade.",
+        "properties": { "left": { "$ref": "#/$defs/sideFinish" }, "right": { "$ref": "#/$defs/sideFinish" } }
+       }
+      }
+     }
+    },
+    "openings": {
+     "type": "array",
+     "description": "Doors and windows, each placed on the wall nearest to 'at'.",
+     "items": {
+      "$ref": "#/$defs/opening"
+     }
+    },
+    "devices": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/device"
+     },
+     "description": "Furniture, lights, sensors ... On a floor of kind 'roof': things on the roof (a solar panel follows the roof surface below it) or in the loft."
+    },
+    "stairs": {
+     "type": "array",
+     "maxItems": 100,
+     "items": {
+      "$ref": "#/$defs/stair"
+     },
+     "description": "Stairs that start on this floor."
+    },
+    "blocks": {
+     "type": "array",
+     "maxItems": 100,
+     "items": {
+      "$ref": "#/$defs/block"
+     }
+    },
+    "holes": {
+     "type": "array",
+     "maxItems": 100,
+     "items": {
+      "$ref": "#/$defs/hole"
+     }
+    },
+    "roof": {
+     "$ref": "#/$defs/roof",
+     "description": "Only for kind 'roof'."
+    }
+   }
+  },
+  "opening": {
+   "type": "object",
+   "description": "A door or window. Give 'type' or a 'preset'. Placement: 'at' [x,z] (nearest wall) or, inside an explicit wall, 'pos' (metres from point a).",
+   "properties": {
+    "type": {
+     "enum": [
+      "door",
+      "window"
+     ]
+    },
+    "preset": {
+     "enum": [
+      "door",
+      "doorEntry",
+      "doorGlass",
+      "doorDouble",
+      "doorSlide",
+      "doorOpen",
+      "doorGap",
+      "doorGarage",
+      "window",
+      "window2",
+      "window3",
+      "windowTall",
+      "windowBath",
+      "windowFixed",
+      "windowFloor"
+     ]
+    },
+    "at": {
+     "$ref": "#/$defs/point"
+    },
+    "pos": {
+     "type": "number",
+     "minimum": 0
+    },
+    "width": {
+     "type": "number",
+     "minimum": 0.2,
+     "maximum": 6
+    },
+    "height": {
+     "type": "number",
+     "minimum": 0.2,
+     "maximum": 4
+    },
+    "sill": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 3
+    },
+    "style": {
+     "enum": [
+      "single",
+      "glass",
+      "double",
+      "sliding",
+      "open",
+      "gap",
+      "garage",
+      "triple",
+      "fixed"
+     ]
+    },
+    "panes": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 8,
+     "description": "Windows only, not with style fixed: how many panes (overrides the style's count, e.g. 4 for a wide floor-to-ceiling window)"
+    },
+    "hinge": {
+     "enum": [
+      "bottom",
+      "top",
+      "left",
+      "right"
+     ],
+     "description": "Windows only: the edge the panes swing around by default, inward (default bottom: the top opens)"
+    },
+    "paneHinges": {
+     "type": "array",
+     "maxItems": 8,
+     "items": {
+      "enum": [
+       "bottom",
+       "top",
+       "left",
+       "right",
+       "fixed"
+      ]
+     },
+     "description": "Windows only: the edge each pane swings around; an entry overrides hinge for that pane, 'fixed' means it does not open"
+    },
+    "entity": {
+     "type": "string",
+     "description": "Contact sensor, e.g. binary_sensor.fenster_wohnzimmer"
+    },
+    "name": {
+     "type": "string"
+    },
+    "tiltEntity": {
+     "type": "string",
+     "description": "Windows only: a second contact that reports the pane tilted (\"gekippt\"); the entity then reports it turned open"
+    },
+    "tiltDeg": {
+     "type": "number",
+     "minimum": 5,
+     "maximum": 45,
+     "description": "Windows only: how far a tilted pane leans into the room in 3D, in degrees (default 14)"
+    },
+    "paneEntities": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "maxItems": 8,
+     "description": "Windows only: one contact sensor per pane; a fixed pane has none"
+    },
+    "shutter": {
+     "type": "boolean",
+     "description": "The window has a cover (windows only)"
+    },
+    "shutterEntity": {
+     "type": "string",
+     "description": "Cover entity of the window's curtain or roller shutter, e.g. cover.rollladen_wohnzimmer (implies shutter: true)"
+    },
+    "shutterStyle": {
+     "enum": [
+      "roller",
+      "left",
+      "right",
+      "split"
+     ],
+     "description": "How the cover opens (default roller): a roller shutter up and down, a cloth curtain pulled to the left or right, or two panels that part in the middle"
+    },
+    "curtainSide": {
+     "enum": [
+      "in",
+      "out"
+     ],
+     "description": "Windows only: which side of the window the cover hangs on ('in' = room side, the default for a cloth curtain, 'out' = facade, the default for a roller shutter)"
+    },
+    "openOutward": {
+     "type": "boolean",
+     "description": "Windows only: the panes open outward (to the facade) instead of inward (into the room)"
+    },
+    "fixedBelow": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 4,
+     "description": "Windows only: fixed glass below the panes that open, its height in metres from the bottom of the window (e.g. 1.1 for a window from the floor whose lower part does not open); it has no contact, the panes above keep theirs. At least 0.2, the panes keep 0.3 m; 0 = none"
+    },
+    "fixedAbove": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 4,
+     "description": "Windows only: fixed glass above the panes that open (a transom), its height in metres from the top of the window; at least 0.2, 0 = none"
+    },
+    "rainWarn": {
+     "type": "boolean",
+     "description": "false: no warning when this window is open in the rain (windows only; default true)"
+    }
+   }
+  },
+  "device": {
+   "type": "object",
+   "required": [
+    "type",
+    "x",
+    "z"
+   ],
+   "properties": {
+    "type": {
+     "enum": [
+      "ac_ceiling",
+      "ac_outdoor",
+      "ac_portable",
+      "ac_wall",
+      "acoustic_panel",
+      "air_purifier",
+      "armchair",
+      "backbar",
+      "bar_corner",
+      "bar_counter",
+      "bar_table",
+      "barstool",
+      "barstool_back",
+      "basin",
+      "bathshelf",
+      "bathtall",
+      "bathtub",
+      "battery",
+      "bed",
+      "bed_high",
+      "bed_loft",
+      "bed_pine",
+      "bed_single",
+      "beer_tap",
+      "bench_grinder",
+      "bicycle",
+      "bike_rack",
+      "bike_spin",
+      "bike_trainer",
+      "bike_wall",
+      "bin_box",
+      "bin_wall",
+      "bins",
+      "boiler",
+      "bookcase",
+      "bridge",
+      "bucket_shower",
+      "bush",
+      "cablestation",
+      "camera",
+      "camper_van",
+      "car",
+      "car_estate",
+      "car_lift",
+      "car_sedan",
+      "car_small",
+      "car_sports",
+      "car_suv",
+      "caravan",
+      "cargo_bike",
+      "carpet",
+      "carport",
+      "carport_double",
+      "carport_solar",
+      "cart",
+      "ceiling_rack",
+      "chair",
+      "chair_shell",
+      "chair_spindle",
+      "chair_swing",
+      "chair_wing",
+      "cinema_row",
+      "cinema_seat",
+      "closet", "clothesrack",
+      "coatstand",
+      "coffeetable",
+      "coffeetable_lo",
+      "compressor",
+      "creeper",
+      "crib",
+      "crosstrainer",
+      "curtain",
+      "dartboard",
+      "dehumidifier",
+      "desk",
+      "desk_drawers",
+      "desk_small",
+      "desk_stand",
+      "diningtable",
+      "dishwasher",
+      "doublebasin",
+      "drawers_roll",
+      "dresser",
+      "dresser3",
+      "dresser6",
+      "drill_press",
+      "drinks_fridge",
+      "dumbbells",
+      "ebike",
+      "extinguisher",
+      "fan_ceiling",
+      "fan_stand",
+      "fan_tower",
+      "fence",
+      "fireplace",
+      "floor_jack",
+      "fridge",
+      "fusebox",
+      "gaming_chair",
+      "garage_cabinet",
+      "garden_tools",
+      "gasmeter",
+      "gymball",
+      "gymfloor",
+      "hallbench",
+      "heatmeter",
+      "highbay_lamp",
+      "highchair",
+      "hottub",
+      "houseentry",
+      "inverter",
+      "island",
+      "kettlebells",
+      "kicker",
+      "kidstable",
+      "kitchen",
+      "kitchenrun",
+      "ladder",
+      "lamp",
+      "lamp_arc",
+      "lamp_paper",
+      "lamp_table",
+      "laptop",
+      "lawn",
+      "lawn_mower",
+      "ledring",
+      "light",
+      "lounger",
+      "microwave",
+      "mirror",
+      "mirror_cabinet",
+      "mirror_floor",
+      "mirror_gym",
+      "mirror_hollywood",
+      "mirror_led",
+      "mirror_led_round",
+      "mirror_led_tall",
+      "mirror_led_zones",
+      "monitor",
+      "motorbike",
+      "motorhome",
+      "motorhome_alcove",
+      "nanoleaf",
+      "neon_sign",
+      "nightstand",
+      "nightstand2",
+      "officechair",
+      "officechair_high",
+      "oil_drum",
+      "orb",
+      "oven",
+      "panel_bar",
+      "panel_hex",
+      "panel_sq",
+      "panel_tri",
+      "path",
+      "pc_gaming",
+      "pc_setup",
+      "pc_tower",
+      "pegboard",
+      "pendant",
+      "pendant_dome",
+      "pendant_paper",
+      "piano",
+      "pickup",
+      "picture",
+      "plant",
+      "plant_palm",
+      "plunge_tub",
+      "pool",
+      "pool_lamp",
+      "pooltable",
+      "popcorn",
+      "pouf",
+      "powermeter",
+      "powerrack",
+      "presence",
+      "pressure_washer",
+      "printer",
+      "projector",
+      "punchingbag",
+      "radiator",
+      "ride_mower",
+      "robot_mower",
+      "router",
+      "rower",
+      "rug_round",
+      "sauna_barrel",
+      "sauna_cabin",
+      "sauna_heater",
+      "sauna_ir",
+      "sauna_small",
+      "scooter",
+      "screen_frame",
+      "screen_roll",
+      "sensor",
+      "server_rack",
+      "shark",
+      "shelf",
+      "shelf_book",
+      "shelf_cube2x2",
+      "shelf_cube2x4",
+      "shelf_cube4x1",
+      "shelf_cube4x4",
+      "shelf_glass",
+      "shelf_heavy",
+      "shelf_pine",
+      "shoecab",
+      "shop_vac",
+      "shower",
+      "sideboard",
+      "sidetable",
+      "sidetable_sq",
+      "sink",
+      "smoke",
+      "sofa",
+      "sofa2",
+      "sofa_3",
+      "sofa_chaise",
+      "sofa_compact",
+      "solarpanel",
+      "speaker",
+      "speaker_floor",
+      "spot",
+      "starsky",
+      "steps",
+      "stepstool",
+      "stove",
+      "strip",
+      "subwoofer",
+      "switch",
+      "table",
+      "table_round",
+      "table_saw",
+      "table_wood",
+      "terrace",
+      "thermostat",
+      "toilet",
+      "tool_chest",
+      "tool_trolley",
+      "towelrad",
+      "toyshelf",
+      "trailer",
+      "treadmill",
+      "tree",
+      "tv",
+      "tv_arm",
+      "tv_led",
+      "tv_wall",
+      "tvbench",
+      "tvstand",
+      "tyre_rack",
+      "tyre_stack",
+      "vacuum",
+      "van",
+      "vanity",
+      "vitrine",
+      "wallbars",
+      "wallbox",
+      "walllamp",
+      "wardrobe",
+      "wardrobe2",
+      "wardrobe_slide",
+      "washer",
+      "watermeter",
+      "weightbench",
+      "welder",
+      "wheel_stop",
+      "wheelbarrow",
+      "wine_fridge",
+      "work_lamp",
+      "workbench",
+      "workbench_peg",
+      "yogamat"
+     ]
+    },
+    "x": {
+     "type": "number"
+    },
+    "z": {
+     "type": "number"
+    },
+    "y": {
+     "type": "number",
+     "description": "Height above the floor in metres (default depends on the type)."
+    },
+    "rot": {
+     "type": "number",
+     "description": "Rotation in degrees."
+    },
+    "scale": {
+     "type": "number"
+    },
+    "sx": {
+     "type": "number"
+    },
+    "sy": {
+     "type": "number"
+    },
+    "sz": {
+     "type": "number"
+    },
+    "tiltX": {
+     "type": "number"
+    },
+    "tiltZ": {
+     "type": "number"
+    },
+    "name": {
+     "type": "string"
+    },
+    "entity": {
+     "type": "string",
+     "description": "Home Assistant entity id, e.g. light.wohnzimmer"
+    },
+    "ledEntity": {
+     "type": "string",
+     "description": "Backlight entity of a tv / tv_wall / tv_arm."
+    },
+    "motionEntity": {
+     "type": "string",
+     "description": "Motion sensor of a camera: its field-of-view cone turns red while it is on."
+    },
+    "fov": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 180,
+     "description": "Field of view of a camera in degrees (0 = no cone)."
+    },
+    "range": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 30,
+     "description": "Reach of a camera's field of view in metres."
+    },
+    "mirror": {
+     "type": "boolean"
+    },
+    "locked": {
+     "type": "boolean"
+    },
+    "hideModel": {
+     "type": "boolean",
+     "description": "Invisible in live mode, the light keeps shining."
+    },
+    "lightColor": {
+     "type": "string",
+     "pattern": "^#[0-9a-fA-F]{6}$",
+     "description": "Colour of a lamp's light where its entity reports none (a lamp on a relay, a white-only light), e.g. #e8f0ff for cool white."
+    },
+    "finish": {
+     "type": "string",
+     "pattern": "^[a-z]{2,20}$",
+     "description": "Finish of a piece in Scandinavian style (shelf_cube2x2, sofa_3 ...) or of a leisure piece (sauna_cabin, bar_counter, treadmill ...) or of a vehicle, workshop or garage piece (car_estate, motorhome, workbench, carport ...): white, blackbrown, oak, birch, pine, walnut, grey ...; sofas and armchairs in fabric colours (lightgrey, darkgrey, beige, blue, green, rust, yellow); saunas in spruce, hemlock, cedar, thermo; red, anthracite, purple, cognac; vehicles in car paint (silver, carwhite, carblack, cargrey, carred, carblue, cargreen); orange, signal (yellow), galvanized, larch. A finish the piece does not have shows its default."
+    },
+    "variant": {
+     "type": "string",
+     "pattern": "^[a-z0-9]{2,20}$",
+     "description": "How a piece is built. pc_setup (the gaming PC desk): its monitors: two (2 side by side, the default), one, three (3 side by side), four (2 x 2), curved, curved2 (curved with 2 portrait monitors beside it). bar_counter and bar_corner: what hangs from the ceiling over the counter, following its shape: none (the default), rack (a glass rack with the glasses hanging upside down and LED under it), canopy (a floating ceiling panel with light on top and downlights), pendants (pendant lamps on a ceiling track). An unknown one shows the default."
+    },
+    "tvSize": {
+     "type": "string",
+     "pattern": "^[0-9]{2}$",
+     "description": "Only for type tv_arm (wall TV on a swivel arm): its size in inches: 43, 50, 55 (default), 65, 75 or 85."
+    },
+    "armSwing": {
+     "type": "number",
+     "minimum": -80,
+     "maximum": 80,
+     "description": "Only for type tv_arm: how far the TV is swung to the side in degrees (+ turns the screen to the right seen from the front; default 0)."
+    },
+    "armReach": {
+     "type": "number",
+     "minimum": 0.08,
+     "maximum": 0.8,
+     "description": "Only for type tv_arm: distance from the wall to the back of the TV in metres (default 0.15). Swung or tilted, the arm pulls it out further when it would touch the wall."
+    },
+    "armTilt": {
+     "type": "number",
+     "minimum": -15,
+     "maximum": 15,
+     "description": "Only for type tv_arm: tilt in degrees (+ tips the screen down; default 0)."
+    },
+    "leds": {
+     "type": "array",
+     "maxItems": 8,
+     "items": {
+      "type": "string"
+     },
+     "description": "Entities of the LED zones of a piece with several LEDs (mirror_led_zones: behind, front, below; mirror_hollywood: bulbs, behind; mirror_cabinet: top, below; mirror_gym and mirror_led_tall: behind, front; bar_counter and bar_corner: counter edge, plinth and, with a ceiling part (variant), its light), in this order. An empty string or a missing zone follows \"entity\"."
+    },
+    "panels": {
+     "type": "array",
+     "description": "Only for type nanoleaf: [{s: tri|tri2|hex|sq|bar, x, y, r}] in metres / degrees."
+    },
+    "pts": {
+     "type": "array",
+     "items": {
+      "type": "array",
+      "items": {
+       "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+     },
+     "description": "Only for type ledring: corner points [x, z] in metres, relative to the device position."
+    },
+    "closed": {
+     "type": "boolean",
+     "description": "Only for type ledring: last point connects back to the first (default true)."
+    },
+    "segs": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "entity": {
+        "type": "string"
+       },
+       "from": {
+        "type": "number"
+       },
+       "to": {
+        "type": "number"
+       }
+      }
+     },
+     "description": "Only for type ledring: the LED sections, each with an optional own light entity (empty ones use \"entity\"). Without from/to there is one section per wall; with from/to (metres along the band from the first point) sections can sit anywhere, several per wall, gaps have no LEDs."
+    },
+    "inset": {
+     "type": "number",
+     "description": "Only for type ledring: distance from the room outline in metres (used when it is fitted to the room)."
+    },
+    "id": {
+     "type": "string",
+     "maxLength": 60,
+     "description": "Optional name of this device inside the file, only needed as the target of another device's \"feeds\"."
+    },
+    "cables": {
+     "type": "array",
+     "maxItems": 20,
+     "items": {
+      "type": "object",
+      "required": ["to"],
+      "properties": {
+       "to": {"type": "string", "maxLength": 60, "description": "The \"id\" of another device in the file this one is wired to."},
+       "kind": {"enum": ["grid", "solar", "battery", "load"], "description": "What the cable carries (decides its colour): grid (connection to the public grid, feed-in), own solar, battery, load (consumption). Default: from the type of the device it starts at."},
+       "entity": {"type": "string", "maxLength": 120, "description": "Optional sensor (watts) of this cable; without it the sensor of the device it starts at is used."},
+       "route": {"enum": ["floor", "through", "air"], "description": "floor: along the floor, then up; through: through the floors first, then along the floor of the target; air: free in the air."}
+      }
+     },
+     "description": "Power add-on: cables from this device to others (house connection -> meter cabinet -> inverter -> solar ...). The direction follows the sign of the value of \"entity\" (negative runs backwards). `feeds` (a single id) is the first version of this and still read."
+    },
+    "batPower": {
+     "type": "string",
+     "maxLength": 120,
+     "description": "Only for type battery: sensor for the charge / discharge power (plus = charging; or a text sensor with charging / discharging). \"entity\" is then the charge level in %."
+    },
+    "batInvert": {
+     "type": "boolean",
+     "description": "Only for type battery: turn the sign of the power sensor round (plus = discharging)."
+    },
+    "feeds": {
+     "type": "string",
+     "maxLength": 60,
+     "description": "Old form of one cable in the air; use \"cables\"."
+    },
+    "legs": {
+     "type": "array",
+     "maxItems": 3,
+     "items": {"type": "array", "maxItems": 16, "items": {"oneOf": [
+      {"enum": ["base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap"]},
+      {"type": "object", "required": ["m"], "properties": {"m": {"enum": ["base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap"]}, "w": {"type": "number", "minimum": 0.3, "maximum": 2.4}, "up": {"type": "boolean"}}}
+     ]}},
+     "description": "Only for type kitchenrun: the legs (straight, L, U) of the run, each a list of modules. A module is its name (standard width, wall cabinet above it) or {\"m\": name, \"w\": width in metres, \"up\": false} (\"up\": false = no wall cabinet above this module, only the base cabinet with the worktop; the stove has no hood)."
+    },
+    "upper": {
+     "type": "boolean",
+     "description": "Only for type kitchenrun: wall cabinets (default true)."
+    },
+    "depth": {
+     "type": "number",
+     "minimum": 0.4,
+     "maximum": 1.2,
+     "description": "Only for type kitchenrun: depth of the cabinets in metres (default 0.6)."
+    },
+    "cols": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 12,
+     "description": "Only for type solarpanel: panels side by side in the field (default 1)."
+    },
+    "rows": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 12,
+     "description": "Only for type solarpanel: rows of panels in the field (default 1)."
+    },
+    "len": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 30,
+     "description": "Only for type bridge: length in metres (default 3)."
+    },
+    "rise": {
+     "type": "number",
+     "minimum": -3,
+     "maximum": 3,
+     "description": "Only for type bridge: the far end (towards rot 0, +x) is this much higher (+) or lower (-) than the start; the bridge slopes evenly (default 0)."
+    },
+    "noRail": {
+     "type": "boolean",
+     "description": "Only for type bridge or steps: no railing (no hand rail)."
+    },
+    "h": {
+     "type": "number",
+     "minimum": 0.1,
+     "maximum": 5,
+     "description": "Only for type steps (outdoor steps, #566): the height they lead up to in metres, from the lawn to the top of their landing (default 0.54); the steps are at most 18 cm high each. They stand on the ground, a plateau does not lift them; rot turns them, their landing (top) towards -z of their own frame."
+    },
+    "land": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 4,
+     "description": "Only for type steps: how deep the landing on top is in metres (default 1). w: their width (default 1.4)."
+    },
+    "mount": {
+     "enum": ["auto", "flat", "stand"],
+     "description": "Only for type solarpanel: on the roof floor the panels follow the roof; auto = flat on a sloped roof, on a rack on a flat roof (default auto)."
+    },
+    "cab": {
+     "type": "object",
+     "description": "Only for type closet: the cabinet built in its editor (static/closet.js). Its width is the sum of its columns; slopes lower its top towards one side (for a sloped ceiling): the height at that edge and the pitch in degrees. Anything left out gets its default (a three-door wardrobe, 2.2 m high, 0.6 m deep).",
+     "properties": {
+      "cols": {
+       "type": "array", "maxItems": 12,
+       "items": {
+        "type": "object",
+        "properties": {
+         "w": { "type": "number", "minimum": 0.15, "maximum": 2, "description": "width of the column in metres" },
+         "fill": { "enum": ["rail", "rail2", "shelves", "drawers", "empty"], "description": "inside: a clothes rail (under a shelf), two rails, shelves, only drawers, empty" },
+         "n": { "type": "integer", "minimum": 0, "maximum": 12, "description": "how many shelves (fill shelves) or drawers (fill drawers)" },
+         "low": { "type": "integer", "minimum": 0, "maximum": 6, "description": "drawers at the bottom under the door" },
+         "front": { "enum": ["door", "glass", "mirror", "open"] },
+         "hinge": { "enum": ["l", "r"], "description": "the side of the door's hinges (default: in pairs)" }
+        }
+       }
+      },
+      "h": { "type": "number", "minimum": 0.3, "maximum": 3.5 },
+      "d": { "type": "number", "minimum": 0.2, "maximum": 1.2 },
+      "plinth": { "type": "number", "minimum": 0, "maximum": 0.25 },
+      "slopes": {
+       "type": "array", "maxItems": 2,
+       "items": {
+        "type": "object", "required": ["side"],
+        "properties": {
+         "side": { "enum": ["left", "right", "back", "front"], "description": "the low side" },
+         "low": { "type": "number", "minimum": 0.1, "maximum": 3.5, "description": "height at the low side in metres" },
+         "deg": { "type": "number", "minimum": 5, "maximum": 75, "description": "pitch of the slope in degrees" }
+        }
+       }
+      },
+      "body": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+      "front": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+      "handle": { "enum": ["bar", "knob", "long", "none"] },
+      "metal": { "enum": ["steel", "black", "brass"] },
+      "doors": { "enum": ["hinged", "sliding"] },
+      "led": { "type": "boolean", "description": "an LED light inside that lights with the entity" }
+     }
+    }
+   }
+  },
+  "roofPart": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/roof"
+    }
+   ],
+   "required": [
+    "box"
+   ],
+   "properties": {
+    "name": {
+     "type": "string",
+     "maxLength": 40
+    },
+    "level": {
+     "oneOf": [
+      {
+       "type": "integer",
+       "minimum": 0
+      },
+      {
+       "const": "main"
+      }
+     ],
+     "description": "index of a floor in building.floors the roof sits on (default: on top of the building); \"main\": as high as the main roof (the second wing of an L-shaped house, a canopy under its eave)"
+    },
+    "dy": {
+     "type": "number",
+     "minimum": -10,
+     "maximum": 10,
+     "description": "Moves the roof up (negative: down) by this many metres, e.g. a canopy just under the eave."
+    }
+   }
+  }
+ }
+}

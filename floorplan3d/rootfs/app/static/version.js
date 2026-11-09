@@ -1,5 +1,7 @@
 /* Version pill in the top bar: shows the version and a short checksum, green when the files of the add-on and the files the
- * browser really loaded both match the committed manifest. The dialog behind it can also compare with GitHub (main). */
+ * browser really loaded both match the committed manifest. The dialog behind it can also compare with GitHub (main).
+ * Normal and Beta (5.2.0, channel.py): the beta says so in the pill; while the normal add-on runs too, a second pill says the beta
+ * pauses (it switches nothing by itself then). */
 const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 /** SHA-256 in plain JavaScript, for pages that are not a secure context (http://...), where crypto.subtle does not exist */
 export function sha256Js(buf) {
@@ -43,13 +45,21 @@ export const updateAvailable = (github) => github?.state === 'behind';
 export function diffHashes(expected, actual) {
   return Object.keys(expected).filter((n) => actual[n] !== expected[n]).sort();
 }
+/** the second pill of the beta (api/channel): null (nothing to say) | { key, v }: it pauses because the normal add-on runs, or it
+ *  has not asked yet whether one runs */
+export function betaPill(ch) {
+  if (ch?.channel !== 'beta') return null;
+  if (ch.state === 'paused') return { key: 'ver.pausedPill', v: ch.stable || '?' };
+  if (ch.state === 'looking') return { key: 'ver.lookingPill', v: '' };
+  return null;
+}
 const short = (list, max = 3) => (list.length > max ? `${list.slice(0, max).join(', ')} …` : list.join(', '));
 
-export function initVersion({ t, reload = () => location.reload(), active = () => false, every = 5 * 60 * 1000 }) {
+export function initVersion({ t, reload = () => location.reload(), active = () => false, every = 5 * 60 * 1000, chEvery = 60 * 1000 }) {
   const pill = document.getElementById('versionPill'), dlg = document.getElementById('versionDialog');
   if (!pill || !dlg) return { run() {} };
-  const body = document.getElementById('versionBody');
-  let info = null, browser = null, github = null;
+  const body = document.getElementById('versionBody'), bpill = document.getElementById('betaPill');
+  let info = null, browser = null, github = null, ch = null;
 
   async function fetchJson(url) {
     try { const r = await fetch(url); return r.ok ? await r.json() : null; } catch { return null; }
@@ -72,11 +82,19 @@ export function initVersion({ t, reload = () => location.reload(), active = () =
     const state = !browser ? 'wait' : !serverOk ? 'bad' : !browserOk ? 'warn' : 'ok';
     const news = updateAvailable(github) && state === 'ok';
     pill.className = `pill ver-${news ? 'new' : state}`;
+    const beta = info.channel === 'beta' ? ` ${t('ver.beta')}` : '';
     pill.textContent = news ? `⬆ ${t('ver.new')} · v${github.version}`
-      : `${state === 'ok' ? '✓' : state === 'wait' ? '…' : '⚠'} v${info.version} · ${info.short}`;
+      : `${state === 'ok' ? '✓' : state === 'wait' ? '…' : '⚠'} v${info.version}${beta} · ${info.short}`;
     pill.title = t('ver.tip');
+    const bp = betaPill(ch);
+    if (bpill) {
+      bpill.hidden = !bp;
+      if (bp) { bpill.textContent = t(bp.key, { v: bp.v }); bpill.title = t('ver.pausedTip'); }
+    }
     const rows = [
       line('•', `${t('ver.version')}: ${info.version}`),
+      ...(info.channel === 'stable' ? [line('•', t('ver.chStable'))] : info.channel === 'beta' ? [line('•', t('ver.chBeta'))] : []),
+      ...(bp ? [line('⏸', t(bp.key === 'ver.pausedPill' ? 'ver.paused' : 'ver.looking', { v: bp.v }), 'warn')] : []),
       line('•', `${t('ver.hash')}: ${info.buildHash}`),
       info.server.ok ? line('✓', t('ver.serverOk', { n: info.server.files }), 'ok')
         : line('✗', t('ver.serverBad', { n: info.server.changed.length + info.server.missing.length + info.server.extra.length, list: short([...info.server.changed, ...info.server.missing, ...info.server.extra]) }), 'bad'),
@@ -98,12 +116,14 @@ export function initVersion({ t, reload = () => location.reload(), active = () =
     browser = null; paint();
     info = await fetchJson('api/version');
     if (!info?.known) { info = null; paint(); return; }                  // no backend (demo) or no manifest: nothing to show
+    if (info.channel === 'beta') ch = await fetchJson('api/channel');
     paint();
     browser = await checkBrowser(info.staticFiles || {});
     if (withGithub) github = (await fetchJson('api/version/remote')) || { state: 'unreachable' };
     paint();
   }
   pill.addEventListener('click', () => { paint(); dlg.showModal(); });
+  bpill?.addEventListener('click', () => { paint(); dlg.showModal(); });
   document.getElementById('versionCheck').addEventListener('click', () => { github = null; run(true); });
   document.getElementById('versionReload').addEventListener('click', async () => {
     // fetch the differing files past the cache, so the next load gets them
@@ -116,7 +136,14 @@ export function initVersion({ t, reload = () => location.reload(), active = () =
     github = (await fetchJson('api/version/remote')) || github;
     paint();
   }
+  /* the beta: does it pause (the normal add-on runs too)? asked every minute, also in the live view */
+  async function pollChannel() {
+    if (document.hidden || info?.channel !== 'beta') return;
+    ch = (await fetchJson('api/channel')) || ch;
+    paint();
+  }
   run(false).then(() => { if (active()) poll(); });
   setInterval(poll, every);
+  setInterval(pollChannel, chEvery);
   return { run, poll };
 }

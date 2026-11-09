@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-09 · 119 Sitzungen
+Stand: 2026-11-09 · 120 Sitzungen
 
-**Insgesamt: 8,06 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 8,10 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 22,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 77,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 7,96 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 22,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 77,6 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 8,00 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 33 | 1,93 Mrd. | 4,8 Mio. |
+| 2026-11 | 34 | 1,97 Mrd. | 4,9 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-09 | [012p9z3P…](https://claude.ai/code/session_012p9z3P3GhVTZPghFyi7JZk) | claude/awesome-cori-o6d0or | 34,6 Mio. | 147 Tsd. | gezählt |
 | 2026-11-09 | [012p9z3P…](https://claude.ai/code/session_012p9z3P96Bpfq9bHrmpoyjC) | claude/upbeat-bohr-shj54u | 121,5 Mio. | 344 Tsd. | gezählt |
 | 2026-11-08 | [012p9z3L…](https://claude.ai/code/session_012p9z3L75ZVQqL276tL5GAg) | claude/sleepy-turing-w83zy6 | 148,1 Mio. | 341 Tsd. | gezählt |
 | 2026-11-08 | [012p9z3P…](https://claude.ai/code/session_012p9z3PUZEEdXDtE3w1duaa) | claude/cool-babbage-rpr5uz | 45,1 Mio. | 98 Tsd. | gezählt |

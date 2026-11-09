@@ -1,0 +1,9 @@
+configuration:
+  log_level:
+    name: 日志级别
+    description: 附加组件向日志写入多少内容（debug、info、warning、error）。
+  editors:
+    name: 其他编辑者
+    description: >-
+      除管理员外，还可以编辑平面图的 Home Assistant 用户名（不是显示名称）。
+      其他所有人只能查看只读的实时视图。

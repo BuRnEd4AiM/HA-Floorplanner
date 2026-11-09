@@ -2,9 +2,20 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
-## [5.1.1] - 2026-11-09
+## [5.2.1] - 2026-11-09
 ### Repariert
 - **Die große Seitenansicht des Dachs (⤢) zeigte alte Zahlen und blieb offen** (#684, gefunden, als Claude das Testprotokoll von 5.1.0 in der Demo durchgegangen ist, Abschnitt 172): eine Neigung in der Leiste getippt, ein Punkt in der großen Ansicht gezogen oder ↶ änderte die Zahlen in der großen Ansicht nicht, und sie blieb nach Esc, nach einer anderen Etage oder wenn nichts mehr ausgewählt war über dem Bild stehen (und verdeckte links die Etagen). Jetzt wird sie mit dem Dach-Fenster neu gezeichnet, geht mit ✕ oder Esc zu und von selbst, wenn das Dach-Fenster weg ist (`roofeditui.js`). Browser-Test `81_roof_lock`.
+## [5.2.0] - 2026-11-09
+### Neu
+- **Normal und Beta: zwei Add-ons** (der Besitzer, 2026-11-09: „wäre es nicht viel sinnvoller, wenn das Projekt einen offiziellen Release … und vielleicht auch noch eine Beta Version gibt … dass es dann erst ein Full Release gibt“; seine Wahl: bauen, und die Beta pausiert von selbst). Im Store gibt es jetzt **3D Floorplan** (das normale Add-on: nur Versionen, die der Besitzer freigegeben hat) und **3D Floorplan Beta** (jede neue Version sofort, zum Testen; im Store nur mit *Erweiterter Modus* im Benutzerprofil zu sehen). Wer das Add-on schon hat, behält es und ist auf dem normalen: nichts zu tun. Die Beta hat eigene Daten (das Haus per Backup herüberholen) und ihr eigenes Panel „3D Floorplan Beta“.
+- **Die Beta pausiert, solange das normale Add-on läuft**: sonst würden beide heizen, Abläufe starten und Meldungen schicken. Das normale sagt über den Event-Bus von Home Assistant, dass es läuft (`floorplan3d_running`, beim Start und wann immer eine Beta mit `floorplan3d_ping` fragt, alle 2 Minuten); solange es das tut, macht die Beta keine Heiz-Regeln und Abläufe und schickt keine Alarm-, Urlaubs-Alarm- oder Haushalts-Meldungen. Was man auf ihrer Seite antippt, geht trotzdem. Ein Knopf **„⏸ Beta pausiert“** oben in der Leiste sagt es (antippen öffnet das Versions-Fenster, das es erklärt); höchstens 5 Minuten nachdem das normale gestoppt ist, macht die Beta von selbst weiter.
+- **Die Versionsanzeige** zeigt in der Beta „Beta“, und das Versions-Fenster sagt, welches Add-on es ist. Das normale Add-on vergleicht sich mit der letzten freigegebenen Version, die Beta mit der neuesten.
+- **Eine Version für alle freigeben**: der Workflow „Release to everyone“ (Actions → Run workflow; leer = die neueste Version) kopiert den Ordner der Beta, wie er zuletzt bei dieser Version auf main war, ins normale Add-on (`floorplan3d-stable/`, `tools/stable.py`) und macht diese Version zum neuesten GitHub-Release. Eine Version, die nur in der Beta ist, ist eine **Vorabversion**: HACS gibt ihre Dashboard-Karte nur denen, die Beta-Versionen eingeschaltet haben.
+- **Docker-Version**: die normale Version, oder mit dem Build-Argument `CHANNEL: beta` die Beta (`container/docker-compose.yml`, `container/README.md`).
+- Die Dashboard-Karte findet auch das Beta-Add-on (sind beide installiert, zuerst das normale; die Option „addon“ wählt eines).
+- Neues Modul `channel.py` (normal oder Beta, die Pause; Tests `tests/test_channel.py`), `tools/stable.py` (die Kopie; Tests `tests/test_stable.py`), der Workflow `.github/workflows/stable.yml`; Heiz-Regeln und Abläufe tun nichts, solange die Beta pausiert (`tests/test_rulesrun.py`).
+### Verbessert
+- Diese Version 5.2.0 geht noch sofort an alle (sie bringt die zwei Add-ons mit); ab 5.3.0 kommt eine neue Version erst ins normale Add-on, wenn sie freigegeben ist.
 
 ## [5.1.0] - 2026-11-09
 ### Neu

@@ -91,7 +91,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -f container/Dockerfile -t floorplan3d .
+      # the beta (the code of this change) is started; the normal one (floorplan3d-stable/, 5.2.0) must build too
+      - run: docker build -f container/Dockerfile --build-arg CHANNEL=beta -t floorplan3d .
+      - run: docker build -f container/Dockerfile -t floorplan3d-stable . && docker run --rm floorplan3d-stable sh -c 'test "$FP_CHANNEL" = stable'
       - run: |
           docker run -d --name fp -p 8100:8099 -e HA_URL=http://homeassistant:8123 -e HA_TOKEN=x floorplan3d
           for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:8100/auth/login && break; sleep 1; done
@@ -206,7 +208,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Add-on linter
+      - name: Add-on linter (the beta)
         uses: frenck/action-addon-linter@v2
         with:
           path: ./floorplan3d
+      - name: Add-on linter (the normal add-on, a copy made by tools/stable.py)
+        uses: frenck/action-addon-linter@v2
+        with:
+          path: ./floorplan3d-stable

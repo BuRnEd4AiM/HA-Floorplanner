@@ -261,3 +261,39 @@ async def test_a_saved_plan_is_read_again_at_once():
     task.cancel()
     with contextlib.suppress(asyncio.CancelledError):
         await task
+
+
+async def test_the_beta_does_nothing_while_the_normal_add_on_runs():
+    """5.2.0: env.paused() (channel.py): no connection, a wish of a page is dropped; once the normal add-on is gone the rules run, and when
+    it comes back the loop lets go of Home Assistant again"""
+    ha = FakeHa()
+
+    @contextlib.asynccontextmanager
+    async def connect():
+        ha.connects += 1
+        yield ha
+
+    class Paused(Env):
+        stop = True
+
+        def paused(self):
+            return self.stop
+
+    rules, env = rr.Rules({"heat": {"window": {"on": True, "delay": 0}}}), Paused(ha)
+    task = asyncio.create_task(rr.run_rules(rules, connect=connect, env=env, check=0.2, idle=0.05))
+    rules.ask("room", "h/wz", "boost")
+    await asyncio.sleep(0.3)
+    assert ha.connects == 0 and not rules.connected and not env.calls and rules.queue.empty()   # the boost was dropped
+    env.stop = False
+    assert await until(lambda: rules.connected)
+    await ha.set("binary_sensor.fenster", "on")
+    assert await until(lambda: ("climate", "set_hvac_mode", {"entity_id": "climate.wz", "hvac_mode": "off"}) in env.calls)
+    env.stop = True
+    assert await until(lambda: not rules.connected)
+    n = len(env.calls)
+    await ha.set("binary_sensor.fenster", "off")
+    await asyncio.sleep(0.3)
+    assert len(env.calls) == n                                               # paused: the window shut, nothing was put back
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task

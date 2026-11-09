@@ -33,6 +33,8 @@ docker run -d --name floorplan3d --restart unless-stopped -p 8100:8099 \
 
 **Update:** `docker compose build --pull && docker compose up -d`. With `docker run`, run `git pull`, then build and start it again. The version pill in the top bar shows when a new version is out.
 
+**Normal or Beta (5.2.0):** the image is the normal version: a new version comes only when it has been tested and released. To get every new version at once (to try new things early), build the beta: in `docker-compose.yml` remove the `#` in front of `args:` and `CHANNEL: beta`, or `docker build -f container/Dockerfile --build-arg CHANNEL=beta -t floorplan3d .`. The top bar then says "Beta". While a normal 3D Floorplan runs with the same Home Assistant (an add-on or another container), the beta switches nothing by itself (no heating rules, routines or messages) and shows **⏸ Beta paused**. Give a beta its own data folder (volume), not the one of the normal version.
+
 ## Settings (environment variables)
 
 | Variable | What for | Example |

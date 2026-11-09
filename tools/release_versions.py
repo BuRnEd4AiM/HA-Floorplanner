@@ -5,6 +5,10 @@ skipped. Every release run now creates all missing ones: the versions in CHANGEL
 version in config.yaml, oldest first. With --backfill also the gaps between older releases are filled (never older than the oldest one).
 
     python3 tools/release_versions.py <current version> [--backfill] [existing tags ...]   -> prints one version per line
+    python3 tools/release_versions.py --kind <version> <version of the normal add-on>          -> latest | pre | old
+
+Normal and Beta (5.2.0): a version newer than the one the normal add-on has (floorplan3d-stable/) is only in the beta yet, so its release
+is a pre-release (HACS gives it only to those who switched on beta versions); the version of the normal add-on is the latest release.
 """
 import re
 import sys
@@ -34,8 +38,18 @@ def missing(changelog, tags, current, backfill=False):
     return sorted(out, key=key)
 
 
+def kind(version, stable):
+    """latest: the version the normal add-on has; pre: newer, only in the beta yet; old: older (released before)"""
+    if not stable or version == stable:
+        return "latest" if version == stable or not stable else "old"
+    return "pre" if key(version) > key(stable) else "old"
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if args[:1] == ["--kind"]:
+        print(kind(args[1], args[2] if len(args) > 2 else ""))
+        sys.exit(0)
     backfill = "--backfill" in args
     args = [a for a in args if a != "--backfill"]
     text = (Path(__file__).resolve().parent.parent / "CHANGELOG.md").read_text(encoding="utf-8")

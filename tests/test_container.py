@@ -24,7 +24,9 @@ def test_the_container_sets_what_run_sh_sets():
     env = (ROOT / "container" / "Dockerfile").read_text("utf-8")
     missing = {v for v in exported if not re.search(rf"\b{v}=", env)}
     assert not missing, f"set {missing} in container/Dockerfile (ENV)"
-    assert "COPY floorplan3d/rootfs/app /app" in env
+    # the program of the add-on: the beta (floorplan3d/) or the normal one (floorplan3d-stable/), the build argument CHANNEL (5.2.0)
+    assert "COPY floorplan3d/rootfs/app /beta" in env and "COPY floorplan3d-stable/rootfs/app /stable" in env
+    assert "COPY --from=source /app /app" in env
 
 
 def test_every_option_of_the_add_on_has_a_variable_in_docker():

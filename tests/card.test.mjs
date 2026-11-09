@@ -61,6 +61,18 @@ test('the list of installed add-ons: only this add-on, under any repository name
   eq(Card.slugsFromList(null), []);
   eq(Card.slugsFromList({}), []);
 });
+test('the beta add-on (5.2.0) is found too, the normal one comes first when both are there', () => {
+  const s = Card.slugs({}, null);
+  assert.ok(s.includes('local_floorplan3d_beta') && s.indexOf('local_floorplan3d') < s.indexOf('05edeb72_floorplan3d_beta'));
+  const panels = {
+    b: { component_name: 'app', url_path: '1a2b3c4d_floorplan3d_beta', config: { addon: '1a2b3c4d_floorplan3d_beta' } },
+    n: { component_name: 'app', url_path: '1a2b3c4d_floorplan3d', config: { addon: '1a2b3c4d_floorplan3d' } },
+  };
+  eq(Card.slugs(panels, '').slice(0, 2), ['1a2b3c4d_floorplan3d', '1a2b3c4d_floorplan3d_beta']);
+  eq(Card.slugs({ b: panels.b }, '')[0], '1a2b3c4d_floorplan3d_beta');
+  eq(Card.slugsFromList({ addons: [{ slug: '9f8e7d6c_floorplan3d_beta' }, { slug: '9f8e7d6c_floorplan3d' }, { slug: 'floorplan3d_beta_x' }] }),
+    ['9f8e7d6c_floorplan3d', '9f8e7d6c_floorplan3d_beta']);
+});
 test('versions: an older add-on is recognised, an unknown one is not', () => {
   assert.equal(Card.olderThan('3.74.0', '3.75.0'), true);
   assert.equal(Card.olderThan('3.75.0', '3.75.0'), false);

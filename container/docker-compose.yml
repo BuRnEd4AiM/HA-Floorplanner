@@ -5,6 +5,8 @@ services:
     build:
       context: https://github.com/BuRnEd4AiM/HA-Floorplanner.git#main
       dockerfile: container/Dockerfile
+      # args:
+      #   CHANNEL: beta                       # the beta: every new version at once, to test it (default: the normal, released version)
     container_name: floorplan3d
     restart: unless-stopped
     ports:
