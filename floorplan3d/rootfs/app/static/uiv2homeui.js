@@ -108,7 +108,8 @@ export function initUiV2Home(ctx) {
     const kids = [...fb.children];
     const pick = (sel) => { const x = fb.querySelector(sel); return x ? x.closest('#floorBody > *') : null; };
     const name = kids[0], kind = pick('#floorKind'), order = pick('#floorUp'), adds = pick('#addBasement'), storey = pick('#storeyHeight'), help = pick('#storeyHelp');
-    const taken = new Set([name, kind, order, adds, storey, help]);
+    const half = [pick('#halfBasementHelp'), pick('#halfBasementGo')].filter(Boolean);   // a basement half out of the ground (#691): under the height
+    const taken = new Set([name, kind, order, adds, storey, help, ...half]);
     const rest = kids.filter((k) => !taken.has(k));
     const card = el('section', 'v2FloorCard'); card.id = 'v2Floor';
     const head = el('div', 'v2Head');
@@ -129,7 +130,7 @@ export function initUiV2Home(ctx) {
     if (storey) {
       const hbox = el('div', 'v2StoreyBox'); hbox.id = 'v2Storeys';
       const pic = el('div', 'pic'); pic.innerHTML = storeySvg(lay.floors, fi, ctx.storeyText());
-      const side = el('div', 'side'); side.append(storey, ...(help ? [help] : []));
+      const side = el('div', 'side'); side.append(storey, ...(help ? [help] : []), ...half);
       hbox.append(pic, side);
       card.append(el('h4', 'finHead', t('v2.floor.height')), hbox);
     }

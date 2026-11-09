@@ -1,5 +1,5 @@
 /* Floor panel ("Manage floor"): name and kind of the open floor, move it up or down, add a basement or a roof, delete it, the storey height of
- * the house (#671); for a roof floor the
+ * the house (#671), for a basement the way to a basement half out of the ground (#691: one spot height in "Plot" → "⛰ Terrain"); for a roof floor the
  * roof (shape, pitch, its own base, overhang, ridge; the overhang at the gables and the gable wall, a shed roof's high side, #628), steps in
  * its eaves (#342), its dormers (gable with its own pitch, flat or a long shed dormer, #339, placed by its distance from the gable) and further roofs
  * (with their ridge kept at 0° or 90°, #621; e.g. a
@@ -254,6 +254,10 @@ export function initFloorPanel(ctx) {
     sh.id = 'storeyHeight';
     box.append(field(t('floor.storeyH'), sh));
     const shelp = document.createElement('p'); shelp.className = 'sub'; shelp.id = 'storeyHelp'; shelp.textContent = t('floor.storeyHelp'); box.append(shelp);
+    if (f.kind === 'basement' && ctx.openTerrain) {                // a basement half out of the ground (#691): one spot height of the plot lowers the lawn
+      const hb = document.createElement('p'); hb.className = 'sub'; hb.id = 'halfBasementHelp'; hb.textContent = t('floor.halfBasement');
+      box.append(hb, rowBtn('halfBasementGo', t('floor.halfBasementGo'), () => ctx.openTerrain()));
+    }
     if (f.kind !== 'roof') return;
     roofInto(box, f, (f.roof ||= { ...ROOF_DEFAULT }));
   }

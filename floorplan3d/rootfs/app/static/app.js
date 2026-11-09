@@ -1534,6 +1534,7 @@ const floorPanel = initFloorPanel({
   snapshot: () => snapshot(), build: () => build(), fitCamera: () => fitCamera(), buildNav: (force) => buildNav(force), renderObjList: () => renderObjList(),
   scheduleSave: () => scheduleSave(), switchFloor: (i) => switchFloor(i), clearSelection: () => { selection = null; }, roofBox: (i) => roofBox(i),
   autoRoofBox: (i) => autoRoofBox(i), groundIdx: () => groundIdx(), uid: () => uid(),
+  openTerrain: () => { switchFloor(groundIdx()); setTool('plot'); plotUi.setMode('terrain'); $('#plotPalette')?.scrollIntoView({ block: 'start' }); },   // a basement half out of the ground (#691)
   dormerOntoWall: (d) => { const x = dormerWindows(layout.floors, roofList, elev).find((q) => q.d === d); return x ? eaveOntoWall(layout.floors[x.fi].walls, x.n, x.win) : null; },
 });
 function renderFloorPanel() { floorPanel.render(); }

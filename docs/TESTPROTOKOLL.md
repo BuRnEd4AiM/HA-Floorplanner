@@ -28,6 +28,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 16. **Neu in 5.2.0: Normal und Beta** (Abschnitt 173, deine Frage vom 2026-11-09): Claude hat 173.1 und 173.2 geprüft; für dich nach dem Merge in Home Assistant 173.3 bis 173.9, bei der nächsten Freigabe 173.10.
 17. **Repariert in 5.2.1: die große Seitenansicht des Dachs (⤢)** (Abschnitt 174, #684, gefunden beim Durchgehen von 172): Claude hat 174.1 bis 174.3 geprüft; nach dem Merge in der Demo 174.4.
 18. **Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten** (Abschnitt 175, deine Fotos und Meldungen vom 2026-11-09, #686, #687, #689, #690): Claude hat 175.1, 175.2, 175.5 und 175.6 geprüft; für dich nach dem Merge in der Beta am iPad 175.3, 175.4, 175.7 und 175.8.
+19. **Verbessert in 5.2.3: ⛰ Keller halb aus der Erde** (Abschnitt 176, #691, Frage von st03psn vom 2026-11-09): Claude hat 176.1 bis 176.4 geprüft; für dich nach dem Merge in der Beta 176.5 und das Video 176.6.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -459,7 +460,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 173. Neu in 5.2.0: Normal und Beta | 2 | 0 | 8 | 0 | 173.3 bis 173.10 |
 | 174. Repariert in 5.2.1: die große Seitenansicht des Dachs (⤢) (#684) | 3 | 0 | 1 | 0 | 174.4 |
 | 175. Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten (#686, #687, #689, #690) | 4 | 0 | 4 | 0 | 175.3, 175.4, 175.7, 175.8 |
-| **Zusammen** | **1140** | **1** | **88** | **92** | |
+| 176. Verbessert in 5.2.3: ⛰ Keller halb aus der Erde (#691) | 4 | 0 | 2 | 0 | 176.5, 176.6 |
+| **Zusammen** | **1144** | **1** | **90** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2708,3 +2710,15 @@ Gemeldet vom Besitzer am 2026-11-09 mit Fotos vom iPad: war oben links nur ein R
 | 175.6 | Browser-Test Teil `81_roof_lock` (Heizungsfenster) | Ein Raum beim Bearbeiten gewählt: kein Heizungsfenster im Bild |✅ (2026-11-09, Claude, 32/32; dazu `04_lights` 32/32 mit dem Heizungsfenster in Live; in der Demo: Wohnzimmer gewählt, kein Heizungsfenster) |
 | 175.7 | Im Add-on (Beta) am iPad: „✨ Neu“, oben links einen Raum wählen, dann oben „Strom“ | Rechts stehen die Strom-Geräte (Zählerkasten, Wechselrichter …) zum Setzen | ❓ |
 | 175.8 | Im Add-on (Beta) am iPad: Bearbeiten, oben links einen Raum mit Heizung wählen | Kein Heizungsfenster mitten im Bild; in „Live“ ist es beim Raum wie bisher da | ❓ |
+
+## 176. Verbessert in 5.2.3: ⛰ Keller halb aus der Erde (#691)
+Gefragt von st03psn am 2026-11-09 (#691): ein Keller, der zur Hälfte aus der Erde schaut, mit Fenstern im oberen Teil. Das ging schon seit 4.58.0 mit einem einzigen Höhenpunkt in „Grundstück“ → „⛰ Gelände“ (z. B. −1,5 m: der ganze Rasen liegt so tief), aber die Hilfe sprach nur vom schrägen Grundstück. Jetzt sagt die Hilfe es auch für ebenen Grund, und beim Keller steht in „Etage verwalten“ eine Zeile dazu mit dem Knopf „⛰ Gelände einstellen“. Die Antwort im Issue hat Bilder (`docs/antworten/691/`).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 176.1 | Browser-Test Teil `68_terrain` | Beim Keller in „Etage verwalten“ die Zeile „Schaut der Keller halb aus der Erde? …“ und der Knopf „⛰ Gelände einstellen“; der Knopf öffnet Erdgeschoss, Plan und „⛰ Gelände“ (beim Erdgeschoss keine Zeile); die Hilfe nennt den ebenen Grund; ein Höhenpunkt −1,5 m legt den ganzen Rasen 1,5 m tiefer, auch im 3D-Bild | ✅ (2026-11-09, Claude, 22/22) |
+| 176.2 | Demo (neu gebaut mit 5.2.3) mit „✨ Neu“: im Baum den Keller antippen, „⛰ Gelände einstellen“ | Zeile und Knopf stehen unter der Geschosshöhe (nicht unter einer Überschrift „Dach“); der Knopf öffnet das Erdgeschoss mit „Grundstück“ → „⛰ Gelände“ | ✅ (2026-11-09, Claude in der Demo) |
+| 176.3 | Video „Gelände am Hang“ probeweise aufnehmen (deutsch und englisch) | Am Ende: Keller → „Etage verwalten“ → „⛰ Gelände einstellen“, ein Höhenpunkt −1,5 m, im 3D-Bild schaut der Keller halb heraus | ✅ (2026-11-09, Claude, beide Sprachen) |
+| 176.4 | Die Antwort im Issue #691 | Die drei Bilder (Geschosshöhe, ein Höhenpunkt, vorher/nachher) sind da | ✅ (2026-11-09, Claude: die Bild-Adressen antworten mit dem Bild) |
+| 176.5 | Nach dem Merge in der Beta: Keller öffnen, „Etage verwalten“, „⛰ Gelände einstellen“, einmal in den Plan tippen, −1,5 eintippen, dann „Ganzes Haus“ | Der Keller schaut zur Hälfte aus dem Rasen, seine Fenster sind zu sehen | ❓ |
+| 176.6 | Nach dem Merge in der Anleitung: Video „Gelände am Hang“, Suche „Keller halb aus der Erde“ | Die Suche findet das Video, am Ende der halbe Keller | ❓ |
