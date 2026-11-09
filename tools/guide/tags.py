@@ -374,9 +374,9 @@ t("balcony",
   "deck upstairs how do I add a balcony balcony on a slope balcony door")
 t("plot-terrain",
   "Hang Hanglage Gefälle abschüssig schräges Grundstück Gelände Höhe Höhenunterschied Höhenlinien Geländemodell "
-  "Hanghaus Souterrain Keller frei Böschung Sockel Straße tiefer",
+  "Hanghaus Souterrain Keller frei Böschung Sockel Straße tiefer halber Keller Keller halb aus der Erde Hochparterre Rasen tiefer Geländehöhe",
   "slope hillside gradient sloping plot terrain height height difference contour lines terrain model house on a slope "
-  "walkout basement exposed basement embankment plinth street lower")
+  "walkout basement exposed basement embankment plinth street lower half basement partially below ground raised ground floor ground level lawn lower")
 t("floors-add",
   "Etage hinzufügen neue Etage Stockwerk hinzufügen Obergeschoss anlegen Dachgeschoss anlegen Keller anlegen "
   "Untergeschoss Geschoss Etage löschen Etage umbenennen Etagenhöhe",

@@ -1251,9 +1251,9 @@ def slope_view(r):
 
 @clip("plot-terrain", "edit",
       {"de": "Gelände am Hang", "en": "Terrain on a slope"},
-      {"de": "Ist das Grundstück schräg? „Grundstück“ → „⛰ Gelände“: Höhenpunkte setzen oder „Hang in einem Schritt“. Rasen, Wege und Bäume folgen dem Boden, wo er tiefer liegt, steht der Keller frei; Höhenlinien zeigen es im Plan.",
-       "en": "Is the plot on a slope? “Plot” → “⛰ Terrain”: set spot heights or “A slope in one step”. Lawn, paths and trees follow the ground, where it lies lower the basement stands free; contour lines show it in the plan."},
-      "Gelände Hang schräg abfallend Gefälle Hanglage Höhenpunkt Höhe Höhenlinien Keller frei Garagentor Böschung Sockel terrain slope sloping hillside spot height contour lines basement free garage door bank plinth",
+      {"de": "Ist das Grundstück schräg? „Grundstück“ → „⛰ Gelände“: Höhenpunkte setzen oder „Hang in einem Schritt“. Rasen, Wege und Bäume folgen dem Boden, wo er tiefer liegt, steht der Keller frei; Höhenlinien zeigen es im Plan. Ein Keller halb aus der Erde auf ebenem Grund: ein einziger Höhenpunkt, z. B. −1,5 m (beim Keller „Etage verwalten“ → „⛰ Gelände einstellen“).",
+       "en": "Is the plot on a slope? “Plot” → “⛰ Terrain”: set spot heights or “A slope in one step”. Lawn, paths and trees follow the ground, where it lies lower the basement stands free; contour lines show it in the plan. A basement half out of the ground on level ground: a single spot height, e.g. −1.5 m (for the basement “Manage floor” → “⛰ Set the terrain”)."},
+      "Gelände Hang schräg abfallend Gefälle Hanglage Höhenpunkt Höhe Höhenlinien Keller frei Garagentor Böschung Sockel Souterrain halb aus der Erde Hochparterre terrain slope sloping hillside spot height contour lines basement free garage door bank plinth half basement partially below ground raised ground floor",
       query="mode=edit", prep=slope_view)
 def _(r):
     r.say("Ist das Grundstück schräg? Oben „Grundstück“, dann „⛰ Gelände“.", "Is the plot on a slope? At the top “Plot”, then “⛰ Terrain”.")
@@ -1284,6 +1284,34 @@ def _(r):
     r.js("window.__fp.camAt(-13, 4, -21, 6, 2.5)")
     r.wait(3800)
     r.poster()
+    # a basement half out of the ground on level ground (#691): one spot height, the way from "Manage floor" of the basement
+    r.say("Ebenes Grundstück, der Keller schaut halb heraus? Beim Keller „Etage verwalten“: „⛰ Gelände einstellen“.",
+          "Level plot, the basement half out of the ground? For the basement “Manage floor”: “⛰ Set the terrain”.")
+    r.js("window.__fp.switchFloor(0)")
+    r.wait(900)
+    r.js("(() => { const d = document.querySelector('#floorPanel'); if (d) d.open = true; })()")
+    r.wait(500)
+    r.loc("#halfBasementGo").scroll_into_view_if_needed()
+    r.move("#halfBasementHelp")
+    r.wait(2600)
+    r.click("#halfBasementGo")
+    r.wait(1400)
+    r.say("„Gelände entfernen“, dann ein einziger Höhenpunkt: −1,5 m. Der ganze Rasen liegt so tief.", "“Remove terrain”, then a single spot height: −1.5 m. The whole lawn lies that low.")
+    r.click("#terrainClear")
+    r.wait(900)
+    x, y = r.pg.evaluate("window.__fp.plan().toClient(5, -3)")
+    r.click(x, y)
+    r.wait(900)
+    r.pg.keyboard.press("Control+A")                     # its field has the cursor, with the height the ground had there (0)
+    r.type("-1.5")
+    r.key("Tab")
+    r.wait(1800)
+    r.say("Im 3D-Bild: der Keller schaut zur Hälfte aus dem Rasen, mit seinen Fenstern.", "In 3D: the basement sticks out of the lawn by half, with its windows.")
+    r.click("#view3d")
+    r.js("window.__fp.setHouseMode(true)")
+    r.wait(1600)
+    r.js("window.__fp.camAt(-19, -0.6, -15, 6, 1.5)")
+    r.wait(4000)
 
 
 def balcony_view(r):

@@ -99,6 +99,30 @@ pgT.click("#view3d"); pgT.wait_for_timeout(1000)
 e = earth_tr()
 check("terrain: 'Gelände entfernen': level again, no plinth, the tree back on the lawn", terr() is None and not e.get("sloped") and not e.get("plinths")
       and abs(pose("tTree").get("y", 9)) < 0.02, (terr(), e, pose("tTree")))
+# #691: a basement half out of the ground: "Etage verwalten" of the basement points to the terrain, its button opens it, one spot height on
+# level ground lowers the whole lawn
+pgT.evaluate("window.__fp.switchFloor(0)"); pgT.wait_for_timeout(700)
+pgT.evaluate("() => { const d = document.querySelector('#floorPanel'); if (d) d.open = true; }"); pgT.wait_for_timeout(300)
+check("terrain: 'Etage verwalten' of the basement: a line about a basement half out of the ground and the button '⛰ Gelände einstellen' (#691)",
+      pgT.is_visible("#halfBasementHelp") and "halb aus der Erde" in pgT.inner_text("#halfBasementHelp") and pgT.is_visible("#halfBasementGo")
+      and "Gelände" in pgT.inner_text("#halfBasementGo"), pgT.inner_text("#floorBody")[-400:])
+pgT.click("#halfBasementGo"); pgT.wait_for_timeout(1200)
+check("terrain: the button opens the ground floor, the plan and the tool 'Grundstück' in the mode '⛰ Gelände'; the ground floor has no such line",
+      pgT.evaluate("window.__fp.floorIdx()") == 1 and pgT.evaluate("document.body.dataset.tool") == "plot" and pgT.is_visible("#plan2d")
+      and pgT.locator("#plotMode [data-v=terrain].active").count() == 1 and pgT.is_visible("#terrainPal") and not pgT.is_visible("#halfBasementHelp"),
+      (pgT.evaluate("window.__fp.floorIdx()"), pgT.evaluate("document.body.dataset.tool")))
+check("terrain: its help says that one point on level ground lowers the whole lawn", "ebenem Grund" in pgT.inner_text("#terrainPal"), pgT.inner_text("#terrainPal")[:300])
+click_plan(3, -3); pgT.wait_for_timeout(800)
+one = (terr() or {}).get("points") or [{}]
+pgT.fill(f"#terrainH_{one[0].get('id')}", "-1.5"); pgT.locator(f"#terrainH_{one[0].get('id')}").dispatch_event("change"); pgT.wait_for_timeout(900)
+check("terrain: one spot height at −1.5 m: the whole lawn lies 1.5 m lower, in front, behind and beside the house",
+      len(one) == 1 and all(abs(at_tr(x, z) + 1.5) < 0.01 for x, z in ((5, -4), (5, 12), (-5, 3), (18, 3))), [at_tr(x, z) for x, z in ((5, -4), (5, 12), (-5, 3), (18, 3))])
+pgT.click("#view3d"); pgT.wait_for_timeout(1200)
+e = earth_tr()
+check("terrain: 3D: the ground follows (1.5 m lower), the tree stands on it, the sofa inside stays", e.get("sloped") and abs(pose("tTree").get("y", 0) + 1.5) < 0.03
+      and abs(pose("tSofa").get("y", 9)) < 0.03, (e, pose("tTree"), pose("tSofa")))
+pgT.click("#view2d"); pgT.wait_for_timeout(600)
+pgT.click("#terrainClear"); pgT.wait_for_timeout(800)
 check("terrain: no errors on the page", not tr_errs, tr_errs[:5])
 pgT.close()
 put_layout_tr(tr_saved)

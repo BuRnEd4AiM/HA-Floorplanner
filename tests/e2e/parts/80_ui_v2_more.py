@@ -59,7 +59,13 @@ pgW.click(f"#v2FloorKind [data-kind={other}]"); pgW.wait_for_timeout(500)
 check("ui v2 floor: a kind button sets the kind (like „Typ“) and stays marked; the card is drawn again",
       pgW.evaluate("window.__fp.layout.floors[0].kind") == other and pgW.get_attribute("#v2FloorKind button.on", "data-kind") == other
       and pgW.locator("#v2Floor #storeyHeight").count() == 1, pgW.evaluate("window.__fp.layout.floors[0].kind"))
+bsm_v3 = lambda: pgW.evaluate("""({ k: window.__fp.layout.floors[0].kind || 'floor', help: !!document.querySelector('#v2Storeys #halfBasementHelp'),
+  go: !!document.querySelector('#v2Storeys #halfBasementGo'), roof: !!document.querySelector('#v2Floor [data-sec=roof]') })""")
+s1_v3 = bsm_v3()
 pgW.click(f"#v2FloorKind [data-kind={kind0}]"); pgW.wait_for_timeout(500)
+s2_v3 = bsm_v3()
+check("ui v2 floor: a basement has the line and the button '⛰ Gelände einstellen' under its storey height and no section 'Dach'; another floor has neither (#691)",
+      {s1_v3["k"], s2_v3["k"]} == {"basement", "floor"} and all((s["help"] and s["go"]) == (s["k"] == "basement") and not s["roof"] for s in (s1_v3, s2_v3)), (s1_v3, s2_v3))
 
 before_v3 = floor_ids()
 pgW.locator(f"#v2Tree .n.floor[data-i='0']").drag_to(pgW.locator("#v2Tree .n.floor[data-i='1']")); pgW.wait_for_timeout(600)

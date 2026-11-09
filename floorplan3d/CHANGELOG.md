@@ -2,6 +2,9 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.2.3] - 2026-11-09
+### Changed
+- **⛰ A basement half out of the ground is easy to find** (#691, asked by st03psn: "I can't build a basement room that sticks out of the soil, for example one where about half of the wall height is above ground, with windows in the upper part"): it works since 4.58.0 with a single spot height of the plot ("Plot" → "⛰ Terrain", e.g. −1.5 m: the whole lawn lies that low, the upper part of the basement with its windows stands free, the ground floor stands that much above the lawn), but the help spoke only of a plot on a slope. Now the help of "⛰ Terrain" says it for level ground too, and "Manage floor" of a basement has a line about it and the button **"⛰ Set the terrain"**: it opens the ground floor, the plan and the tool "Plot" in the mode "⛰ Terrain" (with "✨ New" under the storey height of the basement). The answer in the issue shows it with pictures (`docs/antworten/691/`). Video guide: "Terrain on a slope" shows it at the end, with more search words ("half basement", "partially below ground", "Keller halb aus der Erde" …). Browser test `68_terrain`.
 ## [5.2.2] - 2026-11-09
 ### Fixed
 - **🔒 A room shown on its own still showed the stripes of every other locked room** (#686, the owner on his iPad: "wenn ich etwas sperre und dann auf nur ein bestimmter Raum gehe, dann sehe ich trotzdem noch von jedem anderen Raum, dass der auch gesperrt ist"): with one room picked at the top left, the stripes and dashed outlines of the other locked rooms lay on the lawn although those rooms are not drawn. Now only the room shown has its stripes (when it is locked); with every room shown again they come back (`roomlockui.js` `draw3d`). Browser test `81_roof_lock`.
