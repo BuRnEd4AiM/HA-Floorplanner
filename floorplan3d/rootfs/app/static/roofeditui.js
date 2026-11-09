@@ -75,7 +75,7 @@ export function initRoofEdit(ctx) {
     cur = { host, opts };
     const lay = ctx.layout(), fi = opts.fi ?? ctx.floorIdx(), f = lay?.floors?.[fi];
     host.textContent = '';
-    if (!f || f.kind !== 'roof') return;
+    if (!f || f.kind !== 'roof') { closeBig(); return; }
     const r = (f.roof ||= { type: 'gable', pitch: 35, overhang: 0.4 });
     if (opts.part && opts.part !== lastPart) { tab = 'parts'; open = { kind: 'part', id: opts.part }; }   // a further roof was clicked
     lastPart = opts.part || null;
@@ -104,6 +104,7 @@ export function initRoofEdit(ctx) {
     else tplTab(body, f, r, bb);
     root.append(body);
     host.append(root);
+    refreshBig(f, r, bb, fi);
     // a classic field changed or one of its buttons was used (add, remove, „auf die Wand“ …): draw the editor again
     root.addEventListener('change', (e) => { if (e.target.closest('.rgBox')) setTimeout(rerender, 0); });
     root.addEventListener('click', (e) => { if (e.target.closest('.rgBox button')) setTimeout(rerender, 0); });
@@ -229,14 +230,33 @@ export function initRoofEdit(ctx) {
     card.append(foot);
     return card;
   }
-  let bigBox = null;
+  /* the big side view (⤢) lies over the picture, outside the panel: it is drawn anew with the editor (a number typed in the panel, ↶),
+     and it closes with ✕, Esc, or when the editor is gone (the roof not selected any more, another floor) */
+  let bigBox = null, bigFi = null, bigWatch = null;
+  const onBigKey = (e) => { if (e.key === 'Escape' && bigBox) { e.stopPropagation(); closeBig(); } };
+  function closeBig() {
+    bigBox?.remove(); bigBox = null; bigFi = null;
+    clearInterval(bigWatch); bigWatch = null;
+    window.removeEventListener('keydown', onBigKey, true);
+  }
+  function refreshBig(f, r, bb, fi) {
+    if (!bigBox) return;
+    if (fi !== bigFi) { closeBig(); return; }
+    if (bigBox.contains(document.activeElement)) document.activeElement.blur();   // its change (and the editor drawn again) first
+    const old = bigBox?.querySelector('#roofProfileBig');
+    if (!old) return;
+    old.remove();                                                    // first: the new card finds its own picture by id (profileCard live())
+    bigBox.append(profileCard(f, r, bb, fi, true));
+  }
   function openBig(f, r, bb, fi) {
-    bigBox?.remove();
-    bigBox = el('div', 'rfBig'); bigBox.id = 'roofBig';
+    closeBig();
+    bigBox = el('div', 'rfBig'); bigBox.id = 'roofBig'; bigFi = fi;
     const top = el('div', 'rfBigHead');
-    top.append(el('b', '', `📐 ${t('rf.side')}`), el('small', '', t('rf.sideSub')), btn('v2Btn', '✕', () => { bigBox.remove(); bigBox = null; }));
+    top.append(el('b', '', `📐 ${t('rf.side')}`), el('small', '', t('rf.sideSub')), btn('v2Btn', '✕', closeBig));
     bigBox.append(top, profileCard(f, r, bb, fi, true));
     document.body.append(bigBox);
+    window.addEventListener('keydown', onBigKey, true);
+    bigWatch = setInterval(() => { if (!cur?.host?.isConnected || !cur.host.querySelector('#roofEd')) closeBig(); }, 300);
     const st = document.getElementById('stage')?.getBoundingClientRect();
     if (st) Object.assign(bigBox.style, { left: `${st.left + 20}px`, top: `${st.top + 70}px`, maxWidth: `${Math.max(320, st.width - 40)}px` });
   }

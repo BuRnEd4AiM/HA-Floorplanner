@@ -2,6 +2,9 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.2.1] - 2026-11-09
+### Fixed
+- **The big side view of the roof (⤢) showed old numbers and stayed open** (#684, found while Claude went through the test protocol of 5.1.0 in the demo, section 172): a pitch typed in the panel, a point dragged in the big view or ↶ did not change the numbers in the big view, and it stayed over the picture after Esc, after another floor or when nothing was selected any more (it also hid the floor cards on the left). Now it is drawn again with the roof editor, closes with ✕ or Esc, and closes on its own when the roof editor is gone (`roofeditui.js`). Browser test `81_roof_lock`.
 ## [5.2.0] - 2026-11-09
 ### Added
 - **Normal and Beta: two add-ons** (the owner, 2026-11-09: "wäre es nicht viel sinnvoller, wenn das Projekt einen offiziellen Release … und vielleicht auch noch eine Beta Version gibt … dass es dann erst ein Full Release gibt"; his choice: build it, and the beta pauses by itself). The store now has **3D Floorplan** (the normal add-on: only the versions the owner released) and **3D Floorplan Beta** (every new version at once, to test it; shown in the store only with *Advanced mode* in the user profile). Everybody who has the add-on keeps it and is on the normal one: nothing to do. The beta has its own data (bring the house over with a backup) and its own panel "3D Floorplan Beta".

@@ -2,6 +2,9 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.2.1] - 2026-11-09
+### Repariert
+- **Die große Seitenansicht des Dachs (⤢) zeigte alte Zahlen und blieb offen** (#684, gefunden, als Claude das Testprotokoll von 5.1.0 in der Demo durchgegangen ist, Abschnitt 172): eine Neigung in der Leiste getippt, ein Punkt in der großen Ansicht gezogen oder ↶ änderte die Zahlen in der großen Ansicht nicht, und sie blieb nach Esc, nach einer anderen Etage oder wenn nichts mehr ausgewählt war über dem Bild stehen (und verdeckte links die Etagen). Jetzt wird sie mit dem Dach-Fenster neu gezeichnet, geht mit ✕ oder Esc zu und von selbst, wenn das Dach-Fenster weg ist (`roofeditui.js`). Browser-Test `81_roof_lock`.
 ## [5.2.0] - 2026-11-09
 ### Neu
 - **Normal und Beta: zwei Add-ons** (der Besitzer, 2026-11-09: „wäre es nicht viel sinnvoller, wenn das Projekt einen offiziellen Release … und vielleicht auch noch eine Beta Version gibt … dass es dann erst ein Full Release gibt“; seine Wahl: bauen, und die Beta pausiert von selbst). Im Store gibt es jetzt **3D Floorplan** (das normale Add-on: nur Versionen, die der Besitzer freigegeben hat) und **3D Floorplan Beta** (jede neue Version sofort, zum Testen; im Store nur mit *Erweiterter Modus* im Benutzerprofil zu sehen). Wer das Add-on schon hat, behält es und ist auf dem normalen: nichts zu tun. Die Beta hat eigene Daten (das Haus per Backup herüberholen) und ihr eigenes Panel „3D Floorplan Beta“.

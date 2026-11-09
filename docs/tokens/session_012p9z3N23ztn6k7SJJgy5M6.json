@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3N23ztn6k7SJJgy5M6",
+ "start": "2026-11-09",
+ "updated": "2026-11-09T16:32:56Z",
+ "branch": "claude/gallant-mayer-babeuw",
+ "source": "counted",
+ "input": 198,
+ "cache_write": 223534,
+ "cache_read": 19619318,
+ "output": 85725,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 198,
+   "cache_write": 223534,
+   "cache_read": 19619318,
+   "output": 85725,
+   "requests": 100
+  }
+ }
+}
