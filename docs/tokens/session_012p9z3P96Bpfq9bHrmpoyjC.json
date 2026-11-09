@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3P96Bpfq9bHrmpoyjC",
+ "start": "2026-11-09",
+ "updated": "2026-11-09T11:17:35Z",
+ "branch": "claude/upbeat-bohr-shj54u",
+ "source": "counted",
+ "input": 158,
+ "cache_write": 257776,
+ "cache_read": 17123912,
+ "output": 101185,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 158,
+   "cache_write": 257776,
+   "cache_read": 17123912,
+   "output": 101185,
+   "requests": 83
+  }
+ }
+}
