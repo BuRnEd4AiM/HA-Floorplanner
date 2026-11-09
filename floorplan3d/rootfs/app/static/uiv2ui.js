@@ -50,7 +50,7 @@ export function initUiV2(ctx) {
   const hint = el('p', 'sub', t('v2.set.hint')); hint.id = 'setUiHint';
   row.append(lab, pick);
   const gen = $('details.setGroup[data-group=general] .sgBody');
-  gen?.prepend(row, hint);
+  gen?.append(row, hint);                                  // last: language and design stay the first tiles side by side (28_settings)
 
   function setMode(m) {
     mode = cleanUi(m); store(); show(); ctx.renderProps();

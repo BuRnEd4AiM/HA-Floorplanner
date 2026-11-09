@@ -1,6 +1,6 @@
 {
  "version": "4.73.0",
- "buildHash": "94b09a984208dfff99868a1d188d4b6a2acb41437ca8f5e47cb13cd10b58903f",
+ "buildHash": "7155b9c95ceb9bc13039ca2255d5738b5adfc63ae7e47407afb3d4bda2a8c789",
  "files": {
   "alarmnotify.py": "4ad6881ea1778c9854989abd91fecccf1c34f559e7f4207383be911df8d61514",
   "boards.py": "cedc4441461114e83b42afa893c476670110675311289e15e02d3709d4df1b3c",
@@ -431,7 +431,7 @@
   "static/trains.js": "ea4447825c2b57bd7d4395a3aa9c1b6248e7d94881518bfe59245a0246237e92",
   "static/tvmount.js": "0430496105a1ff8752f1bb4c94f2bd121c39914d769bc6fc096685759133d6d6",
   "static/uiv2.js": "00b82b963b8667a617d817081058671f7082a57790c1f3c50dacb401bf202cc7",
-  "static/uiv2ui.js": "4b20753dcc5ba05c83832698a9f99a51dcc816becaf1947513c91d247fce7f7e",
+  "static/uiv2ui.js": "b7116cc46af6a8f00bc7e98c796040a7afcbef28b77e6b81606e7d25312bca0e",
   "static/undotoast.js": "2a75c0ccd50b9f4dbfcf25e3fde0397fc3801395412f62155d7191daa042063f",
   "static/usedbyui.js": "6b66bc3c2bcdc37427190412211d4e6ebdaa917e6c660e48c4b26e14d288c9bf",
   "static/userlocks.js": "b227895d81f28a0c62dbc0c5e794bd8a1cbcc5b718041298534430c8d8bd413f",
