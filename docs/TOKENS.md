@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-09 · 123 Sitzungen
+Stand: 2026-11-09 · 124 Sitzungen
 
-**Insgesamt: 8,17 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 8,18 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 22,9 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 78,4 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 8,07 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Neu gelesen | 78,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 8,08 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 37 | 2,04 Mrd. | 5,1 Mio. |
+| 2026-11 | 38 | 2,05 Mrd. | 5,2 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-09 | [012p9z3M…](https://claude.ai/code/session_012p9z3MJ3efYp3wSxzmqFs3) | claude/sleepy-cray-df5ney | 12,3 Mio. | 43 Tsd. | gezählt |
 | 2026-11-09 | [012p9z3L…](https://claude.ai/code/session_012p9z3L2RX8p1QmxycAdJzo) | claude/focused-mendel-llr2jj | 20,1 Mio. | 70 Tsd. | gezählt |
 | 2026-11-09 | [012p9z3M…](https://claude.ai/code/session_012p9z3MuFE7E7x5NDszDBha) | claude/room-lock-display-issue-6jzqw1 | 31,2 Mio. | 77 Tsd. | gezählt |
 | 2026-11-09 | [012p9z3N…](https://claude.ai/code/session_012p9z3N23ztn6k7SJJgy5M6) | claude/gallant-mayer-babeuw | 19,9 Mio. | 86 Tsd. | gezählt |
