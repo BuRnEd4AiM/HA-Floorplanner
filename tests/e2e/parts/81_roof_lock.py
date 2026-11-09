@@ -1,6 +1,6 @@
 """5.1.0: locking rooms and the whole floor plan, and the new roof editor (the owner's choice of 2026-11-09, docs/ideen-5.1/).
 Locks: 🔒 at a room (with „Was bleibt fest?“), the shared wall stays in the 2D plan, the arrow keys and Delete refuse, „🔒 Grundriss fertig“
-with the pill in the top bar, „🔒 Gesperrte zeigen“ in „Ansicht“, the row in the classic panel. Roof: a click on the roof opens the
+with the pill in the top bar, „🔒 Gesperrte zeigen“ in „Ansicht“, the row in the classic panel, the stripes of a room shown on its own. Roof: a click on the roof opens the
 editor (shape as pictures, the side view with a point to drag and numbers, the map from above with a dormer to drag, „＋ Gaube“,
 templates incl. the cross and the L roof, „⭐ Mein Dach merken“ into the settings). Its own little house, the layout is put back at the end.
 """
@@ -93,8 +93,23 @@ check("room lock (classic): „🔒 Raum sperren“ in the room, with what it ke
 pgL.uncheck("#roomLock"); pgL.wait_for_timeout(300)
 pgL.click("#uiSwitch [data-ui=v2]"); pgL.wait_for_timeout(400)
 
-# --- the roof editor
+# --- the stripes in 3D: a room shown on its own shows only its own (the owner, 2026-11-09: „dann sehe ich trotzdem noch von jedem anderen
+# Raum, dass der auch gesperrt ist“)
 pgL.click("#view3d"); pgL.wait_for_timeout(600)
+hatch_rl = lambda: pgL.evaluate("(() => { const s = new Set(); window.__fp.scene.traverse((o) => { if (o.userData?.lockHatch && o.visible) s.add(o.userData.lockHatch); }); return [...s].sort(); })()")
+check("room lock: in 3D the locked living room is hatched", hatch_rl() == ["rlWz"], hatch_rl())
+def only_room_rl(name):
+    pgL.click("#roomMenuBtn"); pgL.wait_for_timeout(200)
+    pgL.locator("#roomMenu > *", has_text=name).first.click(); pgL.wait_for_timeout(700)
+only_room_rl("Küche")
+check("room lock: only the kitchen shown: no stripes of the locked living room next to it", pgL.evaluate("window.__fp.focusedRoom()") == "rlK" and hatch_rl() == [], hatch_rl())
+only_room_rl("Wohnzimmer")
+check("room lock: only the living room shown: its own stripes", pgL.evaluate("window.__fp.focusedRoom()") == "rlWz" and hatch_rl() == ["rlWz"], hatch_rl())
+pgL.click("#roomMenuBtn"); pgL.wait_for_timeout(200)
+pgL.click("#roomMenu .all"); pgL.wait_for_timeout(700)
+check("room lock: every room again: the stripes as before", pgL.evaluate("window.__fp.focusedRoom()") is None and hatch_rl() == ["rlWz"], hatch_rl())
+
+# --- the roof editor
 pgL.evaluate("window.__fp.switchFloor(1)"); pgL.wait_for_timeout(600)
 pgL.evaluate("window.__fp.select('roof', 'rlDach:roof')"); pgL.wait_for_selector("#roofEd", timeout=5000)
 check("roof editor: a click on the roof opens it, with its tabs and where it is",

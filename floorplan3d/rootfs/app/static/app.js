@@ -558,7 +558,7 @@ function build() {
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
     if (!ghost && !holo) statics.push({ g, models: f.devices.filter(staticDevice).map((d) => registry.get(d.id)).filter(Boolean) });
     floorBuild.inside(g, part);
-    if (!ghost && !houseMode && i === floorIdx) roomLocks?.draw3d(g, f);   // locked rooms hatched while editing (roomlockui.js)
+    if (!ghost && !houseMode && i === floorIdx) roomLocks?.draw3d(g, f, iso);   // locked rooms hatched while editing; a room on its own: only its own (roomlockui.js)
   });
   roomLocks?.update();
   const overRi = houseMode ? -1 : coverRoofFloor(layout.floors, floorIdx);   // the roof over the floor shown (not drawn yet: it is a floor above), see-through

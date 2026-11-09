@@ -89,6 +89,20 @@ pgW.fill("#v2Search", ""); pgW.wait_for_timeout(500)
 nops_v3 = pgW.evaluate("[...document.querySelectorAll('#v2Nops .v2Nop')].map((b) => b.dataset.sec)")
 secs_v3 = pgW.evaluate("[...document.querySelectorAll('#propsBody .v2Sec')].map((s) => s.dataset.sec)")
 check("ui v2 tabs: every section hangs as a tab on the panel", pgW.locator("#v2Nops").is_visible() and nops_v3 == secs_v3, [nops_v3, secs_v3])
+names_v3 = lambda: pgW.evaluate("[...document.querySelectorAll('#v2Nops .v2Nop .tx')].map((x) => { const r = x.getBoundingClientRect(); return [x.textContent, r.width > 8 && r.height > 8 && getComputedStyle(x).display !== 'none'] })")
+nops_at = lambda h: (pgW.set_viewport_size({"width": 1400, "height": h}), pgW.wait_for_timeout(500),
+                     pgW.evaluate("(() => { const t = document.querySelector('#v2Nops'); return [t.className, t.getBoundingClientRect().bottom <= innerHeight] })()"))[2]
+# every tab keeps its name (the owner's iPad, a window with 8 tabs, 2026-11-09: „das sind aktuell nur Icons“): upright beside the panel
+# when they all fit, else across under their signs, on a very low screen the tabs scroll; never only the signs
+check("ui v2 tabs: every tab shows its name", all(n and ok for n, ok in names_v3()) and len(names_v3()) == len(secs_v3), names_v3())
+tall_v3 = nops_at(1500)
+check("ui v2 tabs: a tall screen: the names upright beside the panel", "flat" not in tall_v3[0] and tall_v3[1] and all(n and ok for n, ok in names_v3()), [tall_v3, names_v3()])
+low_v3 = nops_at(560)
+check("ui v2 tabs: a low screen: the names across under the signs (not only the signs), the tabs end on the screen",
+      "flat" in low_v3[0] and low_v3[1] and all(n and ok for n, ok in names_v3()), [low_v3, names_v3()])
+tiny_v3 = nops_at(380)
+check("ui v2 tabs: a very low screen: the tabs scroll, with their names", "scroll" in tiny_v3[0] and tiny_v3[1] and all(n for n, _ in names_v3()), [tiny_v3, names_v3()])
+pgW.set_viewport_size({"width": 1400, "height": 900}); pgW.wait_for_timeout(500)
 pgW.click("#v2Nops [data-sec=shutter]"); pgW.wait_for_timeout(400)
 check("ui v2 tabs: „Rollladen“ pulled out into the drawer beside the panel; in the panel it says so",
       pgW.locator("#v2Drawer").is_visible() and pgW.locator("#v2Drawer #openShutter").count() == 1
