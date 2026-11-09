@@ -50,7 +50,8 @@ import { initPropFields } from './propfields.js';
 import { initEntityPicker } from './entitypicker.js';
 import { initObjList } from './objlist.js';
 import { initRoomEntities } from './roomentities.js';
-import { initProps } from './props.js';
+import { initProps, propsTitleKey } from './props.js';
+import { initUiV2 } from './uiv2ui.js';
 import { initOpenings, openKind, OPEN_KINDS, paneEntity, openingEntities } from './openings.js';
 import { tiltEntity } from './windowtilt.js';
 import { linkedEntities } from './shutters.js';
@@ -180,6 +181,7 @@ let returnToTool = null;          // after placing a device the Select tool is a
 let welcomeUi = null;           // the welcome card of an empty house (set up further down)
 let mode = 'edit';                 // 'edit' | 'live'
 let tool = 'select';
+let uiV2 = null;                   // „Oberfläche 2“ (uiv2ui.js), set further down
 let roomCtx = null;                // room whose entity list stays visible while one of its objects is selected
 let lockedSel = false;            // selected from the side list: only that object reacts to the mouse
 let selection = null;              // { kind: 'wall'|'room'|'device'|'opening', id }
@@ -1324,6 +1326,7 @@ function setTool(next) {
   $('#measurePanel').hidden = next !== 'measure';
   if ((next === 'block' || next === 'stairs' || next === 'plot' || next === 'hole' || next === 'measure') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn (measured) in the 2D plan
   canvas.style.cursor = next === 'select' ? 'default' : 'crosshair';
+  uiV2?.homeSync();                                                 // the new panel: the tree only with the select tool
 }
 document.querySelectorAll('#tools button[data-tool]').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
 /** tool bar button "Dormers": jump to the roof floor and open its dormer section (creates the roof floor when there is none) */
@@ -1618,8 +1621,19 @@ const roomEnts = initRoomEntities({
   autoPlace: (room, ids) => autoPlace(room, ids), setStatus: (x) => setStatus(x), snapshot: () => snapshot(), changed: () => changed(), uid: () => uid(),
   deviceY: (type) => DEVICE_TYPES[type]?.y || 0,
 });
+/* „Oberfläche 2“ (4.73.0): the switch old / new and the new order of the same fields (uiv2ui.js) */
+uiV2 = initUiV2({
+  $, t, selection: () => selection, select: (sel) => { selection = sel; lockedSel = false; refreshSelection(); }, floor: () => floor(), houseName: () => hs.current()?.name || '',
+  findOpening: (id) => findOpening(id), roomAt: (x, z) => roomAt(x, z), catOf, stateText: (e) => stateText(e), entityName: (e) => entities.find((x) => x.entity_id === e)?.name || e,
+  fmtLen: (m) => fmtLen(m), imperial: () => imperial(), snapshot: () => snapshot(), changed: () => changed(), renderProps: () => renderProps(), setStatus: (x) => setStatus(x),
+  propsTitle: (k, it) => t(propsTitleKey(k, it)),
+  layout: () => layout, floorIdx: () => floorIdx, isLive: () => isLive(), tool: () => tool, switchFloor: (i) => switchFloor(i),   // the tree (5.0.0)
+  houses: () => hs.list(), houseId: () => hs.id(), switchHouse: (id) => switchHouse(id), addFloorOf: (k) => addFloorOf(k),
+  moveFloorTo: (a, b) => floorPanel.moveFloorTo(a, b), renderFloorPanel: () => renderFloorPanel(), storeyText: () => fmtLen(floorH()),
+  fmtArea: (m2) => fmtArea(m2, imperial()),
+});
 const props = initProps({
-  multiBox: () => multiSel.box(), roofInfo: (id) => roofRectOf(id),
+  multiBox: () => multiSel.box(), roofInfo: (id) => roofRectOf(id), v2: (...a) => uiV2.decorate(...a), v2Reset: () => uiV2?.reset(),
   $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, roomCtx: () => roomCtx, setRoomCtx: (id) => { roomCtx = id; },
   fields: { field, inp, lenInput, pickerField }, entityPicker: (...a) => entityPicker(...a), entities: () => entities, areas: () => areas,
   findOpening: (id) => findOpening(id), snapshot: () => snapshot(), changed: () => changed(), build: () => build(), refreshSelection: () => refreshSelection(), layout: () => layout,
@@ -1632,7 +1646,7 @@ const props = initProps({
   previewTilt: (id) => openings.preview(id), allOpenings: () => layout.floors.flatMap((f) => openingWalls(f).flatMap((w) => w.openings || [])),   // "Kippwinkel" (tiltui.js)
   closetRoof: (d) => { const planes = roofsUi.slopesAt(floorIdx, d.x, d.z); return planes ? { planes, baseY: elev(floorIdx) + (d.y || 0) } : null; },   // a cabinet fits under the roof over it (closet.js; an L-shaped house: the wing's roof, #621)
 });
-function renderObjList() { objList.render(); }
+function renderObjList() { objList.render(); uiV2?.homeSync(); }   // nothing selected: the new panel's tree follows
 function renderRoomEntities() { roomEnts.render(); }
 function renderEntState() { props.renderEntState(); }
 function renderProps() { props.render(); }

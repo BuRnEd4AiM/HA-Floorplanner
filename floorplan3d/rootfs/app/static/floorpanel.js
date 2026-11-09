@@ -5,6 +5,7 @@
  * (with their ridge kept at 0° or 90°, #621; e.g. a
  * flat roof over an annex, a canopy as a shed roof, #628), its roof windows (#643, skylightui.js). The rules for the base
  * boxes, new floors, moving floors and placing new dormers are pure functions (tested); initFloorPanel draws the panel. */
+import { moveFloorTo as moveFloorToOf } from './uiv2more.js';
 import { dormerParts, dormerStart, posForStart, DORMER_DEFAULT, DORMER_TYPES, SHED_PITCH, GABLE_PITCH } from './dormer.js';
 import { ridgeHeight, pitchFor } from './attic.js';
 import { stepsAllowed, alongXOf, MAX_STEPS } from './roofsteps.js';
@@ -160,6 +161,14 @@ export function initFloorPanel(ctx) {
     if (ctx.floorIdx() + dir < 0 || ctx.floorIdx() + dir >= layout.floors.length) return;
     ctx.snapshot();
     ctx.setFloorIdx(swapFloors(layout.floors, ctx.floorIdx(), dir));
+    ctx.clearSelection(); ctx.build(); ctx.fitCamera(); ctx.buildNav(true); render(); ctx.renderObjList(); ctx.scheduleSave();
+  }
+  /** put floor `from` at place `to` in one step (the tree of the new panel, a floor dragged there; uiv2more.js) */
+  function moveFloorTo(from, to) {
+    const layout = ctx.layout();
+    if (from === to || from < 0 || from >= layout.floors.length) return;
+    ctx.snapshot();
+    ctx.setFloorIdx(moveFloorToOf(layout.floors, from, to));
     ctx.clearSelection(); ctx.build(); ctx.fitCamera(); ctx.buildNav(true); render(); ctx.renderObjList(); ctx.scheduleSave();
   }
   function deleteFloor() {
@@ -435,5 +444,5 @@ export function initFloorPanel(ctx) {
     box.append(add);
   }
   $('#addFloor').addEventListener('click', () => addFloorOf('floor'));
-  return { render, addFloorOf, moveFloor, deleteFloor };
+  return { render, addFloorOf, moveFloor, moveFloorTo, deleteFloor };
 }
