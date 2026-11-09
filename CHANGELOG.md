@@ -2,6 +2,10 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.1.1] - 2026-11-09
+### Fixed
+- **The big side view of the roof (⤢) showed old numbers and stayed open** (#684, found while Claude went through the test protocol of 5.1.0 in the demo, section 172): a pitch typed in the panel, a point dragged in the big view or ↶ did not change the numbers in the big view, and it stayed over the picture after Esc, after another floor or when nothing was selected any more (it also hid the floor cards on the left). Now it is drawn again with the roof editor, closes with ✕ or Esc, and closes on its own when the roof editor is gone (`roofeditui.js`). Browser test `81_roof_lock`.
+
 ## [5.1.0] - 2026-11-09
 ### Added
 - **🔺 The new roof** (the owner, 2026-11-09: "kannst du das Dach auch neu aufmachen, dass es geiler und übersichtlicher ist"; his choice of the example pictures in `docs/ideen-5.1/`: all six, "der Editor sieht echt mega aus"). A click on the roof opens it (on the roof floor; with "✨ New" also the roof floor in the tree of the house). On top what the roof has (shape, pitch, size, dormers, roof windows, solar panels, further roofs, lived-in attic), below four tabs instead of one long list: **Form** (the shapes as pictures; the roof seen from the side: drag the points for pitch, ridge height, knee wall and overhang or type the numbers, green shows where one can stand upright; ⤢ shows it big; size and overhang, ridge direction, attic and steps folded away, the long help texts behind a small ⓘ), **On the roof** (the roof seen from above with its dormers, roof windows and solar panels: a dormer or roof window is dragged where it should go instead of typing its distance from the gable; "＋ Dormer", "＋ Roof window"; one card open at a time, the kind of dormer as pictures), **More roofs** (the further roofs) and **Templates**. The fields are the very ones of "Manage floor", which stays as it was.

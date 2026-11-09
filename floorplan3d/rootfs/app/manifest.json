@@ -1,6 +1,6 @@
 {
- "version": "5.1.0",
- "buildHash": "ec6583efe6fb1630c9b4d209e137ebe1b43f58d448b6f4ee7fd90af8dcfbd408",
+ "version": "5.1.1",
+ "buildHash": "18959e2324441cd0736c120244d90b5fa1420b3d9c758eaba7710d1977791ed2",
  "files": {
   "alarmnotify.py": "4ad6881ea1778c9854989abd91fecccf1c34f559e7f4207383be911df8d61514",
   "boards.py": "cedc4441461114e83b42afa893c476670110675311289e15e02d3709d4df1b3c",
@@ -356,7 +356,7 @@
   "static/renames.js": "012f04a64165e78e13ecb309c308a888479c90f3cdb97116f53c950e420c539b",
   "static/roofcut.js": "f2ba8301e919c8d2501cb8261760b3a9a0e69c189de68bfe5516f238fa249859",
   "static/roofedit.js": "a306ec1df92ec213656e615920c2893b7d1aead08d05d42a66c5fc6bb2addfd3",
-  "static/roofeditui.js": "59ba4506bd3f9c206dd95a25c2d1d65888cb23e91a1ee2d423661484a55386b1",
+  "static/roofeditui.js": "1e9d26f9e909351cfbb60f934836ca25c387764b09da1ab2af0bc412d36205b4",
   "static/roofmove.js": "672df91045e8fe2ab7cdba3f746ed8abe9d238ae4bdb268642303aa8993dd8d8",
   "static/roofs.js": "8114e9b379a6446d3aa81c86093eaeaa23a26a43120b7c64302bbff663943c4f",
   "static/roofshape.js": "e6c71ac4f81cd45ae6753f2a67c448c9ee858eeeacf0586aff57e23a23fffc23",

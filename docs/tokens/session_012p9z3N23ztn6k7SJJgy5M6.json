@@ -1,20 +1,20 @@
 {
  "session": "session_012p9z3N23ztn6k7SJJgy5M6",
  "start": "2026-11-09",
- "updated": "2026-11-09T15:50:17Z",
+ "updated": "2026-11-09T16:25:18Z",
  "branch": "claude/gallant-mayer-babeuw",
  "source": "counted",
- "input": 17,
- "cache_write": 50937,
- "cache_read": 798081,
- "output": 10748,
+ "input": 158,
+ "cache_write": 197650,
+ "cache_read": 14840840,
+ "output": 77011,
  "models": {
   "claude-opus-5-5": {
-   "input": 17,
-   "cache_write": 50937,
-   "cache_read": 798081,
-   "output": 10748,
-   "requests": 9
+   "input": 158,
+   "cache_write": 197650,
+   "cache_read": 14840840,
+   "output": 77011,
+   "requests": 82
   }
  }
 }

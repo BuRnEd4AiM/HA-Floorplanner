@@ -108,6 +108,17 @@ bx = pgL.locator("#roofProfile [data-h=pitch]").bounding_box()
 cx, cy = bx["x"] + bx["width"] / 2, bx["y"] + bx["height"] / 2
 pgL.mouse.move(cx, cy); pgL.mouse.down(); pgL.mouse.move(cx - 2, cy - 6, steps=3); pgL.mouse.move(cx - 3, cy - 12, steps=3); pgL.mouse.up(); pgL.wait_for_timeout(800)
 check("roof editor: dragging the point on the arc makes the roof steeper", 40 < L_rl("r.pitch") <= 70, L_rl("r.pitch"))
+# the big side view (⤢, #684): drawn again with the editor; Esc closes it, and it closes when the roof is no longer selected
+pgL.click("#roofProfileBigBtn"); pgL.wait_for_selector("#roofBig", timeout=5000)
+pgL.fill("#roofPitchEd", "38"); pgL.locator("#roofPitchEd").dispatch_event("change"); pgL.wait_for_timeout(600)
+check("roof editor: the big side view shows a pitch typed in the panel, with its picture (#684)",
+      pgL.input_value("#roofPitchBig") == "38" and pgL.locator("#roofBig .rfPic svg").count() == 1, pgL.input_value("#roofPitchBig"))
+pgL.keyboard.press("Escape"); pgL.wait_for_timeout(300)
+check("roof editor: Esc closes the big side view, the roof stays selected (#684)", pgL.locator("#roofBig").count() == 0 and pgL.locator("#roofEd").count() == 1, None)
+pgL.click("#roofProfileBigBtn"); pgL.wait_for_selector("#roofBig", timeout=5000)
+pgL.evaluate("window.__fp.select(null, null)"); pgL.wait_for_timeout(800)
+check("roof editor: the big side view closes when the roof is no longer selected (#684)", pgL.locator("#roofBig").count() == 0, None)
+pgL.evaluate("window.__fp.select('roof', 'rlDach:roof')"); pgL.wait_for_selector("#roofEd", timeout=5000)
 pgL.click("#roofTabs [data-tab=top]"); pgL.wait_for_selector("#roofMap svg", timeout=5000)
 p0 = L_rl("r.dormers[0].pos")
 g = pgL.locator("#roofMap [data-part=dormer][data-i='0'] rect").first.bounding_box()
