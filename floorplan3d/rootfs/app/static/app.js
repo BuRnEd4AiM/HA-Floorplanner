@@ -166,6 +166,7 @@ import { initRenames } from './renames.js';
 import { initMeasureTool } from './measuretool.js';
 import { initLogin } from './login.js';
 import { initRoomLock } from './roomlockui.js';
+import { initRoofEdit } from './roofeditui.js';
 window.fp3dBooted = true;           // every module is loaded: the boot guard (bootguard.js) stands down (#328)
 window.fp3dReadySupported = true;   // init() will report fp3dReady: the integration's boot splash can wait for it instead of guessing
 
@@ -1535,6 +1536,11 @@ const floorPanel = initFloorPanel({
   dormerOntoWall: (d) => { const x = dormerWindows(layout.floors, roofList, elev).find((q) => q.d === d); return x ? eaveOntoWall(layout.floors[x.fi].walls, x.n, x.win) : null; },
 });
 function renderFloorPanel() { floorPanel.render(); }
+/* ---- the new roof editor (5.1.0): a click on the roof, the roof floor in the tree; the code lives in roofeditui.js, roofedit.js, rooftemplates.js ---- */
+const roofEdit = initRoofEdit({ t, layout: () => layout, floorIdx: () => floorIdx, roofBox: (i) => roofBox(i), roofInto: (box, f, r) => floorPanel.roofInto(box, f, r),
+  fields: { inp, lenInput }, snapshot: () => snapshot(), changed: () => changed(), preview: () => build(), settings: () => settings, saveSettings: () => commitSettings(),
+  uid: () => uid(), fmtLen: (m) => fmtLen(m), select: (sel) => { selection = sel; lockedSel = false; refreshSelection(); }, houseName: () => hs.current()?.name || '',
+  setStatus: (x) => setStatus(x) });
 const addFloorOf = (kind) => floorPanel.addFloorOf(kind);
 const moveFloor = (dir) => floorPanel.moveFloor(dir);
 /* Automatic rooms (#17): one room for every closed loop of walls that is not a room yet */
@@ -1639,11 +1645,11 @@ uiV2 = initUiV2({
   layout: () => layout, floorIdx: () => floorIdx, isLive: () => isLive(), tool: () => tool, switchFloor: (i) => switchFloor(i),   // the tree (5.0.0)
   houses: () => hs.list(), houseId: () => hs.id(), switchHouse: (id) => switchHouse(id), addFloorOf: (k) => addFloorOf(k),
   moveFloorTo: (a, b) => floorPanel.moveFloorTo(a, b), renderFloorPanel: () => renderFloorPanel(), storeyText: () => fmtLen(floorH()),
-  fmtArea: (m2) => fmtArea(m2, imperial()), roomLock: roomLocks,           // 🔒 at a room, the locks in the tree (5.1.0)
+  fmtArea: (m2) => fmtArea(m2, imperial()), roomLock: roomLocks, roofEdit,   // 🔒 at a room, the locks in the tree, the roof editor (5.1.0)
 });
 const props = initProps({
   multiBox: () => multiSel.box(), roofInfo: (id) => roofRectOf(id), v2: (...a) => uiV2.decorate(...a), v2Reset: () => uiV2?.reset(),
-  lockRow: (r) => roomLocks.roomRow(r), lockFreeze: (body, r) => roomLocks.freeze(body, r), lockWhy: (k, id) => roomLocks.why(k, id), sayLock: (w) => roomLocks.say(w),
+  roofEdit, lockRow: (r) => roomLocks.roomRow(r), lockFreeze: (body, r) => roomLocks.freeze(body, r), lockWhy: (k, id) => roomLocks.why(k, id), sayLock: (w) => roomLocks.say(w),
   $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, roomCtx: () => roomCtx, setRoomCtx: (id) => { roomCtx = id; },
   fields: { field, inp, lenInput, pickerField }, entityPicker: (...a) => entityPicker(...a), entities: () => entities, areas: () => areas,
   findOpening: (id) => findOpening(id), snapshot: () => snapshot(), changed: () => changed(), build: () => build(), refreshSelection: () => refreshSelection(), layout: () => layout,

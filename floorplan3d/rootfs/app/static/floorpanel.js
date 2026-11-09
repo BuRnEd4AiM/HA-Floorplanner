@@ -255,13 +255,21 @@ export function initFloorPanel(ctx) {
     box.append(field(t('floor.storeyH'), sh));
     const shelp = document.createElement('p'); shelp.className = 'sub'; shelp.id = 'storeyHelp'; shelp.textContent = t('floor.storeyHelp'); box.append(shelp);
     if (f.kind !== 'roof') return;
-    const r = (f.roof ||= { ...ROOF_DEFAULT });
+    roofInto(box, f, (f.roof ||= { ...ROOF_DEFAULT }));
+  }
+  /** the fields of roof r (floor f) into box, each tagged with its group (data-rg: shape, pitch, size, attic, ridge, steps, dormers,
+   *  skylights, parts): the classic panel shows them one under the other, the new roof editor (roofeditui.js, 5.1.0) puts them in tabs */
+  function roofInto(box, f, r) {
+    const layout = ctx.layout();
+    let n0 = box.children.length;
+    const group = (g) => { [...box.children].slice(n0).forEach((c) => { c.dataset.rg = g; }); n0 = box.children.length; };
     const tsel = document.createElement('select'); tsel.id = 'roofType';
     ROOF_TYPES.forEach((v) => { const o = document.createElement('option'); o.value = v; o.textContent = t(`roof.${v}`); tsel.append(o); });
     tsel.value = r.type || 'gable';
     tsel.addEventListener('change', () => { ctx.snapshot(); setRoofType(r, tsel.value); redo(); });
     box.append(field(t('roof.type'), tsel));
     if (r.type === 'shed') box.append(highField(r, 'roofHigh'));    // which side of a shed roof is high (#628)
+    group('shape');
     box.append(field(t('roof.pitch'), inp('number', r.pitch ?? 35, (v) => (r.pitch = clampPitch(v)), { step: 1 })));
     const rbb = ctx.roofBox(layout.floors.indexOf(f));
     if (rbb && r.type !== 'flat') {                                // the height of the ridge over the walls (or the knee wall) instead of the pitch (#265)
@@ -269,6 +277,7 @@ export function initFloorPanel(ctx) {
       rh.id = 'roofRidgeH';
       box.append(field(t(r.type === 'shed' ? 'roof.highH' : 'roof.ridgeH'), rh));
     }
+    group('pitch');
     const manual = document.createElement('input'); manual.type = 'checkbox'; manual.id = 'roofManual'; manual.checked = !!r.box;
     manual.addEventListener('change', () => {
       ctx.snapshot();
@@ -280,6 +289,7 @@ export function initFloorPanel(ctx) {
     if (r.box) boxFields(box, r.box);
     box.append(field(t('roof.overhang'), lenInput(() => r.overhang ?? 0.4, (v) => (r.overhang = v), { min: 0 })));
     gableFields(box, r, 'roof');
+    group('size');
     const attic = document.createElement('input'); attic.type = 'checkbox'; attic.id = 'roofAttic'; attic.checked = r.knee != null;   // a lived-in attic (#260)
     attic.addEventListener('change', () => { ctx.snapshot(); if (attic.checked) r.knee = 1; else delete r.knee; redo(); });
     const arow = document.createElement('label'); arow.className = 'chk'; arow.append(attic, ' ' + t('roof.attic'));
@@ -293,11 +303,13 @@ export function initFloorPanel(ctx) {
       box.append(field(t('roof.base'), bsel));
     }
     const ahelp = document.createElement('p'); ahelp.className = 'sub'; ahelp.id = 'roofAtticHelp'; ahelp.textContent = t('roof.atticHelp'); box.append(ahelp);
+    group('attic');
     if (r.type !== 'shed') box.append(ridgeField(r, 'roofRidge'));   // a shed roof has its high side instead (#628)
-    renderSteps(box, f, r);
-    renderDormers(box, f, r);
-    skylights.render(box, f, r);                                   // roof windows without a dormer (#643)
-    renderRoofParts(box, r);
+    group('ridge');
+    renderSteps(box, f, r); group('steps');
+    renderDormers(box, f, r); group('dormers');
+    skylights.render(box, f, r); group('skylights');               // roof windows without a dormer (#643)
+    renderRoofParts(box, r); group('parts');
   }
   /** steps in the eaves (#342): a house that is narrower at the front and wider at the back; one card per step */
   function renderSteps(box, f, r) {
@@ -444,5 +456,5 @@ export function initFloorPanel(ctx) {
     box.append(add);
   }
   $('#addFloor').addEventListener('click', () => addFloorOf('floor'));
-  return { render, addFloorOf, moveFloor, moveFloorTo, deleteFloor };
+  return { render, addFloorOf, moveFloor, moveFloorTo, deleteFloor, roofInto };
 }

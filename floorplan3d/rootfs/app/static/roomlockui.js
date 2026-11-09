@@ -161,7 +161,7 @@ export function initRoomLock(ctx) {
     if (stripes) return stripes;
     const c = document.createElement('canvas'); c.width = c.height = 64;
     const g = c.getContext('2d');
-    g.strokeStyle = 'rgba(255,183,77,.75)'; g.lineWidth = 9;
+    g.strokeStyle = 'rgba(255,183,77,.6)'; g.lineWidth = 5;            // faint (the owner, 2026-11-09: „sticht echt ins Auge“)
     for (let i = -64; i <= 128; i += 32) { g.beginPath(); g.moveTo(i, 64); g.lineTo(i + 64, 0); g.stroke(); }
     stripes = new THREE.CanvasTexture(c); stripes.wrapS = stripes.wrapT = THREE.RepeatWrapping; stripes.repeat.set(2, 2);
     return stripes;
@@ -175,15 +175,27 @@ export function initRoomLock(ctx) {
       if (!(plan || r.locked) || !(r.points?.length >= 3)) return;
       const shape = new THREE.Shape(r.points.map(([x, z]) => new THREE.Vector2(x, -z)));
       const m = new THREE.Mesh(new THREE.ShapeGeometry(shape).rotateX(-Math.PI / 2),
-        new THREE.MeshBasicMaterial({ map: texture(), transparent: true, opacity: 0.85, depthWrite: false, side: THREE.DoubleSide }));
+        new THREE.MeshBasicMaterial({ map: texture(), transparent: true, opacity: 0.32, depthWrite: false, side: THREE.DoubleSide }));
       m.position.y = 0.035 + (+r.lift || 0); m.renderOrder = 3; m.userData.lockHatch = r.id; m.raycast = () => {};
       const line = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(r.points.map(([x, z]) => new THREE.Vector3(x, 0.04 + (+r.lift || 0), z))),
-        new THREE.LineDashedMaterial({ color: 0xffb74d, dashSize: 0.25, gapSize: 0.15, transparent: true, depthWrite: false }));
+        new THREE.LineDashedMaterial({ color: 0xffb74d, dashSize: 0.25, gapSize: 0.15, transparent: true, opacity: 0.45, depthWrite: false }));
       line.computeLineDistances(); line.raycast = () => {};
-      [m, line].forEach((o) => { o.visible = !ctx.isLive(); g.add(o); shown.push(o); });
+      [m, line].forEach((o) => { o.visible = !ctx.isLive() && hatchOn; g.add(o); shown.push(o); });
     });
   }
-  const showHatch = (on) => shown.forEach((o) => { o.visible = on; });
+  const showHatch = (on) => shown.forEach((o) => { o.visible = on && hatchOn; });
+  /* „🔒 Gesperrte zeigen“ in „Ansicht“ (the owner, 2026-11-09: „visuell ausstellen mit einem Knopf“): the stripes on or off, per device */
+  const HATCH_KEY = 'fp.lockHatch';
+  let hatchOn = true;
+  try { hatchOn = localStorage.getItem(HATCH_KEY) !== 'off'; } catch { /* no storage: shown */ }
+  const hatchBtn = btn('pill edit-only', `🔒 ${t('rlock.hatch')}`, () => {
+    hatchOn = !hatchOn;
+    try { localStorage.setItem(HATCH_KEY, hatchOn ? 'on' : 'off'); } catch { /* for now */ }
+    hatchBtn.classList.toggle('active', hatchOn);
+    showHatch(!ctx.isLive());
+  });
+  hatchBtn.id = 'lockHatchToggle'; hatchBtn.title = t('rlock.hatchTip'); hatchBtn.classList.toggle('active', hatchOn);
+  $('#viewMenu')?.append(hatchBtn);
 
   update();
   return {

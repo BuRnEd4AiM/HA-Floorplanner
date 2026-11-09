@@ -9,7 +9,7 @@ import { treeRows, FLOOR_ICON, storeySvg } from './uiv2more.js';
 
 /** ctx: $, t, mode() ('v2' / 'classic'), isLive(), selection(), tool(), layout(), floorIdx(), switchFloor(i), select(sel), houses() [{ id,
  *  name }], houseId(), switchHouse(id), addFloorOf(kind), moveFloorTo(from, to), renderFloorPanel(), storeyText() (the storey height as
- *  shown), fmtArea(m2), roomLock (the locks of rooms, floors and the plan, roomlockui.js) */
+ *  shown), fmtArea(m2), roomLock (the locks of rooms, floors and the plan, roomlockui.js), roofEdit (the roof editor, roofeditui.js) */
 export function initUiV2Home(ctx) {
   const { $, t } = ctx;
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -142,7 +142,10 @@ export function initUiV2Home(ctx) {
       hd.addEventListener('click', () => { bd.hidden = !bd.hidden; sec.classList.toggle('open', !bd.hidden); hd.lastChild.textContent = bd.hidden ? '▾' : '▴'; });
       sec.append(hd, bd); card.append(sec);
     };
-    fold('roof', '⌂', t('v2.floor.roof'), rest, true);
+    if (f.kind === 'roof' && ctx.roofEdit) {                     // the new roof editor (5.1.0, roofeditui.js) instead of the long list
+      const host = el('div', 'v2RoofHost'); host.id = 'v2Roof'; card.append(host);
+      ctx.roofEdit.render(host, { fi, head: false });
+    } else fold('roof', '⌂', t('v2.floor.roof'), rest, true);
     const del = $('#delFloor');
     if (adds) adds.hidden = true;
     if (del) { const keep = el('div', 'stopTools'); keep.append(del); fold('delete', '🗑', t('floor.delete'), [keep], false); }

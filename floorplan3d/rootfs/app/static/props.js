@@ -83,6 +83,11 @@ export function initProps(ctx) {
   function roofCard(body, box, r) {
     if (!r) { box.hidden = true; return; }
     box.hidden = false;
+    if (ctx.roofEdit) {                                       // the new roof editor (5.1.0, roofeditui.js): a click on the roof opens it
+      $('#propsTitle').textContent = t('rf.roof'); box.classList.add('v2');
+      ctx.roofEdit.render(body, { part: r.main ? null : r.id });
+      return;
+    }
     $('#propsTitle').textContent = r.name || t('prop.roof');
     const b = r.box, p = document.createElement('p'); p.id = 'roofWhere';
     p.textContent = t('roof.where', { x: ctx.fmtLen(b.x0), z: ctx.fmtLen(b.z0), w: ctx.fmtLen(b.x1 - b.x0), d: ctx.fmtLen(b.z1 - b.z0) });

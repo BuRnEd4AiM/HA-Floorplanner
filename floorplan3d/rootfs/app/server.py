@@ -154,6 +154,7 @@ DEFAULT_SETTINGS = {
     "cars": [],                # 🚗 more cars (#631, garden.clean_cars): each like "car", only the entities chosen (nothing found by name)
     "garden": {"zones": [], "minutes": 10},   # 🌱 the watering zones an admin chose and how long "💧 gießen" waters (#533, garden.clean_garden)
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
+    "roofTemplates": [],       # own ready-made roofs („⭐ Mein Dach merken“, 5.1.0, static/rooftemplates.js): [{"name", "roof"}], at most 12
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
     "voice": {"engine": "auto", "aliases": []},   # the voice search (#509, voice.clean_voice): which recognition, the code words
     "doorbell": {"on": True, "sound": True, "bells": []},   # 🔔 the camera on every screen when somebody rings (pages.clean_doorbell, static/doorbell.js)
@@ -781,6 +782,46 @@ def clean_light_groups(val) -> list:
     return out
 
 
+def clean_roof_templates(val) -> list:
+    """Own ready-made roofs (5.1.0, static/rooftemplates.js ownRoof / cleanOwn): a name and the shape of a roof with its dormers, at most 12."""
+    def num(v, lo, hi):
+        return max(lo, min(hi, float(v))) if isinstance(v, (int, float)) and not isinstance(v, bool) and v == v else None
+    out = []
+    for x in val if isinstance(val, list) else []:
+        if not isinstance(x, dict) or not isinstance(x.get("name"), str) or not x["name"].strip() or not isinstance(x.get("roof"), dict):
+            continue
+        r = x["roof"]
+        roof = {"type": r.get("type") if r.get("type") in ("gable", "hip", "flat", "shed") else "gable", "pitch": num(r.get("pitch", 35), 5, 70) or 35}
+        for k, lo, hi in (("overhang", 0, 3), ("gableOver", 0, 3), ("knee", 0, 3)):
+            v = num(r.get(k), lo, hi)
+            if v is not None:
+                roof[k] = v
+        if r.get("gableWall") is False:
+            roof["gableWall"] = False
+        if r.get("ridge") in ("x", "z"):
+            roof["ridge"] = r["ridge"]
+        if r.get("high") in ("z0", "z1", "x0", "x1"):
+            roof["high"] = r["high"]
+        ds = []
+        for d in (r.get("dormers") if isinstance(r.get("dormers"), list) else [])[:20]:
+            if not isinstance(d, dict):
+                continue
+            nd = {"side": 1 if d.get("side") == 1 else 0, "type": d.get("type") if d.get("type") in ("gable", "flat", "shed") else "gable"}
+            for k, lo, hi in (("pos", 0, 1), ("w", 0.6, 30), ("hw", 0.4, 3), ("eave", 0.2, 20), ("gp", 5, 60), ("sp", 2, 60)):
+                v = num(d.get(k), lo, hi)
+                if v is not None:
+                    nd[k] = v
+            if d.get("win") is False:
+                nd["win"] = False
+            ds.append(nd)
+        if ds:
+            roof["dormers"] = ds
+        out.append({"name": x["name"].strip()[:40], "roof": roof})
+        if len(out) >= 12:
+            break
+    return out
+
+
 def validate_settings(data: dict) -> dict:
     """Keep only known keys with the right type; unknown keys are dropped."""
     out = dict(DEFAULT_SETTINGS)
@@ -798,6 +839,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = clean_start_views(val)
         elif key == "favorites":
             out[key] = clean_favorites(val)
+        elif key == "roofTemplates":
+            out[key] = clean_roof_templates(val)
         elif key == "lightGroups":
             out[key] = clean_light_groups(val)
         elif key == "userTabs":
