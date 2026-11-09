@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-09 · 121 Sitzungen
+Stand: 2026-11-09 · 122 Sitzungen
 
-**Insgesamt: 8,12 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 8,15 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 22,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 77,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 8,02 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 22,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 78,1 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 8,05 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 35 | 1,99 Mrd. | 5,0 Mio. |
+| 2026-11 | 36 | 2,02 Mrd. | 5,1 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-09 | [012p9z3M…](https://claude.ai/code/session_012p9z3MuFE7E7x5NDszDBha) | claude/room-lock-display-issue-6jzqw1 | 31,2 Mio. | 77 Tsd. | gezählt |
 | 2026-11-09 | [012p9z3N…](https://claude.ai/code/session_012p9z3N23ztn6k7SJJgy5M6) | claude/gallant-mayer-babeuw | 19,9 Mio. | 86 Tsd. | gezählt |
 | 2026-11-09 | [012p9z3P…](https://claude.ai/code/session_012p9z3P3GhVTZPghFyi7JZk) | claude/awesome-cori-o6d0or | 34,6 Mio. | 147 Tsd. | gezählt |
 | 2026-11-09 | [012p9z3P…](https://claude.ai/code/session_012p9z3P96Bpfq9bHrmpoyjC) | claude/upbeat-bohr-shj54u | 121,5 Mio. | 344 Tsd. | gezählt |
