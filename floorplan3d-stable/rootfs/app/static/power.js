@@ -3,7 +3,7 @@
  * power devices and cables. The calculations are in powerlogic.js and, for the overview, energycalc.js (both tested; what counts as what
  * is set in the tab "⚡ Rechnung", energyui.js); the app gives this module what it needs through `ctx`. */
 import * as THREE from './vendor/three.module.min.js';
-import { POWER_TYPES, showsInPowerEditor, CABLE_ROUTES, CABLE_KINDS, cableKind, cableColor, cablesOf, ownCables, powerWatts, fmtWatts, cablePoints, meterReadings, meterText } from './powerlogic.js';
+import { POWER_TYPES, showsInPowerEditor, keepsInPowerEditor, CABLE_ROUTES, CABLE_KINDS, cableKind, cableColor, cablesOf, ownCables, powerWatts, fmtWatts, cablePoints, meterReadings, meterText } from './powerlogic.js';
 import { energyBalance, energyText } from './energycalc.js';
 
 const POWER_DOTS = 8;
@@ -173,7 +173,11 @@ export function initPower(ctx) {
     $('#powerEditBtn')?.classList.toggle('active', on);
     $('#cableBtn').hidden = !on;
     $('#energyBtn').hidden = !on;                                  // the tab "⚡ Rechnung" (#378)
-    if (on) { ctx.setPaletteCat('power'); showPower = true; if (!POWER_TYPES.has(ctx.getDeviceType())) ctx.setDeviceType('fusebox'); ctx.setTool('device'); ctx.setStatus(t('power.editorOn')); }
+    if (on) {
+      ctx.setPaletteCat('power'); showPower = true; if (!POWER_TYPES.has(ctx.getDeviceType())) ctx.setDeviceType('fusebox'); ctx.setTool('device');
+      if (!keepsInPowerEditor(ctx.getSelection(), (id) => findDevice(id)?.type)) { ctx.setSelection(null); ctx.refreshSelection(); }   // the library shows at once
+      ctx.setStatus(t('power.editorOn'));
+    }
     else if (ctx.getTool() === 'cable' || ctx.getTool() === 'device') ctx.setTool('select');
     ctx.rebuildPalette();
     sig = ''; update(); ctx.plan()?.render(); ctx.wake();

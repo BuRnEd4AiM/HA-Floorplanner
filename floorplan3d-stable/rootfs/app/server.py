@@ -1720,7 +1720,6 @@ async def no_stale_files(request, response):
 
 # ---------- backup: export / import everything (houses, settings, models, pictures, the add-on's other settings with their codes, the recordings) ----------
 BACKUP_FORMAT = "floorplan3d-backup"
-MAX_BACKUP_BYTES = 200 * 1024 * 1024
 MAX_HOUSES = 20
 
 
@@ -1902,7 +1901,10 @@ async def post_backup(request):
     if not await can_edit(request):
         return forbidden()
     try:
-        data = await request.json()
+        # a backup with pictures and models is far larger than the app's limit for other requests (10 MB): the restore has no limit
+        # (0 = none, the owner's wish; only editors get here). Not a sub-app with its own client_max_size: aiohttp makes every
+        # request with the main app's limit (#693)
+        data = await request.clone(client_max_size=0).json()
         result = apply_backup(request, data)
     except ValueError as err:
         return web.json_response({"error": str(err)}, status=400)
@@ -4433,6 +4435,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.patch("/api/houses/{id}", patch_house),
         web.delete("/api/houses/{id}", delete_house),
         web.get("/api/backup", get_backup),
+        web.post("/api/backup", post_backup),               # the restore: no size limit (post_backup, #693)
         web.get("/api/version", get_version),
         web.get("/api/version/remote", get_version_remote),
         web.get("/api/channel", get_channel),
@@ -4524,11 +4527,6 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/guide/{name:.+}", get_guide_file),
         web.static("/", STATIC_DIR, show_index=False),
     ])
-    sub = web.Application(client_max_size=MAX_BACKUP_BYTES)   # the restore upload may be far larger than any other request
-    sub[KEY_DATA] = app[KEY_DATA]
-    sub[KEY_CONFIG] = app[KEY_CONFIG]
-    sub.add_routes([web.post("", post_backup)])
-    app.add_subapp("/api/backup", sub)
     return app
 
 

@@ -2,7 +2,8 @@
  * - 🔍 a search for a setting under the head: type a word („kipp“), only the fields that have it stay, their sections open; it also says
  *   how many settings in ⚙ have it and opens them there;
  * - „Noppel“: the sections hang as tabs on the left edge of the panel; a tap pulls that section out into a drawer beside the panel (the
- *   panel itself stays short), a tap again puts it back; it stays out for the next object that has it (wide screens only);
+ *   panel itself stays short), a tap again puts it back; it stays out for the next object that has it (wide screens only); every tab
+ *   shows its name (upright, or across under its sign when there are too many for the height, see place());
  * - „⇉ Übernehmen“: the same settings for other windows / doors / rooms / devices of the same kind, in the room, on the floor or in the
  *   whole house, and which groups (panes, size, floor …). One undo step; a window that does not fit its wall is left as it was.
  * The rules are in uiv2more.js (tested); uiv2ui.js calls decorate() once it has built the sections. */
@@ -134,9 +135,15 @@ export function initUiV2Tools(ctx) {
     const right = Math.round(innerWidth - p.left);
     drawer.style.right = `${right}px`; drawer.style.top = `${Math.round(p.top + 8)}px`; drawer.style.maxHeight = `${Math.round(p.height - 16)}px`;
     const dw = drawer.hidden ? 0 : drawer.getBoundingClientRect().width;
-    tabs.style.right = `${right + dw}px`; tabs.style.top = `${Math.round(p.top + 56)}px`;
-    tabs.classList.remove('compact');                                // too many to fit: only their signs
-    if (tabs.getBoundingClientRect().bottom > innerHeight - 8) tabs.classList.add('compact');
+    const top = Math.round(p.top + 56);
+    tabs.style.right = `${right + dw}px`; tabs.style.top = `${top}px`; tabs.style.maxHeight = '';
+    tabs.classList.remove('flat', 'scroll');
+    /* every tab keeps its name (the owner, 2026-11-09, a window with 8 tabs showed only signs: „die sollte bitte dann doch beschrieben
+     * sein“): written upright beside the panel as chosen (picture 5); too many to fit: the name across under its sign (like the tool
+     * bar on top); still too many: the tabs scroll */
+    const over = () => tabs.getBoundingClientRect().bottom > innerHeight - 8;
+    if (over()) tabs.classList.add('flat');
+    if (over()) { tabs.classList.add('scroll'); tabs.style.maxHeight = `${Math.max(120, innerHeight - top - 8)}px`; }
   }
   addEventListener('resize', place);
   if (typeof ResizeObserver === 'function' && $('#panel')) new ResizeObserver(place).observe($('#panel'));
@@ -211,9 +218,9 @@ export function initUiV2Tools(ctx) {
     for (const x of targets) {
       const before = JSON.parse(JSON.stringify(x.it));
       copyGroups(pk, src, x.it, groups);
-      if (x.wall && (x.it.width !== before.width)) {                 // a wider window must still fit its wall
+      if (x.wall && (x.it.width !== before.width || x.it.sill !== before.sill || x.it.height !== before.height)) {   // a wider / other window must still fit its wall
         const p = clampOpeningPos(x.wall, x.it.width, x.it.pos);
-        if (p === null || openingOverlaps(x.wall, p, x.it.width, x.it.id)) { Object.keys(x.it).forEach((k) => delete x.it[k]); Object.assign(x.it, before); skipped++; continue; }
+        if (p === null || openingOverlaps(x.wall, p, x.it.width, x.it.id, x.it)) { Object.keys(x.it).forEach((k) => delete x.it[k]); Object.assign(x.it, before); skipped++; continue; }
         x.it.pos = p;
       }
       done++;

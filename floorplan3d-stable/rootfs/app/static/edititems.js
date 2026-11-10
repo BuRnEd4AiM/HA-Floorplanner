@@ -105,7 +105,7 @@ export function initEditItems(ctx) {
       if (ow) { ctx.sayLock(ow); return; }
       const o = found.opening;
       const p = clampOpeningPos(found.wall, o.width, o.pos + (dx || dz));
-      if (p === null || p === o.pos || openingOverlaps(found.wall, p, o.width, o.id)) return;
+      if (p === null || p === o.pos || openingOverlaps(found.wall, p, o.width, o.id, o)) return;
       ctx.snapshot(); o.pos = +p.toFixed(4); ctx.changed(); return;
     }
     if (sel.kind === 'roof') {                      // a roof (#255) moves as a whole

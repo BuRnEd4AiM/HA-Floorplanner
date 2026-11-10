@@ -558,7 +558,7 @@ function build() {
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
     if (!ghost && !holo) statics.push({ g, models: f.devices.filter(staticDevice).map((d) => registry.get(d.id)).filter(Boolean) });
     floorBuild.inside(g, part);
-    if (!ghost && !houseMode && i === floorIdx) roomLocks?.draw3d(g, f);   // locked rooms hatched while editing (roomlockui.js)
+    if (!ghost && !houseMode && i === floorIdx) roomLocks?.draw3d(g, f, iso);   // locked rooms hatched while editing; a room on its own: only its own (roomlockui.js)
   });
   roomLocks?.update();
   const overRi = houseMode ? -1 : coverRoofFloor(layout.floors, floorIdx);   // the roof over the floor shown (not drawn yet: it is a floor above), see-through
@@ -1534,6 +1534,7 @@ const floorPanel = initFloorPanel({
   snapshot: () => snapshot(), build: () => build(), fitCamera: () => fitCamera(), buildNav: (force) => buildNav(force), renderObjList: () => renderObjList(),
   scheduleSave: () => scheduleSave(), switchFloor: (i) => switchFloor(i), clearSelection: () => { selection = null; }, roofBox: (i) => roofBox(i),
   autoRoofBox: (i) => autoRoofBox(i), groundIdx: () => groundIdx(), uid: () => uid(),
+  openTerrain: () => { switchFloor(groundIdx()); setTool('plot'); plotUi.setMode('terrain'); $('#plotPalette')?.scrollIntoView({ block: 'start' }); },   // a basement half out of the ground (#691)
   dormerOntoWall: (d) => { const x = dormerWindows(layout.floors, roofList, elev).find((q) => q.d === d); return x ? eaveOntoWall(layout.floors[x.fi].walls, x.n, x.win) : null; },
 });
 function renderFloorPanel() { floorPanel.render(); }
@@ -1660,6 +1661,7 @@ const props = initProps({
   uploadPicture: (f, d) => uploadPicture(f, d), floorH, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
   balconyFree: (id) => balconies.free(floorIdx).has(id),        // a balcony that hangs free (#646): its fields say so
+  select: (s) => { multiSel.clear(); selection = s; refreshSelection(); },   // the window above / below a door (#694, openingstackui.js)
   previewTilt: (id) => openings.preview(id), allOpenings: () => layout.floors.flatMap((f) => openingWalls(f).flatMap((w) => w.openings || [])),   // "Kippwinkel" (tiltui.js)
   closetRoof: (d) => { const planes = roofsUi.slopesAt(floorIdx, d.x, d.z); return planes ? { planes, baseY: elev(floorIdx) + (d.y || 0) } : null; },   // a cabinet fits under the roof over it (closet.js; an L-shaped house: the wing's roof, #621)
 });
@@ -1958,6 +1960,14 @@ if (params.get('debug')) {
     tiltTargets: (id) => (registry.get(id)?.userData.tiltPivots || []).map((p) => p?.userData?.target ?? 0),   // a tilted pane (#624), its angle
     sashes: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.children.some((c) => c.userData?.sash)),   // a pane with a sash (sash.js)
     fixedGlass: (id) => { const out = []; registry.get(id)?.traverse((m) => { if (m.userData?.fixedGlass) { m.geometry.computeBoundingBox(); const b = m.geometry.boundingBox; out.push({ y0: +(m.position.y + b.min.y).toFixed(3), y1: +(m.position.y + b.max.y).toFixed(3), hex: m.material.color.getHex() }); } }); return out; },   // #679: in the window's own frame (a lowered wall does not count)
+    wallSolidAt: (id, along, y) => {                           // #694: is there wall `along` m from its start and `y` m over its floor (a ray straight through it)
+      const g = registry.get(id), w = layout.floors.flatMap((f) => f.walls || []).find((v) => v.id === id);
+      if (!g || !w) return null;
+      g.updateMatrixWorld(true);
+      const x = along - wallLength(w) / 2, from = g.localToWorld(new THREE.Vector3(x, y, 2)), to = g.localToWorld(new THREE.Vector3(x, y, -2));
+      const hits = new THREE.Raycaster(from, to.sub(from).normalize()).intersectObject(g, true);
+      return hits.some((h) => { if (!h.object.material?.visible) return false; for (let o = h.object; o && o !== g; o = o.parent) if (o.userData?.kind === 'opening') return false; return true; });
+    },
     openLook: (id) => registry.get(id)?.userData.look ?? null,                                                 // 'open', 'tilted', 'closed' …
     shutterScale: (id) => { const sh = registry.get(id)?.userData.shutter; const p = Array.isArray(sh) ? sh[0] : sh; return p?.userData.target ?? null; },   // how far a window's cover closes (#331)
     liveOk: () => liveChan.ok(),

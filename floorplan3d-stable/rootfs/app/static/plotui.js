@@ -38,13 +38,16 @@ export function initPlotUi(ctx) {
   const mark = (el, value, key = 'v') => el.querySelectorAll('button').forEach((b) => { const on = b.dataset[key] === value; b.classList.toggle('active', on); b.setAttribute('aria-pressed', String(on)); });
   const swatch = (k) => { const s = make('i', 'yardSw'); s.style.background = surfaceColor(k); return s; };
 
+  /** the mode of the palette: 'plot', 'area' or 'terrain' */
+  function setMode(v) {
+    if (curMode() === 'terrain' && v !== 'terrain') terrain.leave();
+    mode = v; ctx.cancelDraft?.(); render(); hint(); ctx.planRender?.();
+  }
+
   /* ---------- the palette: built once when the tool is chosen, then only marked and filled in (a button never changes under the pointer) ---------- */
   let ui = null;
   function build() {
-    const modeSeg = seg('plotMode', [['plot', t('plot.mode.plot')], ['area', t('plot.mode.area')], ['terrain', t('plot.mode.terrain')]], (v) => {
-      if (curMode() === 'terrain' && v !== 'terrain') terrain.leave();
-      mode = v; ctx.cancelDraft?.(); render(); hint(); ctx.planRender?.();
-    });
+    const modeSeg = seg('plotMode', [['plot', t('plot.mode.plot')], ['area', t('plot.mode.area')], ['terrain', t('plot.mode.terrain')]], setMode);
     const surfHead = make('p', 'plotHead', t('plot.surface')), grid = make('div', 'yardGrid'); grid.id = 'yardSurfaces';
     SURFACE_KEYS.forEach((k) => {
       const b = btn('', '', () => { surface = k; render(); });
@@ -207,7 +210,7 @@ export function initPlotUi(ctx) {
   return {
     render, drawn, remove, pointsOf, props, areas, hint, terrain,
     /** the mode of the palette: 'plot', 'area' or 'terrain' (a tap in the plan sets a spot height, #629) */
-    mode: () => curMode(),
+    mode: () => curMode(), setMode,
     /** rectangle drawing (two clicks) is chosen */
     rect: () => shape === 'rect',
     /** the palette opens: the plot first when there is none, else the areas */

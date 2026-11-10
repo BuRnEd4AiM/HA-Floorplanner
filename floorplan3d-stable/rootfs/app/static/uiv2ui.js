@@ -230,7 +230,7 @@ export function initUiV2(ctx) {
         const { wall } = ctx.findOpening(it.id) || {};
         if (!wall) return;
         const pos = clampOpeningPos(wall, p.width, it.pos);
-        if (pos === null || openingOverlaps(wall, pos, p.width, it.id)) { ctx.setStatus(t('v2.kinds.noFit')); return; }
+        if (pos === null || openingOverlaps(wall, pos, p.width, it.id, p)) { ctx.setStatus(t('v2.kinds.noFit')); return; }
         edit(() => { applyWindowKind(it, p); it.pos = pos; });
       });
       tile.dataset.kind = k;
