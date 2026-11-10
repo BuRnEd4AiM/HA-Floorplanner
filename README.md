@@ -23,9 +23,9 @@ Draw your home (or let an AI build it), then run lights, heating, energy, securi
 
 <sub>**Like it?** 3D Floorplan is free and made with love in many evenings. A small donation via PayPal buys me a cup of tea and prevents brain overflow. Thank you! 💛</sub>
 
-[![Open the demo in the browser](https://img.shields.io/badge/%E2%96%B6%20Try%20the%20demo-open%20in%20the%20browser-7dff9a?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/) [![Download the demo](https://img.shields.io/badge/%E2%AC%87%20Download%20the%20demo-always%20the%20latest-23e0ff?style=for-the-badge&labelColor=0a3ba8)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)
+[![Open the demo in the browser](https://img.shields.io/badge/%E2%96%B6%20Try%20the%20demo-open%20in%20the%20browser-7dff9a?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/) [![Download the demo](https://img.shields.io/badge/%E2%AC%87%20Download%20the%20demo-always%20the%20latest-23e0ff?style=for-the-badge&labelColor=0a3ba8)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html) [![Try the beta in the browser](https://img.shields.io/badge/%F0%9F%A7%AA%20Try%20the%20beta-the%20newest%20changes-ff7ad9?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/beta/)
 
-<sub>**Try the demo:** one click and it runs right in your browser, always the newest version, no install and no Home Assistant needed. Or download it as one HTML file with an example house, lights and sensors and double-click it.</sub>
+<sub>**Try the demo:** one click and it runs right in your browser, the version everybody has in the add-on, no install and no Home Assistant needed. Or download it as one HTML file with an example house, lights and sensors and double-click it. **Try the beta:** the newest changes before they are released to everyone, also right in the browser, without installing the beta add-on.</sub>
 
 [![Video guide](https://img.shields.io/badge/%F0%9F%8E%AC%20Video%20guide-every%20feature%20as%20a%20short%20video-ffb347?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/guide/)
 
@@ -363,7 +363,7 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 
 **Home Assistant Container (Docker, no add-on store):** run 3D Floorplan as a second container next to Home Assistant; you log in with your Home Assistant user. The steps are in [container/README.md](container/README.md).
 
-**Normal or Beta?** The store has two add-ons. **3D Floorplan** is the normal one: it gets a new version only when it has been tested and released. **3D Floorplan Beta** gets every new version at once, to try new things early (it shows up only with *Advanced mode* in your user profile). Each has its own data; bring your house over with a backup (🗄️ → download, then restore in the other one). While the normal add-on runs, the beta switches nothing by itself (no heating rules, routines or messages), so the two never do things twice.
+**Normal or Beta?** The store has two add-ons. **3D Floorplan** is the normal one: it gets a new version only when it has been tested and released. **3D Floorplan Beta** gets every new version at once, to try new things early (it shows up only with *Advanced mode* in your user profile). Each has its own data; bring your house over with a backup (🗄️ → download, then restore in the other one). While the normal add-on runs, the beta switches nothing by itself (no heating rules, routines or messages), so the two never do things twice. Just curious what is new? **[Try the beta in the browser](https://burned4aim.github.io/HA-Floorplanner/beta/)**, nothing to install.
 
 <a href="https://www.paypal.com/donate/?hosted_button_id=693YLE2BGE4FA"><img src="docs/img/donate.svg" alt="Donate with PayPal: a cup of tea prevents brain overflow" height="52"></a>
 
@@ -441,7 +441,7 @@ The look of a card applies to that card only and never changes the add-on's sett
 
 ## 🧪 Try it without Home Assistant
 
-**[⬇ Download the demo](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)** (always the newest build; a GitHub workflow rebuilds it whenever the app changes) and open the file with a double-click: one HTML file, no server, no Home Assistant. Or **[open the demo directly in the browser](https://burned4aim.github.io/HA-Floorplanner/)** (GitHub Pages, same build, nothing to download).
+**[⬇ Download the demo](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)** (always the newest build; a GitHub workflow rebuilds it whenever the app changes) and open the file with a double-click: one HTML file, no server, no Home Assistant. Or **[open the demo directly in the browser](https://burned4aim.github.io/HA-Floorplanner/)** (GitHub Pages, same build, nothing to download). Both show the normal add-on, the version everybody has. **[The beta demo](https://burned4aim.github.io/HA-Floorplanner/beta/)** shows the newest changes before they are released (the pill at the top says „Beta“).
 
 It contains an example house with a basement in the ground, several floors, a roof, a plot with garden, furniture, doors and windows with contact sensors, simulated lights (colour, brightness, effects, scenes), a **Nanoleaf layout**, a **TV backlight**, an **invisible LED strip** that still lights the room, an **LED ring** with two lights around the bedroom ceiling, temperature / humidity sensors, batteries, the holiday alarm (code 1234), two recorded days to play back in *Security* and the live mode. Everything works as in the add-on, except that changes are not saved and what needs the add-on itself: building a house from JSON, restoring a backup, uploading pictures and models, sending messages (the demo says so).
 

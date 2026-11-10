@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  actions: write                 # starts the workflow Demo afterwards: the demo on GitHub Pages shows the normal add-on (5.3.1)
 
 concurrency:
   group: stable
@@ -67,3 +68,8 @@ jobs:
           fi
           echo "### ✅ Version $V is now in the normal add-on" >> "$GITHUB_STEP_SUMMARY"
           echo "Home Assistant offers the update to everyone with the normal add-on (Settings → Apps, or the update notice)." >> "$GITHUB_STEP_SUMMARY"
+      - name: The demo on GitHub Pages and in the release shows it too
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run demo.yml --ref main || echo "::warning::Could not start the workflow Demo; start it by hand (Actions, Demo, Run workflow)."

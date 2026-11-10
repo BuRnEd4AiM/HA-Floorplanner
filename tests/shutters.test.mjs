@@ -229,6 +229,30 @@ test('the ball of a shutter: at the middle of the window, always on top of it, w
   assert.equal(ballIcon({ entity: 'cover.r' }), '🪟');
 });
 
+test('a window right above (#694): the ball of the lower shutter stays in the wall between, its label on its own window (#697)', () => {
+  // ChrisSN86's terrace: a door as a floor-length window 2.20 m high, a window above it from 2.95 m, 0.65 m high, each with a shutter
+  const door = { id: 'd', type: 'window', pos: 2, width: 1.6, sill: 0, height: 2.2, shutterEntity: 'cover.jalousie' };
+  const high = { id: 'h', type: 'window', pos: 2, width: 1.6, sill: 2.95, height: 0.65, shutterEntity: 'cover.lichterbereich' };
+  const w = { a: [0, 0], b: [6, 0], height: 3.6, openings: [door, high] }, labelHalf = 0.375 / 2;
+  const ball = openingBallAt(w, door).y;
+  near(ball, 2.2 + S.SHUTTER_BALL_LIFT);
+  assert.ok(ball + BALL.r <= 2.95, 'the ball stays under the window above');
+  near(S.shutterLabelY(door, high), 2.2 - S.SHUTTER_LABEL_UNDER);
+  assert.ok(S.shutterLabelY(door, high) + labelHalf < 2.2 && S.shutterLabelY(door, high) - labelHalf > 0, 'the label on its own window');
+  near(openingBallAt(w, high).y, 3.6 + S.SHUTTER_BALL_LIFT, 1e-9);
+  near(S.shutterLabelY(high), 3.6 + S.SHUTTER_BALL_LIFT + 0.55, 1e-9, 'the upper one as before');
+  near(S.shutterBallY(door, { sill: 2.5 }), 2.35, 1e-9, 'a narrow gap: the ball in its middle');
+  near(S.shutterBallY(door, { sill: 2.2 }), 2.2, 1e-9, 'no gap at all: on the edge');
+  near(openingBallAt({ a: [0, 0], b: [6, 0], openings: [door] }, door).y, 2.2 + S.SHUTTER_BALL_LIFT, 1e-9, 'alone: as before');
+});
+
+test('stacked floors: the ceiling of a shutter\'s ball is the house\'s, or the wall\'s for a window that reaches higher (#697)', () => {
+  near(S.shutterCeiling({ sill: 0.9, height: 1.2 }, 3.6, 2.6), 2.6, 1e-9, 'a normal window: the ceiling of the house');
+  near(S.shutterCeiling({ sill: 0, height: 2.2 }, 3.6, 2.6), 2.6, 1e-9, 'the door under it as well');
+  near(S.shutterCeiling({ sill: 2.95, height: 0.65 }, 3.6, 2.6), 3.6, 1e-9, 'the window above: its high wall');
+  near(S.shutterCeiling({ sill: 2.95, height: 0.65 }, undefined, 2.6), 3.6, 1e-9, 'a wall without a height: at least the window');
+});
+
 test('live mode: a window takes no tap, the ball of its shutter does, and it counts as linked', () => {
   assert.ok(skipInLive({ kind: 'opening', id: 'w' }));
   assert.ok(!skipInLive({ kind: 'opening', id: 'w', tapBall: true }));

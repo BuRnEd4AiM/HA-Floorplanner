@@ -5,6 +5,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { LIVE_NO_TAP, linkedDevice } from './pickrules.js';
 import { shutterBallY } from './shutters.js';
+import { neighbours } from './openingstack.js';
 import { isLamp } from './lamplight.js';
 import { drawOffline } from './offlinemarks.js';
 import { LEISURE } from './leisure.js';
@@ -47,10 +48,11 @@ export function ballY(minY, maxY, ceiling) {
 }
 
 /** where the ball of a window's roller shutter floats (#331), in floor coordinates: at the middle of window o along its wall w, on top of
- *  the window where the shutter rolls up (#335: also where that reaches the ceiling, the ball shows through everything) */
+ *  the window where the shutter rolls up (#335: also where that reaches the ceiling, the ball shows through everything); with another
+ *  door / window right above o, in the wall between them (#697) */
 export function openingBallAt(w, o) {
   const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, k = (o.pos || 0) / L;
-  return { x: w.a[0] + (w.b[0] - w.a[0]) * k, y: shutterBallY(o), z: w.a[1] + (w.b[1] - w.a[1]) * k };
+  return { x: w.a[0] + (w.b[0] - w.a[0]) * k, y: shutterBallY(o, neighbours(w, o).above), z: w.a[1] + (w.b[1] - w.a[1]) * k };
 }
 
 /** Push balls apart that would cover each other (#244): points [{ x, y, z }] (their places over the devices), returned moved so that no two

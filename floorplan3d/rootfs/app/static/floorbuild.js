@@ -12,7 +12,8 @@ import { atticUniforms, cutAtRoof } from './atticclip.js';
 import { roomsOfWall } from './attic.js';
 import { solarPose, groundFn } from './solarroof.js';
 import { addPickProxy, underFloors, holoify } from './modelfx.js';
-import { shutterEntity, shutterSide, shutterLabelY } from './shutters.js';
+import { shutterEntity, shutterSide, shutterLabelY, shutterCeiling } from './shutters.js';
+import { neighbours } from './openingstack.js';
 import { openingPoint } from './openings.js';
 import { openingBallAt, BALL } from './tapballs.js';
 import { pillFinger } from './labels.js';
@@ -238,14 +239,15 @@ export function initFloorBuild(ctx) {
     (w.openings || []).forEach((op) => {
       const e = shutterEntity(op);
       if (!e) return;
-      const at = openingBallAt(w, op);
-      if (covered) at.y = inRoom(at.y, ceiling, BALL.r + BALL.ceilingGap);   // stacked: the ball stays in the room, under the ceiling
+      const at = openingBallAt(w, op), room = shutterCeiling(op, w.height, ceiling);   // a window higher than the ceiling: its wall's height (#697)
+      if (covered) at.y = inRoom(at.y, room, BALL.r + BALL.ceilingGap);      // stacked: the ball stays in the room, under the ceiling
       at.y += lift;                                            // the wall stands on a plateau (#566)
       const tb = ctx.tapBalls.add(g, null, { id: op.id, entity: e }, at, 'opening');
       if (tb) ctx.pickables.push(tb);
       if (!labels || !wantsLabel({ entity: e }, mode)) return;
       const sp = ctx.textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true }), [x, z] = openingPoint(w, op);
-      sp.position.set(x, (covered ? shutterLabelIn(shutterLabelY(op), at.y - lift, ceiling, LABEL_HALF) : shutterLabelY(op)) + lift, z);
+      const ly = shutterLabelY(op, neighbours(w, op).above);               // a door / window right above: on its own window (#697)
+      sp.position.set(x, (covered ? shutterLabelIn(ly, at.y - lift, room, LABEL_HALF) : ly) + lift, z);
       sp.userData.atWindow = true;                             // the balls need not keep clear of it: it is over the window's own ball (#335)
       g.add(sp);
       ctx.labelSprites.set(op.id, sp);
