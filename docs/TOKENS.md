@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-10 · 126 Sitzungen
+Stand: 2026-11-10 · 127 Sitzungen
 
-**Insgesamt: 8,45 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 8,48 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 23,4 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 80,7 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 8,34 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 23,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 80,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 8,37 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 40 | 2,32 Mrd. | 5,6 Mio. |
+| 2026-11 | 41 | 2,35 Mrd. | 5,7 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-10 | [018pwcmy…](https://claude.ai/code/session_018pwcmyz3i2xa5YFSbPMLaA) | claude/sweet-carson-yxl5i4 | 28,7 Mio. | 65 Tsd. | gezählt |
 | 2026-11-10 | [018pwcmy…](https://claude.ai/code/session_018pwcmy68YKhEKzJ8dNTuwJ) | claude/lucid-cray-gfs610 | 92,5 Mio. | 193 Tsd. | gezählt |
 | 2026-11-09 | [012p9z3P…](https://claude.ai/code/session_012p9z3PULpwxe5ThzvSP6K8) | claude/clever-planck-9y4ptt | 176,8 Mio. | 275 Tsd. | gezählt |
 | 2026-11-09 | [012p9z3M…](https://claude.ai/code/session_012p9z3MJ3efYp3wSxzmqFs3) | claude/sleepy-cray-df5ney | 12,3 Mio. | 43 Tsd. | gezählt |
