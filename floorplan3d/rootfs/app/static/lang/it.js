@@ -2373,4 +2373,6 @@ export default {
   'stack.added': 'Finestra aggiunta sopra: davanzale {sill}, altezza {h}. Puoi modificarli.',
   'stack.clash': 'Non possibile: toccherebbe la porta o la finestra sopra o sotto.',
   'balc.part': 'Sospesa in parte: dove sporge oltre il piano sotto la regge una lastra (pilastri solo lì), il resto poggia sulla casa.',
+  'src.temp': 'Temperatura da', 'src.humid': 'Umidità da', 'src.auto': 'Automatico · {v}', 'src.thermo': 'Termostato · {v}',
+  'src.hint': 'Ciò che etichette, riquadri, colori e 🌡 Clima mostrano per la stanza. Automatico: la media dei suoi sensori, il termostato solo senza sensore. Il riscaldamento funziona come prima.',
 };

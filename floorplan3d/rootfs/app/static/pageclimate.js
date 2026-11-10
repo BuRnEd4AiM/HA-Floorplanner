@@ -9,6 +9,7 @@ import { heatMode } from './heating.js';
 import { clampTarget, HEAT_DELAY } from './heatpanel.js';
 import { weatherEntity } from './today.js';
 import { roomEntityIds } from './roomtiles.js';
+import { sourceOf } from './roomsource.js';
 import { roomOpenings } from './roompanel.js';
 import { openingEntities } from './openings.js';
 
@@ -27,9 +28,11 @@ export function initClimatePage(ctx) {
   const num = (v, d = 1) => { try { return v.toLocaleString(lang(), { minimumFractionDigits: d, maximumFractionDigits: d }); } catch { return v.toFixed(d); } };
   const deg = (c, d = 1) => (c === null || c === undefined ? '–' : `${num(imperial() ? c * 9 / 5 + 32 : c, d)}°`);   // °F only shown, the thermostat gets °C
   const goal = (e) => pending.get(e)?.v ?? ctx.states()[e]?.tt;
-  /** the rooms of every floor: [{ id, name, floor, floorName, ids (its entities), open (the names of its open windows and doors) }] */
+  /** the rooms of every floor: [{ id, name, floor, floorName, ids (its entities), open (the names of its open windows and doors), from
+   *  (where its temperature and humidity come from, #705) }] */
   const rooms = () => ctx.layout().floors.flatMap((f, fi) => (f.rooms || []).filter((r) => r.name).map((r) => ({
     id: r.id, name: r.name, floor: fi, floorName: f.name || '', ids: [...roomEntityIds(r, ctx.placed(f), ctx.areaEntities(r))],
+    from: { temp: sourceOf(r, 'temp'), humid: sourceOf(r, 'humid') },
     open: roomOpenings(r, f).filter((o) => openingEntities(o).some((e) => ctx.isOpen(e))).map((o) => o.name || t(`prop.${o.type}`)),
   })));
   const placedIds = () => ctx.layout().floors.flatMap((f) => (f.devices || []).map((d) => d.entity).filter(Boolean));

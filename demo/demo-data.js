@@ -68,7 +68,7 @@ const layout = {
     stairs: [{ id: 'st1', name: 'Treppe', type: 'straight', x: 6.5, z: 3.9, rot: 0, w: 1.0, tread: 0.2, turn: 'right', dir: 'up' },
       { id: 'st2', name: 'Wendeltreppe zur Dachterrasse', type: 'spiral', x: 14.1, z: 5.05, rot: 180, w: 0.9, turn: 'right', dir: 'up', floors: 1 }],
     rooms: [
-      { id: 'r1', name: 'Wohnzimmer',    area: 'wohnzimmer', covering: 'herringbone', wallLook: { pattern: 'woodchip' }, color: '#b89b74', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
+      { id: 'r1', name: 'Wohnzimmer',    area: 'wohnzimmer', tempFrom: 'climate', covering: 'herringbone', wallLook: { pattern: 'woodchip' }, color: '#b89b74', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
       { id: 'r2', name: 'Küche',         covering: 'tilesLarge', floorLook: { color: '#b9b5ad' }, wallLook: { pattern: 'paint', color: '#b4c2ad' }, wallBelow: { pattern: 'wMetro', height: 1.4 }, color: '#c9c2b4', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
       { id: 'r3', name: 'Bad',           covering: 'hexFloor', wallLook: { pattern: 'paint', color: '#f4f2ee' }, wallBelow: { pattern: 'wTiles', color: '#6f8fa8', height: 1.2 }, color: '#8fb1c2', points: [[0, 4.5], [3, 4.5], [3, 7], [0, 7]] },
       { id: 'r4', name: 'Schlafzimmer',  area: 'schlafzimmer', covering: 'carpet', floorLook: { color: '#c7bba8' }, wallLook: { pattern: 'wpLeaves' }, color: '#a99bb8', points: [[3, 4.5], [7, 4.5], [7, 7], [3, 7]] },
@@ -113,6 +113,8 @@ const layout = {
       { id: 'd7w', type: 'sensor', x: 4.5, z: 0.4, y: 1.4, rot: 0, scale: 1, name: 'Leistung', entity: 'sensor.wohnzimmer_leistung' },
       { id: 'd7',  type: 'plant',      x: 0.7, z: 0.7,  y: 0,    rot: 0,   scale: 1.2, name: 'Pflanze',         entity: '' },
       { id: 'd8',  type: 'sensor',     x: 5.75, z: 0.9, y: 1.6,  rot: 90,  scale: 1,   name: 'Temperatur Wohnzimmer', entity: 'sensor.wohnzimmer_temp' },
+      // a light switch that measures too (#705, like the dingz of Miicki): its own warmth makes it 23,1 °C; the room shows its thermostat (tempFrom)
+      { id: 'd8s', type: 'sensor',     x: 3.85, z: 4.42, y: 1.05, rot: 180, scale: 0.8, name: 'Lichtschalter Wohnzimmer', entity: 'sensor.lichtschalter_wohnzimmer_temp' },
       // outside on the back wall over the door of the office, looking into the garden (the owner, 2026-11-04: the camera in the living room
       // "im Video stört", it belongs outside)
       { id: 'cam1', type: 'camera', x: 7.9, z: 7.22, y: 2.4, rot: 0, scale: 1.4, name: 'Kamera Garten', entity: 'camera.garten', fov: 90, range: 4.2, motionEntity: 'binary_sensor.garten_bewegung' },
@@ -379,6 +381,7 @@ const entities = {
   'sensor.batterie_ladung':  { name: 'Hausbatterie',           state: '82',   unit: '%' },
   'sensor.batterie_leistung': { name: 'Batterie Leistung',     state: '600', unit: 'W' },
   'sensor.wohnzimmer_temp':  { name: 'Wohnzimmer Temperatur',  state: '21.4', unit: '°C' },
+  'sensor.lichtschalter_wohnzimmer_temp': { name: 'Lichtschalter Wohnzimmer Temperatur', state: '23.1', unit: '°C', dc: 'temperature' },   // #705: warm from itself
   'number.heizung_wohnzimmer_local_temperature_calibration': { name: 'Heizung Wohnzimmer Local temperature calibration', state: '-3.2', unit: '°C' },   // #573: its offset, set by 🌡 Raumfühler
   'sensor.kueche_temp':      { name: 'Küche Temperatur',       state: '22.1', unit: '°C' },
   'sensor.schlafzimmer_temp':{ name: 'Schlafzimmer Temperatur', state: '18.6', unit: '°C' },

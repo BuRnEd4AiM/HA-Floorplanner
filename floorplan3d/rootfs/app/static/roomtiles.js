@@ -5,32 +5,16 @@
 import { pointInPoly } from './rooms.js';
 import { roomOpenings } from './roompanel.js';
 import { occupied } from './nav.js';
+import { readingFrom, sourceOf } from './roomsource.js';
 
 /**
  * The average reading of a room: ids (entity ids in the room), states, mode temp | humid | co2; °F is turned into °C. null without a
  * value. The room's own sensors first: a thermostat (its current value, climate.…, and the sensors of its device, partOf: {entity: its
  * thermostat}, #370) counts only when the room has none, it sits at the radiator and is warmer there (the owner: 22,8° over the room,
- * its sensor 20,5°, the thermostat 25,1°).
+ * its sensor 20,5°, the thermostat 25,1°). `from`: what the room says it comes from (#705, roomsource.js sourceOf: 'climate' = only the
+ * thermostat, an entity id = only that one, '' = as described).
  */
-export function roomReading(ids, states, mode, partOf = {}) {
-  const own = [], thermo = [];
-  ids.forEach((id) => {
-    const s = states[id];
-    if (!s) return;
-    const num = parseFloat(s.state);
-    if (id.startsWith('climate.')) {
-      const v = mode === 'temp' ? s.ct : mode === 'humid' ? s.ch : null;
-      if (typeof v === 'number') thermo.push(v);
-    } else if (!isNaN(num) && id.startsWith('sensor.')) {
-      const vals = partOf?.[id] ? thermo : own;
-      if (mode === 'temp' && (s.unit === '°C' || s.unit === '°F' || s.dc === 'temperature')) vals.push(s.unit === '°F' ? (num - 32) * 5 / 9 : num);
-      else if (mode === 'humid' && s.unit === '%' && (s.dc === 'humidity' || /feucht|humid/i.test(id))) vals.push(num);
-      else if (mode === 'co2' && (s.dc === 'carbon_dioxide' || (s.unit === 'ppm' && /co2/i.test(id)))) vals.push(num);
-    }
-  });
-  const vals = own.length ? own : thermo;
-  return vals.length ? vals.reduce((x, y) => x + y) / vals.length : null;
-}
+export const roomReading = (ids, states, mode, partOf = {}, from = '') => readingFrom(ids, states, mode, partOf, from);
 
 /** {entity: its thermostat} of every area (#370, get_areas "parts"): the sensors of a thermostat's device */
 export const thermostatParts = (areas) => Object.assign({}, ...(areas || []).map((a) => a?.parts || {}));
@@ -58,7 +42,7 @@ export function roomSummary(room, f, ctx) {
   const someone = occupied(room, f, ctx.isOn, pointInPoly)
     || [...ids].some((id) => id.startsWith('binary_sensor.') && PRESENCE_DC.has(ctx.states[id]?.dc) && ctx.states[id]?.state === 'on')
     || [...ids].some((id) => /^binary_sensor\..*(praesenz|presence|bewegung|motion|occupancy)/.test(id) && ctx.states[id]?.state === 'on');
-  return { temp: roomReading(ids, ctx.states, 'temp', ctx.partOf), lights: lit.length, rgb: rgbOf, open, occupied: someone };
+  return { temp: roomReading(ids, ctx.states, 'temp', ctx.partOf, sourceOf(room, 'temp')), lights: lit.length, rgb: rgbOf, open, occupied: someone };   // its own source (#705)
 }
 
 /** the texts of a tile: { temp: '21,4°' ('–' without one), lights: '💡 2 an' / '💡 aus', open: '🪟 offen' or '' }; num(v): v with one

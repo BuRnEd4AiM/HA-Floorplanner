@@ -2338,4 +2338,6 @@ export default {
   'stack.added': 'Dodano okno powyżej: parapet {sill}, wysokość {h}. Możesz je zmienić.',
   'stack.clash': 'Nie da się: zachodziłoby na drzwi lub okno powyżej lub poniżej.',
   'balc.part': 'Wisi częściowo: tam, gdzie wystaje poza piętro poniżej, niesie ją płyta (słupy tylko tam), reszta leży na domu.',
+  'src.temp': 'Temperatura z', 'src.humid': 'Wilgotność z', 'src.auto': 'Automatycznie · {v}', 'src.thermo': 'Termostat · {v}',
+  'src.hint': 'Co etykiety, kafelki, kolory i 🌡 Klimat pokazują dla pokoju. Automatycznie: średnia jego czujników, termostat tylko bez czujnika. Ogrzewanie działa jak dotąd.',
 };

@@ -2380,4 +2380,6 @@ export default {
   'stack.added': 'Ventana añadida encima: antepecho {sill}, altura {h}. Puedes cambiar ambos.',
   'stack.clash': 'No es posible: chocaría con la puerta o ventana de encima o de debajo.',
   'balc.part': 'Cuelga en parte: donde sobresale del piso de abajo la sostiene una losa (pilares solo allí), el resto descansa sobre la casa.',
+  'src.temp': 'Temperatura de', 'src.humid': 'Humedad de', 'src.auto': 'Automático · {v}', 'src.thermo': 'Termostato · {v}',
+  'src.hint': 'Lo que muestran las etiquetas, mosaicos, colores y 🌡 Clima para la habitación. Automático: la media de sus sensores, el termostato solo sin sensor. La calefacción sigue igual.',
 };

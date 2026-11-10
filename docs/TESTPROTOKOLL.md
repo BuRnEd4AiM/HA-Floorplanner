@@ -30,6 +30,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 18. **Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten** (Abschnitt 175, deine Fotos und Meldungen vom 2026-11-09, #686, #687, #689, #690): Claude hat 175.1, 175.2, 175.5 und 175.6 geprüft; für dich nach dem Merge in der Beta am iPad 175.3, 175.4, 175.7 und 175.8.
 19. **Verbessert in 5.2.3: ⛰ Keller halb aus der Erde** (Abschnitt 176, #691, Frage von st03psn vom 2026-11-09): Claude hat 176.1 bis 176.4 geprüft; für dich nach dem Merge in der Beta 176.5 und das Video 176.6.
 20. **Repariert in 5.3.2: 🏗 Terrasse halb auf der Garage, halb frei** (Abschnitt 181, #703 von Miicki vom 2026-11-10): Claude hat 181.1 bis 181.4 geprüft; für dich nach dem Merge in der Beta-Demo 181.5 und die Suche 181.6.
+21. **Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt** (Abschnitt 182, #705 von Miicki vom 2026-11-10): Claude hat 182.1 bis 182.4 geprüft; für dich nach dem Merge in der Beta-Demo 182.5, im Add-on mit einem eigenen Raum 182.6 und die Suche 182.7.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -467,7 +468,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 179. Repariert in 5.3.1: 🪟 das Schild des unteren Rollladens (#697) | 3 | 0 | 0 | 0 | – |
 | 180. Verbessert in 5.3.1: 🧪 die Beta im Browser | 4 | 0 | 0 | 0 | – |
 | 181. Repariert in 5.3.2: 🏗 Terrasse halb auf der Garage, halb frei (#703) | 4 | 0 | 3 | 0 | 181.5 bis 181.7 |
-| **Zusammen** | **1166** | **1** | **96** | **92** | |
+| 182. Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt (#705) | 4 | 0 | 4 | 0 | 182.5 bis 182.8 |
+| **Zusammen** | **1170** | **1** | **100** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2786,3 +2788,17 @@ Gemeldet von Miicki am 2026-11-10 (#703): eine Terrasse im Erdgeschoss eines Hau
 | 181.5 | Nach dem Merge: dasselbe in der Beta-Demo mit der Maus, wie in 181.4 | Wie 181.4 | ❓ |
 | 181.6 | Nach dem Merge in der Anleitung: Suche „Terrasse über der Garage“ | Findet das Video „Balkon mit Geländer“ | ❓ |
 | 181.7 | Antwort von Miicki in #703 | Seine Terrasse hängt vorne frei, das Kellerfenster ist zu sehen | ❓ |
+
+## 182. Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt (#705)
+Gewünscht von Miicki am 2026-11-10 (#705): im Wohnzimmer zeigte das Schild 21,7 °C (das Mittel aus einem Netatmo-Modul und dem warmen dingz-Schalter), das Thermostat maß 23 °C. Jetzt hat ein Raum „Temperatur von“ und „Luftfeuchte von“: Automatisch, Thermostat oder genau ein Sensor.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 182.1 | Unit-Tests `roomsource.test.mjs`, `roomtiles.test.mjs`, `climate.test.mjs`, Import-Test `test_room_temperature_source_survives_export` | Automatisch wie bisher (21,65), Thermostat 23, ein Sensor nur sein Wert; ein gewählter Sensor, der nichts meldet: kein Wert (kein anderer dafür); Feld nur bei mehr als einer Quelle; Kacheln und Klima-Seite folgen; Import/Export behalten die Wahl | ✅ (2026-11-10, Claude) |
+| 182.2 | Browser-Test Teil `83_room_source` | Feld mit allen Quellen und ihren Werten, „Luftfeuchte von“ genauso; Thermostat gespeichert als `climate`; Kachel und 🌡 Klima zeigen 23,0°; ein Sensor gewählt: nur sein Wert; zurück auf Automatisch: nichts gespeichert, wieder das Mittel; ein Raum nur mit Thermostat hat kein Feld; mit „✨ Neu“ beide Felder unter dem Reiter „Geräte“, „🔍 Einstellung suchen“ findet „Temperatur von“ | ✅ (2026-11-10, Claude, 13/13; dazu `25_sky_tiles`, `33_climate_routines_family`, `79_ui_v2`, `80_ui_v2_more`, `56_roomsensors`, `42_voice` grün) |
+| 182.3 | Video „Woher die Raumtemperatur kommt“ probeweise aufnehmen | Wohnzimmer anklicken, „Temperatur von“: Automatisch · 22,3 °C, Thermostat · 21,4 °C, ein Sensor; im Live-Bild zeigt die Kachel den gewählten Wert | ✅ (2026-11-10, Claude) |
+| 182.4 | Demo (Beta, `/beta/`): „Bearbeiten“, Erdgeschoss, das Wohnzimmer anklicken, rechts zu „Temperatur von“; dasselbe mit „✨ Neu“ (Reiter „Geräte“) | Gewählt ist „Thermostat · 21,4 °C“; die Liste zeigt „Automatisch · 22,3 °C“, den Lichtschalter mit 23,1 °C und „Wohnzimmer Temperatur“; in „✨ Neu“ unter „Geräte“, die Suche „Temperatur“ findet es | ✅ (2026-11-10, Claude in der gebauten Beta-Demo, klassisch und „✨ Neu“) |
+| 182.5 | Nach dem Merge in der Beta-Demo: dort „Automatisch“ wählen, dann „Live“ | Die Kachel und das Schild des Wohnzimmers zeigen 22,3° statt 21,4° | ❓ |
+| 182.6 | Nach dem Merge im Add-on (Beta) mit einem eigenen Raum, in dem Thermostat und Sensor verschiedene Werte haben | „Temperatur von“ zeigt beide Werte; „Thermostat“ gewählt: Schild, Kachel und 🌡 Klima zeigen den Wert des Thermostats; die Heizung regelt wie vorher | ❓ |
+| 182.7 | Nach dem Merge in der Anleitung: Suche „Raumtemperatur vom Thermostat“ | Findet das Video „Woher die Raumtemperatur kommt“ | ❓ |
+| 182.8 | Antwort von Miicki in #705 | Sein Wohnzimmer zeigt die 23 °C des Thermostats | ❓ |
