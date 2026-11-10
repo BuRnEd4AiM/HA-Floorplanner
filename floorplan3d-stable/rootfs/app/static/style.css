@@ -2834,27 +2834,42 @@ body.uiV2 #panel.v2home > details { margin-top: 8px; border-radius: 12px; border
 .v2SearchRes[hidden] { display: none; }
 #props.v2 .v2Miss { display: none !important; }
 .v2TabBody.v2Searching { border-top: 1px dashed var(--line); padding-top: 6px; }
-.v2Sec.out { border-style: dashed; opacity: .75; }
+/* a tap on its tab beside the panel (5.4.2): the section comes into view and glows a moment */
+.v2Sec { scroll-margin-top: 10px; }
+.v2Sec.v2Flash { animation: v2Flash 1.6s ease-out; }
+@keyframes v2Flash { 0%, 35% { box-shadow: 0 0 0 2px var(--accent), 0 0 22px color-mix(in srgb, var(--accent) 55%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) { .v2Sec.v2Flash { animation: none; box-shadow: 0 0 0 2px var(--accent); } }
 .v2Nops { position: fixed; z-index: 30; display: flex; flex-direction: column; gap: 6px; }
-.v2Nops[hidden], .v2Drawer[hidden] { display: none; }
-body.live .v2Nops, body.live .v2Drawer { display: none; }
-.v2Nop { width: 34px; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 0; border-radius: 10px 0 0 10px; border: 1px solid var(--line); border-right: 0;
-  background: var(--field); color: var(--muted); font: inherit; font-weight: 800; font-size: 11.5px; cursor: pointer; box-shadow: -3px 3px 10px rgba(0,0,0,.25); }
-.v2Nop .i { font-size: 15px; } .v2Nop .tx { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: 130px; overflow: hidden; text-overflow: ellipsis; }
+/* the tabs beside the panel (5.4.1, the owner: „kann man die Seitenleiste etwas stylischer machen“): glass like the panel, the sign in a
+   little tile, a lit bar and a tint for a section folded open in the panel (.open) */
+.v2Nops[hidden] { display: none; }
+body.live .v2Nops { display: none; }
+.v2Nop { position: relative; width: 36px; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 8px 0 10px;
+  border-radius: 12px 0 0 12px; border: 1px solid var(--line); border-right: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--field) 80%, var(--panel)), var(--panel)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  color: var(--muted); font: inherit; font-weight: 700; font-size: 11px; letter-spacing: .02em; cursor: pointer; box-shadow: -4px 4px 14px rgba(0,0,0,.28);
+  transition: transform .18s ease, background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.v2Nop::before { content: ''; position: absolute; left: 3px; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--accent);
+  opacity: 0; transform: scaleY(.3); transition: opacity .18s ease, transform .18s ease; }
+.v2Nop .i { width: 24px; height: 24px; flex-shrink: 0; display: grid; place-items: center; border-radius: 8px; font-size: 13px; line-height: 1;
+  background: color-mix(in srgb, var(--text) 8%, transparent); transition: background .18s ease; }
+.v2Nop .tx { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: 130px; overflow: hidden; text-overflow: ellipsis; }
+.v2Nop:hover { transform: translateX(-3px); color: var(--text); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.v2Nop:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.v2Nop.open { color: var(--text); border-color: color-mix(in srgb, var(--accent) 60%, var(--line));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 28%, var(--panel)), var(--panel)); }
+.v2Nop.open::before { opacity: 1; transform: none; }
+.v2Nop.open .i { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+[data-theme="holo"] .v2Nop { border-radius: 12px 0 0 12px; }
 /* too many tabs for the height: the name across under the sign (2026-11-09: never only the signs), still too many: the tabs scroll */
 .v2Nops.flat { gap: 4px; }
 .v2Nops.flat .v2Nop { width: 70px; gap: 2px; padding: 6px 4px; font-size: 10px; line-height: 1.15; }
-.v2Nops.flat .v2Nop .i { font-size: 14px; }
+.v2Nops.flat .v2Nop .i { width: 22px; height: 22px; font-size: 12px; }
 .v2Nops.flat .v2Nop .tx { writing-mode: horizontal-tb; transform: none; white-space: normal; max-height: none; max-width: 100%; text-align: center;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow-wrap: break-word; hyphens: auto; }
 .v2Nops.scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding-bottom: 4px; }
 .v2Nops.scroll .v2Nop { flex-shrink: 0; }
 .v2Nops.scroll::-webkit-scrollbar { display: none; }
-.v2Nop.on { background: var(--panel); color: var(--text); border-color: var(--accent); box-shadow: none; }
-.v2Drawer { position: fixed; z-index: 31; width: 320px; overflow-y: auto; padding: 12px; border-radius: 14px 0 0 14px; background: var(--panel); border: 1px solid var(--accent); border-right: 0;
-  box-shadow: -14px 10px 40px rgba(0,0,0,.45); color: var(--text); }
-.v2Drawer .dh { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; } .v2Drawer .dh b { flex: 1; font-size: 15px; }
-.v2Drawer .dh .x { border: 0; background: transparent; color: var(--muted); font-size: 16px; cursor: pointer; }
 .v2CopyBox { display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 12px; border: 1px solid #ffd45c; background: var(--field); }
 .v2CopyBox h5 { margin: 0 0 4px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 .v2CopyBox .lbl { margin: 6px 0 2px; font-weight: 800; font-size: 12.5px; }

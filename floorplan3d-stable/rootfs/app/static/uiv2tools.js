@@ -1,9 +1,11 @@
 /* „Oberfläche 2“ for a selected object, second part (5.0.0; the owner's choice of 2026-11-09, pictures 5, 12 and 13 in docs/ideen-5.0/):
  * - 🔍 a search for a setting under the head: type a word („kipp“), only the fields that have it stay, their sections open; it also says
  *   how many settings in ⚙ have it and opens them there;
- * - „Noppel“: the sections hang as tabs on the left edge of the panel; a tap pulls that section out into a drawer beside the panel (the
- *   panel itself stays short), a tap again puts it back; it stays out for the next object that has it (wide screens only); every tab
- *   shows its name (upright, or across under its sign when there are too many for the height, see place());
+ * - „Noppel“: the sections hang as tabs on the left edge of the panel (wide screens only); a tap jumps to that section in the panel, folds
+ *   it open and lets it glow a moment (5.4.2, the owner's choice D of 2026-11-10: until then a tap pulled the section out into a drawer
+ *   beside the panel and every tab moved to the left of it, „seltsam … wenn sich alle Sachen nach links bewegen“); every tab shows its
+ *   name (upright, or across under its sign when there are too many for the height, see place()); a section folded open in the panel
+ *   lights its tab (5.4.1, the owner: „kann man es andersherum machen“);
  * - „⇉ Übernehmen“: the same settings for other windows / doors / rooms / devices of the same kind, in the room, on the floor or in the
  *   whole house, and which groups (panes, size, floor …). One undo step; a window that does not fit its wall is left as it was.
  * The rules are in uiv2more.js (tested); uiv2ui.js calls decorate() once it has built the sections. */
@@ -25,20 +27,20 @@ export function initUiV2Tools(ctx) {
   const { $, t } = ctx;
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on) => { const b = el('button', cls, text); b.type = 'button'; if (on) b.addEventListener('click', on); return b; };
-  let query = '', drawerKey = null, copyFor = null, copyScope = 'floor', copyPicked = null;
+  let query = '', copyFor = null, copyScope = 'floor', copyPicked = null;
   const tabs = el('div', 'v2Nops'); tabs.id = 'v2Nops'; tabs.hidden = true;
-  const drawer = el('aside', 'v2Drawer'); drawer.id = 'v2Drawer'; drawer.hidden = true;
-  document.body.append(tabs, drawer);
+  document.body.append(tabs);
   const wide = () => (typeof matchMedia === 'function' ? matchMedia(WIDE).matches : true);
 
+  let watch = null;                                                  // the panel's sections, watched for open / closed (their tabs follow)
   /** nothing of ours shows (no new panel for this selection) */
-  function reset() { tabs.hidden = true; drawer.hidden = true; drawer.textContent = ''; }
+  function reset() { watch?.disconnect(); tabs.hidden = true; }
 
   /** the sections are built (secs: [{ key, icon, title, sec, hd, bd }], in order); head: the head of the panel, body: #propsBody */
   function decorate(body, head, pk, sel, it, secs, tabsOf = null) {
     searchBox(body, head, secs, tabsOf);
     if (copyFor === sel.id && COPY_GROUPS[pk]) copyBox(head, pk, sel, it);
-    nops(pk, secs);
+    nops(pk, secs, body);
   }
 
   /* ---- 🔍 the search ---- */
@@ -101,42 +103,43 @@ export function initUiV2Tools(ctx) {
     if (s) { s.value = q; s.dispatchEvent(new Event('input')); }
   }
 
-  /* ---- „Noppel“: the sections as tabs on the panel, one pulled out into a drawer ---- */
-  function nops(pk, secs) {
+  /* ---- „Noppel“: the sections as tabs on the panel; a tap jumps to its section ---- */
+  function nops(pk, secs, body) {
     const list = secs.filter((s) => s.sec);
     if (!wide() || list.length < 2) { reset(); return; }
-    if (drawerKey && !list.some((s) => s.key === drawerKey)) drawerKey = null;
-    tabs.textContent = ''; drawer.textContent = '';
+    watch?.disconnect();
+    tabs.textContent = '';
     for (const s of list) {
-      const b = btn(`v2Nop${s.key === drawerKey ? ' on' : ''}`, null, () => { drawerKey = drawerKey === s.key ? null : s.key; ctx.renderProps(); });
+      const b = btn('v2Nop', null, () => jump(s));
       b.dataset.sec = s.key; b.title = s.title;
       b.append(el('span', 'i', s.icon), el('span', 'tx', s.title));
       tabs.append(b);
     }
     tabs.hidden = false;
-    const s = list.find((x) => x.key === drawerKey);
-    if (s) {
-      const hd = el('div', 'dh');
-      hd.append(el('span', 'i', s.icon), el('b', '', s.title), btn('x', '✕', () => { drawerKey = null; ctx.renderProps(); }));
-      drawer.append(hd, el('p', 'v2Hint', t('v2.nop.hint')));
-      s.bd.hidden = false;
-      drawer.append(s.bd);                                            // the very fields, pulled out of the panel
-      s.sec.classList.add('out'); s.sec.classList.remove('open');
-      s.sec.querySelector('.sum').textContent = t('v2.nop.out');
-      s.sec.querySelector('.chev').textContent = '↗';
-      drawer.hidden = false;
-    } else drawer.hidden = true;
+    /* the other way round too: a section folded open in the panel lights its tab */
+    const sync = () => list.forEach((x) => tabs.querySelector(`[data-sec="${x.key}"]`)?.classList.toggle('open', x.sec.classList.contains('open') && !x.sec.classList.contains('v2Miss')));
+    sync();
+    if (typeof MutationObserver === 'function' && body) { watch = new MutationObserver(sync); watch.observe(body, { subtree: true, attributes: true, attributeFilter: ['class'] }); }
     place();
   }
-  /** the tabs (and the drawer) at the left edge of the panel */
+  let flashTimer = null;
+  /** a tap on a tab: the section folds open in the panel (as a tap on its head does, kept for the next object), comes into view and glows
+   *  a moment so the eye finds it; nothing beside the panel moves */
+  function jump(s) {
+    if (!s.sec.isConnected) return;
+    if (s.bd.hidden) s.hd.click();
+    const calm = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    s.sec.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
+    s.sec.classList.remove('v2Flash'); void s.sec.offsetWidth; s.sec.classList.add('v2Flash');   // again from the start on a second tap
+    clearTimeout(flashTimer); flashTimer = setTimeout(() => s.sec.classList.remove('v2Flash'), 1600);
+  }
+  /** the tabs at the left edge of the panel */
   function place() {
     const p = $('#panel')?.getBoundingClientRect();
     if (!p || tabs.hidden) return;
     const right = Math.round(innerWidth - p.left);
-    drawer.style.right = `${right}px`; drawer.style.top = `${Math.round(p.top + 8)}px`; drawer.style.maxHeight = `${Math.round(p.height - 16)}px`;
-    const dw = drawer.hidden ? 0 : drawer.getBoundingClientRect().width;
     const top = Math.round(p.top + 56);
-    tabs.style.right = `${right + dw}px`; tabs.style.top = `${top}px`; tabs.style.maxHeight = '';
+    tabs.style.right = `${right}px`; tabs.style.top = `${top}px`; tabs.style.maxHeight = '';
     tabs.classList.remove('flat', 'scroll');
     /* every tab keeps its name (the owner, 2026-11-09, a window with 8 tabs showed only signs: „die sollte bitte dann doch beschrieben
      * sein“): written upright beside the panel as chosen (picture 5); too many to fit: the name across under its sign (like the tool
