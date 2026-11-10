@@ -473,8 +473,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 182. Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt (#705) | 6 | 0 | 2 | 0 | 182.6, 182.8 |
 | 183. Repariert und verbessert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste (#709) | 4 | 1 | 0 | 0 | ❌ 183.5 |
 | 184. Verbessert in 5.4.2: ✨ ein Reiter springt zu seinem Abschnitt | 3 | 0 | 1 | 0 | 184.4 |
-| 185. Repariert in 5.4.3: ▲ das Plateau hebt den Keller nicht mehr an (#713) | 0 | 0 | 4 | 0 | 185.1 bis 185.4 |
-| **Zusammen** | **1200** | **2** | **82** | **92** | |
+| 185. Repariert in 5.4.3: ▲ das Plateau hebt den Keller nicht mehr an (#713) | 1 | 0 | 3 | 0 | 185.2 bis 185.4 |
+| **Zusammen** | **1201** | **2** | **81** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2834,7 +2834,7 @@ Gemeldet vom Besitzer am 2026-11-10 mit drei Bildern (Fassung „Eltern“): „
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 185.1 | Unit-Test `levels.test.mjs` und Browser-Test Teil `55_levels` | Ein Kellerraum unter dem Plateau bleibt auf seiner Etage, der 2D-Plan des Kellers zeigt kein „▲ +…“; die Treppe vom Keller ins EG ist um das Plateau höher; das EG geht weiter mit dem Plateau hoch | ❓ |
+| 185.1 | Unit-Test `levels.test.mjs` und Browser-Test Teil `55_levels` | Ein Kellerraum unter dem Plateau bleibt auf seiner Etage, der 2D-Plan des Kellers zeigt kein „▲ +…“; die Treppe vom Keller ins EG ist um das Plateau höher; das EG geht weiter mit dem Plateau hoch | ✅ (2026-11-10, Claude) |
 | 185.2 | Im Add-on, Fassung „Eltern“: „Bearbeiten“, 2D, Etage „Keller“ | Unter den Räumen (Raum 1, Raum 2, Raum 3, Heizungsraum) steht kein „▲ +0.60 m“ mehr | ❓ |
 | 185.3 | Im Add-on, Fassung „Eltern“: 3D, Etage „Keller“ | Der Kellerboden liegt unten auf seiner Höhe, er schwebt nicht mehr | ❓ |
 | 185.4 | Im Add-on: „Ganzes Haus“ ansehen (wenn es eine Treppe vom Keller ins EG gibt, diese anschauen) | Das EG steht auf dem Plateau, der Keller in der Erde darunter, ohne Lücke dazwischen; die Treppe kommt oben im EG an | ❓ |
