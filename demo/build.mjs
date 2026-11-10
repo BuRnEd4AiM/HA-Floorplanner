@@ -40,5 +40,6 @@ html = html
     () => `<div class="demo-badge">${beta ? 'Beta demo' : 'Demo'} · changes are not saved</div>\n<script>${js}</script>`);
 
 const out = outArg ? resolve(outArg) : join(here, 'floorplan3d-demo.html');   // committed, so it can be downloaded straight from GitHub
+mkdirSync(dirname(out), { recursive: true });                                    // a new folder (the workflows: _demo/stable/, _demo/beta/)
 writeFileSync(out, html);
 console.log(`wrote ${out} (${(html.length / 1024).toFixed(0)} KB, ${app}${channel ? `, ${channel}` : ''})`);
