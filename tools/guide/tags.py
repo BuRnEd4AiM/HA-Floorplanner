@@ -250,6 +250,13 @@ t("rooms",
   "Räume automatisch erkennen",
   "create a room add a room room name name rename square metres m2 living area size area calculate find rooms "
   "automatically")
+t("room-temp-source",
+  "Raumtemperatur falsch Temperatur stimmt nicht Thermostat bevorzugen Thermostat statt Sensor Temperatursensor wählen Quelle "
+  "Mittelwert Durchschnitt Ist-Temperatur Lichtschalter misst mit Eigenerwärmung dingz Netatmo Luftfeuchtigkeit Feuchte "
+  "welcher Sensor zeigt die Temperatur warum zeigt der Raum eine andere Temperatur Raumbeschriftung Kachel",
+  "room temperature wrong temperature not right prefer thermostat thermostat instead of sensor pick temperature sensor source "
+  "mean average actual temperature light switch measures self heating dingz Netatmo humidity "
+  "which sensor shows the temperature why does the room show another temperature room label tile")
 t("room-area",
   "Bereich Bereiche Home Assistant HA-Bereich Raum zuordnen Raumname wählen Raum umbenennen Name aus Home Assistant "
   "verknüpfen Verknüpfung eigener Name Zimmer Bereich übernehmen Area Raumzuordnung Räume automatisch zuordnen "

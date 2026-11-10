@@ -631,6 +631,16 @@
         "type": "boolean",
         "description": "With terrace: a balcony that hangs free gets supports from its outer corners down to the ground."
        },
+       "tempFrom": {
+        "type": "string",
+        "pattern": "^(climate|[a-z_]+\\.[a-z0-9_]+)$",
+        "description": "Where the room's temperature comes from (#705): \"climate\" = its thermostat, an entity id = only that sensor; left out = automatic (the mean of its sensors, the thermostat only without one)."
+       },
+       "humidFrom": {
+        "type": "string",
+        "pattern": "^(climate|[a-z_]+\\.[a-z0-9_]+)$",
+        "description": "Where the room's humidity comes from, like tempFrom."
+       },
        "raise": {
         "type": "number",
         "minimum": -3,

@@ -151,6 +151,48 @@ def _(r):
     r.wait(2200)
 
 
+@clip("room-temp-source", "edit",
+      {"de": "Woher die Raumtemperatur kommt", "en": "Where a room's temperature comes from"},
+      {"de": "Ein Raum zeigt das Mittel seiner Sensoren. Unter „Temperatur von“ geht stattdessen das Thermostat oder genau ein Sensor, "
+             "z. B. wenn ein Lichtschalter mitmisst und von sich selbst warm wird. Genauso „Luftfeuchte von“.",
+       "en": "A room shows the mean of its sensors. Under “Temperature from” you can take the thermostat instead, or exactly one sensor, "
+             "e.g. when a light switch measures too and is warm from itself. The same with “Humidity from”."},
+      "Raumtemperatur Temperatur Thermostat Sensor Mittelwert Quelle Luftfeuchte room temperature thermostat sensor mean source humidity",
+      query="mode=edit")
+def _(r):
+    at = lambda x, z: r.js(f"window.__fp.plan().toClient({x}, {z})")      # a point of the plan (metres) on the screen
+    r.click("#view2d")
+    r.wait(1000)
+    r.say("Den Raum anklicken, hier das Wohnzimmer.", "Click the room, here the living room.")
+    r.move(*at(2, 1.5))
+    r.js("window.__fp.select('room', 'r1')")
+    r.wait(600)
+    r.js("document.getElementById('roomTempFrom').scrollIntoView({ block: 'center', behavior: 'smooth' })")   # the field in the side panel
+    r.wait(1000)
+    r.say("Hier messen ein Thermostat, ein Sensor und ein Lichtschalter, der von sich selbst warm wird.",
+          "Here a thermostat, a sensor and a light switch measure; the switch is warm from itself.")
+    r.move("#roomTempFrom")
+    r.wait(2000)
+    r.say("„Automatisch“: das Mittel der Sensoren, mit dem warmen Schalter zu hoch.", "“Automatic”: the mean of the sensors, too high with the warm switch.")
+    r.click("#roomTempFrom")
+    r.loc("#roomTempFrom").select_option("")
+    r.wait(2000)
+    r.say("„Thermostat“: nur, was das Thermostat misst. Die anderen Sensoren bleiben, zählen hier aber nicht.",
+          "“Thermostat”: only what the thermostat measures. The other sensors stay but do not count here.")
+    r.click("#roomTempFrom")
+    r.loc("#roomTempFrom").select_option("climate")
+    r.wait(2200)
+    r.poster()
+    r.say("Oder genau einen Sensor wählen. Gibt es einen Feuchte-Sensor, geht „Luftfeuchte von“ genauso.",
+          "Or pick exactly one sensor. With a humidity sensor, “Humidity from” works the same way.")
+    r.click("#roomTempFrom")
+    r.loc("#roomTempFrom").select_option("sensor.wohnzimmer_temp")
+    r.wait(2200)
+    r.say("Schild, Kachel, Farben und 🌡 Klima zeigen jetzt diesen Wert.", "The label, the tile, the colours and 🌡 Climate now show this value.")
+    r.click("#modeSwitch [data-mode=live]")
+    r.wait(3000)
+
+
 @clip("openings", "edit",
       {"de": "Türen und Fenster einsetzen", "en": "Put in doors and windows"},
       {"de": "„Tür/Fenster“ wählen, die Art aussuchen und auf eine Wand klicken. Tür, Haustür, Fenster, Balkontür und mehr.",

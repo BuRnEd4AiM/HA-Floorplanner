@@ -36,6 +36,8 @@ QUERIES = [
     ("Strom je Gebäude", "de", "energy-buildings"), ("Stromrechner für das Gartenhaus getrennt", "de", "energy-buildings"),
     ("power per building", "en", "energy-buildings"), ("Bereich aus Home Assistant als Raumname", "de", "room-area"),
     ("Raum einem Bereich zuordnen", "de", "room-area"), ("room name from Home Assistant area", "en", "room-area"),
+    ("Raumtemperatur vom Thermostat statt Sensor", "de", "room-temp-source"), ("warum zeigt der Raum eine andere Temperatur", "de", "room-temp-source"),
+    ("room temperature from the thermostat", "en", "room-temp-source"),
     ("Fenster auf Heizung aus", "de", "heatrules"), ("warum heizt es nicht", "de", "heatdiag"),
     ("Wand malen", "de", "walls"), ("Haus zeichnen", "de", "walls"), ("draw walls", "en", "walls"),
     ("Bauplan hochladen", "de", "background"), ("Foto vom Grundriss abzeichnen", "de", "background"),

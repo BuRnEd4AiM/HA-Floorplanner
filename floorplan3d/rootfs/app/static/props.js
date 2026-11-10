@@ -24,6 +24,7 @@ import { fixedGlassFields } from './fixedglassui.js';
 import { roomNameFields } from './roomnameui.js';
 import { trySpan } from './openingstack.js';
 import { stackFields } from './openingstackui.js';
+import { roomSourceFields } from './roomsourceui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -49,7 +50,8 @@ export function stretchValue(n) {
  *  closetRoof(d) (the roof slopes over a cabinet's floor and the height of its bottom: { planes, baseY } or null), balconyFree(id) (the room
  *  hangs free: 'all', 'part' or '', #646, #703), previewTilt(id) (a window leans in for a moment: its tilt angle changed), allOpenings() (every door and
  *  window of the house), layout() (the open house: the rooms of every floor, roomnameui.js), select(sel) (selects that thing instead, e.g. the
- *  window above a door, openingstackui.js), uid() */
+ *  window above a door, openingstackui.js), uid(), roomSources(room, mode, chosen) (what measures its temperature / humidity: roomsource.js
+ *  sourceChoices, #705), lang() */
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
@@ -196,7 +198,10 @@ export function initProps(ctx) {
     mark(body, 'level'); roomLevelFields(body, it, levelUi);    // its floor higher or lower than the storey (#566)
     mark(body, 'walls'); finishUi.wallFields(body, it);
     ctx.setRoomCtx(it.id);
-    mark(body, 'devices'); roomEntsBox(body);
+    mark(body, 'devices');
+    roomSourceFields(body, it, { t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), choices: (mode, chosen) => ctx.roomSources?.(it, mode, chosen),   // 🌡 where its temperature /
+      nameOf: (e) => ctx.entities().find((x) => x.entity_id === e)?.name, imperial: () => ctx.imperial(), lang: () => ctx.lang?.() });          // humidity come from (#705)
+    roomEntsBox(body);
   }
 
   let clash = null;                                            // { id, t }: the door / window whose height or sill was just refused (#694): its panel says why for a few seconds

@@ -291,6 +291,20 @@ def test_window_curtains_panes_and_per_pane_hinges_are_imported_and_exported():
     assert ops[0]["curtainSide"] == "out" and ops[0]["openOutward"] is True and "openOutward" not in ops[1] and "curtainSide" not in ops[2]
 
 
+def test_room_temperature_source_survives_export():
+    """where a room's temperature / humidity come from (#705): "climate" or an entity id is kept and comes back after an export; anything
+    else is warned about and left out"""
+    rooms = [{"name": "Wohnzimmer", "points": [[0, 0], [4, 0], [4, 3], [0, 3]], "tempFrom": "climate", "humidFrom": "sensor.netatmo_feuchte"},
+             {"name": "Bad", "points": [[4, 0], [7, 0], [7, 3], [4, 3]], "tempFrom": "Mein Sensor", "humidFrom": 5}]
+    layout, _, rep, _ = importer.build_layout(square_flat(rooms=rooms))
+    wz, bad = layout["floors"][0]["rooms"]
+    assert wz["tempFrom"] == "climate" and wz["humidFrom"] == "sensor.netatmo_feuchte"
+    assert "tempFrom" not in bad and "humidFrom" not in bad
+    assert {w["path"].rsplit(".", 1)[1] for w in rep.warnings if ".rooms[1]." in w["path"]} >= {"tempFrom", "humidFrom"}
+    again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["rooms"]
+    assert again[0]["tempFrom"] == "climate" and again[0]["humidFrom"] == "sensor.netatmo_feuchte" and "tempFrom" not in again[1]
+
+
 def test_window_without_rain_warning_survives_export():
     """a window that may stay open in the rain (#419): rainWarn false is kept, on a door it is dropped, true is the default"""
     room = [{"points": [[0, 0], [6, 0], [6, 3], [0, 3]]}]
