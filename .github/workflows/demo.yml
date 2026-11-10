@@ -112,3 +112,6 @@ jobs:
     steps:
       - id: deploy
         uses: actions/deploy-pages@v5
+        with:
+          timeout: 1800000            # 30 min (default 10): with the videos the site is over 900 MB; GitHub sometimes needs longer than 10 min
+                                      # to take it ("syncing_files", 2026-11-09 23:09 and twice on 2026-11-10), at other times 30 s
