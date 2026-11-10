@@ -18,7 +18,8 @@ lay_rl = {"floors": [
      "walls": [W_rl("rlTop", [0, 0], [10, 0], [{"id": "rlWin", "type": "window", "style": "double", "pos": 2, "width": 1.2, "height": 1.2, "sill": 0.9}]),
                W_rl("rlMid", [6, 0], [6, 4]), W_rl("rlLeft", [0, 0], [0, 4]), W_rl("rlRight", [10, 0], [10, 4]),
                W_rl("rlBot1", [0, 4], [6, 4]), W_rl("rlBot2", [6, 4], [10, 4])]},
-    {"id": "rlDach", "name": "Dach", "kind": "roof", "walls": [], "rooms": [], "devices": [], "blocks": [], "stairs": [],
+    {"id": "rlDach", "name": "Dach", "kind": "roof", "walls": [], "rooms": [], "blocks": [], "stairs": [],
+     "devices": [{"id": "rlPv", "type": "solarpanel", "x": 8, "z": 3, "y": 0, "rot": 0, "cols": 2, "rows": 1, "name": "PV Test"}],
      "roof": {"type": "gable", "pitch": 35, "overhang": 0.5, "ridge": "x", "dormers": [{"id": "rlD1", "side": 0, "pos": 0.3, "w": 1.6, "type": "flat", "eave": 0.8}],
               "skylights": [{"id": "rlS1", "side": 1, "pos": 0.5, "w": 0.78, "h": 1.18}]}}]}
 put_layout_rl(lay_rl)
@@ -146,6 +147,18 @@ check("roof editor: a dormer dragged on the map from above moves along the ridge
       L_rl("r.dormers[0].pos") > p0 + 0.02 and pgL.locator(".rfPartBox.open[data-part=dormer]").count() == 1, [p0, L_rl("r.dormers[0].pos")])
 pgL.click(".rfAdd [data-add=addDormer]"); pgL.wait_for_timeout(700)
 check("roof editor: „＋ Gaube“ adds a dormer and opens it", L_rl("r.dormers.length") == 2 and pgL.get_attribute(".rfPartBox.open", "data-i") == "1", L_rl("r.dormers.length"))
+# the solar panels on the roof (the owner, 2026-11-10: „wenn ich im Dacheditor auf die Solarpanele drücke … springt direkt zurück“): the row
+# and the panels on the map open their own fields; the roof editor no longer draws itself over them a moment later
+sel_rl = lambda: pgL.evaluate("JSON.stringify(window.__fp.selection())")
+pgL.click(".rfPart[data-part=solar]"); pgL.wait_for_timeout(800)
+check("roof editor: the row of the solar panels opens their fields, the roof does not come back over them",
+      sel_rl() == '{"kind":"device","id":"rlPv"}' and pgL.locator("#roofEd").count() == 0 and "PV Test" in pgL.inner_text("#v2Head"), sel_rl())
+pgL.evaluate("window.__fp.select('roof', 'rlDach:roof')"); pgL.wait_for_selector("#roofEd", timeout=5000)
+pgL.click("#roofTabs [data-tab=top]"); pgL.wait_for_selector("#roofMap [data-part=solar]", timeout=5000)
+pgL.click("#roofMap [data-part=solar]"); pgL.wait_for_timeout(800)
+check("roof editor: the solar panels tapped on the map from above open their fields too",
+      sel_rl() == '{"kind":"device","id":"rlPv"}' and pgL.locator("#roofEd").count() == 0, sel_rl())
+pgL.evaluate("window.__fp.select('roof', 'rlDach:roof')"); pgL.wait_for_selector("#roofEd", timeout=5000)
 pgL.click("#roofTabs [data-tab=tpl]"); pgL.wait_for_selector("#roofTemplates", timeout=5000)
 pgL.click("#roofTemplates [data-tpl=cross]"); pgL.wait_for_timeout(800)
 cross_rl = L_rl("JSON.stringify((r.parts || []).map((p) => [p.tpl, p.ridge, p.box]))")

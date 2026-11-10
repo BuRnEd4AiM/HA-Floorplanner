@@ -3,7 +3,8 @@
  *   how many settings in ⚙ have it and opens them there;
  * - „Noppel“: the sections hang as tabs on the left edge of the panel; a tap pulls that section out into a drawer beside the panel (the
  *   panel itself stays short), a tap again puts it back; it stays out for the next object that has it (wide screens only); every tab
- *   shows its name (upright, or across under its sign when there are too many for the height, see place());
+ *   shows its name (upright, or across under its sign when there are too many for the height, see place()); a section folded open in
+ *   the panel lights its tab too (5.4.1, the owner: „kann man es andersherum machen“), the pulled-out one is filled;
  * - „⇉ Übernehmen“: the same settings for other windows / doors / rooms / devices of the same kind, in the room, on the floor or in the
  *   whole house, and which groups (panes, size, floor …). One undo step; a window that does not fit its wall is left as it was.
  * The rules are in uiv2more.js (tested); uiv2ui.js calls decorate() once it has built the sections. */
@@ -31,14 +32,15 @@ export function initUiV2Tools(ctx) {
   document.body.append(tabs, drawer);
   const wide = () => (typeof matchMedia === 'function' ? matchMedia(WIDE).matches : true);
 
+  let watch = null;                                                  // the panel's sections, watched for open / closed (their tabs follow)
   /** nothing of ours shows (no new panel for this selection) */
-  function reset() { tabs.hidden = true; drawer.hidden = true; drawer.textContent = ''; }
+  function reset() { watch?.disconnect(); tabs.hidden = true; drawer.hidden = true; drawer.textContent = ''; }
 
   /** the sections are built (secs: [{ key, icon, title, sec, hd, bd }], in order); head: the head of the panel, body: #propsBody */
   function decorate(body, head, pk, sel, it, secs, tabsOf = null) {
     searchBox(body, head, secs, tabsOf);
     if (copyFor === sel.id && COPY_GROUPS[pk]) copyBox(head, pk, sel, it);
-    nops(pk, secs);
+    nops(pk, secs, body);
   }
 
   /* ---- 🔍 the search ---- */
@@ -102,9 +104,10 @@ export function initUiV2Tools(ctx) {
   }
 
   /* ---- „Noppel“: the sections as tabs on the panel, one pulled out into a drawer ---- */
-  function nops(pk, secs) {
+  function nops(pk, secs, body) {
     const list = secs.filter((s) => s.sec);
     if (!wide() || list.length < 2) { reset(); return; }
+    watch?.disconnect();
     if (drawerKey && !list.some((s) => s.key === drawerKey)) drawerKey = null;
     tabs.textContent = ''; drawer.textContent = '';
     for (const s of list) {
@@ -114,6 +117,10 @@ export function initUiV2Tools(ctx) {
       tabs.append(b);
     }
     tabs.hidden = false;
+    /* the other way round too: a section folded open in the panel lights its tab (the tab of the pulled-out one is filled, see .on) */
+    const sync = () => list.forEach((x) => tabs.querySelector(`[data-sec="${x.key}"]`)?.classList.toggle('open', x.key !== drawerKey && x.sec.classList.contains('open') && !x.sec.classList.contains('v2Miss')));
+    sync();
+    if (typeof MutationObserver === 'function' && body) { watch = new MutationObserver(sync); watch.observe(body, { subtree: true, attributes: true, attributeFilter: ['class'] }); }
     const s = list.find((x) => x.key === drawerKey);
     if (s) {
       const hd = el('div', 'dh');

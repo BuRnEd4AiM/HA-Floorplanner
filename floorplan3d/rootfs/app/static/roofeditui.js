@@ -55,7 +55,7 @@ export function initRoofEdit(ctx) {
   const { t } = ctx;
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
   const btn = (cls, txt, on) => { const b = el('button', cls, txt); b.type = 'button'; if (on) b.addEventListener('click', on); return b; };
-  let cur = null;                                       // { host, opts }: where the editor is drawn
+  let cur = null;                                       // { host, opts, root }: where the editor is drawn, and the editor itself
   let lastPart = null;                                  // the further roof clicked last (its tab opens once)
   let tab = 'form', open = null;                        // the tab, the part opened on „Auf dem Dach“ ({ kind: 'dormer' | 'sky' | 'solar', i })
   const folded = { size: true, ridge: true, attic: true, steps: true };
@@ -66,13 +66,15 @@ export function initRoofEdit(ctx) {
     if (now - lastPreview > 200) { lastPreview = now; ctx.preview(); return; }
     clearTimeout(previewTimer); previewTimer = setTimeout(() => { lastPreview = performance.now(); ctx.preview(); }, 200);
   }
-  const rerender = () => { if (cur?.host?.isConnected) render(cur.host, cur.opts); };
+  /** drawn again only while our editor is still on the page: once the panel shows something else (the solar panels' row or picture selected
+   *  the device, 5.4.1) its body is the same element, and drawing the roof into it again covered the device's fields („springt zurück“) */
+  const rerender = () => { if (cur?.host?.isConnected && cur.root?.isConnected) render(cur.host, cur.opts); };
   /** a change of ours: undo step, the change, the house built again and saved, the editor drawn again */
   const edit = (fn) => { ctx.snapshot(); fn(); ctx.changed(); rerender(); };
 
   function render(host, opts = {}) {
-    if (cur?.host && cur.host !== host && cur.host.isConnected) cur.host.textContent = '';   // one editor on the page (the tree's card or the panel)
-    cur = { host, opts };
+    if (cur?.host && cur.host !== host && cur.root?.isConnected) cur.root.remove();   // one editor on the page (the tree's card or the panel); never what the old host shows now
+    cur = { host, opts, root: null };
     const lay = ctx.layout(), fi = opts.fi ?? ctx.floorIdx(), f = lay?.floors?.[fi];
     host.textContent = '';
     if (!f || f.kind !== 'roof') { closeBig(); return; }
@@ -80,7 +82,7 @@ export function initRoofEdit(ctx) {
     if (opts.part && opts.part !== lastPart) { tab = 'parts'; open = { kind: 'part', id: opts.part }; }   // a further roof was clicked
     lastPart = opts.part || null;
     const bb = ctx.roofBox(fi), sum = roofSummary(bb, r, f.devices);
-    const root = el('div', 'roofEd'); root.id = 'roofEd';
+    const root = el('div', 'roofEd'); root.id = 'roofEd'; cur.root = root;
     // the classic fields, tagged by group (floorpanel.js), taken from here into the tabs
     const fieldsBox = el('div');
     ctx.roofInto(fieldsBox, f, r);
@@ -330,7 +332,7 @@ export function initRoofEdit(ctx) {
       if (!hit) return;
       e.preventDefault();
       const [kind, i] = [hit.dataset.part, +hit.dataset.i];
-      if (kind === 'solar') { open = { kind, i }; rerender(); return; }
+      if (kind === 'solar') { open = { kind, i }; if (sol[i]) ctx.select({ kind: 'device', id: sol[i].id }); else rerender(); return; }   // its fields, as the row below (5.4.1)
       const was = open?.kind === kind && open.i === i;
       open = { kind, i };
       const svg = pic.querySelector('svg'), geo = JSON.parse(svg.dataset.geo);

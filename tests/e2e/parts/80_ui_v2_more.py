@@ -110,10 +110,20 @@ check("ui v2 tabs: a low screen: the names across under the signs (not only the 
 tiny_v3 = nops_at(380)
 check("ui v2 tabs: a very low screen: the tabs scroll, with their names", "scroll" in tiny_v3[0] and tiny_v3[1] and all(n for n, _ in names_v3()), [tiny_v3, names_v3()])
 pgW.set_viewport_size({"width": 1400, "height": 900}); pgW.wait_for_timeout(500)
+# the other way round (the owner, 2026-11-10: „wenn eine Option aufgeklappt ist, wird diese dann nicht angezeigt in der Seitenleiste“):
+# a section folded open in the panel lights its tab, folded shut again it does not
+lit_v3 = lambda: pgW.evaluate("[...document.querySelectorAll('#v2Nops .v2Nop.open')].map((b) => b.dataset.sec).sort()")
+open_v3 = lambda: pgW.evaluate("[...document.querySelectorAll('#propsBody .v2Sec.open')].map((s) => s.dataset.sec).sort()")
+check("ui v2 tabs: the tabs of the sections open in the panel are lit", lit_v3() == open_v3(), [lit_v3(), open_v3()])
+was_v3 = "shutter" in open_v3()
+pgW.click("#propsBody .v2Sec[data-sec=shutter] .hd"); pgW.wait_for_timeout(300)
+check("ui v2 tabs: „Rollladen“ folded open / shut in the panel: its tab follows at once", ("shutter" in lit_v3()) != was_v3 and lit_v3() == open_v3(), [lit_v3(), open_v3()])
+pgW.click("#propsBody .v2Sec[data-sec=shutter] .hd"); pgW.wait_for_timeout(300)
+check("ui v2 tabs: … and back", ("shutter" in lit_v3()) == was_v3 and lit_v3() == open_v3(), [lit_v3(), open_v3()])
 pgW.click("#v2Nops [data-sec=shutter]"); pgW.wait_for_timeout(400)
 check("ui v2 tabs: „Rollladen“ pulled out into the drawer beside the panel; in the panel it says so",
       pgW.locator("#v2Drawer").is_visible() and pgW.locator("#v2Drawer #openShutter").count() == 1
-      and pgW.locator(".v2Sec.out[data-sec=shutter]").count() == 1, None)
+      and pgW.locator(".v2Sec.out[data-sec=shutter]").count() == 1 and pgW.locator("#v2Nops .v2Nop.on[data-sec=shutter]:not(.open)").count() == 1, None)
 pgW.click("#v2Drawer #openShutter"); pgW.wait_for_timeout(400)
 check("ui v2 tabs: the field in the drawer works (a roller shutter now) and the drawer stays", op_v3("v3_a").get("shutter") is True
       and pgW.locator("#v2Drawer").is_visible(), op_v3("v3_a"))
