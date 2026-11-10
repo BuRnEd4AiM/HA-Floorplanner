@@ -31,6 +31,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 19. **Verbessert in 5.2.3: ⛰ Keller halb aus der Erde** (Abschnitt 176, #691, Frage von st03psn vom 2026-11-09): Claude hat 176.1 bis 176.4 geprüft; für dich nach dem Merge in der Beta 176.5 und das Video 176.6.
 20. **Repariert in 5.3.2: 🏗 Terrasse halb auf der Garage, halb frei** (Abschnitt 181, #703 von Miicki vom 2026-11-10): Claude hat 181.1 bis 181.5 geprüft (181.5 in der Beta mit echten Mausklicks); für dich nach dem Merge die Suche 181.6.
 21. **Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt** (Abschnitt 182, #705 von Miicki vom 2026-11-10): Claude hat 182.1 bis 182.5 geprüft (182.5 in der Beta); für dich im Add-on mit einem eigenen Raum 182.6 und die Suche 182.7. 5.4.0 ist seit 2026-11-10 für alle freigegeben (dein Wunsch: „in der Beta das alles testen und wenn alles passt es rüber pushen“).
+22. **Repariert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste** (Abschnitt 183, #709, deine Bilder vom 2026-11-10): Claude hat 183.1 bis 183.3 geprüft; für dich nach dem Merge in der Beta-Demo am iPad 183.4 und dein Eindruck vom neuen Aussehen 183.5.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -469,7 +470,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 180. Verbessert in 5.3.1: 🧪 die Beta im Browser | 4 | 0 | 0 | 0 | – |
 | 181. Repariert in 5.3.2: 🏗 Terrasse halb auf der Garage, halb frei (#703) | 5 | 0 | 2 | 0 | 181.6, 181.7 |
 | 182. Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt (#705) | 5 | 0 | 3 | 0 | 182.6 bis 182.8 |
-| **Zusammen** | **1172** | **1** | **98** | **92** | |
+| 183. Repariert und verbessert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste (#709) | 3 | 0 | 2 | 0 | 183.4, 183.5 |
+| **Zusammen** | **1175** | **1** | **100** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2802,3 +2804,14 @@ Gewünscht von Miicki am 2026-11-10 (#705): im Wohnzimmer zeigte das Schild 21,7
 | 182.6 | Nach dem Merge im Add-on (Beta) mit einem eigenen Raum, in dem Thermostat und Sensor verschiedene Werte haben | „Temperatur von“ zeigt beide Werte; „Thermostat“ gewählt: Schild, Kachel und 🌡 Klima zeigen den Wert des Thermostats; die Heizung regelt wie vorher | ❓ |
 | 182.7 | Nach dem Merge in der Anleitung: Suche „Raumtemperatur vom Thermostat“ | Findet das Video „Woher die Raumtemperatur kommt“ | ❓ |
 | 182.8 | Antwort von Miicki in #705 | Sein Wohnzimmer zeigt die 23 °C des Thermostats | ❓ |
+
+## 183. Repariert und verbessert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste (#709)
+Gemeldet vom Besitzer am 2026-11-10 mit zwei Bildern: im Dach-Editor ein Tipp auf die Solarmodule „springt direkt zurück“ (#709). Dazu sein Wunsch: ein im Feld aufgeklappter Abschnitt soll auch in der Seitenleiste markiert sein, und die Seitenleiste „etwas stylischer“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 183.1 | Browser-Test Teile `81_roof_lock` und `80_ui_v2_more` | Die Zeile „☀ … ›“ und die Module im Bild von oben öffnen die Felder der Module, das Dach kommt nicht zurück; die Reiter der aufgeklappten Abschnitte leuchten, zu- und aufklappen ändert den Reiter sofort; der ins Seitenfach gezogene ist gefüllt | ✅ (2026-11-10, Claude) |
+| 183.2 | Demo mit echten Mausklicks: „Bearbeiten“, „✨ Neu“, Etage „Dach“, das Dach anklicken, „Auf dem Dach“, die Zeile „☀ PV Dach … ›“; dann wieder das Dach und die Module im Bild von oben | Rechts stehen die Felder von „PV Dach“ (Panels nebeneinander, Reihen, Montage) und bleiben stehen | ✅ (2026-11-10, Claude, vorher sprang es zurück zum Dach) |
+| 183.3 | Demo: in „✨ Neu“ ein Gerät anklicken, rechts „Lage“ aufklappen, dann wieder zuklappen | Der Reiter „Lage“ links an der Leiste leuchtet (farbiger Strich, blauer Ton), zugeklappt ist er wieder schlicht | ✅ (2026-11-10, Claude) |
+| 183.4 | Nach dem Merge in der Beta-Demo (`/beta/`): dasselbe wie 183.2 mit dem Finger am iPad | Wie 183.2 | ❓ |
+| 183.5 | Nach dem Merge: die Seitenleiste ansehen (Reiter antippen, ins Seitenfach ziehen, mit der Maus darüber) | Gefällt dir das neue Aussehen? | ❓ |

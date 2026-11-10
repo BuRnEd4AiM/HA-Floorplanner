@@ -310,9 +310,10 @@ t("ui-v2-house",
   "folders house overview switch houses roof space")
 t("ui-v2-tools",
   "Einstellung finden wo ist die Einstellung Suche in der Leiste Kippwinkel finden Seitenleiste Reiter Seitenfach ausklappen "
-  "für alle Fenster gleich alle Fenster gleich einstellen auf andere übertragen Einstellungen kopieren übernehmen Boden für alle Räume",
+  "für alle Fenster gleich alle Fenster gleich einstellen auf andere übertragen Einstellungen kopieren übernehmen Boden für alle Räume "
+  "Reiter leuchtet aufgeklappt markiert welcher Abschnitt ist offen",
   "where is the setting search the panel find tilt angle side tabs drawer pull out same for all windows set every window alike "
-  "transfer settings copy settings to others apply to all floor for every room")
+  "transfer settings copy settings to others apply to all floor for every room tab lit highlighted which section is open")
 t("devices-place",
   "Gerät einfügen Gerät hinzufügen Lampe hinzufügen Sensor hinzufügen Thermostat platzieren Steckdose Schalter setzen "
   "Entität zuordnen verknüpfen Home Assistant verbinden Deckenlampe aufhängen",
