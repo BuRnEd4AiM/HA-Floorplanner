@@ -79,14 +79,11 @@ jobs:
             if git show "$target:dist/floorplan3d-card.js" > "$RUNNER_TEMP/floorplan3d-card.js" 2>/dev/null; then card=("$RUNNER_TEMP/floorplan3d-card.js"); fi
             echo "Release v$ver at $target (${flags[*]}, card: ${#card[@]})"
             if ! gh release create "v$ver" ${card[@]+"${card[@]}"} --target "$target" --title "3D Floorplan $ver" --notes "$notes" "${flags[@]}"; then
-              # GitHub refuses this token a tag at a commit whose workflow files differ from main's (5.3.1: the version came in one commit
-              # of a pull request, a change of the workflows in the next one): then at the merge that brought the version to main
-              alt="$GITHUB_SHA"
-              for c in $(git rev-list --first-parent --reverse "$target..$GITHUB_SHA"); do
-                if git merge-base --is-ancestor "$target" "$c"; then alt="$c"; break; fi
-              done
-              echo "Release v$ver at $alt instead"
-              gh release create "v$ver" ${card[@]+"${card[@]}"} --target "$alt" --title "3D Floorplan $ver" --notes "$notes" "${flags[@]}" || echo "v$ver could not be created"
+              # GitHub refuses this token a tag at a commit whose workflow files differ from main's now (5.3.1: the version came in one
+              # commit of a pull request, a change of the workflows in the next one; even its merge was refused once the workflows changed
+              # again): then at the run's own commit, which has main's workflows (the card stays the one of the version's commit)
+              echo "Release v$ver at $GITHUB_SHA instead"
+              gh release create "v$ver" ${card[@]+"${card[@]}"} --target "$GITHUB_SHA" --title "3D Floorplan $ver" --notes "$notes" "${flags[@]}" || echo "v$ver could not be created"
             fi
           done
       - name: The version of the normal add-on is the latest release
