@@ -121,6 +121,10 @@ pgV2.route("**/api/version/remote", lambda r: r.fulfill(status=200, content_type
 pgV2.goto(BASE + "?mode=edit"); pgV2.wait_for_timeout(2500)
 check("version: the add-on knows its manifest and its files match", ver["known"] and ver["server"]["ok"], ver.get("server"))
 check("version: the pill shows version and short checksum", ver["version"] in pgV2.inner_text("#versionPill") and ver["short"] in pgV2.inner_text("#versionPill"), pgV2.inner_text("#versionPill"))
+try:                                            # green once the browser has checked every file: that takes longer with more files (CI, #707)
+    pgV2.wait_for_function("(document.getElementById('versionPill')?.className || '').includes('ver-ok')", timeout=15000)
+except Exception:
+    pass
 check("version: the pill is green when everything matches", "ver-ok" in (pgV2.get_attribute("#versionPill", "class") or ""), pgV2.get_attribute("#versionPill", "class"))
 pgV2.click("#versionPill"); pgV2.wait_for_timeout(300)
 check("version: the dialog lists the add-on and browser check", pgV2.locator("#versionBody .verLine.ok").count() >= 2)
