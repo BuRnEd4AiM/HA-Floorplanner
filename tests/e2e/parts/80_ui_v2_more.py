@@ -1,7 +1,7 @@
 """5.0.0 „Oberfläche 2“, second part (the owner's choice of 2026-11-09: pictures 5, 9, 10, 12, 13 of docs/ideen-5.0/): with the new panel
 and nothing selected the house is a tree (🗂 Haus / 🔍 Objekte / ❔ Hilfe; the floors from the top down, a floor dragged elsewhere, the
 rooms to tap), a floor tapped opens with its kind as three buttons and the storey height with the house from the side; for a selected
-object a search for a setting (also into ⚙), the sections as tabs on the panel that pull one out into a drawer, and „⇉ Übernehmen“ (the
+object a search for a setting (also into ⚙), the sections as tabs on the panel (a tap jumps to its section, 5.4.2), and „⇉ Übernehmen“ (the
 same settings for the other windows in the room / on the floor / in the house, one undo step); a tool's library and the power editor while
 something is selected.
 """
@@ -120,16 +120,24 @@ pgW.click("#propsBody .v2Sec[data-sec=shutter] .hd"); pgW.wait_for_timeout(300)
 check("ui v2 tabs: „Rollladen“ folded open / shut in the panel: its tab follows at once", ("shutter" in lit_v3()) != was_v3 and lit_v3() == open_v3(), [lit_v3(), open_v3()])
 pgW.click("#propsBody .v2Sec[data-sec=shutter] .hd"); pgW.wait_for_timeout(300)
 check("ui v2 tabs: … and back", ("shutter" in lit_v3()) == was_v3 and lit_v3() == open_v3(), [lit_v3(), open_v3()])
-pgW.click("#v2Nops [data-sec=shutter]"); pgW.wait_for_timeout(400)
-check("ui v2 tabs: „Rollladen“ pulled out into the drawer beside the panel; in the panel it says so",
-      pgW.locator("#v2Drawer").is_visible() and pgW.locator("#v2Drawer #openShutter").count() == 1
-      and pgW.locator(".v2Sec.out[data-sec=shutter]").count() == 1 and pgW.locator("#v2Nops .v2Nop.on[data-sec=shutter]:not(.open)").count() == 1, None)
-pgW.click("#v2Drawer #openShutter"); pgW.wait_for_timeout(400)
-check("ui v2 tabs: the field in the drawer works (a roller shutter now) and the drawer stays", op_v3("v3_a").get("shutter") is True
-      and pgW.locator("#v2Drawer").is_visible(), op_v3("v3_a"))
-pgW.click("#v2Nops [data-sec=shutter]"); pgW.wait_for_timeout(400)
-check("ui v2 tabs: a tap again puts it back", not pgW.locator("#v2Drawer").is_visible() and pgW.locator(".v2Sec.out").count() == 0
-      and pgW.locator(".v2Sec[data-sec=shutter] #openShutter").count() == 1, None)
+# a tap on a tab (the owner's choice D, 2026-11-10: the drawer moved every tab to the left of it, „seltsam … wenn sich alle Sachen nach
+# links bewegen“): no drawer any more; the section folds open right in the panel, comes into view and glows a moment; the tabs stay put
+if "shutter" in open_v3():
+    pgW.click("#propsBody .v2Sec[data-sec=shutter] .hd"); pgW.wait_for_timeout(300)
+tabs_at_v3 = lambda: pgW.evaluate("(() => { const r = document.querySelector('#v2Nops').getBoundingClientRect(); return [Math.round(r.right), Math.round(r.top)]; })()")
+where_v3 = tabs_at_v3()
+glow_v3 = pgW.evaluate("(() => { document.querySelector('#v2Nops [data-sec=shutter]').click(); return document.querySelector('#propsBody .v2Sec[data-sec=shutter]').classList.contains('v2Flash'); })()")
+pgW.wait_for_timeout(900)
+seen_v3 = lambda k: pgW.evaluate(f"(() => {{ const s = document.querySelector('#propsBody .v2Sec[data-sec={k}]').getBoundingClientRect(), p = document.querySelector('#panel').getBoundingClientRect(); return s.top >= p.top - 1 && s.top < p.bottom - 40; }})()")
+check("ui v2 tabs: a tap on „Rollladen“ folds it open in the panel, brings it into view and lets it glow; no drawer, the tabs stay where they are",
+      glow_v3 and "shutter" in open_v3() and "shutter" in lit_v3() and seen_v3("shutter") and pgW.locator("#v2Drawer").count() == 0
+      and tabs_at_v3() == where_v3, [glow_v3, open_v3(), seen_v3("shutter"), tabs_at_v3(), where_v3])
+pgW.click(".v2Sec[data-sec=shutter] #openShutter"); pgW.wait_for_timeout(400)
+check("ui v2 tabs: its field works right there (a roller shutter now)", op_v3("v3_a").get("shutter") is True, op_v3("v3_a"))
+pgW.click("#v2Nops [data-sec=size]"); pgW.wait_for_timeout(900)
+check("ui v2 tabs: a tap on „Größe & Lage“ jumps back up to it", seen_v3("size") and "size" in open_v3(), open_v3())
+pgW.click("#v2Nops [data-sec=shutter]"); pgW.wait_for_timeout(900)
+check("ui v2 tabs: a second tap on an open section jumps to it again and leaves it open", "shutter" in open_v3() and seen_v3("shutter"), open_v3())
 
 # a tool chosen while the window is selected (the owner, 2026-11-09: „wenn ich in der neuen Ansicht bin und den Stromeditor öffnen möchte,
 # funktioniert das nicht … ich sehe da nichts“): „Gerät“ shows its library on top of the window's panel; the power editor lets the window go

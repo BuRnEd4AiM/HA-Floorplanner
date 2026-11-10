@@ -2,6 +2,9 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.4.2] - 2026-11-10
+### Changed
+- **✨ A tab beside the panel jumps to its section** (the owner's choice D of four pictures: "kannst du diese Seitenleiste noch anders gestalten, da es seltsam aussieht wenn sich alle Sachen nach links bewegen"): until now a tap on a tab pulled its section out into a drawer beside the panel, and every tab moved over to the left of the drawer. Now there is no drawer: the section folds open right in the panel, scrolls into view and glows for a moment; the tabs stay where they are, and the section stays open for the next object as with a tap on its head (`uiv2tools.js` `jump`, `style.css` `.v2Flash`, the texts of the drawer removed in every language). Browser test `80_ui_v2_more`; video guide "Oberfläche 2: search, tabs at the side, pass on": its subtitle, description, search words and the line in `features.py`.
 ## [5.4.1] - 2026-11-10
 ### Fixed
 - **☀ The solar panels could not be opened from the roof editor** (#709, the owner: "wenn ich im Dacheditor auf die Solarpanele drücke passiert nix, es scheint so als würde etwas passieren aber es springt direkt zurück"): a tap on the row "☀ PV Dach … ›" under "Auf dem Dach" selected the panels (the blue frame in 3D), but a moment later the roof editor drew itself into the same panel again, so the roof came back instead of the panels' fields. The editor now draws itself again only while it is still on the page (`roofeditui.js`, `rerender`), and it never empties what another panel shows now. The panels tapped in the picture from above now open their fields too (before, only their row was lit). Browser test `81_roof_lock`.
