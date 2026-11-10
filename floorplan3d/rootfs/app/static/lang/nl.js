@@ -2343,4 +2343,5 @@ export default {
   'stack.addHint': 'Zet er een raam van dezelfde breedte boven, met muur ertussen (bijv. een hoog raam boven de terrasdeur). Het krijgt een eigen contact en rolluik.',
   'stack.added': 'Raam erboven geplaatst: borstwering {sill}, hoogte {h}. Je kunt beide aanpassen.',
   'stack.clash': 'Gaat niet: dan raakt het de deur of het raam erboven of eronder.',
+  'balc.part': 'Hangt deels vrij: waar ze buiten de verdieping eronder uitsteekt, draagt een plaat haar (steunen alleen daar), de rest ligt op het huis.',
 };

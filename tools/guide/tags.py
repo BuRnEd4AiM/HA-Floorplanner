@@ -376,10 +376,12 @@ t("plot",
 t("balcony",
   "Balkon Balkone Balkon anlegen Balkon hinzufügen Balkongeländer Geländer Brüstung Glasgeländer Glasbalkon Holzgeländer "
   "Holzbalkon Stahlbalkon Vorstellbalkon Stützen Pfosten Säulen Balkonplatte Kragplatte Loggia Austritt Dachterrasse "
-  "Terrasse oben wie mache ich einen Balkon Balkon am Hang Balkontür",
+  "Terrasse oben wie mache ich einen Balkon Balkon am Hang Balkontür Terrasse über der Garage auskragend Sockel "
+  "Terrasse halb frei zwei Terrassen",
   "balcony balconies add a balcony balcony railing railing balustrade glass railing glass balcony wooden railing "
   "wooden balcony steel balcony supported balcony supports posts columns balcony slab cantilever loggia roof terrace "
-  "deck upstairs how do I add a balcony balcony on a slope balcony door")
+  "deck upstairs how do I add a balcony balcony on a slope balcony door terrace over the garage overhang plinth "
+  "terrace partly free two terraces")
 t("plot-terrain",
   "Hang Hanglage Gefälle abschüssig schräges Grundstück Gelände Höhe Höhenunterschied Höhenlinien Geländemodell "
   "Hanghaus Souterrain Keller frei Böschung Sockel Straße tiefer halber Keller Keller halb aus der Erde Hochparterre Rasen tiefer Geländehöhe",

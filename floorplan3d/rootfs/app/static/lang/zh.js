@@ -3938,4 +3938,5 @@ export default {
   'rf.sec.steps': '檐口错位',
   'stack.above': '上方', 'stack.below': '下方', 'stack.add': '上方加窗', 'stack.addHint': '在上方放一扇同宽的窗户，中间留有墙体（例如露台门上方的高窗）。它有自己的门窗传感器和卷帘。',
   'stack.added': '已在上方加窗：窗台 {sill}，高度 {h}。两者都可以修改。', 'stack.clash': '无法设置：会与上方或下方的门窗重叠。',
+  'balc.part': '部分悬空：超出下层的部分由一块板承托（只在那里有支柱），其余部分位于房屋上。',
 };

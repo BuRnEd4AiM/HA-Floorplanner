@@ -2337,4 +2337,5 @@ export default {
   'stack.addHint': 'Wstawia powyżej okno tej samej szerokości, ze ścianą pomiędzy (np. wysokie okno nad drzwiami tarasowymi). Ma własny czujnik i własną roletę.',
   'stack.added': 'Dodano okno powyżej: parapet {sill}, wysokość {h}. Możesz je zmienić.',
   'stack.clash': 'Nie da się: zachodziłoby na drzwi lub okno powyżej lub poniżej.',
+  'balc.part': 'Wisi częściowo: tam, gdzie wystaje poza piętro poniżej, niesie ją płyta (słupy tylko tam), reszta leży na domu.',
 };

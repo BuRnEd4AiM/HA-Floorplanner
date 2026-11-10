@@ -3,6 +3,8 @@ The tick of a room is now „Balkon / Dachterrasse (offen, mit Geländer)“; se
 Boden“ and a line that says whether it hangs free. On the ground floor of a house on a slope (#629) a balcony in front of the door hangs free:
 no plinth under it any more, a plate of its own, the slope goes on under it; its supports reach down to the ground. On level ground it lies
 on the ground (no plate). The railing is glass panes or wooden slats when chosen; the tick off takes railing and supports away.
+5.3.2 (#703, Miicki): a terrace on the garage that reaches out beyond it hangs free only there (a plate, no plinth in front of the window
+below); drawn as two rooms it gets no railing where they meet.
 """
 saved_bc = api_admin("api/layout")              # put back at the end
 st_bc = api("api/settings")
@@ -79,6 +81,57 @@ put_layout_bc(layout_bc(False))                 # level ground: a terrace on the
 open_bc()
 check("balcony: on level ground it lies on the ground: the line says so, no plate",
       pgB.get_attribute("#balconyHint", "data-free") == "0" and "Liegt auf" in pgB.inner_text("#balconyHint") and parts_bc()["plate"] == 0, pgB.inner_text("#balconyHint"))
+
+# #703 (Miicki): a terrace on the garage of the basement that reaches out 2 m beyond it, in front of the living room, over the window of the
+# hobby room: only the part that reaches out hangs free (a plate), no plinth in front of the window; drawn as two rooms: no railing between
+def layout_703(split):
+    hobby_win = [{"id": "w703", "type": "window", "pos": 8.5, "width": 1.2, "height": 1.0, "sill": 1.0}]   # in the front wall at x 5.4 … 6.6, under the strip
+    ter = [{"id": "ter", "name": "Terrasse", "terrace": True, "color": "#a58a63",
+            "points": [[8, 0], [14.5, 0], [14.5, 8.25], [3.75, 8.25], [3.75, 6.25], [8, 6.25]]}]
+    if split:
+        ter = [{"id": "terA", "name": "Terrasse Garage", "terrace": True, "points": [[8, 0], [14.5, 0], [14.5, 6.25], [8, 6.25]]},
+               {"id": "terB", "name": "Terrasse vorn", "terrace": True, "points": [[3.75, 6.25], [14.5, 6.25], [14.5, 8.25], [3.75, 8.25]]}]
+    return {"version": 1, "plot": {"boundary": [[-6, -6], [20, -6], [20, 16], [-6, 16]], "areas": [],
+                                    "terrain": {"points": [{"id": "t1", "x": 7, "z": 0, "h": 0}, {"id": "t2", "x": 7, "z": 6.6, "h": -3.15}]}},
+            "floors": [
+        {"id": "kg703", "name": "Keller", "kind": "basement", "walls": ring_bc("k7", 14.5, 6.25, {2: hobby_win}),
+         "rooms": [{"id": "hobby", "name": "Hobbyraum", "points": [[0, 0], [8, 0], [8, 6.25], [0, 6.25]]},
+                   {"id": "garage", "name": "Garage", "raise": -0.5, "points": [[8, 0], [14.5, 0], [14.5, 6.25], [8, 6.25]]}],
+         "devices": [], "blocks": [], "stairs": []},
+        {"id": "eg703", "name": "EG", "kind": "floor", "walls": ring_bc("e7", 8, 6.25),
+         "rooms": [{"id": "wohnen", "name": "Wohnen", "points": [[0, 0], [8, 0], [8, 6.25], [0, 6.25]]}] + ter,
+         "devices": [], "blocks": [], "stairs": []}]}
+def open_703(room):
+    pgB.goto(BASE + "?debug=1&mode=edit"); pgB.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgB.wait_for_timeout(800)
+    pgB.evaluate("() => { window.__fp.switchFloor(1); }"); pgB.wait_for_timeout(600)
+    pgB.evaluate(f"() => window.__fp.select('room', '{room}')"); pgB.wait_for_selector("#balconyHint", timeout=10000)
+box_703 = lambda tag, val: pgB.evaluate("""([tag, val]) => { let b = null;
+  window.__fp.scene.traverse((o) => { if (!o.isMesh || (val ? o.userData[tag] !== val : !o.userData[tag])) return;
+    o.updateWorldMatrix(true, false); const g = o.geometry.clone().applyMatrix4(o.matrixWorld); g.computeBoundingBox();
+    const bb = g.boundingBox; b = b ? [Math.min(b[0], bb.min.x), Math.max(b[1], bb.max.x), Math.min(b[2], bb.min.z), Math.max(b[3], bb.max.z)] : [bb.min.x, bb.max.x, bb.min.z, bb.max.z]; });
+  return b && b.map((v) => +v.toFixed(2)); }""", [tag, val])
+seam_703 = lambda: pgB.evaluate("""(() => { let n = 0;                 // railing along the line where the two terraces meet (z = 6.25, x 9 … 13.5)
+  window.__fp.scene.traverse((o) => { if (!o.isMesh || !o.userData.railing) return; o.updateWorldMatrix(true, false);
+    const p = o.geometry.getAttribute('position'), v = new o.position.constructor();
+    for (let k = 0; k < p.count; k++) { v.fromBufferAttribute(p, k).applyMatrix4(o.matrixWorld); if (Math.abs(v.z - 6.25) < 0.1 && v.x > 9 && v.x < 13.5) n++; } });
+  return n; })()""")
+put_layout_bc(layout_703(False))
+open_703("ter")
+e_7 = pgB.evaluate("window.__fp.earthDbg()"); plate_7 = box_703("balconyPlate", "ter")
+check("#703: a terrace on the garage reaching out 2 m: the line says „Hängt zum Teil frei“",
+      pgB.get_attribute("#balconyHint", "data-free") == "part" and "zum Teil frei" in pgB.inner_text("#balconyHint"), pgB.inner_text("#balconyHint"))
+check("#703: 3D: no plinth in front of the hobby room's window, a plate only under the part beyond the basement (z 6.4 … 8.25)",
+      e_7.get("sloped") and e_7.get("plinths") == 0 and plate_7 is not None and plate_7[2] > 6.35 and plate_7[3] > 8.2 and plate_7[0] < 3.8 and plate_7[1] > 14.4,
+      (e_7, plate_7))
+pgB.check("#roomPosts")
+wait_bc("(() => { let g = false; window.__fp.scene.traverse((o) => { if (o.userData.balconyPosts) g = true; }); return g; })()")
+posts_7 = box_703("balconyPosts", None)
+check("#703: „Stützen bis zum Boden“ only at the outer corners of the free part, none on the garage", posts_7 is not None and posts_7[2] > 7.8, posts_7)
+put_layout_bc(layout_703(True))
+open_703("terB")
+check("#703: drawn as two rooms: the front part hangs free, no railing across the terrace where the two meet",
+      pgB.get_attribute("#balconyHint", "data-free") == "1" and seam_703() == 0 and pgB.evaluate("window.__fp.earthDbg()").get("plinths") == 0,
+      (pgB.inner_text("#balconyHint"), seam_703()))
 check("balcony: no errors on the page", not own_bc, own_bc[:5])
 pgB.close()
 put_layout_bc(saved_bc)

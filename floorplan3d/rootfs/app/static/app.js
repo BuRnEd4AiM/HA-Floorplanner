@@ -475,7 +475,7 @@ const floorBuild = initFloorBuild({
   terrainFor: (f) => standsOn(terrainHere(), f, layout.floors[groundIdx()], GARDEN),   // on a slope the garden things stand on the ground (#629)
   settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(), fast: () => LOW,
   mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (...a) => textSprite(...a), railing: (...a) => roofsUi.railing(...a),
-  balcony: (...a) => balconies.build(...a), freeBalconies: (i) => balconies.free(i),
+  balcony: (...a) => balconies.build(...a), freeParts: (i) => balconies.free(i),
   lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
   registry, pickables, floorOpenings: (i) => floorOpenings(i), floorH, holoEdge: HOLO.edge,
   houseMode: () => houseMode, halfCut: () => halfCut, elev: (i) => elev(i), stairMesh: (...a) => stairTool.build(...a),
@@ -1660,7 +1660,7 @@ const props = initProps({
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type, dev) => baseSize(type, dev), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
   uploadPicture: (f, d) => uploadPicture(f, d), floorH, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
-  balconyFree: (id) => balconies.free(floorIdx).has(id),        // a balcony that hangs free (#646): its fields say so
+  balconyFree: (id) => balconies.freeness(floorIdx, id),        // a balcony that hangs free, all of it or a part (#646, #703): its fields say so
   select: (s) => { multiSel.clear(); selection = s; refreshSelection(); },   // the window above / below a door (#694, openingstackui.js)
   previewTilt: (id) => openings.preview(id), allOpenings: () => layout.floors.flatMap((f) => openingWalls(f).flatMap((w) => w.openings || [])),   // "Kippwinkel" (tiltui.js)
   closetRoof: (d) => { const planes = roofsUi.slopesAt(floorIdx, d.x, d.z); return planes ? { planes, baseY: elev(floorIdx) + (d.y || 0) } : null; },   // a cabinet fits under the roof over it (closet.js; an L-shaped house: the wing's roof, #621)
