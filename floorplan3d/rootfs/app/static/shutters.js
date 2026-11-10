@@ -82,10 +82,21 @@ export const shutterLabel = (st, t, o) => `${shutterIcon(o)} ${shutterText(st, t
 /** the ball of a shutter sits on top of its window, where the shutter rolls up (#335), never under it: its middle this far over the
  *  window's top (the ball's radius, BALL.r = 0.3 in tapballs.js, and a small gap) */
 export const SHUTTER_BALL_LIFT = 0.34;
-/** the height of the shutter's ball over the floor */
-export const shutterBallY = (o) => (o.sill || 0) + (o.height || 1) + SHUTTER_BALL_LIFT;
-/** the height of the label over the floor: over the ball (its radius, a gap and half the label's height) */
-export const shutterLabelY = (o) => shutterBallY(o) + 0.55;
+const topOf = (o) => (+o.sill || 0) + (+o.height || 1);
+/** the height of the shutter's ball over the floor. `above`: a door / window right above o on its wall (#694, openingstack.js
+ *  neighbours): the ball stays in the wall between them (#697), in its middle when the lift does not fit */
+export const shutterBallY = (o, above = null) => {
+  if (!above) return topOf(o) + SHUTTER_BALL_LIFT;
+  return topOf(o) + Math.max(0, Math.min(SHUTTER_BALL_LIFT, ((+above.sill || 0) - topOf(o)) / 2));
+};
+/** with an opening right above, the label goes onto the window itself, its middle this far under the window's top (#697) */
+export const SHUTTER_LABEL_UNDER = 0.3;
+/** the height of the label over the floor: over the ball (its radius, a gap and half the label's height); with a door / window right
+ *  above o (`above`) on o's own window, under its top: over the ball it would stand in front of the window above (#697) */
+export const shutterLabelY = (o, above = null) => (above ? topOf(o) - SHUTTER_LABEL_UNDER : shutterBallY(o) + 0.55);
+/** stacked floors (the room is covered): the ceiling the ball and label of o's cover stay under. A window that reaches higher than
+ *  the ceiling of the house stands in a higher wall (a high middle part, #694): there the wall's own height (wallH) is the ceiling */
+export const shutterCeiling = (o, wallH, ceiling) => (topOf(o) > ceiling + 1e-6 ? Math.max(ceiling, +wallH || 0, topOf(o)) : ceiling);
 
 /* The card of a shutter (#335, shuttercard.js): a tall slider that shows the curtain, quick positions under it */
 /** the quick positions of the card, 0 = closed, 100 = open */

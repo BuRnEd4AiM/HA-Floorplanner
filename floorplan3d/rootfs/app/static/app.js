@@ -2015,7 +2015,8 @@ if (params.get('debug')) {
       const rm = roomMeshes.get(id), U = (isHolo() ? rm?.mesh : rm?.glow)?.material.uniforms;
       return U?.uCount ? Array.from({ length: U.uCount.value }, (_, i) => ({ r: +U.uPos.value[i].w.toFixed(3), c: U.uCol.value[i].toArray().map((v) => +v.toFixed(3)) })) : null;
     },
-    ballY: (id) => { const b = tapBalls.ball(id); return b ? +b.position.y.toFixed(3) : null; },   // height of a tap ball over its floor (a shutter's: over the window, #335)
+    ballY: (id) => { const b = tapBalls.ball(id); return b ? +b.position.y.toFixed(3) : null; },
+    labelY: (id) => { const sp = labelSprites.get(id); return sp ? +sp.position.y.toFixed(3) : null; },   // height of a value label over its floor (a shutter's, #697)   // height of a tap ball over its floor (a shutter's: over the window, #335)
     neighborCount: () => world.children.filter((c) => c.userData.neighbor).length, neighborOutlines: () => neighbors.outlines(elev(floorIdx)).length,
     devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), bx = new THREE.Box3(); o.children.forEach((c) => { if (!c.userData.proxy) bx.expandByObject(c); }); const sz = bx.getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)], h: +sz.y.toFixed(2), minY: +bx.min.y.toFixed(3), visible: o.visible }; },
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)

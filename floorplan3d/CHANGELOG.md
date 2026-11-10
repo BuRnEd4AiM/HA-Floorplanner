@@ -2,6 +2,9 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.3.1] - 2026-11-10
+### Fixed
+- **🪟 The label of a roller shutter stood in front of the window above it** (#697, found while making the pictures for the answer to #694): with a window over a terrace door (5.3.0), the value label of the door's shutter ("↕ 50 % open") was drawn in front of the window above, so it looked as if that window were half open. Now, with a door or window right above, the label goes onto its own window just under its top, and the ball stays in the wall between the two (in its middle when the gap is narrow); the window above keeps its ball and label over it (`shutters.js` `shutterBallY`, `shutterLabelY`, `tapballs.js` `openingBallAt`). In the whole-house view with a floor above, the ball of a window that reaches higher than the house's ceiling height now stays under its own wall's height instead of being pushed down in front of the door below (`shutterCeiling`). Unit test `shutters.test.mjs`, browser test `82_stacked_openings`.
 ## [5.3.0] - 2026-11-09
 ### Added
 - **Two doors / windows one above the other** (#694, asked by ChrisSN86: "Unser Haus hat einen höheren Mittelteil (ca. 3,60 m). Über beiden Terrassentüren und über dem Küchenfenster sitzt jeweils ein eigenes, hoch liegendes Fenster mit gleicher Breite, genau darüber, aber mit Wand dazwischen"): two openings may now share their place on a wall when their heights (sill to sill + height) do not overlap; side by side they keep at least 2 cm of wall between them, as before. Each keeps its own contact and roller shutter. In 3D the wall stays between them and above the upper one (`openingstack.js` `solidParts`, used by `walls.js`); a window above part of a wider door works too.

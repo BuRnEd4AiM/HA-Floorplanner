@@ -88,6 +88,20 @@ check("stacked: a click on the selected door picks the window above", (sel_st() 
 pgT.mouse.click(*at_st(113, 60)); pgT.wait_for_timeout(400)
 check("stacked: … and another click the door again", (sel_st() or {}).get("id") == "st_d", sel_st())
 pgT.click("#view3d"); pgT.wait_for_timeout(300)
+# #697: both with a roller shutter: the label of the door's on the door, the window's over the window; in the live view the door's ball
+# stays in the wall between them, the window's is over the window
+pgT.evaluate("""(id) => { const fp = window.__fp, w = fp.layout.floors[0].walls.find((v) => v.id === 'st_w');
+  Object.assign(w.openings.find((o) => o.id === 'st_d'), { type: 'window', style: 'double' });   // a terrace door with a shutter is a floor-length window
+  ['st_d', id].forEach((k) => Object.assign(w.openings.find((o) => o.id === k), { shutter: true, shutterEntity: 'cover.rollo' }));
+  fp.settings().labelMode = 'all'; fp.rebuild(); }""", hi_st["id"])
+lab_st = wait_st(lambda: (lambda v: v if None not in v else None)([pgT.evaluate(f"window.__fp.labelY('{i}')") for i in ("st_d", hi_st["id"])]))
+check("stacked (#697): the label of the door's shutter is on the door, not in front of the window above; the window's over it",
+      bool(lab_st) and lab_st[0] < 2.2 and lab_st[1] > 3.6, lab_st)
+pgT.click("#modeSwitch button[data-mode=live]"); pgT.wait_for_timeout(1200)
+ball_st = wait_st(lambda: (lambda v: v if None not in v and v[0] > 0 else None)([pgT.evaluate(f"window.__fp.ballY('{i}')") for i in ("st_d", hi_st["id"])]))
+check("stacked (#697): live, the ball of the door's shutter is in the wall between (under 2.95 m with its 30 cm), the window's over it",
+      bool(ball_st) and 2.2 < ball_st[0] and ball_st[0] + 0.3 <= 2.95 + 1e-6 and ball_st[1] > 3.6, ball_st)
+pgT.click("#modeSwitch button[data-mode=edit]"); pgT.wait_for_timeout(600)
 check("stacked: no errors", not own_st, own_st)
 
 put_layout_st(saved_st)

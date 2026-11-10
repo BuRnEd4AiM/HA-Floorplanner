@@ -463,7 +463,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 176. Verbessert in 5.2.3: ⛰ Keller halb aus der Erde (#691) | 4 | 0 | 2 | 0 | 176.5, 176.6 |
 | 177. Repariert in 5.2.4: Backup einspielen ohne Größengrenze (#693) | 3 | 0 | 2 | 0 | 177.3, 177.4 |
 | 178. Neu in 5.3.0: 🪟 zwei Türen oder Fenster übereinander (#694) | 4 | 0 | 5 | 0 | 178.5 bis 178.9 |
-| **Zusammen** | **1151** | **1** | **97** | **92** | |
+| 179. Repariert in 5.3.1: 🪟 das Schild des unteren Rollladens (#697) | 2 | 0 | 1 | 0 | 179.3 |
+| **Zusammen** | **1153** | **1** | **98** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2750,3 +2751,12 @@ Gefragt von ChrisSN86 am 2026-11-09 (#694): in seinem höheren Mittelteil (etwa 
 | 178.7 | Demo, 2D-Plan: die Tür anklicken, dann noch einmal auf dieselbe Stelle | Das Fenster darüber ist gestrichelt; der zweite Klick wählt das Fenster, ein dritter wieder die Tür | ❓ |
 | 178.8 | Nach dem Merge im Add-on (Beta): eine echte Wand höher machen (Wand anklicken → Höhe), Tür/Fenster darunter → „＋ Fenster darüber“, beiden je einen Rollladen geben | Beide Rollläden haben ihre eigene Kugel und bewegen sich getrennt; in der Live-Ansicht öffnet ein Tippen auf die obere bzw. untere Kugel den richtigen Rollladen | ❓ |
 | 178.9 | Nach dem Merge in der Anleitung: Video „Fenster über der Tür“, Suche „Fenster über der Tür“ | Die Suche findet das Video | ❓ |
+
+## 179. Repariert in 5.3.1: 🪟 das Schild des unteren Rollladens (#697)
+Gefunden beim Machen der Bilder für die Antwort auf #694: bei einer Tür mit Fenster darüber, beide mit Rollladen, stand das Werte-Schild des unteren Rollladens („↕ 50 % offen“) vor dem Fenster darüber. Jetzt steht es auf dem eigenen Fenster, die Kugel bleibt in der Wand dazwischen.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 179.1 | Unit-Test `shutters.test.mjs` | Kugel des unteren Rollladens in der Wand zwischen beiden (bei wenig Platz in der Mitte), Schild auf dem eigenen Fenster, das obere wie bisher; ein Fenster allein wie bisher; Deckenhöhe für Kugeln im ganzen Haus nur bei Fenstern, die höher reichen | ✅ (2026-11-10, Claude) |
+| 179.2 | Browser-Test Teile `82_stacked_openings`, `03_houses` | Schild unten auf der Tür, oben über dem Fenster; live die Kugel der Tür unter 2,95 m, die des Fensters darüber; normale Rollläden wie bisher | ✅ (2026-11-10, Claude, 105/105 und 135/135) |
+| 179.3 | Demo: ⚙ Wandhöhe 3,80, eine Tür als „Fenstertür / Balkon“, „＋ Fenster darüber“, beiden einen Rollladen geben, dann „Live“ | Das Schild des unteren Rollladens steht auf der Tür, nicht vor dem Fenster darüber; zwei Kugeln, jede öffnet ihren Rollladen | ❓ |
