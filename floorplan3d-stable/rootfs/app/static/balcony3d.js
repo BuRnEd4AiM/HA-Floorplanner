@@ -1,11 +1,11 @@
 /* 🏗 Balconies and roof terraces in 3D (#646): the railing of an open room (metal, glass or wood; before in roofs.js), the plate under a
- * balcony that hangs free and its supports down to the ground. Which room hangs free, where the railing runs and of which parts it is made
- * are the pure rules of balcony.js. */
+ * balcony that hangs free (only under the part that hangs free, #703) and its supports down to the ground. Which parts hang free, where the
+ * railing runs and of which parts it is made are the pure rules of balcony.js. */
 import * as THREE from './vendor/three.module.min.js';
 import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
 import { floorShapes } from './blocks.js';
 import { onBridge } from './bridge.js';
-import { BALCONY, railRuns, railParts, supportSpots, atWall, freeBalconies } from './balcony.js';
+import { BALCONY, railRuns, railParts, supportSpots, atWall, atRoom, freeParts, outlineBelow, onOutline } from './balcony.js';
 
 const HOLO_RAIL = 0x3df2ff;
 /** the material of a part of the railing (metal, glass, wood) */
@@ -26,11 +26,13 @@ function addMerged(g, byKind, matOf, tag) {
   });
 }
 
-/** Railing round an open room (a balcony, a roof terrace): along every edge that is not a wall and where no bridge arrives (the bridges of
- *  this floor, and `bridges`: more bridge devices in this floor's frame, e.g. the one coming over from the next house); its look: room.rail */
+/** Railing round an open room (a balcony, a roof terrace): along every edge that is not a wall, where no other open room of the floor joins
+ *  (#703) and where no bridge arrives (the bridges of this floor, and `bridges`: more bridge devices in this floor's frame, e.g. the one
+ *  coming over from the next house); its look: room.rail */
 export function buildRailing(g, room, f, holo, ghost, bridges = []) {
   const landing = [...(f.devices || []).filter((d) => d.type === 'bridge'), ...bridges];
-  const covered = (x, z) => landing.some((d) => onBridge(d, x, z)) || atWall(f.walls, x, z);   // a wall (also in a doorway) already closes this spot
+  const others = (f.rooms || []).filter((r) => r !== room && r.terrace && r.id !== room.id);   // a terrace drawn as two rooms: no railing between them
+  const covered = (x, z) => landing.some((d) => onBridge(d, x, z)) || atWall(f.walls, x, z) || atRoom(others, x, z);   // a wall (also in a doorway) already closes this spot
   const byKind = new Map();
   railRuns(room.points, covered).forEach(({ a, b }) => {
     const len = Math.hypot(b[0] - a[0], b[1] - a[1]), ux = (b[0] - a[0]) / len, uz = (b[1] - a[1]) / len, rot = -Math.atan2(uz, ux);
@@ -49,17 +51,21 @@ export function buildRailing(g, room, f, holo, ghost, bridges = []) {
  *  groundAt(x, z) (a plateau under the spot, 0 else), mat(color, ghost, extra) */
 export function initBalconies(ctx) {
   const indexOf = (f) => ctx.layout().floors.findIndex((x) => x === f || (f?.id && x.id === f.id));
-  /** the ids of the free balconies of floor i (balcony.js) */
-  const free = (i) => (i < 0 ? new Set() : freeBalconies(ctx.layout().floors, i, ctx.groundIdx(), ctx.terrain()));
+  /** the parts of the open rooms of floor i that hang free: Map room id → { rings, whole } (balcony.js freeParts, #703) */
+  const free = (i) => (i < 0 ? new Map() : freeParts(ctx.layout().floors, i, ctx.groundIdx(), ctx.terrain()));
+  /** does the room `id` of floor i hang free: 'all', 'part' (a terrace on the garage that reaches out beyond it) or '' (it lies on the house
+   *  or the ground) */
+  const freeness = (i, id) => { const p = free(i).get(id); return p ? (p.whole ? 'all' : 'part') : ''; };
   /** the height of the ground (over the floor of the ground floor) at (x, z): a plateau, else the slope, else 0 */
   const groundY = (x, z) => ctx.groundAt?.(x, z) || ctx.terrain()?.(x, z) || 0;
 
-  /** the plate under a free balcony and, with room.posts, its supports down to the ground; g is the room's group (lifted by `lift`) */
+  /** the plate under the part of an open room that hangs free and, with room.posts, its supports down to the ground; g is the room's group
+   *  (lifted by `lift`) */
   function build(g, room, f, o, lift = 0) {
-    const i = indexOf(f);
-    if (!free(i).has(room.id)) return;
+    const i = indexOf(f), part = free(i).get(room.id);
+    if (!part) return;
     const d = BALCONY.plate;
-    const geo = new THREE.ExtrudeGeometry(floorShapes(room.points, []), { depth: d, bevelEnabled: false, curveSegments: 1 });
+    const geo = new THREE.ExtrudeGeometry(part.rings.flatMap((r) => floorShapes(r, [])), { depth: d, bevelEnabled: false, curveSegments: 1 });
     geo.rotateX(-Math.PI / 2);
     const plate = new THREE.Mesh(geo, o.holo
       ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: o.ghost ? 0.06 : 0.35, depthWrite: false })
@@ -71,7 +77,9 @@ export function initBalconies(ctx) {
     g.add(plate);
     if (!room.posts) return;
     const base = ctx.elev(i) + lift, top = -d - 0.005, byKind = new Map([['post', []]]);
-    supportSpots(room.points, (x, z) => atWall(f.walls, x, z, 0.3)).forEach(([x, z]) => {
+    const below = outlineBelow(ctx.layout().floors, i, ctx.groundIdx());   // a corner over the house (where the free part begins) needs no support
+    const nearHouse = (x, z) => atWall(f.walls, x, z, 0.3) || onOutline(below, x, z, 0.3);
+    part.rings.flatMap((r) => supportSpots(r, nearHouse)).forEach(([x, z]) => {
       const bottom = groundY(x, z) - base - 0.05;                      // a little into the ground
       if (top - bottom < 0.1) return;
       const pg = new THREE.BoxGeometry(BALCONY.post, top - bottom, BALCONY.post);
@@ -82,5 +90,5 @@ export function initBalconies(ctx) {
     addMerged(g, byKind, () => (o.holo ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: o.ghost ? 0.08 : 0.4, depthWrite: false })
       : ctx.mat('#9d978d', o.ghost)), 'balconyPosts');
   }
-  return { free, build };
+  return { free, freeness, build };
 }

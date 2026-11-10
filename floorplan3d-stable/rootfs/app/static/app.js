@@ -67,6 +67,7 @@ import { lampLights, lampRgb } from './lamplight.js';
 import { initEarth } from './earth.js';
 import { initSky } from './skyui.js';
 import { roomReading, roomEntityIds, roomSummary, thermostatParts } from './roomtiles.js';
+import { sourceOf, sourceChoices } from './roomsource.js';   // where a room's temperature / humidity come from (#705)
 import { initRoomTiles } from './roomtilesui.js';
 import { initLightGroups } from './lightgroupsui.js';
 import { initFavorites } from './favoritesui.js';
@@ -475,7 +476,7 @@ const floorBuild = initFloorBuild({
   terrainFor: (f) => standsOn(terrainHere(), f, layout.floors[groundIdx()], GARDEN),   // on a slope the garden things stand on the ground (#629)
   settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(), fast: () => LOW,
   mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (...a) => textSprite(...a), railing: (...a) => roofsUi.railing(...a),
-  balcony: (...a) => balconies.build(...a), freeBalconies: (i) => balconies.free(i),
+  balcony: (...a) => balconies.build(...a), freeParts: (i) => balconies.free(i),
   lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
   registry, pickables, floorOpenings: (i) => floorOpenings(i), floorH, holoEdge: HOLO.edge,
   houseMode: () => houseMode, halfCut: () => halfCut, elev: (i) => elev(i), stairMesh: (...a) => stairTool.build(...a),
@@ -625,9 +626,9 @@ const energyUi = initEnergyUi({
 let viewMode = 'normal';           // normal | temp | humid | co2 (room colouring by sensor values)
 const VIEW_STOPS = { temp: ['tempStops', '°C'], humid: ['humidStops', '%'], co2: ['co2Stops', 'ppm'] };
 /* Temperature / humidity / CO₂ of a room: average of every matching sensor placed in it or assigned to its HA area, a thermostat only
- * without one (roomtiles.js) */
+ * without one (roomtiles.js); or what the room says it comes from (#705, roomsource.js) */
 function roomHeat(room, f) {
-  const v = roomReading(roomEntityIds(room, entityDevices(f), areaEntitiesOf(room)), states, viewMode, partOf());
+  const v = roomReading(roomEntityIds(room, entityDevices(f), areaEntitiesOf(room)), states, viewMode, partOf(), sourceOf(room, viewMode));
   return v === null ? null : colorFromStops(settings[VIEW_STOPS[viewMode][0]], v);
 }
 const areaEntitiesOf = (room) => (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []);
@@ -1660,7 +1661,9 @@ const props = initProps({
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type, dev) => baseSize(type, dev), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
   uploadPicture: (f, d) => uploadPicture(f, d), floorH, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
-  balconyFree: (id) => balconies.free(floorIdx).has(id),        // a balcony that hangs free (#646): its fields say so
+  roomSources: (r, mode, chosen) => { const f = layout.floors.find((x) => x.rooms.includes(r)) || floor(); return sourceChoices(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode, partOf(), chosen); },   // 🌡 #705
+  lang: () => currentLanguage(),
+  balconyFree: (id) => balconies.freeness(floorIdx, id),        // a balcony that hangs free, all of it or a part (#646, #703): its fields say so
   select: (s) => { multiSel.clear(); selection = s; refreshSelection(); },   // the window above / below a door (#694, openingstackui.js)
   previewTilt: (id) => openings.preview(id), allOpenings: () => layout.floors.flatMap((f) => openingWalls(f).flatMap((w) => w.openings || [])),   // "Kippwinkel" (tiltui.js)
   closetRoof: (d) => { const planes = roofsUi.slopesAt(floorIdx, d.x, d.z); return planes ? { planes, baseY: elev(floorIdx) + (d.y || 0) } : null; },   // a cabinet fits under the roof over it (closet.js; an L-shaped house: the wing's roof, #621)
@@ -1696,7 +1699,7 @@ const voiceUi = initVoiceUi({
   houseId: () => hs.id(), houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), switchHouse: (id) => switchHouse(id),
   switchFloor: (i) => switchFloor(i), houseMode: () => houseMode, setHouseMode: (on) => setHouseMode(on), floorIdx: () => floorIdx,
   focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => roomPanel.open(id), isLive: () => isLive(), rows: () => deviceList.rows(), states: () => states,
-  reading: (id, mode) => { const f = layout.floors.find((x) => x.rooms.some((r) => r.id === id)), r = f?.rooms.find((x) => x.id === id); return r ? roomReading(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode, partOf()) : null; },
+  reading: (id, mode) => { const f = layout.floors.find((x) => x.rooms.some((r) => r.id === id)), r = f?.rooms.find((x) => x.id === id); return r ? roomReading(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode, partOf(), sourceOf(r, mode)) : null; },
   colorMode: (m) => { const b = $(`#modeBar [data-vm=${m}]`); if (!b) return false; b.click(); return true; }, imperial: () => imperial(),
   callService: (e, svc) => live.callService(e, svc), replaying: () => !!replayBack,   // 🗣 switching by voice (#532)
   openCheck: () => { openSettingsAt('voice'); reveal($('#vkBox')); },

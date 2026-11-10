@@ -2343,4 +2343,7 @@ export default {
   'stack.addHint': 'Zet er een raam van dezelfde breedte boven, met muur ertussen (bijv. een hoog raam boven de terrasdeur). Het krijgt een eigen contact en rolluik.',
   'stack.added': 'Raam erboven geplaatst: borstwering {sill}, hoogte {h}. Je kunt beide aanpassen.',
   'stack.clash': 'Gaat niet: dan raakt het de deur of het raam erboven of eronder.',
+  'balc.part': 'Hangt deels vrij: waar ze buiten de verdieping eronder uitsteekt, draagt een plaat haar (steunen alleen daar), de rest ligt op het huis.',
+  'src.temp': 'Temperatuur van', 'src.humid': 'Luchtvochtigheid van', 'src.auto': 'Automatisch · {v}', 'src.thermo': 'Thermostaat · {v}',
+  'src.hint': 'Wat labels, tegels, kleuren en 🌡 Klimaat voor de kamer tonen. Automatisch: het gemiddelde van de sensoren, de thermostaat alleen zonder sensor. De verwarming werkt zoals voorheen.',
 };

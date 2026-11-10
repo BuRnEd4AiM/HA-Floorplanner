@@ -1,11 +1,12 @@
 /* 🏗 Balconies and roof terraces (#646, before: the roof terrace of #87). A room with `terrace: true` is open: no roof over it, a wooden
- * floor and a railing along every edge that is not a wall. Its fields (all optional):
+ * floor and a railing along every edge that is not a wall and where no other open room of the floor joins (#703). Its fields (all optional):
  * - `rail`: how the railing looks: 'metal' (posts and two rails, the default), 'glass' (glass panes with a hand rail) or 'wood' (slats);
  * - `posts`: true = supports from its outer corners down to the ground.
  * Where such a room hangs free (a balcony: on an upper floor beyond the storey below, on the ground floor of a house on a slope (#629) where the
  * ground lies well below it), it stands on a thin plate of its own instead of the ceiling of the house, and the ground floor's plinth and the
- * hole in the earth leave it out: the slope goes on under it.
- * Here: which terrace rooms hang free, where the railing runs and of which parts it is made, where the supports stand.
+ * hole in the earth leave it out: the slope goes on under it. This is decided for each part of the room (#703): a terrace that lies mostly on
+ * the garage and reaches out beyond it hangs free only where it reaches out.
+ * Here: which parts of the terrace rooms hang free, where the railing runs and of which parts it is made, where the supports stand.
  * Pure (no three.js, no DOM; unit test: tests/balcony.test.mjs); balcony3d.js builds the meshes. */
 import polygonClipping from './vendor/polygon-clipping.js';
 import { rangeOver } from './terrain.js';
@@ -13,8 +14,9 @@ import { pointInPoly, polyArea } from './rooms.js';
 
 export const BALCONY = {
   plate: 0.18,      // the plate under a free balcony (m)
-  low: 0.3,         // ground floor on a slope: it hangs free where the ground under it lies at least this much below its floor
-  share: 0.5,       // ... and at least this share of it lies beyond the storey below (the basement)
+  low: 0.3,         // ground floor on a slope: a part hangs free where the ground under it lies at least this much below its floor
+  part: 0.25,       // a free part narrower than this (2 × area / perimeter, m) is left out: a seam along the house, not a balcony (#703)
+  gap: 0.02,        // the free parts keep this far off the walls of the house (the earth and the ceilings reach 1 cm beyond a wall)
   railH: 1.0,       // height of the railing
   post: 0.14,       // a support: square, this wide
   inset: 0.12,      // a support stands this far inside the edges
@@ -27,52 +29,87 @@ export const cleanRail = (v) => (RAILS.includes(v) ? v : 'metal');
 const okRoom = (r) => Array.isArray(r?.points) && r.points.length >= 3;
 const closed = (pts) => [[...pts.map((p) => [+p[0], +p[1]]), [+pts[0][0], +pts[0][1]]]];
 
-/** the outline of a storey as polygons (polygon-clipping): its walls with their thickness, its rooms (not its open terraces) and blocks */
-export function storeyOutline(floors) {
+/** the outline of a storey as polygons (polygon-clipping): its walls with their thickness (and `grow` m more all round), its rooms (not its
+ *  open terraces) and blocks */
+export function storeyOutline(floors, grow = 0) {
   const polys = [];
   (floors || []).forEach((f) => {
     (f?.walls || []).forEach((w) => {
       const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], L = Math.hypot(dx, dz);
       if (L < 1e-3) return;
-      const t = (+w.thickness || 0.2) / 2, nx = (-dz / L) * t, nz = (dx / L) * t;
-      polys.push(closed([[w.a[0] + nx, w.a[1] + nz], [w.b[0] + nx, w.b[1] + nz], [w.b[0] - nx, w.b[1] - nz], [w.a[0] - nx, w.a[1] - nz]]));
+      const t = (+w.thickness || 0.2) / 2 + grow, nx = (-dz / L) * t, nz = (dx / L) * t, ex = (dx / L) * t, ez = (dz / L) * t;   // the ends reach out as far: closed corners
+      polys.push(closed([[w.a[0] - ex + nx, w.a[1] - ez + nz], [w.b[0] + ex + nx, w.b[1] + ez + nz], [w.b[0] + ex - nx, w.b[1] + ez - nz], [w.a[0] - ex - nx, w.a[1] - ez - nz]]));
     });
     [...(f?.rooms || []).filter((r) => !r.terrace), ...(f?.blocks || [])].forEach((r) => { if (okRoom(r)) polys.push(closed(r.points)); });
   });
   return polys;
 }
+/** the outline the open rooms of floor i lie on (storeyOutline): the storey below, on the ground floor (groundIdx) the basements */
+export const outlineBelow = (floors, i, groundIdx = 0, grow = 0) => storeyOutline(i > groundIdx ? [floors?.[i - 1]] : (floors || []).slice(0, groundIdx), grow);
 
-/** how much of the polygon `pts` (0 … 1) lies outside the polygons `polys` (storeyOutline) */
-export function outsideShare(pts, polys) {
-  const all = polyArea(pts);
-  if (all < 1e-6) return 0;
-  if (!polys?.length) return 1;
-  try {
-    const rest = polygonClipping.difference(closed(pts), ...polys);
-    const area = rest.reduce((s, poly) => s + poly.reduce((a, ring, k) => a + (k ? -1 : 1) * polyArea(ring.slice(0, -1)), 0), 0);
-    return Math.max(0, Math.min(1, area / all));
-  } catch { return 0; }
+/** the area of a polygon of polygon-clipping (its first ring minus its holes) */
+const clipArea = (poly) => poly.reduce((a, ring, k) => a + (k ? -1 : 1) * polyArea(ring.slice(0, -1)), 0);
+/** how wide a ring [[x, z], …] is, about: 2 × area / perimeter (a strip: its width, a square: half its side) */
+export function ringWidth(r) {
+  if (!(r?.length >= 3)) return 0;
+  const per = r.reduce((s, p, k) => { const q = r[(k + 1) % r.length]; return s + Math.hypot(q[0] - p[0], q[1] - p[1]); }, 0);
+  return per > 0 ? (2 * polyArea(r)) / per : 0;
+}
+/** the outer rings [[x, z], …] of a polygon operation that are at least BALCONY.part wide, [] when it fails */
+function wideRings(fn) {
+  let mp;
+  try { mp = fn(); } catch { return []; }
+  return mp.map((poly) => poly[0].slice(0, -1)).filter((r) => ringWidth(r) >= BALCONY.part);
 }
 
-/** the ids of the terrace rooms of floor i that hang free (balconies): on a floor above the ground floor (groundIdx) when at least half of
- *  the room lies beyond the storey below; on the ground floor only on a slope (hf: the height of the ground (x, z) => h, terrain.js, null
- *  when level) where the ground under all of it lies at least BALCONY.low below its floor and it is not over the basement. Never in a
- *  basement. */
-export function freeBalconies(floors, i, groundIdx = 0, hf = null) {
-  const f = floors?.[i], out = new Set();
-  if (!f || i < groundIdx) return out;
+/** the parts of the terrace rooms of floor i that hang free (balconies, #703): Map room id → { rings: [[[x, z], …], …] (the free parts),
+ *  whole (the whole room hangs free, nothing of it lies on the house) }. A part hangs free where it lies beyond the storey below (on the
+ *  ground floor (groundIdx): beyond the basement) and off the walls of its own floor; on the ground floor only on a slope (hf: the height of
+ *  the ground (x, z) => h, terrain.js, null when level) and only where the ground under all of the part lies at least BALCONY.low below its
+ *  floor. Never in a basement. Parts narrower than BALCONY.part are left out. */
+export function freeParts(floors, i, groundIdx = 0, hf = null) {
+  const f = floors?.[i], out = new Map();
+  if (!f || i < groundIdx || (i === groundIdx && !hf)) return out;
   const open = (f.rooms || []).filter((r) => r.terrace && okRoom(r));
-  if (!open.length || (i === groundIdx && !hf)) return out;
-  const under = storeyOutline(i > groundIdx ? [floors[i - 1]] : floors.slice(0, groundIdx));
+  if (!open.length) return out;
+  const under = outlineBelow(floors, i, groundIdx, BALCONY.gap), walls = storeyOutline([{ walls: f.walls }], BALCONY.gap);   // its own walls stand on the house
   open.forEach((r) => {
-    if (outsideShare(r.points, under) < BALCONY.share) return;
-    if (i === groundIdx && rangeOver(hf, r.points)[1] > -BALCONY.low) return;
-    out.add(r.id);
+    const rings = wideRings(() => polygonClipping.difference(closed(r.points), ...under, ...walls))
+      .filter((ring) => i > groundIdx || rangeOver(hf, ring)[1] <= -BALCONY.low);
+    if (!rings.length) return;
+    const rest = wideRings(() => polygonClipping.difference(closed(r.points), ...walls, ...rings.map(closed)));   // what lies on the house
+    out.set(r.id, { rings, whole: !rest.length });
   });
   return out;
 }
-/** the floors with the rooms `ids` of floor i left out (the outline of the house without its free balconies) */
-export const withoutRooms = (floors, i, ids) => (floors || []).map((f, k) => (k === i && ids?.size ? { ...f, rooms: (f.rooms || []).filter((r) => !ids.has(r.id)) } : f));
+/** the ids of the terrace rooms of floor i that hang free, all of them or a part (freeParts) */
+export const freeBalconies = (floors, i, groundIdx = 0, hf = null) => new Set(freeParts(floors, i, groundIdx, hf).keys());
+/** the outline rings [[x, z], …] (e.g. houseFootprint) with the free parts (freeParts' Map) cut away: the ceiling and the plinth under a
+ *  terrace stop where it hangs free (#703); outer rings only, the rings as they are when nothing hangs free or the cut fails */
+export function withoutParts(rings, parts) {
+  const cut = [...(parts?.values?.() || [])].flatMap((p) => p.rings || []);
+  if (!cut.length || !rings?.length) return rings || [];
+  try {
+    return polygonClipping.difference(rings.map(closed), ...cut.map(closed)).filter((poly) => clipArea(poly) > 1e-4).map((poly) => poly[0].slice(0, -1));
+  } catch { return rings; }
+}
+
+/** is the point (x, z) on the polygons `polys` (storeyOutline) or within `margin` m of their edges: a support there would stand on the house */
+export function onOutline(polys, x, z, margin = 0.3) {
+  return (polys || []).some((poly) => {
+    const ring = poly[0].slice(0, -1);
+    return pointInPoly(x, z, ring) || ring.some((a, k) => {
+      const b = ring[(k + 1) % ring.length], dx = b[0] - a[0], dz = b[1] - a[1], l2 = dx * dx + dz * dz || 1;
+      const u = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / l2));
+      return Math.hypot(x - (a[0] + u * dx), z - (a[1] + u * dz)) < margin;
+    });
+  });
+}
+/** is the point (x, z) inside one of the rooms or within `margin` m of one of their edges: where another open room of the floor joins, the
+ *  terrace goes on there and needs no railing (#703: a terrace drawn as two rooms) */
+export function atRoom(rooms, x, z, margin = 0.05) {
+  return (rooms || []).some((r) => okRoom(r) && onOutline([closed(r.points)], x, z, margin));
+}
 
 /** is the point (x, z) at one of the walls (on it or within `margin` m of its face) */
 export function atWall(walls, x, z, margin = 0.12) {

@@ -894,6 +894,11 @@ def build_layout(data):
                     "points": poly}
             if isinstance(r.get("area"), str) and r["area"]:
                 room["area"] = r["area"][:80]
+            for k in ("tempFrom", "humidFrom"):                # where its temperature / humidity come from (#705): its thermostat or one entity
+                if r.get(k) == "climate" or (isinstance(r.get(k), str) and re.fullmatch(r"[a-z_]+\.[a-z0-9_]+", r[k])):
+                    room[k] = r[k]
+                elif k in r:
+                    rep.warn(f"{rp}.{k}", f'{k} must be "climate" or an entity id: ignored')
             if r.get("terrace") is True:
                 room["terrace"] = True                          # balcony / roof terrace: open area with a railing
                 open_rooms.add(len(rooms))
@@ -1358,7 +1363,7 @@ def layout_to_property(layout, name="Haus"):
             if not (f.get("rooms") or f.get("walls") or f.get("devices")):      # a plain roof; otherwise also its solar panels, a loft's rooms
                 floors.append(item)
                 continue
-        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace", "rail", "posts", "raise", "steps", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
+        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "tempFrom", "humidFrom", "terrace", "rail", "posts", "raise", "steps", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
         item["walls"] = []
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}

@@ -1,5 +1,5 @@
 {
- "version": "5.3.1",
- "from": "3653c44fa256edaaefaccd72148c0a684cc0cec4",
+ "version": "5.4.0",
+ "from": "cdc6c583bda4c12ea48ea340e589fea7e3de62db",
  "note": "the normal add-on, written by tools/stable.py: do not edit"
 }

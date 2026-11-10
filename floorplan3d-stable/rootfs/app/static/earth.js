@@ -5,7 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { rangeOver } from './terrain.js';
 import { plateausOf } from './levels.js';
-import { freeBalconies, withoutRooms } from './balcony.js';
+import { freeParts, withoutParts, ringWidth } from './balcony.js';
 import { drapeGeometry, earthSides, cutFace, plinthGeometry } from './terrain3d.js';
 
 /** outline of the house at ground level: walls (with their thickness) and rooms / blocks of the floors up to the ground floor (or of the
@@ -99,7 +99,7 @@ export function initEarth(ctx) {
   function build(world, holo) {
     const layout = ctx.layout(), settings = ctx.settings(), nb = ctx.groundIdx();
     const hf = ctx.terrain?.() || null;                   // on a slope (#629): the ground has its own height everywhere
-    const foot = houseFootprint(hf ? withoutRooms(layout.floors, nb, freeBalconies(layout.floors, nb, nb, hf)) : layout.floors, nb);   // a balcony over the slope: the ground goes on under it (#646)
+    const foot = hf ? withoutParts(houseFootprint(layout.floors, nb), freeParts(layout.floors, nb, nb, hf)) : houseFootprint(layout.floors, nb);   // a balcony over the slope: the ground goes on under it (#646), also under the free part of a terrace on the garage (#703)
     if (!foot.length) return;
     const xs = foot.flat().map((p) => p[0]), zs = foot.flat().map((p) => p[1]);
     const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
@@ -159,7 +159,8 @@ export function initEarth(ctx) {
     if (!hf) earth.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), new THREE.LineBasicMaterial({ color: holo ? 0x3dffb0 : 0x7a5a38, transparent: true, opacity: holo ? 0.5 : 0.6, clippingPlanes: clip })));
     world.add(earth);
     if (hf) {                                                     // the parts of the house without a basement stand on a plinth down to the ground
-      const parts = nb > 0 ? ringsOf(() => polygonClipping.difference(foot.map(closed), ...cellar.map(closed))) : foot;
+      const parts = (nb > 0 ? ringsOf(() => polygonClipping.difference(foot.map(closed), ...cellar.map(closed))) : foot)
+        .filter((r) => ringWidth(r) > 0.05);                      // not the seam of a few cm between the basement and a free balcony (#703)
       const low = parts.map((r) => [r, rangeOver(hf, r)[0]]).filter(([, lo]) => lo < -0.05);
       if (low.length) {
         const pm = tintOf(holo ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: 0.35, depthWrite: false, side: THREE.DoubleSide, clippingPlanes: clip })
