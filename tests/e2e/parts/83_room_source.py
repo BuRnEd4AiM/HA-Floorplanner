@@ -1,7 +1,8 @@
 """5.4.0 (#705, Miicki: "Ich möchte, dass die angezeigte Raumtemperatur die IST-Temperatur des Thermostats ist, ohne die anderen Sensoren
 aus dem Home-Assistant-Bereich entfernen zu müssen"): a room says where its temperature and its humidity come from. "🌡 Temperatur von":
 automatic (the mean of its sensors, as before), the thermostat, or one sensor; each choice shows what it measures now. The room's tile, the
-colour view and the 🌡 Klima page follow; automatic removes the field again. A room with only a thermostat has no such field.
+colour view and the 🌡 Klima page follow; automatic removes the field again. A room with only a thermostat has no such field. In the new
+panel („✨ Neu“) the fields are under the tab „Geräte“ and the search finds them.
 """
 saved_src = api_admin("api/layout")             # put back at the end
 st_src = api("api/settings")
@@ -80,6 +81,20 @@ pgR.select_option("#roomTempFrom", ""); pgR.wait_for_timeout(600)
 check("#705: back to „Automatisch“: nothing stored any more", "tempFrom" not in room_src("src_wz"), room_src("src_wz"))
 mode_src("live"); wait_tile("21,7°")
 check("#705: … and the tile shows the mean 21,7° again", "21,7°" in tile_src(), tile_src())
+# the new panel („✨ Neu“, the owner 2026-11-10: „bitte vergiss nicht die Ansicht in der v2“): the fields under the tab „Geräte“, the search finds them
+pgR.goto(BASE + "?debug=1&mode=edit&ui=2"); pgR.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgR.wait_for_timeout(1000)
+pgR.evaluate("window.__fp.switchFloor(0)"); pgR.wait_for_timeout(600)
+sel_src("src_wz")
+pgR.click("#v2RoomTabs [data-tab=devices]"); pgR.wait_for_timeout(500)
+check("#705 / ✨ Neu: in the new panel „Temperatur von“ and „Luftfeuchte von“ are under the tab „Geräte“, with the line under them",
+      pgR.evaluate("document.body.classList.contains('uiV2')") and pgR.is_visible("#roomTempFrom") and pgR.is_visible("#roomHumidFrom") and pgR.is_visible("#roomSrcHint")
+      and pgR.get_attribute("#v2RoomTabs button.on", "data-tab") == "devices", pgR.evaluate("document.body.className"))
+pgR.click("#v2RoomTabs [data-tab=general]"); pgR.wait_for_timeout(300)
+pgR.fill("#v2Search", "Temperatur von"); pgR.wait_for_timeout(600)
+check("#705 / ✨ Neu: „🔍 Einstellung suchen“ finds „Temperatur von“ from another tab", pgR.is_visible("#roomTempFrom") and "Treffer" in pgR.inner_text("#v2SearchRes"),
+      pgR.inner_text("#v2SearchRes"))
+pgR.fill("#v2Search", ""); pgR.wait_for_timeout(300)
+pgR.evaluate("localStorage.removeItem('fp.ui'); localStorage.removeItem('fp.ui.open')")   # the next parts get the classic panel
 check("#705: no errors on the page", not own_src, own_src[:5])
 pgR.close()
 post_src("/_extra", {})

@@ -25,6 +25,9 @@ A knowledge graph of the code is built at session start in graphify-out/.
 - Docker: `container/Dockerfile` builds the normal one, `--build-arg CHANNEL=beta` the beta (CI builds both).
 ## Checksums
 - After every change in floorplan3d/ (also the version in config.yaml) run `python3 tools/make_manifest.py` and commit floorplan3d/rootfs/app/manifest.json. The tests (tests/test_manifest.py) fail otherwise. The add-on shows the version and checksum in the top bar and compares files, browser and GitHub.
+## The new panel "✨ Neu" (UI 2) (the owner's wish, 2026-11-10: "bitte vergiss nicht die Ansicht in der v2, das sollte man auch nicht vergessen immer")
+- Every new or changed field in the properties panel is also checked with "✨ Neu" (`?ui=2`): it lands in the right section or tab (`mark(body, key)` in props.js, `ROOM_TABS` and the sections in uiv2.js), "🔍 Einstellung suchen" finds it, and the browser test checks it there too (like `tests/e2e/parts/83_room_source.py`; at the end remove `fp.ui` from localStorage). Say in the PR what was checked in "✨ Neu".
+
 ## Code structure (new rule)
 - app.js is far too big (see docs/MODULE-PLAN.md for what is already split and what is next). **Every extension goes into a NEW module or into a fitting existing module, never as another large block into app.js.** app.js only gets the import, an `init...({...})` call and the wiring.
 - Pure logic (no three.js, no DOM) is kept separate and gets a node unit test in tests/ (like kitchen.js, heatpanel.js) plus a CI step.
