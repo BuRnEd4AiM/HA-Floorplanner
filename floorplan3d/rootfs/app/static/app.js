@@ -473,6 +473,7 @@ const balconies = initBalconies({ layout: () => shownLayout(), groundIdx: () => 
 /* a floor in 3D: room floors, floor opening rims, blocks, stairs, walls and devices; the code lives in floorbuild.js */
 const floorBuild = initFloorBuild({
   plotAreas: () => plotUi.areas(),                                // a plateau lifts what stands on it (levels.js, #566)
+  groundIdx: () => groundIdx(),                                   // from the ground floor up, never a basement (#713)
   terrainFor: (f) => standsOn(terrainHere(), f, layout.floors[groundIdx()], GARDEN),   // on a slope the garden things stand on the ground (#629)
   settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(), fast: () => LOW,
   mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (...a) => textSprite(...a), railing: (...a) => roofsUi.railing(...a),
@@ -547,7 +548,7 @@ function build() {
     }
     const roofsHere = f.kind === 'roof' ? roofList(i) : null;
 
-    const part = { holo, ghost, iso, labels: labelsHere, holes, stack };   // rooms, floor opening rims and blocks: floorbuild.js
+    const part = { holo, ghost, iso, labels: labelsHere, holes, stack, i };   // rooms, floor opening rims and blocks: floorbuild.js
     floorBuild.slab(g, f, i, { ...part, edge: edgeMaterial });
     floorBuild.rooms(g, f, part);
     floorBuild.holeRims(g, f, part);
@@ -1816,6 +1817,7 @@ plan = createPlan({
   states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, windowText: (o) => openings.windowText(o), fmtLen, t, setStatus, measure: measureTool,
   area: (p) => fmtArea(polyArea(p), imperial()),
   yards: () => plotUi.areas(), yardShown: () => tool === 'plot' || floorIdx === groundIdx(), plotRect: () => plotUi.rect(),   // the plot and its areas (#538)
+  groundIdx: () => groundIdx(),                                   // a plateau lifts the ground floor and the floors over it, not a basement (#713)
   terrainMode: () => tool === 'plot' && plotUi.mode() === 'terrain', terrainSvg: (o) => plotUi.terrain.svg(o), terrainHit: (x, z, tol) => plotUi.terrain.hit(x, z, tol),   // ⛰ spot heights (#629, terrainui.js)
   terrainMove: (id, x, z) => plotUi.terrain.move(id, x, z), terrainPick: (id) => plotUi.terrain.pick(id), terrainClick: (x, z) => plotUi.terrain.click(x, z),
 });

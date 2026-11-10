@@ -132,3 +132,26 @@ test('on a slope (#629): a device that stands on the ground goes with it, on a p
   assert.equal(up.room(f.rooms[0]), 0);
   assert.equal(up.wall({ a: [0, -1], b: [10, -1] }), 0);
 });
+
+test('a plateau lifts the ground floor and the floors over it, never a basement (#713)', () => {
+  const areas = [{ points: rect(-1, -1, 9, 5), rise: 0.6 }], f = { rooms: [{ id: 'k', points: rect(0, 0, 4, 4) }], walls: [{ a: [0, 0], b: [4, 0] }] };
+  assert.equal(L.plateauLifts(0, 1), false); assert.equal(L.plateauLifts(1, 1), true); assert.equal(L.plateauLifts(3, 1), true);
+  assert.equal(L.plateauLifts(0, 0), true); assert.equal(L.plateauLifts(0), true);                 // no basement: the lowest floor is the ground floor
+  assert.equal(L.plateauLifts(undefined, 1), true);                                                // a caller that does not say: as before
+  assert.deepEqual(L.areasFor(areas, 0, 1), []); assert.equal(L.areasFor(areas, 1, 1), areas); assert.deepEqual(L.areasFor(null, 2, 1), []);
+  const cellar = L.lifter(f, L.areasFor(areas, 0, 1)), ground = L.lifter(f, L.areasFor(areas, 1, 1));
+  assert.equal(cellar.room(f.rooms[0]), 0); assert.equal(cellar.wall(f.walls[0]), 0); assert.equal(cellar.device({ type: 'sofa', x: 2, z: 2 }), 0);
+  near(ground.room(f.rooms[0]), 0.6); near(ground.wall(f.walls[0]), 0.6);
+  const raised = { rooms: [{ id: 'k', points: rect(0, 0, 4, 4), raise: 0.3 }] };                  // a room of the basement with its own higher floor still goes up
+  near(L.lifter(raised, L.areasFor(areas, 0, 1)).room(raised.rooms[0]), 0.3);
+});
+
+test('the stair from the basement up to the ground floor on a plateau reaches the raised floor; the ceiling over the basement too (#713)', () => {
+  const H = 2.8;
+  assert.deepEqual(L.stairLift(0, 1, 1, 0.6, H), { y: 0, scale: (2.8 + 0.6) / 2.8 });            // basement → ground floor: from the basement floor, taller
+  assert.deepEqual(L.stairLift(1, 1, 1, 0.6, H), { y: 0.6, scale: 1 });                           // ground floor → 1st floor: up with the plateau
+  assert.deepEqual(L.stairLift(1, 1, 0, 0.6, H), { y: 0.6, scale: 1 });                           // no basement
+  assert.deepEqual(L.stairLift(0, 1, 1, 0, H), { y: 0, scale: 1 });                               // not on a plateau
+  near(L.stairLift(0, 2, 1, 0.6, H).scale, (5.6 + 0.6) / 5.6);                                   // over two floors: from the basement to the 1st floor
+  assert.equal(L.slabExtra(1, 1, 0.6), 0.6); assert.equal(L.slabExtra(2, 1, 0.6), 0); assert.equal(L.slabExtra(0, 0, 0.6), 0); assert.equal(L.slabExtra(1, 1, 0), 0);
+});

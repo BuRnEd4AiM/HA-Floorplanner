@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3NkMiK3dkhknXnxnK2",
+ "start": "2026-11-10",
+ "updated": "2026-11-10T21:19:37Z",
+ "branch": "claude/plateau-abstand-keller-pup7eo",
+ "source": "counted",
+ "input": 137,
+ "cache_write": 164711,
+ "cache_read": 12330533,
+ "output": 41108,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 137,
+   "cache_write": 164711,
+   "cache_read": 12330533,
+   "output": 41108,
+   "requests": 70
+  }
+ }
+}
