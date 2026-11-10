@@ -987,6 +987,8 @@ const DEMO_COUNTERS = { 'solar|sensor.pv_leistung': 'sensor.pv_ertrag_kwh', 'sol
 const ONLY_ADDON = 'In der Demo nicht verfügbar (nur im Add-on).';
 const examples = { flat: flatExample, house: houseExample, showcase: showcaseExample };
 const demoVersion = () => (typeof __DEMO_VERSION__ === 'undefined' ? 'demo' : __DEMO_VERSION__);
+/** 'stable' (the demo of the normal add-on), 'beta' (the beta demo, GitHub Pages /beta/) or '' (the committed file: as before), build.mjs */
+const demoChannel = () => (typeof __DEMO_CHANNEL__ === 'undefined' ? '' : __DEMO_CHANNEL__);
 
 export function installDemoBackend() {
   window.__fpNoLive = true;                                  // no add-on server behind the demo: no live channel, states change only here
@@ -1183,8 +1185,10 @@ export function installDemoBackend() {
         ...(e.cid ? { cid: e.cid } : {}), members: e.members ?? null, lc: lastChanged(entity_id, e.state) })));
     }
     if (path === 'api/version') {                       // so that the version pill shows in the demo too; the file checks do not apply to a single file
-      return json({ known: true, version: demoVersion(), buildHash: 'demo', short: 'demo', server: { ok: true, files: 0, changed: [], missing: [], extra: [] }, staticFiles: {} });
+      return json({ known: true, version: demoVersion(), buildHash: 'demo', short: 'demo', server: { ok: true, files: 0, changed: [], missing: [], extra: [] }, staticFiles: {},
+        ...(demoChannel() ? { channel: demoChannel() } : {}) });   // the pill says "Beta" in the beta demo, the window which add-on it shows
     }
+    if (path === 'api/channel') return json({ channel: demoChannel() || null, state: null, stable: null });   // the beta demo never pauses
     if (path === 'api/version/remote') return json({ state: 'same', version: demoVersion(), short: 'demo' });   // built from GitHub's newest main
     if (path === 'api/service' && method === 'POST') {
       const { service, entity_id: id, data } = JSON.parse(init.body);

@@ -2,6 +2,9 @@ name: Demo
 
 # Keeps the downloadable single-file demo current: whenever the app or the demo data changes on main it is rebuilt,
 # committed (demo/floorplan3d-demo.html) and replaced in the latest release, so the download button always gives the newest one.
+# Normal and Beta (5.3.1, the owner: "dass man die Beta auch testen kann, ohne dass man das installieren muss"): GitHub Pages and the
+# latest release get the demo of the NORMAL add-on (floorplan3d-stable/, the released version); the beta's demo is under /beta/.
+# "Release to everyone" (stable.yml) starts this workflow after a release, so the normal demo follows it.
 on:
   push:
     branches: [main]
@@ -23,6 +26,7 @@ on:
       - "tools/trailer/page.html"       # the page of the trailer (its films come from the branch trailer-video, workflow "Trailer")
       - "tools/danke.html"              # hidden thank-you page for donations (return URL in PayPal), not linked anywhere
       - "!demo/floorplan3d-demo.html"
+      - "floorplan3d-stable/**"         # the normal add-on (its release commit skips CI: stable.yml starts this workflow itself)
   workflow_dispatch:
 
 permissions:
@@ -46,7 +50,13 @@ jobs:
         with:
           node-version: 20
       - name: Build
-        run: cd demo && npm ci && npm run build
+        run: |
+          cd demo && npm ci && npm run build                                      # the committed file: the beta's code, as before
+          node build.mjs ../_demo/beta/floorplan3d-demo.html --beta              # GitHub Pages /beta/: the beta, saying so
+          if ! node build.mjs ../_demo/stable/floorplan3d-demo.html --stable; then   # GitHub Pages and the download: the normal add-on
+            echo "::warning::The normal add-on's code does not build with today's demo data: the page shows the beta's demo for now."
+            mkdir -p ../_demo/stable && cp floorplan3d-demo.html ../_demo/stable/floorplan3d-demo.html
+          fi
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
@@ -61,7 +71,7 @@ jobs:
           exit 1
       - name: Collect the demo and the timeline for GitHub Pages
         run: |
-          mkdir _site && cp demo/floorplan3d-demo.html _site/index.html
+          mkdir -p _site/beta && cp _demo/stable/floorplan3d-demo.html _site/index.html && cp _demo/beta/floorplan3d-demo.html _site/beta/index.html
           python3 tools/make_timeline.py _site
           cp tools/danke.html _site/danke.html   # hidden thank-you page for donations (return URL in PayPal)
       - name: The video guide next to the demo (guide/, videos from the branch guide-videos)
@@ -85,7 +95,7 @@ jobs:
           tag="$(gh release view --json tagName -q .tagName 2>/dev/null || true)"
           [ -n "$tag" ] || exit 0
           for i in 1 2 3; do
-            gh release upload "$tag" demo/floorplan3d-demo.html --clobber && exit 0
+            gh release upload "$tag" _demo/stable/floorplan3d-demo.html --clobber && exit 0   # the latest release is the normal add-on's
             echo "upload failed (attempt $i), retrying"; sleep $((i * 10))
           done
           exit 1

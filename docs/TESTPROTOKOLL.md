@@ -464,7 +464,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 177. Repariert in 5.2.4: Backup einspielen ohne Größengrenze (#693) | 3 | 0 | 2 | 0 | 177.3, 177.4 |
 | 178. Neu in 5.3.0: 🪟 zwei Türen oder Fenster übereinander (#694) | 4 | 0 | 5 | 0 | 178.5 bis 178.9 |
 | 179. Repariert in 5.3.1: 🪟 das Schild des unteren Rollladens (#697) | 2 | 0 | 1 | 0 | 179.3 |
-| **Zusammen** | **1153** | **1** | **98** | **92** | |
+| 180. Verbessert in 5.3.1: 🧪 die Beta im Browser | 1 | 0 | 3 | 0 | 180.2 bis 180.4 |
+| **Zusammen** | **1154** | **1** | **101** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2760,3 +2761,13 @@ Gefunden beim Machen der Bilder für die Antwort auf #694: bei einer Tür mit Fe
 | 179.1 | Unit-Test `shutters.test.mjs` | Kugel des unteren Rollladens in der Wand zwischen beiden (bei wenig Platz in der Mitte), Schild auf dem eigenen Fenster, das obere wie bisher; ein Fenster allein wie bisher; Deckenhöhe für Kugeln im ganzen Haus nur bei Fenstern, die höher reichen | ✅ (2026-11-10, Claude) |
 | 179.2 | Browser-Test Teile `82_stacked_openings`, `03_houses` | Schild unten auf der Tür, oben über dem Fenster; live die Kugel der Tür unter 2,95 m, die des Fensters darüber; normale Rollläden wie bisher | ✅ (2026-11-10, Claude, 105/105 und 135/135) |
 | 179.3 | Demo: ⚙ Wandhöhe 3,80, eine Tür als „Fenstertür / Balkon“, „＋ Fenster darüber“, beiden einen Rollladen geben, dann „Live“ | Das Schild des unteren Rollladens steht auf der Tür, nicht vor dem Fenster darüber; zwei Kugeln, jede öffnet ihren Rollladen | ❓ |
+
+## 180. Verbessert in 5.3.1: 🧪 die Beta im Browser
+Wunsch des Besitzers am 2026-11-10: „dass man die Beta auch testen kann, ohne dass man das installieren muss“. Die Demo zeigt jetzt das normale Add-on, die Beta hat eine eigene Demo unter `/beta/`, die Startseite einen Knopf „🧪 Try the beta“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 180.1 | `node build.mjs <datei> --stable` und `--beta` bauen, beide im Browser öffnen | Normal: „v5.3.0 · demo“, im Versionsfenster „Normales Add-on“ (Code aus `floorplan3d-stable/`); Beta: „v5.3.1 Beta · demo“, „Beta-Add-on“; keine Fehler | ✅ (2026-11-10, Claude) |
+| 180.2 | Nach dem Merge und dem Freigeben von 5.3.1: https://burned4aim.github.io/HA-Floorplanner/ öffnen, oben auf die Versions-Pille tippen | „v5.3.1 · demo“, im Fenster „Normales Add-on“ | ❓ |
+| 180.3 | https://burned4aim.github.io/HA-Floorplanner/beta/ öffnen | Die Demo startet, die Pille sagt „Beta“ | ❓ |
+| 180.4 | Die Startseite auf GitHub (README) | Neben „Try the demo“ und „Download the demo“ der rosa Knopf „🧪 Try the beta“, er öffnet die Beta-Demo | ❓ |

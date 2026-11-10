@@ -119,5 +119,5 @@ jobs:
           set -euo pipefail
           tag="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" -q .tag_name 2>/dev/null || true)"
           [ -n "$tag" ] || exit 0
-          (cd demo && npm ci && npm run build)
-          gh release upload "$tag" demo/floorplan3d-demo.html --clobber || true
+          (cd demo && npm ci && node build.mjs ../_demo/floorplan3d-demo.html --stable) || exit 0   # the latest release is the normal add-on's (5.3.1)
+          gh release upload "$tag" _demo/floorplan3d-demo.html --clobber || true
