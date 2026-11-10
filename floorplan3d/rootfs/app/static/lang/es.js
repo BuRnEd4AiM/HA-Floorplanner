@@ -2330,7 +2330,7 @@ export default {
   'v2.home.addRoof': 'Tejado', 'v2.home.addHouse': 'Casa', 'v2.home.drag': 'Arrastra para mover la planta', 'v2.home.rooms': '{n} habitaciones',
   'v2.floor.sub': 'Planta {n} de {of} · {r} habitaciones', 'v2.floor.height': 'Altura', 'v2.floor.roof': 'Tejado',
   'v2.search.ph': '🔍 Buscar un ajuste … (p. ej. abatir, altura)', 'v2.search.hits': '{n} resultados', 'v2.search.none': 'Nada encontrado aquí',
-  'v2.search.settings': '⚙ En los ajustes: {n} →', 'v2.nop.hint': 'Sacado del panel. Toca la pestaña o ✕ para devolverlo.', 'v2.nop.out': 'en el cajón lateral',
+  'v2.search.settings': '⚙ En los ajustes: {n} →',
   'v2.act.copy': 'Copiar a otros', 'v2.copy.title': 'Estos ajustes también para …', 'v2.copy.nobody': 'No hay nada más de este tipo.',
   'v2.copy.where': '¿Cuáles?', 'v2.copy.what': '¿Qué?', 'v2.copy.cancel': 'Cancelar', 'v2.copy.go': 'Aplicar a {n} ✓',
   'v2.copy.done': 'Aplicado a {n} (↶ lo deshace)', 'v2.copy.doneSkipped': 'Aplicado a {n}, {k} no cabían en su pared (↶ lo deshace)',

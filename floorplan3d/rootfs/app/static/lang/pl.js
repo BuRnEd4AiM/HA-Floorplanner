@@ -2290,7 +2290,7 @@ export default {
   'v2.home.addRoof': 'Dach', 'v2.home.addHouse': 'Dom', 'v2.home.drag': 'Przeciągnij, aby przenieść piętro', 'v2.home.rooms': '{n} pom.',
   'v2.floor.sub': 'Piętro {n} z {of} · {r} pom.', 'v2.floor.height': 'Wysokość', 'v2.floor.roof': 'Dach',
   'v2.search.ph': '🔍 Szukaj ustawienia … (np. uchył, wysokość)', 'v2.search.hits': '{n} wyników', 'v2.search.none': 'Tu nic nie znaleziono',
-  'v2.search.settings': '⚙ W ustawieniach: {n} →', 'v2.nop.hint': 'Wysunięte z panelu. Dotknij zakładki lub ✕, aby schować.', 'v2.nop.out': 'w szufladzie',
+  'v2.search.settings': '⚙ W ustawieniach: {n} →',
   'v2.act.copy': 'Przenieś', 'v2.copy.title': 'Te ustawienia także dla …', 'v2.copy.nobody': 'Nie ma nic innego tego rodzaju.', 'v2.copy.where': 'Które?',
   'v2.copy.what': 'Co?', 'v2.copy.cancel': 'Anuluj', 'v2.copy.go': 'Zastosuj do {n} ✓', 'v2.copy.done': 'Zastosowano do {n} (↶ cofa)',
   'v2.copy.doneSkipped': 'Zastosowano do {n}, {k} nie zmieściło się w ścianie (↶ cofa)', 'v2.copy.window.room': 'Okna w {name}',

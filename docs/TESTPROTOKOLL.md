@@ -32,6 +32,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 20. **Repariert in 5.3.2: 🏗 Terrasse halb auf der Garage, halb frei** (Abschnitt 181, #703 von Miicki vom 2026-11-10): Claude hat 181.1 bis 181.5 geprüft (181.5 in der Beta mit echten Mausklicks); für dich nach dem Merge die Suche 181.6.
 21. **Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt** (Abschnitt 182, #705 von Miicki vom 2026-11-10): Claude hat 182.1 bis 182.5 geprüft (182.5 in der Beta); für dich im Add-on mit einem eigenen Raum 182.6 und die Suche 182.7. 5.4.0 ist seit 2026-11-10 für alle freigegeben (dein Wunsch: „in der Beta das alles testen und wenn alles passt es rüber pushen“).
 22. **Repariert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste** (Abschnitt 183, #709, deine Bilder vom 2026-11-10): Claude hat 183.1 bis 183.3 geprüft; für dich nach dem Merge in der Beta-Demo am iPad 183.4 und dein Eindruck vom neuen Aussehen 183.5.
+23. **Verbessert in 5.4.2: ✨ ein Reiter springt zu seinem Abschnitt** (Abschnitt 184, deine Wahl D vom 2026-11-10): Claude hat 184.1 und 184.2 geprüft; für dich nach dem Merge in der Beta-Demo 184.3. Damit ist 183.5 (das Aussehen mit dem Seitenfach) erledigt.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -470,8 +471,9 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 180. Verbessert in 5.3.1: 🧪 die Beta im Browser | 4 | 0 | 0 | 0 | – |
 | 181. Repariert in 5.3.2: 🏗 Terrasse halb auf der Garage, halb frei (#703) | 5 | 0 | 2 | 0 | 181.6, 181.7 |
 | 182. Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt (#705) | 5 | 0 | 3 | 0 | 182.6 bis 182.8 |
-| 183. Repariert und verbessert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste (#709) | 3 | 0 | 2 | 0 | 183.4, 183.5 |
-| **Zusammen** | **1175** | **1** | **100** | **92** | |
+| 183. Repariert und verbessert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste (#709) | 3 | 1 | 1 | 0 | ❌ 183.5, 183.4 |
+| 184. Verbessert in 5.4.2: ✨ ein Reiter springt zu seinem Abschnitt | 2 | 0 | 1 | 0 | 184.3 |
+| **Zusammen** | **1177** | **2** | **100** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2814,4 +2816,13 @@ Gemeldet vom Besitzer am 2026-11-10 mit zwei Bildern: im Dach-Editor ein Tipp au
 | 183.2 | Demo mit echten Mausklicks: „Bearbeiten“, „✨ Neu“, Etage „Dach“, das Dach anklicken, „Auf dem Dach“, die Zeile „☀ PV Dach … ›“; dann wieder das Dach und die Module im Bild von oben | Rechts stehen die Felder von „PV Dach“ (Panels nebeneinander, Reihen, Montage) und bleiben stehen | ✅ (2026-11-10, Claude, vorher sprang es zurück zum Dach) |
 | 183.3 | Demo: in „✨ Neu“ ein Gerät anklicken, rechts „Lage“ aufklappen, dann wieder zuklappen | Der Reiter „Lage“ links an der Leiste leuchtet (farbiger Strich, blauer Ton), zugeklappt ist er wieder schlicht | ✅ (2026-11-10, Claude) |
 | 183.4 | Nach dem Merge in der Beta-Demo (`/beta/`): dasselbe wie 183.2 mit dem Finger am iPad | Wie 183.2 | ❓ |
-| 183.5 | Nach dem Merge: die Seitenleiste ansehen (Reiter antippen, ins Seitenfach ziehen, mit der Maus darüber) | Gefällt dir das neue Aussehen? | ❓ |
+| 183.5 | Nach dem Merge: die Seitenleiste ansehen (Reiter antippen, ins Seitenfach ziehen, mit der Maus darüber) | Gefällt dir das neue Aussehen? | ❌ (2026-11-10, Besitzer: „seltsam … wenn sich alle Sachen nach links bewegen“; geändert in 5.4.2, Abschnitt 184) |
+
+## 184. Verbessert in 5.4.2: ✨ ein Reiter springt zu seinem Abschnitt
+Gewünscht vom Besitzer am 2026-11-10 mit einem Bild der Tür: „seltsam … wenn sich alle Sachen nach links bewegen“; aus vier Vorschlägen (A bis D, als Bilder) wählte er D: kein Seitenfach mehr, ein Tipp auf den Reiter springt im Feld zum Abschnitt.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 184.1 | Browser-Test Teil `80_ui_v2_more` | Ein Tipp auf „Rollladen“ klappt ihn im Feld auf, bringt ihn ins Bild und lässt ihn leuchten; kein Seitenfach, die Reiter bleiben stehen; sein Feld geht dort; „Größe & Lage“ springt wieder nach oben; ein zweiter Tipp lässt ihn offen | ✅ (2026-11-10, Claude) |
+| 184.2 | Demo: „Bearbeiten“, „✨ Neu“, ein Fenster anklicken, links den Reiter „Feste Scheibe“ antippen | Rechts klappt „Feste Scheibe“ auf, rückt ins Bild und leuchtet kurz blau; links bewegt sich nichts | ✅ (2026-11-10, Claude) |
+| 184.3 | Nach dem Merge in der Beta-Demo (`/beta/`): eine Tür anklicken, die Reiter „Ausführung“ und „Home Assistant“ antippen, am PC und am iPad | Wie 184.2; gefällt es dir so? | ❓ |

@@ -713,9 +713,9 @@ def _(r):
 
 @clip("ui-v2-tools", "edit",
       {"de": "Oberfläche 2: Suchen, Reiter an der Seite, Übernehmen", "en": "Oberfläche 2: search, tabs at the side, pass on"},
-      {"de": "In der neuen Leiste: „🔍 Einstellung suchen“ zeigt nur die Felder mit dem Wort (und wie viele in ⚙ sind); die Abschnitte hängen links als Reiter an der Leiste (ein aufgeklappter Abschnitt leuchtet dort mit), ein Tipp zieht einen in ein Seitenfach; „⇉ Übernehmen“ gibt dieselben Einstellungen an die anderen Fenster im Raum, auf der Etage oder im ganzen Haus weiter (↶ macht es rückgängig).",
-       "en": "In the new panel: “🔍 Find a setting” shows only the fields with the word (and how many are in ⚙); the sections hang as tabs on the left of the panel (a section folded open lights its tab), a tap pulls one out into a side drawer; “⇉ Pass on” gives the same settings to the other windows in the room, on the floor or in the whole house (↶ undoes it)."},
-      "suchen Einstellung finden Reiter Seitenfach übernehmen für alle Fenster kopieren search setting tabs drawer pass on copy to all windows",
+      {"de": "In der neuen Leiste: „🔍 Einstellung suchen“ zeigt nur die Felder mit dem Wort (und wie viele in ⚙ sind); die Abschnitte hängen links als Reiter an der Leiste (ein aufgeklappter Abschnitt leuchtet dort mit), ein Tipp springt zu dem Abschnitt und klappt ihn auf; „⇉ Übernehmen“ gibt dieselben Einstellungen an die anderen Fenster im Raum, auf der Etage oder im ganzen Haus weiter (↶ macht es rückgängig).",
+       "en": "In the new panel: “🔍 Find a setting” shows only the fields with the word (and how many are in ⚙); the sections hang as tabs on the left of the panel (a section folded open lights its tab), a tap jumps to that section and folds it open; “⇉ Pass on” gives the same settings to the other windows in the room, on the floor or in the whole house (↶ undoes it)."},
+      "suchen Einstellung finden Reiter springen übernehmen für alle Fenster kopieren search setting tabs jump pass on copy to all windows",
       query="mode=edit", prep=two_windows_room)
 def _(r):
     r.click("#uiSwitch [data-ui=v2]")
@@ -731,12 +731,12 @@ def _(r):
     r.pg.keyboard.press("Control+A")
     r.key("Backspace")
     r.wait(900)
-    r.say("Links hängen die Abschnitte als Reiter, ein aufgeklappter leuchtet mit. Ein Tipp zieht einen ins Seitenfach.", "The sections hang as tabs on the left, an open one is lit. A tap pulls one out into the drawer.")
+    r.say("Links hängen die Abschnitte als Reiter, ein aufgeklappter leuchtet mit. Ein Tipp springt zum Abschnitt.", "The sections hang as tabs on the left, an open one is lit. A tap jumps to its section.")
     r.click("#v2Nops [data-sec=shutter]")
     r.wait(1800)
     r.poster()
-    r.click("#v2Nops [data-sec=shutter]")
-    r.wait(800)
+    r.click("#v2Nops [data-sec=panes]")
+    r.wait(1000)
     r.say("Dieser Flügel geht links auf …", "This pane opens on the left …")
     r.click("#v2Window [data-pane='0']")
     r.wait(700)

@@ -1,20 +1,20 @@
 {
  "session": "session_018pwcmyz3i2xa5YFSbPMLaA",
  "start": "2026-11-10",
- "updated": "2026-11-10T13:48:11Z",
+ "updated": "2026-11-10T16:22:41Z",
  "branch": "claude/sweet-carson-yxl5i4",
  "source": "counted",
- "input": 264,
- "cache_write": 220033,
- "cache_read": 28369582,
- "output": 64863,
+ "input": 406,
+ "cache_write": 336337,
+ "cache_read": 51870934,
+ "output": 112468,
  "models": {
   "claude-opus-5-5": {
-   "input": 264,
-   "cache_write": 220033,
-   "cache_read": 28369582,
-   "output": 64863,
-   "requests": 136
+   "input": 406,
+   "cache_write": 336337,
+   "cache_read": 51870934,
+   "output": 112468,
+   "requests": 205
   }
  }
 }
