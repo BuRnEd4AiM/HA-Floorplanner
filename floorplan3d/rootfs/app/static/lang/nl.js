@@ -1963,7 +1963,7 @@ export default {
   'ro.editInHa': 'Wijzigen in Home Assistant', 'ro.deleteAuto': 'Verwijderen',
     'plat.title': 'Plateau',
     'plat.rise': 'Hoogte boven het gazon',
-    'plat.riseHint': '0 = geen plateau, alleen een vlak. Wat op het plateau staat, gaat mee omhoog: kamers, muren, deuren, ramen, apparaten, trappen en het dak erboven. De buitentrap staat op het gazon.',
+    'plat.riseHint': '0 = geen plateau, alleen een vlak. Wat op het plateau staat, gaat mee omhoog: kamers, muren, deuren, ramen, apparaten, trappen en het dak erboven. De buitentrap staat op het gazon. Een kelder blijft beneden in de grond.',
     'plat.edge': 'Rand',
     'plat.edge.wall': '🧱 Muur',
     'plat.edge.slope': '🌱 Talud',

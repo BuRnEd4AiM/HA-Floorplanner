@@ -1985,7 +1985,7 @@ export default {
   'ro.runAuto': 'Avvia ora', 'ro.editInHa': 'Modifica in Home Assistant', 'ro.deleteAuto': 'Elimina',
     'plat.title': 'Terrapieno',
     'plat.rise': 'Altezza sul prato',
-    'plat.riseHint': '0 = nessun terrapieno, solo una superficie. Ciò che sta sul terrapieno sale con esso: stanze, muri, porte, finestre, dispositivi, scale e il tetto sopra. La scala esterna resta sul prato.',
+    'plat.riseHint': '0 = nessun terrapieno, solo una superficie. Ciò che sta sul terrapieno sale con esso: stanze, muri, porte, finestre, dispositivi, scale e il tetto sopra. La scala esterna resta sul prato. Una cantina resta giù, nel terreno.',
     'plat.edge': 'Bordo',
     'plat.edge.wall': '🧱 Muro',
     'plat.edge.slope': '🌱 Scarpata',

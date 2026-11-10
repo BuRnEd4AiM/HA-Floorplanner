@@ -2001,7 +2001,7 @@ export default {
   'ro.editInHa': 'Modifier dans Home Assistant', 'ro.deleteAuto': 'Supprimer',
     'plat.title': 'Plateau',
     'plat.rise': 'Hauteur au-dessus de la pelouse',
-    'plat.riseHint': '0 = pas de plateau, juste une surface. Ce qui se trouve sur le plateau monte avec lui : pièces, murs, portes, fenêtres, appareils, escaliers et le toit au-dessus. L’escalier extérieur reste sur la pelouse.',
+    'plat.riseHint': '0 = pas de plateau, juste une surface. Ce qui se trouve sur le plateau monte avec lui : pièces, murs, portes, fenêtres, appareils, escaliers et le toit au-dessus. L’escalier extérieur reste sur la pelouse. Un sous-sol reste en bas, dans la terre.',
     'plat.edge': 'Bord',
     'plat.edge.wall': '🧱 Mur',
     'plat.edge.slope': '🌱 Talus',
