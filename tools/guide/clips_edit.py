@@ -1402,8 +1402,8 @@ def balcony_view(r):
 
 @clip("balcony", "edit",
       {"de": "Balkon mit Geländer", "en": "A balcony with a railing"},
-      {"de": "Einen Raum vor die Tür zeichnen und „Balkon / Dachterrasse“ ankreuzen: Geländer aus Metall, Glas oder Holz, auf Wunsch Stützen bis zum Boden. Ragt er hinaus oder liegt der Hang tiefer, hängt er frei auf einer Platte.",
-       "en": "Draw a room in front of the door and tick “Balcony / roof terrace”: a railing of metal, glass or wood, supports down to the ground if you like. Where it reaches out or the slope lies lower, it hangs free on a plate."},
+      {"de": "Einen Raum vor die Tür zeichnen und „Balkon / Dachterrasse“ ankreuzen: Geländer aus Metall, Glas oder Holz, auf Wunsch Stützen bis zum Boden. Ragt er hinaus oder liegt der Hang tiefer, hängt er frei auf einer Platte; eine Terrasse auf der Garage nur dort, wo sie hinausragt.",
+       "en": "Draw a room in front of the door and tick “Balcony / roof terrace”: a railing of metal, glass or wood, supports down to the ground if you like. Where it reaches out or the slope lies lower, it hangs free on a plate; a terrace on the garage only where it reaches out."},
       "Balkon Geländer Balkongeländer Glasgeländer Holzgeländer Stützen Dachterrasse Hang Platte balcony railing glass railing wooden railing supports posts roof terrace slope plate",
       query="mode=edit", prep=balcony_view)
 def _(r):

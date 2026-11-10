@@ -47,7 +47,7 @@ export function stretchValue(n) {
  *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH(), power(), stairTool(), fmtLen(m), toDisp(m), imperial(),
  *  defaultLightColor() (settings: the colour of a lamp that reports none), yardProps(body, box, sel) (the plot and its areas, plotui.js),
  *  closetRoof(d) (the roof slopes over a cabinet's floor and the height of its bottom: { planes, baseY } or null), balconyFree(id) (the room
- *  hangs free: a balcony, #646), previewTilt(id) (a window leans in for a moment: its tilt angle changed), allOpenings() (every door and
+ *  hangs free: 'all', 'part' or '', #646, #703), previewTilt(id) (a window leans in for a moment: its tilt angle changed), allOpenings() (every door and
  *  window of the house), layout() (the open house: the rooms of every floor, roomnameui.js), select(sel) (selects that thing instead, e.g. the
  *  window above a door, openingstackui.js), uid() */
 export function initProps(ctx) {

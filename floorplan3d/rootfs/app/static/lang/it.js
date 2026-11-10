@@ -2372,4 +2372,5 @@ export default {
   'stack.addHint': 'Mette sopra una finestra della stessa larghezza, con del muro in mezzo (p. es. una finestra alta sopra la porta finestra). Ha un proprio contatto e una propria tapparella.',
   'stack.added': 'Finestra aggiunta sopra: davanzale {sill}, altezza {h}. Puoi modificarli.',
   'stack.clash': 'Non possibile: toccherebbe la porta o la finestra sopra o sotto.',
+  'balc.part': 'Sospesa in parte: dove sporge oltre il piano sotto la regge una lastra (pilastri solo lì), il resto poggia sulla casa.',
 };

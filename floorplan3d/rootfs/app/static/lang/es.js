@@ -2379,4 +2379,5 @@ export default {
   'stack.addHint': 'Coloca encima una ventana del mismo ancho, con pared entre ambas (p. ej. una ventana alta sobre la puerta de la terraza). Tiene su propio contacto y su propia persiana.',
   'stack.added': 'Ventana añadida encima: antepecho {sill}, altura {h}. Puedes cambiar ambos.',
   'stack.clash': 'No es posible: chocaría con la puerta o ventana de encima o de debajo.',
+  'balc.part': 'Cuelga en parte: donde sobresale del piso de abajo la sostiene una losa (pilares solo allí), el resto descansa sobre la casa.',
 };

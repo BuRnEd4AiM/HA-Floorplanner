@@ -2397,4 +2397,5 @@ export default {
   'stack.addHint': 'Place au-dessus une fenêtre de même largeur, avec du mur entre les deux (p. ex. une fenêtre haute au-dessus de la porte-fenêtre). Elle a son propre contact et son propre volet roulant.',
   'stack.added': 'Fenêtre ajoutée au-dessus : allège {sill}, hauteur {h}. Vous pouvez les modifier.',
   'stack.clash': 'Impossible : elle toucherait la porte ou la fenêtre au-dessus ou en dessous.',
+  'balc.part': 'Suspendue en partie : là où elle dépasse l’étage du dessous, une dalle la porte (poteaux seulement là), le reste repose sur la maison.',
 };
