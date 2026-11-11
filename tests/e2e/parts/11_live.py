@@ -195,6 +195,21 @@ for code, word in (("fr", "Mur"), ("es", "Pared"), ("it", "Parete"), ("nl", "Muu
     check("UI switches to " + code, word in txt, txt[:200])
 pg12.request.put(BASE + "api/settings", data=json.dumps({"language": "de"}), headers={"Content-Type": "application/json"})
 pg12.close()
+# --- only the chosen language is fetched (i18n.js, idea list 2026-11-11): German starts without lang/*.js; French chosen in ⚙ is fetched
+# then and shown at once, without English in between and without reloading
+pgL = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+langL = []
+pgL.on("request", lambda r: langL.append(r.url) if "/lang/" in r.url else None)
+pgL.goto(BASE + "?debug=1&mode=edit"); pgL.wait_for_timeout(1500)
+check("languages: a German start fetches no other language", langL == [], langL)
+pgL.click("#settingsBtn"); open_setting(pgL, "#setLanguage"); pgL.select_option("#setLanguage", "fr")
+try: pgL.wait_for_function("document.getElementById('toolbar').innerText.includes('Mur')", timeout=10000)
+except Exception: pass
+txtL = pgL.inner_text("#toolbar")
+check("languages: French chosen in ⚙ is fetched once and shown at once", "Mur" in txtL and len(langL) == 1 and langL[0].split("?")[0].endswith("/lang/fr.js"), (langL, txtL[:150]))
+pgL.keyboard.press("Escape")
+pgL.request.put(BASE + "api/settings", data=json.dumps({"language": "de"}), headers={"Content-Type": "application/json"})
+pgL.close()
 
 # --- the live card is drawn anew only when something it shows changes (#336): a state update of another entity (power meters, temperatures every
 # few seconds) left the lamp's buttons and sliders being replaced under the finger, so a tap or a drag got lost

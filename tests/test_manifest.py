@@ -1,5 +1,4 @@
 """Version and checksums: the committed manifest matches the files, the add-on and GitHub comparison work."""
-import json
 import re
 import sys
 from pathlib import Path

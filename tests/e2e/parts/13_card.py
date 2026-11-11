@@ -34,7 +34,15 @@ check("card (#13): it finds the add-on by its sidebar panel and opens an Ingress
 check("card (#13): the frame opens the add-on with ?card=1 and the options", src.startswith("/?card=1") and all(x in src for x in ["floor=house", "theme=light", "heatmap=temp", "room_panel=0", "idle_return=1"]), src)
 check("card (#13): the height and the title", pgC.evaluate("window.c1.shadowRoot.querySelector('.box').style.height") == "400px"
       and pgC.evaluate("window.c1.shadowRoot.querySelector('ha-card').getAttribute('header')") == "Haus")
-fr = next(f for f in pgC.frames if "card=1" in f.url)
+def card_frame(word):
+    """the frame of the card once its page started to load (its address counts only then, not when the card sets src)"""
+    for _ in range(100):
+        f = next((f for f in pgC.frames if word in f.url), None)
+        if f: return f
+        pgC.wait_for_timeout(100)
+    return None
+fr = card_frame("card=1")
+check("card (#13): the frame loads the add-on page", fr is not None, [f.url for f in pgC.frames])
 fr.goto(fr.url + "&debug=1")                 # the test hooks of the add-on page (the card itself never asks for them)
 fr.wait_for_function("window.__fp && window.__fp.ready && window.__fp.ready()", timeout=30000)
 fr.wait_for_timeout(800)
@@ -62,7 +70,7 @@ pgC.wait_for_function("cardSrc(window.c1).includes('show_bar=0')", timeout=10000
 src2 = pgC.evaluate("cardSrc(window.c1)")
 check("card (#13): a new config and the dark mode of Home Assistant change the frame", "theme=dark" in src2 and "floor=0" in src2 and "heatmap" not in src2, src2)
 pgC.wait_for_timeout(500)
-fr = next(f for f in pgC.frames if "show_bar=0" in f.url)
+fr = card_frame("show_bar=0")
 fr.goto(fr.url + "&debug=1")
 fr.wait_for_function("window.__fp && window.__fp.ready && window.__fp.ready()", timeout=30000)
 fr.wait_for_timeout(500)

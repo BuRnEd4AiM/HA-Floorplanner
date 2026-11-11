@@ -88,7 +88,7 @@ export function initUsedBy(ctx) {
 
   function draw() {
     if (!dlg?.open || !forId) return;
-    const e = forId, st = ctx.states();
+    const e = forId;
     const clash = data ? clashes(e, data.rows, data.own) : [];
     const head = make('div', 'ceHead ubHead');
     head.append(make('h3', '', `🔎 ${ctx.nameOf(e) || e}`), make('p', 'tpSub', t('ub.sub')));

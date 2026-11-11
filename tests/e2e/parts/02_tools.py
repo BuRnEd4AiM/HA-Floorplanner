@@ -118,7 +118,10 @@ pgV2 = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"
 ver = api("api/version")
 # GitHub answers "same" here: the real main may already be a newer version than the branch under test (#634 failed so)
 pgV2.route("**/api/version/remote", lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps({"state": "same", "version": ver["version"], "short": ver["short"]})))
+fetchedV2 = []                                   # the browser check fetches every file: never during the start (version.js checkNow)
+pgV2.on("request", lambda r: fetchedV2.append(r.url) if r.resource_type == "fetch" and r.url.endswith(".js") else None)
 pgV2.goto(BASE + "?mode=edit"); pgV2.wait_for_timeout(2500)
+check("version: the start does not fetch the interface files a second time (the browser check waits)", fetchedV2 == [], fetchedV2[:5])
 check("version: the add-on knows its manifest and its files match", ver["known"] and ver["server"]["ok"], ver.get("server"))
 check("version: the pill shows version and short checksum", ver["version"] in pgV2.inner_text("#versionPill") and ver["short"] in pgV2.inner_text("#versionPill"), pgV2.inner_text("#versionPill"))
 try:                                            # green once the browser has checked every file: that takes longer with more files (CI, #707)
@@ -126,8 +129,11 @@ try:                                            # green once the browser has che
 except Exception:
     pass
 check("version: the pill is green when everything matches", "ver-ok" in (pgV2.get_attribute("#versionPill", "class") or ""), pgV2.get_attribute("#versionPill", "class"))
-pgV2.click("#versionPill"); pgV2.wait_for_timeout(300)
-check("version: the dialog lists the add-on and browser check", pgV2.locator("#versionBody .verLine.ok").count() >= 2)
+pgV2.click("#versionPill")
+try: pgV2.wait_for_function("document.querySelectorAll('#versionBody .verLine.ok').length >= 2", timeout=15000)   # opening it starts the browser check
+except Exception: pass
+check("version: the dialog lists the add-on and browser check", pgV2.locator("#versionBody .verLine.ok").count() >= 2, pgV2.inner_text("#versionBody"))
+check("version: opening it checked the browser's files", len(fetchedV2) > 100, len(fetchedV2))
 pgV2.click("#versionCheck"); pgV2.wait_for_timeout(2500)
 check("version: the GitHub comparison answers (also when GitHub is not reachable)", "GitHub" in pgV2.inner_text("#versionBody"))
 pgV2.close()
@@ -137,7 +143,9 @@ pgV3.add_init_script("Object.defineProperty(window.crypto, 'subtle', {get() { re
 pgV3.route("**/api/version/remote", lambda r: r.fulfill(status=200, content_type="application/json", body='{"state": "behind", "version": "99.0.0", "short": "abcdef0"}'))
 pgV3.goto(BASE + "?mode=edit"); pgV3.wait_for_timeout(3500)
 check("version: the test page really has no crypto.subtle", pgV3.evaluate("window.crypto.subtle") is None)
-pgV3.click("#versionPill"); pgV3.wait_for_timeout(300)
+pgV3.click("#versionPill")
+try: pgV3.wait_for_function("document.getElementById('versionBody').innerText.includes('exactly these files')", timeout=20000)   # hashed in JavaScript: takes a moment
+except Exception: pass
 check("version: no secure context, no 'not possible' hint, browser files match", "not possible" not in pgV3.inner_text("#versionBody") and "exactly these files" in pgV3.inner_text("#versionBody"), pgV3.inner_text("#versionBody"))
 pgV3.keyboard.press("Escape"); pgV3.wait_for_timeout(200)
 check("version: a newer version on GitHub turns the pill blue", "ver-new" in (pgV3.get_attribute("#versionPill", "class") or "") and "99.0.0" in pgV3.inner_text("#versionPill"), pgV3.inner_text("#versionPill"))
@@ -152,6 +160,17 @@ check("beta: a second pill says it pauses while the normal add-on runs", pgV4.is
 pgV4.click("#betaPill"); pgV4.wait_for_timeout(300)
 check("beta: a tap on it explains it, with the normal add-on's version", "5.2.0" in pgV4.inner_text("#versionBody") and pgV4.locator("#versionBody .verLine.warn").count() >= 1, pgV4.inner_text("#versionBody"))
 pgV4.close()
+# --- a fingerprint in every address (assetver.py, idea list 2026-11-11 step 3): opened again, the browser takes every interface file from
+# its cache without asking the add-on (before: one "did it change?" per file, ~320 at every start)
+pgF = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+pgF.add_init_script("performance.setResourceTimingBufferSize(5000)")   # the browser keeps only 250 entries by default; the page has more files
+pgF.goto(BASE + "?mode=live"); pgF.wait_for_timeout(2500)
+pgF.goto(BASE + "?mode=live"); pgF.wait_for_timeout(2500)
+resF = pgF.evaluate("performance.getEntriesByType('resource').filter((e) => /\\.(js|css)(\\?|$)/.test(e.name)).map((e) => [e.name, e.transferSize])")
+check("fingerprints: every interface file the page loads has its fingerprint", len(resF) > 250 and all("?v=" in n for n, _ in resF), [n for n, _ in resF if "?v=" not in n][:5])
+check("fingerprints: opened again, no interface file is asked for again", not [n for n, sz in resF if sz > 0], (len(resF), [n for n, sz in resF if sz > 0][:5]))
+check("fingerprints: the page knows its texts and its house (nothing missing)", pgF.evaluate("!!window.fp3dBooted") and not pgF.is_visible("#bootError"))
+pgF.close()
 check("beta: this test's server is neither (no FP_CHANNEL): it never pauses", api("api/channel") == {"channel": None, "state": None, "stable": None}, api("api/channel"))
 # --- furniture in Scandinavian style (scandi.js): the library finds it by the shop's names, two new groups, a placed piece takes its finish
 pgN = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})

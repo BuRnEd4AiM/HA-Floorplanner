@@ -65,7 +65,7 @@ check("diagnosis: a target set by somebody else is not the add-on's", other_hd a
 pgH.goto(BASE + "?debug=1"); pgH.wait_for_timeout(1500)
 if pgH.is_visible("#modeSwitch [data-mode=live]"): pgH.click("#modeSwitch [data-mode=live]"); pgH.wait_for_timeout(1000)
 pgH.click("#tabBar [data-tab=climate]"); pgH.wait_for_timeout(800)
-chip_hd = pgH.locator(f"[data-page=climate] [data-room=hd_r] [data-act=diag]")
+chip_hd = pgH.locator("[data-page=climate] [data-room=hd_r] [data-act=diag]")
 check("diagnosis: the room's card on 🌡 Klima has '🩺 Protokoll'", chip_hd.count() == 1)
 chip_hd.click(); pgH.wait_for_timeout(1200)
 card_hd = pgH.locator(f"[data-page=climate] .hdRoom[data-room='{key_hd}']")
@@ -75,7 +75,7 @@ check("diagnosis: '🩺 Protokoll' opens on that room (its chip on, its card alo
 txt_hd = card_hd.inner_text() if card_hd.count() else ""
 check("diagnosis: the card says the heating is paused, the window is open and counts, the door does not",
       "pausiert" in txt_hd and "Fenster Diagnose: offen" in txt_hd and "zählt für die Fenster-Regel" in txt_hd and "Tür zwischen zwei Räumen" in txt_hd
-      and pgH.locator(f"[data-page=climate] [data-contact='binary_sensor.hd_tuer'].not").count() == 1, txt_hd[:400])
+      and pgH.locator("[data-page=climate] [data-contact='binary_sensor.hd_tuer'].not").count() == 1, txt_hd[:400])
 log_hd = pgH.inner_text("[data-page=climate] .hdLog")
 check("diagnosis: the journal shows the window, the rule's call with ✓ and who turned the thermostat",
       "Fenster Diagnose offen" in log_hd and "✓ Home Assistant hat es angenommen" in log_hd and "vom Add-on" in log_hd, log_hd[:600])

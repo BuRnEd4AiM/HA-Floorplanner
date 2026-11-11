@@ -44,6 +44,7 @@ The layout is plain JSON: floors → walls (with openings), rooms, devices. A pl
 
 - **Permissions:** administrators (read from Home Assistant) and users in the `editors` option may write; everyone else gets HTTP 403 on every write endpoint.
 - **Service calls:** only a fixed set of domains and services, with validated data (brightness, colour, colour temperature, effect, cover position).
+- **Interface files and the browser's cache:** `/` serves `index.html` with a fingerprint in the address of every interface file (`app.js?v=<12 hex of its sha256>`, an import map for the modules, `assetver.py`). Only an address whose fingerprint is the file's own is sent with `Cache-Control: private, max-age=31536000, immutable`; everything else, and `index.html` itself (with an ETag), with `no-cache` (#328: old and new files must never mix). `bootguard.js` fetches both kinds past the cache when the page cannot start.
 - **Standalone mode:** without a `SUPERVISOR_TOKEN` the backend stores layouts but disables entity features, which is what the tests and local development use.
 
 ## Tests

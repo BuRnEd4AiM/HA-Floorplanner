@@ -478,7 +478,10 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 186. Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant (#715) | 2 | 0 | 5 | 0 | 186.3 bis 186.7 |
 | 187. Neu in 5.6.0: ⚡ der Strom-Rechner übersichtlicher, 🌡 der Thermostat-Kreis springt nicht mehr zurück (#718) | 3 | 0 | 7 | 0 | 187.4 bis 187.10 |
 | 188. Verbessert in 5.6.1: ⚡ „Strom je Gebäude“ im neuen Strom-Rechner leicht zu finden | 1 | 0 | 3 | 0 | 188.2 bis 188.4 |
-| **Zusammen** | **1207** | **2** | **96** | **92** | |
+| 189. Verbessert in 5.6.2: ⚡ schneller starten (nur die gewählte Sprache, die Versionsprüfung später) | 1 | 0 | 3 | 0 | 189.2 bis 189.4 |
+| 190. Verbessert in 5.6.3: ⚡ der Browser behält die Dateien (Fingerabdruck in der Adresse) | 1 | 0 | 3 | 0 | 190.2 bis 190.4 |
+| 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint) | 1 | 0 | 1 | 0 | 191.2 |
+| **Zusammen** | **1210** | **2** | **103** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2881,3 +2884,31 @@ Der Besitzer am 2026-11-11, nach dem Merge von 5.6.0: „wie kann ich jetzt mehr
 | 188.2 | Im Add-on mit deinen zwei Gebäuden: „Bearbeiten“, „Strom“, „⚡ Rechnung“ | Ganz oben die Karte „🏘 2 Gebäude in diesem Plan“ mit dem Haken „⚡ Eigene Rechnung je Gebäude“ | ❓ |
 | 188.3 | Den Haken setzen, dann oben im Titel bei „Rechnung für“ zwischen deinen Gebäuden wechseln | Jedes Gebäude hat seine eigene Rechnung mit eigenen Sensoren; die Überschrift „So wird gerade gerechnet · 🏠 …“ nennt das gewählte, „Rechnung für“ bleibt beim Scrollen oben | ❓ |
 | 188.4 | In der Checkliste unter „🧭 Einrichten“ (bei einem Gebäude ohne Netz-Sensor) | Der Text eines offenen Punkts steht neben seinem Zeichen „○“, nicht darunter | ❓ |
+
+## 189. Verbessert in 5.6.2: ⚡ schneller starten (nur die gewählte Sprache, die Versionsprüfung später)
+Aus der Ideenliste vom 2026-11-11 (die Wahl des Besitzers: „machen wir erstmal dein Vorschlag“), Schritt 2. Jeder Start lud alle acht Sprachen (1,8 MB) und danach für die Versionsprüfung noch einmal alle rund 320 Dateien. Gemessen am nachgebauten Tablet (`tools/measure_start.py`): 641 → 317 Anfragen, 6,4 → 4,9 MB, das Haus steht nach 9,2 → 7,3 s (wieder öffnen: 7,8 → 6,0 s).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 189.1 | Browser-Test Teile `02_tools` und `11_live` | Ein Start auf Deutsch lädt keine andere Sprache und keine Datei ein zweites Mal; „Français“ in ⚙ wird dann geladen und sofort gezeigt; ein Tipp auf das Versions-Schild prüft die Dateien des Browsers (auch ohne https) | ✅ (2026-11-11, Claude) |
+| 189.2 | Am Wandtablet oder iPad das Add-on öffnen | Es startet wie immer, eher etwas schneller; alle Texte auf Deutsch | ❓ |
+| 189.3 | ⚙ → Sprache „Français“ wählen, dann wieder „Deutsch“ | Die Texte wechseln sofort auf Französisch und wieder zurück, ohne Neuladen | ❓ |
+| 189.4 | Im Bearbeiten-Modus oben auf das grüne Versions-Schild tippen | Das Fenster zeigt nach einem kurzen „…“ „✓“ für die Dateien im Browser | ❓ |
+
+## 190. Verbessert in 5.6.3: ⚡ der Browser behält die Dateien (Fingerabdruck in der Adresse)
+Ideenliste vom 2026-11-11, Schritt 3. Statt die Dateien zu bündeln (das bräuchte bei jeder Installation einen Bau-Schritt) bekommt jede Datei einen Fingerabdruck in die Adresse (`assetver.py`); der Browser behält sie und fragt beim nächsten Start nicht mehr nach. Gemessen am nachgebauten Tablet, erneut geöffnet: 317 → 0 Anfragen, Programmteile geladen nach 1,55 → 0,64 s.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 190.1 | Unit-Tests `tests/test_assetver.py`, `test_server.py` und Browser-Test Teil `02_tools` | Jede Datei hat ihren Fingerabdruck in der Adresse; nur mit dem richtigen Fingerabdruck „behalten“, sonst wie bisher „nachfragen“; erneut geöffnet fragt der Browser keine Datei mehr an | ✅ (2026-11-11, Claude) |
+| 190.2 | Nach dem Update auf 5.6.3 das Add-on am PC, am iPad und am Wandtablet öffnen | Es startet normal (keine leere Seite, keine Meldung „konnte nicht starten“) | ❓ |
+| 190.3 | Dasselbe Gerät später noch einmal öffnen (Wandtablet: Seite neu öffnen) | Es startet spürbar schneller als vor 5.6.2 | ❓ |
+| 190.4 | Beim nächsten Update (5.6.4 oder später) wieder öffnen | Die neue Version läuft sofort (die Versionsanzeige oben zeigt die neue Nummer), keine leere Seite | ❓ |
+
+## 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint)
+Ideenliste vom 2026-11-11, Schritt 4. Nur unsichtbare Aufräumarbeit: CI prüft jede Änderung mit `ruff` und `eslint`; unbenutzter Code ist entfernt.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 191.1 | `ruff check .`, eslint, alle Unit-Tests, Browser-Test Teile `20_editing`, `61_scenebar_lights`, `58_devlog` | Keine Meldung der Prüfer, alle Tests grün | ✅ (2026-11-11, Claude) |
+| 191.2 | Nach dem Update auf 5.6.4 wie gewohnt bearbeiten und die Live-Ansicht benutzen | Alles wie vorher | ❓ |

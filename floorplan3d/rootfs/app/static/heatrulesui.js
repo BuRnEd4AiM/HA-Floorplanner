@@ -7,7 +7,6 @@
  * Vorrang?" (his "beachte die Prio von den ganzen Karten das die sich nicht gegenseitig überschreiben"). */
 import { roomLine, roomKey, LEVEL_COLOR, dayBlocks, dayStart, templates } from './rules.js';
 
-const RULES = ['window', 'warm', 'away', 'night', 'schedule', 'summer', 'boost', 'holiday'];
 const ICON = { window: '🪟', warm: '🔥', away: '🚶', night: '🌙', schedule: '📅', summer: '☀️', boost: '🚀', holiday: '✈️', pause: '⏸️' };
 
 /** ctx: t, lang(), rules (rulesstore.js), canEdit(), locked() (may not switch), houseId(), rooms() (the rooms of the house shown with a

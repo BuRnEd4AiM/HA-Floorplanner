@@ -44,7 +44,7 @@ import { drapeLine } from './terrain3d.js';
 import { initStairTool } from './stairtool.js';
 import { initLiveControls } from './livecontrols.js';
 import { initLivePopup } from './livepopup.js';
-import { initRoomPanel, roomOpenings, roomOpeningSpans } from './roompanel.js';
+import { initRoomPanel, roomOpeningSpans } from './roompanel.js';
 import { initSheetView, roomViewDist } from './sheetview.js';
 import { initPropFields } from './propfields.js';
 import { initEntityPicker } from './entitypicker.js';
@@ -81,9 +81,8 @@ import { DEVICE_TYPES, catOf, makeModel, isCustom, baseSize } from './models.js'
 import {
   OPENING_DEFAULTS, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
 } from './walls.js';
-import { t, setLanguage, applyI18n, currentLanguage, fmtArea } from './i18n.js';
+import { t, setLanguage, loadLanguage, onLanguageLoaded, applyI18n, currentLanguage, fmtArea } from './i18n.js';
 import { createPlan } from './plan2d.js';
-import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
 import { initBalconies } from './balcony3d.js';
@@ -140,7 +139,7 @@ import { initEnergySetup } from './energysetup.js';
 import { initNotifyUi } from './notifyui.js';
 import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.js';
 import { initGuardUi } from './guardui.js';
-import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding, buildingsOf } from './buildings.js';
+import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding } from './buildings.js';
 import { cardShows, pageShows } from './buildingents.js';
 import { initBuildingScope } from './buildingscope.js';
 import { initBuildingsUi } from './buildingsui.js';
@@ -157,7 +156,7 @@ import { floorsMode, floorElev, hasSlab, isCovered, underRoof, drawnFloors, live
 import { initHouseLoad } from './houseload.js';
 import { roofRects, moveRoof, tagRoofMeshes, panelsOn, setRoofBox, stepTarget } from './roofmove.js';
 import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, fmtLen as fmtLenOf } from './appstate.js';
-import { pointInPoly, inIso } from './roomclip.js';
+import { pointInPoly } from './roomclip.js';
 import { HOLO, ringLook } from './modelfx.js';
 import { textSprite as makeTextSprite, labelRes } from './labels.js';
 import { heatMode, heatLook, paintHeat, pillTone, RUNNING } from './heating.js';
@@ -1172,7 +1171,6 @@ const findOpening = (id) => {
 /* ================= Drawing and dragging in 3D: the code (and the drawing state) lives in draw3d.js, set up at "Pointer events" ================= */
 let draw3d = null;
 function endDrawing() { draw3d.endDrawing(); }
-function finishRoom() { draw3d.finishRoom(); }
 
 /** a new device of the chosen type at (x, z), with the chosen entity; wall things click onto the nearest wall */
 function newDevice(x, z) {
@@ -1718,6 +1716,7 @@ const settingsStore = initSettings({
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
   parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs, outdoorPrefs],   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
+  ready: (next) => loadLanguage(next.language),       // a newly chosen language: its texts first, then apply (no English in between)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones
@@ -1736,6 +1735,7 @@ initNotifyUi({ $, t, entities: () => entities }); // settings: a message on alar
 initSetGroups({ $, t });                         // settings in groups that fold open, with a search, setgroups.js
 initGuardUi({ $, t, entities: () => entities, layout: () => layout });   // the holiday alarm: 🛡 button, lock screen, its settings (#456), guardui.js
 const commitSettings = () => settingsStore.commit();
+onLanguageLoaded(() => { if (booted) applySettings(); });   // a language that came later (i18n.js): every text again
 function applySettings(prev = {}) {
   setLanguage(settings.language);
   document.documentElement.dataset.theme = settings.theme;
@@ -1756,7 +1756,7 @@ function applySettings(prev = {}) {
 }
 initBackups({ t, commitSettings, prepare: async () => { if (!settingsStore.loaded()) await loadSettings(); settingsStore.fill(); },
   onOpen: () => timeline.renderSetDays() });                       // 🗄️ backup dialog in the top bar (backups.js, #321)
-initVersion({ t, active: () => !isLive() && !!settings.updateCheck });
+initVersion({ t, active: () => !isLive() && !!settings.updateCheck, auto: () => !isLive() });   // the browser check: not at the start (version.js)
 initGuide({ $, t, lang: () => currentLanguage() });                 // 🎬 video guide in the top bar (guideui.js, only for editors)
 
 /* ================= Data loading ================= */
@@ -1841,6 +1841,7 @@ async function init() {
   settingsStore.usePreset(card ? { ...me.preset, ...card.look } : me.preset, card ? CARD_FIELDS : undefined);   // this user's / tablet's own start values for the look (#250), and the dashboard card's (#13): never saved
   locks = applyLocks(document, me.locks);                 // and what this user may not use: hidden here, control / cameras refused by the server
   lowWalls = settings.lowWalls;
+  await loadLanguage(settings.language);                  // fr, es, it, nl, pl, zh: fetched only when chosen (i18n.js)
   setLanguage(settings.language);
   initLogin(me, t);                                       // without the Supervisor: logged in with Home Assistant (#489)
   full.refresh();                                         // a full screen kept on for this user (#487), in this language
@@ -2041,7 +2042,7 @@ if (params.get('debug')) {
     moveDevice: (id, x, z) => { const d = floor().devices.find((v) => v.id === id); moveDeviceTo(d, x, z); return [d.x, d.z]; },
     setWallStop: (v) => { settings.wallStop = v; },
     snapPicture: (id) => { const d = floor().devices.find((v) => v.id === id); snapToWall(d, 3, true); return [d.x, d.z, d.rot]; },
-    LOW, elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
+    LOW, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
     holeCount: (i) => floorOpenings(i).length,
     plan: () => plan, measure: () => measureTool,
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor
