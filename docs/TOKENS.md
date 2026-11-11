@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-11 · 130 Sitzungen
+Stand: 2026-11-11 · 131 Sitzungen
 
-**Insgesamt: 8,64 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 8,68 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 23,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 82,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 8,53 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 23,9 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 82,8 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 8,57 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 44 | 2,51 Mrd. | 6,1 Mio. |
+| 2026-11 | 45 | 2,55 Mrd. | 6,2 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-11 | [018pwcmw…](https://claude.ai/code/session_018pwcmwgv1hZN3yE9NPAQec) | claude/modest-ptolemy-yehu1e | 40,7 Mio. | 125 Tsd. | gezählt |
 | 2026-11-11 | [018pwcmy…](https://claude.ai/code/session_018pwcmyrp8xTebAen7hp1VU) | claude/relaxed-hamilton-cj4r90 | 7,2 Mio. | 36 Tsd. | gezählt |
 | 2026-11-11 | [018pwcmv…](https://claude.ai/code/session_018pwcmvYf9emXrX6wXmLTxm) | claude/clever-meitner-fiap27 | 49,0 Mio. | 138 Tsd. | gezählt |
 | 2026-11-10 | [012p9z3N…](https://claude.ai/code/session_012p9z3NkMiK3dkhknXnxnK2) | claude/plateau-abstand-keller-pup7eo | 20,3 Mio. | 50 Tsd. | gezählt |
