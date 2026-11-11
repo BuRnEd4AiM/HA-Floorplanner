@@ -4,7 +4,7 @@
 
 Stand: 2026-11-11 · 131 Sitzungen
 
-**Insgesamt: 8,69 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 8,70 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
@@ -26,7 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-11-11 | [018pwcmw…](https://claude.ai/code/session_018pwcmwgv1hZN3yE9NPAQec) | claude/modest-ptolemy-yehu1e | 54,3 Mio. | 152 Tsd. | gezählt |
+| 2026-11-11 | [018pwcmw…](https://claude.ai/code/session_018pwcmwgv1hZN3yE9NPAQec) | claude/modest-ptolemy-yehu1e | 60,7 Mio. | 157 Tsd. | gezählt |
 | 2026-11-11 | [018pwcmy…](https://claude.ai/code/session_018pwcmyrp8xTebAen7hp1VU) | claude/relaxed-hamilton-cj4r90 | 7,2 Mio. | 36 Tsd. | gezählt |
 | 2026-11-11 | [018pwcmv…](https://claude.ai/code/session_018pwcmvYf9emXrX6wXmLTxm) | claude/clever-meitner-fiap27 | 49,0 Mio. | 138 Tsd. | gezählt |
 | 2026-11-10 | [012p9z3N…](https://claude.ai/code/session_012p9z3NkMiK3dkhknXnxnK2) | claude/plateau-abstand-keller-pup7eo | 20,3 Mio. | 50 Tsd. | gezählt |
