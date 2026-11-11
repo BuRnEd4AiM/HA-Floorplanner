@@ -154,7 +154,7 @@ export function initFloorBuild(ctx) {
         if (!ctx.lowWalls()) ctx.railing(tg, r, f, holo, ghost);    // the railing along the open edges
         ctx.balcony?.(tg, r, f, o, lift);                          // hanging free: a plate under it, perhaps supports
       }
-      let wash = null, glow = null;
+      let wash, glow = null;
       if (!holo) {                                   // solid themes: the light pool lies on the floor as a separate layer
         glow = new THREE.Mesh(geo, ctx.roomLightMat('glow'));
         glow.position.y = 0.014 + lift; glow.renderOrder = 1; glow.visible = false; glow.userData.ghost = ghost;

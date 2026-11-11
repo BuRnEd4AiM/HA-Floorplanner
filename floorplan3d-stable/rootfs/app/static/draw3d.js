@@ -76,7 +76,7 @@ export function initDraw3d(ctx) {
   }
   /** where a door / window would go: on the wall under the pointer, or (while dragging one) on its own wall */
   function openingTarget(e, ignoreId = null, def = OPENING_DEFAULTS[ctx.openingType()], forcedWall = null) {
-    let wall = forcedWall, point = null;
+    let wall = forcedWall, point;
     if (!wall) {
       const h = ctx.pickHit(e);
       if (h?.data.kind !== 'wall') return null;

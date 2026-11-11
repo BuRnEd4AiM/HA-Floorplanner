@@ -236,7 +236,7 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
     const mkPane = (u0, u1, i) => {
       const pv = new THREE.Group(), pw = u1 - u0, hinge = paneHinge(o, i);
       const flip = o.openOutward ? -1 : 1;                 // the pane opens inward by default, outward on request
-      let pane, dir = flip * -side, axis = 'x', max = 0.4, glass;
+      let pane, dir, axis = 'x', max = 0.4, glass;
       if (hinge === 'left' || hinge === 'right') {
         const atU1 = hinge === 'left' ? side > 0 : side < 0;   // the hinge on the left seen from inside the room
         pv.position.set(atU1 ? u1 : u0, yA, 0);

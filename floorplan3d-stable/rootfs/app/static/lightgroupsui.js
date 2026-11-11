@@ -118,7 +118,7 @@ export function initLightGroups(ctx) {
   /** read: the groups as the editor has them */
   function read(next) {
     next.lightGroups = [...box.querySelectorAll('.lgEdit')].map((w) => {
-      let keep = [];
+      let keep;
       try { keep = JSON.parse(w.dataset.keep || '[]'); } catch { keep = []; }
       return { id: w.dataset.id, name: w.querySelector('[data-role=name]').value.trim(),
         rooms: [...keep, ...[...w.querySelectorAll('[data-room]:checked')].map((c) => c.dataset.room)] };

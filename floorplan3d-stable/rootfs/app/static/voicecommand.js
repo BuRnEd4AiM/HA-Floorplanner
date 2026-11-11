@@ -48,7 +48,7 @@ export function command(text, q, lang = 'de') {
   if (!ACTS[what]) return null;
   const has = (list) => ws.some((w) => list.includes(w));
   const verb = has(S.verb);
-  let act = null;
+  let act;
   if (what === 'covers') act = has(S.close) ? 'close' : has(S.open) ? 'open' : q.state === 'closed' ? 'close' : q.state === 'open' ? 'open' : null;
   else act = has(S.off) ? 'off' : has(S.on) ? 'on' : null;
   if (!act) return null;
