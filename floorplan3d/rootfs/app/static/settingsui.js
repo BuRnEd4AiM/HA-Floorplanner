@@ -88,7 +88,7 @@ export function initSettingsUi(ctx) {
     return true;
   }
   async function loadHaUsers() {
-    let users = [];
+    let users;
     try { const r = await fetch('api/users'); users = r.ok ? await r.json() : []; } catch { users = []; }
     const dl = $('#haUsers'); dl.replaceChildren();
     users.forEach((u) => { const o = document.createElement('option'); o.value = u.username; o.label = u.name; dl.append(o); });

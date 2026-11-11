@@ -2,6 +2,10 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.7.1] - 2026-11-11
+### Changed
+- **🧹 The JavaScript checker is eslint 10** (Dependabot's suggestions #727 and #729 together): its rule "no-useless-assignment" found 10 variables that got a start value which every path overwrote at once (in `walls.js`, `stairs.js`, `floorbuild.js` and seven more). The start values are gone; nothing changes on the screen.
+
 ## [5.7.0] - 2026-11-11
 ### Changed
 - **✨ Neu for stairs, floor openings, blocks, the plot, garden areas and cables** (the owner: "in der neuen Ansicht … ob man da noch mehr optimieren kann", then "setze das mal um … mit den Sachen die du mir gesendet hast", pictures in `docs/ideen-5.7/`): they showed the old panel in ✨ Neu, with the hint, the houses and the object list above and their own fields far below. Now they look like a room or a window: the path (house › floor › object), a head with what it is ("Gerade · Erdgeschoss → Obergeschoss", the width, "16 Stufen · je 17,6 cm"; the area of a floor opening; the height of a block), 🗑 on top, "🔍 Einstellung suchen" and sections that fold (a stair: Form & Maße, Ecke & Podest, Stufen, Lage).

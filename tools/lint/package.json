@@ -3,8 +3,8 @@
   "private": true,
   "description": "The checker for the JavaScript of the add-on (eslint). Only for CI and Claude: npm ci --prefix tools/lint, then tools/lint/node_modules/.bin/eslint . (the rules: eslint.config.mjs at the top of the repository).",
   "devDependencies": {
-    "@eslint/js": "9.39.5",
-    "eslint": "9.39.5",
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
     "globals": "17.14.0"
   }
 }

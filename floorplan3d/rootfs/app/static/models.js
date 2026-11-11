@@ -582,7 +582,7 @@ const thumbs = new Map();
 export function thumbnail(type) {
   if (isCustom(type)) return null;
   if (thumbs.has(type)) return thumbs.get(type);
-  let url = null;
+  let url;
   try {
     if (!thumbR) {
       const c = document.createElement('canvas'); c.width = c.height = 96;

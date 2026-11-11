@@ -2,6 +2,10 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.7.1] - 2026-11-11
+### Verbessert
+- **🧹 Der JavaScript-Prüfer ist jetzt eslint 10** (die Vorschläge #727 und #729 von Dependabot zusammen): seine Regel „no-useless-assignment“ fand 10 Variablen mit einem Startwert, den jeder Weg sofort überschrieb (in `walls.js`, `stairs.js`, `floorbuild.js` und sieben weiteren). Die Startwerte sind weg; auf dem Bildschirm ändert sich nichts.
+
 ## [5.7.0] - 2026-11-11
 ### Verbessert
 - **✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Gartenflächen und Kabel** (der Besitzer: „in der neuen Ansicht … ob man da noch mehr optimieren kann“, dann „setze das mal um … mit den Sachen die du mir gesendet hast“, Bilder in `docs/ideen-5.7/`): sie zeigten in „✨ Neu“ die alte Leiste, oben Hinweis, Häuser und Objekt-Liste, ihre eigenen Felder weit unten. Jetzt sehen sie aus wie Raum oder Fenster: der Weg (Haus › Etage › Objekt), ein Kopf mit dem, was es ist („Gerade · Erdgeschoss → Obergeschoss“, die Breite, „16 Stufen · je 17,6 cm“; die Fläche einer Bodenöffnung; die Höhe eines Blocks), 🗑 oben, „🔍 Einstellung suchen“ und Abschnitte zum Aufklappen (eine Treppe: Form & Maße, Ecke & Podest, Stufen, Lage).
