@@ -63,7 +63,7 @@ jobs:
       - name: Cut the short clips (${{ matrix.lang }})
         continue-on-error: true               # a clip that goes wrong never holds back the trailer
         run: python -u tools/make_clips.py --lang ${{ matrix.lang }} --out trailer-out/clips --work /tmp/trailer-work
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: trailer-${{ matrix.lang }}
           path: trailer-out
