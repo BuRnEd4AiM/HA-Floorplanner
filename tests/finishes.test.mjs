@@ -132,3 +132,15 @@ test('the pieces that get a finish: the solid parts of the wall (not the window)
   const low = b.find((x) => x.fin.key === 'wTiles' && x.x0 === -1.5);
   assert.equal(low.y1, 1.2, 'the tiles end at 1.20 m'); assert.equal(low.x0, -1.5, 'and at the corner of the room');
 });
+
+test('a mitred end (#724): each side of the wall gets its finish up to where that face ends', () => {
+  const fin = F.wallSkins(inner, [A, B])[1][0].upper;
+  const all = { from: -0.1, to: 3.1, upper: fin, below: null, height: 0 };          // a finish over the whole side, into both corners
+  const sk = { 1: [all], '-1': [all] };
+  const pieces = [{ x0: -1.6, x1: 1.6, y0: 0, y1: 2.6, l1: 1.55, r1: 1.75 }];       // the end b slanted: left face to 1.55, right face to 1.75
+  const q = F.skinQuads(pieces, sk, 3);
+  assert.ok(q.every((x) => x.x0 === -1.6), 'the square end a: as before');
+  const right = q.filter((x) => x.side === -1), left = q.filter((x) => x.side === 1);
+  assert.ok(left.length && Math.max(...left.map((x) => x.x1)) === 1.55, JSON.stringify(left));
+  assert.ok(right.length && Math.max(...right.map((x) => x.x1)) === 1.75, JSON.stringify(right));
+});

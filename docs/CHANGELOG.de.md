@@ -2,6 +2,10 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.6.5] - 2026-11-11
+### Repariert
+- **🧱 Schräg zusammenstoßende Wände enden sauber auf Gehrung** (#724, Miicki: an jeder Ecke, die nicht 90° hat, eine Kerbe, und die rechteckigen Enden standen über die andere Wand hinaus): jede Wand reichte mit einem rechtwinkligen Ende eine halbe Wandstärke über ihre Ecke, das passt nur bei 90°. Treffen genau zwei gleich hohe Wände in einem anderen Winkel zusammen, läuft jetzt jede Seite bis dorthin, wo sie die passende Seite der anderen Wand trifft (auch bei unterschiedlicher Wandstärke), im 3D-Bild, im Wandbelag, im 2D-Plan und am Nachbarhaus (`wallmiter.js`). Bei 90°, wo drei oder mehr Wände zusammenkommen, bei sehr spitzen Winkeln, zwischen einer niedrigen und einer hohen Wand oder mit einer Tür oder einem Fenster direkt an der Ecke bleiben die rechtwinkligen Enden wie bisher.
+
 ## [5.6.4] - 2026-11-11
 ### Verbessert
 - **🧹 Zwei automatische Code-Prüfer in CI** (Ideenliste vom 2026-11-11, Schritt 4): `ruff` für das Python und `eslint` für das JavaScript des Add-ons und der Dashboard-Karte prüfen jede Änderung auf echte Fehler (ein Name, den niemand festgelegt hat, ein Import oder eine Variable, die niemand benutzt, ein doppelt geschriebener Schlüssel), bevor sie gemergt wird. Auf dem Bildschirm ändert sich nichts.

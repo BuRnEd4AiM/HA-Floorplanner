@@ -259,8 +259,10 @@ export function skinQuads(pieces, skins, len) {
   const out = [], half = len / 2;
   for (const side of [1, -1]) for (const sp of skins[side] || []) {
     const a = sp.from - half, b = sp.to - half;
-    for (const pc of pieces) {
-      const x0 = Math.max(pc.x0, a), x1 = Math.min(pc.x1, b);
+    for (const pc of pieces) {                                   // a mitred end (#724): this side's face ends where it meets the other wall
+      const p0 = (side > 0 ? pc.l0 : pc.r0) ?? pc.x0, p1 = (side > 0 ? pc.l1 : pc.r1) ?? pc.x1;
+      // the spans of the ends start half a thickness past the corner (sideSpans), the square end: a slanted face goes to its own end
+      const x0 = Math.abs(a - pc.x0) < 1e-6 ? p0 : Math.max(p0, a), x1 = Math.abs(b - pc.x1) < 1e-6 ? p1 : Math.min(p1, b);
       if (x1 - x0 < 1e-4) continue;
       const parts = sp.below ? [[sp.below, pc.y0, Math.min(pc.y1, sp.height)], [sp.upper, Math.max(pc.y0, sp.height), pc.y1]] : [[sp.upper, pc.y0, pc.y1]];
       parts.forEach(([fin, y0, y1]) => { if (fin && y1 - y0 > 1e-4) out.push({ side, x0, x1, y0, y1, fin }); });
