@@ -160,6 +160,17 @@ check("beta: a second pill says it pauses while the normal add-on runs", pgV4.is
 pgV4.click("#betaPill"); pgV4.wait_for_timeout(300)
 check("beta: a tap on it explains it, with the normal add-on's version", "5.2.0" in pgV4.inner_text("#versionBody") and pgV4.locator("#versionBody .verLine.warn").count() >= 1, pgV4.inner_text("#versionBody"))
 pgV4.close()
+# --- a fingerprint in every address (assetver.py, idea list 2026-11-11 step 3): opened again, the browser takes every interface file from
+# its cache without asking the add-on (before: one "did it change?" per file, ~320 at every start)
+pgF = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+pgF.add_init_script("performance.setResourceTimingBufferSize(5000)")   # the browser keeps only 250 entries by default; the page has more files
+pgF.goto(BASE + "?mode=live"); pgF.wait_for_timeout(2500)
+pgF.goto(BASE + "?mode=live"); pgF.wait_for_timeout(2500)
+resF = pgF.evaluate("performance.getEntriesByType('resource').filter((e) => /\\.(js|css)(\\?|$)/.test(e.name)).map((e) => [e.name, e.transferSize])")
+check("fingerprints: every interface file the page loads has its fingerprint", len(resF) > 250 and all("?v=" in n for n, _ in resF), [n for n, _ in resF if "?v=" not in n][:5])
+check("fingerprints: opened again, no interface file is asked for again", not [n for n, sz in resF if sz > 0], (len(resF), [n for n, sz in resF if sz > 0][:5]))
+check("fingerprints: the page knows its texts and its house (nothing missing)", pgF.evaluate("!!window.fp3dBooted") and not pgF.is_visible("#bootError"))
+pgF.close()
 check("beta: this test's server is neither (no FP_CHANNEL): it never pauses", api("api/channel") == {"channel": None, "state": None, "stable": None}, api("api/channel"))
 # --- furniture in Scandinavian style (scandi.js): the library finds it by the shop's names, two new groups, a placed piece takes its finish
 pgN = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})

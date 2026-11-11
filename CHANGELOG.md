@@ -2,6 +2,10 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.6.3] - 2026-11-11
+### Changed
+- **⚡ Faster start: the browser keeps the add-on's files** (idea list of 2026-11-11, step 3): at every start the browser asked the add-on for each of its ~320 interface files whether it had changed (one request each, through Home Assistant). Now the page names every file with a fingerprint of its content (`app.js?v=…`, `assetver.py`, an import map for the modules); the browser keeps such a file for good and asks nothing, and after an update only the files that really changed have a new address. Old and new files still cannot mix (#328): only an address with the file's own fingerprint may be kept, `index.html` is checked at every start. Measured on a simulated tablet, opened again: 317 → 0 requests, every module loaded after 1.55 → 0.64 s, the house stands after 5.9 → 5.2 s. Browsers older than 2023 (no import maps) keep working as before.
+
 ## [5.6.2] - 2026-11-11
 ### Changed
 - **⚡ Faster start: only the chosen language is loaded** (idea list of 2026-11-11, the owner's choice): every start loaded all eight languages (1.8 MB of 5.9 MB). German and English are always there; French, Spanish, Italian, Dutch, Polish and Chinese are fetched only when chosen, and a language chosen in ⚙ shows at once, without reloading.

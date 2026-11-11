@@ -479,7 +479,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 187. Neu in 5.6.0: ⚡ der Strom-Rechner übersichtlicher, 🌡 der Thermostat-Kreis springt nicht mehr zurück (#718) | 3 | 0 | 7 | 0 | 187.4 bis 187.10 |
 | 188. Verbessert in 5.6.1: ⚡ „Strom je Gebäude“ im neuen Strom-Rechner leicht zu finden | 1 | 0 | 3 | 0 | 188.2 bis 188.4 |
 | 189. Verbessert in 5.6.2: ⚡ schneller starten (nur die gewählte Sprache, die Versionsprüfung später) | 1 | 0 | 3 | 0 | 189.2 bis 189.4 |
-| **Zusammen** | **1208** | **2** | **99** | **92** | |
+| 190. Verbessert in 5.6.3: ⚡ der Browser behält die Dateien (Fingerabdruck in der Adresse) | 1 | 0 | 3 | 0 | 190.2 bis 190.4 |
+| **Zusammen** | **1209** | **2** | **102** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2892,3 +2893,13 @@ Aus der Ideenliste vom 2026-11-11 (die Wahl des Besitzers: „machen wir erstmal
 | 189.2 | Am Wandtablet oder iPad das Add-on öffnen | Es startet wie immer, eher etwas schneller; alle Texte auf Deutsch | ❓ |
 | 189.3 | ⚙ → Sprache „Français“ wählen, dann wieder „Deutsch“ | Die Texte wechseln sofort auf Französisch und wieder zurück, ohne Neuladen | ❓ |
 | 189.4 | Im Bearbeiten-Modus oben auf das grüne Versions-Schild tippen | Das Fenster zeigt nach einem kurzen „…“ „✓“ für die Dateien im Browser | ❓ |
+
+## 190. Verbessert in 5.6.3: ⚡ der Browser behält die Dateien (Fingerabdruck in der Adresse)
+Ideenliste vom 2026-11-11, Schritt 3. Statt die Dateien zu bündeln (das bräuchte bei jeder Installation einen Bau-Schritt) bekommt jede Datei einen Fingerabdruck in die Adresse (`assetver.py`); der Browser behält sie und fragt beim nächsten Start nicht mehr nach. Gemessen am nachgebauten Tablet, erneut geöffnet: 317 → 0 Anfragen, Programmteile geladen nach 1,55 → 0,64 s.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 190.1 | Unit-Tests `tests/test_assetver.py`, `test_server.py` und Browser-Test Teil `02_tools` | Jede Datei hat ihren Fingerabdruck in der Adresse; nur mit dem richtigen Fingerabdruck „behalten“, sonst wie bisher „nachfragen“; erneut geöffnet fragt der Browser keine Datei mehr an | ✅ (2026-11-11, Claude) |
+| 190.2 | Nach dem Update auf 5.6.3 das Add-on am PC, am iPad und am Wandtablet öffnen | Es startet normal (keine leere Seite, keine Meldung „konnte nicht starten“) | ❓ |
+| 190.3 | Dasselbe Gerät später noch einmal öffnen (Wandtablet: Seite neu öffnen) | Es startet spürbar schneller als vor 5.6.2 | ❓ |
+| 190.4 | Beim nächsten Update (5.6.4 oder später) wieder öffnen | Die neue Version läuft sofort (die Versionsanzeige oben zeigt die neue Nummer), keine leere Seite | ❓ |

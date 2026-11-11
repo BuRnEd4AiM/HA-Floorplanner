@@ -1072,6 +1072,27 @@ async def test_interface_files_are_always_revalidated(client):
     assert (await client.get("/api/settings")).headers.get("Cache-Control") is None     # the API keeps its own headers
 
 
+async def test_interface_files_with_their_fingerprint_are_kept(client):
+    """idea list 2026-11-11, step 3 (assetver.py): the page names every file with its fingerprint; only such an address may be kept for good,
+    a wrong or old fingerprint is checked like before (#328: never new content under an old address)"""
+    page = await (await client.get("/")).text()
+    v = server.ASSETS.of("app.js")
+    assert '<script type="importmap">' in page and f'src="app.js?v={v}"' in page and 'href="style.css?v=' in page
+    assert page.index('type="importmap"') < page.index('src="bootguard.js?v=') < page.index('type="module"')
+    assert f'"./i18n.js":"./i18n.js?v={server.ASSETS.of("i18n.js")}"' in page and '"./lang/fr.js":"./lang/fr.js?v=' in page
+    r = await client.get(f"/app.js?v={v}")
+    assert r.status == 200 and r.headers["Cache-Control"] == "private, max-age=31536000, immutable"
+    assert (await client.get("/app.js?v=000000000000")).headers["Cache-Control"] == "no-cache"
+    assert (await client.get("/app.js")).headers["Cache-Control"] == "no-cache"
+    assert (await client.get(f"/vendor/three.module.min.js?v={server.ASSETS.of('vendor/three.module.min.js')}")).headers["Cache-Control"].endswith("immutable")
+    r = await client.get("/")
+    assert r.headers["Cache-Control"] == "no-cache" and r.headers.get("ETag")
+    r2 = await client.get("/", headers={"If-None-Match": r.headers["ETag"]})
+    assert r2.status == 304                                                          # a start while nothing changed: a short answer
+    plain = await (await client.get("/index.html")).text()                     # the file itself: what the version check compares with the manifest
+    assert "importmap" not in plain and plain == (server.STATIC_DIR / "index.html").read_text(encoding="utf-8")
+
+
 async def test_camera_pictures_and_hls_files_are_read_to_their_end(client, monkeypatch, aiohttp_server):
     """A still image or a video piece comes from Home Assistant in several pieces (through the Supervisor). The whole answer must be
     passed on, not only what had arrived at the first look: a cut JPEG shows black, a cut video piece never plays."""

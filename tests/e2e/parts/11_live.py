@@ -206,7 +206,7 @@ pgL.click("#settingsBtn"); open_setting(pgL, "#setLanguage"); pgL.select_option(
 try: pgL.wait_for_function("document.getElementById('toolbar').innerText.includes('Mur')", timeout=10000)
 except Exception: pass
 txtL = pgL.inner_text("#toolbar")
-check("languages: French chosen in ⚙ is fetched once and shown at once", "Mur" in txtL and len(langL) == 1 and langL[0].endswith("/lang/fr.js"), (langL, txtL[:150]))
+check("languages: French chosen in ⚙ is fetched once and shown at once", "Mur" in txtL and len(langL) == 1 and langL[0].split("?")[0].endswith("/lang/fr.js"), (langL, txtL[:150]))
 pgL.keyboard.press("Escape")
 pgL.request.put(BASE + "api/settings", data=json.dumps({"language": "de"}), headers={"Content-Type": "application/json"})
 pgL.close()

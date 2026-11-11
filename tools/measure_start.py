@@ -7,7 +7,7 @@ Chromium as a tablet: a touch screen (so the add-on starts in its low mode like 
 request 20 ms later (the way through Home Assistant's ingress). Each run opens the page twice:
 
   first  = a new browser, nothing in its cache (the first start after an update)
-  again  = the same browser reloads the page (the daily case: the files are in the cache, the browser only asks whether they changed)
+  again  = the same browser opens the page once more (the daily case: the files are in the browser's cache)
 
 and reports per run: requests for the interface files (.js/.css/.html), their size as sent (MB, unpacked: the add-on does not pack
 them, Home Assistant's ingress does), how many came back as "unchanged" (304), the time until every module was loaded
@@ -100,7 +100,7 @@ def launch(p):
         return p.chromium.launch(args=args, executable_path="/opt/pw-browsers/chromium")
 
 
-def open_once(page, cdp, url, reload=False):
+def open_once(page, cdp, url):
     """one start of the page: requests, bytes, 304s, time to every module loaded and to the house built (ms)"""
     reqs = {}
 
@@ -111,26 +111,29 @@ def open_once(page, cdp, url, reload=False):
     def on_resp(e):
         if e["requestId"] in reqs:
             reqs[e["requestId"]]["status"] = e["response"]["status"]
-            reqs[e["requestId"]]["cache"] = e["response"].get("fromDiskCache") or e["response"].get("fromMemoryCache")
+            if e["response"].get("fromDiskCache") or e["response"].get("fromMemoryCache"):
+                reqs[e["requestId"]]["cache"] = True
 
     def on_done(e):
         if e["requestId"] in reqs:
             reqs[e["requestId"]]["bytes"] = e.get("encodedDataLength", 0)
 
+    def on_cached(e):                    # taken from the browser's cache without asking the add-on
+        if e["requestId"] in reqs:
+            reqs[e["requestId"]]["cache"] = True
+
     cdp.on("Network.requestWillBeSent", on_sent)
     cdp.on("Network.responseReceived", on_resp)
     cdp.on("Network.loadingFinished", on_done)
-    if reload:
-        page.reload(wait_until="commit")
-    else:
-        page.goto(url + "?debug=1", wait_until="commit")
+    cdp.on("Network.requestServedFromCache", on_cached)
+    page.goto(url + "?debug=1", wait_until="commit")           # "again" opens it anew too (like a tablet), not with the reload button
     page.wait_for_function("window.__fp && window.__fp.ready && window.__fp.ready()", timeout=180000, polling=50)
     ready = page.evaluate("performance.now()")                      # since this page started loading
     boot = page.evaluate("window.__bootAt || null")
     page.wait_for_timeout(300)
-    for ev in ("Network.requestWillBeSent", "Network.responseReceived", "Network.loadingFinished"):
-        cdp.remove_listener(ev, {"Network.requestWillBeSent": on_sent, "Network.responseReceived": on_resp,
-                                 "Network.loadingFinished": on_done}[ev])
+    for ev, fn in (("Network.requestWillBeSent", on_sent), ("Network.responseReceived", on_resp), ("Network.loadingFinished", on_done),
+                   ("Network.requestServedFromCache", on_cached)):
+        cdp.remove_listener(ev, fn)
     r = list(reqs.values())
     # a file the browser takes from its cache without asking is no request on the wire
     wire = [x for x in r if not x.get("cache") or x["status"] == 304]
@@ -154,7 +157,7 @@ def measure(url, runs, cpu, latency):
             cdp.send("Network.emulateNetworkConditions", {"offline": False, "latency": latency,
                                                            "downloadThroughput": 50e6 / 8, "uploadThroughput": 20e6 / 8})
             out["first"].append(open_once(page, cdp, url))
-            out["again"].append(open_once(page, cdp, url, reload=True))
+            out["again"].append(open_once(page, cdp, url))
             ctx.close()
         b.close()
     med = {}

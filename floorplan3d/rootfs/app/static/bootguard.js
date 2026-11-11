@@ -30,6 +30,11 @@
       .then(function (v) { return Object.keys((v && v.staticFiles) || {}); }, function () { return []; })
       .then(function (files) {
         var all = base.concat(files.filter(function (f) { return base.indexOf(f) < 0; }));
+        try {                                   // and the addresses with a fingerprint this page uses (assetver.py), kept by the browser for good
+          var map = JSON.parse((w.document.querySelector('script[type=importmap]') || {}).textContent || '{}').imports || {};
+          for (var k in map) all.push(map[k]);
+          w.document.querySelectorAll('script[src*="?v="], link[href*="?v="]').forEach(function (el) { all.push(el.getAttribute('src') || el.getAttribute('href')); });
+        } catch (e) { /* no map: the plain addresses are enough */ }
         return Promise.all(all.map(function (f) { return w.fetch(f, { cache: 'reload' }).catch(function () {}); }));
       })
       .then(function () { w.location.reload(); });

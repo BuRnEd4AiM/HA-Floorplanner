@@ -26,6 +26,7 @@ import aiohttp
 from aiohttp import web
 
 import alarmnotify as an
+import assetver
 import boards
 import channel as chn
 import flows as fl
@@ -57,6 +58,7 @@ import usedby as ub
 import voice as vc
 
 STATIC_DIR = Path(__file__).parent / "static"
+ASSETS = assetver.Versions(STATIC_DIR)              # the fingerprint in the address of every interface file (assetver.py)
 # the token for Home Assistant: the Supervisor's in the add-on; without the Supervisor (Home Assistant as a Docker container, #489) a
 # long-lived access token (HA_TOKEN) and Home Assistant's address (HA_URL, e.g. http://192.168.1.10:8123)
 SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN") or os.environ.get("HA_TOKEN")
@@ -1706,16 +1708,29 @@ async def get_hls(request):
     return web.Response(body=body, content_type=ctype, headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
 
 
+def _index_page() -> str:
+    return assetver.page((STATIC_DIR / "index.html").read_text(encoding="utf-8"), ASSETS.table())
+
+
 async def index(request):
-    return web.FileResponse(STATIC_DIR / "index.html")
+    """index.html, naming every interface file with its fingerprint (assetver.py): the browser keeps those files and checks only this
+    page at a start (a cheap 304 while nothing changed)"""
+    text = await asyncio.to_thread(_index_page)
+    etag = '"' + hashlib.sha256(text.encode("utf-8")).hexdigest()[:20] + '"'
+    if etag in request.headers.get("If-None-Match", ""):
+        return web.Response(status=304, headers={"ETag": etag})
+    return web.Response(text=text, content_type="text/html", headers={"ETag": etag})
 
 
 async def no_stale_files(request, response):
     """The interface files (index.html, *.js, style.css) are always checked with the server before use (a cheap 304 when nothing
     changed). Without this header the browser may keep some old files after an update and load them together with new ones: app.js
-    then fails as a whole and the page stays empty (#328)."""
+    then fails as a whole and the page stays empty (#328). A file asked for with its own fingerprint (`app.js?v=…`, see assetver.py) may be
+    kept for good: a new version of it has another address."""
     if not request.path.startswith("/api/") and "Cache-Control" not in response.headers:
-        response.headers["Cache-Control"] = "no-cache"
+        v = request.query.get("v")
+        keep = v and response.status == 200 and ASSETS.fits(request.path.lstrip("/"), v)
+        response.headers["Cache-Control"] = assetver.KEEP if keep else "no-cache"
 
 
 # ---------- backup: export / import everything (houses, settings, models, pictures, the add-on's other settings with their codes, the recordings) ----------
@@ -4454,7 +4469,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.cleanup_ctx.append(garden_timer)
     app.cleanup_ctx.append(rules_runner)
     app.add_routes([
-        web.get("/", index),
+        web.get("/", index),                              # with fingerprints; /index.html stays the plain file (the version check compares it)
         web.get("/auth/login", auth_login),
         web.get("/auth/callback", auth_callback),
         web.get("/auth/logout", auth_logout),
