@@ -13,7 +13,7 @@ pytestmark = pytest.mark.skipif(not shutil.which("node"), reason="node not insta
 SCRIPT = """
 import fs from 'fs';
 const src = fs.readFileSync(process.argv[1] + '/i18n.js', 'utf8');
-const head = src.slice(0, src.indexOf('DICT.fr ='));
+const head = src.slice(0, src.indexOf('const MORE ='));
 const body = head.replace(/^import .*$/gm, '').replace(/export /g, '').replace('const DICT', 'var DICT');
 const out = {};
 const DICT = new Function(body + ';return DICT;')();

@@ -8,7 +8,7 @@ const S = await import(`${dir}/scandi.js`);
 const L = await import(`${dir}/leisure.js`);
 const G = await import(`${dir}/garage.js`);
 const { DEVICE_TYPES, CATEGORIES, catOf } = await import(`${dir}/models.js`);
-const { t, setLanguage } = await import(`${dir}/i18n.js`);
+const { t, setLanguage, loadLanguage } = await import(`${dir}/i18n.js`);
 const HEX = /^#[0-9a-f]{6}$/;
 const KEYS = Object.keys(Y.YARD);
 const box = (k) => S.bounds(S.partsOf(k));
@@ -68,6 +68,7 @@ test('what lights up follows the entity: the lamps and the embers of the fire bo
 test('every piece has its name in every language', async () => {
   globalThis.document ??= { documentElement: {} };                 // setLanguage marks the page's language
   for (const l of ['de', 'en', 'fr', 'es', 'it', 'nl', 'pl', 'zh']) {
+    await loadLanguage(l);                                         // fr … zh: fetched only when chosen
     setLanguage(l);
     for (const k of KEYS) assert.notEqual(t(`dev.${k}`), `dev.${k}`, `${l}: ${k}`);
     for (const f of Object.keys(Y.YARD_FINISHES)) assert.notEqual(t(`fin.${f}`), `fin.${f}`, `${l}: ${f}`);

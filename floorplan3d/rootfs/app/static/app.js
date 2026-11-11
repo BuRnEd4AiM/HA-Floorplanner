@@ -81,7 +81,7 @@ import { DEVICE_TYPES, catOf, makeModel, isCustom, baseSize } from './models.js'
 import {
   OPENING_DEFAULTS, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
 } from './walls.js';
-import { t, setLanguage, applyI18n, currentLanguage, fmtArea } from './i18n.js';
+import { t, setLanguage, loadLanguage, onLanguageLoaded, applyI18n, currentLanguage, fmtArea } from './i18n.js';
 import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
@@ -1718,6 +1718,7 @@ const settingsStore = initSettings({
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
   parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs, outdoorPrefs],   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
+  ready: (next) => loadLanguage(next.language),       // a newly chosen language: its texts first, then apply (no English in between)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones
@@ -1736,6 +1737,7 @@ initNotifyUi({ $, t, entities: () => entities }); // settings: a message on alar
 initSetGroups({ $, t });                         // settings in groups that fold open, with a search, setgroups.js
 initGuardUi({ $, t, entities: () => entities, layout: () => layout });   // the holiday alarm: 🛡 button, lock screen, its settings (#456), guardui.js
 const commitSettings = () => settingsStore.commit();
+onLanguageLoaded(() => { if (booted) applySettings(); });   // a language that came later (i18n.js): every text again
 function applySettings(prev = {}) {
   setLanguage(settings.language);
   document.documentElement.dataset.theme = settings.theme;
@@ -1756,7 +1758,7 @@ function applySettings(prev = {}) {
 }
 initBackups({ t, commitSettings, prepare: async () => { if (!settingsStore.loaded()) await loadSettings(); settingsStore.fill(); },
   onOpen: () => timeline.renderSetDays() });                       // 🗄️ backup dialog in the top bar (backups.js, #321)
-initVersion({ t, active: () => !isLive() && !!settings.updateCheck });
+initVersion({ t, active: () => !isLive() && !!settings.updateCheck, auto: () => !isLive() });   // the browser check: not at the start (version.js)
 initGuide({ $, t, lang: () => currentLanguage() });                 // 🎬 video guide in the top bar (guideui.js, only for editors)
 
 /* ================= Data loading ================= */
@@ -1841,6 +1843,7 @@ async function init() {
   settingsStore.usePreset(card ? { ...me.preset, ...card.look } : me.preset, card ? CARD_FIELDS : undefined);   // this user's / tablet's own start values for the look (#250), and the dashboard card's (#13): never saved
   locks = applyLocks(document, me.locks);                 // and what this user may not use: hidden here, control / cameras refused by the server
   lowWalls = settings.lowWalls;
+  await loadLanguage(settings.language);                  // fr, es, it, nl, pl, zh: fetched only when chosen (i18n.js)
   setLanguage(settings.language);
   initLogin(me, t);                                       // without the Supervisor: logged in with Home Assistant (#489)
   full.refresh();                                         // a full screen kept on for this user (#487), in this language

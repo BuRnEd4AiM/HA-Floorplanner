@@ -56,7 +56,7 @@ export function oneAtATime(fn) {
   };
 }
 /** ctx: $, t, get() (the settings), set(next), ui (settingsui.js), toDisp(m), fromDisp(v), layout(), entities(), perfStored, perfKey, setStatus(txt),
- *  committed(prev) (apply the new settings to the house and the view), alert(txt), reload(), facadeUi (finishui.js: the facade, #448),
+ *  ready(next) (optional, awaited before committed: e.g. fetch a newly chosen language), committed(prev) (apply the new settings to the house and the view), alert(txt), reload(), facadeUi (finishui.js: the facade, #448),
  *  parts (more pieces of the form with fill(settings) / read(next): the favourites and the light groups, #471) */
 export function initSettings(ctx) {
   const { $, t, ui } = ctx;
@@ -132,6 +132,7 @@ export function initSettings(ctx) {
     const prev = ctx.get(), read1 = read(), next = resolveWallView(prev, read1);
     ctx.set(next);
     if (next !== read1) fill();
+    await ctx.ready?.(next);                                          // e.g. the texts of a newly chosen language (i18n.js)
     ctx.committed(prev);
     fill();
     await save();

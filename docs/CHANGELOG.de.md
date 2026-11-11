@@ -2,6 +2,11 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.6.2] - 2026-11-11
+### Verbessert
+- **⚡ Schneller starten: nur die gewählte Sprache wird geladen** (Ideenliste vom 2026-11-11, die Wahl des Besitzers): jeder Start lud alle acht Sprachen (1,8 MB von 5,9 MB). Deutsch und Englisch sind immer da; Französisch, Spanisch, Italienisch, Niederländisch, Polnisch und Chinesisch werden erst geladen, wenn man sie wählt, und eine in ⚙ gewählte Sprache steht sofort da, ohne Neuladen.
+- **⚡ Schneller starten: die Versionsprüfung lädt nicht mehr jede Datei ein zweites Mal** gleich nach dem Start: um die Dateien des Browsers mit denen des Add-ons zu vergleichen, holte und prüfte sie alle rund 320 Dateien (6 MB), auch am Wandtablet. Jetzt prüft sie, wenn man das Versions-Fenster öffnet (oder „Prüfen“ tippt), und im Bearbeiten-Modus eine halbe Minute nach dem Start; das Schild wird gleich grün nach der Prüfung des Add-ons selbst. Gemessen am nachgebauten Tablet (`tools/measure_start.py`): 641 → 317 Anfragen, 6,4 → 4,9 MB, das Haus steht nach 9,2 → 7,3 s (wieder geöffnet: 7,8 → 6,0 s).
+
 ## [5.6.1] - 2026-11-11
 ### Verbessert
 - **⚡ „Strom je Gebäude“ im neuen „⚡ Rechnung“ wieder leicht zu finden** (der Besitzer: „wie kann ich jetzt mehrere Stromrechner haben für mehrere Gebäude? … Wo ist denn diese Option im neuen Overlay?“): der Haken „⚡ Eigene Rechnung je Gebäude“ war eine schlichte Zeile unter dem Hinweis. Mit zwei oder mehr Gebäuden im Plan ist „🏘 2 Gebäude in diesem Plan“ jetzt ganz oben eine eigene Karte mit dem Haken; mit Haken steht „Rechnung für: 🏠 Haupthaus | 🏠 Anbau“ auch fest im Titel des Fensters (beim Scrollen immer zu sehen, ein Tipp wechselt das Gebäude), und die Überschrift der Rechnung nennt das Gebäude („So wird gerade gerechnet · 🏠 Anbau“).

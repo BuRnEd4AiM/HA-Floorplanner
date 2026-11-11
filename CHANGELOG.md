@@ -2,6 +2,11 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.6.2] - 2026-11-11
+### Changed
+- **⚡ Faster start: only the chosen language is loaded** (idea list of 2026-11-11, the owner's choice): every start loaded all eight languages (1.8 MB of 5.9 MB). German and English are always there; French, Spanish, Italian, Dutch, Polish and Chinese are fetched only when chosen, and a language chosen in ⚙ shows at once, without reloading.
+- **⚡ Faster start: the version check no longer fetches every file again** right after the start: to compare the browser's files with the add-on's it fetched and hashed all ~320 interface files (6 MB), also on a wall tablet. Now it runs when you open the version window (or tap "Check"), and in the edit mode half a minute after the start; the badge turns green from the add-on's own check at once. Measured on a simulated tablet (`tools/measure_start.py`): 641 → 317 requests, 6.4 → 4.9 MB, the house stands after 9.2 → 7.3 s (opened again: 7.8 → 6.0 s).
+
 ## [5.6.1] - 2026-11-11
 ### Changed
 - **⚡ "Power per building" is easy to find again in the new "⚡ Bookkeeping"** (the owner: "wie kann ich jetzt mehrere Stromrechner haben für mehrere Gebäude? … Wo ist denn diese Option im neuen Overlay?"): the tick "⚡ A calculation of its own per building" was a plain line under the hint. With two or more buildings in the plan, "🏘 2 buildings in this plan" is now a card of its own at the very top with the tick; ticked, "Calculation for: 🏠 Main house | 🏠 Wing" also stands fixed in the title of the window (in sight while scrolling, a tap switches the building), and the heading of the calculation names the building ("How it is counted right now · 🏠 Wing").
