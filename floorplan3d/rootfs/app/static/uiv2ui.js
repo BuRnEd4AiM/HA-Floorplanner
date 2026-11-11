@@ -5,12 +5,13 @@
  * is drawn half open, its panes to tap; its kinds are pictures; a room has tabs, its floors are small pictures, its floor height is seen
  * from the side. The rules are in uiv2.js (tested). Nothing new is stored: the same fields, only ordered. */
 import { UI_KEY, OPEN_KEY, cleanUi, uiFromQuery, panelKind, groupMarked, sectionOrder, isOpen, cleanOpen, ROOM_TABS, PANE_KINDS, paneKinds,
-  setPaneKind, setPaneCount, paneCaption, windowSvg, windowKind, applyWindowKind, summary, sayLine, levelSvg, headIcon, crumbs } from './uiv2.js';
+  setPaneKind, setPaneCount, paneCaption, windowSvg, windowKind, applyWindowKind, summary, sayLine, levelSvg, headIcon, crumbs, V2_KINDS } from './uiv2.js';
+import { stairSteps, stairFloors } from './stairs.js';
 import { windowPanes } from './windowpanes.js';
 import { OPENING_DEFAULTS, clampOpeningPos, openingOverlaps } from './walls.js';
 import { roomOpenings } from './roompanel.js';
 import { polyArea } from './rooms.js';
-import { fmtArea } from './i18n.js';
+import { fmtArea, fmtNum } from './i18n.js';
 import { drawPattern } from './patterns.js';
 import { resolve } from './finishes.js';
 import { initUiV2Tools } from './uiv2tools.js';
@@ -75,12 +76,13 @@ export function initUiV2(ctx) {
   function decorate(body, sel, it, multi) {
     if (!active() || multi || !sel || !it) return;
     const pk = panelKind(sel.kind, it);
-    if (!['window', 'door', 'room', 'device', 'wall'].includes(pk)) return;
+    if (!V2_KINDS.includes(pk)) return;
+    const title = $('#propsTitle')?.textContent?.trim() || '';            // what the classic panel calls it (the plot, an area, a cable)
     const kids = [...body.children];
     const groups = groupMarked(kids, (e) => (e.classList?.contains('v2mark') ? e.dataset.sec : null));
     body.textContent = '';
     $('#props').classList.add('v2');
-    const [path, hd] = head(pk, sel, it);
+    const [path, hd] = head(pk, sel, it, { title, canDel: (groups.get('del') || []).length > 0 });
     body.append(path, hd);
     const top = groups.get('top') || [];
     if (top.length) { const box = el('div', 'v2Top'); box.append(...top); body.append(box); }
@@ -92,9 +94,9 @@ export function initUiV2(ctx) {
   }
 
   /** the path and the head: sign, name, what it is, a few chips, the buttons */
-  function head(pk, sel, it) {
+  function head(pk, sel, it, { title = '', canDel = true } = {}) {
     const f = ctx.floor(), room = roomOf(sel, it, f);
-    const name = it.name || ctx.propsTitle(sel.kind, it);
+    const name = it.name || (['plot', 'yard', 'cable'].includes(pk) ? title : '') || ctx.propsTitle(sel.kind, it);
     const path = el('nav', 'v2Crumbs'); path.id = 'v2Crumbs';
     crumbs({ house: ctx.houseName(), floor: f?.name, room, name, kind: sel.kind }).forEach((c, i, all) => {
       if (i) path.append(el('i', '', '›'));
@@ -105,7 +107,7 @@ export function initUiV2(ctx) {
     const h = el('div', 'v2Head'); h.id = 'v2Head';
     h.append(el('div', 'ic', headIcon(pk, it, pk === 'device' ? ctx.catOf(it.type) : '')));
     const nm = el('b', '', name);
-    const sub = el('small', '', subLine(pk, sel, it, room));
+    const sub = el('small', '', subLine(pk, sel, it, room, title));
     h.append(nm, sub);
     const chips = el('div', 'chips');
     for (const [text, cls] of chipList(pk, it, sel.kind)) chips.append(el('span', `v2Chip ${cls}`, text));
@@ -120,8 +122,8 @@ export function initUiV2(ctx) {
       act('v2Lock', it.locked ? '🔒' : '🔓', t(it.locked ? 'v2.act.locked' : 'v2.act.lock'), (e) => ctx.roomLock.roomButton(e.currentTarget, it), it.locked ? 'on' : '');
     }
     if (['window', 'door', 'room', 'device'].includes(pk)) act('v2CopyBtn', '⇉', t('v2.act.copy'), () => tools.toggleCopy(sel), tools.copyOpen(sel.id) ? 'on' : '');
-    act('v2Delete', '🗑', t('panel.delete'), () => $('#propsDelete')?.click(), 'del');
-    h.append(acts);
+    if (canDel) act('v2Delete', '🗑', t('panel.delete'), () => $('#propsDelete')?.click(), 'del');   // the plot, an area, a cable: their own button
+    if (acts.childElementCount) h.append(acts);
     return [path, h];
   }
   function roomOf(sel, it, f) {
@@ -131,8 +133,19 @@ export function initUiV2(ctx) {
     if (sel.kind === 'opening') return f.rooms.find((r) => roomOpenings(r, f).some((o) => o.id === it.id)) || null;
     return null;
   }
-  function subLine(pk, sel, it, room) {
+  function subLine(pk, sel, it, room, title = '') {
     if (pk === 'room') return `${fmtArea(polyArea(it.points || []), ctx.imperial())} · ${ctx.floor()?.name || ''}`;
+    const fl = ctx.floor()?.name || '';
+    if (pk === 'stair') {                                          // „Gerade · Erdgeschoss → Obergeschoss“ (5.7.0)
+      const L = ctx.layout(), i = ctx.floorIdx(), n = stairFloors(it), other = L?.floors?.[it.dir === 'down' ? i - n : i + n]?.name;
+      const kind = ctx.propsTitle(sel.kind, it);
+      if (!other) return `${kind} · ${fl}`;
+      return it.dir === 'down' ? `${kind} · ${other} → ${fl}` : `${kind} · ${fl} → ${other}`;
+    }
+    if (pk === 'hole') return `${t('v2.sub.hole')} · ${fl}`;
+    if (pk === 'block') return `${ctx.propsTitle(sel.kind, it)} · ${fl}`;
+    if (pk === 'plot' || pk === 'yard') return pk === 'yard' && it.name ? title : t('v2.sub.outside');
+    if (pk === 'cable') return $('#cableWho')?.textContent || title;
     const what = ctx.propsTitle(sel.kind, it);
     return room && pk !== 'wall' ? `${what} · ${room.name || ''}` : what;
   }
@@ -149,6 +162,14 @@ export function initUiV2(ctx) {
     } else if (pk === 'room') {
       if (it.locked || lw?.plan) out.push([`🔒 ${t(lw?.plan ? 'rlock.chipPlan' : 'v2.act.locked')}`, 'lock']);
       if (it.area) out.push([`🔗 ${t('v2.chip.area')}`, 'ok']);
+    } else if (pk === 'stair') {                                   // how wide, how many steps and how high each (5.7.0)
+      const H = ctx.floorH?.() || 2.6, s = stairSteps(H, it);
+      if (Number.isFinite(+it.w)) out.push([`↔ ${ctx.fmtLen(+it.w)}`, '']);
+      out.push([t('v2.chip.steps', { n: s.n - 1, h: ctx.imperial() ? `${fmtNum(s.rise / 0.0254, 1, 1)} in` : `${fmtNum(s.rise * 100, 1, 1)} cm` }), 'ok']);
+    } else if (pk === 'hole') {
+      out.push([`📐 ${ctx.fmtArea(polyArea(it.points || []))}`, '']);
+    } else if (pk === 'block') {
+      out.push([`↕ ${ctx.fmtLen(+it.h || ctx.floorH?.() || 2.6)}`, '']);
     }
     return out;
   }
@@ -162,7 +183,7 @@ export function initUiV2(ctx) {
       const open = isOpen(pk, key, def, opened);
       const sec = el('section', `v2Sec${open ? ' open' : ''}`); sec.dataset.sec = key;
       const hd = btn('hd'); hd.setAttribute('aria-expanded', String(open));
-      const line = key === 'kind' ? kindLine(it) : sayLine(t, summary(pk, key, it, { len: (m) => ctx.fmtLen(m), name: (e) => ctx.entityName(e) }));
+      const line = key === 'kind' ? kindLine(it) : sayLine(t, summary(pk, key, it, { len: (m) => ctx.fmtLen(m), name: (e) => ctx.entityName(e), area: (m2) => ctx.fmtArea(m2) }));
       hd.append(el('span', 'i', icon), el('b', '', t(`v2.sec.${key}`)), el('span', 'sum', line || ''), el('span', 'chev', open ? '▴' : '▾'));
       const bd = el('div', 'bd'); bd.hidden = !open;
       hd.addEventListener('click', () => {

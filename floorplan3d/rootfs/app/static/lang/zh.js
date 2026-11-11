@@ -3948,4 +3948,9 @@ export default {
   'balc.part': '部分悬空：超出下层的部分由一块板承托（只在那里有支柱），其余部分位于房屋上。',
   'src.temp': '温度来源', 'src.humid': '湿度来源', 'src.auto': '自动 · {v}', 'src.thermo': '温控器 · {v}',
   'src.hint': '标签、磁贴、颜色和 🌡 气候为此房间显示的内容。自动：其传感器的平均值，仅在没有传感器时使用温控器。供暖照常工作。',
+  'v2.sec.form': '形状与尺寸', 'v2.sec.corner': '转角与平台', 'v2.sec.steps': '台阶', 'v2.sec.bsize': '高度', 'v2.sum.stairForm': '{dir} · 宽 {w}', 'v2.sum.steps': '每层 {n} 级',
+  'v2.sum.stepsAuto': '按层高', 'v2.sum.where': 'X {x} · Z {z} · {r}°', 'v2.sum.holeForm': '{n} 个角 · {a}', 'v2.sum.height': '高 {h}', 'v2.sum.heightFloor': '与楼层同高',
+  'v2.chip.steps': '{n} 级 · 每级 {h}', 'v2.sub.hole': '向下贯通', 'v2.sub.outside': '室外 · 地块', 'v2.home.more': '房屋的更多选项：建筑、相邻房屋、底图、复制、重命名、JSON、删除',
+  'v2.more.building': '此平面图中的建筑', 'v2.more.buildingSub': '例如主屋和花园小屋，在顶部切换', 'v2.more.neighbor': '在旁边显示相邻房屋', 'v2.more.neighborSub': '列表中的另一栋房屋，例如桥对面的那栋',
+  'v2.more.bg': '底图（平面图图片）', 'v2.more.bgSub': '用于描图的扫描件或照片',
 };

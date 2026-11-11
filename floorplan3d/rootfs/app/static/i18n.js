@@ -1301,6 +1301,13 @@ const DICT = {
     'balc.part': 'Hängt zum Teil frei: wo sie über das Geschoss darunter hinausragt, trägt sie eine Platte (Stützen nur dort), der Rest liegt auf dem Haus.',
     'src.temp': 'Temperatur von', 'src.humid': 'Luftfeuchte von', 'src.auto': 'Automatisch · {v}', 'src.thermo': 'Thermostat · {v}',
     'src.hint': 'Was Schilder, Kacheln, Farben und 🌡 Klima für den Raum zeigen. Automatisch: das Mittel seiner Sensoren, das Thermostat nur ohne Sensor. Die Heizung regelt weiter wie bisher.',
+    'v2.sec.form': 'Form & Maße', 'v2.sec.corner': 'Ecke & Podest', 'v2.sec.steps': 'Stufen', 'v2.sec.bsize': 'Höhe', 'v2.sum.stairForm': '{dir} · {w} breit',
+    'v2.sum.steps': '{n} je Etage', 'v2.sum.stepsAuto': 'aus der Geschosshöhe', 'v2.sum.where': 'X {x} · Z {z} · {r}°', 'v2.sum.holeForm': '{n} Ecken · {a}',
+    'v2.sum.height': '{h} hoch', 'v2.sum.heightFloor': 'so hoch wie die Etage', 'v2.chip.steps': '{n} Stufen · je {h}', 'v2.sub.hole': 'Offen nach unten',
+    'v2.sub.outside': 'Draußen · Grundstück', 'v2.home.more': 'Mehr zum Haus: Gebäude, Nachbarhaus, Vorlage, Duplizieren, Umbenennen, JSON, Löschen',
+    'v2.more.building': 'Gebäude in diesem Plan', 'v2.more.buildingSub': 'z. B. Haupthaus und Gartenhaus, oben umschalten',
+    'v2.more.neighbor': 'Nachbarhaus daneben zeigen', 'v2.more.neighborSub': 'ein anderes Haus der Liste, z. B. das hinter der Brücke',
+    'v2.more.bg': 'Vorlage (Grundriss-Bild)', 'v2.more.bgSub': 'ein Scan oder Foto zum Nachzeichnen',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2552,6 +2559,14 @@ const DICT = {
     'balc.part': 'Partly hangs free: where it reaches out beyond the floor below, a plate carries it (supports only there), the rest lies on the house.',
     'src.temp': 'Temperature from', 'src.humid': 'Humidity from', 'src.auto': 'Automatic · {v}', 'src.thermo': 'Thermostat · {v}',
     'src.hint': 'What the labels, tiles, colours and 🌡 Climate show for the room. Automatic: the mean of its sensors, the thermostat only without a sensor. The heating keeps working as before.',
+    'v2.sec.form': 'Shape & size', 'v2.sec.corner': 'Corner & landing', 'v2.sec.steps': 'Steps', 'v2.sec.bsize': 'Height',
+    'v2.sum.stairForm': '{dir} · {w} wide', 'v2.sum.steps': '{n} per storey', 'v2.sum.stepsAuto': 'from the storey height',
+    'v2.sum.where': 'X {x} · Z {z} · {r}°', 'v2.sum.holeForm': '{n} corners · {a}', 'v2.sum.height': '{h} high', 'v2.sum.heightFloor': 'as high as the storey',
+    'v2.chip.steps': '{n} steps · {h} each', 'v2.sub.hole': 'Open to below', 'v2.sub.outside': 'Outside · plot',
+    'v2.home.more': 'More for the house: buildings, neighbour house, template, duplicate, rename, JSON, delete', 'v2.more.building': 'Buildings in this plan',
+    'v2.more.buildingSub': 'e.g. main house and garden house, switch at the top', 'v2.more.neighbor': 'Show a neighbour house beside it',
+    'v2.more.neighborSub': 'another house of the list, e.g. the one across the bridge', 'v2.more.bg': 'Template (floor plan picture)',
+    'v2.more.bgSub': 'a scan or photo to trace',
   },
 };
 

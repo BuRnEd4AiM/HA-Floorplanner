@@ -135,17 +135,21 @@ export function initStairTool(ctx) {
   }
 
   /** the fields of a selected stair in the properties panel */
-  function renderProps(body, it) {
+  /** mark(body, key): where the fields of a section of ✨ Neu begin (props.js; 5.7.0): form, steps, corner, place */
+  function renderProps(body, it, mark = () => {}) {
     const { field, inp, lenInput } = ctx.ui;
     const sel = (opts, value, on) => { const s = document.createElement('select'); opts.forEach(([v, l]) => s.add(new Option(l, v))); s.value = value; s.addEventListener('change', () => on(s.value)); return s; };
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    mark(body, 'form');
     body.append(field(t('stair.dir'), sel([['up', t('stair.up')], ['down', t('stair.down')]], it.dir || 'up', (v) => { ctx.snapshot(); it.dir = v; ctx.changed(); })));
     body.append(field(t('stair.floors'), inp('number', stairFloors(it), (v) => { it.floors = Math.max(1, Math.min(MAX_FLOORS, Math.round(+v) || 1)); }, { step: 1, min: 1, max: MAX_FLOORS })));
     if (it.type !== 'straight') {
       body.append(field(it.type === 'wall' ? t('stair.side') : t('stair.turn'), sel([['right', t('stair.right')], ['left', t('stair.left')]], it.turn || 'right', (v) => { ctx.snapshot(); it.turn = v; ctx.changed(); })));
     }
     body.append(field(it.type === 'spiral' ? t('stair.radius') : t('bg.width'), lenInput(() => it.w, (v) => (it.w = Math.max(0.5, v)), { min: 0.5 })));
+    mark(body, 'steps');
     stepsField(body, it);                                             // how many steps per storey (#671)
+    mark(body, 'corner');
     if (turns(it.type)) {                                             // the corner: a landing or winder steps (#623, winders.js)
       const cs = sel([['landing', t('stair.cornerLanding')], ['winder', t('stair.cornerWinder')]], hasWinders(it) ? 'winder' : 'landing', (v) => {
         ctx.snapshot();
@@ -181,15 +185,18 @@ export function initStairTool(ctx) {
       body.append(field(t('stair.landing'), lenInput(() => landingLength(it), (v) => { const l = Math.min(MAX_LANDING, Math.max(0, v)); if (l > 0) it.landing = +l.toFixed(2); else delete it.landing; }, { min: 0, step: 0.1 })));
     }
     if (it.type === 'wall') {                                         // solid steps down to the floor instead of thin plates (#623)
+      mark(body, 'steps');
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'stairSolid'; cb.checked = !!it.solid;
       cb.addEventListener('change', () => { ctx.snapshot(); if (cb.checked) it.solid = true; else delete it.solid; ctx.changed(); });
       const lb = document.createElement('label'); lb.className = 'chk'; lb.append(cb, document.createTextNode(' ' + t('stair.solid')));
       body.append(lb);
     }
     if (it.type !== 'spiral' && it.type !== 'wall') {                 // the first run (or the next one without it, #671)
+      mark(body, 'form');
       const cnt = stairRun(it, ctx.floorH()).k;
       body.append(field(t('stair.length'), lenInput(() => stairLength(it, ctx.floorH()), (v) => (it.tread = Math.max(MIN_TREAD, Math.min(MAX_TREAD, v / cnt))), { min: 0.5 })));
     }
+    mark(body, 'place');
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => (it.rot = ((+v % 360) + 360) % 360), { step: 15 })));
     body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
     body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));

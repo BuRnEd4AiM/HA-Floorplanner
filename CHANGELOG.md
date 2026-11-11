@@ -2,6 +2,11 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.7.0] - 2026-11-11
+### Changed
+- **✨ Neu for stairs, floor openings, blocks, the plot, garden areas and cables** (the owner: "in der neuen Ansicht … ob man da noch mehr optimieren kann", then "setze das mal um … mit den Sachen die du mir gesendet hast", pictures in `docs/ideen-5.7/`): they showed the old panel in ✨ Neu, with the hint, the houses and the object list above and their own fields far below. Now they look like a room or a window: the path (house › floor › object), a head with what it is ("Gerade · Erdgeschoss → Obergeschoss", the width, "16 Stufen · je 17,6 cm"; the area of a floor opening; the height of a block), 🗑 on top, "🔍 Einstellung suchen" and sections that fold (a stair: Form & Maße, Ecke & Podest, Stufen, Lage).
+- **✨ Neu: the house in the tree has 🔓 and ⋯**: "Grundriss fertig" is a small lock on the house (before a big box above the tree); "⋯" opens the buildings of the plan, the neighbour house, the background picture, duplicate, rename, JSON and delete (before as "Häuser", "Gebäude in diesem Plan" and "Hintergrundbild" below the tree). "Nur Admins dürfen entsperren" is in that menu.
+
 ## [5.6.5] - 2026-11-11
 ### Fixed
 - **🧱 Walls meeting at a slant end in a clean mitre** (#724, Miicki: a notch at every corner that is not 90°, and the square ends sticking out past the other wall): every wall reached half its thickness past its corner with a square end, which fits only at 90°. Where exactly two walls of the same height meet at another angle, each face now runs on to where it meets the matching face of the other wall (also with different thicknesses), in 3D, in the wall finish, in the 2D plan and on a neighbouring house (`wallmiter.js`). At 90°, where three or more walls meet, at a very sharp angle, between a low and a high wall, or with a door or window right at the corner, the square ends stay as before.

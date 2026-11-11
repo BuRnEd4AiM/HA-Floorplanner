@@ -305,9 +305,11 @@ t("ui-v2",
   "preset floors as pictures choose a floor covering floor height side view redesign")
 t("ui-v2-house",
   "Übersicht umsortieren Reihenfolge ändern nach oben schieben nach unten schieben Geschosshöhe ändern Raumliste Räume finden "
-  "Baumansicht Explorer Struktur Ordner Hausübersicht alle Häuser wechseln Dachstuhl",
+  "Baumansicht Explorer Struktur Ordner Hausübersicht alle Häuser wechseln Dachstuhl Grundriss sperren Schloss drei Punkte Menü "
+  "Gebäude anlegen Nachbarhaus Vorlage Hintergrundbild Haus duplizieren Haus umbenennen Haus löschen",
   "overview reorder change the order move up move down change storey height room list find rooms tree view explorer structure "
-  "folders house overview switch houses roof space")
+  "folders house overview switch houses roof space lock the floor plan padlock three dots menu buildings neighbour house template "
+  "background picture duplicate the house rename the house delete the house")
 t("ui-v2-tools",
   "Einstellung finden wo ist die Einstellung Suche in der Leiste Kippwinkel finden Seitenleiste Reiter zum Abschnitt springen ausklappen "
   "für alle Fenster gleich alle Fenster gleich einstellen auf andere übertragen Einstellungen kopieren übernehmen Boden für alle Räume "

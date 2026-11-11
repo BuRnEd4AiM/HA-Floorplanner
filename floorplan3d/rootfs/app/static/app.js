@@ -1651,7 +1651,7 @@ uiV2 = initUiV2({
   propsTitle: (k, it) => t(propsTitleKey(k, it)),
   layout: () => layout, floorIdx: () => floorIdx, isLive: () => isLive(), tool: () => tool, switchFloor: (i) => switchFloor(i),   // the tree (5.0.0)
   houses: () => hs.list(), houseId: () => hs.id(), switchHouse: (id) => switchHouse(id), addFloorOf: (k) => addFloorOf(k),
-  moveFloorTo: (a, b) => floorPanel.moveFloorTo(a, b), renderFloorPanel: () => renderFloorPanel(), storeyText: () => fmtLen(floorH()),
+  moveFloorTo: (a, b) => floorPanel.moveFloorTo(a, b), renderFloorPanel: () => renderFloorPanel(), storeyText: () => fmtLen(floorH()), floorH: () => floorH(),
   fmtArea: (m2) => fmtArea(m2, imperial()), roomLock: roomLocks, roofEdit,   // 🔒 at a room, the locks in the tree, the roof editor (5.1.0)
 });
 const props = initProps({

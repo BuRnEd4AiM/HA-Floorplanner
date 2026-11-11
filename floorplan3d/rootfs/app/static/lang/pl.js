@@ -2347,4 +2347,11 @@ export default {
   'balc.part': 'Wisi częściowo: tam, gdzie wystaje poza piętro poniżej, niesie ją płyta (słupy tylko tam), reszta leży na domu.',
   'src.temp': 'Temperatura z', 'src.humid': 'Wilgotność z', 'src.auto': 'Automatycznie · {v}', 'src.thermo': 'Termostat · {v}',
   'src.hint': 'Co etykiety, kafelki, kolory i 🌡 Klimat pokazują dla pokoju. Automatycznie: średnia jego czujników, termostat tylko bez czujnika. Ogrzewanie działa jak dotąd.',
+  'v2.sec.form': 'Kształt i wymiary', 'v2.sec.corner': 'Narożnik i spocznik', 'v2.sec.steps': 'Stopnie', 'v2.sec.bsize': 'Wysokość',
+  'v2.sum.stairForm': '{dir} · szer. {w}', 'v2.sum.steps': '{n} na kondygnację', 'v2.sum.stepsAuto': 'z wysokości kondygnacji',
+  'v2.sum.where': 'X {x} · Z {z} · {r}°', 'v2.sum.holeForm': '{n} narożników · {a}', 'v2.sum.height': 'wys. {h}', 'v2.sum.heightFloor': 'wysokość kondygnacji',
+  'v2.chip.steps': '{n} stopni · po {h}', 'v2.sub.hole': 'Otwarte w dół', 'v2.sub.outside': 'Na zewnątrz · działka',
+  'v2.home.more': 'Więcej dla domu: budynki, dom sąsiedni, szablon, duplikuj, zmień nazwę, JSON, usuń', 'v2.more.building': 'Budynki w tym planie',
+  'v2.more.buildingSub': 'np. dom główny i domek ogrodowy, przełączanie u góry', 'v2.more.neighbor': 'Pokaż obok dom sąsiedni',
+  'v2.more.neighborSub': 'inny dom z listy, np. ten za kładką', 'v2.more.bg': 'Szablon (obraz rzutu)', 'v2.more.bgSub': 'skan lub zdjęcie do odrysowania',
 };

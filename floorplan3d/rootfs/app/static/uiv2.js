@@ -28,7 +28,14 @@ export const SECTIONS = {
   door: [['size', '📐', true], ['style', '🚪', false], ['contact', '🔗', false], ['more', '⋯', false], ['inroom', '📟', false]],
   device: [['entity', '🔗', true], ['special', '⚙️', true], ['place', '📍', false], ['dsize', '📏', false], ['tilt', '↻', false], ['look', '🎨', false], ['inroom', '📟', false]],
   wall: [['wsize', '📐', true], ['split', '✂️', false], ['finish', '🎨', false]],
+  stair: [['form', '📐', true], ['corner', '↪️', true], ['steps', '🪜', true], ['place', '📍', false]],   // 5.7.0 (the owner, 2026-11-11)
+  hole: [['form', '📐', true]],
+  block: [['bsize', '📐', true]],
 };
+/** the kinds of selection the new panel orders (5.7.0: also stairs, holes, blocks, the plot, garden areas and cables, before the old panel) */
+export const V2_KINDS = ['window', 'door', 'room', 'device', 'wall', 'stair', 'hole', 'block', 'plot', 'yard', 'cable'];
+/** kinds that are no part of a floor: their path is the house and the object (the plot and its areas) */
+export const OUTSIDE_KINDS = ['plot', 'yard'];
 /** the tabs of a room, and which marks go into which tab */
 export const ROOM_TABS = [['general', ['general', 'balcony']], ['floor', ['floor', 'level']], ['walls', ['walls']], ['devices', ['devices']]];
 /** marks that are never a section: on top, the delete button and the classic pane fields (drawn as a picture instead; kept hidden) */
@@ -225,6 +232,16 @@ export function summary(pk, key, it, h = {}) {
     }
   }
   if (pk === 'wall' && key === 'wsize') return ['v2.sum.wall', { d: len(it.thickness), h: len(it.height) }];
+  if (pk === 'stair') {
+    if (key === 'form') return ['v2.sum.stairForm', { dir: { key: it.dir === 'down' ? 'stair.down' : 'stair.up' }, w: len(it.w) }];
+    if (key === 'steps') return Number.isFinite(+it.steps) && +it.steps > 0 ? ['v2.sum.steps', { n: Math.round(+it.steps) }] : ['v2.sum.stepsAuto', {}];
+    if (key === 'place') return ['v2.sum.where', { x: len(it.x), z: len(it.z), r: Math.round(it.rot || 0) }];
+  }
+  if (pk === 'hole' && key === 'form') {
+    const pts = it.points || [];
+    return ['v2.sum.holeForm', { n: pts.length, a: h.area ? h.area(polyArea2(pts)) : `${polyArea2(pts).toFixed(1)} m²` }];
+  }
+  if (pk === 'block' && key === 'bsize') return it.h ? ['v2.sum.height', { h: len(it.h) }] : ['v2.sum.heightFloor', {}];
   return null;                                   // no line: the section says enough
 }
 /** a line [key, values] in the language: values that are { key } are texts too */
@@ -260,6 +277,11 @@ export function headIcon(pk, it, cat = '') {
   if (pk === 'room') return '▢';
   if (pk === 'wall') return '🧱';
   if (pk === 'stair') return '🪜';
+  if (pk === 'hole') return '⬚';
+  if (pk === 'block') return '🧊';
+  if (pk === 'plot') return '🗺';
+  if (pk === 'yard') return '🌱';
+  if (pk === 'cable') return '🔌';
   if (/^(tv|tv_wall|tv_arm)$/.test(it?.type || '')) return '📺';
   return ICONS[cat] || '📦';
 }
@@ -267,8 +289,15 @@ export function headIcon(pk, it, cat = '') {
 export function crumbs({ house, floor, room, name, kind }) {
   const out = [];
   if (house) out.push({ text: `🏠 ${house}`, sel: null });
-  if (floor) out.push({ text: floor, sel: null });
+  if (floor && !OUTSIDE_KINDS.includes(kind)) out.push({ text: floor, sel: null });
   if (room && kind !== 'room') out.push({ text: room.name || '?', sel: { kind: 'room', id: room.id } });
   out.push({ text: name, sel: undefined });
   return out;
+}
+
+/** the area of a polygon [[x, z], …] (m²) */
+function polyArea2(pts) {
+  let a = 0;
+  for (let i = 0; i < pts.length; i++) { const [x1, z1] = pts[i], [x2, z2] = pts[(i + 1) % pts.length]; a += x1 * z2 - x2 * z1; }
+  return Math.abs(a) / 2;
 }

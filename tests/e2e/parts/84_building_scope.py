@@ -154,9 +154,10 @@ check("building scope: 🏘 Alle Gebäude: everything again", wait_bs(lambda: le
 pgB.goto(BASE + "?debug=1&mode=edit&ui=2"); pgB.wait_for_timeout(1200)
 pgB.keyboard.press("Escape"); pgB.wait_for_timeout(300)
 if pgB.locator("#v2Home [data-seg=house]").count(): pgB.click("#v2Home [data-seg=house]"); pgB.wait_for_timeout(400)
-pgB.evaluate("document.querySelector('#buildingPanel').open = true"); pgB.wait_for_timeout(600)
+pgB.click("#v2HouseMore"); pgB.wait_for_timeout(300)                        # 5.7.0: in the menu ⋯ of the house
+pgB.click("#v2HouseMenu [data-more=building]"); pgB.wait_for_timeout(600)
 pgB.evaluate("document.querySelector('#buildingPanel .bldAreas').open = true"); pgB.wait_for_timeout(300)
-check("building scope / ✨ Neu: in the new panel the areas of Home Assistant are in „🏘 Gebäude in diesem Plan“ under „Haus“, the cellar with house B",
+check("building scope / ✨ Neu: in the new panel the areas of Home Assistant are in „🏘 Gebäude in diesem Plan“ (menu ⋯ of the house), the cellar with house B",
       pgB.evaluate("document.body.classList.contains('uiV2')") and pgB.is_visible("#buildingPanel select[data-area=bs_b_keller]")
       and pgB.input_value("#buildingPanel select[data-area=bs_b_keller]") == "bsB", pgB.evaluate("document.querySelector('#panel')?.dataset.v2seg"))
 pgB.evaluate("localStorage.removeItem('fp.ui'); localStorage.removeItem('fp.ui.open')")   # the next parts get the classic panel
