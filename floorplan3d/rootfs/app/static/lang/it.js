@@ -2281,7 +2281,7 @@ export default {
   'rname.noAreas': 'Nessuna area da Home Assistant. Se crei delle aree lì (Impostazioni → Aree), puoi sceglierle qui come nome.',
   'rname.linked': '🔗 Collegata all\'area «{area}» di Home Assistant', 'rname.linkOne': '«{room}» si chiama come un\'area: collega',
   'rname.linkAll': '{n} stanze si chiamano come un\'area: collega tutte', 'rname.linkedAll': '🔗 {n} collegate: {rooms}',
-  'eu.per': '⚡ Un calcolo proprio per edificio',
+  'eu.per': '⚡ Un calcolo proprio per edificio', 'eu.count': '{n} edifici in questa pianta',
   'eu.offHint': 'Spento: un calcolo per tutta la pianta. Acceso: ogni edificio conta per sé (sensori, contatori e prezzi propri); scegliere un edificio in alto mostra la sua corrente, «🏘 Tutti gli edifici» ognuno a parte.',
   'eu.onHint': 'Ogni edificio conta per sé, con i dispositivi elettrici delle sue stanze. Scegliere un edificio in alto mostra la sua corrente, «🏘 Tutti gli edifici» ognuno a parte.',
   'eu.for': 'Calcolo per:', 'eu.pick': 'Scegli un edificio per impostare il suo calcolo.',

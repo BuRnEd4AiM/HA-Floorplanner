@@ -3884,7 +3884,7 @@ export default {
   'rname.hint.missing': '⚠ Home Assistant 中已没有区域“{area}”。请选择其他区域或“自定义名称”。', 'rname.noAreas': 'Home Assistant 中没有区域。在那里添加区域后（设置 → 区域），即可在此选择作为名称。',
   'rname.linked': '🔗 已关联到 Home Assistant 区域“{area}”', 'rname.linkOne': '“{room}”与某个区域同名：关联', 'rname.linkAll': '{n} 个房间与区域同名：全部关联',
   'rname.linkedAll': '🔗 已关联 {n} 个：{rooms}',
-  'eu.per': '⚡ 每栋建筑单独计算', 'eu.offHint': '关：整个平面图一个计算。开：每栋建筑单独计算（自己的传感器、电表和价格）；在顶部切换到某栋建筑即显示其电力，“🏘 所有建筑”则分别显示。',
+  'eu.per': '⚡ 每栋建筑单独计算', 'eu.count': '此平面图中有 {n} 栋建筑', 'eu.offHint': '关：整个平面图一个计算。开：每栋建筑单独计算（自己的传感器、电表和价格）；在顶部切换到某栋建筑即显示其电力，“🏘 所有建筑”则分别显示。',
   'eu.onHint': '每栋建筑按其房间内的电力设备单独计算。在顶部切换到某栋建筑即显示其电力，“🏘 所有建筑”则分别显示。', 'eu.for': '计算对象：', 'eu.pick': '选择一栋建筑来设置其计算。', 'eu.splitDone': '现在每栋建筑单独计算；原来的计算归“{name}”。',
   'eu.joinAsk': '重新为整个平面图使用一个计算？“{name}”的计算将用于全部，其他建筑的计算将被删除。', 'eu.joinDone': '整个平面图一个计算（使用“{name}”的）。', 'pe.ownMetersB': '这栋建筑的计量表（⚡ 用电记账）',
   'pe.cmp.noteB': '每栋建筑使用自己的电表',

@@ -2302,7 +2302,7 @@ export default {
   'rname.noAreas': 'Aucune pièce de Home Assistant. Si tu y crées des pièces (Paramètres → Pièces), tu peux les choisir ici comme nom.',
   'rname.linked': '🔗 Liée à la pièce « {area} » de Home Assistant', 'rname.linkOne': '« {room} » porte le nom d\'une pièce : lier',
   'rname.linkAll': '{n} pièces portent le nom d\'une pièce HA : tout lier', 'rname.linkedAll': '🔗 {n} liées : {rooms}',
-  'eu.per': '⚡ Un calcul propre à chaque bâtiment',
+  'eu.per': '⚡ Un calcul propre à chaque bâtiment', 'eu.count': '{n} bâtiments dans ce plan',
   'eu.offHint': 'Désactivé : un calcul pour tout le plan. Activé : chaque bâtiment compte pour lui (ses capteurs, compteurs et prix) ; choisir un bâtiment en haut montre son électricité, « 🏘 Tous les bâtiments » chacun à part.',
   'eu.onHint': 'Chaque bâtiment compte pour lui, avec les appareils électriques de ses pièces. Choisir un bâtiment en haut montre son électricité, « 🏘 Tous les bâtiments » chacun à part.',
   'eu.for': 'Calcul pour :', 'eu.pick': 'Choisis un bâtiment pour régler son calcul.',

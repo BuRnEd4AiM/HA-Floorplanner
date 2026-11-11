@@ -32,14 +32,25 @@ export function initEnergyUnitsUi(ctx) {
   /** where the tab writes (made when missing), null without a building chosen */
   const energyOf = () => energyTarget(ctx.layout(), ctx.shown());
 
-  /* ---- the head of the tab ---- */
+  /** "Rechnung für: 🏠 Haupthaus | 🏠 Anbau": a button per building, the one set now lit (5.6.0: also fixed in the title of the window) */
+  function chips(L, bs) {
+    const cur = pickBuilding(L, ctx.shown()), row = el('div', 'euChips'); row.append(el('span', 'sub', t('eu.for')));
+    bs.forEach((b) => {
+      const c = el('button', `euChip${b.id === cur ? ' on' : ''}`, `🏠 ${b.name || unnamed()}`); c.type = 'button'; c.dataset.building = b.id;
+      c.addEventListener('click', () => { ctx.setShown(b.id); ctx.rerender(); });
+      row.append(c);
+    });
+    return row;
+  }
+
+  /* ---- the head of the tab: a card "🏘 n Gebäude in diesem Plan" at the top (5.6.0), the buildings again in the title of the window ---- */
   function renderHead() {
-    const box = $('#energyUnits');
+    const box = $('#energyUnits'), bar = $('#energyBld');
     if (!box) return;
     const L = ctx.layout(), bs = buildingsOf(L);
-    if (bs.length < 2) { box.replaceChildren(); box.hidden = true; return; }
+    if (bs.length < 2) { box.replaceChildren(); box.hidden = true; if (bar) { bar.replaceChildren(); bar.hidden = true; } return; }
     box.hidden = false;
-    const on = perBuilding(L), out = [];
+    const on = perBuilding(L), out = [el('h3', 'euHead', `🏘 ${t('eu.count', { n: bs.length })}`)];
     const row = el('div', 'row check'), cb = el('input'); cb.type = 'checkbox'; cb.id = 'enPerBuilding'; cb.checked = on;
     const lab = el('label', '', t('eu.per')); lab.htmlFor = 'enPerBuilding';
     row.append(cb, lab);
@@ -62,17 +73,12 @@ export function initEnergyUnitsUi(ctx) {
     });
     out.push(row, el('p', 'sub', t(on ? 'eu.onHint' : 'eu.offHint')));
     if (on) {
-      const chips = el('div', 'euChips'); chips.append(el('span', 'sub', t('eu.for')));
-      const cur = pickBuilding(L, ctx.shown());
-      bs.forEach((b) => {
-        const c = el('button', `euChip${b.id === cur ? ' on' : ''}`, `🏠 ${b.name || unnamed()}`); c.type = 'button'; c.dataset.building = b.id;
-        c.addEventListener('click', () => { ctx.setShown(b.id); ctx.rerender(); });
-        chips.append(c);
-      });
-      out.push(chips);
-      if (!cur) out.push(el('p', 'enWarn euPick', t('eu.pick')));
+      out.push(chips(L, bs));
+      if (!pickBuilding(L, ctx.shown())) out.push(el('p', 'enWarn euPick', t('eu.pick')));
     }
+    box.classList.toggle('on', on);
     box.replaceChildren(...out);
+    if (bar) { bar.hidden = !on; bar.replaceChildren(...(on ? [chips(L, bs)] : [])); }   // in the title: always in sight while scrolling
   }
 
   return {

@@ -1086,6 +1086,7 @@ button.enRow:hover { background: color-mix(in srgb, var(--pc) 18%, transparent);
 .enClCount { font-size: 12px; color: var(--muted); }
 .enClCount.todo { color: #d97a12; font-weight: 600; }
 .enCl { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 3px 0; }
+.enCl > span:not(.enClIcon) { flex: 1 1 0; min-width: 12em; }   /* the text beside its sign, not on a line of its own */
 .enCl.warn { color: #d97a12; }
 .enCl.todo { font-weight: 600; }
 .enCl.info { color: var(--muted); }
@@ -1283,11 +1284,20 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 #energyPill .epUnit b, #meterPill .epUnit b { margin-right: 4px; }
 #meterPill .epUnit { display: block; }
 /* the head of the tab "⚡ Rechnung": per building on or off, the building whose calculation is set */
-#energyUnits { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+#energyUnits { margin: 12px 0; padding: 12px 14px; border: 1px solid var(--line); border-left: 4px solid #8d6e63; border-radius: 14px;
+  background: color-mix(in srgb, #8d6e63 10%, transparent); }   /* 5.6.0: a card of its own at the top */
+#energyUnits.on { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 #energyUnits[hidden] { display: none; }
+#energyUnits .euHead { margin: 0 0 6px; color: var(--text); font-size: 14px; text-transform: none; letter-spacing: 0; }
+#energyUnits .row.check { font-weight: 600; margin-bottom: 4px; }
+#energyUnits .euChip { font-size: 15px; padding: 6px 14px; }
 .euChips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0; }
 .euChip { padding: 4px 10px; border-radius: 999px; }
-.euChip.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.euChip.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+.enBldBar { flex-basis: 100%; }
+.enBldBar[hidden] { display: none; }
+.enBldBar .euChips { margin: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.enBldBar .euChip { flex: none; white-space: nowrap; }
 @media (max-width: 760px) { #energyCard.multi { gap: 4px; } #energyCard.multi svg { width: 150px; } }   /* two pictures side by side on a phone */
 @media (max-width: 760px) {   /* phones (#442): small, in the middle under the top bar, only while "Strom" is pressed; the house stays in sight */
   #sideStack { left: 12px; align-items: center; }

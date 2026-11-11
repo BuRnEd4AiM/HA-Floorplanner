@@ -1,20 +1,20 @@
 {
  "session": "session_018pwcmwgv1hZN3yE9NPAQec",
  "start": "2026-11-11",
- "updated": "2026-11-11T11:59:41Z",
+ "updated": "2026-11-11T13:08:21Z",
  "branch": "claude/modest-ptolemy-yehu1e",
  "source": "counted",
- "input": 305,
- "cache_write": 340701,
- "cache_read": 40251604,
- "output": 124829,
+ "input": 373,
+ "cache_write": 389117,
+ "cache_read": 53752742,
+ "output": 151824,
  "models": {
   "claude-opus-5-5": {
-   "input": 305,
-   "cache_write": 340701,
-   "cache_read": 40251604,
-   "output": 124829,
-   "requests": 152
+   "input": 373,
+   "cache_write": 389117,
+   "cache_read": 53752742,
+   "output": 151824,
+   "requests": 184
   }
  }
 }

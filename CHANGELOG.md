@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.6.1] - 2026-11-11
+### Changed
+- **⚡ "Power per building" is easy to find again in the new "⚡ Bookkeeping"** (the owner: "wie kann ich jetzt mehrere Stromrechner haben für mehrere Gebäude? … Wo ist denn diese Option im neuen Overlay?"): the tick "⚡ A calculation of its own per building" was a plain line under the hint. With two or more buildings in the plan, "🏘 2 buildings in this plan" is now a card of its own at the very top with the tick; ticked, "Calculation for: 🏠 Main house | 🏠 Wing" also stands fixed in the title of the window (in sight while scrolling, a tap switches the building), and the heading of the calculation names the building ("How it is counted right now · 🏠 Wing").
+
+### Fixed
+- **⚡ In the check list of "⚡ Bookkeeping" the text of an open point stood on a line of its own** under its sign.
+
 ## [5.6.0] - 2026-11-11
 ### Changed
 - **⚡ The power calculator ("⚡ Bookkeeping") is easier to read and to use** (the owner: "dass du den Stromrechner besser machst oder gegebenenfalls halt einfach visuell besser aufbereitest, dass man das besser versteht … dass der besser aussieht und man ihn einfacher bedienen kann"): at the top the power picture (the same as at the top right, with its running dots) next to the calculation; every line has its symbol and says where its value comes from ("from the plan", "sensor chosen", "calculated"), a tap on a line or on a circle of the picture opens its part. Every part (grid, solar, battery, house, rooms, meters for the history) is a card of its own in its colour, with what it is read from now and its value now. A bar under the title jumps to every part; its dot says chosen (green), from the plan (blue) or missing (orange), and it marks the part shown while scrolling. "🧭 Setup" comes under the calculation, its check list folds away while nothing is to do ("5 done · 0 open", a tap opens it). The rooms and the meters stand side by side, the window is about a third shorter.
