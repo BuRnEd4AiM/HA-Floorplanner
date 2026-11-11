@@ -334,7 +334,7 @@ function wallStairLocal(st, Htot) {
     }
   });
   // the opening in the floors above: the outline of everything the stair covers
-  let hole = [];
+  let hole;
   try {
     const mp = polygonClipping.union(...treads.map((t) => [[...t.poly.map((q) => [q[0], q[1]]), [t.poly[0][0], t.poly[0][1]]]]));
     hole = mp.length ? mp.map((poly) => poly[0].slice(0, -1)).sort((x, y) => y.length - x.length)[0] : [];

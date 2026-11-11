@@ -48,7 +48,7 @@ export function initLogPage(ctx) {
   async function copy(text) {
     try { await navigator.clipboard.writeText(text); return true; } catch {
       const ta = make('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.append(ta); ta.select();
-      let ok = false;
+      let ok;
       try { ok = document.execCommand('copy'); } catch { ok = false; }
       ta.remove();
       return ok;

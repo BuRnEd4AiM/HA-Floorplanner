@@ -49,7 +49,7 @@ export function initHeatDiagUi(ctx) {
     const s = text(false);
     try { await navigator.clipboard.writeText(s); copied = 'ok'; } catch {
       const ta = make('textarea'); ta.value = s; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.append(ta); ta.select();
-      let ok = false;
+      let ok;
       try { ok = document.execCommand('copy'); } catch { ok = false; }
       ta.remove();
       copied = ok ? 'ok' : 'self';
