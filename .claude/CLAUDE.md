@@ -34,6 +34,7 @@ A knowledge graph of the code is built at session start in graphify-out/.
 - tools/tokens.py counts the advisor's tokens under its own model (`usage.iterations`, type "advisor_message").
 ## Code structure (new rule)
 - app.js was far too big (docs/MODULE-PLAN.md: the rule; the long list of what is already split is in docs/archiv/MODULE-PLAN-schon-getrennt.md). **Every extension goes into a NEW module or into a fitting existing module, never as another large block into app.js.** app.js only gets the import, an `init...({...})` call and the wiring.
+- Linters (since 5.6.4, CI job "test"): `ruff check .` (ruff.toml) and `npm ci --prefix tools/lint && tools/lint/node_modules/.bin/eslint floorplan3d/rootfs/app/static dist` (eslint.config.mjs). Only real mistakes (unknown names, unused imports and variables, duplicate keys): run both before a push.
 - Pure logic (no three.js, no DOM) is kept separate and gets a node unit test in tests/ (like kitchen.js, heatpanel.js) plus a CI step.
 - When an existing part of app.js is changed anyway, move that part into a module in the same PR if it is small and safe. A new module needs no row in docs/MODULE-PLAN.md any more; a comment at the top of the file says what it does.
 ## Docker version (container/, #489) must keep working

@@ -1,0 +1,12 @@
+# The checker for the Python (idea list 2026-11-11, step 4): only what is a real mistake: a name nobody defined, an import or a
+# variable nobody uses, a name defined twice, syntax errors (pyflakes "F", "E9"). CI job "test" runs `ruff check .`.
+target-version = "py312"
+line-length = 160
+extend-exclude = ["floorplan3d-stable", "graphify-out", "**/node_modules"]
+
+[lint]
+select = ["F", "E9"]
+
+[lint.per-file-ignores]
+# the parts of the browser test run inside tests/e2e/test_e2e.py and use its names (BASE, check, api, b …)
+"tests/e2e/parts/*.py" = ["F821"]

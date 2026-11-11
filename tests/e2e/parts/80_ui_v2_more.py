@@ -68,7 +68,7 @@ check("ui v2 floor: a basement has the line and the button '⛰ Gelände einstel
       {s1_v3["k"], s2_v3["k"]} == {"basement", "floor"} and all((s["help"] and s["go"]) == (s["k"] == "basement") and not s["roof"] for s in (s1_v3, s2_v3)), (s1_v3, s2_v3))
 
 before_v3 = floor_ids()
-pgW.locator(f"#v2Tree .n.floor[data-i='0']").drag_to(pgW.locator("#v2Tree .n.floor[data-i='1']")); pgW.wait_for_timeout(600)
+pgW.locator("#v2Tree .n.floor[data-i='0']").drag_to(pgW.locator("#v2Tree .n.floor[data-i='1']")); pgW.wait_for_timeout(600)
 after_v3 = floor_ids()
 check("ui v2 tree: a floor dragged onto another takes its place", after_v3[:2] == [before_v3[1], before_v3[0]] and after_v3[2:] == before_v3[2:], [before_v3, after_v3])
 pgW.keyboard.press("Control+z"); pgW.wait_for_timeout(600)

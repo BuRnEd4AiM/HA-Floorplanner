@@ -695,7 +695,6 @@ async def test_houses_need_editor(client, monkeypatch, tmp_path):
 
 
 async def test_backup_roundtrip(client):
-    import base64
     png = b"\x89PNG\r\n\x1a\n" + b"0" * 32
     layout = {"version": 1, "floors": [{"id": "a", "name": "Mein EG", "walls": [], "rooms": [], "devices": []}]}
     assert (await client.put("/api/layout", json=layout)).status == 200

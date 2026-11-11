@@ -2,7 +2,6 @@
 
 Most of them start in a new, empty house of the demo ("Gartenhaus"): prepared before the recording starts (prep), so the
 video begins with an empty plan in 2D. The house is drawn with the same clicks a person makes."""
-from pathlib import Path
 
 from recorder import clip
 

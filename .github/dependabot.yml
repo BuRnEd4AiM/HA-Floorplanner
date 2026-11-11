@@ -9,3 +9,6 @@ updates:
   - package-ecosystem: npm
     directory: /demo
     schedule: { interval: monthly }
+  - package-ecosystem: npm
+    directory: /tools/lint
+    schedule: { interval: monthly }

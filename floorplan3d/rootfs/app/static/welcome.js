@@ -4,7 +4,7 @@ const KEY = 'fp3d.welcome';
 export function isEmptyLayout(layout) {
   return !(layout?.floors || []).some((f) => (f.walls || []).length || (f.rooms || []).length || (f.devices || []).length || (f.blocks || []).length || (f.stairs || []).length);
 }
-export function initWelcome({ t, getLayout, isEdit, draw, example, importJson }) {
+export function initWelcome({ getLayout, isEdit, draw, example, importJson }) {
   const box = document.getElementById('welcome');
   if (!box) return { update() {} };
   let closed = false;

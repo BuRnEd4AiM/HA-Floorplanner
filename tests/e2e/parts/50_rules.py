@@ -73,7 +73,7 @@ st_rl_room = wait_rl(lambda: (api("api/rules")["status"]["rooms"].get(key_rl) or
 check("rules: api/rules says the room is paused by the window", st_rl_room, api("api/rules")["status"]["rooms"])
 pgR.click("[data-page=climate] [data-view=rules]"); pgR.wait_for_timeout(300)
 pgR.click("[data-page=climate] .tpTools [data-view=rooms]"); pgR.wait_for_timeout(800)
-line_rl = wait_rl(lambda: pgR.locator(f"[data-page=climate] [data-room=rl_r] .hrLine[data-line=window]").count() == 1)
+line_rl = wait_rl(lambda: pgR.locator("[data-page=climate] [data-room=rl_r] .hrLine[data-line=window]").count() == 1)
 check("rules: the room's card shows '⏸️ Heizung pausiert' with 'Trotzdem heizen'", line_rl and "Trotzdem heizen" in pgR.inner_text("[data-page=climate] [data-room=rl_r] .hrLine"))
 n1 = len(calldata_rl())
 pgR.click("[data-page=climate] [data-room=rl_r] .hrLine button")

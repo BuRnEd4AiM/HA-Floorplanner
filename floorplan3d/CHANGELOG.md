@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.6.4] - 2026-11-11
+### Changed
+- **🧹 Two automatic code checkers in CI** (idea list of 2026-11-11, step 4): `ruff` for the Python and `eslint` for the JavaScript of the add-on and the dashboard card look at every change for real mistakes (a name nobody defined, an import or a variable nobody uses, a key written twice) before it is merged. Nothing changes on the screen.
+
+### Removed
+- **Unused code the checkers found:** 17 imports, functions and variables nobody used (in `app.js`, `plan2d.js` and eight other files), a key written twice in the test hooks (`elev`), and unused imports in the tests and tools.
+
 ## [5.6.3] - 2026-11-11
 ### Changed
 - **⚡ Faster start: the browser keeps the add-on's files** (idea list of 2026-11-11, step 3): at every start the browser asked the add-on for each of its ~320 interface files whether it had changed (one request each, through Home Assistant). Now the page names every file with a fingerprint of its content (`app.js?v=…`, `assetver.py`, an import map for the modules); the browser keeps such a file for good and asks nothing, and after an update only the files that really changed have a new address. Old and new files still cannot mix (#328): only an address with the file's own fingerprint may be kept, `index.html` is checked at every start. Measured on a simulated tablet, opened again: 317 → 0 requests, every module loaded after 1.55 → 0.64 s, the house stands after 5.9 → 5.2 s. Browsers older than 2023 (no import maps) keep working as before.

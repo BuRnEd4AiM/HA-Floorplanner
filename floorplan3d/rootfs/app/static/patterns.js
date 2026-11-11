@@ -15,7 +15,6 @@ const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
 /** a darker / lighter shade of '#rrggbb' (k: factor) as a canvas colour */
 export function shade(hex, k) { const [r, g, b] = rgb(hex); return `rgb(${clamp(r * k)},${clamp(g * k)},${clamp(b * k)})`; }
 /** a number from a few integers, the same for the same ones (so a tile cut by the edge of the picture looks the same on both sides) */
-const hash = (...v) => { let h = 2166136261; v.forEach((x) => { h = Math.imul(h ^ (x | 0), 16777619); }); return ((h >>> 0) % 100000) / 100000; };
 const mod = (a, n) => ((a % n) + n) % n;
 
 /** fn(ox, oy) once for every copy of the box (x, y, w, h) moved by whole pictures that reaches into the picture */

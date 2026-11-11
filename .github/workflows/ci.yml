@@ -14,6 +14,11 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements-dev.txt
+      - name: Lint (ruff for the Python, eslint for the JavaScript of the add-on and the card; rules in ruff.toml, eslint.config.mjs)
+        run: |
+          ruff check .
+          npm ci --prefix tools/lint --no-audit --no-fund
+          tools/lint/node_modules/.bin/eslint floorplan3d/rootfs/app/static dist
       - run: pytest -q
       - name: Stair geometry unit tests
         run: |

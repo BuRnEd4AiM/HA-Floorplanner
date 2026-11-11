@@ -131,7 +131,7 @@ async def test_no_home_assistant_the_beta_keeps_waiting_and_a_test_does_nothing(
     async def broken():
         tries.append(1)
         raise ConnectionError("no Home Assistant")
-        yield  # noqa: unreachable - makes this a generator
+        yield  # never reached: it makes this function a generator
 
     beta = chn.Watch("beta", "5.3.0")
     b = asyncio.create_task(chn.run(beta, connect=broken, retry=0.05))

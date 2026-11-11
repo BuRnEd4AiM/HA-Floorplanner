@@ -59,7 +59,6 @@ SCANDI_TYPES.forEach((k) => { FOOT[k] = scandiFoot(k); });      // the furniture
 const DEFAULT_FOOT = { w: 0.8, d: 0.8 };
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const hexToRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 
 export function createPlan(ctx) {
   const root = document.createElement('div');
@@ -75,7 +74,7 @@ export function createPlan(ctx) {
   let rot = 0;                                // degrees the plan is turned on the screen (with the 3D view, #212)
   let W = 800, H = 600;
   let drawPts = [], cursor = null, shift = false;
-  let hover = null, opPreview = null;
+  let opPreview = null;
   let drag = null;                            // active pointer interaction
   let raf = 0, rebuildRaf = 0;
   let lastTap = null;
@@ -182,7 +181,7 @@ export function createPlan(ctx) {
     let best = null, bd = Infinity;
     const sel = ctx.getSelection?.(), selId = sel?.kind === 'opening' ? sel.id : null;   // two one above the other (#694): the selected one stays picked
     shown().walls.forEach((w) => {
-      const [ux, uz, L] = dirOf(w);
+      const [ux, uz] = dirOf(w);
       (w.openings || []).forEach((o) => {
         const cx = w.a[0] + ux * o.pos, cz = w.a[1] + uz * o.pos;
         const along = Math.abs((x - cx) * ux + (z - cz) * uz), across = Math.abs(-(x - cx) * uz + (z - cz) * ux);
@@ -462,7 +461,6 @@ export function createPlan(ctx) {
       });
     });
 
-    const idx = ctx.getFloorIdx();
     (ctx.ghostFloors ? ctx.ghostFloors() : []).forEach(({ i, col }) => {          // lowest floor first, so the nearer ones lie on top
       view.floors[i].walls.forEach((w) => { o += `<polygon points="${pts(wallPoly(w.a, w.b, w.thickness, w.thickness / 2, w.thickness / 2))}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-opacity=".75" stroke-width="1" style="pointer-events:none"/>`; });
     });

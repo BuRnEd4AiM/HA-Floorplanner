@@ -480,7 +480,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 188. Verbessert in 5.6.1: ⚡ „Strom je Gebäude“ im neuen Strom-Rechner leicht zu finden | 1 | 0 | 3 | 0 | 188.2 bis 188.4 |
 | 189. Verbessert in 5.6.2: ⚡ schneller starten (nur die gewählte Sprache, die Versionsprüfung später) | 1 | 0 | 3 | 0 | 189.2 bis 189.4 |
 | 190. Verbessert in 5.6.3: ⚡ der Browser behält die Dateien (Fingerabdruck in der Adresse) | 1 | 0 | 3 | 0 | 190.2 bis 190.4 |
-| **Zusammen** | **1209** | **2** | **102** | **92** | |
+| 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint) | 1 | 0 | 1 | 0 | 191.2 |
+| **Zusammen** | **1210** | **2** | **103** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2903,3 +2904,11 @@ Ideenliste vom 2026-11-11, Schritt 3. Statt die Dateien zu bündeln (das bräuch
 | 190.2 | Nach dem Update auf 5.6.3 das Add-on am PC, am iPad und am Wandtablet öffnen | Es startet normal (keine leere Seite, keine Meldung „konnte nicht starten“) | ❓ |
 | 190.3 | Dasselbe Gerät später noch einmal öffnen (Wandtablet: Seite neu öffnen) | Es startet spürbar schneller als vor 5.6.2 | ❓ |
 | 190.4 | Beim nächsten Update (5.6.4 oder später) wieder öffnen | Die neue Version läuft sofort (die Versionsanzeige oben zeigt die neue Nummer), keine leere Seite | ❓ |
+
+## 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint)
+Ideenliste vom 2026-11-11, Schritt 4. Nur unsichtbare Aufräumarbeit: CI prüft jede Änderung mit `ruff` und `eslint`; unbenutzter Code ist entfernt.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 191.1 | `ruff check .`, eslint, alle Unit-Tests, Browser-Test Teile `20_editing`, `61_scenebar_lights`, `58_devlog` | Keine Meldung der Prüfer, alle Tests grün | ✅ (2026-11-11, Claude) |
+| 191.2 | Nach dem Update auf 5.6.4 wie gewohnt bearbeiten und die Live-Ansicht benutzen | Alles wie vorher | ❓ |

@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.6.4] - 2026-11-11
+### Verbessert
+- **🧹 Zwei automatische Code-Prüfer in CI** (Ideenliste vom 2026-11-11, Schritt 4): `ruff` für das Python und `eslint` für das JavaScript des Add-ons und der Dashboard-Karte prüfen jede Änderung auf echte Fehler (ein Name, den niemand festgelegt hat, ein Import oder eine Variable, die niemand benutzt, ein doppelt geschriebener Schlüssel), bevor sie gemergt wird. Auf dem Bildschirm ändert sich nichts.
+
+### Entfernt
+- **Unbenutzter Code, den die Prüfer fanden:** 17 Imports, Funktionen und Variablen, die niemand benutzte (in `app.js`, `plan2d.js` und acht weiteren Dateien), ein doppelt geschriebener Schlüssel in den Test-Haken (`elev`) und unbenutzte Imports in den Tests und Werkzeugen.
+
 ## [5.6.3] - 2026-11-11
 ### Verbessert
 - **⚡ Schneller starten: der Browser behält die Dateien des Add-ons** (Ideenliste vom 2026-11-11, Schritt 3): bei jedem Start fragte der Browser für jede seiner rund 320 Dateien beim Add-on nach, ob sie sich geändert hat (je eine Anfrage, durch Home Assistant). Jetzt nennt die Seite jede Datei mit einem Fingerabdruck ihres Inhalts (`app.js?v=…`, `assetver.py`, eine Import-Map für die Module); der Browser behält so eine Datei für immer und fragt nicht mehr, und nach einem Update haben nur die wirklich geänderten Dateien eine neue Adresse. Alt und neu können sich weiter nicht mischen (#328): behalten darf er nur eine Adresse mit dem eigenen Fingerabdruck der Datei, `index.html` wird bei jedem Start geprüft. Gemessen am nachgebauten Tablet, erneut geöffnet: 317 → 0 Anfragen, alle Programmteile geladen nach 1,55 → 0,64 s, das Haus steht nach 5,9 → 5,2 s. Browser älter als 2023 (ohne Import-Maps) laufen weiter wie bisher.

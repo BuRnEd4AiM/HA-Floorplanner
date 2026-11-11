@@ -4,7 +4,6 @@ gießen" opens a zone and the add-on keeps a timer (api/garden), "■ Stopp" clo
 a user locked out of switching gets no buttons and the server refuses. The zones chosen in ⚙ replace the ones found.
 4.57.0 (#631): "＋ Weiteres Auto" in ⚙ gives a second car with its own entities and name, a card of its own; × takes it away again.
 """
-import datetime as _dt
 st_cg = api("api/settings")
 set_setting("language", "de")
 def post_cg(path, body, user="admin"):

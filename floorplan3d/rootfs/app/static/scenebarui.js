@@ -128,7 +128,7 @@ export function initSceneBar(ctx) {
       ctx.pages().forEach((p) => {
         const mark = (k) => ({ own: ` · ${t('sb.mode.own')}`, off: ` · ${t('sb.mode.off')}` }[modeOf(draft, k)] || '');
         opts.push(new Option(`${p.icon} ${p.name}${mark(p.key)}`, p.key));
-        ctx.versions(p.key).forEach((v) => opts.push(new Option(`   ${p.icon} ${p.name} · ${v.icon} ${v.name}${mark(barKey(p.key, v.id))}`, barKey(p.key, v.id))));
+        ctx.versions(p.key).forEach((v) => opts.push(new Option(`\u00a0\u00a0\u00a0${p.icon} ${p.name} · ${v.icon} ${v.name}${mark(barKey(p.key, v.id))}`, barKey(p.key, v.id))));
       });
       target.replaceChildren(...opts);
       target.value = key;

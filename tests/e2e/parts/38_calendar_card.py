@@ -21,7 +21,7 @@ def until_cc(fn, n=20, ms=300):
 card_cc = "[data-page=today] .ocCard.oc-calendar"
 def set_view(view):                       # ✎ → ⚙️ of the card → the view → save → ✓ Fertig
     pgK.click("#tabBar .tbEdit"); pgK.wait_for_timeout(500)
-    pgK.locator(f"[data-page=today] .bdItem.oc-calendar .bdTools .bdTool").first.click(); pgK.wait_for_timeout(600)
+    pgK.locator("[data-page=today] .bdItem.oc-calendar .bdTools .bdTool").first.click(); pgK.wait_for_timeout(600)
     pgK.click(f".ceDlg .ceSeg [data-v={view}]"); pgK.click(".ceDlg [data-act=save]"); pgK.wait_for_timeout(500)
     pgK.click("[data-page=today] [data-act=done]"); pgK.wait_for_timeout(1200)
 
