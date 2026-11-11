@@ -89,6 +89,15 @@ pgC.mouse.up()
 sets = wait_for(lambda: [c for c in calldata()[before:] if c[0] == "set_temperature" and c[1] == "climate.cl_test"])
 check("climate (#495): dragging the knob to the top of the circle shows and sends 18,5 (7 to 30), once after letting go",
       "18,5" in during and len(sets) == 1 and sets[0][2].get("temperature") == 18.5, (during, sets))
+before = len(calldata())
+pgC.mouse.move(cx, cy); pgC.mouse.down(); pgC.mouse.move(cx + 10, cy - 30, steps=4); pgC.mouse.up(); pgC.wait_for_timeout(1300)
+mid_sets = [c for c in calldata()[before:] if c[0] == "set_temperature"]
+check("5.6.0 (#718): a finger in the middle of the circle (on the number) sets nothing, the circle keeps 18,5",
+      not mid_sets and "18,5" in pgC.inner_text(f"{card} .thT"), (mid_sets, pgC.inner_text(f"{card} .thT")))
+kx, ky = pgC.evaluate(f"(() => {{ const r = document.querySelector('{card} .thKnob').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; }})()")
+pgC.mouse.move(kx, ky); pgC.mouse.down(); pgC.mouse.move(kx + 40, ky + 30, steps=4); pgC.mouse.move(kx, ky, steps=4); pgC.mouse.up(); pgC.wait_for_timeout(1300)
+back_sets = [c for c in calldata()[before:] if c[0] == "set_temperature"]
+check("5.6.0 (#718): the knob dragged away and back where it began sends nothing", not back_sets and "18,5" in pgC.inner_text(f"{card} .thT"), back_sets)
 pgC.click("#tabBar .tbEdit"); pgC.wait_for_timeout(500)
 pgC.click(f"{card} .bdTools [data-act=size]"); pgC.wait_for_timeout(800)
 small_cf = pgC.locator(f"{card} .th.small").count()

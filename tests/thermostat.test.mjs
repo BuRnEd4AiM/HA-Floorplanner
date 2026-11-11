@@ -50,3 +50,22 @@ test('the model: modes in Home Assistant order, the target (a tapped one first),
   assert.equal(T.thermoModel({ state: 'eco', tt: 50 }).target, 50);                 // a water heater
   assert.equal(T.cleanSize('small'), 'small'); assert.equal(T.cleanSize('x'), 'big');
 });
+
+test('5.6.0: only a finger on the ring turns it, not one in the middle on the number', () => {
+  const r = 88;
+  assert.equal(T.onRing(110 + r, 104, 110, 104, r), true);         // on the ring
+  assert.equal(T.onRing(110, 104 - r + 30, 110, 104, r), true);    // a little inside
+  assert.equal(T.onRing(110, 104 - r - 20, 110, 104, r), true);    // a little outside
+  assert.equal(T.onRing(110, 104, 110, 104, r), false);            // the middle
+  assert.equal(T.onRing(120, 90, 110, 104, r), false);             // on the number
+  assert.equal(T.onRing(110 + r + 40, 104, 110, 104, r), false);   // far outside
+});
+
+test('5.6.0: a sent target is shown until the thermostat reports it, at most HOLD_MS', () => {
+  const s = { tt: 21, tstep: 0.5 };
+  assert.equal(T.stillSent(s, 23, 1000, 1500), true);              // not reported yet
+  assert.equal(T.stillSent({ ...s, tt: 23 }, 23, 1000, 1500), false);   // reported
+  assert.equal(T.stillSent({ ...s, tt: 23.2 }, 23, 1000, 1500), false); // rounded by the thermostat: less than half a step
+  assert.equal(T.stillSent(s, 23, 1000, 1000 + T.HOLD_MS), false);  // it never said: what it says counts again
+  assert.equal(T.stillSent({ state: 'off' }, 23, 1000, 1500), true); // no target reported yet
+});

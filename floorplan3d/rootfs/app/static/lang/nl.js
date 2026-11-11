@@ -333,7 +333,7 @@ export default {
   'energy.rooms.suggest': 'Voorstellen',
   'energy.rooms.suggestTip': 'Sensoren in watt uit het Home Assistant-gebied van de kamer of in de kamer geplaatst overnemen',
   'energy.rooms.suggested': '{n} sensoren toegewezen',
-  'energy.rooms.noneFound': 'Geen verdere sensoren in watt gevonden.',
+  'energy.rooms.noneFound': 'Geen verdere sensoren in watt gevonden.', 'energy.nav': 'Ga naar', 'energy.p.grid': 'Net', 'energy.p.solar': 'Zon', 'energy.p.battery': 'Batterij', 'energy.p.house': 'Huis', 'energy.p.rooms': 'Kamers', 'energy.p.meters': 'Meters', 'energy.p.tip': 'Ga naar „{part}”: {state}', 'energy.st.set': 'sensor gekozen', 'energy.st.plan': 'uit de plattegrond', 'energy.st.none': 'ontbreekt nog', 'energy.st.off': 'geen', 'energy.st.noValue': 'geen waarde', 'energy.st.calc': 'berekend', 'energy.st.own': 'eigen sensor', 'energy.st.rooms': '{n} van {of} kamers', 'energy.st.metersOwn': 'eigen meters', 'energy.st.metersHa': 'van het energiedashboard', 'energy.st.idle': 'in rust', 'energy.formula': 'Zo rekent het: zon + net − batterij = huis. Tik op een regel om de sensor in te stellen.', 'energy.cl.count': '{ok} klaar · {todo} open', 'energy.rowTip': 'Hier instellen: {part}',
   'power.sum.loadMeasured': 'Verbruik (gemeten)',
   'power.sum.rooms': 'Kamers',
   'power.sum.rest': 'Rest',

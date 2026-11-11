@@ -1,7 +1,7 @@
 # The BETA: every merged version lands here. The normal add-on everybody has is floorplan3d-stable/ (tools/stable.py, workflow
 # "Release to everyone"); it keeps the slug floorplan3d.
 name: "3D Floorplan Beta"
-version: "5.5.0"
+version: "5.6.0"
 slug: floorplan3d_beta
 stage: experimental        # shown in the store only with Advanced mode (user profile)
 description: "Beta: every new version at once, to test it before everyone gets it. More than a floor plan: your smart home in 3D. Lights, heating, energy, security, cameras and routines right where they are, with ready-made dashboard pages"

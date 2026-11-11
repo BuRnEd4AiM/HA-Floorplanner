@@ -333,7 +333,7 @@ export default {
   'energy.rooms.suggest': 'Proposer',
   'energy.rooms.suggestTip': 'Reprendre les capteurs en watts de la zone Home Assistant de la pièce ou placés dans la pièce',
   'energy.rooms.suggested': '{n} capteurs attribués',
-  'energy.rooms.noneFound': 'Aucun autre capteur en watts trouvé.',
+  'energy.rooms.noneFound': 'Aucun autre capteur en watts trouvé.', 'energy.nav': 'Aller à', 'energy.p.grid': 'Réseau', 'energy.p.solar': 'Solaire', 'energy.p.battery': 'Batterie', 'energy.p.house': 'Maison', 'energy.p.rooms': 'Pièces', 'energy.p.meters': 'Compteurs', 'energy.p.tip': 'Aller à « {part} » : {state}', 'energy.st.set': 'capteur choisi', 'energy.st.plan': 'du plan', 'energy.st.none': 'manque encore', 'energy.st.off': 'aucun', 'energy.st.noValue': 'pas de valeur', 'energy.st.calc': 'calculé', 'energy.st.own': 'capteur propre', 'energy.st.rooms': '{n} sur {of} pièces', 'energy.st.metersOwn': 'compteurs propres', 'energy.st.metersHa': 'du tableau de bord énergie', 'energy.st.idle': 'au repos', 'energy.formula': 'Le calcul : solaire + réseau − batterie = maison. Touchez une ligne pour régler son capteur.', 'energy.cl.count': '{ok} faits · {todo} ouverts', 'energy.rowTip': 'À régler ici : {part}',
   'power.sum.loadMeasured': 'Consommation (mesurée)',
   'power.sum.rooms': 'Pièces',
   'power.sum.rest': 'Reste',

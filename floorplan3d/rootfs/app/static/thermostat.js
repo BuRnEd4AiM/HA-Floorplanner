@@ -41,6 +41,23 @@ export function valueAt(x, y, cx, cy, s) {
   return clampTarget(s, lo + (a / SWEEP) * (hi - lo));
 }
 
+/** how near the ring (radius r, in the units of the drawing) a finger turns it: from RING_IN inside to RING_OUT outside. A touch in the
+ *  middle on the number turns nothing (5.6.0: on the iPad a finger that started there set a temperature) */
+export const RING_IN = 36, RING_OUT = 26;
+export function onRing(x, y, cx, cy, r) {
+  const d = Math.hypot(x - cx, y - cy);
+  return d >= r - RING_IN && d <= r + RING_OUT;
+}
+/** ms the circle keeps showing a target that was sent while the thermostat has not reported it yet (5.6.0: it jumped back to the old one
+ *  until Home Assistant said the new one) */
+export const HOLD_MS = 15000;
+/** is target v, sent at `sent` (ms), still to be shown: the thermostat s reports another one (more than half a step off) and HOLD_MS have
+ *  not passed */
+export function stillSent(s, v, sent, now) {
+  if (now - sent >= HOLD_MS) return false;
+  return typeof s?.tt !== 'number' || Math.abs(s.tt - v) >= limits(s).step / 2;
+}
+
 /** the colour of the circle: heat (orange), cool (blue), auto (green to orange), dry / fan (grey-blue) or off (grey) */
 export function tone(s) {
   const m = s?.state;

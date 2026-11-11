@@ -439,7 +439,7 @@ export default {
   'energy.rooms.suggest': '建议',
   'energy.rooms.suggestTip': '从房间的 Home Assistant 区域或放在房间里的传感器中找功率（瓦）传感器',
   'energy.rooms.suggested': '已分配 {n} 个传感器',
-  'energy.rooms.noneFound': '没有找到更多功率传感器。',
+  'energy.rooms.noneFound': '没有找到更多功率传感器。', 'energy.nav': '跳转到', 'energy.p.grid': '电网', 'energy.p.solar': '光伏', 'energy.p.battery': '电池', 'energy.p.house': '房屋', 'energy.p.rooms': '房间', 'energy.p.meters': '计量表', 'energy.p.tip': '跳转到“{part}”：{state}', 'energy.st.set': '已选传感器', 'energy.st.plan': '来自平面图', 'energy.st.none': '尚缺', 'energy.st.off': '无', 'energy.st.noValue': '无数值', 'energy.st.calc': '计算值', 'energy.st.own': '自有传感器', 'energy.st.rooms': '{of} 个房间中的 {n} 个', 'energy.st.metersOwn': '自有计量表', 'energy.st.metersHa': '来自能源仪表板', 'energy.st.idle': '静置', 'energy.formula': '计算方式：光伏 + 电网 − 电池 = 房屋。点一行可设置其传感器。', 'energy.cl.count': '{ok} 项完成 · {todo} 项待办', 'energy.rowTip': '在此设置：{part}',
   'power.sum.loadMeasured': '用电（实测值）',
   'power.sum.rooms': '房间',
   'power.sum.rest': '其余',

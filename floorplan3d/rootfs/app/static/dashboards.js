@@ -88,6 +88,7 @@ export function initDashboards(ctx) {
   });
   const board = initBoard({
     t, settings: ctx.settings, canEdit: ctx.canEdit, save: ctx.save, cards, pageName, variants, cardShows: (c) => ctx.cardShows?.(c, cardEntities(c)),   // #677
+    busy: () => thermo.busy(),                                             // a thermostat's knob held: no card drawn anew under the finger (5.6.0)
     redraw: (page) => bar().render(page), changed: () => bar().redraw(),
     addCard: (page) => editor.add(page), editCard: (page, card) => editor.edit(page, card),
     editTabs: () => tabEdit.start(), editOwnPage: (page) => tabEdit.ownPage(page), editBar: (page) => sceneBar.open(page),

@@ -476,7 +476,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 184. Verbessert in 5.4.2: ✨ ein Reiter springt zu seinem Abschnitt | 3 | 0 | 1 | 0 | 184.4 |
 | 185. Repariert in 5.4.3: ▲ das Plateau hebt den Keller nicht mehr an (#713) | 1 | 0 | 3 | 0 | 185.2 bis 185.4 |
 | 186. Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant (#715) | 2 | 0 | 5 | 0 | 186.3 bis 186.7 |
-| **Zusammen** | **1203** | **2** | **86** | **92** | |
+| 187. Neu in 5.6.0: ⚡ der Strom-Rechner übersichtlicher, 🌡 der Thermostat-Kreis springt nicht mehr zurück (#718) | 3 | 0 | 7 | 0 | 187.4 bis 187.10 |
+| **Zusammen** | **1206** | **2** | **93** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2853,3 +2854,19 @@ Gemeldet vom Besitzer am 2026-11-11: „selbst wenn ich oben Gebäude 1 auswähl
 | 186.5 | Im Add-on: „Live“, oben Gebäude 1 wählen, dann Klima, Kameras, Musik & TV, Haushalt, Abläufe, Protokoll und deine eigenen Seiten ansehen | Nichts mehr von Gebäude 2: keine Geräte, keine Szenen, keine Automationen; mit Gebäude 2 oben umgekehrt, mit „🏘 Alle Gebäude“ alles | ❓ |
 | 186.6 | Im Add-on mit Gebäude 1 oben: ▶ Abläufe, „Ich gehe“ antippen (läuft im anderen Haus gerade Musik: umso besser) | Die Liste nennt nur Lichter, Fenster, Musik und Schlösser von Gebäude 1; „Alles aus“ lässt das andere Haus in Ruhe | ❓ |
 | 186.7 | Nach dem Merge auf der Seite der Anleitung das Video „🏘 Bereiche von Home Assistant gehören zu einem Gebäude“ ansehen | Zeigt die Liste der Bereiche, „automatisch (Haupthaus)“, einen Bereich von Hand zuordnen und „Ohne Gebäude“ | ❓ |
+
+## 187. Neu in 5.6.0: ⚡ der Strom-Rechner übersichtlicher, 🌡 der Thermostat-Kreis springt nicht mehr zurück (#718)
+Der Besitzer am 2026-11-11: „wenn ich in dem Halbkreis das hin und her ziehe, springt es immer wieder auf dieselbe Temperatur zurück. Und wenn ich die Minus- und Plus-Tasten verwende, dann funktioniert es“ und „dass du den Stromrechner besser machst … dass der besser aussieht und man ihn einfacher bedienen kann“. In der Demo nachgestellt: nimmt der Browser den Finger zum Scrollen (wie auf dem iPad), brach das Ziehen ab und die alte Temperatur wurde geschickt; ein Wisch über die Zahl in der Mitte stellte sogar eine Temperatur ein.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 187.1 | Unit-Tests `thermostat.test.mjs`, `energylook.test.mjs`, `energycalc.test.mjs` | Nur der Ring dreht, nicht die Mitte; eine geschickte Temperatur bleibt, bis das Thermostat sie meldet (höchstens 15 s); jeder Teil des Strom-Rechners hat Zeichen, Farbe, Status (gewählt, aus dem Plan, fehlt, keine) und Wert | ✅ (2026-11-11, Claude) |
+| 187.2 | Browser-Test Teile `33_climate_routines_family`, `34_dashboards`, `15_energy`, `22_energy_setup` | Ziehen und − / + schicken je einmal; ein Druck in der Mitte und ein Ziehen hin und zurück schicken nichts; der Strom-Rechner rechnet wie vorher, Warnungen, Vorzeichen, Räume und Checkliste gehen | ✅ (2026-11-11, Claude) |
+| 187.3 | Demo am „iPad“ (Finger-Ziehen, auch wenn der Browser das Scrollen nicht sperrt) | Der Kreis folgt dem Finger und bleibt beim neuen Wert; ein Wisch über die Mitte scrollt die Seite und ändert nichts | ✅ (2026-11-11, Claude) |
+| 187.4 | Im Add-on am iPad: „Klima“, an einem Thermostat den Punkt am Ring hin und her ziehen und loslassen | Die Zahl folgt dem Finger und bleibt nach dem Loslassen stehen, sie springt nicht zurück; nach ein paar Sekunden meldet das Thermostat den neuen Wert | ❓ |
+| 187.5 | Im Add-on: dasselbe an einer eigenen Karte „Thermostat“ (eigene Seite) | Wie 187.4 | ❓ |
+| 187.6 | Im Add-on am iPad: auf der Klima-Seite über die Zahl in der Mitte eines Kreises nach oben wischen | Die Seite scrollt, die Temperatur bleibt | ❓ |
+| 187.7 | Im Add-on: „Bearbeiten“, „Strom“, „⚡ Rechnung“ | Oben das Strom-Bild neben der Rechnung, darunter „🧭 Einrichten“ und je Teil eine Karte; du verstehst auf einen Blick, woher jeder Wert kommt | ❓ |
+| 187.8 | Im selben Fenster: oben in der Leiste „Batterie“ antippen, dann in der Rechnung die Zeile „Bezug aus dem Netz“ | Das Fenster springt zur Karte „Batterie“ bzw. „Netz“, die Karte leuchtet kurz auf, in der Leiste ist der gezeigte Teil markiert | ❓ |
+| 187.9 | Dein Eindruck: ist der Strom-Rechner jetzt leichter zu verstehen und zu bedienen? | Ja, oder was noch fehlt | ❓ |
+| 187.10 | Nach dem Merge auf der Seite der Anleitung die Videos „⚡ Der Strom-Rechner“ und „🌡 Klima“ ansehen | Zeigen das neue Fenster mit Leiste und Karten bzw. das Ziehen am Ring | ❓ |

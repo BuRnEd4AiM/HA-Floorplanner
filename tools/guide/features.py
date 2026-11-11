@@ -88,8 +88,8 @@ f("finishes", "edit", "Böden, Wände, Farben je Raum", "Floors, walls, colours 
 f("library", "edit", "Möbel-Bibliothek, Größe, sperren", "Furniture library, size, lock", ["library"])
 f("closet", "edit", "Schrank nach Maß", "Made-to-measure closet", ["closet"])
 f("houses", "edit", "Mehrere Häuser, ein Nachbarhaus daneben zeigen", "Several houses, a neighbour house beside this one", ["houses"])
-f("energycalc", "edit", "⚡ Strom-Rechner (Rechnung): welcher Sensor ist Netz, Solar, Batterie, Haus und Räume; Checkliste, Vorzeichen",
-  "⚡ Power bookkeeping: which sensor is grid, solar, battery, house and rooms; check list, signs", ["energy-calc"])
+f("energycalc", "edit", "⚡ Strom-Rechner (Rechnung): Strom-Bild und Rechnung, welcher Sensor ist Netz, Solar, Batterie, Haus und Räume (eine Karte je Teil, Leiste zum Springen); Checkliste, Vorzeichen",
+  "⚡ Power bookkeeping: power picture and sum, which sensor is grid, solar, battery, house and rooms (a card per part, a bar to jump); check list, signs", ["energy-calc"])
 f("nanoleaf", "edit", "Nanoleaf: die Form der Panels zeichnen (Layout-Editor)", "Nanoleaf: draw the shape of the panels (layout editor)", ["nanoleaf-edit"])
 f("objlist", "edit", "Liste aller Objekte", "List of all objects", ["objlist"])
 f("toolbar", "edit", "Werkzeugleiste anpassen", "Customise the tool bar", ["toolbar"])

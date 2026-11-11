@@ -115,8 +115,8 @@ def _(r):
 
 @clip("climate", "pages",
       {"de": "🌡 Klima: alle Räume und Thermostate", "en": "🌡 Climate: every room and thermostat"},
-      {"de": "Jeder Raum mit Temperatur und Luft. Am Thermostat drehen, Heizen oder Aus wählen, eine Vorwahl tippen.",
-       "en": "Every room with its temperature and air. Turn the thermostat, choose heat or off, tap a preset."},
+      {"de": "Jeder Raum mit Temperatur und Luft. Am Thermostat mit − / + oder am Ring ziehen, Heizen oder Aus wählen, eine Vorwahl tippen.",
+       "en": "Every room with its temperature and air. Set the thermostat with − / + or by dragging along the ring, choose heat or off, tap a preset."},
       "Klima Heizung Thermostat Temperatur Luft CO2 lüften Räume climate heating thermostat temperature air rooms")
 def _(r):
     r.say("Tippe unten auf „Klima“.", "Tap “Climate” at the bottom.")
@@ -129,6 +129,12 @@ def _(r):
     r.click("[data-page=climate] .thPlus")
     r.wait(1000)
     r.poster()
+    r.say("Oder den Punkt am Ring ziehen: der Wert folgt, beim Loslassen wird er geschickt.", "Or drag the dot along the ring: the value follows, letting go sends it.")
+    kx, ky = r.js("(() => { const k = [...document.querySelectorAll('[data-page=climate] .thKnob')].find((e) => e.getBoundingClientRect().width); "
+                  "const b = k.getBoundingClientRect(); return [b.x + b.width / 2, b.y + b.height / 2]; })()")
+    bx = r.box("[data-page=climate] .thSvg.thDrag")
+    r.drag(kx, ky, bx["x"] + bx["width"] * 0.66, bx["y"] + bx["height"] * 0.12, ms=1300)   # along the ring, a little right of the top
+    r.wait(1400)
     r.say("„Heizen“, „Auto“ oder „Aus“ und eine Vorwahl wie „Eco“.", "“Heat”, “Auto” or “Off” and a preset like “Eco”.")
     r.click("[data-page=climate] .thMode.m-heat")
     r.wait(1100)
