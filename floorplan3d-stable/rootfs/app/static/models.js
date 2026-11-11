@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { mergeParts } from './meshmerge.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
-import { SHAPES, polyOf, DEFAULT_PANELS } from './nanoleaf.js';
+import { polyOf, DEFAULT_PANELS } from './nanoleaf.js';
 import { ringSections, piecesLocal, pointAt } from './ledring.js';
 import { kitchenLayout } from './kitchen.js';
 import { closetSize } from './closet.js';

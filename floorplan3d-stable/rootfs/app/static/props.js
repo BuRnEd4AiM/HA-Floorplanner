@@ -107,9 +107,13 @@ export function initProps(ctx) {
     const selection = ctx.selection();
     if (!selection || ctx.isLive()) { ctx.setRoomCtx(null); box.hidden = true; return; }
     const f = ctx.floor();
-    if (selection.kind === 'cable') { ctx.power().cableProps(body, box); return; }
+    if (selection.kind === 'cable') { ctx.power().cableProps(body, box); if (!box.hidden) ctx.v2?.(body, selection, {}, false); return; }   // ✨ Neu: its head (5.7.0)
     if (selection.kind === 'roof') { roofCard(body, box, ctx.roofInfo?.(selection.id)); return; }
-    if (selection.kind === 'yard' || selection.kind === 'plot') { ctx.yardProps(body, box, selection); return; }   // the plot and its areas: plotui.js (#538)
+    if (selection.kind === 'yard' || selection.kind === 'plot') {   // the plot and its areas: plotui.js (#538); ✨ Neu: their head (5.7.0)
+      ctx.yardProps(body, box, selection);
+      if (!box.hidden) ctx.v2?.(body, selection, {}, false);
+      return;
+    }
     let it = null;
     if (selection.kind === 'wall') it = f.walls.find((x) => x.id === selection.id);
     else if (selection.kind === 'room') it = f.rooms.find((x) => x.id === selection.id);
@@ -128,11 +132,13 @@ export function initProps(ctx) {
     else if (selection.kind === 'room') roomProps(body, it);
     else if (selection.kind === 'block') {
       body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+      mark(body, 'bsize');
       body.append(field(t('prop.height'), lenInput(() => it.h || ctx.floorH(), (v) => (it.h = Math.max(0.5, v)), { min: 0.5, step: 0.1 })));
       const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('block.help'); body.append(hp);
     } else if (selection.kind === 'hole') {
+      mark(body, 'form');
       const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('hole.help'); body.append(hp);
-    } else if (selection.kind === 'stair') ctx.stairTool().renderProps(body, it);
+    } else if (selection.kind === 'stair') ctx.stairTool().renderProps(body, it, mark);   // its fields marked for ✨ Neu (5.7.0)
     else if (selection.kind === 'opening') openingProps(body, it, f);
     else deviceProps(body, it);
     if (selection.kind !== 'room') {                    // an object of the room picked from its list: the list stays below

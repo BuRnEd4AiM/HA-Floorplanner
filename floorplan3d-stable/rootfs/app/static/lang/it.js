@@ -2382,4 +2382,12 @@ export default {
   'balc.part': 'Sospesa in parte: dove sporge oltre il piano sotto la regge una lastra (pilastri solo lì), il resto poggia sulla casa.',
   'src.temp': 'Temperatura da', 'src.humid': 'Umidità da', 'src.auto': 'Automatico · {v}', 'src.thermo': 'Termostato · {v}',
   'src.hint': 'Ciò che etichette, riquadri, colori e 🌡 Clima mostrano per la stanza. Automatico: la media dei suoi sensori, il termostato solo senza sensore. Il riscaldamento funziona come prima.',
+  'v2.sec.form': 'Forma e misure', 'v2.sec.corner': 'Angolo e pianerottolo', 'v2.sec.steps': 'Gradini', 'v2.sec.bsize': 'Altezza',
+  'v2.sum.stairForm': '{dir} · larga {w}', 'v2.sum.steps': '{n} per piano', 'v2.sum.stepsAuto': 'dall\'altezza del piano',
+  'v2.sum.where': 'X {x} · Z {z} · {r}°', 'v2.sum.holeForm': '{n} angoli · {a}', 'v2.sum.height': 'alto {h}', 'v2.sum.heightFloor': 'alto come il piano',
+  'v2.chip.steps': '{n} gradini · {h} ciascuno', 'v2.sub.hole': 'Aperto verso il basso', 'v2.sub.outside': 'Esterno · terreno',
+  'v2.home.more': 'Altro per la casa: edifici, casa vicina, modello, duplica, rinomina, JSON, elimina', 'v2.more.building': 'Edifici in questa pianta',
+  'v2.more.buildingSub': 'ad es. casa principale e casetta, si cambia in alto', 'v2.more.neighbor': 'Mostra una casa vicina accanto',
+  'v2.more.neighborSub': 'un\'altra casa dell\'elenco, ad es. quella oltre il ponte', 'v2.more.bg': 'Modello (immagine della pianta)',
+  'v2.more.bgSub': 'una scansione o foto da ricalcare',
 };

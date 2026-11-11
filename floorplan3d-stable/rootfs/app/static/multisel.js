@@ -69,7 +69,7 @@ export function moveGroup(g, dx, dz) {
 
 /** ctx: $, t, scene, registry, openingMesh(id), selection(), setSelection(sel), deleteItem(sel, batch), snapshot(), changed(), setStatus(txt) */
 export function initMultiSelect(ctx) {
-  const { $, t } = ctx;
+  const { t } = ctx;
   let list = [], helpers = [];
   const has = (kind, id) => list.some((x) => x.kind === kind && x.id === id);
   function outline() {

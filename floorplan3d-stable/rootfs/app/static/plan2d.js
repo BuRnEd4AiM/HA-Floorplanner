@@ -24,6 +24,7 @@ import { LEISURE_FLAT } from './leisure.js';
 import { GARAGE_FLAT } from './garage.js';
 import { YARD_FLAT } from './yarddeco.js';
 import { areaAt, nearEdge, edgeList, rectFrom, surfaceColor } from './yard.js';
+import { miterEnds } from './wallmiter.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -59,7 +60,6 @@ SCANDI_TYPES.forEach((k) => { FOOT[k] = scandiFoot(k); });      // the furniture
 const DEFAULT_FOOT = { w: 0.8, d: 0.8 };
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const hexToRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 
 export function createPlan(ctx) {
   const root = document.createElement('div');
@@ -75,7 +75,7 @@ export function createPlan(ctx) {
   let rot = 0;                                // degrees the plan is turned on the screen (with the 3D view, #212)
   let W = 800, H = 600;
   let drawPts = [], cursor = null, shift = false;
-  let hover = null, opPreview = null;
+  let opPreview = null;
   let drag = null;                            // active pointer interaction
   let raf = 0, rebuildRaf = 0;
   let lastTap = null;
@@ -182,7 +182,7 @@ export function createPlan(ctx) {
     let best = null, bd = Infinity;
     const sel = ctx.getSelection?.(), selId = sel?.kind === 'opening' ? sel.id : null;   // two one above the other (#694): the selected one stays picked
     shown().walls.forEach((w) => {
-      const [ux, uz, L] = dirOf(w);
+      const [ux, uz] = dirOf(w);
       (w.openings || []).forEach((o) => {
         const cx = w.a[0] + ux * o.pos, cz = w.a[1] + uz * o.pos;
         const along = Math.abs((x - cx) * ux + (z - cz) * uz), across = Math.abs(-(x - cx) * uz + (z - cz) * ux);
@@ -370,10 +370,14 @@ export function createPlan(ctx) {
   function schedule() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; render(); }); }
   function scheduleRebuild() { if (!rebuildRaf) rebuildRaf = requestAnimationFrame(() => { rebuildRaf = 0; ctx.rebuild3d(); }); }
 
+  /** the outline of a stretch of wall from a to b, t thick, reaching extA / extB past its ends: a number (square), or [left, right] for a
+   *  mitre at a slanted corner (#724, wallmiter.js: left = the face on the left going from a to b) */
   function wallPoly(a, b, t, extA = 0, extB = 0) {
     const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1, ux = dx / L, uz = dz / L, nx = -uz * t / 2, nz = ux * t / 2;
-    const A = [a[0] - ux * extA, a[1] - uz * extA], B = [b[0] + ux * extB, b[1] + uz * extB];
-    return [[A[0] + nx, A[1] + nz], [B[0] + nx, B[1] + nz], [B[0] - nx, B[1] - nz], [A[0] - nx, A[1] - nz]];
+    const [aL, aR] = Array.isArray(extA) ? extA : [extA, extA], [bL, bR] = Array.isArray(extB) ? extB : [extB, extB];
+    const at = (p, k) => [p[0] + ux * k, p[1] + uz * k];
+    const A1 = at(a, -aL), A2 = at(a, -aR), B1 = at(b, bL), B2 = at(b, bR);
+    return [[A1[0] + nx, A1[1] + nz], [B1[0] + nx, B1[1] + nz], [B2[0] - nx, B2[1] - nz], [A2[0] - nx, A2[1] - nz]];
   }
   const pts = (arr) => arr.map((p) => `${sx(p[0]).toFixed(1)},${sy(p[1]).toFixed(1)}`).join(' ');
   const isOn = (e) => !!e && ctx.isOn(e);
@@ -462,7 +466,6 @@ export function createPlan(ctx) {
       });
     });
 
-    const idx = ctx.getFloorIdx();
     (ctx.ghostFloors ? ctx.ghostFloors() : []).forEach(({ i, col }) => {          // lowest floor first, so the nearer ones lie on top
       view.floors[i].walls.forEach((w) => { o += `<polygon points="${pts(wallPoly(w.a, w.b, w.thickness, w.thickness / 2, w.thickness / 2))}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-opacity=".75" stroke-width="1" style="pointer-events:none"/>`; });
     });
@@ -502,8 +505,9 @@ export function createPlan(ctx) {
       if (st.name && s >= 30) o += `<text x="${sx(st.x)}" y="${sy(st.z) + 16}" text-anchor="middle" font-size="10" fill="${C.text}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(st.name)}</text>`;
     });
 
-    /* walls (split around openings) */
-    f.walls.forEach((w) => {
+    /* walls (split around openings); a slanted corner with a mitre (#724, wallmiter.js) */
+    const mitres = miterEnds(f.walls);
+    f.walls.forEach((w, wi) => {
       const [ux, uz, L] = dirOf(w);
       const gaps = alongGaps(w.openings);                  // two openings one above the other leave one gap (#694)
       let cur = 0;
@@ -515,8 +519,9 @@ export function createPlan(ctx) {
         const a = [w.a[0] + ux * from, w.a[1] + uz * from], b = [w.a[0] + ux * to, w.a[1] + uz * to];
         o += `<polygon points="${pts(wallPoly(a, b, t, extA, extB))}" fill="${col}" stroke="${col}" stroke-width="0.5"/>`;
       };
-      gaps.forEach(([g0, g1], i) => { seg(cur, g0, i === 0 ? t / 2 : 0, 0); cur = g1; });
-      seg(cur, L, gaps.length ? 0 : t / 2, t / 2);
+      const endA = mitres[wi]?.a || t / 2, endB = mitres[wi]?.b || t / 2;
+      gaps.forEach(([g0, g1], i) => { seg(cur, g0, i === 0 ? endA : 0, 0); cur = g1; });
+      seg(cur, L, gaps.length ? 0 : endA, endB);
     });
     /* openings */
     f.walls.forEach((w) => {

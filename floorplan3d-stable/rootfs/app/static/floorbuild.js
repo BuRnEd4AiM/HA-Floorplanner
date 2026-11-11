@@ -8,6 +8,7 @@ import { fmtArea } from './i18n.js';
 import { stairLocal, polyToWorld, stairFloors, storeysShown } from './stairs.js';
 import { inIso, deviceInIso, clipWallToRoom, wallPieces } from './roomclip.js';
 import { buildWall, wallLength } from './walls.js';
+import { miterEnds } from './wallmiter.js';
 import { atticUniforms, cutAtRoof } from './atticclip.js';
 import { roomsOfWall } from './attic.js';
 import { solarPose, groundFn } from './solarroof.js';
@@ -303,15 +304,20 @@ export function initFloorBuild(ctx) {
       if (facade && !outline) outline = houseFootprint([f], 0);
       dressWall(grp, pieces, wallSkins(w, f.rooms, { facade, outline }), { t: w.thickness || 0.2, len, fast: ctx.fast() });
     } : null);
+    const walls = [];                                            // the walls as built: first all of them, then where two meet at a slant (#724)
     f.walls.forEach((w1) => wallPieces(hosted.has(w1.id) ? { ...w1, openings: [...(w1.openings || []), ...hosted.get(w1.id)] } : w1, f.wallCuts).forEach((w0) => {   // one building of several: only its parts (#451)
       let w = up.any ? wallWithShift(w0, f.rooms, wallH) : w0;
       if (wallLength(w) < 0.01) return;
       if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
       if (o.stack?.upTo && !low && !half && wallUnder(w, o.stack.upTo)) w = { ...w, height: wallUpTo(w.height, ctx.settings().wallHeight, ctx.floorH()) };   // stacked: up to the roof
+      walls.push(w);
+    }));
+    const ends = miterEnds(walls);                               // a mitre where exactly two walls meet at another angle than 90° (wallmiter.js)
+    walls.forEach((w, k) => {
       const wallMat = holo
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * ctx.belowVis() : ctx.settings().wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : ctx.mat(look.wall, ghost);
-      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge, shutterSide: sideOf(w), windowFrame: look.frame, dress: dressOf(w) });
+      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge, shutterSide: sideOf(w), windowFrame: look.frame, dress: dressOf(w), ends: ends[k] });
       const lift = up.wall(w);
       wg.position.y = lift;
       if (half) {                                                // what sticks out above the cut (door leaves, window frames) is clipped off
@@ -329,7 +335,7 @@ export function initFloorBuild(ctx) {
         shutterParts(g, w, o.labels, !!o.stack?.covered, lift);
       }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
-    }));
+    });
     (f.dormerWalls || []).forEach((w) => {                       // the windows of the dormers over this floor: only the window, the dormer is the wall
       if (w.host) return;                                        // cut into a wall of the room, drawn with it (above)
       const [ox, oz] = w.skylight ? w.openings[0].at || [] : [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];

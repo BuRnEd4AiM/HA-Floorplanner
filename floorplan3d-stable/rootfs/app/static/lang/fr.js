@@ -2407,4 +2407,12 @@ export default {
   'balc.part': 'Suspendue en partie : là où elle dépasse l’étage du dessous, une dalle la porte (poteaux seulement là), le reste repose sur la maison.',
   'src.temp': 'Température de', 'src.humid': 'Humidité de', 'src.auto': 'Automatique · {v}', 'src.thermo': 'Thermostat · {v}',
   'src.hint': 'Ce que les étiquettes, tuiles, couleurs et 🌡 Climat montrent pour la pièce. Automatique : la moyenne de ses capteurs, le thermostat seulement sans capteur. Le chauffage fonctionne comme avant.',
+  'v2.sec.form': 'Forme et dimensions', 'v2.sec.corner': 'Angle et palier', 'v2.sec.steps': 'Marches', 'v2.sec.bsize': 'Hauteur',
+  'v2.sum.stairForm': '{dir} · {w} de large', 'v2.sum.steps': '{n} par étage', 'v2.sum.stepsAuto': 'selon la hauteur d\'étage',
+  'v2.sum.where': 'X {x} · Z {z} · {r}°', 'v2.sum.holeForm': '{n} coins · {a}', 'v2.sum.height': '{h} de haut', 'v2.sum.heightFloor': 'aussi haut que l\'étage',
+  'v2.chip.steps': '{n} marches · {h} chacune', 'v2.sub.hole': 'Ouvert vers le bas', 'v2.sub.outside': 'Extérieur · terrain',
+  'v2.home.more': 'Plus pour la maison : bâtiments, maison voisine, modèle, dupliquer, renommer, JSON, supprimer', 'v2.more.building': 'Bâtiments de ce plan',
+  'v2.more.buildingSub': 'p. ex. maison principale et abri de jardin, à changer en haut', 'v2.more.neighbor': 'Afficher une maison voisine à côté',
+  'v2.more.neighborSub': 'une autre maison de la liste, p. ex. celle derrière la passerelle', 'v2.more.bg': 'Modèle (image du plan)',
+  'v2.more.bgSub': 'un scan ou une photo à décalquer',
 };

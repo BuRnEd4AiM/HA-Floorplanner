@@ -25,7 +25,7 @@ export function initRoomEntities(ctx) {
     const roomId = ctx.roomCtx(), f = ctx.floor();
     const room = roomId ? f?.rooms.find((r) => r.id === roomId) : null;
     if (!box || !room) return;
-    const selection = ctx.selection(), locked = ctx.locked(), areas = ctx.areas(), areaOf = ctx.areaOf();
+    const selection = ctx.selection(), areas = ctx.areas(), areaOf = ctx.areaOf();
     const hadFocus = document.activeElement?.id === 'roomEntSearch';
     box.replaceChildren();
     const h = document.createElement('h4'); h.textContent = t('prop.roomEntities'); box.append(h);

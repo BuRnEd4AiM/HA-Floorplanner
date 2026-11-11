@@ -6,6 +6,7 @@ import { windowPanes, paneHinge, glassBands } from './windowpanes.js';
 import { tiltAngle } from './windowtilt.js';
 import { sashParts } from './sash.js';
 import { blocked, solidParts } from './openingstack.js';
+import { prismFaces } from './wallmiter.js';
 
 /* Wall geometry with real openings (doors/windows).
  * Wall data: { id, a:[x,z], b:[x,z], thickness, height, openings:[{id,type,pos,width,height,sill}] }
@@ -68,6 +69,16 @@ function boxMesh(x0, x1, y0, y1, depth, material) {
   const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, y1 - y0, depth), material);
   m.position.set((x0 + x1) / 2, (y0 + y1) / 2, 0);
   return m;
+}
+/** a piece of wall with a slanted end (a mitre at a corner, #724, wallmiter.js): its left face (+z) from l0 to l1, its right face from r0 to r1 */
+function prismMesh(p, depth, material) {
+  const { pos, nor, uv, idx } = prismFaces(p.l0 ?? p.x0, p.l1 ?? p.x1, p.r0 ?? p.x0, p.r1 ?? p.x1, p.y0, p.y1, depth);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  return new THREE.Mesh(g, material);
 }
 
 /** the roller shutter of a window (#331): a curtain of slats that hangs under the lintel between the glass and the face of the wall on
@@ -298,7 +309,8 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
  *  shutterSide(o): the side (local z, +1 / -1) the roller shutter of window o hangs on, outside (shutters.js), +1 without it.
  *  windowFrame: the colour of the window frames ('#rrggbb', facade.js, #428), the door frames stay white; null: white as well.
  *  dress(group, pieces, len): puts the finishes on the faces of the wall (wallskin.js, #448); pieces: its solid parts { x0, x1, y0, y1 } */
-export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null, bare = false, shutterSide = null, windowFrame = null, dress = null }) {
+/** ends: how far each face reaches past the ends at a slanted corner ({ a, b }, wallmiter.js miterEnds; null: square ends) */
+export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null, bare = false, shutterSide = null, windowFrame = null, dress = null, ends = null }) {
   const len = wallLength(w);
   const t = w.thickness;
   const H = (w.height || 2.6) * (low ? 0.12 : cut || 1);   // `cut`: fraction of the height that stays (half section)
@@ -323,12 +335,13 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
   const shutterMat = shades.includes('roller') ? (holo ? basic(0x8fb4ff, 0.8) : makeMat('#a7adb4', ghost)) : null;
   const curtainMat = shades.some((s) => s && s !== 'roller') ? (holo ? basic(0x8fb4ff, 0.8) : makeMat('#d9d0c2', ghost, { roughness: 0.92 })) : null;
   const pieces = [];
-  const solid = (x0, x1, y0, y1) => {
+  const solid = (p) => {
     if (bare) return;
-    y1 = Math.min(y1, H);
+    const { x0, x1, y0 } = p, y1 = Math.min(p.y1, H);
     if (x1 - x0 < 0.001 || y1 - y0 < 0.001) return;
-    pieces.push({ x0, x1, y0, y1 });
-    const m = boxMesh(x0, x1, y0, y1, t, material);
+    const q = { ...p, y1 }, slanted = ['l0', 'l1', 'r0', 'r1'].some((k) => q[k] != null);
+    pieces.push(q);
+    const m = slanted ? prismMesh(q, t, material) : boxMesh(x0, x1, y0, y1, t, material);
     m.castShadow = !ghost && !holo; m.receiveShadow = true;
     if (edgeMaterial) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), edgeMaterial));
     group.add(m);
@@ -336,7 +349,14 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
 
   const half = len / 2;
   // the wall before, below and above each opening; between two openings one above the other too (#694, openingstack.js)
-  solidParts(len, t, H, openings).forEach((p) => solid(p.x0, p.x1, p.y0, p.y1));
+  // a slanted corner (#724): the first and the last piece end where the faces meet the other wall's (wallmiter.js), not square
+  const X0 = -half - t / 2, X1 = half + t / 2;
+  solidParts(len, t, H, openings).forEach((p) => {
+    const q = { ...p };
+    if (ends?.a && Math.abs(p.x0 - X0) < 1e-9) { q.l0 = -half - ends.a[0]; q.r0 = -half - ends.a[1]; }
+    if (ends?.b && Math.abs(p.x1 - X1) < 1e-9) { q.l1 = half + ends.b[0]; q.r1 = half + ends.b[1]; }
+    solid(q);
+  });
   for (const o of openings) {
     const c = o.pos - half;
     if (!low) {

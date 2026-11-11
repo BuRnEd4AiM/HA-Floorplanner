@@ -188,7 +188,7 @@ export function toCsv(events, ctx) {
     const r = rowOf(x, ctx), ents = x.k === 'c' ? (x.e || []).join(' ') : x.e || '';
     lines.push([dayText(x.t), clock(x.t), r.dev, ents, r.room, r.what, r.who.text.replace(/^\S+\s/, ''), r.who.sub].map(csvCell).join(';'));
   });
-  return `﻿${lines.join('\r\n')}\r\n`;
+  return `\uFEFF${lines.join('\r\n')}\r\n`;
 }
 
 /** The report to paste into a chat or save: the head (version, when, which days, the filters, the numbers), then a line per event with

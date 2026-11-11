@@ -1,10 +1,6 @@
-/* Minimal i18n: t('key') and applyI18n() for [data-i18n], [data-i18n-title], [data-i18n-placeholder]. */
-import fr from './lang/fr.js';
-import es from './lang/es.js';
-import it from './lang/it.js';
-import nl from './lang/nl.js';
-import pl from './lang/pl.js';
-import zh from './lang/zh.js';
+/* Minimal i18n: t('key') and applyI18n() for [data-i18n], [data-i18n-title], [data-i18n-placeholder]. German (the original) and
+ * English (stands in for a missing text) are here; the other languages are in lang/<code>.js and are loaded only when somebody
+ * chooses one (loadLanguage): 1.4 MB less at every start (idea list 2026-11-11). */
 
 const DICT = {
   de: {
@@ -1305,6 +1301,13 @@ const DICT = {
     'balc.part': 'Hängt zum Teil frei: wo sie über das Geschoss darunter hinausragt, trägt sie eine Platte (Stützen nur dort), der Rest liegt auf dem Haus.',
     'src.temp': 'Temperatur von', 'src.humid': 'Luftfeuchte von', 'src.auto': 'Automatisch · {v}', 'src.thermo': 'Thermostat · {v}',
     'src.hint': 'Was Schilder, Kacheln, Farben und 🌡 Klima für den Raum zeigen. Automatisch: das Mittel seiner Sensoren, das Thermostat nur ohne Sensor. Die Heizung regelt weiter wie bisher.',
+    'v2.sec.form': 'Form & Maße', 'v2.sec.corner': 'Ecke & Podest', 'v2.sec.steps': 'Stufen', 'v2.sec.bsize': 'Höhe', 'v2.sum.stairForm': '{dir} · {w} breit',
+    'v2.sum.steps': '{n} je Etage', 'v2.sum.stepsAuto': 'aus der Geschosshöhe', 'v2.sum.where': 'X {x} · Z {z} · {r}°', 'v2.sum.holeForm': '{n} Ecken · {a}',
+    'v2.sum.height': '{h} hoch', 'v2.sum.heightFloor': 'so hoch wie die Etage', 'v2.chip.steps': '{n} Stufen · je {h}', 'v2.sub.hole': 'Offen nach unten',
+    'v2.sub.outside': 'Draußen · Grundstück', 'v2.home.more': 'Mehr zum Haus: Gebäude, Nachbarhaus, Vorlage, Duplizieren, Umbenennen, JSON, Löschen',
+    'v2.more.building': 'Gebäude in diesem Plan', 'v2.more.buildingSub': 'z. B. Haupthaus und Gartenhaus, oben umschalten',
+    'v2.more.neighbor': 'Nachbarhaus daneben zeigen', 'v2.more.neighborSub': 'ein anderes Haus der Liste, z. B. das hinter der Brücke',
+    'v2.more.bg': 'Vorlage (Grundriss-Bild)', 'v2.more.bgSub': 'ein Scan oder Foto zum Nachzeichnen',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2556,22 +2559,52 @@ const DICT = {
     'balc.part': 'Partly hangs free: where it reaches out beyond the floor below, a plate carries it (supports only there), the rest lies on the house.',
     'src.temp': 'Temperature from', 'src.humid': 'Humidity from', 'src.auto': 'Automatic · {v}', 'src.thermo': 'Thermostat · {v}',
     'src.hint': 'What the labels, tiles, colours and 🌡 Climate show for the room. Automatic: the mean of its sensors, the thermostat only without a sensor. The heating keeps working as before.',
+    'v2.sec.form': 'Shape & size', 'v2.sec.corner': 'Corner & landing', 'v2.sec.steps': 'Steps', 'v2.sec.bsize': 'Height',
+    'v2.sum.stairForm': '{dir} · {w} wide', 'v2.sum.steps': '{n} per storey', 'v2.sum.stepsAuto': 'from the storey height',
+    'v2.sum.where': 'X {x} · Z {z} · {r}°', 'v2.sum.holeForm': '{n} corners · {a}', 'v2.sum.height': '{h} high', 'v2.sum.heightFloor': 'as high as the storey',
+    'v2.chip.steps': '{n} steps · {h} each', 'v2.sub.hole': 'Open to below', 'v2.sub.outside': 'Outside · plot',
+    'v2.home.more': 'More for the house: buildings, neighbour house, template, duplicate, rename, JSON, delete', 'v2.more.building': 'Buildings in this plan',
+    'v2.more.buildingSub': 'e.g. main house and garden house, switch at the top', 'v2.more.neighbor': 'Show a neighbour house beside it',
+    'v2.more.neighborSub': 'another house of the list, e.g. the one across the bridge', 'v2.more.bg': 'Template (floor plan picture)',
+    'v2.more.bgSub': 'a scan or photo to trace',
   },
 };
 
-DICT.fr = fr; DICT.es = es; DICT.it = it; DICT.nl = nl; DICT.pl = pl; DICT.zh = zh;
+/** the other languages, a file each: fetched the first time somebody chooses one */
+const MORE = {
+  fr: () => import('./lang/fr.js'), es: () => import('./lang/es.js'), it: () => import('./lang/it.js'),
+  nl: () => import('./lang/nl.js'), pl: () => import('./lang/pl.js'), zh: () => import('./lang/zh.js'),
+};
 export const LANGUAGES = { de: 'Deutsch', en: 'English', fr: 'Français', es: 'Español', it: 'Italiano', nl: 'Nederlands', pl: 'Polski', zh: '简体中文' };
 
 let lang = 'de';
+const loading = {}, whenLoaded = [];
 /** 'auto' follows the browser / Home Assistant language, unknown codes fall back to German. */
 export function resolveLanguage(l) {
   if (l === 'auto') {
-    for (const c of (navigator.languages || [navigator.language || 'en'])) { const b = String(c).slice(0, 2).toLowerCase(); if (DICT[b]) return b; }
+    for (const c of (navigator.languages || [navigator.language || 'en'])) { const b = String(c).slice(0, 2).toLowerCase(); if (LANGUAGES[b]) return b; }
     return 'en';
   }
-  return DICT[l] ? l : 'de';
+  return LANGUAGES[l] ? l : 'de';
 }
-export function setLanguage(l) { lang = resolveLanguage(l); document.documentElement.lang = lang; }
+/** the texts of a language, fetched once; resolves with its code. Fetching failed (offline): English stands in, the next call tries again. */
+export function loadLanguage(l) {
+  const c = resolveLanguage(l);
+  if (DICT[c] || !MORE[c]) return Promise.resolve(c);
+  loading[c] ??= MORE[c]().then((m) => { DICT[c] = m.default; }, () => { delete loading[c]; });
+  return loading[c].then(() => c);
+}
+/** fn(code) once a language setLanguage had to fetch first is there: show every text again (app.js) */
+export function onLanguageLoaded(fn) { whenLoaded.push(fn); }
+/** switch at once; a language not fetched yet shows English until its file is there (better: await loadLanguage first) */
+export function setLanguage(l) {
+  lang = resolveLanguage(l);
+  document.documentElement.lang = lang;
+  if (!DICT[lang]) {
+    const want = lang;
+    loadLanguage(want).then(() => { if (lang === want && DICT[want]) whenLoaded.forEach((fn) => fn(want)); });
+  }
+}
 export function currentLanguage() { return lang; }
 /** a number as text in the language of the screen, "3,2" in German and "3.2" in English, without thousands dots (a meter shows
  *  "1234,6 m³"); between `min` and `max` decimals */
@@ -2582,7 +2615,7 @@ export function fmtNum(v, max = 1, min = 0, l = lang) {
 /** a size in m² as shown: one decimal with the comma of the language ("12,5 m²", #527), whole square feet in imperial units */
 export const fmtArea = (m2, imperial = false) => (imperial ? `${fmtNum(m2 * 10.7639, 0)} ft²` : `${fmtNum(m2, 1, 1)} m²`);
 export function t(key, vars) {
-  let s = DICT[lang][key] ?? DICT.en[key] ?? DICT.de[key] ?? key;
+  let s = DICT[lang]?.[key] ?? DICT.en[key] ?? DICT.de[key] ?? key;
   if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);
   return s;
 }

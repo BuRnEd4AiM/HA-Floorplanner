@@ -30,7 +30,7 @@ function load() {
 function save(cfg) { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch { /* no storage: the choice lasts for this session */ } }
 
 /** onApply([[id, button]]): after every change, the tools shown in the bar in their order (the groups of the bar, toolicons.js) */
-export function initToolbar({ t, applyI18n, onApply }) {
+export function initToolbar({ t, onApply }) {
   const bar = document.getElementById('tools');
   const moreBtn = document.getElementById('toolsMoreBtn'), more = document.getElementById('toolsMore');
   const dlg = document.getElementById('toolsDialog'), list = document.getElementById('toolsList');

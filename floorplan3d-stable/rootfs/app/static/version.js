@@ -55,11 +55,13 @@ export function betaPill(ch) {
 }
 const short = (list, max = 3) => (list.length > max ? `${list.slice(0, max).join(', ')} …` : list.join(', '));
 
-export function initVersion({ t, reload = () => location.reload(), active = () => false, every = 5 * 60 * 1000, chEvery = 60 * 1000 }) {
+/** auto(): may the browser check run by itself a while after the start (app.js: not in the live view, so a wall tablet never does;
+ *  there it runs when somebody opens the dialog); later: after how many ms */
+export function initVersion({ t, reload = () => location.reload(), active = () => false, auto = () => false, later = 30 * 1000, every = 5 * 60 * 1000, chEvery = 60 * 1000 }) {
   const pill = document.getElementById('versionPill'), dlg = document.getElementById('versionDialog');
   if (!pill || !dlg) return { run() {} };
   const body = document.getElementById('versionBody'), bpill = document.getElementById('betaPill');
-  let info = null, browser = null, github = null, ch = null;
+  let info = null, browser = null, github = null, ch = null, checking = null;
 
   async function fetchJson(url) {
     try { const r = await fetch(url); return r.ok ? await r.json() : null; } catch { return null; }
@@ -71,6 +73,13 @@ export function initVersion({ t, reload = () => location.reload(), active = () =
     }));
     return { skipped: false, changed: diffHashes(files, actual) };
   }
+  /** the browser check fetches and hashes every interface file (about 320 files, 6 MB; on plain http without crypto.subtle in
+   *  JavaScript): so not during the start, only when somebody looks (the dialog, "Check"), or a while later in the edit mode */
+  function checkNow() {
+    if (!info || browser) return checking || Promise.resolve();
+    checking ??= checkBrowser(info.staticFiles || {}).then((b) => { browser = b; checking = null; paint(); });
+    return checking;
+  }
   function line(icon, text, cls) {
     const p = document.createElement('p'); p.className = `verLine ${cls || ''}`;
     p.textContent = `${icon} ${text}`; return p;
@@ -79,12 +88,12 @@ export function initVersion({ t, reload = () => location.reload(), active = () =
     if (!info) { pill.hidden = true; return; }
     pill.hidden = false;
     const serverOk = info.server?.ok, browserOk = !browser || browser.skipped || !browser.changed.length;
-    const state = !browser ? 'wait' : !serverOk ? 'bad' : !browserOk ? 'warn' : 'ok';
+    const state = !serverOk ? 'bad' : !browserOk ? 'warn' : 'ok';             // the browser check comes later (checkNow)
     const news = updateAvailable(github) && state === 'ok';
     pill.className = `pill ver-${news ? 'new' : state}`;
     const beta = info.channel === 'beta' ? ` ${t('ver.beta')}` : '';
     pill.textContent = news ? `⬆ ${t('ver.new')} · v${github.version}`
-      : `${state === 'ok' ? '✓' : state === 'wait' ? '…' : '⚠'} v${info.version}${beta} · ${info.short}`;
+      : `${state === 'ok' ? '✓' : '⚠'} v${info.version}${beta} · ${info.short}`;
     pill.title = t('ver.tip');
     const bp = betaPill(ch);
     if (bpill) {
@@ -118,12 +127,14 @@ export function initVersion({ t, reload = () => location.reload(), active = () =
     if (!info?.known) { info = null; paint(); return; }                  // no backend (demo) or no manifest: nothing to show
     if (info.channel === 'beta') ch = await fetchJson('api/channel');
     paint();
-    browser = await checkBrowser(info.staticFiles || {});
-    if (withGithub) github = (await fetchJson('api/version/remote')) || { state: 'unreachable' };
+    if (!withGithub) return;
+    await checkNow();
+    github = (await fetchJson('api/version/remote')) || { state: 'unreachable' };
     paint();
   }
-  pill.addEventListener('click', () => { paint(); dlg.showModal(); });
-  bpill?.addEventListener('click', () => { paint(); dlg.showModal(); });
+  const open = () => { paint(); dlg.showModal(); checkNow(); };
+  pill.addEventListener('click', open);
+  bpill?.addEventListener('click', open);
   document.getElementById('versionCheck').addEventListener('click', () => { github = null; run(true); });
   document.getElementById('versionReload').addEventListener('click', async () => {
     // fetch the differing files past the cache, so the next load gets them
@@ -142,7 +153,10 @@ export function initVersion({ t, reload = () => location.reload(), active = () =
     ch = (await fetchJson('api/channel')) || ch;
     paint();
   }
-  run(false).then(() => { if (active()) poll(); });
+  run(false).then(() => {
+    if (active()) poll();
+    setTimeout(() => { if (auto() && !document.hidden) (globalThis.requestIdleCallback || setTimeout)(() => checkNow()); }, later);
+  });
   setInterval(poll, every);
   setInterval(pollChannel, chEvery);
   return { run, poll };
