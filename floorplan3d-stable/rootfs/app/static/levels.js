@@ -1,7 +1,9 @@
 /* Heights inside a floor (#566): a plateau in the ground and a room whose floor lies higher (or lower).
  * - A plateau is an area of the plot (layout.plot.areas, plotui.js) with `rise` (m over the lawn), its edge `edge` ('wall': a retaining
- *   wall, 'slope': a bank of lawn) and the wall's look `wall` (WALL_LOOKS). Everything that stands on it goes up with it, on every floor:
- *   rooms, walls, doors, windows, devices, stairs, the roofs over it. "▲ Plateau unter dieses Gebäude" lays one under the outline of a
+ *   wall, 'slope': a bank of lawn) and the wall's look `wall` (WALL_LOOKS). Everything that stands on it goes up with it, on the ground
+ *   floor and every floor over it: rooms, walls, doors, windows, devices, stairs, the roofs over it. A basement (a floor under the ground
+ *   floor) lies in the ground under the plateau and stays where it is (#713, plateauLifts); the stair from it up to the ground floor and the
+ *   ceiling over it reach up to the plateau (stairLift, slabExtra). "▲ Plateau unter dieses Gebäude" lays one under the outline of a
  *   building (plateauRing), "＋ Außentreppe" puts steps (the device `steps`, stepsParts) in front of its front door (stepsAtDoor).
  * - A room has `raise` (m, minus: lower) over its floor: its floor and what stands in it go up; the ceiling stays, so what hangs from it
  *   (a device from CEILING_FROM up) and the walls stay. Doors and windows in its walls go up with the higher side (openingShift); where a
@@ -59,6 +61,23 @@ export function innerPoint(pts) {
 }
 /** does anything of the plan stand higher: a plateau or a room with a raised floor (else nothing needs to be lifted) */
 export const hasLevels = (layout) => plateausOf(layout?.plot?.areas).length > 0 || (layout?.floors || []).some((f) => (f.rooms || []).some((r) => cleanRaise(r.raise)));
+
+/* ---------- which floors a plateau lifts (#713) ---------- */
+/** does a plateau lift floor i: the ground floor (groundIdx: the first floor that is not a basement) and the floors over it; a basement lies
+ *  in the ground under the plateau and stays where it is (the owner, 2026-11-10: "ich habe nur ein Plateau im EG, aber im Keller ist jetzt
+ *  auch der Boden erhöht") */
+export const plateauLifts = (i, groundIdx = 0) => !(i < groundIdx);
+/** the areas of the plot that lift floor i (for lifter): all of them from the ground floor up, none in a basement */
+export const areasFor = (areas, i, groundIdx = 0) => (plateauLifts(i, groundIdx) ? areas || [] : []);
+/** a stair from floor `from` up `n` floors (storey height H) where the plateau under it is h high: { y (its foot over floor `from`), scale
+ *  (its height: 1 = n storeys) }. From a basement up to the ground floor it also climbs the plateau, so it arrives on the raised floor */
+export function stairLift(from, n, groundIdx, h, H) {
+  const y = plateauLifts(from, groundIdx) ? h || 0 : 0, top = plateauLifts(from + n, groundIdx) ? h || 0 : 0, run = n * H;
+  return { y, scale: run > 0 ? (run + top - y) / run : 1 };
+}
+/** how much deeper the ceiling under floor i reaches when the plateau under it is h high: on the ground floor over a basement down by h,
+ *  from the raised floor to the top of the basement walls (no gap between them); 0 elsewhere (the floor below goes up with it) */
+export const slabExtra = (i, groundIdx, h) => (i === groundIdx && i > 0 ? h || 0 : 0);
 
 /** how much the things of floor f go up: { any, ground(x, z), room(r) (its floor), device(d), wall(w), at(x, z) (ground + room) };
  *  `areas`: the areas of the plot; `ter`: on a slope (#629, terrain.js) and the ground floor { at(x, z) (the height of the ground),

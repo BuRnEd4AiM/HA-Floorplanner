@@ -1,6 +1,7 @@
 /* The top of the tab "⚡ Rechnung" of the power editor (#407): take over the energy dashboard of Home Assistant (grid, solar, battery
  * with their signs, its gas and water meters) and the check list of what is set up and what is still missing, each with what to do.
- * The rules are in energyprefs.js (tested); this file only draws. */
+ * The rules are in energyprefs.js (tested); this file only draws. 5.6.0: a card of its own under the calculation; the check list folds
+ * away while nothing is to do (its line says how many are done and open), a tap opens it (and it stays as tapped). */
 import { fromEnergyPrefs, applyPrefs, setupChecklist } from './energyprefs.js';
 import { energyBalance } from './energycalc.js';
 
@@ -13,6 +14,7 @@ const ICON = { ok: '✅', todo: '○', warn: '⚠', info: 'ℹ' };
 export function initEnergySetup(ctx) {
   const { $, t } = ctx;
   let prop = null, status = '', busy = false;                       // what the energy dashboard proposes, a line under the button
+  let listOpen = null;                                              // the check list opened or closed by a tap (null: open while something is to do)
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const nameOf = (id) => { const n = ctx.entities().find((e) => e.entity_id === id)?.name; return n && n !== id ? `${n} (${id})` : id; };
   const energy = () => ctx.units.energyOf();                         // the plan's calculation, or the building's (energyunits.js)
@@ -63,9 +65,16 @@ export function initEnergySetup(ctx) {
     ctx.setStatus(t('energy.cl.placed', { name }));
   }
 
-  /** the check list, drawn again at every state update while the window is open */
+  /** the check list, drawn again at every state update while the window is open: folded away while nothing is to do */
   function checklist() {
     const L = ctx.units.editLayout(), states = ctx.states(), list = setupChecklist(energyBalance(states, L), L, states, prop);
+    const box = el('details', 'enClBox'); box.id = 'enClBox';
+    const todo = list.filter((c) => c.level === 'todo' || c.level === 'warn').length, ok = list.filter((c) => c.level === 'ok').length;
+    box.open = listOpen ?? todo > 0;
+    const sum = el('summary', '');
+    sum.append(el('b', '', t('energy.cl.title')), el('span', `enClCount${todo ? ' todo' : ''}`, t('energy.cl.count', { ok, todo })));
+    sum.addEventListener('click', () => { listOpen = !box.open; });   // before it toggles: the state it is going to
+    box.append(sum);
     const ul = el('ul', 'enChecklist'); ul.id = 'enChecklist';
     list.forEach((c) => {
       const li = el('li', `enCl ${c.level}`); li.dataset.key = c.key; li.dataset.level = c.level;
@@ -78,13 +87,14 @@ export function initEnergySetup(ctx) {
       });
       ul.append(li);
     });
-    return ul;
+    box.append(ul);
+    return box;
   }
   function render() {
     const box = $('#energySetup');
     if (!box) return;
     if (!ctx.units.editLayout()) { box.replaceChildren(); return; }   // per building, none chosen yet
-    const out = [el('h3', '', t('energy.setup'))];
+    const out = [el('h3', 'enSetupHead', t('energy.setup'))];
     const bar = el('div', 'stopTools'), go = el('button', '', t('energy.ha.load')); go.type = 'button'; go.id = 'enHaLoad'; go.title = t('energy.ha.loadTip'); go.disabled = busy;
     go.addEventListener('click', load);
     bar.append(go);
@@ -96,10 +106,10 @@ export function initEnergySetup(ctx) {
     out.push(bar);
     if (status) out.push(el('p', 'sub enHaStatus', status));
     if (prop && !prop.empty) { const ul = el('ul', 'enHaList'); proposalLines(prop).forEach((x) => ul.append(el('li', '', x))); out.push(ul); }
-    out.push(el('h4', '', t('energy.cl.title')), checklist());
+    out.push(checklist());
     box.replaceChildren(...out);
   }
   /** the values changed: only the check list again */
-  function update() { const old = $('#enChecklist'); if (old && ctx.units.editLayout()) old.replaceWith(checklist()); }
+  function update() { const old = $('#enClBox'); if (old && ctx.units.editLayout()) old.replaceWith(checklist()); }
   return { render, update };
 }

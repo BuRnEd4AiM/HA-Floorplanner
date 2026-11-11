@@ -57,14 +57,16 @@ export function meterPart(h) {
   if (fromPower) bar.prepend(fromPower.button);
   out.push(bar);
   if (fromPower) out.push(fromPower.lines);
+  const kinds = el('div', 'emKinds');                              // side by side (5.6.0)
   METER_KEYS.forEach((k) => {
     const box = el('div', 'emKind'); box.dataset.kind = k;
     box.append(el('b', '', t(`em.${k}`)));
     const chips = el('div', 'enChips');
     now[k].forEach((id) => chips.append(chip(id, () => set(k, now[k].filter((x) => x !== id)))));
     box.append(chips, h.adder(sensorsFor(k), null, (v) => { if (!now[k].includes(v)) set(k, [...now[k], v]); }));
-    out.push(box);
+    kinds.append(box);
   });
+  out.push(kinds);
   // the prices: per kWh drawn and per kWh fed in (empty: those of the energy dashboard, if it has fixed ones)
   const price = h.energy().price || {};
   const row = el('div', 'emPrices');

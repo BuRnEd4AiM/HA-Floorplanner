@@ -129,7 +129,7 @@ export function initCards(ctx) {
     if (pre) box.append(pre);
   }
   function entities(c, box) {
-    c.entities.forEach((e) => {
+    c.entities.filter((e) => ctx.shows?.(e) !== false).forEach((e) => {   // not the rows of another building (#677)
       const r = make('div', 'ocRow');
       r.append(make('span', 'tdWhat', ctx.nameOf(e) || e));
       r.append(TOGGLE.has(e.split('.')[0]) && st(e) ? sw(e) : make('b', '', shown(e)));
@@ -181,6 +181,7 @@ export function initCards(ctx) {
   /** what a card shows depends on: the states of its entities, its history, a pending target, a tap (it draws again when this changed) */
   const sig = (c) => (c.type === 'lights' ? ctx.lights.sig(here(c), [ctx.lang()]) : JSON.stringify([c, cardEntities(c).map((e) => { const s = st(e); return s ? [s.state, s.brightness, s.position, s.ct, s.tt, s.hvac, s.rgb, s.unit] : null; }),
     c.type === 'graph' ? cardEntities(c).map((e) => history.get(`${e}|${c.hours}`)?.points?.length ?? -1) : 0, c.type === 'thermostat' ? ctx.thermo.sig(c.entity) : 0, c.type === 'calendar' ? ctx.calendar.sig(c) : 0, c.type === 'train' ? ctx.train.sig(c) : 0, c.type === 'button' ? button.sig(c) : 0,
-    c.type === 'room' ? ctx.room(c.room) : 0, c.type === 'builtin' ? Math.floor(Date.now() / 20000) : 0, imperial(), ctx.lang()]));   // a ready card: every 20 s
+    c.type === 'room' ? ctx.room(c.room) : 0, c.type === 'builtin' ? Math.floor(Date.now() / 20000) : 0, imperial(), ctx.lang(),
+    c.type === 'entities' ? c.entities.map((e) => ctx.shows?.(e) !== false) : 0]));   // a ready card: every 20 s
   return { render, sig, buttonFields: button.fields };
 }

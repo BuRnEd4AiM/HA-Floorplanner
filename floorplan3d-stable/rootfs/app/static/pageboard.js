@@ -20,7 +20,8 @@ const ROW = 8, GAP = 14;
 /** ctx: t, settings(), canEdit(), save() (store the settings), cards (cardsui.js), pageName(page), redraw(page) (the page draws itself
  *  again), addCard(page) / editCard(page, card) (cardeditor.js), editTabs() (tabedit.js), editOwnPage(page) (an own page's name, icon),
  *  variants (variantsui.js, #507: shown(page, edit) the version of the page to show, bar(page) its strip in the edit mode, done(page)),
- *  editBar(page) (the window of the scene bar, #597), cardShows(card) (an own card of the building shown, #677) */
+ *  editBar(page) (the window of the scene bar, #597), cardShows(card) (an own card of the building shown, #677), busy() (a thermostat's knob is
+ *  held: the cards wait, 5.6.0) */
 export function initBoard(ctx) {
   const { t } = ctx;
   let editing = null;
@@ -224,7 +225,7 @@ export function initBoard(ctx) {
   /** after a change of the states: own cards whose states changed are drawn again (the page itself draws only what it shows) */
   function refresh(page) {
     const s = shown.get(page);
-    if (!s || !s.box.isConnected) return;
+    if (!s || !s.box.isConnected || ctx.busy?.()) return;
     const l = layoutOf(page);
     const touched = new Map();                       // grid -> the elements that left it
     l.cards.forEach((c) => {

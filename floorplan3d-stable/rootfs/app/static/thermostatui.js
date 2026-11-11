@@ -1,8 +1,12 @@
-/* Draws the thermostat of thermostat.js (#495): the circle (drag the knob or tap the circle), − / +, the modes, presets and fan modes; big
+/* Draws the thermostat of thermostat.js (#495): the circle (drag the knob or tap the ring), − / +, the modes, presets and fan modes; big
  * (the whole card) or small (the circle with − / + beside it). Several taps on − / + and a drag become one call after a short pause
  * (HEAT_DELAY, as in the heating panel). Used by the page 🌡 Klima (pageclimate.js) and the own card "Thermostat" (cardsui.js). Under
- * − / + the button ⏸️ Heizplan aussetzen when the user and the card get it (heatpauseui.js). */
-import { thermoModel, angleOf, arcPath, pointAt, valueAt, START, SWEEP } from './thermostat.js';
+ * − / + the button ⏸️ Heizplan aussetzen when the user and the card get it (heatpauseui.js).
+ * 5.6.0 (the owner: "wenn ich in dem Halbkreis das hin und her ziehe, springt es immer wieder auf dieselbe Temperatur zurück"): the page
+ * stops the iPad from scrolling under a finger on the ring itself (touchstart, the browser did not always keep to touch-action, cancelled
+ * the drag and the old temperature was sent), a finger in the middle turns nothing (the page scrolls there), a drag that ends where it began
+ * sends nothing, and a sent target stays on the circle until the thermostat reports it (HOLD_MS) instead of jumping back meanwhile. */
+import { thermoModel, angleOf, arcPath, pointAt, valueAt, onRing, stillSent, HOLD_MS, START, SWEEP } from './thermostat.js';
 import { clampTarget, HEAT_DELAY, chipText } from './heatpanel.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -14,8 +18,8 @@ let uid = 0;
  *  pause (heatpauseui.js: button(entity, { card }), sig(entity), busy()) */
 export function initThermostat(ctx) {
   const { t } = ctx;
-  const pending = new Map();                         // entity -> { v, timer }
-  let dragging = null;                               // the entity whose knob is being dragged
+  const pending = new Map();                         // entity -> { v, timer, sent (ms, 0 while waiting for the pause) }
+  let dragging = null;                               // { e, el }: the entity whose knob is being dragged, its circle
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const svg = (tag, attrs) => { const n = document.createElementNS(NS, tag); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v)); return n; };
   const btn = (cls, text, on, title) => {
@@ -30,13 +34,27 @@ export function initThermostat(ctx) {
     const v = imperial() ? c * 9 / 5 + 32 : c;
     try { return v.toLocaleString(lang(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }); } catch { return v.toFixed(1); }
   };
-  const wanted = (e) => pending.get(e)?.v ?? null;
+  /** the target tapped or dragged: shown while it waits for the pause, and after it was sent until the thermostat reports it */
+  function wanted(e) {
+    const p = pending.get(e);
+    if (!p) return null;
+    if (p.sent && !stillSent(ctx.states()[e], p.v, p.sent, Date.now())) { clearTimeout(p.timer); pending.delete(e); return null; }
+    return p.v;
+  }
+  const drop = (e, p) => { if (pending.get(e) !== p) return; clearTimeout(p.timer); pending.delete(e); ctx.changed(); };
   const readOnly = (e) => !e.startsWith('climate.');   // a water heater's target is shown, not set (the add-on only sets thermostats)
 
   function send(e, v) {
     v = clampTarget(ctx.states()[e], v);
     const old = pending.get(e); if (old) clearTimeout(old.timer);
-    pending.set(e, { v, timer: setTimeout(() => { pending.delete(e); ctx.callService(e, 'set_temperature', { temperature: v }); ctx.changed(); }, HEAT_DELAY) });
+    const p = { v, sent: 0, timer: 0 };
+    p.timer = setTimeout(async () => {
+      p.sent = Date.now();
+      p.timer = setTimeout(() => drop(e, p), HOLD_MS);   // the thermostat never said it: what it says counts again
+      const ok = await ctx.callService(e, 'set_temperature', { temperature: v });
+      if (ok === false) drop(e, p);                    // Home Assistant did not take it: back to what the thermostat says
+    }, HEAT_DELAY);
+    pending.set(e, p);
     ctx.changed();
   }
   const modeText = (m) => { const k = `heat.mode.${m}`, x = t(k); return x === k ? m : x; };
@@ -78,17 +96,28 @@ export function initThermostat(ctx) {
     show(m.target);
     if (m.target !== null && !readOnly(e)) {         // dragging: the circle follows the finger, the value is sent when it lets go
       s.classList.add('thDrag');
-      const at = (ev) => { const r = s.getBoundingClientRect(); return valueAt(((ev.clientX - r.left) / r.width) * W, ((ev.clientY - r.top) / r.height) * H, CX, CY, ctx.states()[e]); };
-      let v = m.target;
+      const local = (ev) => { const r = s.getBoundingClientRect(); return [((ev.clientX - r.left) / r.width) * W, ((ev.clientY - r.top) / r.height) * H]; };
+      const at = (ev) => valueAt(...local(ev), CX, CY, ctx.states()[e]);
+      const start = m.target;
+      let v = start, id = null;
+      const mine = (ev) => dragging?.el === s && ev.pointerId === id;
       s.addEventListener('pointerdown', (ev) => {
-        if (ev.button > 0) return;
+        if (ev.button > 0 || dragging || !onRing(...local(ev), CX, CY, R)) return;   // in the middle: nothing, the page may scroll there
         ev.preventDefault(); ev.stopPropagation();
-        dragging = e; s.setPointerCapture?.(ev.pointerId);
+        dragging = { e, el: s }; id = ev.pointerId;
+        try { s.setPointerCapture(id); } catch { /* a pointer the page made up (tests) */ }
         v = at(ev); show(v);
       });
-      s.addEventListener('pointermove', (ev) => { if (dragging !== e) return; v = at(ev); show(v); });
-      const end = () => { if (dragging !== e) return; dragging = null; send(e, v); };
-      s.addEventListener('pointerup', end); s.addEventListener('pointercancel', end);
+      s.addEventListener('pointermove', (ev) => { if (!mine(ev)) return; v = at(ev); show(v); });
+      const end = (ev) => {
+        if (!mine(ev)) return;
+        dragging = null; id = null;
+        if (v !== start) send(e, v); else show(start);   // let go where it began: nothing to send
+      };
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((k) => s.addEventListener(k, end));
+      // the iPad: a finger on the ring must not scroll the page (it cancelled the drag, 5.6.0); the pointer events come first
+      const hold = (ev) => { if (dragging?.el === s && ev.cancelable) ev.preventDefault(); };
+      s.addEventListener('touchstart', hold, { passive: false }); s.addEventListener('touchmove', hold, { passive: false });
       s.addEventListener('click', (ev) => ev.stopPropagation());
     }
     return box;
@@ -145,5 +174,7 @@ export function initThermostat(ctx) {
   }
   /** what a thermostat's card depends on (its states, a target being tapped) */
   const sig = (e) => { const s = ctx.states()[e]; return s ? [s.state, s.ct, s.tt, s.hvac, s.modes, s.ctl?.preset, s.ctl?.fan, s.ctl?.presets, s.ctl?.fans, s.tmin, s.tmax, s.tstep, wanted(e), ctx.pause?.sig(e)] : null; };
-  return { render, sig, busy: () => dragging !== null || !!ctx.pause?.busy(), wanted };
+  /** a knob is being dragged (on a circle still on the page: one drawn away under the finger does not count any more) */
+  const busy = () => { if (dragging && !dragging.el.isConnected) dragging = null; return !!dragging || !!ctx.pause?.busy(); };
+  return { render, sig, busy, wanted };
 }

@@ -14,7 +14,8 @@ const FILTERS = ['all', 'heat', 'light', 'cover', 'running'];
  *  edit(flow) (the editor, flowedit.js: a routine of the list, or a new one), openRules() (🌡 Klima → 📋 Heiz-Regeln), details(entity) (Home
  *  Assistant's window: a button or null), scenes (scenesui.js: the card 🎨 Szenen), manage (hamanage.js), sensorLog(entry) (a line of the log
  *  of 🌡 Raumfühler, #573), groups (roomgroupsui.js: the lists by room or the card of the rooms, #590), areaOf() ({entity: area id}),
- *  days (specialdaysui.js: the window 📅 Besondere Tage), changed() (draw the page again) */
+ *  days (specialdaysui.js: the window 📅 Besondere Tage), shows(entity | [entities]) (in the building chosen at the top, #677: a routine and an
+ *  automation by the devices they use), changed() (draw the page again) */
 export function initRoutinesOwn(ctx) {
   const { t } = ctx;
   let filter = 'all', autos = null, autosAt = 0, loading = false, allAutos = false, longLog = false, tplOpen = false;
@@ -36,6 +37,8 @@ export function initRoutinesOwn(ctx) {
 
   /* ---- own routines ---- */
   const flowsOf = () => ctx.rules.get()?.flows || [];
+  const inB = (e) => ctx.shows?.(e) !== false;                     // in the building chosen at the top (#677)
+  const flowsHere = () => flowsOf().filter((f) => inB(flowEnts(f)));   // a routine: by the devices it uses
   const laneState = (f, l) => ctx.rules.lane(`${f.id}/${l.id}`) || {};
   const live = (f) => flowLive(f, ctx.states(), ctx.rules.lane);
   const touches = (f, re) => f.lanes.some((l) => l.blocks.some((b) => (b.ents || []).some((e) => re.test(e)) || (b.k === 'heat' && re.test('climate.')) || (b.k === 'cover' && re.test('cover.'))));
@@ -106,8 +109,8 @@ export function initRoutinesOwn(ctx) {
       c.append(bar);
       if (tplOpen) c.append(tplMenu());
     }
-    const list = flowsOf().filter(shown);
-    if (!flowsOf().length) c.append(make('p', 'tpSub', ctx.canEdit() ? t('ro.noneEdit') : t('ro.none')));
+    const list = flowsHere().filter(shown);
+    if (!flowsHere().length) c.append(make('p', 'tpSub', ctx.canEdit() ? t('ro.noneEdit') : t('ro.none')));
     else if (!list.length) c.append(make('p', 'tpSub', t('ro.noneHere')));
     else if (ctx.groups?.on()) c.append(...ctx.groups.list('own', { ...flowSpec(), items: list }).els);   // by room (#590)
     else list.forEach((f) => c.append(flowRow(f)));
@@ -124,7 +127,7 @@ export function initRoutinesOwn(ctx) {
     return link;
   }
   /** the own routines as a list for roomgroupsui.js: in every area of what they use */
-  const flowSpec = () => ({ items: flowsOf(), roomsFor: (f) => roomsOf('', flowEnts(f), ctx.areaOf?.() || {}), row: flowRow, nameOf: (f) => f.name, unit: 'flow',
+  const flowSpec = () => ({ items: flowsHere(), roomsFor: (f) => roomsOf('', flowEnts(f), ctx.areaOf?.() || {}), row: flowRow, nameOf: (f) => f.name, unit: 'flow',
     title: `🏠 ${t('ro.own')}` });
   function addButtons() {                            // "＋ Neuer Ablauf", "📋 Aus Vorlage" (and its menu below the bar), "📅 Besondere Tage"
     const add = btn('bdBtn primary', `＋ ${t('ro.new')}`, () => ctx.edit(null)); add.dataset.act = 'newFlow';
@@ -147,7 +150,7 @@ export function initRoutinesOwn(ctx) {
   /* ---- automations of Home Assistant ---- */
   function autoRows() {
     const st = ctx.states(), known = new Map((autos || []).map((a) => [a.entity, a]));
-    const ids = Object.keys(st).filter((e) => e.startsWith('automation.') && !ours(st[e]?.cid) && !ctx.manage.hidden(st[e]?.cid))   // the add-on's own: its routines above
+    const ids = Object.keys(st).filter((e) => e.startsWith('automation.') && !ours(st[e]?.cid) && !ctx.manage.hidden(st[e]?.cid) && inB(e))   // the add-on's own: its routines above
       .sort((a, b) => (ctx.nameOf(a) || a).localeCompare(ctx.nameOf(b) || b));
     return ids.map((e) => ({ e, a: known.get(e) || null, s: st[e] }));
   }
@@ -229,7 +232,7 @@ export function initRoutinesOwn(ctx) {
     const c = make('div', 'tpCard roCard roLog');
     const h = make('h3', 'peH roHead'); h.append(make('span', '', `📜 ${t('ro.log')}`));
     c.append(h);
-    const list = [...(ctx.rules.get()?.log || [])].reverse().slice(0, longLog ? 60 : 10);
+    const list = [...(ctx.rules.get()?.log || [])].reverse().filter((x) => !x.ent || inB(x.ent)).slice(0, longLog ? 60 : 10);
     if (!list.length) c.append(make('p', 'tpSub', t('ro.logNone')));
     list.forEach((x) => {
       const w = logText(x), r = make('div', 'roLogRow');
@@ -279,11 +282,11 @@ export function initRoutinesOwn(ctx) {
     const data = ctx.rules.get(), st = ctx.states();
     const out = [], gsig = ctx.groups?.sig() || '';
     const haAutos = Object.keys(st).filter((e) => ours(st[e]?.cid)).map((e) => [e, st[e].cid, st[e].state, st[e].run, st[e].at]);
-    const ownSig = JSON.stringify([data?.flows, data?.heat, data?.status?.lanes, haAutos, filter, tplOpen, ctx.canEdit(), ctx.locked(), Math.floor(Date.now() / 30000), gsig, t('ro.own')]);
-    const ids = ctx.canEdit() ? Object.keys(st).filter((e) => e.startsWith('automation.') && !ours(st[e]?.cid)) : [];
+    const ownSig = JSON.stringify([flowsHere().map((f) => f.id), data?.flows, data?.heat, data?.status?.lanes, haAutos, filter, tplOpen, ctx.canEdit(), ctx.locked(), Math.floor(Date.now() / 30000), gsig, t('ro.own')]);
+    const ids = ctx.canEdit() ? Object.keys(st).filter((e) => e.startsWith('automation.') && !ours(st[e]?.cid) && inB(e)) : [];
     const autoSig = JSON.stringify([ids.map((e) => [e, st[e]?.state, st[e]?.run, st[e]?.at, st[e]?.cid, ctx.nameOf(e)]), autos, allAutos, ctx.locked(), ctx.manage.sig(), [...ran],
       Math.floor(Date.now() / 30000), gsig, t('ro.own')]);
-    const log = { key: 'log', width: 2, sig: JSON.stringify([data?.log?.length, data?.log?.[data.log.length - 1], longLog, Math.floor(Date.now() / 60000), t('ro.log')]), make: logCard };
+    const log = { key: 'log', width: 2, sig: JSON.stringify([(data?.log || []).filter((x) => !x.ent || inB(x.ent)).length, data?.log?.length, data?.log?.[data.log.length - 1], longLog, Math.floor(Date.now() / 60000), t('ro.log')]), make: logCard };
     if (ctx.groups?.view() === 'rooms') {                 // 🏠 Nach Räumen (#590)
       out.push({ key: 'rooms', width: 4, sig: JSON.stringify([ownSig, autoSig, ctx.scenes?.sig(), tiles?.sig]), make: () => roomsCard(tiles) }, log);
       return out;
@@ -295,6 +298,7 @@ export function initRoutinesOwn(ctx) {
     if (ctx.scenes) out.push(...ctx.scenes.items());       // 🎨 Szenen (#549, scenesui.js)
     return out;
   }
-  return { items, sig: () => JSON.stringify([ctx.rules.get(), filter, tplOpen, autos, allAutos, longLog, Math.floor(Date.now() / 30000), ctx.scenes?.sig(), ctx.manage.sig(), [...ran],
+  const hereSig = () => { const st = ctx.states(); return [flowsHere().map((f) => f.id), ctx.canEdit() ? Object.keys(st).filter((e) => e.startsWith('automation.') && inB(e)) : []]; };
+  return { items, sig: () => JSON.stringify([hereSig(), ctx.rules.get(), filter, tplOpen, autos, allAutos, longLog, Math.floor(Date.now() / 30000), ctx.scenes?.sig(), ctx.manage.sig(), [...ran],
     ctx.groups?.sig()]) };
 }

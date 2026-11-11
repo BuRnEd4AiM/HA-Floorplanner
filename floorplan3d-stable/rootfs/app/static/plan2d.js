@@ -8,7 +8,7 @@ import { planMarks } from './closetview.js';
 import { solarField } from './solarroof.js';
 import { rotPoint, readableAngle } from './planview.js';
 import { bridgeSize } from './bridge.js';
-import { stepsSize, stepsDepth, stepsLocal, lifter, cleanRise, offsetPoly, LEVELS } from './levels.js';
+import { stepsSize, stepsDepth, stepsLocal, lifter, areasFor, cleanRise, offsetPoly, LEVELS } from './levels.js';
 import { armPose } from './tvmount.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange, sectionHex } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, treadAt, wallStairWidthAt, arrivingStairs } from './stairs.js';
@@ -666,7 +666,7 @@ export function createPlan(ctx) {
     });
 
     /* room labels on top */
-    const up = lifter(f, ctx.yards?.() || []);                    // a room on a plateau or with a higher floor shows how high it lies (#566)
+    const up = lifter(f, areasFor(ctx.yards?.() || [], ctx.floorIndex?.() ?? 0, ctx.groundIdx?.() ?? 0));   // a room on a plateau or with a higher floor shows how high it lies (#566), a basement not with the plateau (#713)
     f.rooms.forEach((rm) => {
       if (!rm.name) return;
       const c = rm.points.reduce((a, p) => [a[0] + p[0] / rm.points.length, a[1] + p[1] / rm.points.length], [0, 0]);
