@@ -28,9 +28,9 @@ A knowledge graph of the code is built at session start in graphify-out/.
 ## The new panel "✨ Neu" (UI 2) (the owner's wish, 2026-11-10: "bitte vergiss nicht die Ansicht in der v2, das sollte man auch nicht vergessen immer")
 - Every new or changed field in the properties panel is also checked with "✨ Neu" (`?ui=2`): it lands in the right section or tab (`mark(body, key)` in props.js, `ROOM_TABS` and the sections in uiv2.js), "🔍 Einstellung suchen" finds it, and the browser test checks it there too (like `tests/e2e/parts/83_room_source.py`; at the end remove `fp.ui` from localStorage). Say in the PR what was checked in "✨ Neu".
 
-## Models: Opus works, Fable advises (the owner's wish, 2026-11-11: "fable denkt und opus die post losendet")
-- Opus is the main model: it does the work (code, tests, commit, push, PR). Fable is the advisor (`"advisorModel": "fable"` in .claude/settings.json): Claude asks it before a plan, when stuck and before saying "done".
-- In a cloud session the advisor chosen in the app wins over the file (2026-11-11 the app sent Opus from the first reply on). The owner picks Fable as the advisor in the app or types `/advisor fable` in the chat; `/advisor off` turns it off for one chat. Every advisor call reads the whole chat again (not cached), Fable at twice the price of Opus.
+## Models (the owner's wish, 2026-11-11: "ich stelle es immer einzeln um in jedem Chat")
+- The owner picks the model and the advisor himself in the app for every chat. Never set `model` or `advisorModel` in .claude/settings.json.
+- Cost (estimate 2026-11-11, API prices): re-reading the chat from the cache costs the same for Opus and Fable and is most of the tokens, so Fable alone is only about a third dearer than Opus. An advisor call reads the whole chat again at full price (not cached, ~340k tokens here): in this project's long chats Opus + Fable advisor costs as much as Fable alone or more.
 - tools/tokens.py counts the advisor's tokens under its own model (`usage.iterations`, type "advisor_message").
 ## Code structure (new rule)
 - app.js is far too big (see docs/MODULE-PLAN.md for what is already split and what is next). **Every extension goes into a NEW module or into a fitting existing module, never as another large block into app.js.** app.js only gets the import, an `init...({...})` call and the wiring.
