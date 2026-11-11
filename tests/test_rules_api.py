@@ -99,6 +99,35 @@ async def test_who_uses_a_device_without_home_assistant(client):
     assert r["own"] == [{"kind": "heat", "rule": "window", "room": f"{h}/r1"}, {"kind": "flow", "id": "f_fenster", "name": "Fenster", "on": True}]
     assert (await client.get("/api/related?entity=nope")).status == 400
     assert (await (await client.get("/api/automations")).json()) == {"rows": []}
+    assert (await (await client.get("/api/uses")).json()) == {"uses": {}}
+
+
+async def test_what_automations_and_scripts_use_for_every_user(client, monkeypatch):
+    """5.5.0: api/uses, for the building filter of every page (also a tablet's user who may not edit); kept, asked again after a change"""
+    cfgs = {"automation.licht": {"action": [{"service": "light.turn_on", "target": {"entity_id": "light.wz", "area_id": "keller"}}]},
+            "automation.leer": {"action": []}, "script.nacht": {"sequence": [{"service": "light.turn_off", "target": {"device_id": "d1"}}]}}
+    asked = []
+
+    async def ask(msgs):
+        asked.append([m["type"] for m in msgs])
+        return [[{"entity_id": "switch.pumpe", "id": "r1", "device_id": "d1"}] if m["type"] == "config/entity_registry/list"
+                else [{"entity_id": e} for e in [*cfgs, "automation.weg", "light.wz"]] if m["type"] == "get_states"
+                else ({"config": cfgs[m["entity_id"]]} if m["entity_id"] in cfgs else None) for m in msgs]
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "ha_ask", ask)
+    monkeypatch.setattr(server, "user_locks", lambda request: {"control", "edit"})
+    want = {"uses": {"automation.licht": ["light.wz", "area:keller"], "script.nacht": ["switch.pumpe"]}}
+    assert (await (await client.get("/api/uses")).json()) == want
+    assert asked == [["get_states"], ["config/entity_registry/list", "automation/config", "automation/config", "automation/config", "script/config"]]
+    assert (await (await client.get("/api/uses")).json()) == want and len(asked) == 2      # kept
+
+    async def down(msgs):
+        raise OSError("no Home Assistant")
+    client.app[server.KEY_RULES].pop("uses")
+    client.app[server.KEY_RULES].pop("states", None)
+    monkeypatch.setattr(server, "ha_ask", down)
+    r = await (await client.get("/api/uses")).json()
+    assert r["uses"] == {} and "no Home Assistant" in r["error"]
 
 
 async def test_rules_go_into_the_backup_and_come_back(client):

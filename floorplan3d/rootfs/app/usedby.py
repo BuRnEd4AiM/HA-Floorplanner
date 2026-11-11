@@ -40,6 +40,60 @@ def entities_in(cfg, out=None) -> list:
     return out
 
 
+def _named(cfg, key, out):
+    """every value of `key` anywhere in an automation's config (a text or a list of texts), each once, in order"""
+    if isinstance(cfg, dict):
+        for k, v in cfg.items():
+            if k == key:
+                for x in _list(v):
+                    if isinstance(x, str) and x and x not in out:
+                        out.append(x)
+            else:
+                _named(v, key, out)
+    elif isinstance(cfg, list):
+        for x in cfg:
+            _named(x, key, out)
+    return out
+
+
+AREA = re.compile(r"^[a-z0-9_]{1,100}$")
+MAX_USES = 40
+
+
+def uses_of(cfg, by_device=None, by_regid=None) -> list:
+    """what an automation or script uses, for the building it belongs to (static/buildingents.js): every entity it names, the entities of
+    the devices it names (device_id; by_device: {device id: [entity]}, a device trigger names its entity by the id of the registry:
+    by_regid: {registry id: entity}) and the areas it names as "area:<id>". Each once, at most MAX_USES."""
+    by_device, by_regid = by_device or {}, by_regid or {}
+    out = entities_in(cfg)
+    for rid in _named(cfg, "entity_id", []):
+        e = by_regid.get(rid)
+        if e and e not in out:
+            out.append(e)
+    for dev in _named(cfg, "device_id", []):
+        for e in (by_device.get(dev) or [])[:8]:
+            if e not in out:
+                out.append(e)
+    for a in _named(cfg, "area_id", []):
+        if AREA.match(a) and f"area:{a}" not in out:
+            out.append(f"area:{a}")
+    return out[:MAX_USES]
+
+
+def registry_maps(registry) -> tuple:
+    """({device id: [entity]}, {registry id: entity}) from Home Assistant's entity registry list (config/entity_registry/list)"""
+    by_device, by_regid = {}, {}
+    for r in registry if isinstance(registry, list) else []:
+        e = r.get("entity_id") if isinstance(r, dict) else None
+        if not isinstance(e, str) or not ENTITY.match(e):
+            continue
+        if isinstance(r.get("device_id"), str) and r["device_id"]:
+            by_device.setdefault(r["device_id"], []).append(e)
+        if isinstance(r.get("id"), str) and r["id"]:
+            by_regid[r["id"]] = e
+    return by_device, by_regid
+
+
 def _ents(x):
     tgt = x.get("target") if isinstance(x.get("target"), dict) else {}
     data = x.get("data") if isinstance(x.get("data"), dict) else {}

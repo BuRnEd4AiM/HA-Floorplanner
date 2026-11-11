@@ -24,7 +24,8 @@ import { roomMark, roomKey } from './rules.js';
  *  houseId(), layout() (the building shown), details(entity) (Home Assistant's window: a button or null), tabs() (the tab bar), climate()
  *  (the page 🌡 Klima), routines() (the page ▶ Abläufe), redraw() (the room tiles, labels and the open page), partOf() (the entities of
  *  thermostats' devices, roomtiles.thermostatParts), areas() and areaOf() (Home Assistant's areas, {entity: area id}: ▶ Abläufe by room, #590),
- *  locks() (what this user may not use: ⏸️ Heizplan aussetzen needs neither "control" nor "heatPause") */
+ *  locks() (what this user may not use: ⏸️ Heizplan aussetzen needs neither "control" nor "heatPause"), shows(entity | [entities]) (in
+ *  the building chosen at the top, #677) */
 export function initRulesUi(ctx) {
   const { t } = ctx;
   const deg = (c) => {                                  // a temperature as the house shows it (°F only shown, the rules keep °C)
@@ -68,9 +69,9 @@ export function initRulesUi(ctx) {
   const areaOf = () => ctx.areaOf?.() || {};
   const sceneEdit = initSceneEdit({ ...base, entities: ctx.entities, locked: ctx.locked, manage, saved: () => ctx.routines()?.update() });   // #549
   const scenes = initScenesCard({ ...base, locked: ctx.locked, callService: ctx.callService, ha: () => rules.get()?.ha === true, edit: (s) => sceneEdit.open(s),
-    manage, groups, areaOf, changed: () => ctx.routines()?.update() });
+    manage, groups, areaOf, shows: ctx.shows, changed: () => ctx.routines()?.update() });
   const own = initRoutinesOwn({ ...base, locked: ctx.locked, callService: ctx.callService, rules, edit: (f) => flowEdit.open(f), openRules, details: ctx.details, days,
-    scenes, manage, groups, areaOf, sensorLog: (x) => sensors.log(x), changed: () => ctx.routines()?.update() });
+    scenes, manage, groups, areaOf, shows: ctx.shows, sensorLog: (x) => sensors.log(x), changed: () => ctx.routines()?.update() });
   rules.load();
   return {
     rules, usedBy, heat, plan, own, flowEdit, sceneEdit, sensors, diag, groups, days, pause,

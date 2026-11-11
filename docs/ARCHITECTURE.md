@@ -19,7 +19,8 @@ server.py  (aiohttp, port 8099)
  ├─ /api/users, /api/me   who is looking, may they edit   ← ingress headers + HA auth list
  ├─ /api/service      whitelisted service calls          → Home Assistant REST API
  ├─ /api/rules        own heating rules and routines     → /data/rules.json (+ rules-state.json), run by rulesrun.py (#546)
- └─ /api/related      who uses a device                  ← Home Assistant websocket (search/related, automation/config)
+ ├─ /api/related      who uses a device                  ← Home Assistant websocket (search/related, automation/config)
+ └─ /api/uses         what every automation and script uses (the building filter, #715) ← Home Assistant websocket
 ```
 
 ## Frontend
@@ -37,7 +38,7 @@ server.py  (aiohttp, port 8099)
 
 More modules (heating panel, kitchen run, tool bar, backups, ...) and the plan for splitting the rest of `app.js`: see [MODULE-PLAN.md](MODULE-PLAN.md).
 
-The layout is plain JSON: floors → walls (with openings), rooms, devices. A plan can hold several buildings (`buildings: [{ id, name }]`, `room.building`, a roof's `building`, #409): `buildings.js` works out what belongs to which one and the plan as one building sees it (`viewOf`); drawing, framing and the lists use that view, editing always the plan itself. Both editors change the same object and call `changed()`, which rebuilds the 3D scene and schedules a save.
+The layout is plain JSON: floors → walls (with openings), rooms, devices. A plan can hold several buildings (`buildings: [{ id, name }]`, `room.building`, a roof's `building`, #409): `buildings.js` works out what belongs to which one and the plan as one building sees it (`viewOf`); drawing, framing and the lists use that view, editing always the plan itself. With a building chosen at the top every page asks `shows(entity)` (`buildingscope.js`, rules in `buildingents.js`): an entity belongs to a building by its device in the plan, by its area of Home Assistant (an area follows the building its devices stand in, or the one chosen in `areaBuildings: { area id: building id | 'all' }`), an automation, script or scene by what it uses (`GET /api/uses`). Both editors change the same object and call `changed()`, which rebuilds the 3D scene and schedules a save.
 
 ## Backend rules
 

@@ -1686,6 +1686,57 @@ def two_buildings(r):
     pg.wait_for_timeout(300)
 
 
+@clip("building-areas", "edit",
+      {"de": "🏘 Bereiche von Home Assistant gehören zu einem Gebäude", "en": "🏘 Areas of Home Assistant belong to a building"},
+      {"de": "Mit zwei Gebäuden in einem Plan gehört jeder Bereich von Home Assistant von selbst zu dem Gebäude, in dem seine Geräte im Plan "
+             "stehen: dann zeigt sich alles aus dem Bereich nur noch bei diesem Gebäude, auch was nicht im Plan steht. Automationen, Skripte "
+             "und Szenen folgen ihren Geräten. In „🏘 Gebäude in diesem Plan“ lässt sich das je Bereich ändern; darunter steht, was zu keinem "
+             "Gebäude gehört.",
+       "en": "With two buildings in one plan every area of Home Assistant belongs by itself to the building its devices stand in in the plan: "
+             "then everything of the area shows only with that building, also what is not in the plan. Automations, scripts and scenes "
+             "follow their devices. “🏘 Buildings in this plan” lets you change it per area; below it is what belongs to no building."},
+      "Bereich Gebäude zuordnen Home Assistant Bereiche falsches Haus Geräte vom anderen Gebäude Automationen "
+      "area building assign Home Assistant areas wrong house devices of the other building automations",
+      query="mode=edit", prep=two_buildings)
+def _(r):
+    ids = r.js("window.__fp.layout.buildings.map((b) => b.id)")
+    r.say("Dieser Plan hat zwei Gebäude. Öffne im Bearbeiten „🏘 Gebäude in diesem Plan“.", "This plan has two buildings. While editing, open “🏘 Buildings in this plan”.")
+    r.js("document.getElementById('buildingPanel').scrollIntoView({ block: 'start', behavior: 'smooth' })")
+    r.wait(600)
+    r.click("#buildingPanel > summary")
+    r.wait(1400)
+    r.say("Unter den Räumen und Dächern: „Bereiche von Home Assistant“.", "Below the rooms and roofs: “Areas of Home Assistant”.")
+    r.js("document.querySelector('#buildingPanel .bldAreas').scrollIntoView({ block: 'start', behavior: 'smooth' })")
+    r.wait(800)
+    r.click("#buildingPanel .bldAreas > summary")
+    r.wait(1400)
+    r.poster()
+    r.say("Jeder Bereich gehört von selbst zu dem Gebäude, in dem seine Geräte im Plan stehen: „automatisch (Haupthaus)“.",
+          "Every area belongs by itself to the building its devices stand in in the plan: “automatic (Main house)”.")
+    r.move("#buildingPanel select[data-area=wohnzimmer]")
+    r.wait(2600)
+    r.say("Dann zeigt sich alles aus dem Bereich nur bei diesem Gebäude, auch was nicht im Plan steht. Automationen, Skripte und Szenen folgen ihren Geräten.",
+          "Then everything of the area shows only with that building, also what is not in the plan. Automations, scripts and scenes follow their devices.")
+    r.wait(3200)
+    r.say("Stimmt das Gebäude nicht, oder steht „kein Gebäude“ da: hier wählen.", "If the building is wrong, or it says “no building”: choose here.")
+    r.click("#buildingPanel select[data-area=flur]")
+    r.loc("#buildingPanel select[data-area=flur]").select_option(ids[1])
+    r.wait(2000)
+    r.say("„Alle Gebäude (immer zeigen)“ ist für Bereiche wie den Garten.", "“All buildings (always show)” is for areas like the garden.")
+    r.move("#buildingPanel select[data-area=flur]")
+    r.wait(2200)
+    if r.pg.locator("#buildingPanel .bldLoose").count():
+        r.say("Darunter: was zu keinem Gebäude gehört und sich deshalb bei jedem zeigt. Gib solchen Geräten in Home Assistant einen Bereich.",
+              "Below: what belongs to no building and therefore shows with every one. Give such devices an area in Home Assistant.")
+        r.js("document.querySelector('#buildingPanel .bldLoose').scrollIntoView({ block: 'center', behavior: 'smooth' })")
+        r.wait(600)
+        r.click("#buildingPanel .bldLoose > summary")
+        r.wait(3000)
+    r.say("Oben ein Gebäude wählen: jede Seite zeigt jetzt nur noch seins.", "Choose a building at the top: every page now shows only its things.")
+    r.move("#buildingSelect")
+    r.wait(2200)
+
+
 @clip("energy-buildings", "edit",
       {"de": "⚡ Strom je Gebäude: zwei Häuser in einem Plan", "en": "⚡ Power per building: two houses in one plan"},
       {"de": "Stehen zwei Gebäude in einem Plan, bekommt jedes mit „⚡ Eigene Rechnung je Gebäude“ seinen eigenen Strom-Rechner. Oben ein Gebäude "
