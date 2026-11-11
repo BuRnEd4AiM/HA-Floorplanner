@@ -200,3 +200,36 @@ test('the head: its sign and the path above it', () => {
   assert.equal(c[3].sel, undefined, 'the object itself: no tap');
   assert.deepEqual(U.crumbs({ house: 'Demo', floor: 'EG', room: { id: 'r1', name: 'Wohnzimmer' }, name: 'Wohnzimmer', kind: 'room' }).map((x) => x.text), ['🏠 Demo', 'EG', 'Wohnzimmer']);
 });
+
+test('5.7.0: stairs, floor openings and blocks get sections; the plot, its areas and cables get the head of the new panel', () => {
+  for (const k of ['stair', 'hole', 'block', 'plot', 'yard', 'cable']) assert.ok(U.V2_KINDS.includes(k), k);
+  assert.deepEqual(U.SECTIONS.stair.map(([k]) => k), ['form', 'corner', 'steps', 'place']);
+  assert.deepEqual(U.SECTIONS.hole.map(([k]) => k), ['form']);
+  assert.deepEqual(U.SECTIONS.block.map(([k]) => k), ['bsize']);
+  // a straight stair has no corner fields: that section is left out
+  const groups = new Map([['top', [1]], ['form', [1, 2]], ['steps', [1]], ['corner', []], ['place', [1, 2, 3]]]);
+  assert.deepEqual(U.sectionOrder('stair', groups).map(([k]) => k), ['form', 'steps', 'place']);
+  assert.deepEqual([U.headIcon('stair', {}), U.headIcon('hole', {}), U.headIcon('block', {}), U.headIcon('plot', {}), U.headIcon('yard', {}), U.headIcon('cable', {})],
+    ['🪜', '⬚', '🧊', '🗺', '🌱', '🔌']);
+});
+
+test('5.7.0: the lines of the stair, the floor opening and the block', () => {
+  const len = (m) => `${(+m).toFixed(2)} m`;
+  assert.deepEqual(U.summary('stair', 'form', { dir: 'up', w: 1 }, { len }), ['v2.sum.stairForm', { dir: { key: 'stair.up' }, w: '1.00 m' }]);
+  assert.deepEqual(U.summary('stair', 'form', { dir: 'down', w: 0.9 }, { len })[1].dir, { key: 'stair.down' });
+  assert.deepEqual(U.summary('stair', 'steps', { steps: 15 }, { len }), ['v2.sum.steps', { n: 15 }]);
+  assert.deepEqual(U.summary('stair', 'steps', {}, { len }), ['v2.sum.stepsAuto', {}]);
+  assert.deepEqual(U.summary('stair', 'place', { x: 6.5, z: 3.9, rot: 90 }, { len }), ['v2.sum.where', { x: '6.50 m', z: '3.90 m', r: 90 }]);
+  assert.equal(U.summary('stair', 'corner', {}, { len }), null);
+  const hole = { points: [[0, 0], [2, 0], [2, 1.5], [0, 1.5]] };
+  assert.deepEqual(U.summary('hole', 'form', hole, { len }), ['v2.sum.holeForm', { n: 4, a: '3.0 m²' }]);
+  assert.deepEqual(U.summary('hole', 'form', hole, { len, area: (m2) => `${m2} qm` }), ['v2.sum.holeForm', { n: 4, a: '3 qm' }]);
+  assert.deepEqual(U.summary('block', 'bsize', { h: 1.2 }, { len }), ['v2.sum.height', { h: '1.20 m' }]);
+  assert.deepEqual(U.summary('block', 'bsize', {}, { len }), ['v2.sum.heightFloor', {}]);
+});
+
+test('5.7.0: the path of the plot and of a garden area has no floor (they are outside)', () => {
+  assert.deepEqual(U.crumbs({ house: 'Haus', floor: 'EG', name: 'Grundstück', kind: 'plot' }).map((c) => c.text), ['🏠 Haus', 'Grundstück']);
+  assert.deepEqual(U.crumbs({ house: 'Haus', floor: 'EG', name: 'Beet', kind: 'yard' }).map((c) => c.text), ['🏠 Haus', 'Beet']);
+  assert.deepEqual(U.crumbs({ house: 'Haus', floor: 'EG', name: 'Treppe', kind: 'stair' }).map((c) => c.text), ['🏠 Haus', 'EG', 'Treppe']);
+});

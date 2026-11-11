@@ -3,8 +3,9 @@
  * 🔍 Objekte, ❔ Hilfe). „Haus“ is a tree like a file explorer: the houses, the floors of the open one from the top down (drag ⠿ to put a
  * floor elsewhere), the rooms of a floor (a tap selects the room). A tap on a floor opens it: its name, its kind as three buttons, the
  * storey height with the house seen from the side, the roof of a roof floor, „Etage löschen“ folded away. The fields are the very ones of
- * floorpanel.js (moved here while shown, drawn anew there when they change). The houses, buildings and the background picture stay as
- * sections below. The rules are in uiv2more.js (tested). */
+ * floorpanel.js (moved here while shown, drawn anew there when they change). 5.7.0 (the owner, 2026-11-11, picture 5 in docs/ideen-5.7/):
+ * the house has a small 🔓 (Grundriss fertig, before a big box above the tree) and ⋯: the buildings, the neighbour house, the background
+ * picture (their panels lent here while open), duplicate, rename, JSON, delete. The rules are in uiv2more.js (tested). */
 import { treeRows, FLOOR_ICON, storeySvg } from './uiv2more.js';
 
 /** ctx: $, t, mode() ('v2' / 'classic'), isLive(), selection(), tool(), layout(), floorIdx(), switchFloor(i), select(sel), houses() [{ id,
@@ -20,11 +21,22 @@ export function initUiV2Home(ctx) {
   const openFloors = new Set();                          // floors whose rooms show in the tree (the open floor always does)
   let dragFrom = -1;
   let scrollTo = false;                                    // a floor was just opened: show its card
+  let more = false, moreSel = '';                          // the menu ⋯ of the house is open; which of its panels shows
+  const lent = [];                                         // [node, parent, next sibling]: what the menu shows of the classic panel
+  function lend(node, host) { if (!node) return; lent.push([node, node.parentNode, node.nextSibling]); host.append(node); }
+  /** the panels the menu showed go back where they were (before the tree is drawn anew, and when the classic panel comes back) */
+  function giveBackMore() {
+    while (lent.length) {
+      const [n, p, next] = lent.pop();
+      if (next && next.parentNode === p) p.insertBefore(n, next); else p?.append(n);
+    }
+  }
 
   /** show the tree instead of the classic panel: the new panel, the edit mode, nothing selected, the select tool */
   function sync() {
     const now = ctx.mode() === 'v2' && !ctx.isLive() && !ctx.selection() && ctx.tool() === 'select';
     if (!now && on && floorOpen) giveBack();
+    if (!now) giveBackMore();
     on = now;
     panel.classList.toggle('v2home', on);
     panel.dataset.v2seg = seg;
@@ -35,6 +47,7 @@ export function initUiV2Home(ctx) {
   function giveBack() { if (!$('#floorBody')?.childElementCount) ctx.renderFloorPanel(); }
 
   function render() {
+    giveBackMore();
     box.textContent = '';
     const segs = el('div', 'v2Seg wide'); segs.id = 'v2HomeSeg';
     [['house', `🗂 ${t('v2.home.house')}`], ['objects', `🔍 ${t('v2.home.objects')}`], ['help', `❔ ${t('v2.home.help')}`]].forEach(([k, label]) => {
@@ -43,8 +56,7 @@ export function initUiV2Home(ctx) {
     });
     box.append(segs);
     if (seg !== 'house') return;
-    if (ctx.roomLock) box.append(ctx.roomLock.planBox());      // „🔒 Grundriss fertig“ (5.1.0, roomlockui.js)
-    box.append(tree());
+    box.append(tree());                                         // „🔒 Grundriss fertig“: the lock on the house (5.7.0, before a big box here)
     const add = el('div', 'v2Adds'); add.id = 'v2Adds';
     add.append(btn('v2Btn', `＋ ${t('v2.home.addFloor')}`, () => ctx.addFloorOf('floor')), btn('v2Btn', `＋ ${t('v2.home.addBasement')}`, () => ctx.addFloorOf('basement')),
       btn('v2Btn', `＋ ${t('v2.home.addRoof')}`, () => ctx.addFloorOf('roof')), btn('v2Btn', `＋ ${t('v2.home.addHouse')}`, () => $('#houseNew')?.click()));
@@ -64,6 +76,11 @@ export function initUiV2Home(ctx) {
       if (!mine) { row.classList.add('tap'); row.addEventListener('click', () => ctx.switchHouse(h.id)); }
       wrap.append(row);
       if (!mine) continue;
+      if (ctx.roomLock) row.append(ctx.roomLock.houseLock());    // 🔓 / 🔒 Grundriss fertig (5.7.0)
+      const dots = btn(`lk more${more ? ' on' : ''}`, '⋯', (e) => { e.stopPropagation(); more = !more; if (!more) moreSel = ''; render(); });
+      dots.id = 'v2HouseMore'; dots.title = t('v2.home.more'); dots.setAttribute('aria-expanded', String(more));
+      row.append(dots);
+      if (more) wrap.append(moreMenu());
       for (const r of treeRows(lay, [...openFloors, curFloor])) {
         if (r.type === 'floor') wrap.append(floorRow(r, r.i === fi));
         else {
@@ -77,6 +94,39 @@ export function initUiV2Home(ctx) {
       }
     }
     return wrap;
+  }
+  /** the menu ⋯ of the house: what was in „Häuser“, „Gebäude in diesem Plan“ and „Hintergrundbild“ below the tree */
+  function moreMenu() {
+    const m = el('div', 'v2More'); m.id = 'v2HouseMenu';
+    if (ctx.roomLock) m.append(ctx.roomLock.adminBox());       // „nur Admins dürfen entsperren“ (it was in the big box)
+    const item = (key, ic, title, sub, on) => {
+      const b = btn(`v2MoreItem${moreSel === key ? ' on' : ''}`, null, on); b.dataset.more = key;
+      const txt = el('span', 'txt'); txt.append(el('b', '', title)); if (sub) txt.append(el('small', '', sub));
+      b.append(el('span', 'ic', ic), txt);
+      if (['building', 'neighbor', 'bg'].includes(key)) b.append(el('span', 'chev', moreSel === key ? '▴' : '▾'));
+      m.append(b);
+      return b;
+    };
+    const pick = (key) => () => { moreSel = moreSel === key ? '' : key; render(); };
+    const click = (sel) => () => $(sel)?.click();
+    const label = (sel, fallback) => ($(sel)?.textContent || '').trim() || fallback;
+    const host = (key) => {                                    // the classic panel's fields, lent here while this one is open
+      if (moreSel !== key) return;
+      const hb = el('div', 'v2MoreHost'); hb.id = `v2More-${key}`;
+      m.append(hb);
+      if (key === 'building') { const d = $('#buildingPanel'); if (d && !d.open) d.open = true; lend(d, hb); }
+      if (key === 'neighbor') lend($('#neighborBody'), hb);
+      if (key === 'bg') { const d = $('#bgPanel'); if (d && !d.open) d.open = true; lend(d, hb); }
+    };
+    item('building', '🏘', t('v2.more.building'), t('v2.more.buildingSub'), pick('building')); host('building');
+    item('neighbor', '🏡', t('v2.more.neighbor'), t('v2.more.neighborSub'), pick('neighbor')); host('neighbor');
+    item('bg', '🖼', t('v2.more.bg'), t('v2.more.bgSub'), pick('bg')); host('bg');
+    item('copy', '⧉', label('#houseCopy', 'Duplicate'), '', click('#houseCopy'));
+    item('rename', '✎', label('#houseRename', 'Rename'), '', click('#houseRename'));
+    item('import', '🧩', label('#importOpen', 'Import'), '', click('#importOpen'));
+    item('export', '⇩', label('#propExport', 'Export'), '', click('#propExport'));
+    item('delete', '🗑', label('#houseDelete', 'Delete'), '', click('#houseDelete')).classList.add('del');
+    return m;
   }
   function floorRow(r, current) {
     const row = el('div', `n floor tap${current ? ' on' : ''}`); row.dataset.floor = r.id; row.dataset.i = r.i;

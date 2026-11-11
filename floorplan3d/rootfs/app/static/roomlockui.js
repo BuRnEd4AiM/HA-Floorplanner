@@ -130,6 +130,25 @@ export function initRoomLock(ctx) {
     box.append(adm);
     return box;
   }
+  /** „Grundriss fertig“ as a small lock on the house in the tree of ✨ Neu (5.7.0, instead of the big box above it): a tap locks or
+   *  unlocks the plan; „nur Admins dürfen entsperren“ is in the menu ⋯ of the house (adminBox) */
+  function houseLock() {
+    const p = planLockOf(ctx.layout());
+    const b = btn(`lk ${p.on ? 'plan' : 'none'}`, p.on ? '🔒' : '🔓', (e) => { e.stopPropagation(); setPlan(!p.on, p.admin); });
+    b.id = 'planLockSwitch'; b.dataset.lock = p.on ? 'plan' : 'none';
+    b.setAttribute('role', 'switch'); b.setAttribute('aria-checked', String(p.on));
+    b.title = `${t('rlock.planTitle')}: ${t('rlock.planSub')}`;
+    return b;
+  }
+  /** „nur Admins dürfen entsperren“ alone (the menu ⋯ of the house in ✨ Neu) */
+  function adminBox() {
+    const p = planLockOf(ctx.layout());
+    const adm = el('label', 'chk lockAdmin'); const c = el('input'); c.type = 'checkbox'; c.id = 'planLockAdmin'; c.checked = p.admin;
+    c.disabled = p.on && p.admin && !isAdmin();
+    c.addEventListener('change', () => edit(() => setPlanLock(ctx.layout(), p.on, c.checked)));
+    adm.append(c, ` 🔒 ${t('rlock.adminOnlyBox')}`);
+    return adm;
+  }
   /** a lock to tap in a row of the tree: a floor (all / some / none of its rooms) or a room */
   function treeLock(kind, x) {
     const plan = planLockOf(ctx.layout()).on;
@@ -207,7 +226,7 @@ export function initRoomLock(ctx) {
     pointsWhy: (pts) => pointsLockedWhy(info(), ctx.floor(), pts),
     text, say,
     invalidate: () => { cache = null; },
-    roomButton, roomRow, freeze, planBox, treeLock, update, draw3d, showHatch, closePop,
+    roomButton, roomRow, freeze, planBox, treeLock, houseLock, adminBox, update, draw3d, showHatch, closePop,
     planOn: () => planLockOf(ctx.layout()).on,
   };
 }

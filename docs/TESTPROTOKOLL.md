@@ -482,7 +482,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 190. Verbessert in 5.6.3: ⚡ der Browser behält die Dateien (Fingerabdruck in der Adresse) | 1 | 0 | 3 | 0 | 190.2 bis 190.4 |
 | 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint) | 1 | 0 | 1 | 0 | 191.2 |
 | 192. Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken (#724) | 1 | 0 | 3 | 0 | 192.2 bis 192.4 |
-| **Zusammen** | **1211** | **2** | **106** | **92** | |
+| 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus | 1 | 0 | 3 | 0 | 193.2 bis 193.4 |
+| **Zusammen** | **1212** | **2** | **109** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2923,3 +2924,13 @@ Miicki in #724: an Ecken, die nicht 90° haben (z. B. Schrägwände um eine Gale
 | 192.2 | Im Add-on einen Raum mit einer schrägen Wand zeichnen (z. B. eine abgeschrägte Ecke) und im 3D-Bild von oben und von außen ansehen | Keine Kerbe außen an der Ecke, nichts steht über | ❓ |
 | 192.3 | Dasselbe mit einem Wandbelag (z. B. Tapete im Raum) und im 2D-Plan | Belag und Plan gehen bis zur Gehrung, ohne Lücke | ❓ |
 | 192.4 | Antwort von Miicki in #724: sieht seine Galerie jetzt sauber aus? | Er bestätigt es | ❓ |
+
+## 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus
+Die Frage des Besitzers vom 2026-11-11, was man in der neuen Ansicht noch verbessern kann; Beispielbilder in `docs/ideen-5.7/`, seine Wahl: „setze das mal um“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 193.1 | Unit-Test `tests/uiv2.test.mjs`, Browser-Test Teile `86_ui_v2_objects`, `80_ui_v2_more`, `81_roof_lock`, `84_building_scope`, `08_stairs` | Treppe, Bodenöffnung, Block und Grundstück zeigen in „✨ Neu“ Kopf, Suche und Abschnitte; am Haus 🔓 und ⋯ mit allen Punkten; das Menü gibt die Felder zurück | ✅ (2026-11-11, Claude) |
+| 193.2 | In „✨ Neu“ eine Treppe antippen | Oben „🪜 Treppe“, darunter z. B. „Gerade · Erdgeschoss → Obergeschoss“, Breite und Stufen; Abschnitte „Form & Maße“, „Stufen“, „Lage“ | ❓ |
+| 193.3 | Eine Bodenöffnung, einen Block, das Grundstück und eine Gartenfläche antippen | Jeweils der neue Kopf statt der alten Leiste mit Hinweis und Häusern | ❓ |
+| 193.4 | Nichts ausgewählt: am Haus auf 🔓 tippen, dann auf ⋯ | 🔓 sperrt den Grundriss (🔒), noch einmal entsperrt; ⋯ zeigt Gebäude, Nachbarhaus, Vorlage, Duplizieren, Umbenennen, JSON, Löschen | ❓ |

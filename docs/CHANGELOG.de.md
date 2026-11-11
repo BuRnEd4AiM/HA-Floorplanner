@@ -2,6 +2,11 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.7.0] - 2026-11-11
+### Verbessert
+- **✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Gartenflächen und Kabel** (der Besitzer: „in der neuen Ansicht … ob man da noch mehr optimieren kann“, dann „setze das mal um … mit den Sachen die du mir gesendet hast“, Bilder in `docs/ideen-5.7/`): sie zeigten in „✨ Neu“ die alte Leiste, oben Hinweis, Häuser und Objekt-Liste, ihre eigenen Felder weit unten. Jetzt sehen sie aus wie Raum oder Fenster: der Weg (Haus › Etage › Objekt), ein Kopf mit dem, was es ist („Gerade · Erdgeschoss → Obergeschoss“, die Breite, „16 Stufen · je 17,6 cm“; die Fläche einer Bodenöffnung; die Höhe eines Blocks), 🗑 oben, „🔍 Einstellung suchen“ und Abschnitte zum Aufklappen (eine Treppe: Form & Maße, Ecke & Podest, Stufen, Lage).
+- **✨ Neu: am Haus im Baum 🔓 und ⋯**: „Grundriss fertig“ ist ein kleines Schloss am Haus (vorher ein großer Kasten über dem Baum); „⋯“ öffnet die Gebäude des Plans, das Nachbarhaus, das Hintergrundbild, Duplizieren, Umbenennen, JSON und Löschen (vorher als „Häuser“, „Gebäude in diesem Plan“ und „Hintergrundbild“ unter dem Baum). „Nur Admins dürfen entsperren“ steht in diesem Menü.
+
 ## [5.6.5] - 2026-11-11
 ### Repariert
 - **🧱 Schräg zusammenstoßende Wände enden sauber auf Gehrung** (#724, Miicki: an jeder Ecke, die nicht 90° hat, eine Kerbe, und die rechteckigen Enden standen über die andere Wand hinaus): jede Wand reichte mit einem rechtwinkligen Ende eine halbe Wandstärke über ihre Ecke, das passt nur bei 90°. Treffen genau zwei gleich hohe Wände in einem anderen Winkel zusammen, läuft jetzt jede Seite bis dorthin, wo sie die passende Seite der anderen Wand trifft (auch bei unterschiedlicher Wandstärke), im 3D-Bild, im Wandbelag, im 2D-Plan und am Nachbarhaus (`wallmiter.js`). Bei 90°, wo drei oder mehr Wände zusammenkommen, bei sehr spitzen Winkeln, zwischen einer niedrigen und einer hohen Wand oder mit einer Tür oder einem Fenster direkt an der Ecke bleiben die rechtwinkligen Enden wie bisher.

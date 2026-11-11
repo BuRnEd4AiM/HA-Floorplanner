@@ -2353,4 +2353,12 @@ export default {
   'balc.part': 'Hangt deels vrij: waar ze buiten de verdieping eronder uitsteekt, draagt een plaat haar (steunen alleen daar), de rest ligt op het huis.',
   'src.temp': 'Temperatuur van', 'src.humid': 'Luchtvochtigheid van', 'src.auto': 'Automatisch · {v}', 'src.thermo': 'Thermostaat · {v}',
   'src.hint': 'Wat labels, tegels, kleuren en 🌡 Klimaat voor de kamer tonen. Automatisch: het gemiddelde van de sensoren, de thermostaat alleen zonder sensor. De verwarming werkt zoals voorheen.',
+  'v2.sec.form': 'Vorm & maten', 'v2.sec.corner': 'Hoek & bordes', 'v2.sec.steps': 'Treden', 'v2.sec.bsize': 'Hoogte', 'v2.sum.stairForm': '{dir} · {w} breed',
+  'v2.sum.steps': '{n} per verdieping', 'v2.sum.stepsAuto': 'uit de verdiepingshoogte', 'v2.sum.where': 'X {x} · Z {z} · {r}°',
+  'v2.sum.holeForm': '{n} hoeken · {a}', 'v2.sum.height': '{h} hoog', 'v2.sum.heightFloor': 'zo hoog als de verdieping', 'v2.chip.steps': '{n} treden · elk {h}',
+  'v2.sub.hole': 'Open naar beneden', 'v2.sub.outside': 'Buiten · perceel',
+  'v2.home.more': 'Meer voor het huis: gebouwen, buurhuis, sjabloon, dupliceren, hernoemen, JSON, verwijderen', 'v2.more.building': 'Gebouwen in dit plan',
+  'v2.more.buildingSub': 'bijv. hoofdhuis en tuinhuis, bovenaan wisselen', 'v2.more.neighbor': 'Een buurhuis ernaast tonen',
+  'v2.more.neighborSub': 'een ander huis uit de lijst, bijv. dat achter de brug', 'v2.more.bg': 'Sjabloon (plattegrondafbeelding)',
+  'v2.more.bgSub': 'een scan of foto om over te trekken',
 };

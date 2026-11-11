@@ -2883,8 +2883,7 @@ body.uiV2:not([data-tool=select]) #panel:has(> #props.v2:not([hidden])) > :is(#d
 .v2LevelBox { display: flex; justify-content: center; margin-bottom: 6px; }
 /* „Oberfläche 2“, second part (5.0.0): nothing selected (uiv2homeui.js), search, tabs on the panel, „Übernehmen“ (uiv2tools.js) */
 body.uiV2 #panel.v2home > :not(#v2Home) { display: none; }
-body.uiV2 #panel.v2home[data-v2seg=house] > #housePanel, body.uiV2 #panel.v2home[data-v2seg=house] > #buildingPanel,
-body.uiV2 #panel.v2home[data-v2seg=house] > #bgPanel { display: block; }
+/* 5.7.0: „Häuser“, „Gebäude“ and „Hintergrundbild“ are in the menu ⋯ of the house (uiv2homeui.js moreMenu), not below the tree */
 body.uiV2 #panel.v2home[data-v2seg=objects] > #objList:not([hidden]), body.uiV2 #panel.v2home[data-v2seg=help] > #hint,
 body.uiV2 #panel.v2home[data-v2seg=help] > #controlsHelp { display: block; }
 body.uiV2 #panel.v2home > details { margin-top: 8px; border-radius: 12px; border: 1px solid var(--line); padding: 8px 11px; background: color-mix(in srgb, var(--text) 3%, transparent); }
@@ -2992,6 +2991,19 @@ body.live .v2Nops { display: none; }
 .v2Tree .n .lk { flex: none; width: 24px; height: 22px; padding: 0; border: 0; border-radius: 6px; background: transparent; font-size: 12.5px; cursor: pointer; opacity: .35; }
 .v2Tree .n .lk:hover { background: color-mix(in srgb, var(--text) 8%, transparent); opacity: .8; }
 .v2Tree .n .lk.all, .v2Tree .n .lk.plan { opacity: 1; } .v2Tree .n .lk.some { opacity: .6; filter: grayscale(.6); }
+/* 5.7.0: 🔓 and ⋯ on the house, its menu (uiv2homeui.js moreMenu) */
+.v2Tree .n.h .lk { margin-left: 2px; } .v2Tree .n.h .nm { flex: 1; }
+.v2Tree .n.h .lk.more { opacity: .7; font-size: 16px; font-weight: 800; } .v2Tree .n.h .lk.more.on { opacity: 1; background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.v2More { display: grid; gap: 4px; margin: 4px 0 8px 22px; padding: 6px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--text) 3%, transparent); }
+.v2More .lockAdmin { padding: 4px 8px 6px; font-size: 12.5px; color: var(--muted); }
+.v2MoreItem { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 9px; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.v2MoreItem:hover, .v2MoreItem.on { background: color-mix(in srgb, var(--text) 7%, transparent); }
+.v2MoreItem .ic { width: 22px; text-align: center; flex: none; } .v2MoreItem .txt { flex: 1; display: flex; flex-direction: column; }
+.v2MoreItem .txt b { font-weight: 650; } .v2MoreItem .txt small { color: var(--muted); font-size: 12px; } .v2MoreItem .chev { color: var(--muted); }
+.v2MoreItem.del .txt b { color: #ff6b6b; }
+.v2MoreHost { padding: 4px 8px 10px; border-left: 2px solid var(--accent); margin: 0 0 4px 10px; }
+.v2MoreHost > details { display: block !important; border: 0 !important; padding: 0 !important; background: none !important; }
+.v2MoreHost > details > summary { display: none; }
 .v2Tree .n.locked .nm { color: #ffd8a1; }
 #planLockPill { border: 2px solid #ffb74d; background: rgba(255, 183, 77, .15); color: #ffd8a1; font-weight: 800; }
 #planLockPill[hidden], body.live #planLockPill { display: none; }

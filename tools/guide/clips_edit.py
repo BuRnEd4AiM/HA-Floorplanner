@@ -570,8 +570,8 @@ def two_windows_room(r):
 
 @clip("ui-v2-house", "edit",
       {"de": "Oberfläche 2: das Haus als Baum, eine Etage öffnen", "en": "Oberfläche 2: the house as a tree, open a floor"},
-      {"de": "In der Oberfläche 2 und mit nichts ausgewählt steht rechts das Haus als Baum: die Häuser, die Etagen von oben nach unten (mit ⠿ an eine andere Stelle ziehen), die Räume zum Antippen; daneben „🔍 Objekte“ und „❔ Hilfe“. Eine Etage antippen: ihre Art als drei Knöpfe, die Geschosshöhe mit dem Haus von der Seite, „Etage löschen“ eingeklappt.",
-       "en": "In Oberfläche 2 with nothing selected, the right side shows the house as a tree: the houses, the floors from the top down (drag ⠿ to put one elsewhere), the rooms to tap; beside it “🔍 Objects” and “❔ Help”. Tap a floor: its kind as three buttons, the storey height with the house seen from the side, “Delete floor” folded away."},
+      {"de": "In der Oberfläche 2 und mit nichts ausgewählt steht rechts das Haus als Baum: die Häuser, die Etagen von oben nach unten (mit ⠿ an eine andere Stelle ziehen), die Räume zum Antippen; daneben „🔍 Objekte“ und „❔ Hilfe“. Am Haus sperrt 🔓 den ganzen Grundriss, „⋯“ öffnet Gebäude, Nachbarhaus, Vorlage, Duplizieren, Umbenennen, JSON und Löschen. Eine Etage antippen: ihre Art als drei Knöpfe, die Geschosshöhe mit dem Haus von der Seite, „Etage löschen“ eingeklappt.",
+       "en": "In Oberfläche 2 with nothing selected, the right side shows the house as a tree: the houses, the floors from the top down (drag ⠿ to put one elsewhere), the rooms to tap; beside it “🔍 Objects” and “❔ Help”. On the house, 🔓 locks the whole floor plan and “⋯” opens buildings, neighbour house, template, duplicate, rename, JSON and delete. Tap a floor: its kind as three buttons, the storey height with the house seen from the side, “Delete floor” folded away."},
       "Haus Baum Etagen Räume Etage verwalten Geschosshöhe Keller Dach Oberfläche 2 house tree floors rooms storey height basement roof panel version 2",
       query="mode=edit", prep=empty_house(walls=True, rooms=True))
 def _(r):
@@ -588,6 +588,12 @@ def _(r):
     r.click("#v2Tree .n.floor[data-i='1']")                         # the floor with the room (the new basement is below it)
     r.wait(2000)
     r.poster()
+    r.say("Am Haus: 🔓 sperrt den ganzen Grundriss, „⋯“ öffnet Gebäude, Nachbarhaus, Vorlage, Duplizieren und mehr.",
+          "On the house: 🔓 locks the whole floor plan, “⋯” opens buildings, neighbour house, template, duplicate and more.")
+    r.click("#v2HouseMore")
+    r.wait(2200)
+    r.click("#v2HouseMore")                                         # closed again
+    r.wait(600)
     r.say("Die Etagen lassen sich mit ⠿ an eine andere Stelle ziehen; ein Raum im Baum wird angetippt und ausgewählt.",
           "Drag ⠿ to put a floor elsewhere; a room in the tree is tapped and selected.")
     r.click("#v2Tree .n.room", nth=0)

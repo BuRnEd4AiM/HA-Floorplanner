@@ -2389,4 +2389,12 @@ export default {
   'balc.part': 'Cuelga en parte: donde sobresale del piso de abajo la sostiene una losa (pilares solo allí), el resto descansa sobre la casa.',
   'src.temp': 'Temperatura de', 'src.humid': 'Humedad de', 'src.auto': 'Automático · {v}', 'src.thermo': 'Termostato · {v}',
   'src.hint': 'Lo que muestran las etiquetas, mosaicos, colores y 🌡 Clima para la habitación. Automático: la media de sus sensores, el termostato solo sin sensor. La calefacción sigue igual.',
+  'v2.sec.form': 'Forma y medidas', 'v2.sec.corner': 'Esquina y descansillo', 'v2.sec.steps': 'Peldaños', 'v2.sec.bsize': 'Altura',
+  'v2.sum.stairForm': '{dir} · {w} de ancho', 'v2.sum.steps': '{n} por planta', 'v2.sum.stepsAuto': 'según la altura de planta',
+  'v2.sum.where': 'X {x} · Z {z} · {r}°', 'v2.sum.holeForm': '{n} esquinas · {a}', 'v2.sum.height': '{h} de alto',
+  'v2.sum.heightFloor': 'tan alto como la planta', 'v2.chip.steps': '{n} peldaños · {h} cada uno', 'v2.sub.hole': 'Abierto hacia abajo',
+  'v2.sub.outside': 'Exterior · parcela', 'v2.home.more': 'Más para la casa: edificios, casa vecina, plantilla, duplicar, renombrar, JSON, eliminar',
+  'v2.more.building': 'Edificios de este plano', 'v2.more.buildingSub': 'p. ej. casa principal y caseta, se cambia arriba',
+  'v2.more.neighbor': 'Mostrar una casa vecina al lado', 'v2.more.neighborSub': 'otra casa de la lista, p. ej. la del otro lado del puente',
+  'v2.more.bg': 'Plantilla (imagen del plano)', 'v2.more.bgSub': 'un escaneo o foto para calcar',
 };
