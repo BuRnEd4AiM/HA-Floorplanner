@@ -2,6 +2,10 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.6.5] - 2026-11-11
+### Fixed
+- **🧱 Walls meeting at a slant end in a clean mitre** (#724, Miicki: a notch at every corner that is not 90°, and the square ends sticking out past the other wall): every wall reached half its thickness past its corner with a square end, which fits only at 90°. Where exactly two walls of the same height meet at another angle, each face now runs on to where it meets the matching face of the other wall (also with different thicknesses), in 3D, in the wall finish, in the 2D plan and on a neighbouring house (`wallmiter.js`). At 90°, where three or more walls meet, at a very sharp angle, between a low and a high wall, or with a door or window right at the corner, the square ends stay as before.
+
 ## [5.6.4] - 2026-11-11
 ### Changed
 - **🧹 Two automatic code checkers in CI** (idea list of 2026-11-11, step 4): `ruff` for the Python and `eslint` for the JavaScript of the add-on and the dashboard card look at every change for real mistakes (a name nobody defined, an import or a variable nobody uses, a key written twice) before it is merged. Nothing changes on the screen.

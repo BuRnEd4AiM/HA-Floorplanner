@@ -3,6 +3,7 @@
  * outline on the same level shows dashed, so a bridge can be placed to meet it. The geometry is pure (unit test: tests/neighbor.test.mjs). */
 import * as THREE from './vendor/three.module.min.js';
 import { buildWall } from './walls.js';
+import { miterEnds } from './wallmiter.js';
 import { initRoofs } from './roofs.js';
 import { layoutUrl } from './houses.js';
 import { floorHex } from './floorcover.js';
@@ -79,7 +80,8 @@ export function initNeighbors(ctx) {
       shownFloors(L.floors, nb, H, upTo === Infinity ? upTo : upTo + ctx.floorH() * 0.8).forEach((i) => {   // its storey at this level shows even when it lies a bit higher (#222)
         const f = L.floors[i], g = new THREE.Group();
         g.position.y = floorElev(L.floors, i, H);
-        (f.walls || []).forEach((w) => g.add(buildWall({ ...w, openings: w.openings || [] }, { material: ctx.mat('#cfc9bf', false), makeMat: ctx.mat, holo })));
+        const ends = miterEnds(f.walls || []);                        // slanted corners without a notch (#724)
+        (f.walls || []).forEach((w, k) => g.add(buildWall({ ...w, openings: w.openings || [] }, { material: ctx.mat('#cfc9bf', false), makeMat: ctx.mat, holo, ends: ends[k] })));
         (f.rooms || []).forEach((r) => {
           if ((r.points || []).length < 3) return;
           const geo = new THREE.ShapeGeometry(new THREE.Shape(r.points.map(([x, z]) => new THREE.Vector2(x, -z)))).rotateX(-Math.PI / 2);

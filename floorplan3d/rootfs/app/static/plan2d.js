@@ -24,6 +24,7 @@ import { LEISURE_FLAT } from './leisure.js';
 import { GARAGE_FLAT } from './garage.js';
 import { YARD_FLAT } from './yarddeco.js';
 import { areaAt, nearEdge, edgeList, rectFrom, surfaceColor } from './yard.js';
+import { miterEnds } from './wallmiter.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -369,10 +370,14 @@ export function createPlan(ctx) {
   function schedule() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; render(); }); }
   function scheduleRebuild() { if (!rebuildRaf) rebuildRaf = requestAnimationFrame(() => { rebuildRaf = 0; ctx.rebuild3d(); }); }
 
+  /** the outline of a stretch of wall from a to b, t thick, reaching extA / extB past its ends: a number (square), or [left, right] for a
+   *  mitre at a slanted corner (#724, wallmiter.js: left = the face on the left going from a to b) */
   function wallPoly(a, b, t, extA = 0, extB = 0) {
     const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1, ux = dx / L, uz = dz / L, nx = -uz * t / 2, nz = ux * t / 2;
-    const A = [a[0] - ux * extA, a[1] - uz * extA], B = [b[0] + ux * extB, b[1] + uz * extB];
-    return [[A[0] + nx, A[1] + nz], [B[0] + nx, B[1] + nz], [B[0] - nx, B[1] - nz], [A[0] - nx, A[1] - nz]];
+    const [aL, aR] = Array.isArray(extA) ? extA : [extA, extA], [bL, bR] = Array.isArray(extB) ? extB : [extB, extB];
+    const at = (p, k) => [p[0] + ux * k, p[1] + uz * k];
+    const A1 = at(a, -aL), A2 = at(a, -aR), B1 = at(b, bL), B2 = at(b, bR);
+    return [[A1[0] + nx, A1[1] + nz], [B1[0] + nx, B1[1] + nz], [B2[0] - nx, B2[1] - nz], [A2[0] - nx, A2[1] - nz]];
   }
   const pts = (arr) => arr.map((p) => `${sx(p[0]).toFixed(1)},${sy(p[1]).toFixed(1)}`).join(' ');
   const isOn = (e) => !!e && ctx.isOn(e);
@@ -500,8 +505,9 @@ export function createPlan(ctx) {
       if (st.name && s >= 30) o += `<text x="${sx(st.x)}" y="${sy(st.z) + 16}" text-anchor="middle" font-size="10" fill="${C.text}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(st.name)}</text>`;
     });
 
-    /* walls (split around openings) */
-    f.walls.forEach((w) => {
+    /* walls (split around openings); a slanted corner with a mitre (#724, wallmiter.js) */
+    const mitres = miterEnds(f.walls);
+    f.walls.forEach((w, wi) => {
       const [ux, uz, L] = dirOf(w);
       const gaps = alongGaps(w.openings);                  // two openings one above the other leave one gap (#694)
       let cur = 0;
@@ -513,8 +519,9 @@ export function createPlan(ctx) {
         const a = [w.a[0] + ux * from, w.a[1] + uz * from], b = [w.a[0] + ux * to, w.a[1] + uz * to];
         o += `<polygon points="${pts(wallPoly(a, b, t, extA, extB))}" fill="${col}" stroke="${col}" stroke-width="0.5"/>`;
       };
-      gaps.forEach(([g0, g1], i) => { seg(cur, g0, i === 0 ? t / 2 : 0, 0); cur = g1; });
-      seg(cur, L, gaps.length ? 0 : t / 2, t / 2);
+      const endA = mitres[wi]?.a || t / 2, endB = mitres[wi]?.b || t / 2;
+      gaps.forEach(([g0, g1], i) => { seg(cur, g0, i === 0 ? endA : 0, 0); cur = g1; });
+      seg(cur, L, gaps.length ? 0 : endA, endB);
     });
     /* openings */
     f.walls.forEach((w) => {

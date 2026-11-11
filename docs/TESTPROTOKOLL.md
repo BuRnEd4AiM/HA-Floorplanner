@@ -481,7 +481,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 189. Verbessert in 5.6.2: ⚡ schneller starten (nur die gewählte Sprache, die Versionsprüfung später) | 1 | 0 | 3 | 0 | 189.2 bis 189.4 |
 | 190. Verbessert in 5.6.3: ⚡ der Browser behält die Dateien (Fingerabdruck in der Adresse) | 1 | 0 | 3 | 0 | 190.2 bis 190.4 |
 | 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint) | 1 | 0 | 1 | 0 | 191.2 |
-| **Zusammen** | **1210** | **2** | **103** | **92** | |
+| 192. Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken (#724) | 1 | 0 | 3 | 0 | 192.2 bis 192.4 |
+| **Zusammen** | **1211** | **2** | **106** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2912,3 +2913,13 @@ Ideenliste vom 2026-11-11, Schritt 4. Nur unsichtbare Aufräumarbeit: CI prüft 
 |---|---|---|---|
 | 191.1 | `ruff check .`, eslint, alle Unit-Tests, Browser-Test Teile `20_editing`, `61_scenebar_lights`, `58_devlog` | Keine Meldung der Prüfer, alle Tests grün | ✅ (2026-11-11, Claude) |
 | 191.2 | Nach dem Update auf 5.6.4 wie gewohnt bearbeiten und die Live-Ansicht benutzen | Alles wie vorher | ❓ |
+
+## 192. Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken (#724)
+Miicki in #724: an Ecken, die nicht 90° haben (z. B. Schrägwände um eine Galerie, 135°), entstand im 3D-Bild eine Kerbe und die rechteckigen Wandenden standen über die andere Wand hinaus. Jetzt treffen sich die beiden Wände auf Gehrung.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 192.1 | Unit-Tests `tests/wallmiter.test.mjs`, `tests/finishes.test.mjs`, Browser-Test Teil `85_wall_mitre` | Bei 135° treffen sich Innen- und Außenseite beider Wände in einem Punkt; bei 90°, an Ecken mit drei Wänden und mit einem Fenster direkt an der Ecke bleibt alles wie bisher; der 2D-Plan zeichnet dieselbe Ecke | ✅ (2026-11-11, Claude) |
+| 192.2 | Im Add-on einen Raum mit einer schrägen Wand zeichnen (z. B. eine abgeschrägte Ecke) und im 3D-Bild von oben und von außen ansehen | Keine Kerbe außen an der Ecke, nichts steht über | ❓ |
+| 192.3 | Dasselbe mit einem Wandbelag (z. B. Tapete im Raum) und im 2D-Plan | Belag und Plan gehen bis zur Gehrung, ohne Lücke | ❓ |
+| 192.4 | Antwort von Miicki in #724: sieht seine Galerie jetzt sauber aus? | Er bestätigt es | ❓ |
