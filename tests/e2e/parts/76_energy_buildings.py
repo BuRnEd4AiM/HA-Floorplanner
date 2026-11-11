@@ -48,6 +48,8 @@ pgEb.select_option("#buildingSelect", ""); pgEb.wait_for_timeout(600)
 check("power per building: off at first, one calculation for the plan (both meters, the plan's solar)", units_eb() == [[None, 1100, 1500]], units_eb())
 pgEb.evaluate("document.getElementById('energyBtn').click()"); pgEb.wait_for_selector("#enPerBuilding", timeout=10000)
 check("power per building: the tab has „⚡ Eigene Rechnung je Gebäude“ (two buildings), not ticked", not pgEb.is_checked("#enPerBuilding"))
+check("5.6.0: the buildings are a card of their own at the top („🏘 2 Gebäude in diesem Plan“), no building switch in the title while it is off",
+      "2 Gebäude" in pgEb.inner_text("#energyUnits .euHead") and pgEb.is_hidden("#energyBld"), pgEb.inner_text("#energyUnits"))
 pgEb.check("#enPerBuilding"); pgEb.wait_for_timeout(600)
 check("power per building: on: with all buildings shown each one apart, each with the meter in its rooms; the plan's solar went to the first",
       units_eb() == [["ebMain", 800, 1500], ["ebGarden", 300, None]], units_eb())
@@ -57,10 +59,15 @@ l_eb = wait_eb(lambda: (lambda l: l if all("energy" in x for x in l.get("buildin
 check("power per building: saved: each building has its calculation, the plan none",
       l_eb and "energy" not in l_eb and l_eb["buildings"][0]["energy"].get("solar") == {"entities": ["sensor.eb_pv"]} and l_eb["buildings"][1]["energy"] == {},
       l_eb and (l_eb.get("energy"), [x.get("energy") for x in l_eb["buildings"]]))
-pgEb.click("#energyUnits .euChip[data-building=ebGarden]"); pgEb.wait_for_timeout(800)
+check("5.6.0: ticked, the title of the window has „Rechnung für“ with both buildings too (in sight while scrolling)",
+      pgEb.is_visible("#energyBld") and pgEb.locator("#energyBld .euChip").count() == 2)
+pgEb.click("#energyBld .euChip[data-building=ebGarden]"); pgEb.wait_for_timeout(800)
 check("power per building: a tap on „Gartenhaus“ shows it at the top too, and its calculation (300 W from the grid)",
       pgEb.input_value("#buildingSelect") == "ebGarden" and units_eb() == [["ebGarden", 300, None]] and "300 W" in pgEb.inner_text("#energyResult"),
       (pgEb.input_value("#buildingSelect"), units_eb()))
+check("5.6.0: the calculation names the building and its button is lit in the title and in the card",
+      "Gartenhaus" in (pgEb.text_content("#energyResult h3") or "") and pgEb.locator("#energyBld .euChip.on[data-building=ebGarden]").count() == 1
+      and pgEb.locator("#energyUnits .euChip.on[data-building=ebGarden]").count() == 1, pgEb.text_content("#energyResult h3"))
 pgEb.check("#enGridInvert"); pgEb.wait_for_timeout(500)
 check("power per building: a setting of the garden house changes only its calculation (grid turned round: −300 W)",
       units_eb() == [["ebGarden", -300, None]] and wait_eb(lambda: (lay_eb()["buildings"][1]["energy"].get("grid") or {}).get("invert") is True)

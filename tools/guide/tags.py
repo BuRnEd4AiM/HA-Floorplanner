@@ -439,9 +439,11 @@ t("building-areas",
   "of the other house scenes wrong building without a building no building always shows assign the cellar garden house granny flat separate two houses")
 t("energy-buildings",
   "Strom je Gebäude Gebäude im Plan zwei Gebäude Nebengebäude Anbau Gartenhaus Einliegerwohnung Doppelhaus Haupthaus Stromrechner je Haus "
-  "getrennt rechnen eigener Stromzähler Gebäude trennen Strom getrennt anzeigen zwei Häuser nebeneinander Bereiche",
+  "getrennt rechnen eigener Stromzähler Gebäude trennen Strom getrennt anzeigen zwei Häuser nebeneinander Bereiche "
+  "mehrere Stromrechner wo ist die Option Rechnung für",
   "power per building buildings in a plan two buildings outbuilding wing garden house granny flat semi-detached main house "
-  "calculator per house count apart own power meter separate buildings show power apart two houses side by side areas")
+  "calculator per house count apart own power meter separate buildings show power apart two houses side by side areas "
+  "several power calculators where is the option calculation for")
 t("energy-calc",
   "Strom-Rechner Stromrechner Stromrechnung Rechnung einrichten Sensoren zuordnen welcher Sensor ist was Netzbezug "
   "Hausanschluss Stromzähler Smartmeter Wechselrichter Balkonkraftwerk Batteriespeicher Ladestand Hausverbrauch "

@@ -153,10 +153,13 @@ export function initEnergyUi(ctx) {
         if (k) jump(k);
       });
       const grid = el('div', 'enResGrid'); grid.append(flow, calc);
-      box.append(el('h3', '', t('energy.result')), grid, msgs);
-      res = { box, flow, calc, msgs }; pic = '';
+      const head = el('h3', '');
+      box.append(head, grid, msgs);
+      res = { box, head, flow, calc, msgs }; pic = '';
       result.replaceChildren(box);
     }
+    const u = ctx.units.edited?.();                                // per building: whose calculation this is
+    res.head.textContent = u?.bid ? `${t('energy.result')} · 🏠 ${u.name}` : t('energy.result');
     const fl = energyFlows(bal), html = fl ? flowSvg(fl, flowTexts(fl, t)) : '';   // the same picture as at the top right (energyflowui.js)
     if (html !== pic) { res.flow.innerHTML = html; pic = html; }
     res.flow.hidden = !html;

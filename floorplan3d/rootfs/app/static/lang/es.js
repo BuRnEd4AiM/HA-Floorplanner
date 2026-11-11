@@ -2285,7 +2285,7 @@ export default {
   'rname.noAreas': 'No hay áreas de Home Assistant. Si creas áreas allí (Ajustes → Áreas), puedes elegirlas aquí como nombre.',
   'rname.linked': '🔗 Vinculada al área «{area}» de Home Assistant', 'rname.linkOne': '«{room}» se llama como un área: vincular',
   'rname.linkAll': '{n} habitaciones se llaman como un área: vincular todas', 'rname.linkedAll': '🔗 {n} vinculadas: {rooms}',
-  'eu.per': '⚡ Un cálculo propio por edificio',
+  'eu.per': '⚡ Un cálculo propio por edificio', 'eu.count': '{n} edificios en este plano',
   'eu.offHint': 'Apagado: un cálculo para todo el plano. Encendido: cada edificio cuenta por sí mismo (sus sensores, contadores y precios); elegir un edificio arriba muestra su electricidad, «🏘 Todos los edificios» cada uno por separado.',
   'eu.onHint': 'Cada edificio cuenta por sí mismo, con los dispositivos eléctricos de sus habitaciones. Elegir un edificio arriba muestra su electricidad, «🏘 Todos los edificios» cada uno por separado.',
   'eu.for': 'Cálculo para:', 'eu.pick': 'Elige un edificio para ajustar su cálculo.',

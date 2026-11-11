@@ -1756,11 +1756,12 @@ def _(r):
     r.wait(1500)
     r.click("#energyBtn")
     r.wait(1300)
-    r.say("Ganz oben: „⚡ Eigene Rechnung je Gebäude“.", "At the very top: “⚡ A calculation of its own per building”.")
+    r.say("Ganz oben, in „🏘 2 Gebäude in diesem Plan“: „⚡ Eigene Rechnung je Gebäude“.", "At the very top, in “🏘 2 buildings in this plan”: “⚡ A calculation of its own per building”.")
     r.click("#enPerBuilding")
     r.wait(1600)
-    r.say("Jedes Gebäude rechnet jetzt für sich. „Rechnung für“ wählt, welches du einstellst.", "Each building counts on its own now. “Calculation for” picks the one you set.")
-    r.click(f"#energyUnits .euChip[data-building='{ids[1]}']")
+    r.say("Jedes Gebäude rechnet jetzt für sich. „Rechnung für“ wählt, welches du einstellst; es steht auch fest oben im Titel.",
+          "Each building counts on its own now. “Calculation for” picks the one you set; it also stays at the top in the title.")
+    r.click(f"#energyBld .euChip[data-building='{ids[1]}']")
     r.wait(2500)                                                      # the wing alone: the plan is built again
     r.say("Der Anbau: nur die Stromgeräte in seinen Räumen, hier Solar und Batterie.", "The wing: only the power devices in its rooms, here solar and battery.")
     r.move(*spot(r, "#energyResult .enRow.sum", center=True))
