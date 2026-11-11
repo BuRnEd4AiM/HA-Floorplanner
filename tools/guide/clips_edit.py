@@ -1790,12 +1790,12 @@ def _(r):
 
 @clip("energy-calc", "edit",
       {"de": "⚡ Der Strom-Rechner: welcher Sensor ist was", "en": "⚡ The power bookkeeping: which sensor is what"},
-      {"de": "Im Strom-Editor legt „Rechnung“ fest, welcher Sensor das Netz, die Solaranlage, die Batterie, das Haus und die Räume misst: "
-             "aus dem Energie-Dashboard übernehmen, die Checkliste sagt, was fehlt, die Rechnung zeigt, ob alles aufgeht.",
-       "en": "In the power editor “Bookkeeping” sets which sensor measures the grid, the solar panels, the battery, the house and the rooms: "
-             "take it over from the energy dashboard, the check list says what is missing, the sum shows whether it adds up."},
-      "Strom Rechnung Rechner Sensor Netz Solar Batterie Hausverbrauch Räume Vorzeichen Checkliste Energie-Dashboard "
-      "power bookkeeping calculator sensor grid solar battery house consumption rooms sign check list energy dashboard",
+      {"de": "Im Strom-Editor zeigt „Rechnung“ oben das Strom-Bild und daneben, wie gerechnet wird: Solar + Netz − Batterie = Haus. "
+             "Jeder Teil hat seine Karte mit Status und Wert, die Leiste oben springt hin; aus dem Energie-Dashboard übernehmen, die Checkliste sagt, was fehlt.",
+       "en": "In the power editor “Bookkeeping” shows the power picture at the top and next to it how it counts: solar + grid − battery = house. "
+             "Every part has its card with status and value, the bar at the top jumps there; take over from the energy dashboard, the check list says what is missing."},
+      "Strom Rechnung Rechner Sensor Netz Solar Batterie Hausverbrauch Räume Vorzeichen Checkliste Energie-Dashboard Strom-Bild "
+      "power bookkeeping calculator sensor grid solar battery house consumption rooms sign check list energy dashboard power picture",
       query="mode=edit")
 def _(r):
     r.say("Oben im Bearbeiten: „Strom“. Jetzt siehst du nur die Stromgeräte und „Strom jetzt“.", "At the top while editing: “Power”. Now you see only the power devices and “Power now”.")
@@ -1804,9 +1804,26 @@ def _(r):
     r.say("Daneben: „Rechnung“, der Strom-Rechner.", "Next to it: “Bookkeeping”, the power calculator.")
     r.click("#energyBtn")
     r.wait(1300)
-    r.say("Hier legst du fest, welcher Sensor aus Home Assistant was misst.", "Here you set which sensor of Home Assistant measures what.")
-    r.wait(1200)
+    r.say("Oben das Strom-Bild, daneben die Rechnung: Solar + Netz − Batterie = was das Haus braucht.", "At the top the power picture, next to it the sum: solar + grid − battery = what the house uses.")
+    r.move(*spot(r, "#energyResult .enRow.sum", center=True))
+    r.wait(2200)
+    r.poster()
+    r.say("Jede Zeile sagt, woher ihr Wert kommt. Ein Tipp darauf öffnet ihren Teil.", "Every line says where its value comes from. A tap on it opens its part.")
+    r.click("#energyResult button.enRow[data-part=battery]")
+    r.wait(2000)
+    r.say("Jeder Teil ist eine Karte: oben steht, ob der Sensor gewählt ist oder aus dem Plan kommt, und sein Wert jetzt.",
+          "Every part is a card: at the top it says whether the sensor is chosen or comes from the plan, and its value now.")
+    r.move(*spot(r, "#enPart-battery .enPartState"))
+    r.wait(2200)
+    r.say("Die Leiste oben springt zu jedem Teil. Der Punkt: grün gewählt, blau aus dem Plan, orange fehlt.",
+          "The bar at the top jumps to every part. The dot: green chosen, blue from the plan, orange missing.")
+    r.click("#energyNav .enNavBtn[data-part=grid]")
+    r.wait(1600)
+    r.say("Ein Sensor oder zwei, und „Vorzeichen umdrehen“, wenn er andersherum zählt.", "One sensor or two, and “turn the sign round” when it counts the other way.")
+    r.move("#enGridInvert")
+    r.wait(2000)
     r.say("Am schnellsten: „⤵ Aus dem Energie-Dashboard übernehmen“.", "The quickest way: “⤵ Take over from the energy dashboard”.")
+    r.move(*spot(r, "#enHaLoad", center=True))
     r.click("#enHaLoad")
     r.wait(1600)
     r.say("Es zeigt, was es gefunden hat. „✓ Übernehmen“ trägt alles ein.", "It shows what it found. “✓ Take over” fills it all in.")
@@ -1814,18 +1831,14 @@ def _(r):
     r.wait(1500)
     r.click("#enHaApply")
     r.wait(1300)
-    r.say("Die Checkliste sagt, was fertig ist und was noch fehlt.", "The check list says what is done and what is still missing.")
-    r.move(*spot(r, "#enChecklist", center=True))
+    r.say("Die Checkliste sagt, was fertig ist und was noch fehlt. Ist alles fertig, ist sie zugeklappt.", "The check list says what is done and what is still missing. When all is done it is folded away.")
+    r.move(*spot(r, "#enClBox > summary", center=True))
+    if not r.js("document.getElementById('enClBox').open"):
+        r.click("#enClBox > summary")
     r.wait(1800)
-    r.poster()
-    r.say("„So wird gerade gerechnet“: Solar + Netz − Batterie = was das Haus braucht.", "“How it is counted right now”: solar + grid − battery = what the house uses.")
-    r.move(*spot(r, "#energyResult .enRow.sum", center=True))
-    r.wait(2200)
-    r.say("Darunter jeder Teil einzeln: ein Sensor oder zwei, und „Vorzeichen umdrehen“, wenn er andersherum zählt.",
-          "Below, every part on its own: one sensor or two, and “turn the sign round” when it counts the other way.")
-    r.move("#enGridInvert")
-    r.wait(2200)
     r.say("Bei „Räume“ ordnet „Vorschlagen“ die Zwischenstecker den Räumen zu.", "Under “Rooms”, “Suggest” puts the smart plugs into their rooms.")
+    r.click("#energyNav .enNavBtn[data-part=rooms]")
+    r.wait(1200)
     r.click("#enSuggest")
     r.wait(2000)
     r.say("Oben stehen dann die Räume und der „Rest“, den kein Raum misst.", "At the top you then see the rooms and the “rest” that no room measures.")

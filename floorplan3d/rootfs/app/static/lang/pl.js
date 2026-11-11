@@ -333,7 +333,7 @@ export default {
   'energy.rooms.suggest': 'Zaproponuj',
   'energy.rooms.suggestTip': 'Przejmij czujniki w watach z obszaru Home Assistant pokoju lub umieszczone w pokoju',
   'energy.rooms.suggested': 'Przypisano czujników: {n}',
-  'energy.rooms.noneFound': 'Nie znaleziono więcej czujników w watach.',
+  'energy.rooms.noneFound': 'Nie znaleziono więcej czujników w watach.', 'energy.nav': 'Przejdź do', 'energy.p.grid': 'Sieć', 'energy.p.solar': 'Solar', 'energy.p.battery': 'Bateria', 'energy.p.house': 'Dom', 'energy.p.rooms': 'Pokoje', 'energy.p.meters': 'Liczniki', 'energy.p.tip': 'Przejdź do „{part}”: {state}', 'energy.st.set': 'czujnik wybrany', 'energy.st.plan': 'z planu', 'energy.st.none': 'jeszcze brak', 'energy.st.off': 'brak', 'energy.st.noValue': 'brak wartości', 'energy.st.calc': 'obliczone', 'energy.st.own': 'własny czujnik', 'energy.st.rooms': '{n} z {of} pokoi', 'energy.st.metersOwn': 'własne liczniki', 'energy.st.metersHa': 'z panelu energii', 'energy.st.idle': 'spoczynek', 'energy.formula': 'Tak liczy: solar + sieć − bateria = dom. Dotknij wiersza, aby ustawić jego czujnik.', 'energy.cl.count': '{ok} gotowe · {todo} otwarte', 'energy.rowTip': 'Ustaw tutaj: {part}',
   'power.sum.loadMeasured': 'Zużycie (zmierzone)',
   'power.sum.rooms': 'Pokoje',
   'power.sum.rest': 'Reszta',

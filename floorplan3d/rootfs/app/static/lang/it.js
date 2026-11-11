@@ -333,7 +333,7 @@ export default {
   'energy.rooms.suggest': 'Proponi',
   'energy.rooms.suggestTip': 'Prendere i sensori in watt dall’area di Home Assistant della stanza o messi nella stanza',
   'energy.rooms.suggested': '{n} sensori assegnati',
-  'energy.rooms.noneFound': 'Nessun altro sensore in watt trovato.',
+  'energy.rooms.noneFound': 'Nessun altro sensore in watt trovato.', 'energy.nav': 'Vai a', 'energy.p.grid': 'Rete', 'energy.p.solar': 'Solare', 'energy.p.battery': 'Batteria', 'energy.p.house': 'Casa', 'energy.p.rooms': 'Stanze', 'energy.p.meters': 'Contatori', 'energy.p.tip': 'Vai a «{part}»: {state}', 'energy.st.set': 'sensore scelto', 'energy.st.plan': 'dalla pianta', 'energy.st.none': 'manca ancora', 'energy.st.off': 'nessuno', 'energy.st.noValue': 'nessun valore', 'energy.st.calc': 'calcolato', 'energy.st.own': 'sensore proprio', 'energy.st.rooms': '{n} di {of} stanze', 'energy.st.metersOwn': 'contatori propri', 'energy.st.metersHa': 'dalla dashboard energia', 'energy.st.idle': 'a riposo', 'energy.formula': 'Il calcolo: solare + rete − batteria = casa. Tocca una riga per impostarne il sensore.', 'energy.cl.count': '{ok} fatti · {todo} aperti', 'energy.rowTip': 'Impostalo qui: {part}',
   'power.sum.loadMeasured': 'Consumo (misurato)',
   'power.sum.rooms': 'Stanze',
   'power.sum.rest': 'Resto',

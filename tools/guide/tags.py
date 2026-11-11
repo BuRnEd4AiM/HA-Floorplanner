@@ -169,9 +169,9 @@ t("energy-houses",
   "together sum own meters electricity price per house cost per house usage per house which house uses how much")
 t("climate",
   "Raumklima alle Thermostate Temperaturen Übersicht Heizung Klimaanlage Luftfeuchtigkeit CO2 Luftqualität lüften "
-  "Hinweis kalt warm Grad",
+  "Hinweis kalt warm Grad Halbkreis Kreis ziehen Drehregler Regler Temperatur einstellen springt zurück",
   "room climate all thermostats temperatures overview heating air conditioning humidity CO2 air quality ventilate "
-  "notice cold warm degrees")
+  "notice cold warm degrees semicircle circle drag dial knob set the temperature jumps back")
 t("heatplan",
   "Heizplan Zeitplan Wochenplan Heizzeiten Heizprofil Zeitsteuerung Nachtabsenkung Absenkung morgens abends Wochenende "
   "Uhrzeiten Schedule Komfort Eco Nacht Uhrzeit verschieben Zeit ziehen genaue Uhrzeit Kante Leiste",
@@ -446,10 +446,11 @@ t("energy-calc",
   "Strom-Rechner Stromrechner Stromrechnung Rechnung einrichten Sensoren zuordnen welcher Sensor ist was Netzbezug "
   "Hausanschluss Stromzähler Smartmeter Wechselrichter Balkonkraftwerk Batteriespeicher Ladestand Hausverbrauch "
   "Zwischenstecker Unterzähler Vorzeichen falsch negativ Minus stimmt nicht geht nicht auf Energie-Dashboard übernehmen "
-  "Strom-Editor Autarkie Shelly",
+  "Strom-Editor Autarkie Shelly Strom-Bild Stromfluss Übersicht verstehen woher kommt der Wert aus dem Plan",
   "power calculator power bookkeeping set up assign sensors which sensor is what grid import house connection "
   "electricity meter smart meter inverter balcony solar home battery charge level house consumption smart plug sub-meter "
-  "wrong sign negative minus does not add up energy dashboard take over power editor autarky Shelly")
+  "wrong sign negative minus does not add up energy dashboard take over power editor autarky Shelly power picture power flow "
+  "overview understand where does the value come from from the plan")
 t("nanoleaf-edit",
   "Nanoleaf Shapes Canvas Lines Elements Lichtpanels Lichtpaneele Wandpanels Wandleuchte Dreiecke Sechsecke Hexagon "
   "Quadrate Linien Form zeichnen Anordnung Layout ändern einrasten Panel hinzufügen Panel löschen Govee Glide Hexa",

@@ -199,12 +199,13 @@ export function suggestRooms(layout, states, areaOf, inPoly) {
 }
 
 /**
- * The calculation as the tab shows it, line by line: [{ sign ('', '+', '−', '='), label, value, cls ('sum', 'bad', 'room', 'extra') }].
+ * The calculation as the tab shows it, line by line: [{ sign ('', '+', '−', '='), key (of its label; 'room' for a room), label, value, cls ('sum',
+ * 'bad', 'room', 'extra') }].
  * Production, + drawn / − fed in, − charging / + discharging (or not counted), = calculated, the measured one, the rooms and the rest,
  * own use of the solar power and autarky.
  */
 export function balanceRows(bal, t) {
-  const rows = [], row = (sign, key, value, cls = '') => rows.push({ sign, label: t(key), value, cls });
+  const rows = [], row = (sign, key, value, cls = '') => rows.push({ sign, key, label: t(key), value, cls });
   if (bal.prod !== null) row('', 'energy.r.prod', fmtWatts(bal.prod));
   if (bal.grid !== null) row(bal.grid < 0 ? '−' : '+', bal.grid < 0 ? 'energy.r.feedIn' : 'energy.r.draw', fmtWatts(bal.grid));
   const f = bal.battery?.flow;
@@ -214,7 +215,7 @@ export function balanceRows(bal, t) {
   }
   if (bal.calc !== null) row('=', 'energy.r.calc', fmtSigned(bal.calc), bal.calc < -TOLERANCE ? 'bad' : bal.measured === null ? 'sum' : '');
   if (bal.measured !== null) row('', 'energy.r.measured', fmtWatts(bal.measured), 'sum');
-  bal.rooms.forEach((r) => rows.push({ sign: '', label: `↳ ${r.name || t('energy.room')}`, value: r.watts === null ? '–' : fmtWatts(r.watts), cls: 'room' }));
+  bal.rooms.forEach((r) => rows.push({ sign: '', key: 'room', label: `↳ ${r.name || t('energy.room')}`, value: r.watts === null ? '–' : fmtWatts(r.watts), cls: 'room' }));
   if (bal.rest !== null) row('', 'energy.r.rest', fmtSigned(bal.rest), bal.rest < -Math.max(TOLERANCE, (bal.load || 0) * 0.1) ? 'bad room' : 'room');
   if (bal.prod) row('', 'energy.r.self', fmtWatts(bal.self), 'extra');
   if (bal.autarky !== null) row('', 'energy.r.autarky', `${bal.autarky} %`, 'extra');

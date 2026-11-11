@@ -333,7 +333,7 @@ export default {
   'energy.rooms.suggest': 'Proponer',
   'energy.rooms.suggestTip': 'Tomar sensores en vatios del área de Home Assistant de la habitación o colocados en ella',
   'energy.rooms.suggested': '{n} sensores asignados',
-  'energy.rooms.noneFound': 'No se encontraron más sensores en vatios.',
+  'energy.rooms.noneFound': 'No se encontraron más sensores en vatios.', 'energy.nav': 'Ir a', 'energy.p.grid': 'Red', 'energy.p.solar': 'Solar', 'energy.p.battery': 'Batería', 'energy.p.house': 'Casa', 'energy.p.rooms': 'Habitaciones', 'energy.p.meters': 'Contadores', 'energy.p.tip': 'Ir a «{part}»: {state}', 'energy.st.set': 'sensor elegido', 'energy.st.plan': 'del plano', 'energy.st.none': 'falta todavía', 'energy.st.off': 'ninguno', 'energy.st.noValue': 'sin valor', 'energy.st.calc': 'calculado', 'energy.st.own': 'sensor propio', 'energy.st.rooms': '{n} de {of} habitaciones', 'energy.st.metersOwn': 'contadores propios', 'energy.st.metersHa': 'del panel de energía', 'energy.st.idle': 'en reposo', 'energy.formula': 'Así se calcula: solar + red − batería = casa. Toca una línea para ajustar su sensor.', 'energy.cl.count': '{ok} listos · {todo} pendientes', 'energy.rowTip': 'Ajustar aquí: {part}',
   'power.sum.loadMeasured': 'Consumo (medido)',
   'power.sum.rooms': 'Habitaciones',
   'power.sum.rest': 'Resto',
