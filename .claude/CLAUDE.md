@@ -6,7 +6,7 @@ A knowledge graph of the code is built at session start in graphify-out/.
 - After changing code run `graphify update .` (no API cost).
 ## Working with the owner
 - Continuing from an earlier chat: read docs/UEBERGABE.md first (state, open questions to the owner, how the example pictures are made, pitfalls).
-- Keep docs/UEBERGABE.md short (the owner's wish, 2026-10-26): only the last few sessions in a sentence or two, open points, the owner, pitfalls. What is built belongs in CHANGELOG.md; an old section moves to docs/archiv/.
+- Keep docs/UEBERGABE.md short (the owner's wish, 2026-10-26, shortened again 2026-11-11 from 91 KB to 18 KB): only the last three or four sessions in a sentence or two, open points one line each without technical notes, the owner, pitfalls. What is built belongs in CHANGELOG.md; an old section moves to docs/archiv/.
 - The timeline page (timeline.html next to the demo on GitHub Pages, tools/make_timeline.py) builds itself after every merge from CHANGELOG.md, docs/CHANGELOG.de.md, the photos in docs/timeline/<version>/, docs/ideen-*/ and the token counts in docs/tokens/. It must keep growing (the owner's wish, 2026-10-26), so with every new version, checked by tests/test_make_timeline.py:
   - Write its CHANGELOG.md entry in German in docs/CHANGELOG.de.md as well, with the same sections and bullets (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed).
   - A new <major>.<minor>.0 gets a picture: `python3 tools/timeline_photo.py` takes a photo of the demo as it is now (more photos: `--name dach --query "mode=edit"`), or put the example pictures in docs/ideen-<major>.<minor>/.
@@ -33,9 +33,9 @@ A knowledge graph of the code is built at session start in graphify-out/.
 - Cost (estimate 2026-11-11, API prices): re-reading the chat from the cache costs the same for Opus and Fable and is most of the tokens, so Fable alone is only about a third dearer than Opus. An advisor call reads the whole chat again at full price (not cached, ~340k tokens here): in this project's long chats Opus + Fable advisor costs as much as Fable alone or more.
 - tools/tokens.py counts the advisor's tokens under its own model (`usage.iterations`, type "advisor_message").
 ## Code structure (new rule)
-- app.js is far too big (see docs/MODULE-PLAN.md for what is already split and what is next). **Every extension goes into a NEW module or into a fitting existing module, never as another large block into app.js.** app.js only gets the import, an `init...({...})` call and the wiring.
+- app.js was far too big (docs/MODULE-PLAN.md: the rule; the long list of what is already split is in docs/archiv/MODULE-PLAN-schon-getrennt.md). **Every extension goes into a NEW module or into a fitting existing module, never as another large block into app.js.** app.js only gets the import, an `init...({...})` call and the wiring.
 - Pure logic (no three.js, no DOM) is kept separate and gets a node unit test in tests/ (like kitchen.js, heatpanel.js) plus a CI step.
-- When an existing part of app.js is changed anyway, move that part into a module in the same PR if it is small and safe. Keep docs/MODULE-PLAN.md up to date (move rows from "still in app.js" to "already split").
+- When an existing part of app.js is changed anyway, move that part into a module in the same PR if it is small and safe. A new module needs no row in docs/MODULE-PLAN.md any more; a comment at the top of the file says what it does.
 ## Docker version (container/, #489) must keep working
 - The owner's wish (2026-10-23): every change must also work in the Docker version (Home Assistant Container, no Supervisor, see container/README.md). It runs the same files as the add-on; only these differ:
 - Who is looking: only `current_user(request)` (never the X-Remote-User-* headers yourself; in Docker the login cookie says it). Who may edit: only `can_edit(request)`.
