@@ -28,6 +28,10 @@ A knowledge graph of the code is built at session start in graphify-out/.
 ## The new panel "✨ Neu" (UI 2) (the owner's wish, 2026-11-10: "bitte vergiss nicht die Ansicht in der v2, das sollte man auch nicht vergessen immer")
 - Every new or changed field in the properties panel is also checked with "✨ Neu" (`?ui=2`): it lands in the right section or tab (`mark(body, key)` in props.js, `ROOM_TABS` and the sections in uiv2.js), "🔍 Einstellung suchen" finds it, and the browser test checks it there too (like `tests/e2e/parts/83_room_source.py`; at the end remove `fp.ui` from localStorage). Say in the PR what was checked in "✨ Neu".
 
+## Models: Opus works, Fable advises (the owner's wish, 2026-11-11: "fable denkt und opus die post losendet")
+- Opus is the main model: it does the work (code, tests, commit, push, PR). Fable is the advisor (`"advisorModel": "fable"` in .claude/settings.json): Claude asks it before a plan, when stuck and before saying "done".
+- In a cloud session the advisor chosen in the app wins over the file (2026-11-11 the app sent Opus from the first reply on). The owner picks Fable as the advisor in the app or types `/advisor fable` in the chat; `/advisor off` turns it off for one chat. Every advisor call reads the whole chat again (not cached), Fable at twice the price of Opus.
+- tools/tokens.py counts the advisor's tokens under its own model (`usage.iterations`, type "advisor_message").
 ## Code structure (new rule)
 - app.js is far too big (see docs/MODULE-PLAN.md for what is already split and what is next). **Every extension goes into a NEW module or into a fitting existing module, never as another large block into app.js.** app.js only gets the import, an `init...({...})` call and the wiring.
 - Pure logic (no three.js, no DOM) is kept separate and gets a node unit test in tests/ (like kitchen.js, heatpanel.js) plus a CI step.
