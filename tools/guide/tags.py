@@ -432,6 +432,11 @@ t("buildings-pages",
   "Dashboard je Gebäude Karten ausblenden falsches Haus Entitäten zuordnen Seite gehört zu Gebäude zwei Häuser",
   "choose building switch building only one building wing main house garden house outbuilding filter devices filter pages "
   "dashboard per building hide cards wrong house assign entities page belongs to building two houses")
+t("building-areas",
+  "Bereich einem Gebäude zuordnen Bereiche von Home Assistant Gebäude Räume zuordnen falsches Haus Geräte vom anderen Gebäude Automationen "
+  "vom anderen Haus Szenen falsches Gebäude ohne Gebäude kein Gebäude zeigt sich immer Keller zuordnen Gartenhaus Einliegerwohnung zwei Häuser trennen",
+  "assign an area to a building areas of Home Assistant building assign rooms wrong house devices of the other building automations "
+  "of the other house scenes wrong building without a building no building always shows assign the cellar garden house granny flat separate two houses")
 t("energy-buildings",
   "Strom je Gebäude Gebäude im Plan zwei Gebäude Nebengebäude Anbau Gartenhaus Einliegerwohnung Doppelhaus Haupthaus Stromrechner je Haus "
   "getrennt rechnen eigener Stromzähler Gebäude trennen Strom getrennt anzeigen zwei Häuser nebeneinander Bereiche",

@@ -7,14 +7,14 @@ import { roomsOf } from './roomgroups.js';
 
 /** ctx: t, states(), nameOf(entity), canEdit(), locked(), callService(entity, service, data), ha() (Home Assistant is there), edit(scene) (the
  *  editor: a scene of the list or null), manage (hamanage.js), groups (roomgroupsui.js: by room, #590), areaOf() ({entity: area id}),
- *  changed() (draw the page again) */
+ *  shows(entity) (in the building chosen at the top, #677: a scene by its devices), changed() (draw the page again) */
 export function initScenesCard(ctx) {
   const { t } = ctx;
   let all = false;
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
 
-  const scenes = () => sceneList(ctx.states(), ctx.nameOf).filter((s) => !ctx.manage.hidden(s.cid));
+  const scenes = () => sceneList(ctx.states(), ctx.nameOf).filter((s) => !ctx.manage.hidden(s.cid) && ctx.shows?.(s.entity) !== false);
   /** a scene's line: ▶, ✏, 🗑 */
   function row(s) {
     const r = make('div', 'roRow small'); r.dataset.scene = s.entity;
@@ -60,7 +60,7 @@ export function initScenesCard(ctx) {
   }
   const sig = () => {
     const st = ctx.states();
-    return JSON.stringify([Object.keys(st).filter((e) => e.startsWith('scene.')).map((e) => [e, st[e]?.cid, ctx.nameOf(e), st[e]?.members]), all, ctx.canEdit(), ctx.locked(), ctx.ha(), ctx.manage.sig(),
+    return JSON.stringify([Object.keys(st).filter((e) => e.startsWith('scene.') && ctx.shows?.(e) !== false).map((e) => [e, st[e]?.cid, ctx.nameOf(e), st[e]?.members]), all, ctx.canEdit(), ctx.locked(), ctx.ha(), ctx.manage.sig(),
       ctx.groups?.sig(), t('sc.new')]);
   };
   return { items: () => [{ key: 'scenes', width: 2, sig: sig(), make: card }], sig, words: deviceWords,

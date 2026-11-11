@@ -2,15 +2,20 @@
  * buildings on), which building this screen shows (remembered per plan in this browser; a user or tablet can get one in the users
  * dialog, and be kept to it with the lock "building"), and the panel "Buildings in this plan" of the editor: add, rename and delete
  * buildings, say which room belongs to which building, which building a roof belongs to, give every building its own roof, bring another
- * house of the list in as a building of its own. The rules are in buildings.js (tested). */
+ * house of the list in as a building of its own; since 5.5.0 which building an area of Home Assistant belongs to (by itself: where its
+ * devices stand in the plan; chosen here: layout.areaBuildings) and what is in no building. The rules are in buildings.js and
+ * buildingents.js (tested). */
 import { buildingsOf, showSwitch, pickBuilding, roomOwners, inheritedBuilding, roofOwner, roofsPerBuilding, mergePlan, planBox } from './buildings.js';
 import { autoRoofBox, partBox } from './roofs.js';
+import { ALL, cleanAreaBuildings } from './buildingents.js';
 
 /** ctx: $, t, layout(), houseId(), houses() ([{ id, name }]), houseLabel(h), uid(), floorH(), snapshot(), changed(), shownChanged() (draw the
- *  building shown now), setStatus(txt), confirm(txt), roofBox(i) (the box of the main roof of roof floor i as drawn) */
+ *  building shown now), setStatus(txt), confirm(txt), roofBox(i) (the box of the main roof of roof floor i as drawn), areas() (Home
+ *  Assistant's: [{ id, name }]), scope() ({ auto: Map(area id -> { b, how }), loose: [entity] }, buildingscope.js), nameOf(entity),
+ *  refresh() (the panel was opened: ask what the automations use again) */
 export function initBuildingsUi(ctx) {
   const { $, t } = ctx;
-  let shown = null, userDefault = null, locked = false;
+  let shown = null, userDefault = null, locked = false, areasOpen = false, looseOpen = false;
   const storeKey = () => `fp.building.${ctx.houseId() || 'main'}`;
   const stored = () => { try { return localStorage.getItem(storeKey()); } catch { return null; } };
   const store = (id) => { try { if (id) localStorage.setItem(storeKey(), id); else localStorage.removeItem(storeKey()); } catch { /* private mode */ } };
@@ -83,6 +88,7 @@ export function initBuildingsUi(ctx) {
           if (!l.buildings.length) delete l.buildings;
           l.floors.forEach((f) => { (f.rooms || []).forEach((r) => { if (r.building === b.id) delete r.building; });
             if (f.roof) { if (f.roof.building === b.id) delete f.roof.building; (f.roof.parts || []).forEach((p) => { if (p.building === b.id) delete p.building; }); } });
+          setAreas(cleanAreaBuildings(l.areaBuildings, l.buildings?.map((x) => x.id) || []));
           if (shown === b.id) { shown = null; store(null); }
         });
         ctx.shownChanged();
@@ -141,6 +147,8 @@ export function initBuildingsUi(ctx) {
       });
     }
 
+    if (list.length >= 2) out.push(...areaRows(l, list));
+
     // bring another house of the list in as a building of its own (#409, step 4)
     const others = ctx.houses().filter((h) => h.id !== ctx.houseId());
     out.push(el('h4', { textContent: t('bld.merge') }), el('p', { className: 'sub', textContent: t('bld.mergeHelp') }));
@@ -155,7 +163,43 @@ export function initBuildingsUi(ctx) {
     body.replaceChildren(...out);
   }
 
-  $('#buildingPanel')?.addEventListener('toggle', () => renderPanel());
+  /** the choices of the areas kept in the plan (none: the key goes) */
+  function setAreas(m) {
+    const l = ctx.layout();
+    if (Object.keys(m).length) l.areaBuildings = m; else delete l.areaBuildings;
+  }
+  /** the areas of Home Assistant, each with the building it belongs to ("automatic (…)": where its devices stand in the plan), and what
+   *  is in no building; both closed until opened (a house has many areas) */
+  function areaRows(l, list) {
+    const areas = ctx.areas?.() || [], info = ctx.scope?.();
+    if (!areas.length || !info) return [];
+    const fixed = cleanAreaBuildings(l.areaBuildings, list.map((b) => b.id)), out = [];
+    const box = el('details', { className: 'bldAreas', open: areasOpen }, el('summary', { textContent: `${t('bld.areas')} (${areas.length})` }),
+      el('p', { className: 'sub', textContent: t('bld.areasHelp') }));
+    box.addEventListener('toggle', () => { areasOpen = box.open; });
+    areas.forEach((a) => {
+      const o = info.auto.get(a.id), auto = o?.b ? nameOf(o.b) : t(o?.how === 'mixed' ? 'bld.areaMixed' : 'bld.areaNone');
+      const s = el('select', { className: 'bldPick' });
+      s.add(new Option(t('bld.auto', { name: auto }), ''));
+      list.forEach((b) => s.add(new Option(b.name || t('bld.unnamed'), b.id)));
+      s.add(new Option(t('bld.areaAll'), ALL));
+      s.value = fixed[a.id] || '';
+      s.dataset.area = a.id;
+      s.addEventListener('change', () => edit(() => { const m = { ...fixed }; if (s.value) m[a.id] = s.value; else delete m[a.id]; setAreas(m); }));
+      box.append(el('label', { className: 'bldRoom' }, el('span', { textContent: a.name || a.id }), s));
+    });
+    out.push(box);
+    if (info.loose.length) {
+      const names = info.loose.slice(0, 80).map((e) => ctx.nameOf?.(e) || e);
+      const lb = el('details', { className: 'bldLoose', open: looseOpen }, el('summary', { textContent: t('bld.loose', { n: info.loose.length }) }),
+        el('p', { className: 'sub', textContent: t('bld.looseHelp') }), el('p', { className: 'bldLooseList', textContent: names.join(' · ') + (info.loose.length > 80 ? ' …' : '') }));
+      lb.addEventListener('toggle', () => { looseOpen = lb.open; });
+      out.push(lb);
+    }
+    return out;
+  }
+
+  $('#buildingPanel')?.addEventListener('toggle', () => { if ($('#buildingPanel').open) ctx.refresh?.(); renderPanel(); });   // a new automation of Home Assistant: known now
 
   /** bring house `id` into this plan as a building: at the place of the neighbour house if it stands next to this one, else to the right */
   async function mergeHouse(id) {

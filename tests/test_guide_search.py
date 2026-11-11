@@ -24,6 +24,7 @@ QUERIES = [
     ("Beta Version", "de", "version"), ("beta paused", "en", "version"),
     ("Heizplan pausieren", "de", "heat-pause"), ("Heizung von Hand regeln", "de", "heat-pause"), ("override heating schedule", "en", "heat-pause"),
     ("nur ein Gebäude anzeigen", "de", "buildings-pages"), ("Seite für den Anbau", "de", "buildings-pages"),
+    ("Bereich einem Gebäude zuordnen", "de", "building-areas"), ("Automationen vom anderen Haus", "de", "building-areas"), ("assign area to building", "en", "building-areas"),
     # other words for the same thing
     ("Rollo runter", "de", "shutter"), ("Jalousie schließen", "de", "shutter"), ("Rolladen", "de", "shutter"),
     ("Markise", "de", "shutter"), ("roller blind", "en", "shutter"), ("Gardine", "de", "window-setup"),

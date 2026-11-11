@@ -1355,6 +1355,7 @@ export function installDemoBackend() {
     }
     if (path === 'api/related') return json(relatedDemo(new URL(url, location.href).searchParams.get('entity') || ''));
     if (path === 'api/automations') return json(autosDemo());
+    if (path === 'api/uses') return json({ uses: Object.fromEntries(autosDemo().rows.map((r) => [r.entity, r.uses])) });   // what the automations use: the building at the top (5.5.0, buildingscope.js)
     if (path === 'api/train') return json({ rows: DEMO_TRAIN.rows, source: 'dbf', error: '', at: Math.round(Date.now() / 1000) });   // 🚆 (#550)
     if (path === 'api/scenes/try' && method === 'POST') { sceneShow(JSON.parse(init.body || '{}')); return json({ ok: true }); }
     if (path.startsWith('api/scenes/')) {                     // the scene editor (#549): kept in this tab, as Home Assistant would keep it

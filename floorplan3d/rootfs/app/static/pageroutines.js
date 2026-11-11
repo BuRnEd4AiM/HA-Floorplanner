@@ -31,9 +31,10 @@ export function initRoutinesPage(ctx) {
   const start = async (e) => !!(await ctx.callService(e, START[domainOf(e)]));
 
   /* ---- the check before "Ich gehe" / "Gute Nacht" ---- */
+  const here = (list) => list.filter((x) => ctx.shows?.(x.entity) !== false);   // not the music and the locks of another building (#677)
   const now = () => {
     const st = ctx.states(), names = ctx.names();
-    return checkRows({ open: ctx.openNames(), lights: ctx.litLights(), media: playingMedia(st, names), locks: openLocks(st, names) });
+    return checkRows({ open: ctx.openNames(), lights: ctx.litLights(), media: here(playingMedia(st, names)), locks: here(openLocks(st, names)) });
   };
   function ensureDlg() {
     if (dlg) return;
@@ -81,7 +82,7 @@ export function initRoutinesPage(ctx) {
     let ok = true;
     if (k === 'allOff') {
       const st = ctx.states();
-      const calls = offCalls(ctx.litLights(), playingMedia(st, ctx.names()));
+      const calls = offCalls(ctx.litLights(), here(playingMedia(st, ctx.names())));
       ok = (await Promise.all(calls.map(([e, s]) => ctx.callService(e, s)))).every(Boolean);
     }
     if (linked) ok = (await start(linked)) && ok;
@@ -107,8 +108,7 @@ export function initRoutinesPage(ctx) {
   }
   function draw(force = false) {
     const st = ctx.states(), names = ctx.names(), s = ctx.settings();
-    const shows = (e) => ctx.shows?.(e) !== false, mine = (r) => shows(r.entity) && !(st[r.entity]?.members?.length && !st[r.entity].members.some(shows));
-    const all = routineButtons(st, names, s.routines, CHECKS.map(linkedOf)).filter(mine);   // not those of another building (a scene: by its devices, #677)
+    const all = routineButtons(st, names, s.routines, CHECKS.map(linkedOf)).filter((r) => ctx.shows?.(r.entity) !== false);   // not those of another building (a scene, a script: by its devices, #677)
     const grouped = !!ctx.groups?.on(), roomsFor = (r) => roomsOf(r.entity, st[r.entity]?.members || [], ctx.areaOf?.() || {});
     const buttons = grouped ? all.filter((r) => !roomsFor(r).length) : all;       // without a room: here on top, as before (#590)
     const inRooms = grouped ? all.filter((r) => roomsFor(r).length) : [];

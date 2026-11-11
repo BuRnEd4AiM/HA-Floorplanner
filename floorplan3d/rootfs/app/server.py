@@ -3805,6 +3805,36 @@ async def get_automations(request):
     return web.json_response({"rows": rows})
 
 
+USES_KEEP = 300      # seconds the answer of api/uses is kept
+USES_MAX = 400       # automations and scripts asked at most
+
+
+async def get_uses(request):
+    """what every automation and script of Home Assistant uses: {"uses": {entity: [entity | "area:<id>"]}} (usedby.uses_of). For every
+    user: with a building chosen at the top a page shows an automation only with the building of the devices it uses (#677,
+    static/buildingents.js). Kept five minutes (an editor's ?fresh=1 asks again: the panel "🏘 Gebäude in diesem Plan"); empty without Home
+    Assistant or while it does not answer."""
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"uses": {}})
+    store = request.app[KEY_RULES]
+    at, uses = store.get("uses", (0, None))
+    if uses is None or time.time() - at > USES_KEEP or (request.query.get("fresh") and await can_edit(request)):
+        try:
+            states = await ha_states_cached(request.app)
+            ids = sorted(e for e in states if e.startswith(("automation.", "script.")))[:USES_MAX]
+            res = await ha_ask([{"type": "config/entity_registry/list"}, *(_config_cmd(x) for x in ids)]) if ids else [None]
+        except (aiohttp.ClientError, asyncio.TimeoutError, RuntimeError, OSError) as err:
+            return web.json_response({"uses": uses or {}, "error": str(err)[:120]})
+        by_device, by_regid = ub.registry_maps(res[0])
+        uses = {}
+        for x, r in zip(ids, res[1:]):
+            found = [u for u in ub.uses_of(_cfg_of(r), by_device, by_regid) if u != x]
+            if found:
+                uses[x] = found
+        store["uses"] = (time.time(), uses)
+    return web.json_response({"uses": uses})
+
+
 # ---------- own routines as real automations of Home Assistant (#548): haflows.py; the add-on only ever touches ids fp3d_… ----------
 KEEP_BACKUPS = 20
 
@@ -4042,6 +4072,7 @@ async def _ha_delete(request, kind: str):
         status, _ = await ha_config("DELETE", kind, cid, theirs=True)
     if kind == "automation":
         request.app[KEY_RULES].pop("autos", None)                       # the list of automations asks Home Assistant again
+        request.app[KEY_RULES].pop("uses", None)
     _fresh_states(request.app)
     return web.json_response({"ok": status in (200, 404)}, status=200 if status in (200, 404) else 502)
 
@@ -4074,6 +4105,7 @@ async def post_ha_restore(request):
         return web.json_response({"error": ((res or {}).get("message") if isinstance(res, dict) else None) or f"Home Assistant: {status or 'no answer'}"}, status=502)
     if kind == "automation":
         request.app[KEY_RULES].pop("autos", None)
+        request.app[KEY_RULES].pop("uses", None)
     _fresh_states(request.app)
     return web.json_response({"ok": True})
 
@@ -4509,6 +4541,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.post("/api/rules/run", post_rules_run),
         web.get("/api/related", get_related),
         web.get("/api/automations", get_automations),
+        web.get("/api/uses", get_uses),
         web.post("/api/scenes/try", post_scene_try),
         web.get("/api/train", get_train),
         web.get("/api/scenes/{id}", get_scene),

@@ -141,7 +141,8 @@ import { initNotifyUi } from './notifyui.js';
 import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.js';
 import { initGuardUi } from './guardui.js';
 import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding, buildingsOf } from './buildings.js';
-import { makeBuildingFilter, cardShows, pageShows } from './buildingents.js';
+import { cardShows, pageShows } from './buildingents.js';
+import { initBuildingScope } from './buildingscope.js';
 import { initBuildingsUi } from './buildingsui.js';
 import { initPicking } from './picking.js';
 import { batchModels, unbatch } from './meshmerge.js';
@@ -633,10 +634,12 @@ function roomHeat(room, f) {
   return v === null ? null : colorFromStops(settings[VIEW_STOPS[viewMode][0]], v);
 }
 const areaEntitiesOf = (room) => (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []);
-/* only what belongs to the building shown at the top, on every page (#677, buildingents.js) */
-const inBuilding = makeBuildingFilter({ layout: () => layout, shown: () => buildingsUi?.shown() ?? null, areas: () => areas,
-  ids: () => buildingsOf(layout).map((b) => b.id), view: (b) => viewOf(layout, b), area: areaEntitiesOf, members: (x) => states[x]?.members || [],
-  devices: (f) => entityDevices(f).map((d) => d.entity), openings: (f) => openingWalls(f).flatMap((w) => (w.openings || []).flatMap((o) => openingEntities(o))) }).shows;
+/* only what belongs to the building shown at the top, on every page (#677, buildingents.js; buildingscope.js puts the plan, the areas and
+ * what the automations use together) */
+const buildingScope = initBuildingScope({ layout: () => layout, shown: () => buildingsUi?.shown() ?? null, areas: () => areas, states: () => states,
+  devices: (f) => entityDevices(f).map((d) => d.entity), openings: (f) => openingWalls(f).flatMap((w) => (w.openings || []).flatMap((o) => openingEntities(o))),
+  changed: () => { buildingsUi?.renderPanel(); if (buildingsUi?.shown()) { roomTiles.update(); tabsUi.update(); } } });
+const inBuilding = buildingScope.shows;
 const roomInBuilding = (id) => shownLayout().floors.some((f) => (f.rooms || []).some((r) => r.id === id));
 let partsOf = [null, {}];                                        // the sensors of thermostats' devices, worked out once per list of areas
 const partOf = () => (partsOf[0] === areas ? partsOf[1] : (partsOf = [areas, thermostatParts(areas)])[1]);
@@ -655,6 +658,7 @@ const rulesUi = initRulesUi({                                    // the add-on's
   canEdit: () => me.canEdit, locked: () => locks.has('control'), locks: () => locks, callService: (e, svc, data) => live.callService(e, svc, data), houseId: () => hs.id(),
   layout: () => shownLayout(), details: (e) => live.detailsButton(e, true), tabs: () => tabsUi, climate: () => climatePage, routines: () => routinesPage,
   redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); }, partOf, areas: () => areas, areaOf: () => areaOf,   // ▶ Abläufe by room (#590)
+  shows: inBuilding,                                             // only the routines, automations and scenes of the building shown (#677)
 });
 const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
   settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf,
@@ -681,7 +685,7 @@ function animateOpenings() { return openings.animate(); }
 
 /* ================= Cameras (#69): cones, overview, still images; the code lives in cameras.js ================= */
 const cams = initCameras({
-  $, t, settings: () => lockedSettings(settings, [...locks]), layout: () => layout, states: () => states, onStates: ON_STATES, pointInPoly: (...a) => pointInPoly(...a), isHolo: () => isHolo(),
+  $, t, settings: () => lockedSettings(settings, [...locks]), layout: () => shownLayout(), states: () => states, onStates: ON_STATES, pointInPoly: (...a) => pointInPoly(...a), isHolo: () => isHolo(),   // the building shown (#677)
   openMoreInfo: (id) => openMoreInfo(id), setStatus: (x) => setStatus(x), showDevice: (fi, id) => offline.show({ floor: fi, kind: 'device', id }), closeMenu: () => toggleMenu(camMenu, camPillBtn, false),
 });
 
@@ -1121,6 +1125,7 @@ function switchHouse(id) { return houseLoad.switchHouse(id); }
 buildingsUi = initBuildingsUi({
   $, t, layout: () => layout, houseId: () => hs.id(), houses: () => hs.list(), houseLabel: (h) => hs.label(h), uid: () => uid(), floorH,
   snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), confirm: (x) => confirm(x),
+  areas: () => areas, scope: () => buildingScope.info(), refresh: () => buildingScope.load(true), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,   // the areas of Home Assistant per building
   shownChanged: () => {                                            // another building shown: its floor (the ground floor when the open one has nothing of it), framed
     refreshView();
     if (tabsUi) { tabsUi.redraw(); tabsUi.render(tabsUi.open()); }   // the pages show only what belongs to it (#677)
@@ -1755,7 +1760,7 @@ initVersion({ t, active: () => !isLive() && !!settings.updateCheck });
 initGuide({ $, t, lang: () => currentLanguage() });                 // 🎬 video guide in the top bar (guideui.js, only for editors)
 
 /* ================= Data loading ================= */
-async function loadAreas() { let a; [a, batteryOf] = await Promise.all([fetchAreas(), fetchBatteries()]); ({ areas, areaOf } = a); }   // Home Assistant's areas and which entity is in which (livechannel.js)
+async function loadAreas() { let a; [a, batteryOf] = await Promise.all([fetchAreas(), fetchBatteries()]); ({ areas, areaOf } = a); buildingScope.load(); }   // Home Assistant's areas and which entity is in which (livechannel.js)
 
 function toState(e) { return toStateOf(e, settings.effectColors); }       // what is kept of an entity (entitystate.js)
 

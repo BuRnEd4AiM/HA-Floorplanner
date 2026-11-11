@@ -54,3 +54,24 @@ def test_own_rules_that_use_a_device():
     assert ub.own_uses("climate.bad", heat, flows, rooms) == [{"kind": "heat", "rule": "schedule", "room": "h/bad"}, {"kind": "heat", "rule": "night", "room": "h/bad"}]
     assert ub.own_uses("binary_sensor.fenster", heat, flows, rooms) == [{"kind": "heat", "rule": "window", "room": "h/wz"}, {"kind": "flow", "id": "f_a", "name": "Fenster", "on": True}]
     assert ub.own_uses("light.wz", heat, flows, rooms) == [{"kind": "flow", "id": "f_b", "name": "Licht", "on": False}]
+
+
+def test_what_an_automation_uses_for_its_building():
+    """5.5.0 (static/buildingents.js): every entity it names, the entities of the devices it names, a device trigger's entity by the id of
+    the registry, the areas it names as "area:<id>"."""
+    reg = [{"entity_id": "light.flur", "id": "0123456789abcdef0123456789abcdef", "device_id": "dev1"}, {"entity_id": "sensor.flur_power", "id": "r2", "device_id": "dev1"},
+           {"entity_id": "switch.pumpe", "id": "r3", "device_id": "dev2"}, {"entity_id": "bad id", "device_id": "dev2"}, {"entity_id": "sun.sun", "id": "r5"}, "junk"]
+    by_device, by_regid = ub.registry_maps(reg)
+    assert by_device == {"dev1": ["light.flur", "sensor.flur_power"], "dev2": ["switch.pumpe"]}
+    assert by_regid == {"0123456789abcdef0123456789abcdef": "light.flur", "r2": "sensor.flur_power", "r3": "switch.pumpe", "r5": "sun.sun"}
+    assert ub.registry_maps(None) == ({}, {})
+    cfg = {"triggers": [{"trigger": "device", "device_id": "dev2", "entity_id": "0123456789abcdef0123456789abcdef", "type": "turned_on"},
+                        {"trigger": "state", "entity_id": "binary_sensor.tuer"}],
+           "actions": [{"action": "light.turn_on", "target": {"area_id": ["keller", "wohnzimmer"], "device_id": "dev1", "entity_id": "light.decke"}},
+                       {"action": "script.gute_nacht"}, {"service": "light.turn_off", "target": {"area_id": "keller"}}, {"device_id": "weg"}, {"area_id": "Not An Id"}]}
+    assert ub.uses_of(cfg, by_device, by_regid) == ["binary_sensor.tuer", "light.decke", "script.gute_nacht", "light.flur", "switch.pumpe", "sensor.flur_power",
+                                                    "area:keller", "area:wohnzimmer"]
+    assert ub.uses_of(cfg) == ["binary_sensor.tuer", "light.decke", "script.gute_nacht", "area:keller", "area:wohnzimmer"]   # without the registry
+    assert ub.uses_of(MORNING) == ["climate.wz", "scene.morgen"] and ub.uses_of(None) == [] and ub.uses_of("x") == []
+    many = {"action": [{"service": "light.turn_on", "entity_id": [f"light.l{i}" for i in range(60)]}]}
+    assert len(ub.uses_of(many)) == ub.MAX_USES

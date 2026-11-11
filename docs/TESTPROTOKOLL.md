@@ -33,6 +33,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 21. **Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt** (Abschnitt 182, #705 von Miicki vom 2026-11-10): Claude hat 182.1 bis 182.5 geprüft (182.5 in der Beta); für dich im Add-on mit einem eigenen Raum 182.6 (die Suche 182.7 hat Claude am 2026-11-10 geprüft). 5.4.0 ist seit 2026-11-10 für alle freigegeben (dein Wunsch: „in der Beta das alles testen und wenn alles passt es rüber pushen“).
 22. **Repariert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste** (Abschnitt 183, #709, deine Bilder vom 2026-11-10): Claude hat 183.1 bis 183.4 geprüft (183.4 am 2026-11-10 in der Beta-Demo, am iPad quer und hochkant und am PC); 183.5 ❌ (das Seitenfach), darum 5.4.2: nichts mehr für dich.
 23. **Verbessert in 5.4.2: ✨ ein Reiter springt zu seinem Abschnitt** (Abschnitt 184, deine Wahl D vom 2026-11-10): Claude hat 184.1 bis 184.3 geprüft (184.3 am 2026-11-10 in der Beta-Demo am PC und am iPad); für dich nur dein Eindruck 184.4.
+24. **Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant** (Abschnitt 186, #715, deine Meldung vom 2026-11-11): Claude hat 186.1 und 186.2 geprüft (zwei Häuser nachgebaut, jede Seite durchgesehen); für dich im Add-on mit deinen zwei Häusern 186.3 bis 186.6 (damit ist auch 168.8 erledigt), nach dem Merge das Video 186.7.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -474,7 +475,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 183. Repariert und verbessert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste (#709) | 4 | 1 | 0 | 0 | ❌ 183.5 |
 | 184. Verbessert in 5.4.2: ✨ ein Reiter springt zu seinem Abschnitt | 3 | 0 | 1 | 0 | 184.4 |
 | 185. Repariert in 5.4.3: ▲ das Plateau hebt den Keller nicht mehr an (#713) | 1 | 0 | 3 | 0 | 185.2 bis 185.4 |
-| **Zusammen** | **1201** | **2** | **81** | **92** | |
+| 186. Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant (#715) | 2 | 0 | 5 | 0 | 186.3 bis 186.7 |
+| **Zusammen** | **1203** | **2** | **86** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2838,3 +2840,16 @@ Gemeldet vom Besitzer am 2026-11-10 mit drei Bildern (Fassung „Eltern“): „
 | 185.2 | Im Add-on, Fassung „Eltern“: „Bearbeiten“, 2D, Etage „Keller“ | Unter den Räumen (Raum 1, Raum 2, Raum 3, Heizungsraum) steht kein „▲ +0.60 m“ mehr | ❓ |
 | 185.3 | Im Add-on, Fassung „Eltern“: 3D, Etage „Keller“ | Der Kellerboden liegt unten auf seiner Höhe, er schwebt nicht mehr | ❓ |
 | 185.4 | Im Add-on: „Ganzes Haus“ ansehen (wenn es eine Treppe vom Keller ins EG gibt, diese anschauen) | Das EG steht auf dem Plateau, der Keller in der Erde darunter, ohne Lücke dazwischen; die Treppe kommt oben im EG an | ❓ |
+
+## 186. Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant (#715)
+Gemeldet vom Besitzer am 2026-11-11: „selbst wenn ich oben Gebäude 1 auswähle, werden mir Geräte und Automatisierungen und so weiter von Gebäude 2 angezeigt, auch in allen Dashboards“. Nachgestellt mit zwei Häusern in einem Plan: was nicht im Plan stand (und nicht im Bereich eines verknüpften Raums lag), gehörte zu keinem Gebäude; Automationen, Skripte und die Listen auf ▶ Abläufe wurden gar nicht gefiltert. Jetzt gehört ein ganzer Bereich von Home Assistant zu einem Gebäude (von selbst oder gewählt), Automationen folgen ihren Geräten.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 186.1 | `node --test tests/buildingents.test.mjs`, `pytest tests/test_usedby.py tests/test_rules_api.py` | Ein Bereich gehört zum Gebäude seiner Geräte im Plan, sonst zum Gebäude mit einem Raum dieses Namens; gewählt gewinnt; „Alle Gebäude“ zeigt immer; Automation, Skript, Szene nach dem, was sie benutzen (auch über Skript → Szene, über `area_id` und `device_id`); `api/uses` für jeden Benutzer | ✅ (2026-11-11, Claude) |
+| 186.2 | Browser-Test Teil `84_building_scope` (dazu `77_pause_buildings`, `21_buildings`, `33_climate_routines_family`, `34_dashboards`) | Haus A oben: eigene Seite ohne die Karten von B, gemischte Liste nur mit den Zeilen von A, 🎵 ohne den Fernseher von B, ▶ Abläufe ohne Knöpfe, Szenen und Automationen von B, „Ich gehe“ nennt und stoppt den Fernseher von B nicht; das Feld zeigt „automatisch (Haus B)“ und „Ohne Gebäude“, der Keller von Hand zu Haus B; ✨ Neu zeigt die Liste auch | ✅ (2026-11-11, Claude) |
+| 186.3 | Im Add-on mit deinen zwei Häusern: „Bearbeiten“, „🏘 Gebäude in diesem Plan“, unten „Bereiche von Home Assistant“ aufklappen | Jeder Bereich steht da mit „automatisch (…)“ und dem richtigen Gebäude; wo „kein Gebäude“ oder das falsche steht, das Gebäude wählen | ❓ |
+| 186.4 | Im Add-on: darunter „Ohne Gebäude: n“ aufklappen | Dort steht nur noch, was wirklich zu keinem Haus gehört (Wetter, Personen …); was zu einem Haus gehört, in Home Assistant einem Bereich geben | ❓ |
+| 186.5 | Im Add-on: „Live“, oben Gebäude 1 wählen, dann Klima, Kameras, Musik & TV, Haushalt, Abläufe, Protokoll und deine eigenen Seiten ansehen | Nichts mehr von Gebäude 2: keine Geräte, keine Szenen, keine Automationen; mit Gebäude 2 oben umgekehrt, mit „🏘 Alle Gebäude“ alles | ❓ |
+| 186.6 | Im Add-on mit Gebäude 1 oben: ▶ Abläufe, „Ich gehe“ antippen (läuft im anderen Haus gerade Musik: umso besser) | Die Liste nennt nur Lichter, Fenster, Musik und Schlösser von Gebäude 1; „Alles aus“ lässt das andere Haus in Ruhe | ❓ |
+| 186.7 | Nach dem Merge auf der Seite der Anleitung das Video „🏘 Bereiche von Home Assistant gehören zu einem Gebäude“ ansehen | Zeigt die Liste der Bereiche, „automatisch (Haupthaus)“, einen Bereich von Hand zuordnen und „Ohne Gebäude“ | ❓ |

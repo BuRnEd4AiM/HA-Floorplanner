@@ -1,0 +1,27 @@
+{
+ "session": "session_018pwcmvYf9emXrX6wXmLTxm",
+ "start": "2026-11-11",
+ "updated": "2026-11-11T08:12:38Z",
+ "branch": "claude/clever-meitner-fiap27",
+ "source": "counted",
+ "input": 310,
+ "cache_write": 454686,
+ "cache_read": 48377309,
+ "output": 138323,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 8,
+   "cache_write": 66703,
+   "cache_read": 267857,
+   "output": 3452,
+   "requests": 3
+  },
+  "claude-fable-5-2": {
+   "input": 302,
+   "cache_write": 387983,
+   "cache_read": 48109452,
+   "output": 134871,
+   "requests": 153
+  }
+ }
+}
