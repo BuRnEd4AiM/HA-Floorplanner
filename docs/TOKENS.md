@@ -4,13 +4,13 @@
 
 Stand: 2026-11-11 · 132 Sitzungen
 
-**Insgesamt: 8,89 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 8,91 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 24,3 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
 | Neu gelesen | 84,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 8,78 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Wieder gelesen | 8,80 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 46 | 2,76 Mrd. | 6,6 Mio. |
+| 2026-11 | 46 | 2,78 Mrd. | 6,6 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,7 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-11-11 | [018pwcmz…](https://claude.ai/code/session_018pwcmzjDWFxeqYcRnq174z) | claude/vibrant-hypatia-b6stq1 | 184,8 Mio. | 343 Tsd. | gezählt |
+| 2026-11-11 | [018pwcmz…](https://claude.ai/code/session_018pwcmzjDWFxeqYcRnq174z) | claude/vibrant-hypatia-b6stq1 | 207,1 Mio. | 358 Tsd. | gezählt |
 | 2026-11-11 | [018pwcmw…](https://claude.ai/code/session_018pwcmwgv1hZN3yE9NPAQec) | claude/modest-ptolemy-yehu1e | 60,7 Mio. | 157 Tsd. | gezählt |
 | 2026-11-11 | [018pwcmy…](https://claude.ai/code/session_018pwcmyrp8xTebAen7hp1VU) | claude/relaxed-hamilton-cj4r90 | 7,2 Mio. | 36 Tsd. | gezählt |
 | 2026-11-11 | [018pwcmv…](https://claude.ai/code/session_018pwcmvYf9emXrX6wXmLTxm) | claude/clever-meitner-fiap27 | 49,0 Mio. | 138 Tsd. | gezählt |
