@@ -476,8 +476,9 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 184. Verbessert in 5.4.2: ✨ ein Reiter springt zu seinem Abschnitt | 3 | 0 | 1 | 0 | 184.4 |
 | 185. Repariert in 5.4.3: ▲ das Plateau hebt den Keller nicht mehr an (#713) | 1 | 0 | 3 | 0 | 185.2 bis 185.4 |
 | 186. Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant (#715) | 2 | 0 | 5 | 0 | 186.3 bis 186.7 |
-| 187. Neu in 5.6.0: ⚡ der Strom-Rechner übersichtlicher, 🌡 der Thermostat-Kreis springt nicht mehr zurück (#718) | 4 | 0 | 8 | 0 | 187.4 bis 187.10, 187.12 |
-| **Zusammen** | **1207** | **2** | **94** | **92** | |
+| 187. Neu in 5.6.0: ⚡ der Strom-Rechner übersichtlicher, 🌡 der Thermostat-Kreis springt nicht mehr zurück (#718) | 3 | 0 | 7 | 0 | 187.4 bis 187.10 |
+| 188. Verbessert in 5.6.1: ⚡ „Strom je Gebäude“ im neuen Strom-Rechner leicht zu finden | 1 | 0 | 3 | 0 | 188.2 bis 188.4 |
+| **Zusammen** | **1207** | **2** | **96** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2870,5 +2871,13 @@ Der Besitzer am 2026-11-11: „wenn ich in dem Halbkreis das hin und her ziehe, 
 | 187.8 | Im selben Fenster: oben in der Leiste „Batterie“ antippen, dann in der Rechnung die Zeile „Bezug aus dem Netz“ | Das Fenster springt zur Karte „Batterie“ bzw. „Netz“, die Karte leuchtet kurz auf, in der Leiste ist der gezeigte Teil markiert | ❓ |
 | 187.9 | Dein Eindruck: ist der Strom-Rechner jetzt leichter zu verstehen und zu bedienen? | Ja, oder was noch fehlt | ❓ |
 | 187.10 | Nach dem Merge auf der Seite der Anleitung die Videos „⚡ Der Strom-Rechner“ und „🌡 Klima“ ansehen | Zeigen das neue Fenster mit Leiste und Karten bzw. das Ziehen am Ring | ❓ |
-| 187.11 | Browser-Test Teil `76_energy_buildings` (zwei Gebäude) | Ganz oben die Karte „🏘 2 Gebäude in diesem Plan“ mit dem Haken; mit Haken steht „Rechnung für“ auch im Titel, ein Tipp dort wählt das Gebäude, die Rechnung nennt es | ✅ (2026-11-11, Claude) |
-| 187.12 | Im Add-on mit deinen zwei Gebäuden: „⚡ Rechnung“ öffnen, ganz oben in „🏘 2 Gebäude in diesem Plan“ den Haken „⚡ Eigene Rechnung je Gebäude“ setzen, dann oben im Titel „Rechnung für“ zwischen deinen Gebäuden wechseln | Jedes Gebäude hat seine eigene Rechnung mit eigenen Sensoren; die Überschrift „So wird gerade gerechnet · 🏠 …“ nennt das gewählte | ❓ |
+
+## 188. Verbessert in 5.6.1: ⚡ „Strom je Gebäude“ im neuen Strom-Rechner leicht zu finden
+Der Besitzer am 2026-11-11, nach dem Merge von 5.6.0: „wie kann ich jetzt mehrere Stromrechner haben für mehrere Gebäude? … Wo ist denn diese Option im neuen Overlay?“ Der Haken war noch da (ganz oben unter dem Hinweis), aber schlicht und leicht zu übersehen.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 188.1 | Browser-Test Teil `76_energy_buildings` (zwei Gebäude) | Ganz oben die Karte „🏘 2 Gebäude in diesem Plan“ mit dem Haken; mit Haken steht „Rechnung für“ auch im Titel, ein Tipp dort wählt das Gebäude, die Rechnung nennt es | ✅ (2026-11-11, Claude) |
+| 188.2 | Im Add-on mit deinen zwei Gebäuden: „Bearbeiten“, „Strom“, „⚡ Rechnung“ | Ganz oben die Karte „🏘 2 Gebäude in diesem Plan“ mit dem Haken „⚡ Eigene Rechnung je Gebäude“ | ❓ |
+| 188.3 | Den Haken setzen, dann oben im Titel bei „Rechnung für“ zwischen deinen Gebäuden wechseln | Jedes Gebäude hat seine eigene Rechnung mit eigenen Sensoren; die Überschrift „So wird gerade gerechnet · 🏠 …“ nennt das gewählte, „Rechnung für“ bleibt beim Scrollen oben | ❓ |
+| 188.4 | In der Checkliste unter „🧭 Einrichten“ (bei einem Gebäude ohne Netz-Sensor) | Der Text eines offenen Punkts steht neben seinem Zeichen „○“, nicht darunter | ❓ |
