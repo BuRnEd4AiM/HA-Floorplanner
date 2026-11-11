@@ -26,6 +26,21 @@ def test_every_reply_counts_once_per_model():
     assert "<synthetic>" not in models and first == "2026-10-17T23:59:00Z"
 
 
+def test_the_advisor_counts_as_its_own_model():
+    def with_advisor(mid):
+        d = json.loads(reply(mid, out=10, read=100))
+        d["message"]["usage"]["iterations"] = [
+            {"type": "message", "input_tokens": 1, "output_tokens": 4, "cache_read_input_tokens": 100},
+            {"type": "advisor_message", "model": "claude-fable-5-2", "input_tokens": 800, "output_tokens": 1500,
+             "cache_read_input_tokens": 0, "cache_creation_input_tokens": 0},
+            {"type": "message", "input_tokens": 0, "output_tokens": 6, "cache_read_input_tokens": 0}]
+        return json.dumps(d)
+    totals, models, _ = tk.count([with_advisor("a"), with_advisor("a"), reply("b")])   # "a" logged twice: counts once
+    assert models["claude-fable-5-2"] == {"input": 800, "cache_write": 0, "cache_read": 0, "output": 1500, "requests": 1}
+    assert models["claude-opus-5-5"]["requests"] == 2 and models["claude-opus-5-5"]["output"] == 20
+    assert totals["output"] == 1520 and totals["input"] == 802
+
+
 def test_only_git_commit_is_a_commit():
     for c in ("git commit -m x", "git add -A && git commit -m 'x'", "git -C /repo commit --amend", "cd a; git -c a=b commit"):
         assert tk.is_commit(c), c

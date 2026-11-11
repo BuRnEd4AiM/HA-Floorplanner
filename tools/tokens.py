@@ -37,9 +37,15 @@ def total(rec):
     return sum(rec.get(f, 0) for f in FIELDS)
 
 
+def usage_of(u):
+    return {f: int(u.get(k) or 0) for f, k in USAGE_KEYS.items()}
+
+
 def count(lines):
     """Usage of transcript lines: (totals, {model: totals}, first timestamp). A reply is logged once per content block,
-    always with the same usage, so every message id counts once."""
+    always with the same usage, so every message id counts once. The advisor (`advisorModel` in .claude/settings.json:
+    Fable advises, Opus works) is not in a reply's own usage, only in `usage.iterations` ("advisor_message", with its
+    model): every such call counts as a request of the advisor's model."""
     seen, first = {}, None
     for line in lines:
         try:
@@ -54,9 +60,12 @@ def count(lines):
         if model == "<synthetic>":
             continue
         key = msg.get("id") or d.get("requestId") or d.get("uuid")
-        u = {f: int(msg["usage"].get(k) or 0) for f, k in USAGE_KEYS.items()}
-        old = seen.get(key)
-        seen[key] = (model, {f: max(u[f], old[1][f]) for f in FIELDS} if old else u)
+        parts = [(model, usage_of(msg["usage"]))]
+        parts += [(it.get("model") or "advisor", usage_of(it)) for it in msg["usage"].get("iterations") or []
+                  if isinstance(it, dict) and it.get("type") == "advisor_message"]
+        for i, (m, u) in enumerate(parts):
+            old = seen.get((key, i))
+            seen[(key, i)] = (m, {f: max(u[f], old[1][f]) for f in FIELDS} if old else u)
     totals, models = dict.fromkeys(FIELDS, 0), {}
     for model, u in seen.values():
         m = models.setdefault(model, dict.fromkeys(FIELDS, 0) | {"requests": 0})

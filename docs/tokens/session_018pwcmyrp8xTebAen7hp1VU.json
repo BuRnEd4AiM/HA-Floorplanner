@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmyrp8xTebAen7hp1VU",
+ "start": "2026-11-11",
+ "updated": "2026-11-11T10:16:48Z",
+ "branch": "claude/relaxed-hamilton-cj4r90",
+ "source": "counted",
+ "input": 180666,
+ "cache_write": 153834,
+ "cache_read": 6821590,
+ "output": 36413,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 180666,
+   "cache_write": 153834,
+   "cache_read": 6821590,
+   "output": 36413,
+   "requests": 41
+  }
+ }
+}
