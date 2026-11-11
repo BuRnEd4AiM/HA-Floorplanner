@@ -69,3 +69,12 @@ def test_the_real_index_html():
     for rel in ("app.js", "i18n.js", "lang/zh.js", "vendor/three.module.min.js", "vendor/hls.light.module.min.js"):
         assert f"./{rel}" in imports, rel
     assert len(imports) > 300
+
+
+def test_the_table_can_be_kept_a_moment(tmp_path):
+    v = tree(tmp_path)
+    first = v.table(max_age=60)
+    (tmp_path / "b.js").write_text("export const b = 2;")
+    assert v.table(max_age=60) is first                                                  # within the minute: the same answer
+    assert "b.js" in v.table()                                                           # max_age 0 (default): looked at again
+    assert v.fits("b.js", v.of("b.js"))

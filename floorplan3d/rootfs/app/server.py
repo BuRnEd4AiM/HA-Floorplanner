@@ -1708,15 +1708,24 @@ async def get_hls(request):
     return web.Response(body=body, content_type=ctype, headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
 
 
-def _index_page() -> str:
-    return assetver.page((STATIC_DIR / "index.html").read_text(encoding="utf-8"), ASSETS.table())
+_INDEX = {"key": None, "text": "", "etag": ""}
+
+
+def _index_page() -> tuple:
+    """the page and its ETag, made again only when index.html or a fingerprint changed (the table is looked at once in 10 s)"""
+    src = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    table = ASSETS.table(max_age=10)
+    key = (src, tuple(sorted(table.items())))
+    if _INDEX["key"] != key:
+        text = assetver.page(src, table)
+        _INDEX.update(key=key, text=text, etag='"' + hashlib.sha256(text.encode("utf-8")).hexdigest()[:20] + '"')
+    return _INDEX["text"], _INDEX["etag"]
 
 
 async def index(request):
     """index.html, naming every interface file with its fingerprint (assetver.py): the browser keeps those files and checks only this
     page at a start (a cheap 304 while nothing changed)"""
-    text = await asyncio.to_thread(_index_page)
-    etag = '"' + hashlib.sha256(text.encode("utf-8")).hexdigest()[:20] + '"'
+    text, etag = await asyncio.to_thread(_index_page)
     if etag in request.headers.get("If-None-Match", ""):
         return web.Response(status=304, headers={"ETag": etag})
     return web.Response(text=text, content_type="text/html", headers={"ETag": etag})

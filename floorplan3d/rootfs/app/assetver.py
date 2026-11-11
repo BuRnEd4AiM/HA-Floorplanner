@@ -13,6 +13,7 @@ tests/test_assetver.py; server.py uses it for "/" and in `no_stale_files`.
 import hashlib
 import json
 import re
+import time
 from pathlib import Path
 
 EXTS = (".js", ".mjs", ".css")
@@ -26,6 +27,7 @@ class Versions:
     def __init__(self, root: Path):
         self.root = Path(root)
         self._cache = {}                   # rel -> (mtime_ns, size, short)
+        self._table = (0.0, None)          # (when, table): looking at every file takes a few ms, a page start needs it once
 
     def of(self, rel: str):
         """the short checksum of one file (forward slashes, relative to root), None for anything that is no interface file"""
@@ -43,8 +45,12 @@ class Versions:
         self._cache[rel] = (st.st_mtime_ns, st.st_size, short)
         return short
 
-    def table(self) -> dict:
-        """every interface file -> its short checksum"""
+    def table(self, max_age: float = 0) -> dict:
+        """every interface file -> its short checksum; max_age: the last answer is good for that many seconds (the files of an
+        installed add-on do not change while it runs; a changed file still never gets the old fingerprint, see fits)"""
+        at, last = self._table
+        if last is not None and time.monotonic() - at < max_age:
+            return last
         out = {}
         for f in sorted(self.root.rglob("*")):
             if f.is_file() and f.suffix in EXTS:
@@ -52,6 +58,7 @@ class Versions:
                 v = self.of(rel)
                 if v:
                     out[rel] = v
+        self._table = (time.monotonic(), out)
         return out
 
     def fits(self, rel: str, v: str) -> bool:

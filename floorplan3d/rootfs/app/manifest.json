@@ -1,9 +1,9 @@
 {
  "version": "5.6.4",
- "buildHash": "26f69fc8f357888f804157d71a001b04a4d0b49ae3c3feb144b3ccf15d922281",
+ "buildHash": "92ef34fab59d1f2b9a038aa563ad6e2b310f22007129ad211cb0cc185f1dbbdd",
  "files": {
   "alarmnotify.py": "4ad6881ea1778c9854989abd91fecccf1c34f559e7f4207383be911df8d61514",
-  "assetver.py": "b56249abc5207ed119b95a9553bababa72a53842b6c9dd2f410c651fc9beffec",
+  "assetver.py": "47cc1b6523381e935fc56f2c5f5d8abf5058dcebc946138a5d4314d52ddd8ca9",
   "boards.py": "cedc4441461114e83b42afa893c476670110675311289e15e02d3709d4df1b3c",
   "channel.py": "dde61385f0c28ceca700319b5f9ac3d8e24ea8c1c3ace38f3f0fedfe8aaa3c9f",
   "controls.py": "16b2142bc2ff5e0feb680590f2fc147190a5cfac5e132c941bb5ca07c6e0bf22",
@@ -153,7 +153,7 @@
   "roomsensors.py": "3cb17dd0e77e4648df643c52f70f74ef8571b89ed1d4510640dc29e1a90b0b74",
   "rulesrun.py": "3f6b96a3af2253ec72a553710fc0252fd30645779b2649cc42a126c1fa173436",
   "scenes.py": "a2497243e15b713d02810a6a6fa0942902490200a3593e0ef9f17ec92ec95cb0",
-  "server.py": "8c12c8c23d7da97dcd44691edcabbd7c043aaceec229818290694b758b808f22",
+  "server.py": "dab29e2d8a513fa4f9a675a1d231ff326d9b8f8160a8687d441615942970d4e2",
   "specialdays.py": "32baa51cf75580d1e35a782ef77bd8610dad58e3d770b398604aa3dfc77d0491",
   "static/alerts.js": "099108c279cdf2ea1008180d0d73dbe18b10aa4d63365a83bfde1cf7c2a4a803",
   "static/alertsui.js": "503c006f839253eb31f5e2adb4e6612d21fd657b8691956fd095546dce5177ea",
