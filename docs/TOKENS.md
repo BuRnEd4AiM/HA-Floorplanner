@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-11 · 128 Sitzungen
+Stand: 2026-11-11 · 129 Sitzungen
 
-**Insgesamt: 8,58 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 8,63 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 23,6 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 81,7 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 8,48 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 23,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 82,2 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 8,53 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 42 | 2,46 Mrd. | 5,9 Mio. |
+| 2026-11 | 43 | 2,50 Mrd. | 6,0 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-11 | [018pwcmv…](https://claude.ai/code/session_018pwcmvYf9emXrX6wXmLTxm) | claude/clever-meitner-fiap27 | 49,0 Mio. | 138 Tsd. | gezählt |
 | 2026-11-10 | [012p9z3N…](https://claude.ai/code/session_012p9z3NkMiK3dkhknXnxnK2) | claude/plateau-abstand-keller-pup7eo | 20,3 Mio. | 50 Tsd. | gezählt |
 | 2026-11-10 | [018pwcmy…](https://claude.ai/code/session_018pwcmyz3i2xa5YFSbPMLaA) | claude/sweet-carson-yxl5i4 | 114,6 Mio. | 182 Tsd. | gezählt |
 | 2026-11-10 | [018pwcmy…](https://claude.ai/code/session_018pwcmy68YKhEKzJ8dNTuwJ) | claude/lucid-cray-gfs610 | 92,5 Mio. | 193 Tsd. | gezählt |
