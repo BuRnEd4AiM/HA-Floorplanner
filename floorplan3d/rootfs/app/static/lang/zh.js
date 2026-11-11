@@ -3471,7 +3471,7 @@ export default {
   'ro.deleteAuto': '删除',
   'plat.title': '台地',
   'plat.rise': '高于草坪的高度',
-  'plat.riseHint': '0 = 没有台地，只是一块区域。台地上的东西随之升高：房间、墙、门、窗、设备、楼梯以及上方的屋顶。室外台阶立在草坪上。',
+  'plat.riseHint': '0 = 没有台地，只是一块区域。台地上的东西随之升高：房间、墙、门、窗、设备、楼梯以及上方的屋顶。室外台阶立在草坪上。地下室留在地下。',
   'plat.edge': '边缘',
   'plat.edge.wall': '🧱 挡墙',
   'plat.edge.slope': '🌱 斜坡',

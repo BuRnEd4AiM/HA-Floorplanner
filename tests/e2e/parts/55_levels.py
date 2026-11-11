@@ -77,6 +77,26 @@ pod = lambda: pgL.evaluate("(() => { let n = 0; window.__fp.scene.traverse((m) =
 check("levels: two steps at the door to the lower room (3 x 15 cm), the side of the raised floor is drawn", ds() == ["lvIn", "lvIn"] and pod() == 1, (ds(), pod()))
 pgL.uncheck("#roomSteps"); pgL.wait_for_timeout(700)
 check("levels: 'Stufen an den Türen' off: no steps", ds() == [] and pgL.evaluate("window.__fp.layout.floors.flatMap((f) => f.rooms).find((r) => r.id === 'lvA').steps") is False, ds())
+# --- #713: a basement under the house on the plateau stays where it is; the stair from it reaches the raised ground floor
+gK = pgL.evaluate("Math.max(0, window.__fp.layout.floors.findIndex((f) => f.kind !== 'basement'))")
+if gK > 0:
+    pgL.evaluate("""(() => { const fp = window.__fp, L = fp.layout, k = L.floors[%d - 1];
+      k.rooms.push({ id: 'lvK', name: 'Kellerraum', color: '#9a948a', points: [[40, 40], [48, 40], [48, 46], [40, 46]], building: 'lvB' });
+      (k.stairs ||= []).push({ id: 'lvSt', type: 'straight', x: 46.5, z: 43, rot: 0, w: 1, tread: 0.27, turn: 'right', dir: 'up' });
+      fp.switchFloor(%d - 1); fp.rebuild(); })()""" % (gK, gK))
+    pgL.wait_for_timeout(800)
+    eK = pgL.evaluate("window.__fp.elev(%d - 1)" % gK)
+    yK = worldY("room", "lvK")
+    stS = pgL.evaluate("""(() => { let s = null; window.__fp.scene.traverse((o) => { if (s === null && o.isGroup && Math.abs(o.position.x - 46.5) < 1e-3 && Math.abs(o.position.z - 43) < 1e-3) s = [o.position.y, o.scale.y]; }); return s; })()""")
+    check("levels (#713): the plateau does not lift the basement: its room stays on its floor; the stair from it up to the ground floor is taller by the plateau",
+          yK is not None and abs(yK - (eK + 0.01)) < 0.02 and stS is not None and abs(stS[0]) < 0.02 and 1.25 < stS[1] < 1.45, (eK, yK, stS))
+    pgL.click("#view2d"); pgL.wait_for_timeout(900)
+    liftsK = pgL.evaluate("[...document.querySelectorAll('#plan2d text.roomLift')].map((e) => e.textContent)")
+    check("levels (#713): the 2D plan of the basement shows no '▲ +…' under its rooms", liftsK == [], liftsK)
+    pgL.click("#view3d"); pgL.wait_for_timeout(400)
+    pgL.evaluate("""(() => { const fp = window.__fp, k = fp.layout.floors[%d - 1];
+      k.rooms = k.rooms.filter((r) => r.id !== 'lvK'); k.stairs = (k.stairs || []).filter((s) => s.id !== 'lvSt'); fp.switchFloor(%d); fp.rebuild(); })()""" % (gK, gK))
+    pgL.wait_for_timeout(600)
 # --- the 2D plan
 pgL.click("#view2d"); pgL.wait_for_timeout(900)
 svgText = lambda sel: pgL.evaluate(f"[...document.querySelectorAll('#plan2d {sel}')].map((e) => e.textContent)")   # SVG text has no innerText

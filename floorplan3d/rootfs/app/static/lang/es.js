@@ -1985,7 +1985,7 @@ export default {
   'ro.editInHa': 'Cambiar en Home Assistant', 'ro.deleteAuto': 'Borrar',
     'plat.title': 'Plataforma',
     'plat.rise': 'Altura sobre el césped',
-    'plat.riseHint': '0 = sin plataforma, solo una superficie. Lo que está sobre la plataforma sube con ella: habitaciones, paredes, puertas, ventanas, dispositivos, escaleras y el tejado encima. La escalera exterior queda sobre el césped.',
+    'plat.riseHint': '0 = sin plataforma, solo una superficie. Lo que está sobre la plataforma sube con ella: habitaciones, paredes, puertas, ventanas, dispositivos, escaleras y el tejado encima. La escalera exterior queda sobre el césped. Un sótano se queda abajo, en la tierra.',
     'plat.edge': 'Borde',
     'plat.edge.wall': '🧱 Muro',
     'plat.edge.slope': '🌱 Talud',

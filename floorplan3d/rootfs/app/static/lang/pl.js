@@ -1961,7 +1961,7 @@ export default {
   'ro.editInHa': 'Zmień w Home Assistant', 'ro.deleteAuto': 'Usuń',
     'plat.title': 'Podwyższenie',
     'plat.rise': 'Wysokość nad trawnikiem',
-    'plat.riseHint': '0 = bez podwyższenia, tylko powierzchnia. To, co stoi na podwyższeniu, idzie z nim w górę: pokoje, ściany, drzwi, okna, urządzenia, schody i dach nad nimi. Schody zewnętrzne stoją na trawniku.',
+    'plat.riseHint': '0 = bez podwyższenia, tylko powierzchnia. To, co stoi na podwyższeniu, idzie z nim w górę: pokoje, ściany, drzwi, okna, urządzenia, schody i dach nad nimi. Schody zewnętrzne stoją na trawniku. Piwnica zostaje na dole, w ziemi.',
     'plat.edge': 'Krawędź',
     'plat.edge.wall': '🧱 Mur',
     'plat.edge.slope': '🌱 Skarpa',

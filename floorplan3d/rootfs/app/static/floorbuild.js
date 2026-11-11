@@ -26,7 +26,7 @@ import { facadeOf, facadeFinish } from './facade.js';
 import { floorUVs, floorLook } from './floortex.js';
 import { wallSkins, hasSkins } from './finishes.js';
 import { dressWall } from './wallskin.js';
-import { lifter, wallWithShift, doorSteps, cleanRaise, innerPoint } from './levels.js';
+import { lifter, wallWithShift, doorSteps, cleanRaise, innerPoint, areasFor, stairLift, slabExtra, groundAt, plateausOf } from './levels.js';
 
 export const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
 export const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence', 'steps']);   // keep their natural colours in the hologram theme
@@ -52,13 +52,16 @@ export const roomCenter = (points) => points.reduce((a, p) => [a[0] + p[0] / poi
  *  houseMode(), halfCut(), elev(i), stairMesh(st, holo, ghost, edge, upTo) (stairtool.js), cutawayInfo(w, group), openingHandle(w, o, g),
  *  cutawayWalls() (the list of the open floor's walls for the cutaway), makeModel(type, onLoad, d, pose) (models.js), setPicture(model, d),
  *  placeSolar(model, d, roofs), tapBalls, cams, labelSprites (Map), modelLoaded(), roomName(f, id, sprite) (the name of a room on a floor
- *  that is not dimmed, roomlabels.js), plotAreas() (the areas of the plot: a plateau lifts what stands on it, #566), terrainFor(f) (on a slope:
- *  the ground under the garden things of floor f, levels.js lifter, #629); textSprite takes (text, opts).
+ *  that is not dimmed, roomlabels.js), plotAreas() (the areas of the plot: a plateau lifts what stands on it, #566), groundIdx() (the ground
+ *  floor: a plateau lifts it and the floors over it, not a basement, #713), terrainFor(f) (on a slope: the ground under the garden things of
+ *  floor f, levels.js lifter, #629); textSprite takes (text, opts).
  *  The floors stacked like a real house (housefloors.js): o.stack = { covered (a floor with rooms lies over this one), slab (this floor stands
  *  on a ceiling), upTo (the roof box over this storey: its walls reach up to the roof) }, null otherwise */
 export function initFloorBuild(ctx) {
-  /** how much the things of floor f go up: a plateau under them, a room with a higher floor (levels.js, #566) */
-  const upOf = (f) => lifter(f, ctx.plotAreas?.() || [], ctx.terrainFor?.(f) || null);   // on a slope the garden things stand on the ground (#629)
+  const gi = () => ctx.groundIdx?.() ?? 0;
+  /** how much the things of floor f (index i) go up: a plateau under them (from the ground floor up, never a basement, #713), a room with a
+   *  higher floor (levels.js, #566) */
+  const upOf = (f, i) => lifter(f, areasFor(ctx.plotAreas?.() || [], i, gi()), ctx.terrainFor?.(f) || null);   // on a slope the garden things stand on the ground (#629)
   /** a group in g lifted by h (g itself when nothing is lifted) */
   const liftGroup = (g, h) => { if (!h) return g; const lg = new THREE.Group(); lg.position.y = h; g.add(lg); return lg; };
   /** stacked (housefloors.js): the ceiling floor f stands on, from the top of the walls below up to its floor, in the outline of the floor
@@ -70,17 +73,18 @@ export function initFloorBuild(ctx) {
     let rings = houseFootprint([f], 0);
     if (!rings.length) rings = [...f.rooms, ...(f.blocks || [])].filter((r) => r.points.length >= 3).map((r) => r.points);
     rings = withoutParts(rings, ctx.freeParts?.(i));               // where a balcony hangs free it has a plate of its own (balcony3d.js, #646), also a part of a terrace (#703)
-    const up = upOf(f), byLift = new Map();                       // a building on a plateau: its ceiling goes up with it (#566)
+    const up = upOf(f, i), byLift = new Map();                    // a building on a plateau: its ceiling goes up with it (#566)
     rings.forEach((ring) => { const h = up.any ? up.ground(...innerPoint(ring)) : 0; byLift.set(h, [...(byLift.get(h) || []), ring]); });
     byLift.forEach((list, lift) => {
       const shapes = list.flatMap((ring) => floorShapes(ring, o.holes));
       if (!shapes.length) return;
-      const eg = new THREE.ExtrudeGeometry(shapes, { depth: d, bevelEnabled: false, curveSegments: 1 });
+      const extra = slabExtra(i, gi(), lift);                      // the ground floor on a plateau over a basement: down to its walls (#713)
+      const eg = new THREE.ExtrudeGeometry(shapes, { depth: d + extra, bevelEnabled: false, curveSegments: 1 });
       eg.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(eg, o.holo
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: o.ghost ? 0.06 : 0.35, depthWrite: false })
         : ctx.mat('#cbc4b8', o.ghost));
-      m.position.y = -d - 0.003 + lift;                          // just under the room floors
+      m.position.y = -d - extra - 0.003 + lift;                  // just under the room floors
       m.castShadow = m.receiveShadow = !o.holo;
       m.userData.slab = true;
       if (o.holo && o.edge) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(eg, 30), o.edge));
@@ -122,9 +126,10 @@ export function initFloorBuild(ctx) {
       g.add(m);
     });
   }
-  /** the rooms of floor f in its group g. o: { holo, ghost, iso (the focused room), labels (names shown), holes (stairwell openings) } */
+  /** the rooms of floor f in its group g. o: { holo, ghost, iso (the focused room), labels (names shown), holes (stairwell openings), i (the
+   *  floor's index: a plateau does not lift a basement, #713) } */
   function rooms(g, f, o) {
-    const { holo, ghost, iso } = o, up = upOf(f);
+    const { holo, ghost, iso } = o, up = upOf(f, o.i);
     f.rooms.forEach((r) => {
       if (r.points.length < 3) return;
       if (iso && !ghost && r.id !== iso.id) return;
@@ -196,7 +201,7 @@ export function initFloorBuild(ctx) {
   /** placeholder blocks: a solid mass for a floor that is not drawn; the stairwells and floor openings of floor i + 1 run through it */
   function blocks(g, f, i, o) {
     if (o.iso || !(f.blocks || []).length) return;
-    const shaftHoles = ctx.floorOpenings(i + 1), up = upOf(f);
+    const shaftHoles = ctx.floorOpenings(i + 1), up = upOf(f, i);
     f.blocks.forEach((b) => {
       if (b.points.length < 3) return;
       const shape = floorShapes(b.points, shaftHoles);
@@ -213,7 +218,7 @@ export function initFloorBuild(ctx) {
   }
   /** stairs (a 'down' stair starts one floor lower and arrives at this floor). o: as rooms, plus edge (the hologram edge material) */
   function stairs(g, f, i, o) {
-    const { holo, ghost, iso } = o, H = ctx.floorH(), open = ctx.floorIdx(), house = ctx.houseMode(), up = upOf(f);
+    const { holo, ghost, iso } = o, H = ctx.floorH(), open = ctx.floorIdx(), house = ctx.houseMode(), pl = plateausOf(ctx.plotAreas?.() || []);
     (f.stairs || []).forEach((st) => {
       if (iso) {                                   // a focused room still shows the stair standing in it
         const hp = polyToWorld(st, stairLocal(st, H).hole);
@@ -225,7 +230,9 @@ export function initFloorBuild(ctx) {
       const sGhost = ghost && !arriving;
       const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: ctx.holoEdge, transparent: true, opacity: 0.95 }) : o.edge;
       const sg = ctx.stairMesh(st, holo, sGhost, sEdge, storeysShown(st, i, open, house));   // no storeys hanging over the open floor (#229, #246)
-      sg.position.set(st.x, (st.dir === 'down' ? -H * stairFloors(st) : 0) + up.ground(st.x, st.z), st.z);   // on a plateau: up with it (#566)
+      const n = stairFloors(st), down = st.dir === 'down', sl = stairLift(down ? i - n : i, n, gi(), pl.length ? groundAt(pl, st.x, st.z) : 0, H);
+      sg.position.set(st.x, (down ? -H * n : 0) + sl.y, st.z);   // on a plateau: up with it (#566); from the basement up to it: taller (#713)
+      if (sl.scale !== 1) sg.scale.y = sl.scale;
       sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
       g.add(sg);
       ctx.registry.set(st.id, sg);
@@ -275,7 +282,7 @@ export function initFloorBuild(ctx) {
   /** the walls with their doors and windows; on the open floor they take part in the cutaway and can be picked */
   function walls(g, f, i, o) {
     const { holo, ghost, iso } = o, low = ctx.lowWalls(), half = ctx.halfCut() && !low, look = facadeOf(ctx.settings());   // window frames, wall colour (#428)
-    const up = upOf(f), wallH = ctx.settings().wallHeight;        // a plateau lifts the walls, doors and windows go up beside a raised room (#566)
+    const up = upOf(f, i), wallH = ctx.settings().wallHeight;     // a plateau lifts the walls, doors and windows go up beside a raised room (#566)
     const attic = o.roofClip ? atticUniforms(o.roofClip) : null;   // under the roof (#260): the walls end at the slopes, not inside a dormer (#265)
     const atticOf = new Map();                                    // a wall that runs into only some of the dormers (#654): its own uniforms, by which ones
     const atticFor = (w) => {
@@ -344,7 +351,7 @@ export function initFloorBuild(ctx) {
   }
   /** the devices of floor f. o: as rooms, plus roofs (the roofs of a roof floor, for solar panels on them) */
   function devices(g, f, o) {
-    const { holo, ghost, iso } = o, roofs = o.roofs, up = upOf(f);
+    const { holo, ghost, iso } = o, roofs = o.roofs, up = upOf(f, o.i);
     const half = ctx.halfCut() && !ctx.lowWalls(), halfAt = (f.walls[0]?.height || 2.6) * 0.5 - 0.05, mode = ctx.settings().labelMode;
     const holo1 = (m) => holoify(m, ghost, ctx.belowVis());
     f.devices.forEach((d) => {
