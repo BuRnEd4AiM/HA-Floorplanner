@@ -92,3 +92,21 @@ async def test_api_version_remote(aiohttp_client, aiohttp_server, tmp_path, monk
     assert (await (await c.get("/api/version/remote")).json())["state"] == "unreachable"
     monkeypatch.setattr(server, "MANIFEST_URL", "http://127.0.0.1:9/none.json")
     assert (await (await c.get("/api/version/remote")).json())["state"] == "unreachable"
+
+
+def test_the_container_integration_has_the_version_of_the_add_on():
+    """#744: the Home Assistant integration for Docker comes out of the same release; it compares its version with the container's.
+    If this fails: run `python3 tools/make_manifest.py` (it writes the version there too)."""
+    import json
+    connector = json.loads((ROOT / "container" / "custom_components" / "floorplan3d" / "manifest.json").read_text("utf-8"))
+    assert connector["version"] == config_version(), "run python3 tools/make_manifest.py"
+
+
+def test_make_manifest_changes_only_the_version_of_the_integration(tmp_path):
+    sys.path.insert(0, str(ROOT / "tools"))
+    import make_manifest
+    path = tmp_path / "manifest.json"
+    path.write_text('{\n  "domain": "x",\n  "version": "1.4.5"\n}\n', "utf-8")
+    assert make_manifest.write_connector_version("5.9.0", path) is True
+    assert path.read_text("utf-8") == '{\n  "domain": "x",\n  "version": "5.9.0"\n}\n'
+    assert make_manifest.write_connector_version("5.9.0", path) is False

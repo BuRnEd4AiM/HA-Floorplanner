@@ -108,6 +108,10 @@ jobs:
           grep -q "^http://localhost:8123/auth/authorize?response_type=code&client_id=http%3A%2F%2Flocalhost%3A8100%2F&" /tmp/login
           test "$(curl -s -o /dev/null -w "%{http_code}" -H "X-Remote-User-Name: admin" http://localhost:8100/api/layout)" = 401
           docker exec fp test -s /data/.login_key
+          # the version without a login, for the Home Assistant integration's version check (#744)
+          curl -s http://localhost:8100/auth/version | tee /tmp/version
+          python3 -c 'import json, sys; d = json.load(open("/tmp/version")); assert set(d) == {"version", "channel"} and d["channel"] == "beta", d'
+          test "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8100/api/version)" = 401
       - if: always()
         run: docker logs fp 2>&1 | tail -n 30
 
@@ -132,7 +136,7 @@ jobs:
         run: |
           files=$(git diff --name-only "$BASE" HEAD 2>/dev/null) || files="unknown"
           echo "$files"
-          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^(docs/[^ ]*\.md|docs/tokens/[^/ ]*\.json|docs/timeline/[^ ]*|docs/img/[^ ]*|[^/ ]*\.md|tests/[^/ ]*\.(mjs|py)|tools/[^ ]*|\.github/workflows/(cleanup|demo|guide|issues-snapshot|project-setup|release|tokens|trailer|validate)\.yml|\.github/ISSUE_TEMPLATE/[^ ]*|\.github/[^/ ]*\.md)$'; then no_browser=true; else no_browser=false; fi
+          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^(docs/[^ ]*\.md|docs/tokens/[^/ ]*\.json|docs/timeline/[^ ]*|docs/img/[^ ]*|[^/ ]*\.md|tests/[^/ ]*\.(mjs|py)|tools/[^ ]*|\.github/workflows/(cleanup|container-image|demo|guide|issues-snapshot|project-setup|release|stable|tokens|trailer|validate)\.yml|\.github/ISSUE_TEMPLATE/[^ ]*|\.github/[^/ ]*\.md)$'; then no_browser=true; else no_browser=false; fi
           echo "no_browser=$no_browser" | tee -a "$GITHUB_OUTPUT"
       - id: parts
         run: echo "parts=$(python3 tests/e2e/test_e2e.py --json)" | tee -a "$GITHUB_OUTPUT"

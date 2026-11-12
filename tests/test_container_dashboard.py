@@ -31,6 +31,7 @@ const = importlib.import_module("floorplan3d.const")
 handshake = importlib.import_module("floorplan3d.handshake")
 pages = importlib.import_module("floorplan3d.pages")
 splash = importlib.import_module("floorplan3d.splash")
+versions = importlib.import_module("floorplan3d.versions")
 web_proxy = importlib.import_module("floorplan3d.web_proxy")
 CARD = PKG / "frontend" / const.CARD_FILE
 CARD_IMPL = PKG / "frontend" / const.CARD_IMPL_FILE
@@ -839,7 +840,7 @@ def test_the_integration_is_a_plain_home_assistant_custom_component():
     assert manifest["dependencies"] == ["auth", "http"]               # both before the first request is served
     assert manifest["version"]
     for name in ("__init__.py", "config_flow.py", "const.py", "boundary.py", "handshake.py", "web_proxy.py", "pages.py",
-                 "splash.py"):
+                 "splash.py", "versions.py"):
         assert (PKG / name).is_file()
 
 
@@ -857,11 +858,17 @@ def test_the_dialog_texts_exist_and_say_the_same_in_english():
     flow_aborts = set(re.findall(r'async_abort\(reason="(\w+)"\)', flow))
     plan_errors = set(re.findall(r'PlanError\("(\w+)"\)',
                                  (PKG / "handshake.py").read_text("utf-8"))) - {"no_session"}
-    strings = json.loads((PKG / "strings.json").read_text("utf-8"))["config"]
+    everything = json.loads((PKG / "strings.json").read_text("utf-8"))
+    strings = everything["config"]
     english = json.loads((PKG / "translations" / "en.json").read_text("utf-8"))
     german = json.loads((PKG / "translations" / "de.json").read_text("utf-8"))
     chinese = json.loads((PKG / "translations" / "zh-Hans.json").read_text("utf-8"))
-    assert english == {"config": strings}
+    assert english == everything and set(everything) == {"config", "issues"}
+    # Settings → Repairs (#744): a text for every result that is an issue, with both versions in it
+    assert set(everything["issues"]) == {versions.UPDATE_CONTAINER, versions.UPDATE_CONNECTOR}
+    for language in (english, german, chinese):
+        for issue in language["issues"].values():
+            assert issue["title"] and "{connector}" in issue["description"] and "{container}" in issue["description"]
     assert set(flow_errors | plan_errors | {"cannot_connect"}) <= set(strings["error"]), strings["error"]
     assert set(flow_aborts) <= set(strings["abort"]), strings["abort"]
     assert set(strings["error"]) <= set(english["config"]["error"])
@@ -872,8 +879,8 @@ def test_the_dialog_texts_exist_and_say_the_same_in_english():
 
 
 def test_the_pure_parts_stay_pure():
-    """const, boundary, pages and splash run in the tests without aiohttp and Home Assistant, like halogin.py"""
-    for name in ("const.py", "boundary.py", "pages.py", "splash.py"):
+    """const, boundary, versions, pages and splash run in the tests without aiohttp and Home Assistant, like halogin.py"""
+    for name in ("const.py", "boundary.py", "versions.py", "pages.py", "splash.py"):
         text = (PKG / name).read_text("utf-8")
         assert "import aiohttp" not in text and "from aiohttp" not in text, name
         assert "from homeassistant" not in text and "import homeassistant" not in text, name
@@ -918,3 +925,76 @@ def test_the_card_and_the_integration_carry_one_name():
     for option in ("title", "house", "floor", "room", "view", "theme", "quality", "walls", "labels", "heatmap", "night",
                    "alerts", "idle_return", "room_panel", "show_nav", "show_bar", "tabs", "kiosk", "fill", "height", "url"):
         assert re.search(rf"\b{option}\b", js), f"the card option {option} is missing"
+
+
+# ---------- which versions go together (#744) ----------
+
+def test_a_version_is_only_a_version():
+    assert versions.clean("5.9.0") == "5.9.0" and versions.clean("v5.9.0") == "5.9.0" and versions.clean(" 5.10.2 ") == "5.10.2"
+    assert versions.clean("5.9.0-beta.1") == "5.9.0-beta.1"
+    for bad in (None, "", "?", "5", "latest", "5.9.0; rm -rf /", "<b>5.9.0</b>", {"version": "5.9.0"}):
+        assert versions.clean(bad) is None, bad
+    assert versions.parse("5.10.0") > versions.parse("5.9.12") and versions.parse("5.9") == versions.parse("5.9.0")
+
+
+def test_which_side_to_update():
+    assert versions.compare("5.9.0", "5.9.0") == versions.SAME
+    assert versions.compare("5.9.1", "5.9.0") == versions.UPDATE_CONTAINER
+    assert versions.compare("5.9.0", "5.10.0") == versions.UPDATE_CONNECTOR
+    assert versions.compare("5.9.0", versions.TOO_OLD) == versions.UPDATE_CONTAINER        # a container before 5.9.0
+    assert versions.compare("5.9.0", None) == versions.UNKNOWN                            # it does not answer: nothing to say
+    assert versions.compare("0", "5.9.0") == versions.UNKNOWN
+    assert versions.placeholders("5.9.0", versions.TOO_OLD) == {"connector": "5.9.0", "container": "< 5.9.0"}
+
+
+def test_the_plan_learns_the_integrations_version_and_only_from_it():
+    sent = boundary.headers_to_plan({"Host": "ha.example.org", const.CONNECTOR_HEADER: "0.0.1"}, "https", connector="5.9.0")
+    assert sent[const.CONNECTOR_HEADER] == "5.9.0"
+    sent = boundary.headers_to_plan({"Host": "ha.example.org", const.CONNECTOR_HEADER: "0.0.1"}, "https")
+    assert const.CONNECTOR_HEADER not in sent                                # a browser cannot send it in the integration's name
+
+
+async def test_the_proxy_sends_its_version_along(aiohttp_client):
+    seen = {}
+
+    async def version(request):
+        seen["connector"] = request.headers.get(const.CONNECTOR_HEADER)
+        return web.json_response({})
+
+    upstream = await aiohttp_client(plan_app(web.get("/api/version", version)))
+    app = web.Application()
+    plan = web_proxy.Proxy(str(upstream.make_url("")).rstrip("/"), "5.9.0")
+    app.router.add_route("*", f"{const.PATH}/{{path:.*}}", plan.handle)
+    app.on_cleanup.append(lambda _app: plan.close())
+    client = await aiohttp_client(app, headers={"Cookie": "fp3d_session=browser"})
+    assert (await client.get("/floorplan/api/version")).status == 200
+    assert seen["connector"] == "5.9.0"
+
+
+async def test_the_containers_version_without_a_login(aiohttp_client):
+    async def known(request):
+        return web.json_response({"version": "5.9.0", "channel": "stable"})
+
+    async def nonsense(request):
+        return web.json_response({"version": "<script>"})
+
+    async def broken(request):
+        return web.Response(status=500)
+
+    plan = await aiohttp_client(plan_app(web.get("/auth/version", known)))
+    async with aiohttp.ClientSession() as session:
+        assert await handshake.container_version(session, str(plan.make_url("")).rstrip("/")) == "5.9.0"
+        old = await aiohttp_client(plan_app(web.get("/auth/login", known)))          # a container before 5.9.0: 404
+        assert await handshake.container_version(session, str(old.make_url("")).rstrip("/")) == versions.TOO_OLD
+        for handler in (nonsense, broken):
+            other = await aiohttp_client(plan_app(web.get("/auth/version", handler)))
+            assert await handshake.container_version(session, str(other.make_url("")).rstrip("/")) is None
+        assert await handshake.container_version(session, f"http://127.0.0.1:{free_port()}") is None
+
+
+def test_the_version_this_integration_asks_for_is_the_containers():
+    """the address and the header both sides use (server.py: auth_version, connector_version)"""
+    server = (ROOT / "floorplan3d" / "rootfs" / "app" / "server.py").read_text("utf-8")
+    assert f'web.get("{const.VERSION_PATH}", auth_version)' in server
+    assert f'CONNECTOR_HEADER = "{const.CONNECTOR_HEADER}"' in server
+    assert '"/auth/" in' not in server and 'request.path.startswith("/auth/")' in server       # /auth/ needs no login

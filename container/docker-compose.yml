@@ -1,12 +1,14 @@
 # 3D Floorplan next to Home Assistant as a Docker container (#489). Steps: container/README.md.
-#   docker compose up -d --build        then open http://<this computer>:8100 and log in with your Home Assistant user
+#   docker compose up -d                                   then open http://<this computer>:8100 and log in with your Home Assistant user
+#   update:  docker compose pull && docker compose up -d
 services:
   floorplan3d:
-    build:
-      context: https://github.com/BuRnEd4AiM/HA-Floorplanner.git#main
-      dockerfile: container/Dockerfile
-      # args:
-      #   CHANNEL: beta                       # the beta: every new version at once, to test it (default: the normal, released version)
+    image: ghcr.io/burned4aim/floorplan3d:latest   # ready-made (amd64, arm64, arm/v7); ":beta" gets every new version at once, to test it
+    # build:                                       # or build it yourself instead of the image above (a minute or two)
+    #   context: https://github.com/BuRnEd4AiM/HA-Floorplanner.git#main
+    #   dockerfile: container/Dockerfile
+    #   args:
+    #     CHANNEL: beta                            # the beta (default: the normal, released version)
     container_name: floorplan3d
     restart: unless-stopped
     ports:

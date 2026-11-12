@@ -1448,7 +1448,7 @@ export default {
   'tg.step4': '«kiosk: true» nasconde la barra laterale e la barra in alto di Home Assistant agli utenti senza diritti di amministratore (da provare; se non va, lo fa «Kiosk Mode» di HACS). Per uscire, aggiungere «?kiosk=off» all\'indirizzo.',
   'tg.step5': 'In Fully Kiosk Browser inserire l\'indirizzo di questa dashboard come pagina iniziale e attivare lo schermo intero. Negli altri browser ⛶ nella barra in basso passa a schermo intero.',
   'tg.copy': 'Copia il testo della scheda', 'tg.copied': 'Copiato ✓',
-  'tg.note': 'La scheda si installa con HACS (questo progetto come repository personalizzato, tipo «Dashboard») o con il file dist/floorplan3d-card.js.',
+  'tg.note': 'La scheda si installa con HACS (cerca «3D Floorplan Card») o con il file dist/floorplan3d-card.js.',
   'tab.today': 'Oggi', 'tab.energy': 'Energia', 'pe.today': 'Oggi', 'pe.yesterday': 'Ieri', 'pe.allHouses': 'Tutte insieme', 'pe.kind.day': 'Giorno',
   'pe.kind.week': 'Settimana', 'pe.kind.month': 'Mese', 'pe.kind.year': 'Anno', 'pe.back': 'Prima', 'pe.forward': 'Dopo',
   'pe.ownMeters': 'Contatori di questa casa (⚡ Calcolo)', 'pe.haMeters': 'Contatori della dashboard energia di Home Assistant', 'pe.used': 'Consumato',
@@ -2398,4 +2398,6 @@ export default {
   'sg.badge.notReady': 'Non pronto', 'sg.badge.armed': 'Inserito', 'sg.badge.disarmed': 'Disinserito', 'sg.badge.alarm': 'Allarme!',
   'sg.guide.tablet': '5 passi · testo della scheda da copiare', 'vc.checkTitle': '🩺 Verifica e test del microfono',
   'an.stepsTitleTg': 'Come configurare Telegram:', 'lg.count': '💡 stanze: {n}', 'pn.floors': 'Piano',
+  'ver.connectorOk': 'Integrazione in Home Assistant (connettore): la stessa versione {v}.',
+  'ver.connectorOld': 'Integrazione in Home Assistant (connettore): versione {c}, questo programma {v}. Vanno insieme: aggiorna il più vecchio (l’integrazione in HACS, il container con «docker compose pull»).',
 };

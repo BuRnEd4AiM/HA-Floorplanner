@@ -14,6 +14,15 @@ FRONTEND_PATH = f"/{DOMAIN}-card"
 CARD_FILE = f"{DOMAIN}-container-card.js"
 CARD_IMPL_FILE = f"{DOMAIN}-container-card-impl.js"
 
+# Which versions go together (#744). Integration and container come from the same release and carry its version (the integration's
+# manifest.json, written by tools/make_manifest.py); the container tells its own without a login, and this integration sends its own
+# with every request it passes on (the plan's version dialog shows both). A difference means one of the two was not updated.
+VERSION_PATH = "/auth/version"
+CONNECTOR_HEADER = "X-Floorplan3d-Connector"
+VERSION_CHECK_SECONDS = 3600
+VERSION_ISSUE = "version_mismatch"          # the issue in Settings → Repairs; its text says which side to update
+CONTAINER_DOCS = "https://github.com/BuRnEd4AiM/HA-Floorplanner/blob/main/container/README.md#update"
+
 CONF_ADDRESS = "address"
 # Only the prefill of the dialog: the container normally runs on another computer, so this is a hint, not a default.
 DEFAULT_ADDRESS = "http://127.0.0.1:8100"

@@ -160,6 +160,23 @@ check("beta: a second pill says it pauses while the normal add-on runs", pgV4.is
 pgV4.click("#betaPill"); pgV4.wait_for_timeout(300)
 check("beta: a tap on it explains it, with the normal add-on's version", "5.2.0" in pgV4.inner_text("#versionBody") and pgV4.locator("#versionBody .verLine.warn").count() >= 1, pgV4.inner_text("#versionBody"))
 pgV4.close()
+# --- Docker (#744): opened through the Home Assistant integration 3D Floorplan (Container), whose proxy sends its version along: the
+# dialog names it, and a different version than the add-on's turns the pill to ⚠ (the integration says the same in Settings → Repairs)
+for connV, wantWarn in (("0.0.1", True), (ver["version"], False)):
+    pgV5 = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin", "X-Floorplan3d-Connector": connV})
+    pgV5.route("**/api/version/remote", lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps({"state": "same", "version": ver["version"], "short": ver["short"]})))
+    pgV5.goto(BASE + "?mode=edit"); pgV5.wait_for_timeout(2500)
+    pgV5.click("#versionPill")
+    try: pgV5.wait_for_function(f"document.getElementById('versionBody').innerText.includes({json.dumps(connV)})", timeout=10000)
+    except Exception: pass
+    bodyV5 = pgV5.inner_text("#versionBody")
+    warnV5 = pgV5.locator("#versionBody .verLine.warn", has_text=connV).count() == 1
+    check(f"docker: the dialog names the integration's version {connV}", connV in bodyV5 and warnV5 == wantWarn, bodyV5)
+    pgV5.keyboard.press("Escape"); pgV5.wait_for_timeout(200)
+    check(f"docker: the pill {'warns' if wantWarn else 'stays as it was'} with the integration's version {connV}",
+          ("ver-warn" in (pgV5.get_attribute("#versionPill", "class") or "")) == wantWarn and ("⚠" in pgV5.inner_text("#versionPill")) == wantWarn,
+          [pgV5.get_attribute("#versionPill", "class"), pgV5.inner_text("#versionPill")])
+    pgV5.close()
 # --- a fingerprint in every address (assetver.py, idea list 2026-11-11 step 3): opened again, the browser takes every interface file from
 # its cache without asking the add-on (before: one "did it change?" per file, ~320 at every start)
 pgF = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})

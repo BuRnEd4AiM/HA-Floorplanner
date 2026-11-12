@@ -4,6 +4,7 @@ name: Release to everyone
 # it copies floorplan3d/ as it was last at that version on main into floorplan3d-stable/ (the normal add-on, tools/stable.py), commits the
 # copy to main (every normal add-on then offers the update) and makes that GitHub release the latest one (HACS gives its dashboard card).
 #   Actions -> "Release to everyone" -> Run workflow (empty: the newest version), or Claude starts it.
+# Docker (#744): the job "image" then publishes that version as ghcr.io/<owner>/floorplan3d:latest (container-image.yml).
 on:
   workflow_dispatch:
     inputs:
@@ -22,6 +23,8 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.push.outputs.commit }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,6 +45,7 @@ jobs:
           python3 tools/stable.py check
           echo "version=$v" >> "$GITHUB_OUTPUT"
       - name: Commit it to main
+        id: push
         env:
           V: ${{ steps.copy.outputs.version }}
         run: |
@@ -51,7 +55,7 @@ jobs:
           git add -A floorplan3d-stable
           git commit -m "Release $V to everyone [skip ci]"
           for i in 1 2 3 4; do
-            git push origin HEAD:main && exit 0
+            git push origin HEAD:main && { echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"; exit 0; }
             echo "push failed (attempt $i), taking the newest main"; sleep $((i * 5))
             git pull --rebase origin main
           done
@@ -73,3 +77,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh workflow run demo.yml --ref main || echo "::warning::Could not start the workflow Demo; start it by hand (Actions, Demo, Run workflow)."
+
+  image:
+    # the normal version for Docker (#744): ghcr.io/<owner>/floorplan3d:latest, built from the commit that put it into floorplan3d-stable/
+    needs: release
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/container-image.yml
+    with:
+      channel: stable
+      ref: ${{ needs.release.outputs.commit }}

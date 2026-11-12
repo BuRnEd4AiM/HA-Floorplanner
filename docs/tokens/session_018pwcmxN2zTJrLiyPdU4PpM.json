@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmxN2zTJrLiyPdU4PpM",
+ "start": "2026-11-12",
+ "updated": "2026-11-12T12:04:40Z",
+ "branch": "claude/sleepy-curie-gbxxkb",
+ "source": "counted",
+ "input": 241,
+ "cache_write": 287888,
+ "cache_read": 30853529,
+ "output": 128844,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 241,
+   "cache_write": 287888,
+   "cache_read": 30853529,
+   "output": 128844,
+   "requests": 125
+  }
+ }
+}

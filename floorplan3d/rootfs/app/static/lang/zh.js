@@ -1937,7 +1937,7 @@ export default {
   'tg.step5': '在 Fully Kiosk Browser 中把这个仪表盘的地址设为起始页并打开全屏。其他浏览器中，底部栏的 ⛶ 可进入全屏。',
   'tg.copy': '复制卡片文字',
   'tg.copied': '已复制 ✓',
-  'tg.note': '卡片来自 HACS（本项目作为自定义仓库，类型“Dashboard”）或文件 dist/floorplan3d-card.js。',
+  'tg.note': '卡片来自 HACS（在其中搜索“3D Floorplan Card”）或文件 dist/floorplan3d-card.js。',
   'tab.today': '今天',
   'tab.energy': '能源',
   'pe.today': '今天',
@@ -3958,4 +3958,6 @@ export default {
   'sg.card.notify': '发送到手机的消息', 'sg.card.notifySub': '报警时：WhatsApp、Telegram 或 Home Assistant', 'sg.badge.on': '开', 'sg.badge.off': '关',
   'sg.badge.notReady': '未就绪', 'sg.badge.armed': '已布防', 'sg.badge.disarmed': '已撤防', 'sg.badge.alarm': '警报！', 'sg.guide.tablet': '5 个步骤 · 可复制的卡片文本',
   'vc.checkTitle': '🩺 检查与麦克风测试', 'an.stepsTitleTg': '如何设置 Telegram：', 'lg.count': '💡 房间：{n}', 'pn.floors': '楼层',
+  'ver.connectorOk': 'Home Assistant 中的集成（连接器）：版本相同 {v}。',
+  'ver.connectorOld': 'Home Assistant 中的集成（连接器）：版本 {c}，本程序 {v}。两者需要配套：请更新较旧的一方（在 HACS 中更新集成，用 “docker compose pull” 更新容器）。',
 };

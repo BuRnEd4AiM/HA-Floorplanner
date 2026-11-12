@@ -27,5 +27,15 @@
       "reconfigure_successful": "Die Adresse wurde geändert.",
       "entry_not_found": "Der Eintrag der Integration existiert nicht mehr."
     }
+  },
+  "issues": {
+    "update_container": {
+      "title": "3D Floorplan: den Container aktualisieren",
+      "description": "Die Integration 3D Floorplan (Container) hat die Version {connector}, der 3D-Floorplan-Container die Version {container}. Beide kommen aus demselben Release und gehören zusammen; mit verschiedenen Versionen kann die Anmeldung scheitern oder die Seite den Fehler 502 zeigen.\n\nDen Container aktualisieren: im Ordner mit seiner `docker-compose.yml` erst `docker compose pull`, dann `docker compose up -d`. Dieser Hinweis verschwindet von selbst innerhalb einer Stunde, sobald beide dieselbe Version haben."
+    },
+    "update_connector": {
+      "title": "3D Floorplan: die Integration aktualisieren",
+      "description": "Der 3D-Floorplan-Container hat die Version {container}, die Integration 3D Floorplan (Container) noch {connector}. Beide kommen aus demselben Release und gehören zusammen; mit verschiedenen Versionen kann die Anmeldung scheitern oder die Seite den Fehler 502 zeigen.\n\nDie Integration in HACS aktualisieren (bei einem Beta-Container dort die Beta-Versionen einschalten) oder den Ordner aus `floorplan3d-connector.zip` des Releases {container} kopieren. Dann Home Assistant neu starten: der Hinweis verschwindet, sobald beide dieselbe Version haben."
+    }
   }
 }

@@ -1435,7 +1435,7 @@ export default {
   'tg.step4': '„kiosk: true” verbergt de zijbalk en de bovenbalk van Home Assistant voor gebruikers zonder beheerdersrechten (om te proberen; lukt het niet, dan doet „Kiosk Mode” uit HACS het). Om eruit te gaan „?kiosk=off” achter het adres zetten.',
   'tg.step5': 'Zet in Fully Kiosk Browser het adres van dit dashboard als startpagina en zet volledig scherm aan. In andere browsers zet ⛶ in de balk onderaan volledig scherm aan.',
   'tg.copy': 'Tekst van de kaart kopiëren', 'tg.copied': 'Gekopieerd ✓',
-  'tg.note': 'De kaart komt via HACS (dit project als aangepaste repository, type „Dashboard”) of als bestand dist/floorplan3d-card.js.',
+  'tg.note': 'De kaart komt via HACS (zoek daar naar „3D Floorplan Card”) of als bestand dist/floorplan3d-card.js.',
   'tab.today': 'Vandaag', 'tab.energy': 'Energie', 'pe.today': 'Vandaag', 'pe.yesterday': 'Gisteren', 'pe.allHouses': 'Alles samen', 'pe.kind.day': 'Dag',
   'pe.kind.week': 'Week', 'pe.kind.month': 'Maand', 'pe.kind.year': 'Jaar', 'pe.back': 'Ervoor', 'pe.forward': 'Erna',
   'pe.ownMeters': 'Meters van dit huis (⚡ Berekening)', 'pe.haMeters': 'Meters uit het energiedashboard van Home Assistant', 'pe.used': 'Verbruikt',
@@ -2368,4 +2368,6 @@ export default {
   'sg.badge.off': 'Uit', 'sg.badge.notReady': 'Niet klaar', 'sg.badge.armed': 'Ingeschakeld', 'sg.badge.disarmed': 'Uitgeschakeld', 'sg.badge.alarm': 'Alarm!',
   'sg.guide.tablet': '5 stappen · tekst van de kaart om te kopiëren', 'vc.checkTitle': '🩺 Controleren en microfoontest',
   'an.stepsTitleTg': 'Zo stel je Telegram in:', 'lg.count': '💡 kamers: {n}', 'pn.floors': 'Verdieping',
+  'ver.connectorOk': 'Integratie in Home Assistant (connector): dezelfde versie {v}.',
+  'ver.connectorOld': 'Integratie in Home Assistant (connector): versie {c}, dit programma {v}. Ze horen bij elkaar: werk de oudste bij (de integratie in HACS, de container met „docker compose pull”).',
 };

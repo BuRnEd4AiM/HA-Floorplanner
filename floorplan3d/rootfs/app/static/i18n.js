@@ -363,7 +363,7 @@ const DICT = {
     'tg.step4': '„kiosk: true“ blendet für Benutzer ohne Admin-Rechte die Seitenleiste und die Kopfzeile von Home Assistant aus (zum Ausprobieren; klappt es nicht, hilft „Kiosk Mode“ aus HACS). Zum Verlassen „?kiosk=off“ an die Adresse hängen.',
     'tg.step5': 'Im Fully Kiosk Browser die Adresse dieses Dashboards als Startseite eintragen und Vollbild einschalten. In anderen Browsern schaltet ⛶ in der Leiste unten das Vollbild ein.',
     'tg.copy': 'Text der Karte kopieren', 'tg.copied': 'Kopiert ✓',
-    'tg.note': 'Die Karte kommt über HACS (benutzerdefiniertes Repository dieses Projekts, Typ „Dashboard“) oder als Datei dist/floorplan3d-card.js.',
+    'tg.note': 'Die Karte kommt über HACS (dort nach „3D Floorplan Card“ suchen) oder als Datei dist/floorplan3d-card.js.',
     'tab.today': 'Heute', 'tab.energy': 'Energie', 'pe.today': 'Heute', 'pe.yesterday': 'Gestern', 'pe.allHouses': 'Alle zusammen', 'pe.kind.day': 'Tag',
     'pe.kind.week': 'Woche', 'pe.kind.month': 'Monat', 'pe.kind.year': 'Jahr', 'pe.back': 'Davor', 'pe.forward': 'Danach',
     'pe.ownMeters': 'Zähler dieses Hauses (⚡ Rechnung)', 'pe.haMeters': 'Zähler aus dem Energie-Dashboard von Home Assistant', 'pe.used': 'Verbraucht',
@@ -1315,6 +1315,8 @@ const DICT = {
     'sg.card.notifySub': 'Bei Alarm: WhatsApp, Telegram oder Home Assistant', 'sg.badge.on': 'An', 'sg.badge.off': 'Aus', 'sg.badge.notReady': 'Nicht bereit',
     'sg.badge.armed': 'Scharf', 'sg.badge.disarmed': 'Unscharf', 'sg.badge.alarm': 'Alarm!', 'sg.guide.tablet': '5 Schritte · Text der Karte zum Kopieren',
     'vc.checkTitle': '🩺 Prüfen und Mikrofon-Test', 'an.stepsTitleTg': 'So richtest du Telegram ein:', 'lg.count': '💡 Räume: {n}', 'pn.floors': 'Etage',
+    'ver.connectorOk': 'Integration in Home Assistant (Connector): dieselbe Version {v}.',
+    'ver.connectorOld': 'Integration in Home Assistant (Connector): Version {c}, dieses Programm {v}. Beide gehören zusammen: das ältere aktualisieren (die Integration in HACS, den Container mit „docker compose pull“).',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -1670,7 +1672,7 @@ const DICT = {
     'tg.step4': '“kiosk: true” hides Home Assistant\'s sidebar and top bar for users without admin rights (to try out; if it does not work, “Kiosk Mode” from HACS does it). To leave it, add “?kiosk=off” to the address.',
     'tg.step5': 'In Fully Kiosk Browser enter the address of this dashboard as the start page and switch on full screen. In other browsers ⛶ in the bar at the bottom goes full screen.',
     'tg.copy': 'Copy the card\'s text', 'tg.copied': 'Copied ✓',
-    'tg.note': 'The card comes from HACS (this project as a custom repository, type “Dashboard”) or as the file dist/floorplan3d-card.js.',
+    'tg.note': 'The card comes from HACS (search for “3D Floorplan Card” there) or as the file dist/floorplan3d-card.js.',
     'tab.today': 'Today', 'tab.energy': 'Energy', 'pe.today': 'Today', 'pe.yesterday': 'Yesterday', 'pe.allHouses': 'All together', 'pe.kind.day': 'Day',
     'pe.kind.week': 'Week', 'pe.kind.month': 'Month', 'pe.kind.year': 'Year', 'pe.back': 'Before', 'pe.forward': 'After',
     'pe.ownMeters': 'This house\'s meters (⚡ Bookkeeping)', 'pe.haMeters': 'Meters of Home Assistant\'s energy dashboard', 'pe.used': 'Used',
@@ -2581,6 +2583,8 @@ const DICT = {
     'sg.card.notifySub': 'On alarm: WhatsApp, Telegram or Home Assistant', 'sg.badge.on': 'On', 'sg.badge.off': 'Off', 'sg.badge.notReady': 'Not ready',
     'sg.badge.armed': 'Armed', 'sg.badge.disarmed': 'Disarmed', 'sg.badge.alarm': 'Alarm!', 'sg.guide.tablet': '5 steps · the card’s text to copy',
     'vc.checkTitle': '🩺 Check and microphone test', 'an.stepsTitleTg': 'How to set up Telegram:', 'lg.count': '💡 rooms: {n}', 'pn.floors': 'Floor',
+    'ver.connectorOk': 'Home Assistant integration (connector): the same version {v}.',
+    'ver.connectorOld': 'Home Assistant integration (connector): version {c}, this program {v}. They belong together: update the older one (the integration in HACS, the container with “docker compose pull”).',
   },
 };
 

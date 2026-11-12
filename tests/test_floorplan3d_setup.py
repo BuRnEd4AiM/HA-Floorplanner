@@ -82,6 +82,23 @@ def _install_home_assistant():
     helpers.__path__ = []
     _module("homeassistant.helpers.typing", ConfigType=dict)
 
+    # Settings → Repairs (#744): the issues are kept in hass.data["issues"] by (domain, id)
+    def async_create_issue(hass, domain, issue_id, **kwargs):
+        hass.data.setdefault("issues", {})[(domain, issue_id)] = kwargs
+
+    def async_delete_issue(hass, domain, issue_id):
+        hass.data.setdefault("issues", {}).pop((domain, issue_id), None)
+
+    helpers.issue_registry = _module("homeassistant.helpers.issue_registry", async_create_issue=async_create_issue,
+                                     async_delete_issue=async_delete_issue,
+                                     IssueSeverity=SimpleNamespace(WARNING="warning", ERROR="error"))
+
+    def async_track_time_interval(hass, action, interval):
+        hass.data.setdefault("intervals", []).append((action, interval))
+        return lambda: hass.data["intervals"].remove((action, interval))
+
+    _module("homeassistant.helpers.event", async_track_time_interval=async_track_time_interval)
+
     async def async_get_integration(hass, domain):
         return SimpleNamespace(version="1.2.3")
 
@@ -135,10 +152,29 @@ class Hass:
         self.http = HTTP()
         self.bus = Bus()
         self.config = SimpleNamespace(components={"frontend"})
+        self.tasks = []
+
+    def async_create_background_task(self, target, name):
+        self.tasks.append(name)
+        target.close()                      # not run here; check_versions has its own tests
+
+
+class Entry:
+    def __init__(self, address):
+        self.data = {const.CONF_ADDRESS: address}
+        self.on_unload = []
+        self.tasks = []
+
+    def async_on_unload(self, func):
+        self.on_unload.append(func)
+
+    def async_create_background_task(self, hass, target, name):
+        self.tasks.append(name)
+        target.close()
 
 
 def entry(address="http://127.0.0.1:1"):
-    return SimpleNamespace(data={const.CONF_ADDRESS: address})
+    return Entry(address)
 
 
 class FakeResources:
@@ -194,6 +230,13 @@ async def test_setup_entry_registers_everything_without_a_restart():
     assert len(hass.http.views) == 1
     assert len(hass.http.static) == 1
     assert len(hass.data["frontend_extra_module_url"]) == 2      # the card and its second address, no duplicates
+
+    # the version check (#744): at once in the background, then every hour, stopped with the entry
+    first = entry()
+    await integration.async_setup_entry(hass, first)
+    assert first.tasks == [f"{const.DOMAIN} version check"] and len(first.on_unload) == 1
+    assert hass.data["intervals"][-1][1].total_seconds() == const.VERSION_CHECK_SECONDS
+    assert store["plan"].version == "1.2.3"                     # sent along with every request (the plan's version dialog)
 
     assert await integration.async_unload_entry(hass, entry()) is True
     assert store.get("plan") is None
@@ -288,3 +331,53 @@ async def test_the_session_view_refuses_a_code_for_another_client(monkeypatch):
     answer = await integration.SessionView().post(Request(hass, user))
     assert answer.status == 502
     assert made == []
+
+
+async def test_settings_repairs_says_which_side_to_update(monkeypatch):
+    """#744: integration and container come from the same release; a difference is an issue in Settings → Repairs that names both
+    versions and the side to update, the same version removes it, a container that does not answer changes nothing"""
+    hass = Hass()
+    answers = []
+
+    async def container_version(session, address):
+        return answers.pop(0)
+
+    monkeypatch.setattr(integration.handshake, "container_version", container_version)
+    key = (const.DOMAIN, const.VERSION_ISSUE)
+
+    answers.append("5.8.0")
+    assert await integration.check_versions(hass, "http://plan:8100", "5.9.0") == "update_container"
+    issue = hass.data["issues"][key]
+    assert issue["translation_key"] == "update_container" and issue["severity"] == "warning" and issue["is_fixable"] is False
+    assert issue["translation_placeholders"] == {"connector": "5.9.0", "container": "5.8.0"}
+    assert issue["learn_more_url"] == const.CONTAINER_DOCS
+
+    answers.append(None)                                          # not reachable: the issue stays as it was
+    assert await integration.check_versions(hass, "http://plan:8100", "5.9.0") == "unknown"
+    assert key in hass.data["issues"]
+
+    answers.append("5.10.0")
+    assert await integration.check_versions(hass, "http://plan:8100", "5.9.0") == "update_connector"
+    assert hass.data["issues"][key]["translation_key"] == "update_connector"
+
+    answers.append(integration.versions.TOO_OLD)
+    assert await integration.check_versions(hass, "http://plan:8100", "5.9.0") == "update_container"
+    assert hass.data["issues"][key]["translation_placeholders"]["container"] == "< 5.9.0"
+
+    answers.append("5.9.0")
+    assert await integration.check_versions(hass, "http://plan:8100", "5.9.0") == "same"
+    assert key not in hass.data["issues"]
+
+
+async def test_a_failed_sign_in_looks_at_the_versions_at_most_once_a_minute(monkeypatch):
+    hass = Hass()
+    hass.data[const.DOMAIN] = {"plan": SimpleNamespace(address="http://192.168.1.10:8100", version="5.9.0")}
+    user = SimpleNamespace(name="Anna", credentials=[SimpleNamespace(auth_provider_type="homeassistant")])
+
+    async def begin(session, address):
+        raise handshake.PlanError("cannot_start_login")
+
+    monkeypatch.setattr(integration.handshake, "begin", begin)
+    assert (await integration.SessionView().post(Request(hass, user))).status == 502
+    assert (await integration.SessionView().post(Request(hass, user))).status == 502
+    assert hass.tasks == [f"{const.DOMAIN} version check"]

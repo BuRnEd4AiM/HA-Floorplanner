@@ -53,8 +53,9 @@ def _add_vary(headers: CIMultiDict, token: str) -> None:
 class Proxy:
     """serves one plan; created by async_setup_entry and closed when the entry is unloaded"""
 
-    def __init__(self, address: str) -> None:
+    def __init__(self, address: str, version: str = "") -> None:
         self.address = str(address or const.DEFAULT_ADDRESS).rstrip("/")
+        self.version = version              # this integration's, sent along with every request (#744)
         self._unreachable_logged = False
         # A download may take minutes (models, backups): only a dead connection or a stalled one ends it.
         # No cookie jar: this session is shared by every browser, so a cookie the plan sets for one request must never be
@@ -106,7 +107,7 @@ class Proxy:
         try:
             answer = await self.upstream.request(
                 request.method, url,
-                headers=boundary.headers_to_plan(request.headers, request.scheme, request.host),
+                headers=boundary.headers_to_plan(request.headers, request.scheme, request.host, self.version),
                 data=request.content if request.can_read_body else None, allow_redirects=False)
         except (aiohttp.ClientError, asyncio.TimeoutError, OSError) as err:
             self._unreachable("3D Floorplan: the plan is not reachable at %s: %s", url.split("?", 1)[0], err)
@@ -236,7 +237,7 @@ class Proxy:
         url = boundary.plan_url(self.address, request.rel_url.raw_path, request.query_string, "ws")
         try:
             plan_ws = await self.live.ws_connect(
-                url, headers=boundary.headers_to_plan(request.headers, request.scheme, request.host), heartbeat=30)
+                url, headers=boundary.headers_to_plan(request.headers, request.scheme, request.host, self.version), heartbeat=30)
         except (aiohttp.ClientError, asyncio.TimeoutError, OSError) as err:
             self._unreachable("3D Floorplan: the plan's live channel is not reachable at %s: %s", url.split("?", 1)[0], err)
             return web.json_response({"error": "plan unreachable"}, status=502)

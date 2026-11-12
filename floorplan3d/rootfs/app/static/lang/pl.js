@@ -1440,7 +1440,7 @@ export default {
   'tg.step4': '„kiosk: true” ukrywa pasek boczny i górny pasek Home Assistant dla użytkowników bez praw administratora (do wypróbowania; jeśli nie działa, pomoże „Kiosk Mode” z HACS). Aby wyjść, dopisz „?kiosk=off” do adresu.',
   'tg.step5': 'W Fully Kiosk Browser wpisz adres tego pulpitu jako stronę startową i włącz pełny ekran. W innych przeglądarkach ⛶ na pasku na dole włącza pełny ekran.',
   'tg.copy': 'Kopiuj tekst karty', 'tg.copied': 'Skopiowano ✓',
-  'tg.note': 'Kartę instaluje się przez HACS (ten projekt jako repozytorium niestandardowe, typ „Dashboard”) albo jako plik dist/floorplan3d-card.js.',
+  'tg.note': 'Kartę instaluje się przez HACS (wyszukaj tam „3D Floorplan Card”) albo jako plik dist/floorplan3d-card.js.',
   'tab.today': 'Dziś', 'tab.energy': 'Energia', 'pe.today': 'Dziś', 'pe.yesterday': 'Wczoraj', 'pe.allHouses': 'Wszystkie razem', 'pe.kind.day': 'Dzień',
   'pe.kind.week': 'Tydzień', 'pe.kind.month': 'Miesiąc', 'pe.kind.year': 'Rok', 'pe.back': 'Wcześniej', 'pe.forward': 'Później',
   'pe.ownMeters': 'Liczniki tego domu (⚡ Rozliczenie)', 'pe.haMeters': 'Liczniki z panelu energii Home Assistant', 'pe.used': 'Zużyte',
@@ -2361,4 +2361,6 @@ export default {
   'sg.badge.off': 'Wył.', 'sg.badge.notReady': 'Niegotowy', 'sg.badge.armed': 'Uzbrojony', 'sg.badge.disarmed': 'Rozbrojony', 'sg.badge.alarm': 'Alarm!',
   'sg.guide.tablet': '5 kroków · tekst karty do skopiowania', 'vc.checkTitle': '🩺 Sprawdzenie i test mikrofonu',
   'an.stepsTitleTg': 'Jak skonfigurować Telegram:', 'lg.count': '💡 pokoje: {n}', 'pn.floors': 'Piętro',
+  'ver.connectorOk': 'Integracja w Home Assistant (łącznik): ta sama wersja {v}.',
+  'ver.connectorOld': 'Integracja w Home Assistant (łącznik): wersja {c}, ten program {v}. Należą do siebie: zaktualizuj starszy (integrację w HACS, kontener poleceniem „docker compose pull”).',
 };

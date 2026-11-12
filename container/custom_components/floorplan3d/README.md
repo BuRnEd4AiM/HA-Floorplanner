@@ -15,7 +15,9 @@ http://<Home Assistant>:8123/floorplan/
 ## Install
 
 1. Set up the container first and check that its own login works at `http://<computer>:8100` ([`container/README.md`](../../README.md); it needs `HA_TOKEN`).
-2. Copy this folder to Home Assistant's configuration folder, so that it is `config/custom_components/floorplan3d/` (with `__init__.py` directly inside). HACS cannot install it: the repository's HACS entry is the dashboard card.
+2. Get the integration, in one of two ways:
+   - **With HACS:** HACS → ⋮ → **Custom repositories** → `https://github.com/BuRnEd4AiM/HA-Floorplanner-Connector`, type **Integration** → **Add**; then search for **3D Floorplan Connector** → **Download**. (It has a repository of its own: HACS lists HA-Floorplanner as a Dashboard, the add-on's card, and knows a repository under one type only. That repository is filled automatically from every release here, #744.)
+   - **By hand:** download `floorplan3d-connector.zip` from the [latest release](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest) and unpack it in Home Assistant's configuration folder, so that it is `config/custom_components/floorplan3d/` (with `__init__.py` directly inside). `sha256sum -c floorplan3d-connector.zip.sha256` (from the same release) checks the download.
 3. Restart Home Assistant once (so it finds the new folder).
 4. **Settings → Devices & services → Add integration → 3D Floorplan (Container)**. Enter the container's address as Home Assistant can reach it, for example `http://192.168.1.10:8100`. The dialog checks the address against the container's login.
 5. Open `http://<Home Assistant>:8123/floorplan/`, or add the card to a dashboard (it is in the card picker; nothing to copy to `config/www`, no resource to add):
@@ -25,6 +27,10 @@ http://<Home Assistant>:8123/floorplan/
    ```
 
 To change the address later: the integration's ⋮ menu → **Reconfigure**.
+
+## Update and versions
+
+The integration has the version of the release it comes from (the same as the container, for example 5.9.0). HACS offers each new version; after the update restart Home Assistant. Update the container to the same version (`docker compose pull && docker compose up -d`): the integration compares the two at every start, every hour and after a failed sign-in, and when they differ **Settings → Repairs** says which one to update (a line in the log too). The page opened at `/floorplan/` shows both versions behind its version pill. With the beta container, switch on the integration's pre-releases in HACS (the entity **Pre-release** of *3D Floorplan Connector*).
 
 ## Good to know
 
@@ -37,4 +43,4 @@ To change the address later: the integration's ⋮ menu → **Reconfigure**.
 
 ## Remove
 
-Settings → Devices & services → 3D Floorplan (Container) → Delete, then delete `config/custom_components/floorplan3d/` and restart Home Assistant. The card disappears with it; remove it from your dashboards first.
+Settings → Devices & services → 3D Floorplan (Container) → Delete, then remove it in HACS (or delete `config/custom_components/floorplan3d/`) and restart Home Assistant. The card disappears with it; remove it from your dashboards first.
