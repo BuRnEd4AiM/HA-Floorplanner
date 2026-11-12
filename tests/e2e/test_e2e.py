@@ -39,10 +39,12 @@ def status_open(pg):
 
 def open_setting(pg, sel):
     """the settings dialog folds its groups shut (setgroups.js): open the group that holds this field (on a wide screen: show that group on
-    the right, 4.35.0; only one group shows there at a time, so open the group again before using a field of another one)"""
-    pg.evaluate("""(s) => { const el = document.querySelector(s), d = el?.closest('details'), g = el?.closest('details.setGroup');
-        if (d) d.open = true;
-        if (g) { g.open = true; g.closest('dialog')?.dispatchEvent(new CustomEvent('sg-show', { detail: g.dataset.group })); } }""", sel)
+    the right, 4.35.0; only one group shows there at a time, so open the group again before using a field of another one), the cards and
+    guides it is in and its page of "Reiter unten" (5.8.0)"""
+    pg.evaluate("""(s) => { const el = document.querySelector(s), g = el?.closest('details.setGroup');
+        for (let d = el?.closest('details'); d; d = d.parentElement?.closest('details')) d.open = true;   // also a card or a guide it is in (5.8.0)
+        if (g) { g.open = true; g.closest('dialog')?.dispatchEvent(new CustomEvent('sg-show', { detail: g.dataset.group })); }
+        el?.dispatchEvent(new CustomEvent('sg-reveal', { bubbles: true })); }""", sel)   # its page of "Reiter unten" (setsections.js)
 
 def open_users(pg):
     """users & tablets are a group of the settings (#454): open the settings and that group (it loads the users, the file state and the rooms)"""

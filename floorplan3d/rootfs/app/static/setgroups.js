@@ -69,6 +69,8 @@ function tile(body) {
 export function reveal(el) {
   const dlg = el?.closest('dialog');
   if (!dlg) return;
+  for (let d = el.closest('details'); d; d = d.parentElement?.closest('details')) d.open = true;   // a card or a guide it is in (5.8.0)
+  el.dispatchEvent(new CustomEvent('sg-reveal', { bubbles: true }));                                 // its page of "Reiter unten" (setsections.js)
   el.scrollIntoView({ block: 'start' });
   const head = dlg.querySelector('.dlgHead'), over = head ? head.getBoundingClientRect().bottom - el.getBoundingClientRect().top + 8 : 0;
   if (over > 0) dlg.scrollTop -= over;
@@ -90,9 +92,20 @@ export function initSetGroups(ctx) {
   const dlg = $('#settingsDialog'), search = $('#setSearch'), allBtn = $('#sgAll'), none = $('#sgNone');
   if (!dlg || !search) return { open() {}, refresh() {} };
   const groups = () => [...dlg.querySelectorAll('details.setGroup')];
-  /** a group's rows, hints and boxes, also those in a tile (the search marks the row itself) */
-  const items = (g) => [...g.querySelector('.sgBody').children].flatMap((el) => (el.classList.contains('sgTile') ? [...el.children] : [el]))
-    .filter((el) => el.tagName !== 'DATALIST');
+  /** what of an element the search looks at: a tile, a page of "Reiter unten" and a card of "Warnungen & Alarm" (5.8.0) are looked into */
+  const flat = (el) => (el.matches('.sgTile, .sgSub') ? [...el.children].flatMap(flat)
+    : el.matches('details.sgCard') ? [el.querySelector(':scope > summary'), ...[...el.querySelector(':scope > .sgSub').children].flatMap(flat)] : [el]);
+  /** a group's rows, hints and boxes, also those in a tile, a page or a card (the search marks the row itself) */
+  const items = (g) => [...g.querySelector('.sgBody').children].flatMap(flat).filter((el) => el.tagName !== 'DATALIST' && !el.matches('.sgPages, .moreBtn'));
+  const bodies = (g) => [g.querySelector('.sgBody'), ...g.querySelectorAll('.sgSub')];   // where rows are put in tiles
+  /** cards and guides a search opened, shut again when it ends */
+  const opened = new Set();
+  const shutOpened = () => { opened.forEach((d) => { d.open = false; }); opened.clear(); };
+  function openAround(el, fits) {
+    const list = [...(el.matches('details.sgGuide') ? [el] : []), ...[...el.querySelectorAll('details.sgGuide')].filter(fits)];   // a guide that has the words
+    for (let d = el.parentElement?.closest('details'); d && !d.classList.contains('setGroup'); d = d.parentElement?.closest('details')) list.push(d);
+    list.forEach((d) => { if (!d.open) { d.open = true; opened.add(d); } });
+  }
   /** what an item says: its text and the tooltips in it (a hint like "follows the sun" finds the sky) */
   const textOf = (el) => [el.textContent, el.title, ...[...el.querySelectorAll('[title]')].map((x) => x.title)].join(' ');
   let searching = false, side = false, current = null;
@@ -137,6 +150,7 @@ export function initSetGroups(ctx) {
   function clear() {
     searching = false;
     dlg.querySelectorAll('.sgHit').forEach((el) => el.classList.remove('sgHit'));
+    shutOpened();
     if (side) { show(pickGroup(current ?? storedSide(), shownIds())); return; }
     const open = new Set(stored());
     groups().forEach((g) => { g.hidden = false; g.open = open.has(g.dataset.group); });
@@ -147,10 +161,12 @@ export function initSetGroups(ctx) {
     if (!found) { clear(); label(); return; }
     searching = true;
     dlg.querySelectorAll('.sgHit').forEach((el) => el.classList.remove('sgHit'));
+    shutOpened();
+    const words = fold(search.value).split(/\s+/).filter(Boolean), fits = (el) => { const x = fold(textOf(el)); return words.every((w) => x.includes(w)); };
     groups().forEach((g) => {
       const f = found[g.dataset.group];
       g.hidden = !f; g.open = !!f;
-      if (f && !f.all) { const its = items(g); f.hits.forEach((i) => its[i].classList.add('sgHit')); }   // the whole group fits: no marks all over it
+      if (f && !f.all) { const its = items(g); f.hits.forEach((i) => { its[i].classList.add('sgHit'); openAround(its[i], fits); }); }   // the whole group fits: no marks all over it
     });
     navBtns().forEach((b) => { b.hidden = !found[b.dataset.group]; b.classList.remove('on'); });   // wide: the list shows where it was found
     dlg.classList.add('sgSearching');
@@ -203,11 +219,11 @@ export function initSetGroups(ctx) {
   });
   dlg.addEventListener('change', refresh);
   $('#settingsBtn')?.addEventListener('click', () => {                            // each time it opens: the groups as left, no search
-    groups().forEach((g) => tile(g.querySelector('.sgBody')));
+    groups().forEach((g) => bodies(g).forEach(tile));
     layout(); search.value = ''; clear(); refresh();
   });
   matchMedia(SIDE_QUERY).addEventListener?.('change', layout);
-  groups().forEach((g) => tile(g.querySelector('.sgBody')));
+  groups().forEach((g) => bodies(g).forEach(tile));
   layout(); clear(); refresh();
   return {
     /** open the group with this id (and keep it open next time; wide: show it on the right) */

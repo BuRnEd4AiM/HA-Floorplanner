@@ -73,14 +73,15 @@ main { flex: 1; display: flex; min-height: 0; }
 .linkBtn { display: block; width: auto !important; margin: -2px 0 8px auto; padding: 2px 6px; font-size: 12px; background: none; border: none; color: var(--accent, #23e0ff); cursor: pointer; }
 #propsBody h4.finHead { margin: 14px 0 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 
-#floorRail { position: absolute; left: 12px; top: 58px; bottom: 64px; width: 132px; z-index: 4; display: none; flex-direction: column;
+#floorRail { position: absolute; left: 12px; top: 58px; bottom: 142px; width: 132px; z-index: 4; display: none; flex-direction: column;
   gap: 8px; overflow-y: auto; scrollbar-width: none; pointer-events: none; }
 #floorRail::-webkit-scrollbar { display: none; }
 #floorRail > * { pointer-events: auto; flex: 0 0 auto; }
 #floorRail button { position: relative; padding: 0; text-align: center; color: inherit; cursor: pointer; background: var(--panel);
   border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 #floorRail .railHouse { padding: 8px 10px; font-size: 13px; }
-#floorRail .floorThumb canvas { display: block; width: 100%; height: auto; }
+#floorRail .floorThumb canvas { display: block; width: 100%; height: var(--thumbH, auto); object-fit: contain; }
+body.v-2d #floorRail, body.card-nobar #floorRail { bottom: 64px; }   /* the rail ends above the compass (5.8.0); without the compass lower down */
 #floorRail .floorThumb span { position: absolute; left: 4px; right: 4px; bottom: 5px; font-size: 12px; font-weight: 600; line-height: 1.2;
   text-shadow: 0 1px 3px #000, 0 0 6px #000; }
 #floorRail button.active { border-color: var(--accent); box-shadow: 0 0 14px var(--accent); }
@@ -542,8 +543,6 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 #alarmNotify .anSvcs > .sub { margin: 0 0 6px; }
 #alarmNotify .anTarget .n { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
 #alarmNotify .anTarget small { color: var(--muted); font-size: 11px; }
-#alarmNotify .anGuide { margin: 8px 0; padding: 6px 10px; border: 1px dashed var(--line); border-radius: 8px; }
-#alarmNotify .anGuide summary { cursor: pointer; font-weight: 600; }
 #alarmNotify .anMy { display: inline-block; margin: 2px 0 6px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--accent); text-decoration: none; }
 dialog .row[hidden] { display: none; }
 #settingsDialog .sgHit { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
@@ -592,6 +591,99 @@ dialog .row[hidden] { display: none; }
 #settingsDialog.sgSide .sgTile:has(.sgHit) { outline: 2px solid var(--accent); outline-offset: 1px; }
 #settingsDialog.sgSide .sgTile .sgHit { outline: none; }
 #settingsDialog p.sub { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
+
+/* ---- settings easier to use (5.8.0, docs/ideen-5.8; setcontrols.js, setsections.js) ---- */
+/* ① on/off as a switch (the tick stays the same input), the label on the left */
+#settingsDialog .row.check { flex-direction: row-reverse; justify-content: space-between; gap: 14px; }
+#settingsDialog .row.check > label { flex: 1; }
+#settingsDialog .row.check > input[type=checkbox], #settingsDialog label.row.check > input[type=checkbox] { appearance: none; -webkit-appearance: none; flex: none;
+  position: relative; width: 44px; height: 26px; margin: 0; border-radius: 13px; background: var(--field); border: 1px solid var(--line); cursor: pointer; transition: background .15s; }
+#settingsDialog .row.check > input[type=checkbox]::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); transition: transform .15s; }
+#settingsDialog .row.check > input[type=checkbox]:checked { background: var(--accent); border-color: var(--accent); }
+#settingsDialog .row.check > input[type=checkbox]:checked::after { transform: translateX(18px); }
+#settingsDialog .row.check > input[type=checkbox]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#settingsDialog .row.check > input[type=checkbox]:disabled { opacity: .45; cursor: default; }
+/* ① a short drop-down as a row of buttons; the drop-down stays (hidden), it is what is saved */
+#settingsDialog select.segHidden { position: absolute; width: 1px !important; height: 1px; min-width: 0; margin: 0; padding: 0; border: 0; opacity: 0; overflow: hidden; clip-path: inset(50%); pointer-events: none; }
+#settingsDialog .row:has(> .segBtns) { position: relative; flex-wrap: wrap; }
+.segBtns { display: inline-flex; flex-wrap: wrap; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--field); }
+.segBtns button { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 5px 12px; border: 0; border-left: 1px solid var(--line); border-radius: 0;
+  background: none; color: var(--text); box-shadow: none; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.segBtns button:first-child { border-left: 0; }
+.segBtns button:hover:not(.on) { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.segBtns button.on { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+.segBtns button:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+.segBtns .segTxt { display: flex; flex-direction: column; line-height: 1.2; }
+.segBtns .segNote { font-size: 10.5px; font-weight: 400; opacity: .75; }
+.segSwatch { flex: none; width: 18px; height: 18px; border-radius: 5px; border: 1px solid rgba(127, 127, 127, .6); }
+/* ① sliders with their value, lengths with their unit */
+#settingsDialog .row input[type=range][data-show] { flex: 1 1 140px; min-width: 100px; accent-color: var(--accent); }
+#settingsDialog .row input[type=range][data-show] + output { min-width: 48px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.unitBox { display: inline-flex; align-items: center; gap: 6px; }
+.unitBox input { width: 110px; }
+.unitBox .unit { color: var(--muted); min-width: 16px; }
+/* ① a long explanation: two lines and "mehr …" (not while searching: what is found shows whole) */
+#settingsDialog .clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+#settingsDialog.sgSearching .clamp { display: block; -webkit-line-clamp: unset; line-clamp: none; }
+#settingsDialog .moreBtn { display: inline-block; margin: 0 0 6px; padding: 0; min-height: 0; border: 0; background: none; box-shadow: none; color: var(--accent);
+  font: inherit; font-size: 12px; cursor: pointer; }
+#settingsDialog.sgSearching .moreBtn { display: none; }
+/* ② "Reiter unten": a button per page, only the page chosen shows (all of them while searching) */
+.sgPages { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 4px; }
+.sgPageBtn { min-height: 36px; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--field); color: var(--text); font: inherit;
+  font-size: 13.5px; cursor: pointer; box-shadow: none; }
+.sgPageBtn.on { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+#settingsDialog.sgSearching .sgPages { display: none; }
+#settingsDialog .sgPage[hidden] { display: none; }
+#settingsDialog.sgSearching .sgPage[hidden] { display: block; }
+#settingsDialog:not(.sgSearching) .sgPage > h4 { display: none; }
+#settingsDialog .sgPage > h4 { margin: 12px 0 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+#settingsDialog.sgSide .sgSub { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr)); gap: 12px; align-items: stretch; }
+#settingsDialog.sgSide .sgSub > :not(.sgTile) { grid-column: 1 / -1; }
+#settingsDialog.sgSide .sgSub > h4, #settingsDialog.sgSide .sgSub > p { margin-top: 0; margin-bottom: 0; }
+#settingsDialog.sgSide .sgPage[hidden] { display: none; }
+#settingsDialog.sgSide.sgSearching .sgPage[hidden] { display: grid; }
+/* the choices of a page (calendars, routines, garden valves) as buttons like the rooms of a light group (5.8.0) */
+#settingsDialog .sgPage .calList { gap: 6px; }
+#settingsDialog .sgPage .calList label.lockItem { position: relative; min-height: 34px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--field); font-size: 13px; cursor: pointer; user-select: none; }
+#settingsDialog .sgPage .calList label.lockItem input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+#settingsDialog .sgPage .calList label.lockItem:has(input:checked) { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+#settingsDialog .sgPage .calList label.lockItem:has(input:checked)::before { content: '✓'; }
+#settingsDialog .sgPage .calList label.lockItem:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* ③ "Warnungen & Alarm": three cards that fold, the state in the head */
+details.sgCard { margin: 0 0 10px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--field) 30%, transparent); }
+details.sgCard > summary { display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; list-style: none; user-select: none; border-radius: 12px; }
+details.sgCard > summary::-webkit-details-marker { display: none; }
+details.sgCard > summary::after { content: '›'; font-size: 22px; line-height: 1; color: var(--muted); transition: transform .15s; }
+details.sgCard[open] > summary::after { transform: rotate(90deg); }
+details.sgCard[open] > summary { border-bottom: 1px solid var(--line); border-radius: 12px 12px 0 0; }
+details.sgCard > summary:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+details.sgCard > .sgSub { padding: 12px 14px; }
+.sgCardIcon { flex: none; width: 30px; font-size: 22px; text-align: center; }
+.sgCardText { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.sgCardText b { font-size: 15px; }
+.sgCardText small { color: var(--muted); font-size: 12px; }
+.sgBadge { flex: none; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.sgBadge:empty { display: none; }
+.sgBadge.on { color: #24a865; border-color: #24a865; background: rgba(36, 168, 101, .12); }
+.sgBadge.warn { color: #e08a1e; border-color: #e08a1e; background: rgba(224, 138, 30, .12); }
+.sgBadge.alarm { color: #fff; border-color: #e5484d; background: #e5484d; }
+details.sgCard #guardBox > h4:first-child, details.sgCard #alarmNotifyTitle { display: none; }
+#settingsDialog.sgSide details.sgCard:has(.sgHit) { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* ④ instructions needed once: a line that folds open */
+details.sgGuide { margin: 6px 0 10px; padding: 0; border: 1px dashed var(--line); border-radius: 10px; font-size: 13px; }
+details.sgGuide > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; padding: 9px 12px; cursor: pointer; font-weight: 600; list-style: none; }
+details.sgGuide > summary::-webkit-details-marker { display: none; }
+details.sgGuide > summary::after { content: '›'; margin-left: auto; font-size: 20px; line-height: 1; color: var(--muted); transition: transform .15s; }
+details.sgGuide[open] > summary::after { transform: rotate(90deg); }
+details.sgGuide > summary small { font-weight: 400; color: var(--muted); font-size: 12px; }
+#vcGuide > summary > span::before { content: '📖 '; }
+details.sgGuide > summary #vcNow.ok { color: #24a865; }
+details.sgGuide > summary #vcNow.no { color: #d0433a; }
+details.sgGuide > :not(summary) { margin-left: 12px; margin-right: 12px; }
+details.sgGuide[open] > :last-child { margin-bottom: 10px; }
 
 /* Nanoleaf layout editor */
 #nanoDialog { width: min(760px, 96vw); }
@@ -655,7 +747,7 @@ dialog .row[hidden] { display: none; }
 .imp-warnings { color: #ffb04a; }
 
 /* room pills: a dot while somebody is in the room (person / presence devices) */
-#roomPills .pill.occupied::before, #roomMenu .pill.occupied::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #5dffb0; box-shadow: 0 0 8px #5dffb0; vertical-align: 1px; }
+#roomPills .pill.occupied::before, #roomMenu .pill.occupied::before, #phoneNavBtn.occupied::before, #phoneNav .pill.occupied::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #5dffb0; box-shadow: 0 0 8px #5dffb0; vertical-align: 1px; }
 
 /* LED ring sections in the side panel */
 .ringSec { border: 1px solid var(--line); border-left-width: 5px; border-radius: 10px; padding: 6px 8px; margin: 6px 0; }
@@ -739,7 +831,6 @@ body.v-2d #compass { display: none; }
 .vkMeter i { display: block; height: 100%; width: 0; background: #8a96a3; transition: width .05s linear; }
 .vkMeter i.loud { background: #2e9d57; }
 #vkReport { width: 100%; box-sizing: border-box; margin-top: 6px; font: 11px/1.35 ui-monospace, monospace; }
-.vcGuide { margin: 6px 0 10px; padding: 8px 10px; font-size: 13px; border: 1px dashed var(--line); border-radius: 10px; }
 .vcGuide[hidden] { display: none; }
 .vcGuide ol { margin: 6px 0; padding-left: 20px; }
 .vcRow { margin: 8px 0; padding: 8px; border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; gap: 6px; }
@@ -835,8 +926,10 @@ body.v-2d #compass { display: none; }
 /* phones: three buttons at the top, ☰ (phonemenu.js), the floor as a drop-down (phonenav.js) and the rooms (#roomMenuBtn), instead of the floor pills */
 #phoneNavBtn, #phoneNav { display: none; }
 @media (max-width: 760px), (max-height: 520px) {
-  body:not(.roomtablet) #phoneNavBtn { display: block; max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body:not(.roomtablet) #phoneNavBtn { display: block; max-width: 62vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   body:not(.roomtablet) #floorPills, body:not(.roomtablet) #navSep { display: none; }
+  body:not(.roomtablet) #roomPills { display: none; }               /* the rooms are in the list of the floor button (5.8.0, phonenav.js) */
+  body:not(.roomtablet) #guardBtn.off .gdWord { display: none; }    /* only 🛡 while the holiday alarm is off */
   body:not(.roomtablet) #roomMenuBtn { max-width: 38vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   body:not(.roomtablet) #phoneNav:not([hidden]) { position: absolute; top: 54px; left: 12px; z-index: 31; display: flex; flex-direction: column; gap: 6px; padding: 8px;
     width: min(260px, calc(100% - 24px)); max-height: calc(100% - 140px); overflow-y: auto; background: var(--panel); border: 1px solid var(--line);
@@ -844,6 +937,12 @@ body.v-2d #compass { display: none; }
   body.live:not(.kiosk):not(.roomtablet) #phoneNav:not([hidden]), body.live:not(.kiosk):not(.roomtablet) #roomMenu { left: 60px; max-width: calc(100% - 72px); }
 }
 #phoneNav .pill { width: 100%; text-align: left; }
+/* phones (5.8.0, docs/ideen-5.8 ⑦): one button for the floor and the room; its list has the floors as a row, then the rooms */
+#phoneNav .pnHead { padding: 4px 4px 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+#phoneNav .pnHead.pnSub { text-transform: none; letter-spacing: 0; font-weight: 600; }
+#phoneNav .pnFloors { display: flex; flex-wrap: wrap; gap: 6px; }
+#phoneNav .pnFloors .pill { width: auto; padding: 6px 11px; font-size: 13px; }
+#phoneNav .pill.all { border-style: dashed; }
 /* phones held upright: everything at the top fits on the screen, no scrolling sideways. The values (energy, water / gas, offline,
    open, cameras) wrap into a second row and are a little smaller; held sideways the row stays one line as before */
 @media (max-width: 760px) {
@@ -1518,6 +1617,16 @@ body.low #guardScreen.gd-entry, body.low #guardScreen.gd-alarm { animation: none
 .lgEditHead input { flex: 1 1 auto; min-width: 0; font-weight: 600; }
 .lgFloor { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
 .lgFloor small { flex: 0 0 100%; color: var(--muted); }
+/* the rooms of a light group as buttons (5.8.0, docs/ideen-5.8 ⑤): a chosen room glows yellow with 💡; the tick lies invisible over the button */
+.lgFloor { gap: 6px; }
+.lgFloor small { margin-top: 4px; }
+.lgFloor .lgRoom { position: relative; display: inline-flex; align-items: center; gap: 5px; min-height: 34px; padding: 5px 12px; border: 1px solid var(--line);
+  border-radius: 999px; background: var(--field); font-size: 13px; cursor: pointer; user-select: none; }
+.lgFloor .lgRoom input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.lgFloor .lgRoom:has(input:checked) { background: #ffcf70; border-color: #ffcf70; color: #2a1d00; font-weight: 600; }
+.lgFloor .lgRoom:has(input:checked)::before { content: '💡'; }
+.lgFloor .lgRoom:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.lgEditHead .lgCount { align-self: center; color: var(--muted); font-size: 12.5px; white-space: nowrap; }
 .lgRoom { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 #undoToast { position: absolute; left: 50%; bottom: 112px; transform: translateX(-50%); z-index: 30; display: flex; align-items: center; gap: 12px;
   padding: 8px 8px 8px 16px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,.45); white-space: nowrap; }
@@ -1570,8 +1679,6 @@ kbd { display: inline-block; min-width: 1.6em; padding: 1px 6px; border-radius: 
 .tpBig .tp-live { display: block; width: 100%; max-height: calc(100vh - 190px); aspect-ratio: auto 16 / 9; object-fit: contain; background: #000; border-radius: 14px; }
 .tpSensors { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .tpSensors h3 { flex: 0 0 100%; margin: 0 0 2px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-.tabletGuide { margin: 10px 0; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; }
-.tabletGuide h4 { margin: 2px 0 0; }
 .tabletGuide ol { margin: 8px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .tabletGuide pre { margin: 6px 0; padding: 8px 10px; border-radius: 8px; background: var(--field); font-size: 12px; user-select: all; white-space: pre-wrap; }
 body.hasTabs #status { bottom: 84px; }

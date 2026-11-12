@@ -45,7 +45,10 @@ export function initGuardUi(ctx) {
   function renderButton() {
     const p = phase();
     btn.hidden = !info || !!info.ready;                          // not set up: no button
-    btn.textContent = t(`gd.btn.${p === 'entry' ? 'alarm' : p}`, { s: left() });
+    const txt = t(`gd.btn.${p === 'entry' ? 'alarm' : p}`, { s: left() }), cut = txt.indexOf(' ');
+    btn.replaceChildren(cut > 0 ? txt.slice(0, cut) : txt, ...(cut > 0 ? [el('span', 'gdWord', txt.slice(cut))] : []));   // phones show only the 🛡 while it is off (5.8.0)
+    btn.setAttribute('aria-label', txt);
+    btn.classList.toggle('off', p === 'off');
     btn.classList.toggle('alert', p === 'entry' || p === 'alarm');
     btn.classList.toggle('armed', p === 'arming' || p === 'armed');
   }
@@ -99,7 +102,9 @@ export function initGuardUi(ctx) {
     code = pressKey(code, k); note = '';
     render();
   }
-  function render() { renderButton(); renderBar(); renderScreen(); }
+  /** the card of the holiday alarm in the settings shows the state in its head (setsections.js) */
+  const told = () => box?.dispatchEvent(new CustomEvent('sg-status', { bubbles: true }));
+  function render() { renderButton(); renderBar(); renderScreen(); told(); }
   /** open the keypad: to arm it, or (an editor) to switch it off */
   function ask() {
     if (phase() === 'off') asking = 'arm';
@@ -153,7 +158,7 @@ export function initGuardUi(ctx) {
   function renderSettings() {
     if (!box) return;
     const cfg = info?.cfg;
-    if (!cfg) { box.replaceChildren(...(info ? [el('p', 'sub', t('gd.onlyEditors'))] : [])); return; }
+    if (!cfg) { box.replaceChildren(...(info ? [el('p', 'sub', t('gd.onlyEditors'))] : [])); told(); return; }
     const out = [el('h4', '', t('gd.title')), el('p', 'hint', t('gd.help'))];
     out.push(el('div', 'sub', t('gd.sensors')));
     const sensors = sensorChoices(ctx.entities(), ctx.layout(), cfg.sensors);
@@ -172,6 +177,7 @@ export function initGuardUi(ctx) {
     sv.addEventListener('click', saveSettings); tools.append(sv);
     out.push(tools, el('p', 'sub gdStatus', saveNote || t(`gd.ready.${info.ready || 'ok'}`)));
     box.replaceChildren(...out);
+    told();
   }
   async function saveSettings() {
     const v = (id) => box.querySelector(`#${id}`);

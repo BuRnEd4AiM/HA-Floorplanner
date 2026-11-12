@@ -31,7 +31,8 @@ pgN.click("#settingsBtn"); open_setting(pgN, "#alarmNotify"); pgN.wait_for_timeo
 txt = pgN.inner_text("#alarmNotify") if pgN.is_visible("#alarmNotify") else ""
 opts = pgN.evaluate("() => [...document.querySelectorAll('#alarmNotify [data-svc]')].map((c) => c.dataset.svc)")
 check("alarm message (#414, #456): the settings have the part, off at first, every kind ticked, Home Assistant's notify services as a list to tick",
-      pgN.is_visible("#alarmNotifyTitle") and "Benachrichtigung bei Alarm" in pgN.text_content("#alarmNotifyTitle") and not pgN.is_checked("#anOn")
+      pgN.is_visible("details.sgCard[data-card=notify] > summary") and "Nachricht aufs Handy" in pgN.inner_text("details.sgCard[data-card=notify] > summary")
+      and "Aus" in pgN.inner_text("details.sgCard[data-card=notify] .sgBadge") and not pgN.is_checked("#anOn")
       and all(pgN.is_checked(f"#anKind_{k}") for k in ("alarm", "smoke", "gas", "co", "water")) and opts == ["mobile_app_test", "whatsapp"], (txt, opts))
 heads = pgN.evaluate("() => [...document.querySelectorAll('#alarmNotify .anSvcs')].map((g) => [g.className, g.querySelector('.anSrcHead').textContent, g.textContent])")
 check("alarm message (#460): the list says where each one comes from: phone app, set up in Home Assistant (the Telegram bot's chat), configuration.yaml",
@@ -42,9 +43,10 @@ check("alarm message (#460): the list says where each one comes from: phone app,
 check("alarm message (#460): how to set up your own Telegram bot, with the button that opens it in Home Assistant",
       "Telegram-Bot einrichten" in (pgN.text_content("#alarmNotify .anGuide summary") or "") and pgN.locator("#alarmNotify .anGuide .anSteps li").count() == 4
       and "domain=telegram_bot" in (pgN.get_attribute("#alarmNotify .anGuide a.anMy", "href") or ""))
-check("alarm message (#454): WhatsApp has three numbered steps, the first with the link to CallMeBot",
-      pgN.locator("#alarmNotify .anWa .anSteps li").count() == 3 and "I allow callmebot to send me messages" in pgN.inner_text("#alarmNotify .anWa .anSteps")
-      and pgN.locator("#alarmNotify .anWa .anSteps li a[href*=callmebot]").count() == 1)
+check("alarm message (#454, 5.8.0): WhatsApp has three numbered steps, the first with the link to CallMeBot, folded in a line „📖 So richtest du WhatsApp ein“",
+      pgN.locator("#alarmNotify .anWa .anSteps li").count() == 3 and "I allow callmebot to send me messages" in pgN.text_content("#alarmNotify .anWa .anSteps")
+      and pgN.locator("#alarmNotify .anWa .anSteps li a[href*=callmebot]").count() == 1
+      and "So richtest du WhatsApp ein" in pgN.inner_text("#alarmNotify .anWa details.anStepsBox > summary") and not pgN.is_visible("#alarmNotify .anWa .anSteps"))
 pgN.check("#anOn"); pgN.select_option("#anVia", "whatsapp")
 pgN.fill("#anPhone", "+49 170 1234567"); pgN.fill("#anKey", "987654")
 pgN.click("#anSave"); pgN.wait_for_timeout(800)
@@ -100,7 +102,8 @@ check("alarm message (#460): a chat of Home Assistant's Telegram bot alone is en
 # Telegram through CallMeBot (#456): into a group with its key, or to users
 pgN.select_option("#anVia", "telegram")
 check("alarm message (#456): Telegram shows who it goes to and the steps", pgN.is_visible("#anTgMode") and pgN.is_visible("#anTgUsers")
-      and "@CallMeBot_txtbot" in pgN.inner_text("#alarmNotify .anTgUser .anSteps") and not pgN.is_visible("#anPhone"))
+      and "@CallMeBot_txtbot" in pgN.text_content("#alarmNotify .anTgUser .anSteps") and not pgN.is_visible("#anPhone")
+      and "Telegram" in pgN.inner_text("#alarmNotify .anTgUser details.anStepsBox > summary"))
 pgN.select_option("#anTgMode", "group"); pgN.fill("#anTgKey", "grp-key1")
 n0 = len(notified())
 pgN.click("#anTest"); pgN.wait_for_timeout(1500)

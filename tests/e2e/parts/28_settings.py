@@ -29,9 +29,19 @@ HITS = "() => [...document.querySelectorAll('#settingsDialog .sgHit')].map((e) =
 check("search: 'alarm' leaves the group 'Warnungen & Alarm' open, the others away (its name fits: no marks all over it)",
       g1["alarm"] == (True, True) and not g1["general"][1] and not g1["outside"][1]
       and pgG.evaluate("() => document.querySelectorAll('details[data-group=alarm] .sgHit').length") == 0, (g1, pgG.evaluate(HITS)))
+check("alarm (5.8.0): three cards with their state in the head, shut (the group's name fits: the search opens none of them)",
+      pgG.locator("details[data-group=alarm] details.sgCard").count() == 3 and pgG.is_visible("details.sgCard[data-card=guard] > summary")
+      and not pgG.evaluate("[...document.querySelectorAll('details.sgCard')].some((d) => d.open)") and pgG.inner_text("details.sgCard[data-card=warn] .sgBadge") == "An",
+      pgG.inner_text("details[data-group=alarm] .sgBody"))
+pgG.click("details.sgCard[data-card=warn] > summary"); pgG.click("details.sgCard[data-card=notify] > summary"); pgG.wait_for_timeout(300)
 check("alarm (#owner question): the group explains the alarm panel and names the one Home Assistant has",
       "Alarmo" in pgG.inner_text("details[data-group=alarm] .sgInfo") and "Alarmo Haus" in pgG.inner_text("#alarmPanels")
       and "Scharf (abwesend)" in pgG.inner_text("#alarmPanels") and pgG.is_visible("#alarmNotify"), pgG.inner_text("#alarmPanels"))
+pgG.fill("#setSearch", "callmebot"); pgG.wait_for_timeout(300)
+check("search (5.8.0): what is found in a shut guide is opened ('callmebot' opens the steps for WhatsApp)",
+      pgG.is_visible("#alarmNotify .anWa .anStepsBox ol"), pgG.evaluate(HITS))
+pgG.fill("#setSearch", "alarm"); pgG.wait_for_timeout(300)
+pgG.evaluate("document.querySelectorAll('details.sgCard').forEach((d) => { d.open = false; })")
 pgG.press("#setSearch", "Enter"); pgG.wait_for_timeout(300)
 check("search: Enter does not close the settings", pgG.evaluate("document.querySelector('#settingsDialog').open"))
 pgG.fill("#setSearch", "sonne"); pgG.wait_for_timeout(300)

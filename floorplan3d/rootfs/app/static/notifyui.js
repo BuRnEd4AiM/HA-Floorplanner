@@ -77,15 +77,17 @@ export function initNotifyUi(ctx) {
     if (tgKey) out.tgkey = tgKey;
     return out;
   }
-  /** numbered steps; the link goes after the step at `at` */
-  function steps(keys, href, at = 0) {
+  /** numbered steps, folded in a line that opens (needed once, 5.8.0); the link goes after the step at `at` */
+  function steps(keys, href, at = 0, title = 'an.stepsTitle') {
     const ol = el('ol', 'anSteps');
     keys.forEach((k, i) => {
       const li = el('li', '', `${t(k)} `);
       if (i === at) { const a = el('a', '', new URL(href).hostname.replace(/^www\./, '')); a.href = href; a.target = '_blank'; a.rel = 'noopener'; li.append(a); }
       ol.append(li);
     });
-    return [el('div', 'sub', t('an.stepsTitle')), ol];
+    const d = el('details', 'sgGuide anStepsBox');
+    d.append(el('summary', '', `📖 ${t(title).replace(/\s*[:：]\s*$/, '')}`), ol);
+    return [d];
   }
   const secret = (has) => { const k = el('input'); k.type = 'password'; k.autocomplete = 'off'; k.placeholder = has ? t('an.keySaved') : '123456'; return k; };
   async function save(body) {
@@ -114,7 +116,7 @@ export function initNotifyUi(ctx) {
     if (head) head.hidden = !cfg;
     if (off) off.hidden = !!cfg;                              // who may not edit learns why the part is missing
     box.hidden = !cfg;
-    if (!cfg) { box.replaceChildren(); return; }
+    if (!cfg) { box.replaceChildren(); box.dispatchEvent(new CustomEvent('sg-status', { bubbles: true })); return; }
     const out = [el('p', 'hint', t('an.help')), check('anOn', 'an.on', cfg.on)];
     const kinds = el('div', 'anKinds');
     KINDS.forEach((k) => kinds.append(check(`anKind_${k}`, `an.kind.${k}`, (cfg.kinds || []).includes(k))));
@@ -132,8 +134,8 @@ export function initNotifyUi(ctx) {
     mode.value = cfg.tgMode === 'group' ? 'group' : 'user';
     const users = el('input'); users.placeholder = '@name, @name2'; users.value = (cfg.tgUsers || []).join(', '); users.autocomplete = 'off';
     const tgUser = el('div', 'anTgUser'), tgGroup = el('div', 'anTgGroup');
-    tgUser.append(...steps(['an.tgu.step1', 'an.tgu.step2', 'an.step3'], CMB_TG), field('anTgUsers', 'an.tg.users', users));
-    tgGroup.append(...steps(['an.tgg.step1', 'an.tgg.step2', 'an.step3'], CMB_TG_GROUP), field('anTgKey', 'an.tg.key', secret(cfg.hasTgKey)));
+    tgUser.append(...steps(['an.tgu.step1', 'an.tgu.step2', 'an.step3'], CMB_TG, 0, 'an.stepsTitleTg'), field('anTgUsers', 'an.tg.users', users));
+    tgGroup.append(...steps(['an.tgg.step1', 'an.tgg.step2', 'an.step3'], CMB_TG_GROUP, 0, 'an.stepsTitleTg'), field('anTgKey', 'an.tg.key', secret(cfg.hasTgKey)));
     tg.append(field('anTgMode', 'an.tg.mode', mode), tgUser, tgGroup);
     // what Home Assistant can send through, grouped by where it comes from (#460): the phone app, set up in its UI (notify entities, e.g.
     // one per chat of its own Telegram bot), the old way in configuration.yaml; typed only when it lists nothing
@@ -158,7 +160,7 @@ export function initNotifyUi(ctx) {
     if (!services.length) { const svc = el('input'); svc.placeholder = 'mobile_app_…'; ha.append(field('anService', 'an.service', svc)); }
     ha.append(el('p', 'sub', services.length ? t('an.serviceHint') : t('an.serviceNone')));
     // your own Telegram bot in Home Assistant (#460): set up in its UI (no YAML any more), then it shows above under "set up in Home Assistant"
-    const guide = el('details', 'anGuide');
+    const guide = el('details', 'anGuide sgGuide');
     guide.append(el('summary', '', t('an.tgbot.title')));
     const ol = el('ol', 'anSteps');
     ['an.tgbot.s1', 'an.tgbot.s2', 'an.tgbot.s3', 'an.tgbot.s4'].forEach((k) => ol.append(el('li', '', t(k))));
@@ -177,7 +179,8 @@ export function initNotifyUi(ctx) {
     bar.append(sv, ts);
     out.push(bar, el('p', 'sub anStatus', status));
     box.replaceChildren(...out);
+    box.dispatchEvent(new CustomEvent('sg-status', { bubbles: true }));   // the card's head shows the state (setsections.js)
   }
   $('#settingsBtn')?.addEventListener('click', load);         // read again each time the settings open (another screen may have changed it)
-  return { load, render, renderPanels };
+  return { load, render, renderPanels, cfg: () => cfg };
 }

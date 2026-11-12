@@ -122,12 +122,16 @@ check("phone menu: a choice closes it again", pg17.locator("#toolbar").is_hidden
 pg17.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].devices = window.__fp.layout.floors[window.__fp.floorIdx()].devices.filter(d => d.id !== 'alSmoke')")
 pg17.evaluate("""() => { const d = new Date(), now = d.getHours() * 60 + d.getMinutes(), hm = (m) => { m = (m + 1440) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
   Object.assign(window.__fp.settings(), { idleReturn: 1, idleOrbit: true, nightDim: 'time', nightFrom: hm(now - 60), nightTo: hm(now + 60) }); }""")   # night from an hour ago to in an hour ('00:00' to '23:59' missed the minute 23:59)
-# phones: three buttons at the top: ☰, the floor as a drop-down (phonenav.js) and the rooms, instead of the floor pills
-check("phone nav: a floor button and the room button instead of the floor pills", pg17.locator("#phoneNavBtn").is_visible() and pg17.locator("#roomMenuBtn").is_visible() and pg17.locator("#floorPills").is_hidden(), pg17.inner_text("#phoneNavBtn"))
+# phones: at the top ☰ and one button for the floor and the room (phonenav.js, 5.8.0: with a button of their own the floor read "E…"),
+# instead of the floor pills; its list has the floors and below them the rooms of the floor
+pnb = pg17.evaluate("(() => { const b = document.getElementById('phoneNavBtn'); return [b.scrollWidth <= b.clientWidth + 1, b.textContent]; })()")
+check("phone nav: one button for floor and room instead of the floor pills, its name not cut off", pg17.locator("#phoneNavBtn").is_visible() and pg17.locator("#roomMenuBtn").is_hidden()
+      and pg17.locator("#floorPills").is_hidden() and pnb[0], pnb)
 pg17.click("#phoneNavBtn"); pg17.wait_for_timeout(300)
 nfl = pg17.evaluate("window.__fp.layout.floors.length")
-check("phone nav: the floor list shows every floor", pg17.locator("#phoneNav").is_visible() and pg17.locator("#phoneNav .pill").count() >= nfl, pg17.inner_text("#phoneNav"))
-pg17.locator("#phoneNav .pill.active").click(); pg17.wait_for_timeout(300)
+check("phone nav: the list shows every floor and the rooms below", pg17.locator("#phoneNav").is_visible() and pg17.locator("#phoneNav .pnFloors .pill").count() >= nfl
+      and pg17.locator("#phoneNav .pnRoom", has_text="Rauchküche").count() == 1, pg17.inner_text("#phoneNav"))
+pg17.locator("#phoneNav .pnFloors .pill.active").click(); pg17.wait_for_timeout(300)
 check("phone nav: picking a floor closes the list", pg17.locator("#phoneNav").is_hidden())
 # phones upright: power, offline, open, cameras fold into the 📊 drop-down; the search is at the top right (phonestatus.js)
 check("phone status: the values are folded behind one button", pg17.locator("#phoneStatusBtn").is_visible() and pg17.locator("#offlinePill").is_hidden(), pg17.inner_text("#phoneStatusBtn"))
@@ -136,8 +140,9 @@ check("phone status: the button opens the values as a list", pg17.locator("#phon
 pg17.click("#phoneStatusBtn"); pg17.wait_for_timeout(300)
 fb = pg17.evaluate("(() => { const r = document.getElementById('findBtn').getBoundingClientRect(); return [r.top, r.right, innerWidth]; })()")
 check("phone status: the search button is at the top right", pg17.locator("#phoneStatus").is_hidden() and fb[0] < 60 and fb[1] > fb[2] - 30, fb)
-pg17.click("#roomMenuBtn"); pg17.locator("#roomMenu .pill", has_text="Rauchküche").click(); pg17.wait_for_timeout(600)
-check("phone nav: the room button opens the room and names it", pg17.locator("#roomPanel").is_visible() and "Rauchküche" in pg17.inner_text("#roomMenuBtn"), pg17.inner_text("#roomMenuBtn"))
+pg17.click("#phoneNavBtn"); pg17.locator("#phoneNav .pnRoom", has_text="Rauchküche").click(); pg17.wait_for_timeout(600)
+check("phone nav: a room in the list opens it, the button names it", pg17.locator("#roomPanel").is_visible() and "Rauchküche" in pg17.inner_text("#phoneNavBtn")
+      and pg17.locator("#phoneNav").is_hidden(), pg17.inner_text("#phoneNavBtn"))
 pg17.evaluate("window.__fp.kioskIdle(2 * 60000); window.__fp.kioskTick()"); pg17.wait_for_timeout(800)
 check("kiosk: after the idle time the start view returns and the house turns", pg17.locator("#roomPanel").is_hidden() and pg17.evaluate("window.__fp.autoRotate()"))
 check("kiosk: dimmed at night", pg17.locator("#nightDim").is_visible())

@@ -180,3 +180,8 @@ f("channels", "settings", "Normal und Beta: zwei Add-ons im Store; die Beta beko
   "Normal and Beta: two add-ons in the store; the beta gets every new version at once and pauses while the normal one runs (⏸ Beta paused)",
   why="geschieht im Store von Home Assistant, die Demo hat kein zweites Add-on; das Schild oben zeigt „Beta“ (Video „Version und Prüfsumme“)",
   since="5.2.0")
+f("settingseasy", "settings", "Einstellungen mit einem Tipp: Schalter, Knöpfe statt Listen, Schieberegler mit Prozent, Einheiten, „mehr …“, Anleitungen zum Aufklappen, Licht-Gruppen als Raum-Knöpfe",
+  "Settings with one tap: switches, buttons instead of lists, sliders in percent, units, “more …”, guides that fold open, light groups as room buttons", ["settings-easy", "language"], since="5.8.0")
+f("tabpages", "settings", "„Reiter unten“: ein Knopf je Seite, darunter nur ihre Einstellungen", "“Tabs at the bottom”: a button per page, only its settings below", ["cars"], since="5.8.0")
+f("alarmcards", "settings", "„Warnungen & Alarm“ in drei Karten mit Zustand (An, Unscharf, Aus)", "“Warnings & alarm” as three cards with their state (on, disarmed, off)", ["notify"], since="5.8.0")
+f("phonefloors", "phone", "Am Handy: ein Knopf für Etage und Zimmer, der Alarm als 🛡", "On the phone: one button for the floor and the room, the alarm as 🛡", ["phone-floors"], since="5.8.0")
