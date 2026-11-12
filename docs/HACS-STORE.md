@@ -84,6 +84,8 @@ HACS nimmt den Antrag nur vom Besitzer des Repositorys an, darum musst du ihn se
 
 ## Schritt 4: ein eigenes Repository für den Connector (Docker, #744) – nur der Besitzer, 2 Minuten
 
+**✅ Erledigt am 2026-11-12:** angelegt vom Besitzer, gefüllt von Claude; https://github.com/BuRnEd4AiM/HA-Floorplanner-Connector hat das erste Release v5.9.0. Das Docker-Paket war gleich öffentlich. So war es gemacht:
+
 Wer Home Assistant als Docker-Container hat, braucht die Integration „3D Floorplan (Container)“ (den „Connector“). HACS soll sie installieren und aktualisieren können. Das geht nur mit einem eigenen Repository (siehe oben). Claude kann keine Repositorys anlegen, darum:
 
 1. https://github.com/new öffnen.
