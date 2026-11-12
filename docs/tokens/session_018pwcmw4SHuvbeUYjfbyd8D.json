@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmw4SHuvbeUYjfbyd8D",
+ "start": "2026-11-12",
+ "updated": "2026-11-12T05:42:49Z",
+ "branch": "claude/gracious-dijkstra-khzxl9",
+ "source": "counted",
+ "input": 341,
+ "cache_write": 332247,
+ "cache_read": 40818413,
+ "output": 99514,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 341,
+   "cache_write": 332247,
+   "cache_read": 40818413,
+   "output": 99514,
+   "requests": 164
+  }
+ }
+}

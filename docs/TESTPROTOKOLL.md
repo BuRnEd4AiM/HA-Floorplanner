@@ -4,7 +4,9 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 4.67.2, 2026-11-06)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.7.1, 2026-11-12)
+
+**Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
 **Am 2026-11-06 hat Claude alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „alle Prüfungen, die du machen oder simulieren kannst … dass es nur noch der Feinschliff für mich gibt“): in der Demo (Chromium als PC und als iPhone), im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant: 40 Teile des Browser-Tests mit zusammen über 1.500 Prüfungen, dazu die 606 Server-Tests), dazu jedes neue Video der Anleitung und den Trailer Bild für Bild und die Seiten der Anleitung und des Trailers (aus ihren Zweigen gebaut). Eingetragen als „Claude, 2026-11-06“: von den 199 offenen Punkten (197 ❓, 2 ❌) sind 162 jetzt ✅, übrig sind 37. Dabei gefunden und gleich repariert: nach dem Pultdach waren die Gauben weg und das Dach blieb flach (#669, Version 4.67.2, Abschnitt 163).
 
@@ -16,24 +18,31 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 4. **Mit deinen Geräten, wie flüssig es läuft:** iPad und Wandtablet (56.1, 56.2, 85.1 bis 85.3, 102.1, 108.3), das iPhone in Safari (100.3), Wischen mit dem echten Finger (134.10), Bearbeiten in der Home-Assistant-App am Handy (145.8).
 5. **Mit deiner Heizung im echten Betrieb:** ob dein Thermostat bei offenem Fenster wirklich aus geht (123.1, damit auch das alte ❌ 122.3), ob es mit dem Raumfühler die richtige Temperatur zeigt und hält (124.6, 124.7), ob das Bad ruhig bleibt (128.6), ein paar Tage und ein Morgen ohne Überraschung im 🩺 Protokoll (130.5, 132.4). Was das Add-on dabei tut, ist geprüft.
 6. **Einzelnes im echten Home Assistant:** die Karte im eigenen Dashboard finden (46.3), Anwesenheit mit deinem Handy im WLAN (89.6), Energie mit dem Energie-Dashboard vergleichen (93.4), die Anleitung „📥 Für ohne Internet speichern“ (141.7, 141.8; das Herunterladen von GitHub ist bei Claude gesperrt).
-7. **Neu in 4.68.0: 🪜 Geschosshöhe und L-Treppe mit 2. Ecke** (Abschnitt 164, gefragt von Oely99 in #671): Claude hat 164.1 bis 164.5 geprüft; für dich im Add-on oder mit der Antwort von Oely99 164.6, nach dem Merge das Video 164.7.
-8. **Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan** (Abschnitt 165, dein Wunsch vom 2026-11-07): Claude hat 165.1 bis 165.5 geprüft; für dich im Add-on mit deinen echten Bereichen 165.6 und am Tablet mit dem Finger 165.7, nach dem Merge die Videos 165.8.
-9. **Neu in 4.70.0: ⚡ Strom je Gebäude** (Abschnitt 166, dein Wunsch vom 2026-11-07): Claude hat 166.1 bis 166.5 geprüft; für dich im Add-on mit deinen zwei Häusern in einem Plan 166.6, nach dem Merge das Video 166.7.
+7. **Neu in 4.68.0: 🪜 Geschosshöhe und L-Treppe mit 2. Ecke** (Abschnitt 164, gefragt von Oely99 in #671): Claude hat 164.1 bis 164.5 geprüft; für dich im Add-on oder mit der Antwort von Oely99 164.6 (das Video 164.7 hat Claude am 2026-11-12 angesehen).
+8. **Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan** (Abschnitt 165, dein Wunsch vom 2026-11-07): Claude hat 165.1 bis 165.5 geprüft; für dich im Add-on mit deinen echten Bereichen 165.6 und am Tablet mit dem Finger 165.7 (die Videos 165.8 hat Claude angesehen).
+9. **Neu in 4.70.0: ⚡ Strom je Gebäude** (Abschnitt 166, dein Wunsch vom 2026-11-07): Claude hat 166.1 bis 166.5 geprüft; für dich im Add-on mit deinen zwei Häusern in einem Plan 166.6 (das Video 166.7 hat Claude angesehen).
 10. **Neu in 4.70.1: bereit für Home Assistant 2026.11** (Abschnitt 167, deine Frage vom 2026-11-08 zu den neuen Namen): Claude hat 167.1 bis 167.4 geprüft, auch mit einem echten Home Assistant 2026.11.0; für dich nach dem Update im Add-on 167.5, und nur wenn du Geräte mit mehreren Teilen hast 167.6.
-11. **Neu in 4.71.0: ⏸️ Heizplan aussetzen und das Gebäude oben auf jeder Seite** (Abschnitt 168, deine Wünsche vom 2026-11-08, #677): Claude hat 168.1 bis 168.5 geprüft (Tausende zufällige Heiz-Tage mit Pausen, Browser-Test, am 2026-11-10 in der Beta-Demo); für dich im Add-on mit deiner Heizung 168.6 und 168.7, mit deinen zwei Häusern 168.8 und 168.9, nach dem Merge die Videos 168.10.
-12. **Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben** (Abschnitt 169, gefragt von markweiffenbach in #679): Claude hat 169.1 bis 169.5 geprüft (169.3 bis 169.5 am 2026-11-10 in der Beta-Demo); für dich im Add-on mit deinen Fenstern 169.6, nach dem Merge das Video 169.7.
-13. **Neu in 4.73.0: ✨ Oberfläche 2** (Abschnitt 170, dein Wunsch vom 2026-11-08): Claude hat 170.1 bis 170.7 geprüft (170.3 bis 170.7 am 2026-11-10 in der Beta-Demo); für dich dein Eindruck 170.8, nach dem Merge das Video 170.9.
-14. **Neu in 5.0.0: ✨ Oberfläche 2 komplett** (Abschnitt 171, dein Wunsch vom 2026-11-09): Claude hat 171.1 bis 171.8 geprüft (171.3 bis 171.8 am 2026-11-10 in der Beta-Demo; 171.7, das Seitenfach, gibt es seit 5.4.2 nicht mehr); für dich dein Eindruck 171.9, nach dem Merge die Videos 171.10.
-15. **Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren** (Abschnitt 172, dein Wunsch vom 2026-11-09): Claude hat 172.1 bis 172.12 geprüft (auch alle Schritte in der Demo, am 2026-11-09 auf deine Frage „Kannst du das nicht selber testen?“); für dich nur noch dein Eindruck 172.13 und nach dem Merge die Videos 172.14.
+11. **Neu in 4.71.0: ⏸️ Heizplan aussetzen und das Gebäude oben auf jeder Seite** (Abschnitt 168, deine Wünsche vom 2026-11-08, #677): Claude hat 168.1 bis 168.5 geprüft (Tausende zufällige Heiz-Tage mit Pausen, Browser-Test, am 2026-11-10 in der Beta-Demo); für dich im Add-on mit deiner Heizung 168.6 und 168.7, mit deinen zwei Häusern 168.8 und 168.9 (die Videos 168.10 hat Claude angesehen).
+12. **Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben** (Abschnitt 169, gefragt von markweiffenbach in #679): Claude hat 169.1 bis 169.5 geprüft (169.3 bis 169.5 am 2026-11-10 in der Beta-Demo); für dich im Add-on mit deinen Fenstern 169.6 (das Video 169.7 hat Claude angesehen).
+13. **Neu in 4.73.0: ✨ Oberfläche 2** (Abschnitt 170, dein Wunsch vom 2026-11-08): Claude hat 170.1 bis 170.7 geprüft (170.3 bis 170.7 am 2026-11-10 in der Beta-Demo); für dich dein Eindruck 170.8 (das Video 170.9 hat Claude angesehen).
+14. **Neu in 5.0.0: ✨ Oberfläche 2 komplett** (Abschnitt 171, dein Wunsch vom 2026-11-09): Claude hat 171.1 bis 171.8 geprüft (171.3 bis 171.8 am 2026-11-10 in der Beta-Demo; 171.7, das Seitenfach, gibt es seit 5.4.2 nicht mehr); für dich dein Eindruck 171.9 (die Videos 171.10 hat Claude angesehen).
+15. **Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren** (Abschnitt 172, dein Wunsch vom 2026-11-09): Claude hat 172.1 bis 172.12 geprüft (auch alle Schritte in der Demo, am 2026-11-09 auf deine Frage „Kannst du das nicht selber testen?“); für dich nur noch dein Eindruck 172.13 (die Videos 172.14 hat Claude angesehen).
 16. **Neu in 5.2.0: Normal und Beta** (Abschnitt 173, deine Frage vom 2026-11-09): Claude hat 173.1 und 173.2 geprüft; für dich nach dem Merge in Home Assistant 173.3 bis 173.9, bei der nächsten Freigabe 173.10.
 17. **Repariert in 5.2.1: die große Seitenansicht des Dachs (⤢)** (Abschnitt 174, #684, gefunden beim Durchgehen von 172): Claude hat 174.1 bis 174.4 geprüft (174.4 am 2026-11-10 in der Beta-Demo): nichts mehr für dich.
-18. **Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten** (Abschnitt 175, deine Fotos und Meldungen vom 2026-11-09, #686, #687, #689, #690): Claude hat 175.1, 175.2, 175.5 und 175.6 geprüft; für dich nach dem Merge in der Beta am iPad 175.3, 175.4, 175.7 und 175.8.
-19. **Verbessert in 5.2.3: ⛰ Keller halb aus der Erde** (Abschnitt 176, #691, Frage von st03psn vom 2026-11-09): Claude hat 176.1 bis 176.4 geprüft; für dich nach dem Merge in der Beta 176.5; die Suche von 176.6 hat Claude am 2026-11-10 geprüft.
+18. **Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten** (Abschnitt 175, deine Fotos und Meldungen vom 2026-11-09, #686, #687, #689, #690): Claude hat alle geprüft (175.3, 175.4, 175.7 und 175.8 am 2026-11-12 am nachgebauten iPad mit Fingertippen): nichts mehr für dich.
+19. **Verbessert in 5.2.3: ⛰ Keller halb aus der Erde** (Abschnitt 176, #691, Frage von st03psn vom 2026-11-09): Claude hat alle geprüft (176.5 am 2026-11-12 in der Demo): nichts mehr für dich.
 20. **Repariert in 5.3.2: 🏗 Terrasse halb auf der Garage, halb frei** (Abschnitt 181, #703 von Miicki vom 2026-11-10): Claude hat 181.1 bis 181.6 geprüft (181.5 in der Beta mit echten Mausklicks, die Suche 181.6 am 2026-11-10); offen ist nur die Antwort von Miicki 181.7.
 21. **Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt** (Abschnitt 182, #705 von Miicki vom 2026-11-10): Claude hat 182.1 bis 182.5 geprüft (182.5 in der Beta); für dich im Add-on mit einem eigenen Raum 182.6 (die Suche 182.7 hat Claude am 2026-11-10 geprüft). 5.4.0 ist seit 2026-11-10 für alle freigegeben (dein Wunsch: „in der Beta das alles testen und wenn alles passt es rüber pushen“).
 22. **Repariert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste** (Abschnitt 183, #709, deine Bilder vom 2026-11-10): Claude hat 183.1 bis 183.4 geprüft (183.4 am 2026-11-10 in der Beta-Demo, am iPad quer und hochkant und am PC); 183.5 ❌ (das Seitenfach), darum 5.4.2: nichts mehr für dich.
 23. **Verbessert in 5.4.2: ✨ ein Reiter springt zu seinem Abschnitt** (Abschnitt 184, deine Wahl D vom 2026-11-10): Claude hat 184.1 bis 184.3 geprüft (184.3 am 2026-11-10 in der Beta-Demo am PC und am iPad); für dich nur dein Eindruck 184.4.
-24. **Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant** (Abschnitt 186, #715, deine Meldung vom 2026-11-11): Claude hat 186.1 und 186.2 geprüft (zwei Häuser nachgebaut, jede Seite durchgesehen); für dich im Add-on mit deinen zwei Häusern 186.3 bis 186.6 (damit ist auch 168.8 erledigt), nach dem Merge das Video 186.7.
+24. **Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant** (Abschnitt 186, #715, deine Meldung vom 2026-11-11): Claude hat 186.1 und 186.2 geprüft (zwei Häuser nachgebaut, jede Seite durchgesehen); für dich im Add-on mit deinen zwei Häusern 186.3 bis 186.6 (damit ist auch 168.8 erledigt; das Video 186.7 hat Claude angesehen).
+25. **Repariert in 5.2.4: Backup einspielen ohne Größengrenze** (Abschnitt 177, #693): geht nur mit dem Supervisor deines Home Assistant: 177.3 und 177.4 im Add-on.
+26. **Neu in 5.3.0: zwei Fenster übereinander** (Abschnitt 178, #694): in der Demo geprüft; für dich nur mit echten Rollläden 178.8.
+27. **Repariert in 5.4.3: ▲ das Plateau hebt den Keller nicht an** (Abschnitt 185, #713): Claude hat 185.1 bis 185.4 geprüft (am 2026-11-12 in der Demo nachgestellt: Plateau unter dem ganzen Haus, Keller darunter, Treppe vom Keller ins EG). Wenn du magst, schau kurz deine Fassung „Eltern“ an; sonst nichts mehr für dich.
+28. **Neu in 5.6.0: ⚡ Strom-Rechner und 🌡 Thermostat-Kreis** (Abschnitt 187, #718): Claude hat 187.1 bis 187.8 und 187.10 geprüft (der Kreis am nachgebauten iPad mit dem Finger, auch mit einem Thermostat, das erst noch den alten Wert meldet); für dich nur dein Eindruck 187.9.
+29. **5.6.1 bis 5.6.4: Strom je Gebäude, schneller starten, der Browser behält die Dateien, Code-Prüfer** (Abschnitte 188 bis 191): Claude hat alles geprüft (am 2026-11-12, auch ein nachgestelltes Update): nichts mehr für dich.
+30. **Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken** (Abschnitt 192, #724): Claude hat 192.1 bis 192.3 geprüft; offen ist nur die Antwort von Miicki 192.4.
+31. **Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten; 🔓 und ⋯ am Haus** (Abschnitt 193): Claude hat alles geprüft (am 2026-11-12 in der Demo mit Mausklicks): nichts mehr für dich.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -453,19 +462,19 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 161. 📱 Kurze Clips für TikTok, Reels und Shorts (nach 4.67.1, nur Werkzeuge) | 4 | 0 | 2 | 0 | 161.3, 161.5 |
 | 162. 🏠 Mehr als ein Grundriss: Startseite, Vorschaubild, Store und Trailer-Anfang (nach 4.67.1, keine Version) | 4 | 0 | 5 | 0 | 162.3, 162.5 bis 162.7, 162.9 |
 | 163. Repariert in 4.67.2: nach dem Pultdach kommt das Dach zurück, wie es war (#669) | 3 | 0 | 0 | 0 | – |
-| 164. Neu in 4.68.0: 🪜 Geschosshöhe je Haus, Stufen je Etage, L-Treppe mit 2. Ecke (#671) | 5 | 0 | 2 | 0 | 164.6, 164.7 |
-| 165. Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan | 5 | 0 | 3 | 0 | 165.6 bis 165.8 |
-| 166. Neu in 4.70.0: ⚡ Strom je Gebäude | 5 | 0 | 2 | 0 | 166.6, 166.7 |
+| 164. Neu in 4.68.0: 🪜 Geschosshöhe je Haus, Stufen je Etage, L-Treppe mit 2. Ecke (#671) | 6 | 0 | 1 | 0 | 164.6 |
+| 165. Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan | 6 | 0 | 2 | 0 | 165.6, 165.7 |
+| 166. Neu in 4.70.0: ⚡ Strom je Gebäude | 6 | 0 | 1 | 0 | 166.6 |
 | 167. Neu in 4.70.1: Bereit für Home Assistant 2026.11 (neue Namen, Teil-Geräte) | 4 | 0 | 2 | 0 | 167.5, 167.6 |
-| 168. Neu in 4.71.0: ⏸️ Heizplan aussetzen, das Gebäude oben gilt auf jeder Seite | 5 | 0 | 5 | 0 | 168.6 bis 168.10 |
-| 169. Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben | 5 | 0 | 2 | 0 | 169.6, 169.7 |
-| 170. Neu in 4.73.0: ✨ Oberfläche 2 (die neue Bearbeiten-Leiste, umschaltbar) | 7 | 0 | 2 | 0 | 170.8, 170.9 |
-| 171. Neu in 5.0.0: ✨ Oberfläche 2 komplett (Haus als Baum, Etage, Suchen, Reiter an der Leiste, Übernehmen) | 8 | 0 | 2 | 0 | 171.9, 171.10 |
-| 172. Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren | 12 | 0 | 2 | 0 | 172.13, 172.14 |
+| 168. Neu in 4.71.0: ⏸️ Heizplan aussetzen, das Gebäude oben gilt auf jeder Seite | 6 | 0 | 4 | 0 | 168.6 bis 168.9 |
+| 169. Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben | 6 | 0 | 1 | 0 | 169.6 |
+| 170. Neu in 4.73.0: ✨ Oberfläche 2 (die neue Bearbeiten-Leiste, umschaltbar) | 8 | 0 | 1 | 0 | 170.8 |
+| 171. Neu in 5.0.0: ✨ Oberfläche 2 komplett (Haus als Baum, Etage, Suchen, Reiter an der Leiste, Übernehmen) | 9 | 0 | 1 | 0 | 171.9 |
+| 172. Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren | 13 | 0 | 1 | 0 | 172.13 |
 | 173. Neu in 5.2.0: Normal und Beta | 2 | 0 | 8 | 0 | 173.3 bis 173.10 |
 | 174. Repariert in 5.2.1: die große Seitenansicht des Dachs (⤢) (#684) | 4 | 0 | 0 | 0 | – |
-| 175. Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten (#686, #687, #689, #690) | 4 | 0 | 4 | 0 | 175.3, 175.4, 175.7, 175.8 |
-| 176. Verbessert in 5.2.3: ⛰ Keller halb aus der Erde (#691) | 5 | 0 | 1 | 0 | 176.5 |
+| 175. Repariert in 5.2.2: 🔒 ein Raum allein ohne fremde Streifen, ✨ die Reiter mit Namen, ⚡ Strom-Editor in „Neu“, 🌡 kein Heizungsfenster beim Bearbeiten (#686, #687, #689, #690) | 8 | 0 | 0 | 0 | – |
+| 176. Verbessert in 5.2.3: ⛰ Keller halb aus der Erde (#691) | 6 | 0 | 0 | 0 | – |
 | 177. Repariert in 5.2.4: Backup einspielen ohne Größengrenze (#693) | 3 | 0 | 2 | 0 | 177.3, 177.4 |
 | 178. Neu in 5.3.0: 🪟 zwei Türen oder Fenster übereinander (#694) | 8 | 0 | 1 | 0 | 178.8 |
 | 179. Repariert in 5.3.1: 🪟 das Schild des unteren Rollladens (#697) | 3 | 0 | 0 | 0 | – |
@@ -474,16 +483,16 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 182. Neu in 5.4.0: 🌡 woher die Raumtemperatur kommt (#705) | 6 | 0 | 2 | 0 | 182.6, 182.8 |
 | 183. Repariert und verbessert in 5.4.1: ☀ Solarmodule aus dem Dach-Editor, ✨ Seitenleiste (#709) | 4 | 1 | 0 | 0 | ❌ 183.5 |
 | 184. Verbessert in 5.4.2: ✨ ein Reiter springt zu seinem Abschnitt | 3 | 0 | 1 | 0 | 184.4 |
-| 185. Repariert in 5.4.3: ▲ das Plateau hebt den Keller nicht mehr an (#713) | 1 | 0 | 3 | 0 | 185.2 bis 185.4 |
-| 186. Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant (#715) | 2 | 0 | 5 | 0 | 186.3 bis 186.7 |
-| 187. Neu in 5.6.0: ⚡ der Strom-Rechner übersichtlicher, 🌡 der Thermostat-Kreis springt nicht mehr zurück (#718) | 3 | 0 | 7 | 0 | 187.4 bis 187.10 |
-| 188. Verbessert in 5.6.1: ⚡ „Strom je Gebäude“ im neuen Strom-Rechner leicht zu finden | 1 | 0 | 3 | 0 | 188.2 bis 188.4 |
-| 189. Verbessert in 5.6.2: ⚡ schneller starten (nur die gewählte Sprache, die Versionsprüfung später) | 1 | 0 | 3 | 0 | 189.2 bis 189.4 |
-| 190. Verbessert in 5.6.3: ⚡ der Browser behält die Dateien (Fingerabdruck in der Adresse) | 1 | 0 | 3 | 0 | 190.2 bis 190.4 |
-| 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint) | 1 | 0 | 1 | 0 | 191.2 |
-| 192. Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken (#724) | 1 | 0 | 3 | 0 | 192.2 bis 192.4 |
-| 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus | 1 | 0 | 3 | 0 | 193.2 bis 193.4 |
-| **Zusammen** | **1212** | **2** | **109** | **92** | |
+| 185. Repariert in 5.4.3: ▲ das Plateau hebt den Keller nicht mehr an (#713) | 4 | 0 | 0 | 0 | – |
+| 186. Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant (#715) | 3 | 0 | 4 | 0 | 186.3 bis 186.6 |
+| 187. Neu in 5.6.0: ⚡ der Strom-Rechner übersichtlicher, 🌡 der Thermostat-Kreis springt nicht mehr zurück (#718) | 9 | 0 | 1 | 0 | 187.9 |
+| 188. Verbessert in 5.6.1: ⚡ „Strom je Gebäude“ im neuen Strom-Rechner leicht zu finden | 4 | 0 | 0 | 0 | – |
+| 189. Verbessert in 5.6.2: ⚡ schneller starten (nur die gewählte Sprache, die Versionsprüfung später) | 4 | 0 | 0 | 0 | – |
+| 190. Verbessert in 5.6.3: ⚡ der Browser behält die Dateien (Fingerabdruck in der Adresse) | 4 | 0 | 0 | 0 | – |
+| 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint) | 2 | 0 | 0 | 0 | – |
+| 192. Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken (#724) | 3 | 0 | 1 | 0 | 192.4 |
+| 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus | 4 | 0 | 0 | 0 | – |
+| **Zusammen** | **1250** | **2** | **71** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2572,7 +2581,7 @@ Gefragt von Oely99 in #671: „FLOOR_H is fixed at 3.0 m … My real stair has 1
 | 164.4 | Das Demo-Haus (neu gebaut) im „Ganzen Haus“, „Aufeinander“, mit 2,6 m und 3,4 m Geschosshöhe | Keller, Etagen, Decken und Dach rücken zusammen bzw. auseinander, nichts schwebt; das Nachbarhaus behält seine 3 m | ✅ (2026-11-06, Claude in der neu gebauten Demo) |
 | 164.5 | Demo: „Bearbeiten“, „Etage verwalten“, „Geschosshöhe“ 2.75; „Treppe“ → „L-Treppe“, „Ecke“ „Gewendelt“, in einen Raum klicken; „Stufen im 1. Lauf“ 0, „2. Ecke“ „Gewendelt“, „Wendelstufen (2. Ecke)“ 5, „Stufen im 2. Lauf“ 6; dann „3D“ | Unten 3 Keilstufen (man steigt von der Seite auf), ein gerader Lauf, oben 5 Keilstufen zur selben Seite; „Stufen je Etage“ 14, darunter „Eine Stufe ist 18.3 cm hoch“ | ✅ (2026-11-06, Claude in der neu gebauten Demo: genau diese Schritte als Video `stairs-storey` aufgenommen und Bild für Bild angesehen) |
 | 164.6 | Im Add-on (oder Oely99 mit seiner Treppe: 0,95 m breit, 14 Stufen, unten 3, oben 4 bis 5 Wendelstufen, Geschosshöhe 2,75 m) | Sieht aus wie die echte Treppe | ❓ |
-| 164.7 | Nach dem Merge auf der Seite der Anleitung das Video „Geschosshöhe und Treppe unten und oben gewendelt“ ansehen | Geschosshöhe 2,75, die L-Treppe mit beiden Ecken, „Stufen je Etage“ 14, das 3D-Bild von der Seite | ❓ |
+| 164.7 | Nach dem Merge auf der Seite der Anleitung das Video „Geschosshöhe und Treppe unten und oben gewendelt“ ansehen | Geschosshöhe 2,75, die L-Treppe mit beiden Ecken, „Stufen je Etage“ 14, das 3D-Bild von der Seite | ✅ (2026-11-12, Claude: das Video zeigt die Geschosshöhe 2,75, die L-Treppe mit beiden gewendelten Ecken, „Stufen je Etage“ 14 und das 3D-Bild) |
 
 ## 165. Neu in 4.69.0: 🏷 Raumname aus einem Bereich von Home Assistant, ⏱ Uhrzeit beim Ziehen im Heizplan
 Der Besitzer, 2026-11-07: „dass ich entweder der Home Assistant Bereiche auswählen kann, wie der Raum heißt, oder einen eigenen Raumname vergeben kann … wenn man sich schon die Arbeit gemacht hat, so Bereiche zu erstellen, dass man die auch einfach dann zuordnen kann“ und „beim Heizplan … während man die Leiste verschiebt … oben drüber die genaue Uhrzeit … wenn man loslässt, dass man dann weiß, auf wie viel Uhr“. Neu: direkt unter „Name“ eines Raums die Auswahl „HA-Bereich“ („✏️ Eigener Name“ oder ein Bereich, die freien zuerst), „↺ Name aus Home Assistant“, „🔗 … alle verknüpfen“; im 📅 Heizplan ein Schild mit der Uhrzeit über der Kante beim Ziehen.
@@ -2586,7 +2595,7 @@ Der Besitzer, 2026-11-07: „dass ich entweder der Home Assistant Bereiche ausw�
 | 165.5 | Demo: „Live“, unten „Klima“, oben „Heizplan“, „Wohnzimmer“; den linken Rand eines Blocks ziehen und loslassen | Über der Kante steht die Uhrzeit (z. B. „07:15“), sie geht mit; nach dem Loslassen bleibt sie kurz stehen | ✅ (2026-11-07, Claude in der neu gebauten Demo und im Video `heatplan`) |
 | 165.6 | Im Add-on mit deinen echten Bereichen: einen Raum anklicken, „HA-Bereich“ aufklappen; „🔗 … alle verknüpfen“, wenn es erscheint | Deine Bereiche stehen da (die schon vergebenen unten mit ihrem Raum); ein Raum heißt danach wie sein Bereich und zeigt im Live-Modus dessen Geräte | ❓ |
 | 165.7 | Am Tablet oder Handy im 📅 Heizplan mit dem Finger eine Kante ziehen | Die Uhrzeit steht über dem Finger, gut lesbar; nach dem Loslassen weißt du, wohin du geschoben hast | ❓ |
-| 165.8 | Nach dem Merge auf der Seite der Anleitung die Videos „Raum nach einem Bereich aus Home Assistant benennen“ und „📅 Heizplan“ ansehen | Die Küche bekommt ihren Bereich, „Wohnküche“, „↺“, „alle verknüpfen“; im Heizplan die Uhrzeit über der Kante | ❓ |
+| 165.8 | Nach dem Merge auf der Seite der Anleitung die Videos „Raum nach einem Bereich aus Home Assistant benennen“ und „📅 Heizplan“ ansehen | Die Küche bekommt ihren Bereich, „Wohnküche“, „↺“, „alle verknüpfen“; im Heizplan die Uhrzeit über der Kante | ✅ (2026-11-12, Claude: „HA-Bereich“ an der Küche, eigener Name, „↺“, „🔗 alle verknüpfen“; im Heizplan die Uhrzeit beim Ziehen der Kante) |
 
 ## 166. Neu in 4.70.0: ⚡ Strom je Gebäude
 Der Besitzer, 2026-11-07: „wenn man alle zwei Häuser, die man hat, wenn die nebeneinander stehen, in einem Haus die drin hat und dann über Bereiche sozusagen die Häuser trennt, dass dann auch für den einen Bereich einen eigenen Stromrechner gibt … wenn man dann auf den Bereich 2 schaltet, dass dann das alles für den Bereich 2 ist“; seine Wahl: mit „Alle Gebäude“ beides getrennt, „⚖ Vergleichen“ auch für Gebäude. Neu: im Reiter „⚡ Rechnung“ der Haken „⚡ Eigene Rechnung je Gebäude“ und „Rechnung für: …“; Strom-Anzeige, Strom-Bild, ☀ Heute und ⚡ Energie zeigen das Gebäude, das oben gewählt ist, bei „Alle Gebäude“ jedes für sich.
@@ -2599,7 +2608,7 @@ Der Besitzer, 2026-11-07: „wenn man alle zwei Häuser, die man hat, wenn die n
 | 166.4 | Demo: „Bearbeiten“, „🏘 Gebäude in diesem Plan“: zwei Gebäude (Haupthaus: die Räume des Erdgeschosses, Anbau: Hauswirtschaft); „Strom“ → „Rechnung“ → „⚡ Eigene Rechnung je Gebäude“, „Rechnung für: Anbau“ | Der Anbau rechnet mit seiner Solaranlage und Batterie (2,70 kW, lädt 600 W), das Haupthaus mit seinem Zähler und dem Solardach | ✅ (2026-11-07, Claude in der neu gebauten Demo und im Video `energy-buildings`) |
 | 166.5 | Demo danach: „Live“, oben „🏘 Alle Gebäude“, unten „Strom“; dann oben „Haupthaus“; dann unten „Energie“ | Zwei Strom-Bilder („Haupthaus“, „Anbau“), mit „Haupthaus“ nur eins; ⚡ Energie hat Knöpfe für beide Gebäude und „⚖ Vergleichen“; ☀ Heute „Strom jetzt“ mit einer Zeile je Gebäude und dem Ladestand der Batterie | ✅ (2026-11-07, Claude in der neu gebauten Demo) |
 | 166.6 | Im Add-on: deine zwei Häuser in einem Plan als zwei Gebäude, „⚡ Eigene Rechnung je Gebäude“, für jedes die Sensoren und Zähler einstellen | Oben auf ein Gebäude schalten zeigt nur seinen Strom, „Alle Gebäude“ beide getrennt, ⚡ Energie vergleicht sie | ❓ |
-| 166.7 | Nach dem Merge auf der Seite der Anleitung das Video „⚡ Strom je Gebäude: zwei Häuser in einem Plan“ ansehen | Der Haken, „Rechnung für“, zwei Strom-Bilder, ⚡ Energie mit „⚖ Vergleichen“ | ❓ |
+| 166.7 | Nach dem Merge auf der Seite der Anleitung das Video „⚡ Strom je Gebäude: zwei Häuser in einem Plan“ ansehen | Der Haken, „Rechnung für“, zwei Strom-Bilder, ⚡ Energie mit „⚖ Vergleichen“ | ✅ (2026-11-12, Claude: der Haken, „Rechnung für“, zwei Strom-Bilder, ⚡ Energie mit „⚖ Vergleichen“) |
 
 ## 167. Neu in 4.70.1: Bereit für Home Assistant 2026.11 (neue Namen, Teil-Geräte)
 Der Besitzer, 2026-11-08: „so es gibt 2026.11 das Home Assistant update schaue dir das update mal an und mache mir vorschläge was wir verändern müssen da sich das namenschema ja grundlegend verändert oder müssen wir nix machen“; seine Wahl: „Teil-Geräte“ und „Namen an einer Stelle“ (#675). Im Add-on geht durch das Update nichts kaputt. Neu: der Name einer Entität wird an einer Stelle gelesen (`hanames.py`, ohne `friendly_name` aus den Registern gebaut); Geräte, die Home Assistant in Teile aufteilt, finden ihren Akku, ihre Thermostat-Teile und ihre Zähler weiter (`hadevices.py`).
@@ -2627,7 +2636,7 @@ Der Besitzer, 2026-11-08: „in dieses Thermostat einen Knopf … wo man irgendw
 | 168.7 | Im Add-on: ⚙ → Benutzer & Tablets, bei einem Tablet „Heizplan aussetzen (⏸️ am Thermostat)“ ankreuzen; an einer eigenen Thermostat-Karte „Knopf … Verstecken“ | Auf dem Tablet kein Knopf; in der Karte kein Knopf, auf 🌡 Klima weiter da | ❓ |
 | 168.8 | Im Add-on mit deinen zwei Häusern in einem Plan: oben ein Gebäude wählen, dann Klima, Kameras, Musik & TV, Haushalt, Abläufe, Protokoll und deine eigenen Seiten ansehen | Nur noch Geräte dieses Gebäudes (und was zu keinem gehört: Garten, Wetter, Personen); mit „🏘 Alle Gebäude“ wieder alles | ❓ |
 | 168.9 | Im Add-on: eine eigene Seite bearbeiten (✎, „⚙️ Seite“), „Gehört zu Gebäude“ wählen | Die Seite steht nur bei diesem Gebäude in der Leiste, mit „🏘 Alle Gebäude“ immer | ❓ |
-| 168.10 | Nach dem Merge: Videos „⏸️ Heizplan aussetzen“ und „🏘 Ein Gebäude wählen“ auf der Seite der Anleitung | Zeigen Halten, Auswahl, Fortsetzen; das Gebäude oben und die Seiten | ❓ |
+| 168.10 | Nach dem Merge: Videos „⏸️ Heizplan aussetzen“ und „🏘 Ein Gebäude wählen“ auf der Seite der Anleitung | Zeigen Halten, Auswahl, Fortsetzen; das Gebäude oben und die Seiten | ✅ (2026-11-12, Claude: Halten, Auswahl der Dauer, „＋15 Min“, „▶ Heizplan fortsetzen“; das Gebäude oben, Klima und Musik nur vom Anbau) |
 
 ## 169. Neu in 4.72.0: 🪟 Fenster mit fester Scheibe unten oder oben
 Gefragt von markweiffenbach in #679: hohe, schmale Fenster vom Boden bis zur Decke, „der untere Teil (etwa 0–1,10 m) ist fest verglast, nur der obere Teil (etwa 1,10–2,20 m) geht auf oder kippt“; in seiner Wohnung 6 Stück. Der Besitzer: „#679 schau dir das mal an“. Gleich gebaut (der Wunsch war klar).
@@ -2640,7 +2649,7 @@ Gefragt von markweiffenbach in #679: hohe, schmale Fenster vom Boden bis zur Dec
 | 169.4 | Demo: bei diesem Fenster „Feste Scheibe oben“ auf 0.4 setzen, dann leer machen | Oben kommt eine feste Scheibe (Oberlicht) dazu, der Flügel wird kürzer; leer: wieder weg | ✅ (2026-11-10, Claude in der Beta-Demo 5.4.2 mit echten Klicks: 0.4 gibt ein Oberlicht, leer ist es wieder weg) |
 | 169.5 | Demo: „Tür/Fenster“ → „Bodentief, unten fest“, auf eine Wand klicken | Ein neues Fenster vom Boden bis 2,2 m, unten 1,1 m fest | ✅ (2026-11-10, Claude in der Beta-Demo 5.4.2 mit echten Klicks: neues Fenster vom Boden bis 2,2 m, unten 1,1 m fest; danach ↶) |
 | 169.6 | Im Add-on: bei einem deiner Fenster „Feste Scheibe unten“ eintragen und den Kontakt öffnen oder kippen | Nur der Flügel oben wird gelb (gekippt) oder rot (offen) und bewegt sich, die feste Scheibe unten bleibt klar | ❓ |
-| 169.7 | Nach dem Merge: Video „Fenster mit fester Scheibe unten oder oben“ auf der Seite der Anleitung | Zeigt das Feld, gekippt und offen, das Oberlicht und die neue Fensterart | ❓ |
+| 169.7 | Nach dem Merge: Video „Fenster mit fester Scheibe unten oder oben“ auf der Seite der Anleitung | Zeigt das Feld, gekippt und offen, das Oberlicht und die neue Fensterart | ✅ (2026-11-12, Claude: das Feld „Feste Scheibe unten“, gekippt gelb, offen rot, das Oberlicht und „Bodentief, unten fest“) |
 
 ## 170. Neu in 4.73.0: ✨ Oberfläche 2 (die neue Bearbeiten-Leiste, umschaltbar)
 Dein Wunsch vom 2026-11-08 („so unendlich viele Einstellmöglichkeiten … dass man zwischen alt und neu wechseln kann … mit Sachen ein- und ausklappen“), deine Wahl der Bilder am 2026-11-09 (1–5, 7–10, 12–14; das Fenster „halb offen“, Bild 17 B). Erster Teil: Fenster, Tür, Raum, Gerät, Wand. Noch nicht gebaut: 5 (Noppel), 9 (Haus als Baum), 10 (Etage), 12 (Suchen), 13 (Übernehmen), das Handy.
@@ -2655,7 +2664,7 @@ Dein Wunsch vom 2026-11-08 („so unendlich viele Einstellmöglichkeiten … das
 | 170.6 | Demo: einen Raum anklicken, Reiter „Boden“, oben „Fliesen“, eine Fliese antippen; „Boden höher als die Etage“ auf −0.15 | Der Boden im 3D-Bild wechselt; das kleine Bild zeigt den Raum 15 cm tiefer | ✅ (2026-11-10, Claude in der Beta-Demo 5.4.2 mit echten Klicks: „Fliesen“, eine Fliese gewählt, die Seitenansicht zeigt −15) |
 | 170.7 | Demo: oben „Klassisch“ antippen | Die alte Leiste, genau wie vorher | ✅ (2026-11-10, Claude in der Beta-Demo 5.4.2 mit echten Klicks: die alte Leiste mit Name und Bodenbelag, keine Reiter) |
 | 170.8 | Gefällt es dir? Was fehlt, was ist zu viel, was soll anders heißen? | Deine Antwort (z. B. als Text bei „Other“) | ❓ |
-| 170.9 | Nach dem Merge: Video „Die neue Leiste (Oberfläche 2)“ auf der Seite der Anleitung | Zeigt das Umschalten, die Abschnitte, das Fenster halb offen, die Fensterarten und den Raum mit Böden | ❓ |
+| 170.9 | Nach dem Merge: Video „Die neue Leiste (Oberfläche 2)“ auf der Seite der Anleitung | Zeigt das Umschalten, die Abschnitte, das Fenster halb offen, die Fensterarten und den Raum mit Böden | ✅ (2026-11-12, Claude: Umschalten, Abschnitte, der halb offene Flügel, Fensterarten, Böden als Bilder) |
 
 ## 171. Neu in 5.0.0: ✨ Oberfläche 2 komplett (Haus als Baum, Etage, Suchen, Reiter an der Leiste, Übernehmen)
 Dein Wunsch vom 2026-11-09: „5, 9, 10, 12, 13 – kannst du das weiter machen?“ (Bilder 5, 9, 10, 12, 13 in `docs/ideen-5.0/`). Alles mit „✨ Neu“ oben.
@@ -2671,7 +2680,7 @@ Dein Wunsch vom 2026-11-09: „5, 9, 10, 12, 13 – kannst du das weiter machen?
 | 171.7 | Demo: links an der Leiste auf den Reiter „Rollladen“ tippen | Der Abschnitt kommt in ein Seitenfach neben der Leiste; noch ein Tipp legt ihn zurück | ✅ (2026-11-10: seit 5.4.2 gibt es kein Seitenfach mehr, der Reiter springt zum Abschnitt; geprüft in 184.1 bis 184.3) |
 | 171.8 | Demo: bei einem Fenster einen Flügel auf „Drehen links“ stellen, dann „⇉ Übernehmen“ → „Für … übernehmen“ | Die anderen Fenster der Etage gehen auch links auf; ↶ macht es rückgängig | ✅ (2026-11-10, Claude in der Beta-Demo 5.4.2 mit echten Klicks: die anderen Fenster der Etage übernehmen es, ↶ macht es rückgängig) |
 | 171.9 | Gefällt es dir? Was fehlt noch, was ist zu viel? | Deine Antwort | ❓ |
-| 171.10 | Nach dem Merge: die Videos „Oberfläche 2: das Haus als Baum …“ und „… Suchen, Reiter an der Seite, Übernehmen“ | Zeigen Baum, Etage, Suchen, Seitenfach und Übernehmen | ❓ |
+| 171.10 | Nach dem Merge: die Videos „Oberfläche 2: das Haus als Baum …“ und „… Suchen, Reiter an der Seite, Übernehmen“ | Zeigen Baum, Etage, Suchen, Seitenfach und Übernehmen | ✅ (2026-11-12, Claude: Baum, Etage, Suchen, Reiter und Übernehmen; statt des Seitenfachs springt ein Reiter seit 5.4.2 zum Abschnitt, so auch im Video. Der erste Satz sagte noch „Version 2“ statt „✨ Neu“: geändert) |
 
 ## 172. Neu in 5.1.0: 🔺 das neue Dach und 🔒 Räume sperren
 Dein Wunsch vom 2026-11-09: „das Dach neu aufmachen, dass es geiler und übersichtlicher ist“ und „Räume sperren, dass diese nicht verschoben werden“ (Bilder in `docs/ideen-5.1/`: Dach alle, Sperren 7 und 9, dazu L-Dach und „+“-Dach, Geräte einzeln sperren, die Streifen blasser und ausschaltbar).
@@ -2691,7 +2700,7 @@ Dein Wunsch vom 2026-11-09: „das Dach neu aufmachen, dass es geiler und übers
 | 172.11 | Demo: 2D, an der Wand zwischen Wohnzimmer und Küche ziehen | Sie bleibt stehen, unten steht „🔒 „Wohnzimmer“ ist gesperrt …“ | ✅ (2026-11-09, Claude in der Demo) |
 | 172.12 | Demo: nichts ausgewählt, im Baum „🔒 Grundriss fertig“; dann „Ansicht“ → „🔒 Gesperrte zeigen“; dann oben „🔒 Grundriss gesperrt“ antippen | Alle Räume gesperrt, Geräte lassen sich weiter ziehen; die Streifen gehen aus und an; nach der Rückfrage ist alles wieder frei | ✅ (2026-11-09, Claude in der Demo) |
 | 172.13 | Gefällt dir das neue Dach und das Sperren? Was fehlt noch? | Deine Antwort | ❓ |
-| 172.14 | Nach dem Merge: die Videos „Das neue Dach …“ und „Räume sperren und „Grundriss fertig““ | Zeigen Form, Seitenansicht, Karte, Vorlagen; Schloss, Grundriss fertig, Gesperrte zeigen | ❓ |
+| 172.14 | Nach dem Merge: die Videos „Das neue Dach …“ und „Räume sperren und „Grundriss fertig““ | Zeigen Form, Seitenansicht, Karte, Vorlagen; Schloss, Grundriss fertig, Gesperrte zeigen | ✅ (2026-11-12, Claude: Dachform, Seitenansicht mit ⤢, Gauben ziehen, Vorlagen, „⭐ Mein Dach merken“; Schloss, „Grundriss fertig“, „🔒 Gesperrte zeigen“) |
 
 ## 173. Neu in 5.2.0: Normal und Beta
 Deine Frage vom 2026-11-09: „wäre es nicht viel sinnvoller, wenn das Projekt einen offiziellen Release … und vielleicht auch noch eine Beta Version gibt“; deine Wahl: bauen, und die Beta pausiert von selbst, solange das normale Add-on läuft. Im Store gibt es jetzt „3D Floorplan“ (nur freigegebene Versionen) und „3D Floorplan Beta“ (jede neue Version sofort). Freigeben: im Chat „Gib 5.3.0 frei“ sagen, oder auf GitHub Actions → „Release to everyone“ → „Run workflow“.
@@ -2726,12 +2735,12 @@ Gemeldet vom Besitzer am 2026-11-09 mit Fotos vom iPad: war oben links nur ein R
 |---|---|---|---|
 | 175.1 | Browser-Test Teil `81_roof_lock` | Im 3D-Bild hat der gesperrte Raum Streifen; nur die Küche gewählt: keine Streifen; nur der gesperrte Raum: seine Streifen; alle Räume: wie vorher |✅ (2026-11-09, Claude, 31/31, mit 175.6 32/32; dazu in der Demo: Keller, drei Räume gesperrt, nur die Garage gewählt: keine Streifen) |
 | 175.2 | Browser-Test Teil `80_ui_v2_more` | Jeder Reiter zeigt seinen Namen: hochkant, wenn alle passen; bei niedrigem Fenster quer unter dem Zeichen und alle auf dem Bildschirm; sehr niedrig: die Reiter lassen sich schieben | ✅ (2026-11-09, Claude, 25/25, mit 175.5 28/28; dazu in der Demo in iPad-Größe: Fenster quer mit Namen, Tür hochkant und „Home Assistant“ ganz) |
-| 175.3 | Im Add-on (Beta) am iPad: einen Raum sperren, oben links einen anderen Raum wählen, dann den gesperrten | Beim anderen Raum keine Streifen mehr auf der Wiese; beim gesperrten Raum nur seine eigenen | ❓ |
-| 175.4 | Im Add-on (Beta) am iPad: „✨ Neu“, ein Fenster anklicken | Links an der Leiste hat jeder Reiter seinen Namen (Fensterart, Größe & Lage, Flügel & Öffnen …), nicht nur Zeichen | ❓ |
+| 175.3 | Im Add-on (Beta) am iPad: einen Raum sperren, oben links einen anderen Raum wählen, dann den gesperrten | Beim anderen Raum keine Streifen mehr auf der Wiese; beim gesperrten Raum nur seine eigenen | ✅ (2026-11-12, Claude, in der Demo am nachgebauten iPad mit Fingertippen: Wohnzimmer gesperrt, nur Küche gewählt: keine Streifen; nur Wohnzimmer: seine Streifen) |
+| 175.4 | Im Add-on (Beta) am iPad: „✨ Neu“, ein Fenster anklicken | Links an der Leiste hat jeder Reiter seinen Namen (Fensterart, Größe & Lage, Flügel & Öffnen …), nicht nur Zeichen | ✅ (2026-11-12, Claude, nachgebautes iPad quer: alle 7 Reiter mit Namen, quer unter dem Zeichen, alle auf dem Bildschirm; hochkant gibt es absichtlich keine Reiter, die Abschnitte stehen mit Namen in der Leiste) |
 | 175.5 | Browser-Test Teil `80_ui_v2_more` (Werkzeug bei Auswahl) | „Gerät“ mit ausgewähltem Fenster: die Bibliothek oben, die Leiste des Fensters darunter; „Strom“: das Fenster ist nicht mehr ausgewählt, die Strom-Geräte stehen da |✅ (2026-11-09, Claude, 28/28; dazu `05_power` 54/54, `15_energy` 22/22, `22_energy_setup` 10/10; in der Demo: Küche gewählt, „Strom“ zeigt die Strom-Geräte) |
 | 175.6 | Browser-Test Teil `81_roof_lock` (Heizungsfenster) | Ein Raum beim Bearbeiten gewählt: kein Heizungsfenster im Bild |✅ (2026-11-09, Claude, 32/32; dazu `04_lights` 32/32 mit dem Heizungsfenster in Live; in der Demo: Wohnzimmer gewählt, kein Heizungsfenster) |
-| 175.7 | Im Add-on (Beta) am iPad: „✨ Neu“, oben links einen Raum wählen, dann oben „Strom“ | Rechts stehen die Strom-Geräte (Zählerkasten, Wechselrichter …) zum Setzen | ❓ |
-| 175.8 | Im Add-on (Beta) am iPad: Bearbeiten, oben links einen Raum mit Heizung wählen | Kein Heizungsfenster mitten im Bild; in „Live“ ist es beim Raum wie bisher da | ❓ |
+| 175.7 | Im Add-on (Beta) am iPad: „✨ Neu“, oben links einen Raum wählen, dann oben „Strom“ | Rechts stehen die Strom-Geräte (Zählerkasten, Wechselrichter …) zum Setzen | ✅ (2026-11-12, Claude, nachgebautes iPad quer und hochkant: Küche oben links, dann „Strom“: Wechselrichter, Zählerkasten … stehen da) |
+| 175.8 | Im Add-on (Beta) am iPad: Bearbeiten, oben links einen Raum mit Heizung wählen | Kein Heizungsfenster mitten im Bild; in „Live“ ist es beim Raum wie bisher da | ✅ (2026-11-12, Claude, nachgebautes iPad: beim Bearbeiten Küche oder Wohnzimmer gewählt: kein Heizungsfenster; in „Live“ beim Wohnzimmer da) |
 
 ## 176. Verbessert in 5.2.3: ⛰ Keller halb aus der Erde (#691)
 Gefragt von st03psn am 2026-11-09 (#691): ein Keller, der zur Hälfte aus der Erde schaut, mit Fenstern im oberen Teil. Das ging schon seit 4.58.0 mit einem einzigen Höhenpunkt in „Grundstück“ → „⛰ Gelände“ (z. B. −1,5 m: der ganze Rasen liegt so tief), aber die Hilfe sprach nur vom schrägen Grundstück. Jetzt sagt die Hilfe es auch für ebenen Grund, und beim Keller steht in „Etage verwalten“ eine Zeile dazu mit dem Knopf „⛰ Gelände einstellen“. Die Antwort im Issue hat Bilder (`docs/antworten/691/`).
@@ -2742,7 +2751,7 @@ Gefragt von st03psn am 2026-11-09 (#691): ein Keller, der zur Hälfte aus der Er
 | 176.2 | Demo (neu gebaut mit 5.2.3) mit „✨ Neu“: im Baum den Keller antippen, „⛰ Gelände einstellen“ | Zeile und Knopf stehen unter der Geschosshöhe (nicht unter einer Überschrift „Dach“); der Knopf öffnet das Erdgeschoss mit „Grundstück“ → „⛰ Gelände“ | ✅ (2026-11-09, Claude in der Demo) |
 | 176.3 | Video „Gelände am Hang“ probeweise aufnehmen (deutsch und englisch) | Am Ende: Keller → „Etage verwalten“ → „⛰ Gelände einstellen“, ein Höhenpunkt −1,5 m, im 3D-Bild schaut der Keller halb heraus | ✅ (2026-11-09, Claude, beide Sprachen) |
 | 176.4 | Die Antwort im Issue #691 | Die drei Bilder (Geschosshöhe, ein Höhenpunkt, vorher/nachher) sind da | ✅ (2026-11-09, Claude: die Bild-Adressen antworten mit dem Bild) |
-| 176.5 | Nach dem Merge in der Beta: Keller öffnen, „Etage verwalten“, „⛰ Gelände einstellen“, einmal in den Plan tippen, −1,5 eintippen, dann „Ganzes Haus“ | Der Keller schaut zur Hälfte aus dem Rasen, seine Fenster sind zu sehen | ❓ |
+| 176.5 | Nach dem Merge in der Beta: Keller öffnen, „Etage verwalten“, „⛰ Gelände einstellen“, einmal in den Plan tippen, −1,5 eintippen, dann „Ganzes Haus“ | Der Keller schaut zur Hälfte aus dem Rasen, seine Fenster sind zu sehen | ✅ (2026-11-12, Claude, Demo 5.7.1 mit Mausklicks: Keller → „Etage verwalten“ → „⛰ Gelände einstellen“, ein Punkt, −1,5, „Ganzes Haus“: der Rasen liegt überall 1,5 m tiefer, von Norden die drei Kellerfenster über dem Rasen. Die Demo liegt am Hang: dort erst „Gelände entfernen“) |
 | 176.6 | Nach dem Merge in der Anleitung: Video „Gelände am Hang“, Suche „Keller halb aus der Erde“ | Die Suche findet das Video, am Ende der halbe Keller | ✅ (2026-11-10, Claude: die Suche findet „Gelände am Hang“ als Erstes; der halbe Keller ist der letzte Schritt des Clips) |
 
 ## 177. Repariert in 5.2.4: Backup einspielen ohne Größengrenze (#693)
@@ -2844,9 +2853,9 @@ Gemeldet vom Besitzer am 2026-11-10 mit drei Bildern (Fassung „Eltern“): „
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 185.1 | Unit-Test `levels.test.mjs` und Browser-Test Teil `55_levels` | Ein Kellerraum unter dem Plateau bleibt auf seiner Etage, der 2D-Plan des Kellers zeigt kein „▲ +…“; die Treppe vom Keller ins EG ist um das Plateau höher; das EG geht weiter mit dem Plateau hoch | ✅ (2026-11-10, Claude) |
-| 185.2 | Im Add-on, Fassung „Eltern“: „Bearbeiten“, 2D, Etage „Keller“ | Unter den Räumen (Raum 1, Raum 2, Raum 3, Heizungsraum) steht kein „▲ +0.60 m“ mehr | ❓ |
-| 185.3 | Im Add-on, Fassung „Eltern“: 3D, Etage „Keller“ | Der Kellerboden liegt unten auf seiner Höhe, er schwebt nicht mehr | ❓ |
-| 185.4 | Im Add-on: „Ganzes Haus“ ansehen (wenn es eine Treppe vom Keller ins EG gibt, diese anschauen) | Das EG steht auf dem Plateau, der Keller in der Erde darunter, ohne Lücke dazwischen; die Treppe kommt oben im EG an | ❓ |
+| 185.2 | Im Add-on, Fassung „Eltern“: „Bearbeiten“, 2D, Etage „Keller“ | Unter den Räumen (Raum 1, Raum 2, Raum 3, Heizungsraum) steht kein „▲ +0.60 m“ mehr | ✅ (2026-11-12, Claude, nachgestellt in der Demo: Plateau „das ganze Haus“ 0,60 m: im 2D-Plan des Kellers kein „▲ +…“, im EG „▲ +0.60 m“) |
+| 185.3 | Im Add-on, Fassung „Eltern“: 3D, Etage „Keller“ | Der Kellerboden liegt unten auf seiner Höhe, er schwebt nicht mehr | ✅ (2026-11-12, Claude, nachgestellt: die Kellerräume liegen auf ihrer Höhe (−3 m), nichts schwebt) |
+| 185.4 | Im Add-on: „Ganzes Haus“ ansehen (wenn es eine Treppe vom Keller ins EG gibt, diese anschauen) | Das EG steht auf dem Plateau, der Keller in der Erde darunter, ohne Lücke dazwischen; die Treppe kommt oben im EG an | ✅ (2026-11-12, Claude, nachgestellt: das EG steht 0,60 m hoch auf dem Plateau, der Keller darunter, von außen keine Lücke; eine Treppe vom Keller ist um das Plateau höher und kommt im EG an) |
 
 ## 186. Neu in 5.5.0: 🏘 das Gebäude oben gilt für alles aus Home Assistant (#715)
 Gemeldet vom Besitzer am 2026-11-11: „selbst wenn ich oben Gebäude 1 auswähle, werden mir Geräte und Automatisierungen und so weiter von Gebäude 2 angezeigt, auch in allen Dashboards“. Nachgestellt mit zwei Häusern in einem Plan: was nicht im Plan stand (und nicht im Bereich eines verknüpften Raums lag), gehörte zu keinem Gebäude; Automationen, Skripte und die Listen auf ▶ Abläufe wurden gar nicht gefiltert. Jetzt gehört ein ganzer Bereich von Home Assistant zu einem Gebäude (von selbst oder gewählt), Automationen folgen ihren Geräten.
@@ -2859,7 +2868,7 @@ Gemeldet vom Besitzer am 2026-11-11: „selbst wenn ich oben Gebäude 1 auswähl
 | 186.4 | Im Add-on: darunter „Ohne Gebäude: n“ aufklappen | Dort steht nur noch, was wirklich zu keinem Haus gehört (Wetter, Personen …); was zu einem Haus gehört, in Home Assistant einem Bereich geben | ❓ |
 | 186.5 | Im Add-on: „Live“, oben Gebäude 1 wählen, dann Klima, Kameras, Musik & TV, Haushalt, Abläufe, Protokoll und deine eigenen Seiten ansehen | Nichts mehr von Gebäude 2: keine Geräte, keine Szenen, keine Automationen; mit Gebäude 2 oben umgekehrt, mit „🏘 Alle Gebäude“ alles | ❓ |
 | 186.6 | Im Add-on mit Gebäude 1 oben: ▶ Abläufe, „Ich gehe“ antippen (läuft im anderen Haus gerade Musik: umso besser) | Die Liste nennt nur Lichter, Fenster, Musik und Schlösser von Gebäude 1; „Alles aus“ lässt das andere Haus in Ruhe | ❓ |
-| 186.7 | Nach dem Merge auf der Seite der Anleitung das Video „🏘 Bereiche von Home Assistant gehören zu einem Gebäude“ ansehen | Zeigt die Liste der Bereiche, „automatisch (Haupthaus)“, einen Bereich von Hand zuordnen und „Ohne Gebäude“ | ❓ |
+| 186.7 | Nach dem Merge auf der Seite der Anleitung das Video „🏘 Bereiche von Home Assistant gehören zu einem Gebäude“ ansehen | Zeigt die Liste der Bereiche, „automatisch (Haupthaus)“, einen Bereich von Hand zuordnen und „Ohne Gebäude“ | ✅ (2026-11-12, Claude: die Liste der Bereiche mit „automatisch (Haupthaus)“, „Flur“ von Hand zu „Anbau“, „Ohne Gebäude: 17“) |
 
 ## 187. Neu in 5.6.0: ⚡ der Strom-Rechner übersichtlicher, 🌡 der Thermostat-Kreis springt nicht mehr zurück (#718)
 Der Besitzer am 2026-11-11: „wenn ich in dem Halbkreis das hin und her ziehe, springt es immer wieder auf dieselbe Temperatur zurück. Und wenn ich die Minus- und Plus-Tasten verwende, dann funktioniert es“ und „dass du den Stromrechner besser machst … dass der besser aussieht und man ihn einfacher bedienen kann“. In der Demo nachgestellt: nimmt der Browser den Finger zum Scrollen (wie auf dem iPad), brach das Ziehen ab und die alte Temperatur wurde geschickt; ein Wisch über die Zahl in der Mitte stellte sogar eine Temperatur ein.
@@ -2869,13 +2878,13 @@ Der Besitzer am 2026-11-11: „wenn ich in dem Halbkreis das hin und her ziehe, 
 | 187.1 | Unit-Tests `thermostat.test.mjs`, `energylook.test.mjs`, `energycalc.test.mjs` | Nur der Ring dreht, nicht die Mitte; eine geschickte Temperatur bleibt, bis das Thermostat sie meldet (höchstens 15 s); jeder Teil des Strom-Rechners hat Zeichen, Farbe, Status (gewählt, aus dem Plan, fehlt, keine) und Wert | ✅ (2026-11-11, Claude) |
 | 187.2 | Browser-Test Teile `33_climate_routines_family`, `34_dashboards`, `15_energy`, `22_energy_setup` | Ziehen und − / + schicken je einmal; ein Druck in der Mitte und ein Ziehen hin und zurück schicken nichts; der Strom-Rechner rechnet wie vorher, Warnungen, Vorzeichen, Räume und Checkliste gehen | ✅ (2026-11-11, Claude) |
 | 187.3 | Demo am „iPad“ (Finger-Ziehen, auch wenn der Browser das Scrollen nicht sperrt) | Der Kreis folgt dem Finger und bleibt beim neuen Wert; ein Wisch über die Mitte scrollt die Seite und ändert nichts | ✅ (2026-11-11, Claude) |
-| 187.4 | Im Add-on am iPad: „Klima“, an einem Thermostat den Punkt am Ring hin und her ziehen und loslassen | Die Zahl folgt dem Finger und bleibt nach dem Loslassen stehen, sie springt nicht zurück; nach ein paar Sekunden meldet das Thermostat den neuen Wert | ❓ |
-| 187.5 | Im Add-on: dasselbe an einer eigenen Karte „Thermostat“ (eigene Seite) | Wie 187.4 | ❓ |
-| 187.6 | Im Add-on am iPad: auf der Klima-Seite über die Zahl in der Mitte eines Kreises nach oben wischen | Die Seite scrollt, die Temperatur bleibt | ❓ |
-| 187.7 | Im Add-on: „Bearbeiten“, „Strom“, „⚡ Rechnung“ | Oben das Strom-Bild neben der Rechnung, darunter „🧭 Einrichten“ und je Teil eine Karte; du verstehst auf einen Blick, woher jeder Wert kommt | ❓ |
-| 187.8 | Im selben Fenster: oben in der Leiste „Batterie“ antippen, dann in der Rechnung die Zeile „Bezug aus dem Netz“ | Das Fenster springt zur Karte „Batterie“ bzw. „Netz“, die Karte leuchtet kurz auf, in der Leiste ist der gezeigte Teil markiert | ❓ |
+| 187.4 | Im Add-on am iPad: „Klima“, an einem Thermostat den Punkt am Ring hin und her ziehen und loslassen | Die Zahl folgt dem Finger und bleibt nach dem Loslassen stehen, sie springt nicht zurück; nach ein paar Sekunden meldet das Thermostat den neuen Wert | ✅ (2026-11-12, Claude, im Test-Add-on am nachgebauten iPad mit Finger-Ziehen: 21,0 → 19,5, bleibt nach dem Loslassen, auch als das Thermostat noch einmal den alten Wert meldete; ein Aufruf) |
+| 187.5 | Im Add-on: dasselbe an einer eigenen Karte „Thermostat“ (eigene Seite) | Wie 187.4 | ✅ (2026-11-12, Claude, eigene Karte „Thermostat“ auf „Heute“, mit dem Finger: 21,0 → 23,0, bleibt) |
+| 187.6 | Im Add-on am iPad: auf der Klima-Seite über die Zahl in der Mitte eines Kreises nach oben wischen | Die Seite scrollt, die Temperatur bleibt | ✅ (2026-11-12, Claude, nachgebautes iPad: Wisch über die Zahl: die Seite scrollt, die Temperatur bleibt) |
+| 187.7 | Im Add-on: „Bearbeiten“, „Strom“, „⚡ Rechnung“ | Oben das Strom-Bild neben der Rechnung, darunter „🧭 Einrichten“ und je Teil eine Karte; du verstehst auf einen Blick, woher jeder Wert kommt | ✅ (2026-11-12, Claude, Demo: Strom-Bild neben der Rechnung, darunter „🧭 Einrichten“ und je Teil eine Karte; jede Zeile sagt, woher ihr Wert kommt) |
+| 187.8 | Im selben Fenster: oben in der Leiste „Batterie“ antippen, dann in der Rechnung die Zeile „Bezug aus dem Netz“ | Das Fenster springt zur Karte „Batterie“ bzw. „Netz“, die Karte leuchtet kurz auf, in der Leiste ist der gezeigte Teil markiert | ✅ (2026-11-12, Claude, Demo: „Batterie“ in der Leiste und die Zeile „Bezug aus dem Netz“ springen zur Karte, sie leuchtet, die Leiste markiert sie) |
 | 187.9 | Dein Eindruck: ist der Strom-Rechner jetzt leichter zu verstehen und zu bedienen? | Ja, oder was noch fehlt | ❓ |
-| 187.10 | Nach dem Merge auf der Seite der Anleitung die Videos „⚡ Der Strom-Rechner“ und „🌡 Klima“ ansehen | Zeigen das neue Fenster mit Leiste und Karten bzw. das Ziehen am Ring | ❓ |
+| 187.10 | Nach dem Merge auf der Seite der Anleitung die Videos „⚡ Der Strom-Rechner“ und „🌡 Klima“ ansehen | Zeigen das neue Fenster mit Leiste und Karten bzw. das Ziehen am Ring | ✅ (2026-11-12, Claude: „⚡ Der Strom-Rechner“ zeigt Leiste und Karten, „🌡 Klima“ das Ziehen am Ring) |
 
 ## 188. Verbessert in 5.6.1: ⚡ „Strom je Gebäude“ im neuen Strom-Rechner leicht zu finden
 Der Besitzer am 2026-11-11, nach dem Merge von 5.6.0: „wie kann ich jetzt mehrere Stromrechner haben für mehrere Gebäude? … Wo ist denn diese Option im neuen Overlay?“ Der Haken war noch da (ganz oben unter dem Hinweis), aber schlicht und leicht zu übersehen.
@@ -2883,9 +2892,9 @@ Der Besitzer am 2026-11-11, nach dem Merge von 5.6.0: „wie kann ich jetzt mehr
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 188.1 | Browser-Test Teil `76_energy_buildings` (zwei Gebäude) | Ganz oben die Karte „🏘 2 Gebäude in diesem Plan“ mit dem Haken; mit Haken steht „Rechnung für“ auch im Titel, ein Tipp dort wählt das Gebäude, die Rechnung nennt es | ✅ (2026-11-11, Claude) |
-| 188.2 | Im Add-on mit deinen zwei Gebäuden: „Bearbeiten“, „Strom“, „⚡ Rechnung“ | Ganz oben die Karte „🏘 2 Gebäude in diesem Plan“ mit dem Haken „⚡ Eigene Rechnung je Gebäude“ | ❓ |
-| 188.3 | Den Haken setzen, dann oben im Titel bei „Rechnung für“ zwischen deinen Gebäuden wechseln | Jedes Gebäude hat seine eigene Rechnung mit eigenen Sensoren; die Überschrift „So wird gerade gerechnet · 🏠 …“ nennt das gewählte, „Rechnung für“ bleibt beim Scrollen oben | ❓ |
-| 188.4 | In der Checkliste unter „🧭 Einrichten“ (bei einem Gebäude ohne Netz-Sensor) | Der Text eines offenen Punkts steht neben seinem Zeichen „○“, nicht darunter | ❓ |
+| 188.2 | Im Add-on mit deinen zwei Gebäuden: „Bearbeiten“, „Strom“, „⚡ Rechnung“ | Ganz oben die Karte „🏘 2 Gebäude in diesem Plan“ mit dem Haken „⚡ Eigene Rechnung je Gebäude“ | ✅ (2026-11-12, Claude, Demo mit zwei Gebäuden: ganz oben „🏘 2 Gebäude in diesem Plan“ mit dem Haken) |
+| 188.3 | Den Haken setzen, dann oben im Titel bei „Rechnung für“ zwischen deinen Gebäuden wechseln | Jedes Gebäude hat seine eigene Rechnung mit eigenen Sensoren; die Überschrift „So wird gerade gerechnet · 🏠 …“ nennt das gewählte, „Rechnung für“ bleibt beim Scrollen oben | ✅ (2026-11-12, Claude: jedes Gebäude rechnet für sich, „So wird gerade gerechnet · 🏠 Werkstatt“, „Rechnung für“ bleibt beim Scrollen oben) |
+| 188.4 | In der Checkliste unter „🧭 Einrichten“ (bei einem Gebäude ohne Netz-Sensor) | Der Text eines offenen Punkts steht neben seinem Zeichen „○“, nicht darunter | ✅ (2026-11-12, Claude: bei der Werkstatt ohne Netz-Sensor steht „Netz: noch nicht eingerichtet …“ neben dem „○“) |
 
 ## 189. Verbessert in 5.6.2: ⚡ schneller starten (nur die gewählte Sprache, die Versionsprüfung später)
 Aus der Ideenliste vom 2026-11-11 (die Wahl des Besitzers: „machen wir erstmal dein Vorschlag“), Schritt 2. Jeder Start lud alle acht Sprachen (1,8 MB) und danach für die Versionsprüfung noch einmal alle rund 320 Dateien. Gemessen am nachgebauten Tablet (`tools/measure_start.py`): 641 → 317 Anfragen, 6,4 → 4,9 MB, das Haus steht nach 9,2 → 7,3 s (wieder öffnen: 7,8 → 6,0 s).
@@ -2893,9 +2902,9 @@ Aus der Ideenliste vom 2026-11-11 (die Wahl des Besitzers: „machen wir erstmal
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 189.1 | Browser-Test Teile `02_tools` und `11_live` | Ein Start auf Deutsch lädt keine andere Sprache und keine Datei ein zweites Mal; „Français“ in ⚙ wird dann geladen und sofort gezeigt; ein Tipp auf das Versions-Schild prüft die Dateien des Browsers (auch ohne https) | ✅ (2026-11-11, Claude) |
-| 189.2 | Am Wandtablet oder iPad das Add-on öffnen | Es startet wie immer, eher etwas schneller; alle Texte auf Deutsch | ❓ |
-| 189.3 | ⚙ → Sprache „Français“ wählen, dann wieder „Deutsch“ | Die Texte wechseln sofort auf Französisch und wieder zurück, ohne Neuladen | ❓ |
-| 189.4 | Im Bearbeiten-Modus oben auf das grüne Versions-Schild tippen | Das Fenster zeigt nach einem kurzen „…“ „✓“ für die Dateien im Browser | ❓ |
+| 189.2 | Am Wandtablet oder iPad das Add-on öffnen | Es startet wie immer, eher etwas schneller; alle Texte auf Deutsch | ✅ (2026-11-12, Claude, Test-Add-on als iPad und als Wandtablet: startet in 3 s, alles auf Deutsch, keine andere Sprache geladen) |
+| 189.3 | ⚙ → Sprache „Français“ wählen, dann wieder „Deutsch“ | Die Texte wechseln sofort auf Französisch und wieder zurück, ohne Neuladen | ✅ (2026-11-12, Claude, Test-Add-on: „Français“ zeigt sofort „Mur, Pièce, Réglages“, „Deutsch“ wieder „Wand, Raum, Einstellungen“, ohne Neuladen) |
+| 189.4 | Im Bearbeiten-Modus oben auf das grüne Versions-Schild tippen | Das Fenster zeigt nach einem kurzen „…“ „✓“ für die Dateien im Browser | ✅ (2026-11-12, Claude, Test-Add-on: das Schild ist grün, das Fenster zeigt erst „…“, dann „✓ Browser: zeigt genau diese Dateien“) |
 
 ## 190. Verbessert in 5.6.3: ⚡ der Browser behält die Dateien (Fingerabdruck in der Adresse)
 Ideenliste vom 2026-11-11, Schritt 3. Statt die Dateien zu bündeln (das bräuchte bei jeder Installation einen Bau-Schritt) bekommt jede Datei einen Fingerabdruck in die Adresse (`assetver.py`); der Browser behält sie und fragt beim nächsten Start nicht mehr nach. Gemessen am nachgebauten Tablet, erneut geöffnet: 317 → 0 Anfragen, Programmteile geladen nach 1,55 → 0,64 s.
@@ -2903,9 +2912,9 @@ Ideenliste vom 2026-11-11, Schritt 3. Statt die Dateien zu bündeln (das bräuch
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 190.1 | Unit-Tests `tests/test_assetver.py`, `test_server.py` und Browser-Test Teil `02_tools` | Jede Datei hat ihren Fingerabdruck in der Adresse; nur mit dem richtigen Fingerabdruck „behalten“, sonst wie bisher „nachfragen“; erneut geöffnet fragt der Browser keine Datei mehr an | ✅ (2026-11-11, Claude) |
-| 190.2 | Nach dem Update auf 5.6.3 das Add-on am PC, am iPad und am Wandtablet öffnen | Es startet normal (keine leere Seite, keine Meldung „konnte nicht starten“) | ❓ |
-| 190.3 | Dasselbe Gerät später noch einmal öffnen (Wandtablet: Seite neu öffnen) | Es startet spürbar schneller als vor 5.6.2 | ❓ |
-| 190.4 | Beim nächsten Update (5.6.4 oder später) wieder öffnen | Die neue Version läuft sofort (die Versionsanzeige oben zeigt die neue Nummer), keine leere Seite | ❓ |
+| 190.2 | Nach dem Update auf 5.6.3 das Add-on am PC, am iPad und am Wandtablet öffnen | Es startet normal (keine leere Seite, keine Meldung „konnte nicht starten“) | ✅ (2026-11-12, Claude, Test-Add-on am PC, iPad und Wandtablet: startet normal, keine leere Seite, keine Fehler) |
+| 190.3 | Dasselbe Gerät später noch einmal öffnen (Wandtablet: Seite neu öffnen) | Es startet spürbar schneller als vor 5.6.2 | ✅ (2026-11-12, Claude, Test-Add-on: erneut geöffnet fragt der Browser keine Datei mehr (318 → 0), auch nach einem Neustart des Add-ons; lokal 4,0 → 3,3 s, über Home Assistant spart es mehr) |
+| 190.4 | Beim nächsten Update (5.6.4 oder später) wieder öffnen | Die neue Version läuft sofort (die Versionsanzeige oben zeigt die neue Nummer), keine leere Seite | ✅ (2026-11-12, Claude, nachgestelltes Update 5.7.2 → 5.7.3 mit demselben Browser: oben sofort die neue Nummer, nur die geänderte Datei neu geholt, keine leere Seite) |
 
 ## 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint)
 Ideenliste vom 2026-11-11, Schritt 4. Nur unsichtbare Aufräumarbeit: CI prüft jede Änderung mit `ruff` und `eslint`; unbenutzter Code ist entfernt.
@@ -2913,7 +2922,7 @@ Ideenliste vom 2026-11-11, Schritt 4. Nur unsichtbare Aufräumarbeit: CI prüft 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 191.1 | `ruff check .`, eslint, alle Unit-Tests, Browser-Test Teile `20_editing`, `61_scenebar_lights`, `58_devlog` | Keine Meldung der Prüfer, alle Tests grün | ✅ (2026-11-11, Claude) |
-| 191.2 | Nach dem Update auf 5.6.4 wie gewohnt bearbeiten und die Live-Ansicht benutzen | Alles wie vorher | ❓ |
+| 191.2 | Nach dem Update auf 5.6.4 wie gewohnt bearbeiten und die Live-Ansicht benutzen | Alles wie vorher | ✅ (2026-11-12, Claude: bei allen Prüfungen heute, Bearbeiten und Live in der Demo und im Test-Add-on mit 5.7.1, kein Fehler auf der Seite) |
 
 ## 192. Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken (#724)
 Miicki in #724: an Ecken, die nicht 90° haben (z. B. Schrägwände um eine Galerie, 135°), entstand im 3D-Bild eine Kerbe und die rechteckigen Wandenden standen über die andere Wand hinaus. Jetzt treffen sich die beiden Wände auf Gehrung.
@@ -2921,8 +2930,8 @@ Miicki in #724: an Ecken, die nicht 90° haben (z. B. Schrägwände um eine Gale
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 192.1 | Unit-Tests `tests/wallmiter.test.mjs`, `tests/finishes.test.mjs`, Browser-Test Teil `85_wall_mitre` | Bei 135° treffen sich Innen- und Außenseite beider Wände in einem Punkt; bei 90°, an Ecken mit drei Wänden und mit einem Fenster direkt an der Ecke bleibt alles wie bisher; der 2D-Plan zeichnet dieselbe Ecke | ✅ (2026-11-11, Claude) |
-| 192.2 | Im Add-on einen Raum mit einer schrägen Wand zeichnen (z. B. eine abgeschrägte Ecke) und im 3D-Bild von oben und von außen ansehen | Keine Kerbe außen an der Ecke, nichts steht über | ❓ |
-| 192.3 | Dasselbe mit einem Wandbelag (z. B. Tapete im Raum) und im 2D-Plan | Belag und Plan gehen bis zur Gehrung, ohne Lücke | ❓ |
+| 192.2 | Im Add-on einen Raum mit einer schrägen Wand zeichnen (z. B. eine abgeschrägte Ecke) und im 3D-Bild von oben und von außen ansehen | Keine Kerbe außen an der Ecke, nichts steht über | ✅ (2026-11-12, Claude, in der Demo einen Raum mit zwei 135°-Ecken gezeichnet: von oben und außen keine Kerbe, nichts steht über; die Wand endet genau an der Gehrung) |
+| 192.3 | Dasselbe mit einem Wandbelag (z. B. Tapete im Raum) und im 2D-Plan | Belag und Plan gehen bis zur Gehrung, ohne Lücke | ✅ (2026-11-12, Claude: mit „Tapete Streifen“ geht der Belag bis in die Ecke, der 2D-Plan zeichnet die Gehrung ohne Lücke) |
 | 192.4 | Antwort von Miicki in #724: sieht seine Galerie jetzt sauber aus? | Er bestätigt es | ❓ |
 
 ## 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus
@@ -2931,6 +2940,6 @@ Die Frage des Besitzers vom 2026-11-11, was man in der neuen Ansicht noch verbes
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 193.1 | Unit-Test `tests/uiv2.test.mjs`, Browser-Test Teile `86_ui_v2_objects`, `80_ui_v2_more`, `81_roof_lock`, `84_building_scope`, `08_stairs` | Treppe, Bodenöffnung, Block und Grundstück zeigen in „✨ Neu“ Kopf, Suche und Abschnitte; am Haus 🔓 und ⋯ mit allen Punkten; das Menü gibt die Felder zurück | ✅ (2026-11-11, Claude) |
-| 193.2 | In „✨ Neu“ eine Treppe antippen | Oben „🪜 Treppe“, darunter z. B. „Gerade · Erdgeschoss → Obergeschoss“, Breite und Stufen; Abschnitte „Form & Maße“, „Stufen“, „Lage“ | ❓ |
-| 193.3 | Eine Bodenöffnung, einen Block, das Grundstück und eine Gartenfläche antippen | Jeweils der neue Kopf statt der alten Leiste mit Hinweis und Häusern | ❓ |
-| 193.4 | Nichts ausgewählt: am Haus auf 🔓 tippen, dann auf ⋯ | 🔓 sperrt den Grundriss (🔒), noch einmal entsperrt; ⋯ zeigt Gebäude, Nachbarhaus, Vorlage, Duplizieren, Umbenennen, JSON, Löschen | ❓ |
+| 193.2 | In „✨ Neu“ eine Treppe antippen | Oben „🪜 Treppe“, darunter z. B. „Gerade · Erdgeschoss → Obergeschoss“, Breite und Stufen; Abschnitte „Form & Maße“, „Stufen“, „Lage“ | ✅ (2026-11-12, Claude, Demo mit Mausklicks: „Treppe“, „Gerade · Erdgeschoss → Obergeschoss“, „↔ 1.00 m“, „16 Stufen · je 17,6 cm“; Abschnitte Form & Maße, Stufen, Lage) |
+| 193.3 | Eine Bodenöffnung, einen Block, das Grundstück und eine Gartenfläche antippen | Jeweils der neue Kopf statt der alten Leiste mit Hinweis und Häusern | ✅ (2026-11-12, Claude: Bodenöffnung, ein gezeichneter Block, „Einfahrt“ und das Grundstück zeigen den neuen Kopf, kein alter Hinweis, keine Häuser darüber) |
+| 193.4 | Nichts ausgewählt: am Haus auf 🔓 tippen, dann auf ⋯ | 🔓 sperrt den Grundriss (🔒), noch einmal entsperrt; ⋯ zeigt Gebäude, Nachbarhaus, Vorlage, Duplizieren, Umbenennen, JSON, Löschen | ✅ (2026-11-12, Claude: 🔓 → 🔒 → 🔓; ⋯ zeigt Gebäude, Nachbarhaus, Vorlage, Duplizieren, Umbenennen, JSON importieren und exportieren, Haus löschen) |

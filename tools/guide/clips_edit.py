@@ -575,7 +575,7 @@ def two_windows_room(r):
       "Haus Baum Etagen Räume Etage verwalten Geschosshöhe Keller Dach Oberfläche 2 house tree floors rooms storey height basement roof panel version 2",
       query="mode=edit", prep=empty_house(walls=True, rooms=True))
 def _(r):
-    r.say("Oben auf „Version 2“ schalten: ist nichts ausgewählt, steht rechts das Haus als Baum.", "Switch to “version 2” at the top: with nothing selected the right side shows the house as a tree.")
+    r.say("Oben „✨ Neu“ wählen: ist nichts ausgewählt, steht rechts das Haus als Baum.", "Choose “✨ New” at the top: with nothing selected the right side shows the house as a tree.")
     r.click("#uiSwitch [data-ui=v2]")
     r.wait(1500)
     r.say("„＋ Keller“: darunter kommt ein Keller dazu.", "“＋ Basement”: a basement goes below.")
