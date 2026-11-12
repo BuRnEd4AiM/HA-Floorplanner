@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-12 · 134 Sitzungen
+Stand: 2026-11-12 · 135 Sitzungen
 
-**Insgesamt: 9,06 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 9,11 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 24,6 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 85,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 8,95 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 24,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 85,6 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 9,00 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 48 | 2,93 Mrd. | 6,9 Mio. |
+| 2026-11 | 49 | 2,99 Mrd. | 7,0 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-12 | [018pwcmy…](https://claude.ai/code/session_018pwcmy2THraLMzcwTy8iv5) | claude/loving-hopper-xuc5cj | 51,0 Mio. | 138 Tsd. | gezählt |
 | 2026-11-12 | [018pwcmy…](https://claude.ai/code/session_018pwcmyhHu8zDAVPvG9s1qA) | claude/wizardly-clarke-s4xbhb | 97,3 Mio. | 214 Tsd. | gezählt |
 | 2026-11-12 | [018pwcmw…](https://claude.ai/code/session_018pwcmw4SHuvbeUYjfbyd8D) | claude/gracious-dijkstra-khzxl9 | 41,3 Mio. | 100 Tsd. | gezählt |
 | 2026-11-11 | [018pwcmz…](https://claude.ai/code/session_018pwcmzjDWFxeqYcRnq174z) | claude/vibrant-hypatia-b6stq1 | 223,4 Mio. | 365 Tsd. | gezählt |

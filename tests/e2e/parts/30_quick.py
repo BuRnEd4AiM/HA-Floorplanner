@@ -51,17 +51,33 @@ pgQ.click("#lightsPill"); pgQ.wait_for_timeout(400)
 rows = pgQ.evaluate("[...document.querySelectorAll('#lightsMenu .lgRow')].map((r) => [r.dataset.id, r.querySelector('.lgName').textContent.trim(), r.querySelector('.lgOn').textContent])")
 check("lights: the list has the whole house first, then the group 'Kinder' with its 2 lights on", len(rows) == 2 and rows[0][0] == "*" and "Ganzes Haus" in rows[0][1]
       and rows[1][1] == "Kinder" and rows[1][2] == "2 an", rows)
+fit_qa = pgQ.evaluate("""(() => { const m = document.querySelector('#lightsMenu'), r = m.getBoundingClientRect();
+  return [m.scrollWidth - m.clientWidth, [...m.querySelectorAll('.lgOff')].every((b) => b.getBoundingClientRect().right <= r.right),
+    getComputedStyle(m.querySelector('.lgRow')).gridTemplateColumns.split(' ').length]; })()""")
+check("lights (2026-11-12): the list fits its box, no scrolling sideways, every 'Aus' inside (📜 Protokoll has rows .lgRow too)",
+      fit_qa[0] <= 1 and fit_qa[1] and fit_qa[2] == 3, fit_qa)
 pgQ.click("#lightsMenu .lgRow[data-id=qa_kids] .lgOff"); pgQ.wait_for_timeout(300)
 check("lights: the first tap on 'Aus' only asks ('Sicher? Aus'), nothing is switched, the list stays open",
       pgQ.inner_text("#lightsMenu .lgRow[data-id=qa_kids] .lgOff") == "Sicher? Aus" and len(calls()) == n_calls and pgQ.is_visible("#lightsMenu"), calls()[n_calls:])
 pgQ.click("#lightsMenu .lgRow[data-id=qa_kids] .lgOff"); pgQ.wait_for_timeout(1500)
 new = [c[1:] for c in calls()[n_calls:]]
 check("lights: the second tap switches off the lights of the group's rooms, not the others", sorted(new) == [["turn_off", "light.qa_1"], ["turn_off", "light.qa_2"]], new)
+box_qa = lambda s: pgQ.evaluate(f"(() => {{ const e = document.querySelector('{s}'); if (!e || !e.getClientRects().length) return null; const r = e.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom]; }})()")
+cross_qa = lambda a, c: bool(a and c) and a[0] < c[2] and c[0] < a[2] and a[1] < c[3] and c[1] < a[3]
+st_box = box_qa("#status")
+check("status line (2026-11-12): it says what was switched off, over the compass, not on 🔍, 🎤 or the compass, the floor rail ends above it",
+      "2" in pgQ.inner_text("#status") and "Kinder" in pgQ.inner_text("#status") and st_box is not None
+      and not any(cross_qa(st_box, box_qa(s)) for s in ("#findBtn", "#voiceBtn", "#compass", "#floorRail")), [pgQ.inner_text("#status"), st_box, box_qa("#compass"), box_qa("#floorRail")])
 check("lights: the group then says 'alle aus' and has no button", pgQ.inner_text("#lightsMenu .lgRow[data-id=qa_kids] .lgOn") == "alle aus"
       and pgQ.locator("#lightsMenu .lgRow[data-id=qa_kids] .lgOff").count() == 0, pgQ.inner_text("#lightsMenu"))
 pgQ.click("#lightsMenu .lgRow[data-id='*'] .lgOff"); pgQ.wait_for_timeout(300)
 pgQ.wait_for_timeout(3400)                      # longer than CONFIRM_MS: the question is forgotten
 check("lights: an unanswered 'Sicher?' goes back to 'Aus' after a few seconds", pgQ.inner_text("#lightsMenu .lgRow[data-id='*'] .lgOff") == "Aus")
+try:
+    pgQ.wait_for_function("document.querySelector('#status').textContent === ''", timeout=8000); gone_qa = True
+except Exception:
+    gone_qa = False
+check("status line (2026-11-12): in the live view the message goes again after a few seconds", gone_qa and pgQ.is_hidden("#status"), pgQ.inner_text("#status"))
 pgQ.keyboard.press("Escape"); pgQ.wait_for_timeout(200)
 
 # --- favourites

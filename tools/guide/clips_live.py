@@ -70,9 +70,12 @@ def _(r):
 
 @clip("shutter", "live",
       {"de": "Rollladen auf und zu", "en": "Open and close a shutter"},
-      {"de": "Die Kugel des Rollladens antippen: Öffnen, Schließen, Stopp. Im 3D-Bild fährt er mit.",
-       "en": "Tap the ball of the shutter: open, close, stop. It moves in the 3D view too."},
-      "Rollladen Rolladen Jalousie Rollo öffnen schließen hoch runter Fenster shutter blind cover open close up down window", sky="11:00")
+      {"de": "Die Kugel des Rollladens antippen: Öffnen, Schließen, Stopp. Im 3D-Bild fährt er mit. Rechts in der Leiste des Raums: "
+             "Hoch, Stopp, Runter und 0 bis 100 % mit einem Tipp.",
+       "en": "Tap the ball of the shutter: open, close, stop. It moves in the 3D view too. In the room's panel on the right: up, stop, "
+             "down and 0 to 100 % with one tap."},
+      "Rollladen Rolladen Jalousie Rollo öffnen schließen hoch runter Fenster Prozent halb Leiste shutter blind cover open close up down "
+      "window percent half panel", sky="11:00")
 def _(r):
     r.say("Tippe auf den Raum mit dem Rollladen.", "Tap the room with the shutter.")
     room(r)
@@ -85,6 +88,13 @@ def _(r):
     r.poster()
     r.say("„Öffnen“ fährt ihn wieder hoch.", "“Open” raises it again.")
     r.click("#livePopup .actions button", nth=0)
+    r.wait(2600)
+    r.say("Rechts in der Leiste des Raums geht es auch: Hoch, Stopp, Runter und feste Stufen von 0 bis 100 %.",
+          "The room's panel on the right has it too: up, stop, down and fixed steps from 0 to 100 %.")
+    r.move("#roomPanel .rpCoverActs button", nth=1)
+    r.wait(900)
+    r.say("„50 %“: er fährt halb herunter.", "“50 %”: it goes halfway down.")
+    r.click("#roomPanel .rpCoverPresets button[data-pos='50']")
     r.wait(2600)
 
 

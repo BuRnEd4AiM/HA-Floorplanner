@@ -8,8 +8,9 @@ import { sliderPosition, shownPosition, shutterCardText, curtainStyle, coverActi
 const REST = 22;   // px of the curtain that always show at the top of the slider (rolled up, like the rest of the curtain in 3D)
 
 /** a button symbol drawn with CSS (not a font glyph): up / down / left / right / split-open / split-close / stop. Same box and baseline
- *  for all, so a curtain's buttons line up exactly like the roller shutter's (▲ / ▼ before, without an emoji or two characters). */
-function coverIcon(kind) {
+ *  for all, so a curtain's buttons line up exactly like the roller shutter's (▲ / ▼ before, without an emoji or two characters). Also the
+ *  buttons of a cover in the room panel (rpcover.js). */
+export function coverIcon(kind) {
   const s = document.createElement('span');
   s.className = `coverIco ${kind}`;
   s.setAttribute('aria-hidden', 'true');
