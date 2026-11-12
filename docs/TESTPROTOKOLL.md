@@ -45,7 +45,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 31. **Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten; 🔓 und ⋯ am Haus** (Abschnitt 193): Claude hat alles geprüft (am 2026-11-12 in der Demo mit Mausklicks): nichts mehr für dich.
 32. **Neu in 5.8.0: Einstellungen mit einem Tipp, Alarm-Karten, Handy oben** (Abschnitt 194): Claude hat 194.1 bis 194.9 geprüft; für dich nur 194.10 (am echten Tablet und Handy mit dem Finger) und 194.11 (dein Eindruck).
 33. **Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links** (Abschnitt 195, #740, #741, #742): Claude hat 195.1 bis 195.4 geprüft; für dich 195.5 (mit deinen echten Rollläden) und 195.6 (dein Eindruck).
-34. **Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, die Karte im HACS-Store** (Abschnitt 196, #744 von aixmoyu, Frencks Hinweis vom 2026-11-12): Claude hat 196.1 geprüft und prüft 196.2 und 196.3 nach dem Merge; für dich das neue Repository 196.4 (nur mit deinem Konto), nach „Gib 5.9.0 frei“ 196.5, in HACS die Suche 196.7; 196.6 braucht einen echten Home Assistant Container (aixmoyu).
+34. **Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, die Karte im HACS-Store** (Abschnitt 196, #744 von aixmoyu, Frencks Hinweis vom 2026-11-12): Claude hat 196.1 bis 196.4 geprüft (das Repository hast du angelegt); für dich nach „Gib 5.9.0 frei“ 196.5, in HACS die Suche 196.7; 196.6 braucht einen echten Home Assistant Container (aixmoyu).
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -497,8 +497,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus | 4 | 0 | 0 | 0 | – |
 | 194. Neu in 5.8.0: Einstellungen mit einem Tipp, „Reiter unten“ je Seite, Alarm-Karten, Anleitungen eingeklappt, Licht-Gruppen-Knöpfe, Handy oben | 8 | 0 | 3 | 0 | 194.1, 194.10, 194.11 |
 | 195. Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links (#740, #741, #742) | 4 | 0 | 2 | 0 | 195.5, 195.6 |
-| 196. Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, Hinweis bei verschiedenen Versionen; die Karte im HACS-Store | 1 | 0 | 6 | 0 | 196.2 bis 196.7 |
-| **Zusammen** | **1263** | **2** | **82** | **92** | |
+| 196. Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, Hinweis bei verschiedenen Versionen; die Karte im HACS-Store | 4 | 0 | 3 | 0 | 196.5 bis 196.7 |
+| **Zusammen** | **1266** | **2** | **79** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2985,9 +2985,9 @@ Issue #744 von aixmoyu: für Home Assistant Container (Docker ohne Supervisor) m
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 196.1 | Tests `tests/test_container_dashboard.py`, `test_floorplan3d_setup.py`, `test_connector_package.py`, `test_connector_mirror.py`, `test_login.py`, `test_manifest.py`, `tests/version.test.mjs`; Browser-Test Teil `02_tools` | Alles grün: Versionen vergleichen, Hinweis unter Reparaturen, ZIP mit Prüfsumme, das Connector-Repository füllt sich aus den Releases, ⚠ an der Versions-Pille | ✅ (2026-11-12, Claude: dazu das Image hier gebaut und gestartet, der Connector las „5.9.0“ und erkannte einen Container 5.8.0 als „< 5.9.0“) |
-| 196.2 | Nach dem Merge: Release v5.9.0 öffnen | Neben der Karte liegen `floorplan3d-connector.zip` und `floorplan3d-connector.zip.sha256`; `sha256sum -c` sagt „OK“ | ❓ |
-| 196.3 | Nach dem Merge: Actions → „Release“ → Job „image“ | Grün; `docker pull ghcr.io/burned4aim/floorplan3d:beta` geht ohne Anmeldung (sonst einmal das Paket auf „Public“ stellen, `docs/HACS-STORE.md`) | ❓ |
-| 196.4 | Du: das Repository `HA-Floorplanner-Connector` anlegen (`docs/HACS-STORE.md`, Schritt 4), Claude füllt es | Dort läuft „Sync from HA-Floorplanner“ grün und es gibt ein Release v5.9.0 | ❓ |
+| 196.2 | Nach dem Merge: Release v5.9.0 öffnen | Neben der Karte liegen `floorplan3d-connector.zip` und `floorplan3d-connector.zip.sha256`; `sha256sum -c` sagt „OK“ | ✅ (2026-11-12, Claude: beide Dateien am Release v5.9.0, `sha256sum -c` → OK, 17 Dateien, Version 5.9.0; aus dem Commit der Version noch einmal gebaut: dieselbe Prüfsumme) |
+| 196.3 | Nach dem Merge: Actions → „Release“ → Job „image“ | Grün; `docker pull ghcr.io/burned4aim/floorplan3d:beta` geht ohne Anmeldung (sonst einmal das Paket auf „Public“ stellen, `docs/HACS-STORE.md`) | ✅ (2026-11-12, Claude: Job „image“ grün, Startprüfung vor dem Veröffentlichen bestanden; `:beta` und `:5.9.0-beta` ohne Anmeldung abrufbar, für amd64, arm64 und arm/v7; das Paket ist gleich öffentlich, kein Klick nötig) |
+| 196.4 | Du: das Repository `HA-Floorplanner-Connector` anlegen (`docs/HACS-STORE.md`, Schritt 4), Claude füllt es | Dort läuft „Sync from HA-Floorplanner“ grün und es gibt ein Release v5.9.0 | ✅ (2026-11-12, der Besitzer hat es angelegt, Claude hat es gefüllt: „Sync from HA-Floorplanner“ grün, Tag und Vorab-Release v5.9.0 mit `custom_components/floorplan3d` 5.9.0) |
 | 196.5 | Nach „Gib 5.9.0 frei“ | `ghcr.io/burned4aim/floorplan3d:latest` ist 5.9.0 (Actions → „Release to everyone“ → Job „image“ grün) | ❓ |
 | 196.6 | Mit einem echten Home Assistant Container (aixmoyu, #744): den Connector über HACS installieren; einmal mit älterem Container | Einstellungen → Reparaturen: „3D Floorplan: den Container aktualisieren“ mit beiden Versionen; nach `docker compose pull && docker compose up -d` ist der Hinweis nach höchstens einer Stunde weg | ❓ |
 | 196.7 | In HACS nach „3D Floorplan Card“ suchen (ohne benutzerdefiniertes Repository) | Die Karte wird gefunden | ❓ |
