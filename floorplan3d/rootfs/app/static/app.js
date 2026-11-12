@@ -970,7 +970,7 @@ function applyHouseStates() {
     });
   }
   if (popup.current()) popup.render();
-  if (roomPanel.current() && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) roomPanel.render();   // (renders the heating panel too)
+  if (roomPanel.current() && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) roomPanel.render(true);   // (renders the heating panel too) only when what it shows changed (roompanel.js)
   markShadows();                                                   // things may have shown, hidden or moved (also after every build)
 }
 

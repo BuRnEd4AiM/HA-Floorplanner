@@ -9,7 +9,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Fixed
 - **The light list "💡 n an" scrolled sideways** (#740): the names were cut ("Ganzes…") and "Aus" stood outside on the right. The page 📜 Protokoll has rows with the same class names, and its four wide columns applied to the light list too. The list's rules now only apply inside it.
 - **"11 Lichter aus: Ganzes Haus" lay on 🔍 and 🎤** (#741): the status line at the bottom left covered the search, the 🎤 and "Blick von N" of the compass, and stayed until the next message. It is now in the 3D picture above the compass (the floor rail ends above it), in the live view as narrow as the floor rail (the room tiles start right of it), and goes after 6 s (in the editor a tool's hint stays). On a phone it lies on the line of the time and the weather at the very bottom for those seconds (before it was not shown at all in the live view) (`statusline.js`).
-- **The room panel said "Offen" while the shutter was at 89 %** (#742): after a tap the slider kept the focus, and while one of its fields has the focus the panel is not drawn anew. Its sliders (shutters and the brightness of lamps) give the focus back when let go.
+- **The room panel said "Offen" while the shutter was at 89 %** (#742): after a tap the slider kept the focus, and while one of its fields has the focus the panel is not drawn anew. Its sliders (shutters and the brightness of lamps) give the focus back when let go. And the panel is drawn anew only when what it shows changed, never while a finger or the mouse is pressed on it: before it was drawn anew at every state update of the house (about every two seconds in the demo), and a tap that fell on that moment was lost.
 
 ## [5.8.0] - 2026-11-12
 ### Added

@@ -65,6 +65,27 @@ export function initRoomPanel(ctx) {
   const heatBox = $('#heatPanel'), heatHome = heatBox.parentNode;
   const heat = initHeatPanel({ box: heatBox, t, states: () => ctx.states(), callService: (...a) => live.callService(...a), open: () => !!forId,
     stateText: (id) => ctx.stateText(id), isOn: (id) => ctx.onStates.has(ctx.states()[id]?.state), details: (id) => live.detailsButton(id, false, t('cam.openHa')) });
+  /** the devices of the room's rows: placed in it, the shutters of its windows, the rest of its Home Assistant area */
+  function roomDevs(room, f, states) {
+    const seen = new Set();                                    // one row per entity (an LED ring's sections may share one light)
+    const devs = ctx.entityDevices(f).filter((d) => d.entity && ctx.pointInPoly(d.x, d.z, room.points) && !seen.has(d.entity) && seen.add(d.entity));
+    const nameOf = (id) => ctx.entities().find((e) => e.entity_id === id)?.name;
+    devs.push(...roomShutters(room, f, seen, nameOf, t('curtain.title')));                    // the roller shutters of its windows (#331)
+    const placedIds = new Set([...ctx.entityDevices(f).map((d) => d.entity), ...floorShutters(f)]);
+    const extra = (room.area ? ctx.areas().find((a) => a.id === room.area)?.entities || [] : [])
+      .filter((id) => !placedIds.has(id) && states[id] && inRoomPanel(id))
+      .map((id) => ({ entity: id, name: nameOf(id) || id }));
+    devs.push(...extra);
+    return devs;
+  }
+  /** everything the panel shows, as text: the room, its rows and the states of their entities (render(true) compares it) */
+  function viewKey(room, f, states, op) {
+    const devs = roomDevs(room, f, states), rc = live.roomIds?.(room) || { lights: [], scenes: [] };
+    const ops = roomOpenings(room, f).filter((o) => op.entities(o).length);
+    const ids = [...devs.map((d) => d.entity), ...rc.lights, ...rc.scenes, ...ops.flatMap((o) => openingIds(o, op))];
+    return JSON.stringify([forId, room.name, room.points, devs.map((d) => [d.entity, d.name, d.opening?.id]), ops, ids.map((id) => states[id] ?? null),
+      [...openCtl], ctx.imperial(), !!ctx.settings().cameraImages, t('rp.light'), matchMedia(SHEET_MEDIA).matches, !!ctx.alone?.()]);
+  }
   /** the text on a row of the room panel */
   function rowValue(id, opening = null) {
     const s = ctx.states()[id], dom = id.split('.')[0];
@@ -75,10 +96,23 @@ export function initRoomPanel(ctx) {
   function hide() { forId = null; $('#roomPanel').hidden = true; heatBox.hidden = true; }
   function close() { if (!ctx.alone?.()) hide(); }                     // alone: the card that is only this panel keeps it open
   function open(id) { if (ctx.off?.()) return; forId = id; ctx.closeLivePopup(); render(); }   // off: a dashboard card without the room panel (#13)
-  function render() {
+  /* After a state update of the house (app.js, render(true)) the panel is drawn anew only when what it shows changed, and never while a
+     finger or the mouse is pressed on it: drawn anew under the finger, a button lost its tap (2026-11-12, the quick positions of a
+     shutter; the house's power sensors change every second) */
+  let drawn = '', pressed = false;
+  $('#roomPanel').addEventListener('pointerdown', () => { pressed = true; });
+  ['pointerup', 'pointercancel'].forEach((ev) => window.addEventListener(ev, () => { pressed = false; }, true));
+  /** the entities of a door's or window's rows: its contacts, the pane contacts and the tilt contact */
+  const openingIds = (o, op) => [...op.entities(o), ...Array.from({ length: contactRows(o) }, (_, i) => op.pane(o, i)), op.tilt(o)].filter(Boolean);
+  /** render(auto): auto = after a state update (skipped when nothing it shows changed or a pointer is pressed on it) */
+  function render(auto = false) {
     const box = $('#roomPanel'), states = ctx.states(), f = ctx.floor(), op = ctx.openings;
     const room = f?.rooms.find((r) => r.id === forId);
     if (!room) { hide(); return; }
+    if (auto && pressed && box.childElementCount) return;
+    const key = viewKey(room, f, states, op);
+    if (auto && box.childElementCount && key === drawn) return;
+    drawn = key;
     box.hidden = false;
     box.replaceChildren();
     const head = document.createElement('div'); head.className = 'rp-head';
@@ -93,15 +127,7 @@ export function initRoomPanel(ctx) {
     else if (heatBox.parentNode !== heatHome) heatHome.append(heatBox);
     const rc = live.roomControls(room);
     if (rc) box.append(rc);
-    const seen = new Set();                                    // one row per entity (an LED ring's sections may share one light)
-    const devs = ctx.entityDevices(f).filter((d) => d.entity && ctx.pointInPoly(d.x, d.z, room.points) && !seen.has(d.entity) && seen.add(d.entity));
-    const nameOf = (id) => ctx.entities().find((e) => e.entity_id === id)?.name;
-    devs.push(...roomShutters(room, f, seen, nameOf, t('curtain.title')));                    // the roller shutters of its windows (#331)
-    const placedIds = new Set([...ctx.entityDevices(f).map((d) => d.entity), ...floorShutters(f)]);
-    const extra = (room.area ? ctx.areas().find((a) => a.id === room.area)?.entities || [] : [])
-      .filter((id) => !placedIds.has(id) && states[id] && inRoomPanel(id))
-      .map((id) => ({ entity: id, name: nameOf(id) || id }));
-    devs.push(...extra);
+    const devs = roomDevs(room, f, states);
     const climates = devs.filter((d) => d.entity.startsWith('climate.'));
     const partOf = Object.assign({}, ...ctx.areas().map((a) => a.parts || {}));            // entity -> the thermostat of its device (#370)
     const { parts, rest } = splitHeatParts(devs, climates.map((d) => d.entity), partOf);   // a thermostat's child lock ... shows with the heating

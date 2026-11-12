@@ -1,6 +1,6 @@
 {
  "version": "5.8.1",
- "buildHash": "81ccdc7eb5bd8b1fdee8d502512990f680f243eebd8a06985e6e232dae9b6fae",
+ "buildHash": "9f191a6137a20291c0f830273e2921231e626a1f59784d3b5a4925d873446062",
  "files": {
   "alarmnotify.py": "4ad6881ea1778c9854989abd91fecccf1c34f559e7f4207383be911df8d61514",
   "assetver.py": "47cc1b6523381e935fc56f2c5f5d8abf5058dcebc946138a5d4314d52ddd8ca9",
@@ -157,7 +157,7 @@
   "specialdays.py": "32baa51cf75580d1e35a782ef77bd8610dad58e3d770b398604aa3dfc77d0491",
   "static/alerts.js": "099108c279cdf2ea1008180d0d73dbe18b10aa4d63365a83bfde1cf7c2a4a803",
   "static/alertsui.js": "503c006f839253eb31f5e2adb4e6612d21fd657b8691956fd095546dce5177ea",
-  "static/app.js": "550a339b70c9806f991bbb46ef2bf686c07f913055478b42f9d1ff9d5d4247fc",
+  "static/app.js": "bff5a793f01c6772232afe6ad680229f951a558a517554940a301e220f03c087",
   "static/appstate.js": "18cefb49aca98d54c6b9632a5d428087f39286dd06d068dcac3f963468520754",
   "static/attic.js": "6dfd88898cef9c3d5ffc99056ddc300927a19af2fe959f1d7ccc9fa1ccc97d37",
   "static/atticclip.js": "6d4d9f1afb41adc7f5395e62b4f77c28e954c54b0abf197f061f71e4cd5105a4",
@@ -378,7 +378,7 @@
   "static/roomlockui.js": "1649a0be595d03ba5dda21cf2ca79839ef931f7f9352f068abdd618214cc1153",
   "static/roomname.js": "6ca8c6c7a019ab9fd1d3ad85e666958c43bb72cb749a4c294aed10d763461af2",
   "static/roomnameui.js": "0c9177b5bb1fed8f8931a220c622ffa5889250321d8501e7ae48f3bd23252918",
-  "static/roompanel.js": "10c234dd2a6ed80a7d466f09d1c6cf012eacc98ed81030ff7f498de051fc54ee",
+  "static/roompanel.js": "10ad53476aedb183b9af6176b85f474117377c52165d962dbeaed5aee3ab1ce4",
   "static/rooms.js": "b3c65f81043bce516d51f6e0d975e3f0a424bdde953c29212e49f898c89eab17",
   "static/roomsensors.js": "6292f54babe27e593c52b6255f7e629b1b869eb66ad0fded5778872fb01db7e7",
   "static/roomsensorsui.js": "2450c4d6ae88912fef04a5d58f2acc0ad5c165c96cb23d2794ea4dad860e83c7",

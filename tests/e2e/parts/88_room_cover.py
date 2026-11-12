@@ -1,7 +1,8 @@
 """5.8.1 (the owner, 2026-11-12: "ich will bei den Rollo-Sachen, wenn man es in der Leiste rechts hat, dass man auch das mit den
 voreingestellten Sachen wie 50 % machen kann und dass es besser aussieht"): a roller shutter in the room panel of the live view has
 ▲ Hoch · ■ Stopp · ▼ Runter as one row, the slider and the quick positions 0 · 25 · 50 · 75 · 100 % of its card (the one it is at lit); a
-cover that does not say its position only the buttons. The slider gives the focus back after a tap, so the panel follows the states again.
+cover that does not say its position only the buttons. The slider gives the focus back after a tap, so the panel follows the states again;
+the panel is drawn anew only when what it shows changed, never while a finger is pressed on it.
 """
 saved_rc = api_admin("api/layout")              # put back at the end
 st_rc = api("api/settings")
@@ -53,6 +54,19 @@ lay_btn = pgRC.evaluate("""(() => { const r = [...document.querySelectorAll('#ro
   const tops = (sel) => [...new Set([...r.querySelectorAll(sel)].map((b) => Math.round(b.getBoundingClientRect().top)))];
   return [bs.every((x) => x.left >= box.left - 1 && x.right <= box.right + 1), tops('.rpCoverActs button').length, tops('.rpCoverPresets button').length]; })()""")
 check("room panel cover: the three buttons are one line, the five quick positions one line, all inside the row", lay_btn == [True, 1, 1], lay_btn)
+
+# drawn anew only when what it shows changed, and never while a finger is pressed on it (a button drawn anew under the finger lost its tap)
+pgRC.evaluate("window.__rcDraws = 0; new MutationObserver(() => window.__rcDraws++).observe(document.querySelector('#roomPanel'), { childList: true })")
+pgRC.wait_for_timeout(3000)
+check("room panel: nothing in the room changed, so it is not drawn anew at the state updates of the house", pgRC.evaluate("window.__rcDraws") == 0, pgRC.evaluate("window.__rcDraws"))
+pgRC.evaluate("""() => { document.querySelector('#roomPanel .rpCoverActs button').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+  window.__fp.states()['cover.rc_1'] = { ...window.__fp.states()['cover.rc_1'], position: 60 }; window.__fp.applyStates(); }""")
+held_rc = pgRC.evaluate("[window.__rcDraws, document.querySelector('#roomPanel .rpCoverRow .v').textContent]")
+pgRC.evaluate("""() => { window.dispatchEvent(new PointerEvent('pointerup')); window.__fp.states()['cover.rc_1'] = { ...window.__fp.states()['cover.rc_1'], position: 60 };
+  window.__fp.applyStates(); }""")
+let_go_rc = pgRC.evaluate("[window.__rcDraws, [...document.querySelectorAll('#roomPanel .rpCoverRow .v')].map((v) => v.textContent)]")
+check("room panel: while a finger is pressed on it a new state waits; let go, it shows (60 % offen)",
+      held_rc[0] == 0 and let_go_rc[0] > 0 and "60 % offen" in let_go_rc[1], [held_rc, let_go_rc])
 
 n_rc = len(json.load(urllib.request.urlopen(HA + "/_calldata")))
 pgRC.evaluate("[...document.querySelectorAll('#roomPanel .rpCoverRow')].find((x) => x.querySelector('.rpCoverPresets')).querySelector('.rpCoverPresets button[data-pos=\"75\"]').click()")
