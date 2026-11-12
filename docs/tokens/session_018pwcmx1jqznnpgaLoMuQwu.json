@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmx1jqznnpgaLoMuQwu",
+ "start": "2026-11-12",
+ "updated": "2026-11-12T17:18:22Z",
+ "branch": "claude/eloquent-cori-6zfn9l",
+ "source": "counted",
+ "input": 171,
+ "cache_write": 140198,
+ "cache_read": 12137065,
+ "output": 35933,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 171,
+   "cache_write": 140198,
+   "cache_read": 12137065,
+   "output": 35933,
+   "requests": 81
+  }
+ }
+}

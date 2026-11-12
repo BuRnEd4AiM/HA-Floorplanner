@@ -2,6 +2,11 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.9.1] - 2026-11-12
+### Repariert
+- **📅 Heizplan: der ganze Tag war links zusammengedrückt** (#747, das Foto des Besitzers: „der Heizplan ist glaube ich falsch dargestellt … das war eigentlich richtig eingestellt und jetzt ist es so seltsam“): jeder Tag der Woche (z. B. Nacht 17° · Komfort 24° bis 19:45 · Nacht 17°) stand nur im linken Viertel, bis etwa „6:00“ der Uhrzeiten darunter, mit Lücken zwischen den Blöcken. Der Plan selbst stimmte (die Zeile „Jetzt: … bis 19:45“ sagte es richtig). Der Knopf „⏸️ Heizplan aussetzen“ (4.71.0) hatte denselben Klassennamen wie ein Tag des Plans, und seine Regel „höchstens 340 px breit, 8 px Lücken“ galt auch für den Plan. Der Knopf hat jetzt einen eigenen Namen; ein Tag füllt wieder die ganze Breite unter 0:00–24:00.
+- **Die Sperre „Heizplan aussetzen“ versteckte den ganzen Plan** (#747, dieselbe Ursache): ein Benutzer oder Tablet mit dieser Sperre (⚙ → Benutzer & Tablets) sah gar keinen 📅 Heizplan. Jetzt versteckt sie nur den Knopf.
+
 ## [5.9.0] - 2026-11-12
 ### Neu
 - **🐳 Docker: ein fertiges Image** (#744, aixmoyu: „kein fertiges Image … jedes Update ist eine Neuinstallation“): jedes Release veröffentlicht `ghcr.io/burned4aim/floorplan3d` für amd64, arm64 und arm/v7 (Raspberry Pi, NAS): `latest`, die Version und `5.9` mit „Release to everyone“, `beta` mit jeder neuen Version. Die Compose-Datei nennt es, so braucht `docker compose up -d` kein Klonen und kein Bauen mehr, und `docker compose pull && docker compose up -d` aktualisiert. Der Workflow startet das Image, bevor er es veröffentlicht, und sagt, wenn das Paket noch nicht öffentlich ist (`.github/workflows/container-image.yml`).

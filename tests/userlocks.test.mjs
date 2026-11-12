@@ -26,6 +26,7 @@ test('every lock hides something, except the kept full screen (#487: fullscreenu
   assert.equal(L.lockCss(['fullscreen', 'search']), '#findBtn, #findBox, #voiceBtn { display: none !important; }');   // the voice search answers in the box (#509)
   assert.equal(L.lockCss(['voice']), '#voiceBtn, #findMic { display: none !important; }');
   assert.match(L.lockCss(['floorGap']), /#explodeToggle, #stackToggle/);          // the floors apart / stacked (#396): stays as preset
+  assert.equal(L.lockCss(['heatPause']), '.hpPauseBar { display: none !important; }');   // only the button: ".hpBar" is a day of 📅 Heizplan (5.9.1)
 });
 test('locked cameras: no camera images are fetched, the settings object stays the same otherwise', () => {
   const s = { cameraImages: true, theme: 'dark' };

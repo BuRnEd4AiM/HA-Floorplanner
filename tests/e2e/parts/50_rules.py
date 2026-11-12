@@ -106,6 +106,17 @@ pgR.click("[data-page=climate] [data-view=plan]"); pgR.wait_for_timeout(600)
 pgR.click("[data-page=climate] .hpRooms [data-room=rl_r]"); pgR.wait_for_timeout(300)
 pgR.click("[data-page=climate] [data-act=createPlan]"); pgR.wait_for_timeout(300)
 blocks_rl = pgR.locator("[data-page=climate] .hpBar[data-day='0'] .hpBlock").count()
+# 5.9.1: the button ⏸️ Heizplan aussetzen had the same class "hpBar" with max-width 340px: the whole day sat squeezed on the left of 0:00–24:00
+fill_rl = pgR.evaluate("(() => { const bar = document.querySelector(\"[data-page=climate] .hpBar[data-day='0']\"), bs = [...bar.querySelectorAll('.hpBlock')]; "
+                       "const r = bar.getBoundingClientRect(), h = document.querySelector('[data-page=climate] .hpHours').getBoundingClientRect(); "
+                       "return { bar: Math.round(r.width), hours: Math.round(h.width), blocks: Math.round(bs.reduce((a, e) => a + e.getBoundingClientRect().width, 0)), "
+                       "end: Math.round(r.right - bs[bs.length - 1].getBoundingClientRect().right) }; })()")
+check("schedule: the day fills the whole bar, as wide as 0:00–24:00 under it (blocks without gaps, the last one ends at 24:00)",
+      fill_rl["bar"] > 600 and abs(fill_rl["bar"] - fill_rl["hours"]) <= 1 and abs(fill_rl["blocks"] - fill_rl["bar"]) <= 1 and abs(fill_rl["end"]) <= 1, fill_rl)
+lock_rl = pgR.evaluate("(async () => { const m = await import(new URL('userlocks.js', document.baseURI).href); m.applyLocks(document, ['heatPause']); "
+                       "const n = [...document.querySelectorAll('[data-page=climate] .hpWeek .hpBlock')].filter((e) => e.getBoundingClientRect().width > 0).length; "
+                       "m.applyLocks(document, []); return n; })()")
+check("schedule: the lock „Heizplan aussetzen“ hides only that button, never the plan (5.9.1: it hid the plan too)", lock_rl >= 7 * 3, lock_rl)
 # --- the time above an edge while it is dragged and a moment after letting go (the owner, 2026-11-07: „oben drüber die genaue Uhrzeit“)
 bb_rl = pgR.locator("[data-page=climate] .hpBar[data-day='0'] .hpHandle").first.bounding_box()
 x_rl, y_rl = bb_rl["x"] + 5, bb_rl["y"] + bb_rl["height"] / 2
