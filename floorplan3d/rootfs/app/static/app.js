@@ -170,6 +170,7 @@ import { initMeasureTool } from './measuretool.js';
 import { initLogin } from './login.js';
 import { initRoomLock } from './roomlockui.js';
 import { initRoofEdit } from './roofeditui.js';
+import { showStatus } from './statusline.js';
 window.fp3dBooted = true;           // every module is loaded: the boot guard (bootguard.js) stands down (#328)
 window.fp3dReadySupported = true;   // init() will report fp3dReady: the integration's boot splash can wait for it instead of guessing
 
@@ -1088,7 +1089,7 @@ function changed(rebuild = true) {
   scheduleSave();
   buildingsUi?.renderPanel();                                      // a new room shows up in "Buildings in this plan" (#409)
 }
-function setStatus(txt) { $('#status').textContent = txt; }
+function setStatus(txt) { showStatus($('#status'), txt, isLive()); }   // statusline.js: in the live view it goes again after a few seconds
 function scheduleSave() { persist.schedule(); historyButtons(); }
 /* ================= Resizable side panel (drag its left edge) ================= */
 (() => {
@@ -1929,6 +1930,7 @@ if (params.get('debug')) {
     ready: () => booted,
     openRoomPanel(id) { roomPanel.open(id); },
     showPopup(id) { popup.show(id); },                // the live card of a device, as a tap opens it
+    setStatus: (txt) => setStatus(txt),               // the status line (statusline.js), for tests
     powerLinks: () => power.links(),
     powerInfo: () => power.info(),
     energy: () => energyBalance(states, layout),

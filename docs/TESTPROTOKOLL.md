@@ -4,7 +4,7 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.8.0, 2026-11-12)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.8.1, 2026-11-12)
 
 **Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
@@ -44,6 +44,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 30. **Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken** (Abschnitt 192, #724): Claude hat 192.1 bis 192.3 geprüft; offen ist nur die Antwort von Miicki 192.4.
 31. **Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten; 🔓 und ⋯ am Haus** (Abschnitt 193): Claude hat alles geprüft (am 2026-11-12 in der Demo mit Mausklicks): nichts mehr für dich.
 32. **Neu in 5.8.0: Einstellungen mit einem Tipp, Alarm-Karten, Handy oben** (Abschnitt 194): Claude hat 194.1 bis 194.9 geprüft; für dich nur 194.10 (am echten Tablet und Handy mit dem Finger) und 194.11 (dein Eindruck).
+33. **Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links** (Abschnitt 195, #740, #741, #742): Claude hat 195.2 bis 195.4 in der Demo geprüft; für dich 195.5 (mit deinen echten Rollläden) und 195.6 (dein Eindruck).
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -494,7 +495,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 192. Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken (#724) | 3 | 0 | 1 | 0 | 192.4 |
 | 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus | 4 | 0 | 0 | 0 | – |
 | 194. Neu in 5.8.0: Einstellungen mit einem Tipp, „Reiter unten“ je Seite, Alarm-Karten, Anleitungen eingeklappt, Licht-Gruppen-Knöpfe, Handy oben | 8 | 0 | 3 | 0 | 194.1, 194.10, 194.11 |
-| **Zusammen** | **1258** | **2** | **74** | **92** | |
+| 195. Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links (#740, #741, #742) | 3 | 0 | 3 | 0 | 195.1, 195.5, 195.6 |
+| **Zusammen** | **1261** | **2** | **77** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2962,3 +2964,15 @@ Die Bitte des Besitzers vom 2026-11-12 („schau mal, ob du in den Einstellungen
 | 194.9 | Bearbeiten am Tablet (quer), links die Etagen-Bilder | Der Kompass liegt nicht mehr über „Keller“; die Bilder sind etwas kleiner, wenn der Platz knapp ist | ✅ (2026-11-12, Claude, nachgebautes Tablet 1180 × 820) |
 | 194.10 | Am echten Tablet und Handy: Schalter und Knöpfe in den Einstellungen mit dem Finger | Gut zu treffen, nichts abgeschnitten | ❓ |
 | 194.11 | Dein Eindruck: sind die Einstellungen jetzt einfacher? | Ja, oder was noch stört | ❓ |
+
+## 195. Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links (#740, #741, #742)
+Die Bilder des Besitzers vom 2026-11-12: die Rollladen-Zeile in der Leiste rechts ohne die Stufen der Karte, die Lichter-Liste oben zum Scrollen, die Meldung „11 Lichter aus“ auf 🔍 und 🎤.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 195.1 | Unit-Test `tests/statusline.test.mjs`; Browser-Test Teile `88_room_cover`, `30_quick`, `03_houses`, `04_lights` | Alles grün | ❓ |
+| 195.2 | Live: einen Raum mit Rollladen antippen (Demo: Dachgeschoss → Studio), rechts in der Leiste „Rollläden“ | ▲ Hoch · ■ Stopp · ▼ Runter in einer Reihe, darunter der Schieber und 0 · 25 · 50 · 75 · 100 %; die Stufe, auf der er steht, leuchtet; ein Tipp auf „50 %“ fährt ihn halb herunter und die Zeile sagt „50 % offen“ | ✅ (2026-11-12, Claude, Demo am PC und am nachgebauten Tablet) |
+| 195.3 | Oben auf „💡 n an“ tippen | Die Liste passt in ihren Rahmen: kein Rollbalken unten, „Ganzes Haus“ ganz zu lesen, jedes „Aus“ ganz zu sehen | ✅ (2026-11-12, Claude, Demo) |
+| 195.4 | In der Liste bei „Ganzes Haus“ zweimal „Aus“ tippen | Die Meldung „11 Lichter aus: Ganzes Haus“ steht über dem Kompass, nicht auf 🔍 und 🎤; nach etwa 6 Sekunden ist sie weg; am Handy steht sie kurz ganz unten auf der Zeile mit Uhrzeit und Wetter | ✅ (2026-11-12, Claude, Demo am PC, Tablet 1024 × 700 und nachgebautem Handy) |
+| 195.5 | Mit deinen echten Rollläden: rechts in der Leiste auf „50 %“ tippen | Der echte Rollladen fährt auf 50 %, danach leuchtet „50 %“ | ❓ |
+| 195.6 | Dein Eindruck: sieht die Rollladen-Zeile in der Leiste jetzt gut aus? | Ja, oder was noch stört | ❓ |

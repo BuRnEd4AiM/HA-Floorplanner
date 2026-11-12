@@ -2,6 +2,15 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.8.1] - 2026-11-12
+### Changed
+- **🪟 Roller shutters in the room panel on the right like their card** (#742, the owner: "ich will bei den Rollo-Sachen, wenn man es in der Leiste rechts hat, dass man auch das mit den voreingestellten Sachen wie 50 % machen kann und dass es besser aussieht"): ▲ Hoch · ■ Stopp · ▼ Runter as one row of equal buttons (before "Öffnen" on the first line, "Stopp" and "Schließen" on the second; a cloth curtain shows the sides it opens to), the slider and the quick positions 0 · 25 · 50 · 75 · 100 %, the one it is at lit. A cover that does not say its position has only the buttons; a garage door keeps Öffnen · Stopp · Schließen (`rpcover.js`).
+
+### Fixed
+- **The light list "💡 n an" scrolled sideways** (#740): the names were cut ("Ganzes…") and "Aus" stood outside on the right. The page 📜 Protokoll has rows with the same class names, and its four wide columns applied to the light list too. The list's rules now only apply inside it.
+- **"11 Lichter aus: Ganzes Haus" lay on 🔍 and 🎤** (#741): the status line at the bottom left covered the search, the 🎤 and "Blick von N" of the compass, and stayed until the next message. It is now in the 3D picture above the compass (the floor rail ends above it), in the live view as narrow as the floor rail (the room tiles start right of it), and goes after 6 s (in the editor a tool's hint stays). On a phone it lies on the line of the time and the weather at the very bottom for those seconds (before it was not shown at all in the live view) (`statusline.js`).
+- **The room panel said "Offen" while the shutter was at 89 %** (#742): after a tap the slider kept the focus, and while one of its fields has the focus the panel is not drawn anew. Its sliders (shutters and the brightness of lamps) give the focus back when let go.
+
 ## [5.8.0] - 2026-11-12
 ### Added
 - **⚙ Settings with one tap** (the owner: "schau mal, ob du in den Einstellungen oder so Sachen findest, die man vereinfachen oder visuell besser darstellen kann, so dass es das Bedienen erleichtert", his choice from the pictures in `docs/ideen-5.8/`, idea ①): every on/off tick in the settings is a switch (big enough for a finger, the label on the left); a short drop-down (design, units, grid, performance, labels, floors below, gap of the floors, window frames, earth, sky, night dimming, interface, "Zu Hause, wenn") is a row of buttons with all choices at a glance, the design and the window frames with a colour sample, a note in brackets as a small second line; "Wand-Deckkraft" and "Etagen darunter sichtbar" are sliders that show "72 %" (before a bare 0.72), the background glow too; wall height, wall thickness, lamp reach and glow height show their unit (m or ft); a long grey explanation shows two lines and "mehr …" (a search shows it whole). The drop-down stays in the page, hidden: it is still what is saved (`setcontrols.js`).

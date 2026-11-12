@@ -5,10 +5,11 @@ import { wallLength } from './walls.js';
 import { distToPoly, polyArea, pointInPoly } from './rooms.js';
 import { fmtArea } from './i18n.js';
 import { openingWalls } from './dormerwin.js';
-import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
+import { ACTIONS } from './livecontrols.js';
 import { initHeatPanel, splitHeatParts } from './heatpanel.js';
 import { shutterEntity, floorShutters, shutterText } from './shutters.js';
 import { contactRows } from './windowpanes.js';
+import { coverControls, rpSlider } from './rpcover.js';
 
 export const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['climate', 'rp.climate'], ['media_player', 'rp.media'], ['switch', 'rp.switch'], ['camera', 'rp.camera'], ['sensor', 'rp.sensor'], ['scene', 'rp.scene']];
 /** the group of the room panel a domain is listed under */
@@ -140,11 +141,7 @@ export function initRoomPanel(ctx) {
           }
         }
         if (dom === 'camera' && ctx.settings().cameraImages) row.append(ctx.cams.camImage(d.entity));
-        const slider = (val, onChange) => {
-          const r = document.createElement('input'); r.type = 'range'; r.min = 0; r.max = 100; r.value = val ?? 0;
-          r.addEventListener('change', () => onChange(+r.value));
-          row.append(r);
-        };
+        const slider = (val, onChange) => row.append(rpSlider(val, onChange));   // gives the focus back when let go (rpcover.js)
         const rmi = live.detailsButton(d.entity, true);
         if (rmi) row.append(rmi);
         if (dom === 'light') {                   // colours, effects and scenes right here: overlapping models are hard to tap in 3D
@@ -160,12 +157,9 @@ export function initRoomPanel(ctx) {
           }
         }
         if (dom === 'light' && st?.brightness != null && !openCtl.has(d.entity)) slider(st.brightness, (p) => live.callService(d.entity, 'turn_on', { brightness_pct: p }));
-        if (dom === 'cover') {
-          ['open_cover', 'stop_cover', 'close_cover'].forEach((a) => {
-            const b = document.createElement('button'); b.textContent = t(ACTION_LABEL[a]);
-            b.addEventListener('click', () => live.callService(d.entity, a)); row.append(b);
-          });
-          if (st?.position != null) slider(st.position, (p) => live.callService(d.entity, 'set_cover_position', { position: p }));
+        if (dom === 'cover') {                   // ▲ ■ ▼, the slider and 0 · 25 · 50 · 75 · 100 % like the shutter's card (rpcover.js)
+          row.classList.add('rpCoverRow');
+          row.append(coverControls(d.entity, st, { t, callService: (...a) => live.callService(...a), opening: d.opening }));
         }
         box.append(row);
       });
@@ -190,10 +184,7 @@ export function initRoomPanel(ctx) {
           const v = document.createElement('span'); v.className = 'v'; v.textContent = multi ? op.contactText(o, e) : op.windowText(o);
           row.append(n, v);
           if (e.startsWith('cover.')) {                          // a garage door or shutter-like opening can be driven from here
-            ['open_cover', 'stop_cover', 'close_cover'].forEach((act) => {
-              const b = document.createElement('button'); b.textContent = t(ACTION_LABEL[act]);
-              b.addEventListener('click', () => live.callService(e, act)); row.append(b);
-            });
+            row.append(coverControls(e, ctx.states()[e], { t, callService: (...a) => live.callService(...a), plain: true }));
           }
           box.append(row);
         }

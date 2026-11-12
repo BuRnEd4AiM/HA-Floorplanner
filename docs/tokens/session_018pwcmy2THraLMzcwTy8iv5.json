@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmy2THraLMzcwTy8iv5",
+ "start": "2026-11-12",
+ "updated": "2026-11-12T10:43:35Z",
+ "branch": "claude/loving-hopper-xuc5cj",
+ "source": "counted",
+ "input": 236,
+ "cache_write": 282791,
+ "cache_read": 27735229,
+ "output": 101304,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 236,
+   "cache_write": 282791,
+   "cache_read": 27735229,
+   "output": 101304,
+   "requests": 122
+  }
+ }
+}
