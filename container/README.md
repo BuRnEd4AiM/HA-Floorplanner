@@ -4,7 +4,9 @@ Home Assistant OS and Supervised install 3D Floorplan from the add-on (app) stor
 
 - It has **its own address** (for example `http://192.168.1.10:8100`) instead of a page in Home Assistant's sidebar. You can add it to the sidebar as a *Webpage* dashboard (see below).
 - Whoever opens it **logs in with their Home Assistant user** (Home Assistant's own login page). Home Assistant administrators may edit, plus the users named in `EDITORS`; everybody else gets the live view, as in the add-on. The login lasts 30 days, and every visit extends it, so a wall tablet stays logged in.
-- The dashboard card `custom:floorplan3d-card` needs the Supervisor and does not work with this version. Instead, use the optional integration **3D Floorplan (Container)** ([`custom_components/floorplan3d`](custom_components/floorplan3d/README.md), #601): it serves the page on Home Assistant's own address (`http://<Home Assistant>:8123/floorplan/`) without a second login and brings its own card `custom:floorplan3d-container-card`. Or use a *Webpage* dashboard or a *Webpage* card with the page's address (`?kiosk=1` at the end hides the editing tools).
+- The dashboard card `custom:floorplan3d-card` needs the Supervisor and does not work with this version. Instead, use the optional integration **3D Floorplan (Container)** ([`custom_components/floorplan3d`](custom_components/floorplan3d/README.md), #601; in HACS: *3D Floorplan Connector*): it serves the page on Home Assistant's own address (`http://<Home Assistant>:8123/floorplan/`) without a second login and brings its own card `custom:floorplan3d-container-card`. Or use a *Webpage* dashboard or a *Webpage* card with the page's address (`?kiosk=1` at the end hides the editing tools).
+
+Both are ready-made with every release (#744): the **image** `ghcr.io/burned4aim/floorplan3d` (for amd64, arm64 and arm/v7: PCs, NAS boxes, Raspberry Pi), nothing to build, and the **integration** through HACS or as `floorplan3d-connector.zip` on the [release page](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases). Both carry the same version number.
 
 ## Set it up
 
@@ -13,27 +15,34 @@ Home Assistant OS and Supervised install 3D Floorplan from the add-on (app) stor
 2. **Get the compose file.** Copy [`docker-compose.yml`](docker-compose.yml) to a folder on the computer that runs Docker. Set `HA_URL` to your Home Assistant address and `HA_TOKEN` to the token. Set `TZ` to your time zone.
 3. **Start it:**
    ```sh
-   docker compose up -d --build
+   docker compose up -d
    ```
-   Docker builds the image from this repository (a minute or two the first time).
+   Docker fetches the ready-made image `ghcr.io/burned4aim/floorplan3d:latest` (a few seconds; nothing is built).
 4. **Open it.** Go to `http://<this computer>:8100`. Home Assistant's login page opens. Log in, and you are back at the floor plan.
 5. **In the sidebar (optional).** In Home Assistant go to **Settings → Dashboards → Add dashboard → Webpage**. Enter the same address (`http://<this computer>:8100`).
-6. **On Home Assistant's own address and as a dashboard card (optional).** Install the integration in [`custom_components/floorplan3d`](custom_components/floorplan3d/README.md) (copy the folder, restart once, add it under Settings → Devices & services). Then the page is at `http://<Home Assistant>:8123/floorplan/`, and as a Webpage dashboard use that address.
+6. **On Home Assistant's own address and as a dashboard card (optional).** Install the integration: in HACS → ⋮ → **Custom repositories** → `https://github.com/BuRnEd4AiM/HA-Floorplanner-Connector`, type **Integration**, then **3D Floorplan Connector** → **Download**; or unpack `floorplan3d-connector.zip` of the [release](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest) in Home Assistant's configuration folder. Restart Home Assistant once and add it under Settings → Devices & services ([all steps](custom_components/floorplan3d/README.md)). Then the page is at `http://<Home Assistant>:8123/floorplan/`, and as a Webpage dashboard use that address.
 
 Without compose:
 
 ```sh
-git clone https://github.com/BuRnEd4AiM/HA-Floorplanner.git
-cd HA-Floorplanner
-docker build -f container/Dockerfile -t floorplan3d .
 docker run -d --name floorplan3d --restart unless-stopped -p 8100:8099 \
   -e HA_URL=http://192.168.1.10:8123 -e HA_TOKEN=<token> -e TZ=Europe/Berlin \
-  -v floorplan3d-data:/data floorplan3d
+  -v floorplan3d-data:/data ghcr.io/burned4aim/floorplan3d:latest
 ```
 
-**Update:** `docker compose build --pull && docker compose up -d`. With `docker run`, run `git pull`, then build and start it again. The version pill in the top bar shows when a new version is out.
+**Build it yourself** (instead of the ready-made image): in `docker-compose.yml` put a `#` in front of `image:` and remove the ones in front of `build:`, `context:` and `dockerfile:`, then `docker compose up -d --build`. Or `git clone https://github.com/BuRnEd4AiM/HA-Floorplanner.git`, `cd HA-Floorplanner` and `docker build -f container/Dockerfile -t floorplan3d .` (a minute or two).
 
-**Normal or Beta (5.2.0):** the image is the normal version: a new version comes only when it has been tested and released. To get every new version at once (to try new things early), build the beta: in `docker-compose.yml` remove the `#` in front of `args:` and `CHANNEL: beta`, or `docker build -f container/Dockerfile --build-arg CHANNEL=beta -t floorplan3d .`. The top bar then says "Beta". While a normal 3D Floorplan runs with the same Home Assistant (an add-on or another container), the beta switches nothing by itself (no heating rules, routines or messages) and shows **⏸ Beta paused**. Give a beta its own data folder (volume), not the one of the normal version.
+## Update
+
+- **The container:** `docker compose pull && docker compose up -d` (with `docker run`: `docker pull ghcr.io/burned4aim/floorplan3d:latest`, then remove the container and start it again as above; your data stays in the volume). The version pill in the top bar shows when a new version is out.
+- **The integration** (if you use it): HACS offers the update by itself; then restart Home Assistant. Without HACS: unpack the new `floorplan3d-connector.zip` over the old folder and restart Home Assistant.
+- **Both belong together:** the container and the integration come out of the same release and have the same version. When they differ, Home Assistant says which one to update under **Settings → Repairs** (and in its log), and the version pill of the page opened through `/floorplan/` shows ⚠ with both versions. A login that fails or an error 502 right after an update is most often this.
+
+**Which version (image tags):** `latest` is the normal version, `5.9.0` stays at that version, `5.9` gets the fixes of 5.9 only. A compose file with `latest` gets every released version with `docker compose pull`; an automatic updater (for example Watchtower) works with it too.
+
+**Checksums:** every release has `floorplan3d-connector.zip.sha256` next to the zip: `sha256sum -c floorplan3d-connector.zip.sha256` checks the download. The page itself shows its version and the checksum of its files in the version pill (✓ v… · abc1234, tap it), and compares them with GitHub.
+
+**Normal or Beta (5.2.0):** the image `latest` is the normal version: a new version comes only when it has been tested and released. To get every new version at once (to try new things early), use the beta: `image: ghcr.io/burned4aim/floorplan3d:beta` (or build it with `CHANNEL: beta` under `args:`). The top bar then says "Beta". With the integration from HACS, switch on its pre-releases too (Settings → Devices & services → HACS → the entity **Pre-release** of *3D Floorplan Connector*), so both stay at the same version. While a normal 3D Floorplan runs with the same Home Assistant (an add-on or another container), the beta switches nothing by itself (no heating rules, routines or messages) and shows **⏸ Beta paused**. Give a beta its own data folder (volume), not the one of the normal version.
 
 ## Settings (environment variables)
 
@@ -54,6 +63,7 @@ Everything the add-on keeps is in the volume `/data`: plans, settings, models, p
 
 ## When it does not work
 
+- **Settings → Repairs says "3D Floorplan: update the container" or "… update the integration":** the two have different versions; see [Update](#update).
 - **Home Assistant's login says "Invalid redirect URI" or "Invalid client id":** Home Assistant only sends the login back to the address the page was opened with. Behind a reverse proxy, set `APP_URL` to the address the browser uses.
 - **The login keeps starting again inside the Webpage dashboard:** the browser does not hand the login to the embedded page when Home Assistant and the page are on different hosts (for example `homeassistant.local` and an IP address). Open Home Assistant and the page under the same host name. Opening the page once in its own browser tab can also help.
 - **Home Assistant uses `https` and the page uses `http`:** the browser blocks the page inside the dashboard. Put the page behind the same reverse proxy with `https` and set `APP_URL`.

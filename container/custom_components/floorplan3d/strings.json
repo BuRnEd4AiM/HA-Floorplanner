@@ -27,5 +27,15 @@
       "reconfigure_successful": "The address was changed.",
       "entry_not_found": "The integration entry no longer exists."
     }
+  },
+  "issues": {
+    "update_container": {
+      "title": "3D Floorplan: update the container",
+      "description": "The integration 3D Floorplan (Container) has version {connector}, the 3D Floorplan container has {container}. Both come from the same release and belong together; with different versions the sign-in can fail or the page can show error 502.\n\nUpdate the container: in the folder with its `docker-compose.yml` run `docker compose pull` and then `docker compose up -d`. This notice goes away by itself within an hour once both have the same version."
+    },
+    "update_connector": {
+      "title": "3D Floorplan: update the integration",
+      "description": "The 3D Floorplan container has version {container}, the integration 3D Floorplan (Container) still has {connector}. Both come from the same release and belong together; with different versions the sign-in can fail or the page can show error 502.\n\nUpdate the integration in HACS (with a beta container, switch on the beta versions there), or copy the folder from `floorplan3d-connector.zip` of the release {container}. Then restart Home Assistant: this notice goes away once both have the same version."
+    }
   }
 }

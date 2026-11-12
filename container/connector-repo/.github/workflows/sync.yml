@@ -1,0 +1,34 @@
+name: Sync from HA-Floorplanner
+
+# This repository only carries the Home Assistant integration of 3D Floorplan for Home Assistant Container, so that HACS can install
+# and update it (HACS lists HA-Floorplanner itself as a Dashboard and knows a repository under one type only). Nothing is written here
+# by hand: every hour this takes each new release of HA-Floorplanner (from 5.9.0 on), with the same version, tag and pre-release state.
+# The script lives in HA-Floorplanner (tools/connector_mirror.py, tested there); this file is its template container/connector-repo/.
+on:
+  schedule:
+    - cron: "41 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Take the new releases of HA-Floorplanner
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          curl -fsSL https://raw.githubusercontent.com/BuRnEd4AiM/HA-Floorplanner/main/tools/connector_mirror.py -o "$RUNNER_TEMP/connector_mirror.py"
+          python3 -I "$RUNNER_TEMP/connector_mirror.py" --source BuRnEd4AiM/HA-Floorplanner

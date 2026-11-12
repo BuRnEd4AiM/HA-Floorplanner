@@ -1,0 +1,124 @@
+name: Container image
+
+# The ready-made image for Home Assistant Container (Docker without the Supervisor, #744): nothing to build at home any more, the
+# compose file names it and `docker compose pull` fetches the next one. On GitHub's container registry, for amd64, arm64 (Raspberry Pi
+# 4/5, most NAS boxes) and arm/v7 (older Raspberry Pi):
+#   ghcr.io/<owner>/floorplan3d:latest, :<version>, :<major.minor>   the normal version (floorplan3d-stable/), from "Release to everyone"
+#   ghcr.io/<owner>/floorplan3d:beta, :<version>-beta                every new version at once (floorplan3d/), from "Release"
+# Started by those two workflows (a release made with a workflow's own token starts no other workflow), or by hand:
+#   Actions -> "Container image" -> Run workflow (the channel; it builds main).
+on:
+  workflow_call:
+    inputs:
+      channel:
+        type: string
+        required: true
+      ref:
+        description: "the commit to build (empty: the caller's)"
+        type: string
+        required: false
+        default: ""
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "stable (the normal version, :latest) or beta"
+        type: choice
+        options: [stable, beta]
+        default: stable
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: container-image-${{ inputs.channel }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - name: Version and names
+        id: meta
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          case "$CHANNEL" in stable) dir=floorplan3d-stable ;; beta) dir=floorplan3d ;; *) echo "channel must be stable or beta, not $CHANNEL"; exit 1 ;; esac
+          v="$(sed -n 's/^version: "\(.*\)"/\1/p' "$dir/config.yaml")"
+          [ -n "$v" ] || { echo "no version in $dir/config.yaml"; exit 1; }
+          image="ghcr.io/${OWNER,,}/floorplan3d"
+          if [ "$CHANNEL" = stable ]; then tags="$image:latest,$image:$v,$image:${v%.*}"; else tags="$image:beta,$image:$v-beta"; fi
+          { echo "version=$v"; echo "image=$image"; echo "tags=$tags"; echo "first=${tags%%,*}"; } >> "$GITHUB_OUTPUT"
+          echo "$CHANNEL $v -> $tags"
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - name: Build it for this computer first
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: container/Dockerfile
+          build-args: CHANNEL=${{ inputs.channel }}
+          load: true
+          tags: floorplan3d:test
+          cache-from: type=gha,scope=${{ inputs.channel }}
+      - name: It starts and is the version it says, before anything is published
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          V: ${{ steps.meta.outputs.version }}
+        run: |
+          set -euo pipefail
+          docker run --rm floorplan3d:test sh -c 'test "$FP_CHANNEL" = "'"$CHANNEL"'" && python3 -c "import json; print(json.load(open(\"/app/manifest.json\"))[\"version\"])"' | tee /tmp/v
+          test "$(cat /tmp/v)" = "$V"
+          docker run -d --name fp -p 8100:8099 -e HA_URL=http://homeassistant:8123 -e HA_TOKEN=x floorplan3d:test
+          for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:8100/auth/login && break; sleep 1; done
+          test "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8100/auth/login)" = 302
+          test "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8100/api/layout)" = 401
+      - if: failure()
+        run: docker logs fp 2>&1 | tail -n 30 || true
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Publish (amd64, arm64, arm/v7)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: container/Dockerfile
+          build-args: CHANNEL=${{ inputs.channel }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          provenance: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.url=https://github.com/${{ github.repository }}/blob/main/container/README.md
+            org.opencontainers.image.title=3D Floorplan
+            org.opencontainers.image.description=3D Floorplan for Home Assistant Container (Docker without the Supervisor)
+            org.opencontainers.image.version=${{ steps.meta.outputs.version }}
+            org.opencontainers.image.licenses=GPL-3.0-or-later
+          cache-from: type=gha,scope=${{ inputs.channel }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.channel }}
+      - name: Anybody can fetch it
+        # a new package on GitHub may start as private: then `docker compose pull` fails for everybody but the owner
+        env:
+          IMAGE: ${{ steps.meta.outputs.image }}
+          FIRST: ${{ steps.meta.outputs.first }}
+        run: |
+          name="${IMAGE#ghcr.io/}"; tag="${FIRST##*:}"
+          token="$(curl -fsS "https://ghcr.io/token?scope=repository:$name:pull" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("token", ""))' || true)"
+          code="$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $token" \
+            -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json" \
+            "https://ghcr.io/v2/$name/manifests/$tag")"
+          if [ "$code" = 200 ]; then
+            echo "### 🐳 $FIRST" >> "$GITHUB_STEP_SUMMARY"
+            echo "Published: \`${{ steps.meta.outputs.tags }}\`. Anybody can fetch it with \`docker pull $FIRST\`." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::The image is published but not public yet ($code): GitHub -> your profile -> Packages -> floorplan3d -> Package settings -> Change visibility -> Public (once)."
+            echo "### ⚠ $FIRST is not public yet" >> "$GITHUB_STEP_SUMMARY"
+            echo "GitHub → your profile → **Packages** → **floorplan3d** → **Package settings** → **Change visibility** → **Public** (only once)." >> "$GITHUB_STEP_SUMMARY"
+          fi

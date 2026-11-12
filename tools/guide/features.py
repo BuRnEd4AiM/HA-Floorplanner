@@ -118,6 +118,9 @@ f("card", "settings", "Karte im Dashboard von Home Assistant", "Card in a Home A
   why="eine Karte in Home Assistant selbst, nicht in der Demo; Anleitung in der Beschreibung des Add-ons (Dashboard card)")
 f("docker", "settings", "Ohne Add-on-Store (Docker)", "Without the add-on store (Docker)",
   why="eine Installation, kein Bildschirm; Anleitung in container/README.md")
+f("dockerready", "settings", "Docker: fertiges Image, die Integration über HACS oder als ZIP, Hinweis bei verschiedenen Versionen",
+  "Docker: a ready-made image, the integration through HACS or as a zip, a notice when the versions differ",
+  why="eine Installation in Docker und in Home Assistant, nicht in der Demo; Anleitung in container/README.md", since="5.9.0")
 
 # ---------- phone and tablet ----------
 f("phonehouse", "phone", "Am Handy: Haus, Räume, Licht", "On the phone: house, rooms, light", ["phone-house"])

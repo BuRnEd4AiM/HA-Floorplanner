@@ -154,3 +154,24 @@ async def test_with_the_supervisor_no_login(client, monkeypatch):
 @pytest.fixture
 async def client(aiohttp_client, tmp_path):
     return await aiohttp_client(server.make_app(tmp_path))
+
+
+async def test_the_version_is_known_without_a_login_and_nothing_else(aiohttp_client, tmp_path, ha):
+    """the Home Assistant integration 3D Floorplan (Container) compares its version with this one (#744): /auth/version answers without
+    a login, with the version and the channel only; /api/version stays behind the login"""
+    c = await aiohttp_client(server.make_app(tmp_path))
+    r = await c.get("/auth/version")
+    assert r.status == 200 and r.headers["Cache-Control"] == "no-store"
+    j = await r.json()
+    assert set(j) == {"version", "channel"} and j["version"] == server.mf.load_manifest(server.APP_DIR)["version"]
+    assert (await c.get("/api/version")).status == 401
+
+
+async def test_api_version_names_the_integration_the_page_came_through(aiohttp_client, tmp_path):
+    """the version dialog shows the Container integration's version next to its own (#744); only a version, nothing else"""
+    c = await aiohttp_client(server.make_app(tmp_path))
+    assert (await (await c.get("/api/version")).json())["connector"] is None
+    j = await (await c.get("/api/version", headers={"X-Floorplan3d-Connector": "5.9.0"})).json()
+    assert j["connector"] == "5.9.0"
+    j = await (await c.get("/api/version", headers={"X-Floorplan3d-Connector": "<script>"})).json()
+    assert j["connector"] is None

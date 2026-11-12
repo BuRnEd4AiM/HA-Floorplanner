@@ -27,5 +27,15 @@
       "reconfigure_successful": "地址已修改。",
       "entry_not_found": "集成的配置项已不存在。"
     }
+  },
+  "issues": {
+    "update_container": {
+      "title": "3D Floorplan：请更新容器",
+      "description": "集成 3D Floorplan (Container) 的版本是 {connector}，3D Floorplan 容器的版本是 {container}。两者来自同一个发布版本，需要配套使用；版本不同时登录可能失败，页面也可能显示错误 502。\n\n更新容器：在存放 `docker-compose.yml` 的文件夹中先运行 `docker compose pull`，再运行 `docker compose up -d`。两者版本一致后，此提示会在一小时内自动消失。"
+    },
+    "update_connector": {
+      "title": "3D Floorplan：请更新集成",
+      "description": "3D Floorplan 容器的版本是 {container}，集成 3D Floorplan (Container) 仍是 {connector}。两者来自同一个发布版本，需要配套使用；版本不同时登录可能失败，页面也可能显示错误 502。\n\n在 HACS 中更新该集成（如果使用测试版容器，请在 HACS 中开启测试版），或从发布版本 {container} 的 `floorplan3d-connector.zip` 中复制文件夹。然后重启 Home Assistant：两者版本一致后，此提示会消失。"
+    }
   }
 }

@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 import aiohttp
 
-from . import boundary, const
+from . import boundary, const, versions
 
 
 class PlanError(Exception):
@@ -86,3 +86,18 @@ async def probe(address: str) -> str | None:
     except (aiohttp.ClientError, asyncio.TimeoutError, OSError):
         return "cannot_connect"
     return None
+
+
+async def container_version(session: aiohttp.ClientSession, address: str) -> str | None:
+    """the container's version (#744): what it says at /auth/version (no login needed), versions.TOO_OLD when it answers without
+    that address (a container before 5.9.0), None when it does not answer or says nothing usable"""
+    try:
+        async with session.get(f"{address}{const.VERSION_PATH}", allow_redirects=False) as answer:
+            if answer.status == 404:
+                return versions.TOO_OLD
+            if answer.status != 200:
+                return None
+            data = await answer.json(content_type=None)
+    except (aiohttp.ClientError, asyncio.TimeoutError, OSError, ValueError):
+        return None
+    return versions.clean(data.get("version")) if isinstance(data, dict) else None

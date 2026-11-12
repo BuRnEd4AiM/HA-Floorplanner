@@ -162,8 +162,9 @@ def gzip_acceptable(accept_encoding: str) -> bool:
     return False
 
 
-def headers_to_plan(headers, scheme: str = "http", host: str = "") -> dict:
-    """what goes to the plan: its own cookies, the address the browser used, and nothing that says who asks in Home Assistant"""
+def headers_to_plan(headers, scheme: str = "http", host: str = "", connector: str = "") -> dict:
+    """what goes to the plan: its own cookies, the address the browser used, and nothing that says who asks in Home Assistant.
+    `connector` is this integration's version (#744): the plan's version dialog shows it next to its own."""
     out = {}
     for name, value in headers.items():
         low = name.lower()
@@ -182,6 +183,8 @@ def headers_to_plan(headers, scheme: str = "http", host: str = "") -> dict:
     # Content-Length true.
     out["X-Forwarded-Proto"] = "https" if scheme == "https" else "http"
     out["Accept-Encoding"] = "identity"
+    if connector:
+        out[const.CONNECTOR_HEADER] = connector     # only this one: the browser's own header of that name is not in REQUEST_HEADERS
     return out
 
 

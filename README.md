@@ -361,7 +361,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 Requires Home Assistant OS or Supervised (anything with the Add-on / App store). Details on permissions and tablet setup are in the [documentation](floorplan3d/DOCS.md).
 
-**Home Assistant Container (Docker, no add-on store):** run 3D Floorplan as a second container next to Home Assistant; you log in with your Home Assistant user. The steps are in [container/README.md](container/README.md).
+**Home Assistant Container (Docker, no add-on store):** run 3D Floorplan as a second container next to Home Assistant, from the ready-made image `ghcr.io/burned4aim/floorplan3d` (amd64, arm64, arm/v7); you log in with your Home Assistant user. Its Home Assistant integration (in HACS: *3D Floorplan Connector*) puts the page and a dashboard card on Home Assistant's own address. The steps are in [container/README.md](container/README.md).
 
 **Normal or Beta?** The store has two add-ons. **3D Floorplan** is the normal one: it gets a new version only when it has been tested and released. **3D Floorplan Beta** gets every new version at once, to try new things early (it shows up only with *Advanced mode* in your user profile). Each has its own data; bring your house over with a backup (🗄️ → download, then restore in the other one). While the normal add-on runs, the beta switches nothing by itself (no heating rules, routines or messages), so the two never do things twice. Just curious what is new? **[Try the beta in the browser](https://burned4aim.github.io/HA-Floorplanner/beta/)**, nothing to install.
 
@@ -373,7 +373,7 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 
 Show the live 3D view on any dashboard with the card `custom:floorplan3d-card`. A tap on a device controls it, as in the add-on; editing stays in the add-on. The add-on must be installed and running.
 
-**Install with HACS:** HACS → ⋮ → **Custom repositories** → `https://github.com/BuRnEd4AiM/HA-Floorplanner`, type **Dashboard** → open **3D Floorplan Card** → **Download**, then reload the browser. HACS adds the card as a dashboard resource by itself.
+**Install with HACS:** the card is in the HACS store: open HACS, search for **3D Floorplan Card** → **Download**, then reload the browser. HACS adds the card as a dashboard resource by itself. If your HACS does not find it yet, add it as a custom repository instead: HACS → ⋮ → **Custom repositories** → `https://github.com/BuRnEd4AiM/HA-Floorplanner`, type **Dashboard**.
 **Install by hand:** copy [`dist/floorplan3d-card.js`](dist/floorplan3d-card.js) to `/config/www/`, then **Settings → Dashboards → ⋮ → Resources → Add**: `/local/floorplan3d-card.js`, *JavaScript module*.
 
 Then edit a dashboard → **Add card** → **3D Floorplan**. Every option can be set in the visual editor (floors and rooms are offered from your plan), or in YAML:

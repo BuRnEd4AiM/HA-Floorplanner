@@ -2,6 +2,17 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.9.0] - 2026-11-12
+### Added
+- **🐳 Docker: a ready-made image** (#744, aixmoyu: "No prebuilt image … every update is a reinstall"): every release publishes `ghcr.io/burned4aim/floorplan3d` for amd64, arm64 and arm/v7 (Raspberry Pi, NAS): `latest`, the version and `5.9` with "Release to everyone", `beta` with every new version. The compose file names it, so `docker compose up -d` needs no clone and no build, and `docker compose pull && docker compose up -d` updates. The workflow starts the image before it publishes it and says when the package is not public yet (`.github/workflows/container-image.yml`).
+- **📦 The Home Assistant integration for Docker as a package with a checksum**: every release carries `floorplan3d-connector.zip` (unpack it in Home Assistant's configuration folder) and its SHA-256 for `sha256sum -c`; the same commit always gives the same bytes (`tools/connector_package.py`).
+- **🧩 The integration through HACS**: HACS lists this repository as a Dashboard (the card, in the HACS store since today) and knows a repository under one type only, so the integration gets a small repository of its own, `HA-Floorplanner-Connector` (custom repository, type Integration, "3D Floorplan Connector"). It fills itself every hour from the releases here, with the same version, tag and pre-release state, so HACS offers every update (`tools/connector_mirror.py`, its template `container/connector-repo/`).
+- **⚠ Different versions are named**: the integration has the release's version now (5.9.0 instead of its own 1.4.5; `tools/make_manifest.py` writes it), and the container tells its version without a login (`/auth/version`). When they differ, Home Assistant says under **Settings → Repairs** which one to update (checked at the start, every hour and after a failed sign-in, one line in the log too), and the version pill of the page opened through `/floorplan/` shows ⚠ with both versions (`versions.py`, `version.js`).
+
+### Changed
+- **The card is in the HACS store** (Frenck of the HACS team: "lead with searching for '3D Floorplan Card' in HACS and keep the custom repository step as a fallback"): the README, the add-on's documentation and the tablet guide in ⚙ now say "search for 3D Floorplan Card"; the custom repository is the fallback.
+- **One guide for Docker** (`container/README.md`): the image, the integration through HACS or the zip, a section "Update" (both belong together), the image tags and the checksums.
+
 ## [5.8.1] - 2026-11-12
 ### Changed
 - **🪟 Roller shutters in the room panel on the right like their card** (#742, the owner: "ich will bei den Rollo-Sachen, wenn man es in der Leiste rechts hat, dass man auch das mit den voreingestellten Sachen wie 50 % machen kann und dass es besser aussieht"): ▲ Hoch · ■ Stopp · ▼ Runter as one row of equal buttons (before "Öffnen" on the first line, "Stopp" and "Schließen" on the second; a cloth curtain shows the sides it opens to), the slider and the quick positions 0 · 25 · 50 · 75 · 100 %, the one it is at lit. A cover that does not say its position has only the buttons; a garage door keeps Öffnen · Stopp · Schließen (`rpcover.js`).

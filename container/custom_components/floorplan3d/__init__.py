@@ -19,7 +19,11 @@ The container itself is untouched; its own login still protects everything it se
 plan is decided in boundary.py: Home Assistant's cookies and the user's token stay here, only the plan's own cookies go to it, and
 only its own cookies come back.
 
-Layers: const.py, boundary.py and pages.py are pure; handshake.py and web_proxy.py need aiohttp only; this file and config_flow.py
+- Integration and container come from the same release and carry its version. The container tells its own at ``/auth/version``; when
+  the two differ, Settings → Repairs says which one to update (#744, versions.py), checked at the start, every hour and after a
+  failed sign-in.
+
+Layers: const.py, boundary.py, versions.py and pages.py are pure; handshake.py and web_proxy.py need aiohttp only; this file and config_flow.py
 are the Home Assistant part. tests/test_container_dashboard.py covers the pure and proxy layers, tests/test_floorplan3d_setup.py the
 Home Assistant wiring (setup with and without an entry, the session view and its cookie, unload).
 """
@@ -28,6 +32,8 @@ from __future__ import annotations
 import asyncio
 import inspect
 import logging
+import time
+from datetime import timedelta
 from pathlib import Path
 
 import aiohttp
@@ -39,10 +45,12 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryError
+from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.loader import async_get_integration
 
-from . import boundary, const, handshake, pages, web_proxy
+from . import boundary, const, handshake, pages, versions, web_proxy
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,11 +89,52 @@ async def _serve_card(hass: HomeAssistant) -> bool:
     return True
 
 
-async def _card_url(hass: HomeAssistant) -> str:
-    """the card's address, with the integration's version to get a fresh copy after an update"""
+async def _own_version(hass: HomeAssistant) -> str:
+    """this integration's version (its manifest.json: the release's version, tools/make_manifest.py)"""
     integration = await async_get_integration(hass, const.DOMAIN)
-    version = integration.version or "0"
+    return str(integration.version or "0")
+
+
+def _card_url(version: str) -> str:
+    """the card's address, with the integration's version to get a fresh copy after an update"""
     return f"{const.FRONTEND_PATH}/{const.CARD_FILE}?v={version}"
+
+
+async def check_versions(hass: HomeAssistant, address: str, connector: str) -> str:
+    """compare this integration's version with the container's (#744). A difference is an issue in Settings → Repairs that says which
+    of the two to update (and one line in the log); the same version removes it. A container that does not answer changes nothing:
+    the page says that already. Returns what versions.compare found."""
+    store = _store(hass)
+    store["checked"] = time.monotonic()
+    async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar(),
+                                     timeout=aiohttp.ClientTimeout(total=const.HANDSHAKE_TIMEOUT)) as session:
+        container = await handshake.container_version(session, address)
+    result = versions.compare(connector, container)
+    if result == versions.UNKNOWN:
+        return result
+    if result == versions.SAME:
+        if store.pop("mismatch", None) is not None:
+            _LOGGER.info("3D Floorplan: the integration and the container both have version %s again", connector)
+        ir.async_delete_issue(hass, const.DOMAIN, const.VERSION_ISSUE)
+        return result
+    texts = versions.placeholders(connector, container)
+    if store.get("mismatch") != (result, texts["container"]):
+        store["mismatch"] = (result, texts["container"])
+        _LOGGER.warning("3D Floorplan: the integration has version %s, the container at %s %s. They belong together: update the %s "
+                        "(Settings → Repairs says how)", texts["connector"], address, texts["container"],
+                        "container" if result == versions.UPDATE_CONTAINER else "integration")
+    ir.async_create_issue(hass, const.DOMAIN, const.VERSION_ISSUE, is_fixable=False, severity=ir.IssueSeverity.WARNING,
+                          translation_key=result, translation_placeholders=texts,
+                          learn_more_url=const.CONTAINER_DOCS if result == versions.UPDATE_CONTAINER else None)
+    return result
+
+
+def _check_soon(hass: HomeAssistant, plan) -> None:
+    """after a failed sign-in: perhaps one of the two was updated and the other not (at most once a minute)"""
+    if time.monotonic() - _store(hass).get("checked", -1e9) < 60:
+        return
+    _store(hass)["checked"] = time.monotonic()
+    hass.async_create_background_task(check_versions(hass, plan.address, plan.version), f"{const.DOMAIN} version check")
 
 
 def _load_card(hass: HomeAssistant) -> None:
@@ -188,6 +237,7 @@ class SessionView(HomeAssistantView):
             try:
                 login = await handshake.begin(session, plan.address)
             except handshake.PlanError as err:
+                _check_soon(hass, plan)
                 return self.json_message(err.reason, status_code=502)
             except (aiohttp.ClientError, asyncio.TimeoutError, OSError) as err:
                 _LOGGER.warning("3D Floorplan: the plan is not reachable at %s: %s", plan.address, err)
@@ -208,6 +258,7 @@ class SessionView(HomeAssistantView):
                 plan_session = await handshake.exchange(session, plan.address, code, login.state, login.cookie)
             except (handshake.PlanError, aiohttp.ClientError, asyncio.TimeoutError, OSError) as err:
                 _LOGGER.warning("3D Floorplan: the login at %s did not go through: %s", plan.address, err)
+                _check_soon(hass, plan)
                 return self.json_message("no_session", status_code=502)
 
         response = self.json({"ok": True})
@@ -258,10 +309,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     previous = store.pop("plan", None)
     if previous is not None:
         await previous.close()
-    store["plan"] = web_proxy.Proxy(address)
+    version = await _own_version(hass)
+    store["plan"] = web_proxy.Proxy(address, version)
     _register(hass)
+    _LOGGER.info("3D Floorplan: integration %s, container at %s", version, address)
+
+    async def _check(_now=None) -> None:
+        await check_versions(hass, address, version)
+
+    # the container may be updated without Home Assistant restarting: look again every hour (#744)
+    entry.async_on_unload(async_track_time_interval(hass, _check, timedelta(seconds=const.VERSION_CHECK_SECONDS)))
+    entry.async_create_background_task(hass, _check(), f"{const.DOMAIN} version check")
     if await _serve_card(hass):
-        store["card_url"] = await _card_url(hass)
+        store["card_url"] = _card_url(version)
         _load_card(hass)
         # a third, independent address for Lovelace's own resource loader — Home Assistant also rebuilds the card as soon as the
         # element appears, so any one of the three attempts is enough
@@ -297,4 +357,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             pass
     await _remove_lovelace_resource(hass, store.pop("resource_id", None))
     store.pop("card_url", None)
+    store.pop("mismatch", None)
+    ir.async_delete_issue(hass, const.DOMAIN, const.VERSION_ISSUE)
     return True

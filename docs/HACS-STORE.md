@@ -1,6 +1,10 @@
 # Die Karte in den offiziellen HACS-Store bringen
 
-Heute findet man die Karte „3D Floorplan Card“ in HACS nur, wenn man dieses Projekt vorher als **benutzerdefiniertes Repository** einträgt. Im offiziellen Store (der „Standard-Liste“ von HACS) findet sie jeder direkt mit der Suche. Diese Datei sagt, was dafür nötig ist und was schon erledigt ist.
+**Geschafft am 2026-11-12:** Frenck vom HACS-Team hat den Antrag gemergt; `BuRnEd4AiM/HA-Floorplanner` steht in der Standard-Liste von HACS (Datei `plugin`). Jeder findet die Karte jetzt mit der Suche nach „3D Floorplan Card“ (sobald HACS seine Liste neu geladen hat, das dauert manchmal ein paar Stunden). Sein Hinweis: in der Anleitung zuerst die Suche nennen, das benutzerdefinierte Repository nur als Ausweg (seit 5.9.0 so in README, DOCS und der Tablet-Anleitung).
+
+**Folge für Docker (#744):** HACS kennt ein Repository nur unter einer Art. Weil dieses jetzt als „Dashboard“ im Store steht, lässt HACS es nicht mehr als „Integration“ hinzufügen („exists in the store“). Darum bekommt die Integration für Docker ein eigenes Repository: **Schritt 4** unten.
+
+Was folgt, ist die Geschichte des Antrags (zum Nachlesen).
 
 ## Was HACS verlangt, und wie es bei uns steht
 
@@ -16,7 +20,7 @@ Heute findet man die Karte „3D Floorplan Card“ in HACS nur, wenn man dieses 
 | Lizenz | ✅ GPL-3.0 (seit 2026-11-03, bis 4.61.0 MIT; HACS verlangt keine bestimmte Lizenz) |
 | Die Prüfung von HACS (`hacs/action`) läuft im eigenen Repository, **ohne** abgeschaltete Prüfungen | ✅ neu: Workflow „Validate“ (`.github/workflows/validate.yml`), täglich, bei jedem Push nach `main` und bei jedem Pull Request |
 | Ein neues Release, **nachdem** „Validate“ grün war | ✅ (z. B. 4.38.1 nach dem grünen Lauf https://github.com/BuRnEd4AiM/HA-Floorplanner/actions/runs/40679623292) |
-| Den Antrag stellt der **Besitzer** selbst (ein Pull Request an `hacs/default`) | ✅ gestellt am 2026-10-28, alle Prüfungen grün; wartet auf die Freigabe durch das HACS-Team |
+| Den Antrag stellt der **Besitzer** selbst (ein Pull Request an `hacs/default`) | ✅ gestellt am 2026-10-28, gemergt am 2026-11-12 (Frenck) |
 
 ## Schritt 1: die Beschreibung verbessern (2 Minuten)
 
@@ -77,3 +81,16 @@ HACS nimmt den Antrag nur vom Besitzer des Repositorys an, darum musst du ihn se
 - Wer die Karte schon als benutzerdefiniertes Repository hat, behält sie; nichts ändert sich für ihn.
 - Das Add-on selbst (3D Floorplan) gehört nicht in HACS: Add-ons kommen über **Einstellungen → Apps → Store → ⋮ → Repositorys** mit der Adresse dieses Projekts. HACS ist nur für die Karte.
 - Es gibt schon andere Grundriss-Karten im Store (z. B. ha-floorplan, easy-floorplan); unsere heißt „3D Floorplan Card“, das ist eindeutig.
+
+## Schritt 4: ein eigenes Repository für den Connector (Docker, #744) – nur der Besitzer, 2 Minuten
+
+Wer Home Assistant als Docker-Container hat, braucht die Integration „3D Floorplan (Container)“ (den „Connector“). HACS soll sie installieren und aktualisieren können. Das geht nur mit einem eigenen Repository (siehe oben). Claude kann keine Repositorys anlegen, darum:
+
+1. https://github.com/new öffnen.
+2. Bei **Repository name** eintragen: `HA-Floorplanner-Connector`
+3. Bei **Description**: `Home Assistant integration of 3D Floorplan for Home Assistant Container, installed with HACS. Filled automatically from the releases of HA-Floorplanner.`
+4. **Public** wählen. Sonst nichts ankreuzen (kein README, keine .gitignore, keine Lizenz).
+5. **Create repository**.
+6. Claude im Chat sagen: „Repository ist angelegt“. Claude füllt es (Anleitung, `hacs.json`, den Workflow „Sync from HA-Floorplanner“) und startet den ersten Abgleich. Danach holt es sich jede Stunde selbst die neuen Releases von hier.
+
+Gut zu wissen: das Paket (`floorplan3d-connector.zip`) hängt auch ohne dieses Repository an jedem Release. Das fertige Docker-Image legt GitHub unter deinem Profil → **Packages** → `floorplan3d` ab. Sagt der Workflow „Container image“ „not public yet“: dort **Package settings** → **Change visibility** → **Public** (einmal).

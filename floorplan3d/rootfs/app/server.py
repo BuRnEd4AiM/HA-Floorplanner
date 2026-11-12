@@ -4307,15 +4307,36 @@ async def get_channel(request):
     return web.json_response(w.info() if w else {"channel": CHANNEL or None, "state": None, "stable": None})
 
 
+CONNECTOR_HEADER = "X-Floorplan3d-Connector"            # the Container integration's version, on every request it passes on (#744)
+VERSION_TEXT = re.compile(r"^\d{1,4}(\.\d{1,4}){1,3}([-+][0-9A-Za-z.-]{1,20})?$")
+
+
+def connector_version(request):
+    """the version of the Home Assistant integration 3D Floorplan (Container) this request came through, or None (not through it)"""
+    v = request.headers.get(CONNECTOR_HEADER, "").strip()
+    return v if VERSION_TEXT.match(v) else None
+
+
 async def get_version(request):
-    """Version, build checksum, the check of the files that are really installed and the checksums of the files the browser loads."""
+    """Version, build checksum, the check of the files that are really installed and the checksums of the files the browser loads.
+    `connector`: the version of the Container integration the page is opened through (#744; the dialog says when it differs)."""
     m = mf.load_manifest(Path(__file__).parent)
+    connector = connector_version(request)
     if not m:
-        return web.json_response({"known": False, "version": "?", "buildHash": "", "short": "?", "channel": CHANNEL or None})
+        return web.json_response({"known": False, "version": "?", "buildHash": "", "short": "?", "channel": CHANNEL or None,
+                                  "connector": connector})
     server = await asyncio.to_thread(mf.compare, Path(__file__).parent, m)
     static = {k[len("static/"):]: v for k, v in m["files"].items() if k.startswith("static/") and not k.startswith("static/vendor/")}
     return web.json_response({"known": True, "version": m["version"], "buildHash": m["buildHash"], "short": m["buildHash"][:7],
-                              "server": server, "staticFiles": static, "channel": CHANNEL or None})
+                              "server": server, "staticFiles": static, "channel": CHANNEL or None, "connector": connector})
+
+
+async def auth_version(request):
+    """Only the version and the channel, without a login (under /auth/, like the login itself): the Home Assistant integration
+    3D Floorplan (Container) compares it with its own and says in Settings → Repairs which of the two to update (#744)."""
+    m = mf.load_manifest(Path(__file__).parent)
+    return web.json_response({"version": (m or {}).get("version") or "?", "channel": CHANNEL or None},
+                             headers={"Cache-Control": "no-store"})
 
 
 async def get_version_remote(request):
@@ -4482,6 +4503,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/auth/login", auth_login),
         web.get("/auth/callback", auth_callback),
         web.get("/auth/logout", auth_logout),
+        web.get("/auth/version", auth_version),            # no login: for the Container integration's version check (#744)
         web.get("/api/users-file", get_users_file),
         web.post("/api/users-file/sync", sync_users_file),
         web.get("/api/layout", get_layout),

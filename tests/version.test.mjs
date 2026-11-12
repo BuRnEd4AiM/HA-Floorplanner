@@ -39,3 +39,10 @@ test('betaPill: only the beta, only while it pauses or has not asked yet (5.2.0)
   assert.deepEqual(V.betaPill({ channel: 'beta', state: 'paused', stable: null }), { key: 'ver.pausedPill', v: '?' });
   assert.deepEqual(V.betaPill({ channel: 'beta', state: 'looking' }), { key: 'ver.lookingPill', v: '' });
 });
+test('connectorState: the Container integration the page is opened through (#744)', () => {
+  assert.equal(V.connectorState({ version: '5.9.0' }), null);                         // not through the integration
+  assert.equal(V.connectorState({ version: '5.9.0', connector: null }), null);
+  assert.equal(V.connectorState(null), null);
+  assert.deepEqual(V.connectorState({ version: '5.9.0', connector: '5.9.0' }), { v: '5.9.0', same: true });
+  assert.deepEqual(V.connectorState({ version: '5.9.1', connector: '5.9.0' }), { v: '5.9.0', same: false });
+});

@@ -10,6 +10,9 @@ name: Release
 # Normal and Beta (5.2.0): floorplan3d/ is the beta, floorplan3d-stable/ the normal add-on (tools/stable.py). The version the normal add-on has
 # is the "latest" release (HACS gives the dashboard card of the latest one); a newer version is only in the beta yet: a pre-release, until the
 # workflow "Release to everyone" (stable.yml) gives it to everyone.
+# Docker (#744): every release also carries floorplan3d-connector.zip (the Home Assistant integration for Home Assistant Container, to
+# unpack in its config folder) with its SHA-256, and the job "image" publishes the beta image ghcr.io/<owner>/floorplan3d:beta
+# (container-image.yml; the normal one, :latest, comes with "Release to everyone").
 on:
   push:
     branches: [main]
@@ -77,7 +80,13 @@ jobs:
             # downloads only those (#348). gh uploads them before it publishes the release, so HACS never sees it without the card.
             card=()
             if git show "$target:dist/floorplan3d-card.js" > "$RUNNER_TEMP/floorplan3d-card.js" 2>/dev/null; then card=("$RUNNER_TEMP/floorplan3d-card.js"); fi
-            echo "Release v$ver at $target (${flags[*]}, card: ${#card[@]})"
+            # the Home Assistant integration for Docker of that commit, packed with its checksum (#744; none before 5.9.0, it had
+            # its own version numbers then)
+            rm -rf "$RUNNER_TEMP/connector"
+            if python3 tools/connector_package.py --ref "$target" --version "$ver" --out "$RUNNER_TEMP/connector"; then
+              card+=("$RUNNER_TEMP/connector/floorplan3d-connector.zip" "$RUNNER_TEMP/connector/floorplan3d-connector.zip.sha256")
+            fi
+            echo "Release v$ver at $target (${flags[*]}, files: ${#card[@]})"
             if ! gh release create "v$ver" ${card[@]+"${card[@]}"} --target "$target" --title "3D Floorplan $ver" --notes "$notes" "${flags[@]}"; then
               # GitHub refuses this token a tag at a commit whose workflow files differ from main's now (5.3.1: the version came in one
               # commit of a pull request, a change of the workflows in the next one; even its merge was refused once the workflows changed
@@ -95,17 +104,34 @@ jobs:
           [ -n "$stable" ] || exit 0
           gh release view "v$stable" >/dev/null 2>&1 || { echo "no release v$stable yet"; exit 0; }
           gh release edit "v$stable" --prerelease=false --latest
-      - name: The release of this version carries the dashboard card
-        # also for a release made before the card was attached (Actions -> Release -> Run workflow repairs it); HACS needs it (#348)
+      - name: The release of this version carries the dashboard card and the integration for Docker
+        # also for a release made before they were attached (Actions -> Release -> Run workflow repairs it); HACS needs the card (#348)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag="v$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d/config.yaml)"
-          [ -f dist/floorplan3d-card.js ] || exit 0
+          ver="$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d/config.yaml)"; tag="v$ver"
           names="$(gh release view "$tag" --json assets -q '.assets[].name' 2>/dev/null)" || { echo "no release $tag yet"; exit 0; }
-          echo "$names" | grep -qx floorplan3d-card.js && { echo "$tag has the card"; exit 0; }
-          gh release upload "$tag" dist/floorplan3d-card.js --clobber
+          if [ -f dist/floorplan3d-card.js ] && ! echo "$names" | grep -qx floorplan3d-card.js; then
+            gh release upload "$tag" dist/floorplan3d-card.js --clobber
+          fi
+          if ! echo "$names" | grep -qx floorplan3d-connector.zip; then
+            # packed from the commit that brought this version (the release's own), not from a later main
+            target="$(git log --format=%H -S"version: \"$ver\"" -- floorplan3d/config.yaml | tail -1)"
+            if python3 tools/connector_package.py --ref "${target:-$GITHUB_SHA}" --version "$ver" --out "$RUNNER_TEMP/connector"; then
+              gh release upload "$tag" "$RUNNER_TEMP/connector/floorplan3d-connector.zip" "$RUNNER_TEMP/connector/floorplan3d-connector.zip.sha256" --clobber
+            fi
+          fi
+
+  image:
+    # the beta image of this version for Docker (#744): ghcr.io/<owner>/floorplan3d:beta and :<version>-beta
+    needs: release
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/container-image.yml
+    with:
+      channel: beta
 
   demo:
     needs: release

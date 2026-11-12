@@ -4,7 +4,7 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.8.1, 2026-11-12)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.9.0, 2026-11-12)
 
 **Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
@@ -45,6 +45,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 31. **Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten; 🔓 und ⋯ am Haus** (Abschnitt 193): Claude hat alles geprüft (am 2026-11-12 in der Demo mit Mausklicks): nichts mehr für dich.
 32. **Neu in 5.8.0: Einstellungen mit einem Tipp, Alarm-Karten, Handy oben** (Abschnitt 194): Claude hat 194.1 bis 194.9 geprüft; für dich nur 194.10 (am echten Tablet und Handy mit dem Finger) und 194.11 (dein Eindruck).
 33. **Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links** (Abschnitt 195, #740, #741, #742): Claude hat 195.1 bis 195.4 geprüft; für dich 195.5 (mit deinen echten Rollläden) und 195.6 (dein Eindruck).
+34. **Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, die Karte im HACS-Store** (Abschnitt 196, #744 von aixmoyu, Frencks Hinweis vom 2026-11-12): Claude hat 196.1 geprüft und prüft 196.2 und 196.3 nach dem Merge; für dich das neue Repository 196.4 (nur mit deinem Konto), nach „Gib 5.9.0 frei“ 196.5, in HACS die Suche 196.7; 196.6 braucht einen echten Home Assistant Container (aixmoyu).
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -496,7 +497,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus | 4 | 0 | 0 | 0 | – |
 | 194. Neu in 5.8.0: Einstellungen mit einem Tipp, „Reiter unten“ je Seite, Alarm-Karten, Anleitungen eingeklappt, Licht-Gruppen-Knöpfe, Handy oben | 8 | 0 | 3 | 0 | 194.1, 194.10, 194.11 |
 | 195. Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links (#740, #741, #742) | 4 | 0 | 2 | 0 | 195.5, 195.6 |
-| **Zusammen** | **1262** | **2** | **76** | **92** | |
+| 196. Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, Hinweis bei verschiedenen Versionen; die Karte im HACS-Store | 1 | 0 | 6 | 0 | 196.2 bis 196.7 |
+| **Zusammen** | **1263** | **2** | **82** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2976,3 +2978,16 @@ Die Bilder des Besitzers vom 2026-11-12: die Rollladen-Zeile in der Leiste recht
 | 195.4 | In der Liste bei „Ganzes Haus“ zweimal „Aus“ tippen | Die Meldung „11 Lichter aus: Ganzes Haus“ steht über dem Kompass, nicht auf 🔍 und 🎤; nach etwa 6 Sekunden ist sie weg; am Handy steht sie kurz ganz unten auf der Zeile mit Uhrzeit und Wetter | ✅ (2026-11-12, Claude, Demo am PC, Tablet 1024 × 700 und nachgebautem Handy) |
 | 195.5 | Mit deinen echten Rollläden: rechts in der Leiste auf „50 %“ tippen | Der echte Rollladen fährt auf 50 %, danach leuchtet „50 %“ | ❓ |
 | 195.6 | Dein Eindruck: sieht die Rollladen-Zeile in der Leiste jetzt gut aus? | Ja, oder was noch stört | ❓ |
+
+## 196. Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, Hinweis bei verschiedenen Versionen; die Karte im HACS-Store
+Issue #744 von aixmoyu: für Home Assistant Container (Docker ohne Supervisor) musste man das Image selbst bauen und die Integration (den „Connector“) von Hand kopieren; verschiedene Versionen zeigten sich nur als Fehler 502 oder als Anmeldung, die nicht klappt. Dazu Frencks Hinweis vom HACS-Team (2026-11-12): die Karte ist im HACS-Store, die Anleitung soll zuerst die Suche nennen.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 196.1 | Tests `tests/test_container_dashboard.py`, `test_floorplan3d_setup.py`, `test_connector_package.py`, `test_connector_mirror.py`, `test_login.py`, `test_manifest.py`, `tests/version.test.mjs`; Browser-Test Teil `02_tools` | Alles grün: Versionen vergleichen, Hinweis unter Reparaturen, ZIP mit Prüfsumme, das Connector-Repository füllt sich aus den Releases, ⚠ an der Versions-Pille | ✅ (2026-11-12, Claude: dazu das Image hier gebaut und gestartet, der Connector las „5.9.0“ und erkannte einen Container 5.8.0 als „< 5.9.0“) |
+| 196.2 | Nach dem Merge: Release v5.9.0 öffnen | Neben der Karte liegen `floorplan3d-connector.zip` und `floorplan3d-connector.zip.sha256`; `sha256sum -c` sagt „OK“ | ❓ |
+| 196.3 | Nach dem Merge: Actions → „Release“ → Job „image“ | Grün; `docker pull ghcr.io/burned4aim/floorplan3d:beta` geht ohne Anmeldung (sonst einmal das Paket auf „Public“ stellen, `docs/HACS-STORE.md`) | ❓ |
+| 196.4 | Du: das Repository `HA-Floorplanner-Connector` anlegen (`docs/HACS-STORE.md`, Schritt 4), Claude füllt es | Dort läuft „Sync from HA-Floorplanner“ grün und es gibt ein Release v5.9.0 | ❓ |
+| 196.5 | Nach „Gib 5.9.0 frei“ | `ghcr.io/burned4aim/floorplan3d:latest` ist 5.9.0 (Actions → „Release to everyone“ → Job „image“ grün) | ❓ |
+| 196.6 | Mit einem echten Home Assistant Container (aixmoyu, #744): den Connector über HACS installieren; einmal mit älterem Container | Einstellungen → Reparaturen: „3D Floorplan: den Container aktualisieren“ mit beiden Versionen; nach `docker compose pull && docker compose up -d` ist der Hinweis nach höchstens einer Stunde weg | ❓ |
+| 196.7 | In HACS nach „3D Floorplan Card“ suchen (ohne benutzerdefiniertes Repository) | Die Karte wird gefunden | ❓ |
