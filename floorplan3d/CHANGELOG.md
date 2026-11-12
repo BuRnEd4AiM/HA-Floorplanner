@@ -2,6 +2,19 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.8.0] - 2026-11-12
+### Added
+- **⚙ Settings with one tap** (the owner: "schau mal, ob du in den Einstellungen oder so Sachen findest, die man vereinfachen oder visuell besser darstellen kann, so dass es das Bedienen erleichtert", his choice from the pictures in `docs/ideen-5.8/`, idea ①): every on/off tick in the settings is a switch (big enough for a finger, the label on the left); a short drop-down (design, units, grid, performance, labels, floors below, gap of the floors, window frames, earth, sky, night dimming, interface, "Zu Hause, wenn") is a row of buttons with all choices at a glance, the design and the window frames with a colour sample, a note in brackets as a small second line; "Wand-Deckkraft" and "Etagen darunter sichtbar" are sliders that show "72 %" (before a bare 0.72), the background glow too; wall height, wall thickness, lamp reach and glow height show their unit (m or ft); a long grey explanation shows two lines and "mehr …" (a search shows it whole). The drop-down stays in the page, hidden: it is still what is saved (`setcontrols.js`).
+- **🗂 "Reiter unten": a button per page** (idea ②): ☀ Heute, ⚡ Energie, ▶ Abläufe, 👨‍👩‍👧 Familie, 🏠 Zu Hause, 🎵 Musik & TV, 🧺 Haushalt, 🚗 Auto, 🌱 Garten at the top, below only the settings of the page chosen (before all nine one under the other; remembered per browser). The calendars, scenes and garden valves to tick are buttons there too. A search still finds a setting on every page (`setsections.js`).
+- **🚨 "Warnungen & Alarm" in three cards** (idea ③): warnings in the picture, the holiday alarm, the message to the phone: each a card that folds open, its state in the head ("An", "Unscharf", "Scharf", "Nicht bereit", "Aus") and the most important in one line ("3 Melder gewählt · Code gespeichert · 20 s zum Rausgehen", "WhatsApp direkt (CallMeBot, kostenlos)").
+- **📖 Guides needed once fold** (idea ④): "Tablet einrichten" (with the card's text to copy), "So richtest du Home Assistant Assist ein", the steps for WhatsApp and Telegram and "🩺 Prüfen und Mikrofon-Test" are one line that opens; the check says in its line what the 🎤 uses on this device. A search opens a guide it finds the words in.
+- **💡 Light groups with room buttons** (idea ⑤): ⚙ → Schnellzugriff → Licht-Gruppen: every room is a big button (before a small tick), a chosen one glows yellow with 💡, the head counts them ("💡 Räume: 2").
+- **📱 Phone: one button for the floor and the room** (idea ⑦): the floor read "E…" and the room button only "●" (no room for them beside "🛡 Alarm aus"). Now one button "● Erdgeschoss ▾" (the room's name when one is open); its list has the floors at the top and the rooms of the floor below. The holiday alarm shows only 🛡 on a phone while it is off.
+
+### Fixed
+- **Editing on a tablet: the compass lay over "Keller"** (#738, seen in the pictures for idea ⑥; the owner's choice: "Nur den Kompass"): the floor rail reached down past the compass. It ends above it now, and its pictures get lower when it is too short for all floors (`floorrail.js`, `thumbHeight`).
+- **The steps for Telegram said "So richtest du WhatsApp ein"**: they have their own title now.
+
 ## [5.7.1] - 2026-11-11
 ### Changed
 - **🧹 The JavaScript checker is eslint 10** (Dependabot's suggestions #727 and #729 together): its rule "no-useless-assignment" found 10 variables that got a start value which every path overwrote at once (in `walls.js`, `stairs.js`, `floorbuild.js` and seven more). The start values are gone; nothing changes on the screen.

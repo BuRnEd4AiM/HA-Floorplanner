@@ -28,3 +28,10 @@ test('a single empty floor has no whole-house entry, one with devices has', () =
   assert.deepEqual(P.phoneFloorModel([floors[0]], 0, false, lb).items.map((i) => i.kind), ['floor']);
   assert.deepEqual(P.phoneFloorModel([{ name: 'W', rooms: [], devices: [{}] }], 0, false, lb).items.map((i) => i.kind), ['floor', 'house']);
 });
+test('one button for floor and room (5.8.0): it names the room open, the rooms have a heading with the floor', () => {
+  const lb2 = { house: 'Ganzes Haus', rooms: 'Zimmer' };
+  assert.equal(P.phoneFloorModel(floors, 1, false, lb2, undefined, 'Küche').label, 'Küche');
+  assert.equal(P.phoneFloorModel(floors, 1, false, lb2).label, 'Erdgeschoss');
+  assert.equal(P.phoneFloorModel(floors, 1, false, lb2).roomsHead, 'Zimmer · Erdgeschoss');
+  assert.equal(P.phoneFloorModel(floors, 1, true, lb2).roomsHead, 'Zimmer · Ganzes Haus');
+});

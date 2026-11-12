@@ -89,7 +89,10 @@ export function initLightGroups(ctx) {
     const del = el('button', 'lgDel', '×');
     del.type = 'button'; del.title = t('lg.delete');
     del.addEventListener('click', () => { wrap.remove(); ctx.commit(); });
-    head.append(name, del);
+    const count = el('span', 'lgCount');                       // "💡 2 Räume" (5.8.0): how many rooms the group has
+    const counted = () => { count.textContent = t('lg.count', { n: wrap.querySelectorAll('[data-room]:checked').length }); };
+    wrap.addEventListener('change', counted);
+    head.append(name, count, del);
     wrap.append(head);
     const have = new Set(g.rooms);
     choices.forEach((c) => {
@@ -104,6 +107,7 @@ export function initLightGroups(ctx) {
       wrap.append(fl);
     });
     if (!choices.length) wrap.append(el('p', 'sub', t('lg.noRooms')));
+    counted();
     return wrap;
   }
   /** fill: the groups as stored (drawn anew only when they or the rooms changed: a box being typed in stays) */

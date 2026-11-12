@@ -52,7 +52,7 @@ function idsByGroup() {
   for (const m of dlg.matchAll(/<(\/?)([a-z0-9]+)([^>]*)>/gi)) {
     const [, close, tag, attrs] = m;
     if (tag.toLowerCase() === 'details') {
-      if (close) stack.pop(); else stack.push((/data-group="([^"]+)"/.exec(attrs) || [])[1] || null);
+      if (close) stack.pop(); else stack.push((/data-group="([^"]+)"/.exec(attrs) || [])[1] || stack.at(-1) || null);   // a card or a guide (5.8.0) is in its group
       continue;
     }
     const id = /\sid="([^"]+)"/.exec(attrs)?.[1];
@@ -70,7 +70,9 @@ test('settings dialog: every field is in a group (only the search at the top is 
 });
 test('settings dialog: each group has an id, a summary with a title and a body', () => {
   const groups = [...dlg.matchAll(/<details class="setGroup[^"]*" data-group="([a-z]+)">\s*<summary>(.*?)<\/summary>\s*<div class="sgBody">/gs)];
-  assert.equal(groups.length, (dlg.match(/<details/g) || []).length);
+  assert.equal(groups.length, (dlg.match(/<details class="setGroup/g) || []).length);
+  const inner = [...dlg.matchAll(/<details (?:id="[^"]+" )?class="([^"]+)"/g)].map((m) => m[1]).filter((c) => !c.startsWith('setGroup'));
+  assert.ok(inner.length >= 6 && inner.every((c) => /\b(sgCard|sgGuide)\b/.test(c)), inner.join(', '));   // inside a group: the cards and the guides (5.8.0)
   assert.ok(groups.length >= 8);
   const ids = groups.map((g) => g[1]);
   assert.equal(new Set(ids).size, ids.length);

@@ -530,9 +530,19 @@ t("kiosk",
   "economy slow tablet old tablet Fire tablet display")
 t("notify",
   "Benachrichtigung Push Push-Nachricht Nachricht aufs Handy WhatsApp Telegram CallMeBot Companion App Meldung "
-  "Rauchalarm Wasseralarm Einbruch informieren Testnachricht",
+  "Rauchalarm Wasseralarm Einbruch informieren Testnachricht Karte Karten Zustand",
   "notification push push message message to my phone WhatsApp Telegram CallMeBot companion app alert smoke alarm "
-  "water alarm burglary inform test message")
+  "water alarm burglary inform test message card cards state")
+t("settings-easy",
+  "Schalter Kippschalter Häkchen Knopf Knöpfe Auswahl Liste Schieberegler Regler Prozent Deckkraft Einheit Meter "
+  "mehr lesen Erklärung Anleitung aufklappen einklappen übersichtlich einfacher Licht-Gruppe Raumknopf Wie stelle ich etwas ein",
+  "switch toggle tick checkbox button buttons choice list slider percent opacity unit metre read more explanation "
+  "guide fold open fold clearer easier light group room button how do I change a setting")
+t("phone-floors",
+  "Handy Smartphone iPhone Etage Stockwerk Geschoss Erdgeschoss Obergeschoss Keller Zimmer Raum wählen wechseln "
+  "abgeschnitten Etagenknopf grüner Punkt anwesend",
+  "phone smartphone iPhone floor storey level ground floor upper floor basement room choose switch cut off floor button "
+  "green dot present")
 t("version",
   "Version Update aktualisieren aktuell neueste Version Prüfsumme Cache leeren neu laden alter Stand veraltet "
   "Browser Cache Fehler nach Update Beta Betaversion Testversion normale Version stabil pausiert",

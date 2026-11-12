@@ -66,6 +66,13 @@ export function drawThumb(cv, f, rb, opts) {
 }
 
 /** ctx: $, t, layout(), floorIdx(), houseMode(), isHolo(), settings(), roofBox(i), switchFloor(i), setHouseMode(on) */
+/** the height of one floor picture so that n of them fit into `room` pixels: null when they fit as they are (`full` high each), never lower
+ *  than 44 px (then the rail scrolls) */
+export function thumbHeight(room, n, full) {
+  if (!n || !full || n * full <= room) return null;
+  return Math.max(44, Math.floor(room / n) - 2);                  // 2: the border round each picture
+}
+
 export function initFloorRail(ctx) {
   const { $, t } = ctx;
   const thumbs = [];                                   // { cv, i }
@@ -106,8 +113,22 @@ export function initFloorRail(ctx) {
     }
     rail.replaceChildren(...items);
     draw();
+    fit();
   }
+  /** the pictures get lower when the rail is too short for all of them (5.8.0: a tablet while editing has little height; the rail ends above
+   *  the compass now, which lay over "Keller"); only below the smallest size the rail scrolls */
+  function fit() {
+    const rail = $('#floorRail');
+    if (!rail || !rail.clientHeight) return;
+    const btns = [...rail.children], pics = btns.filter((b) => b.classList.contains('floorThumb'));
+    rail.style.removeProperty('--thumbH');
+    const gap = parseFloat(getComputedStyle(rail).rowGap) || 0;
+    const other = btns.filter((b) => !pics.includes(b)).reduce((s, b) => s + b.offsetHeight, 0) + gap * Math.max(0, btns.length - 1);
+    const h = thumbHeight(rail.clientHeight - other, pics.length, pics[0]?.offsetHeight || 0);
+    if (h) rail.style.setProperty('--thumbH', `${h}px`);
+  }
+  if (typeof ResizeObserver !== 'undefined') { const rail = $('#floorRail'); if (rail) new ResizeObserver(() => fit()).observe(rail); }
   /** redraw the thumbnails shortly after the layout changed (not on every drag step) */
   function schedule() { clearTimeout(timer); timer = setTimeout(draw, 250); }
-  return { build, draw, schedule };
+  return { build, draw, schedule, fit };
 }

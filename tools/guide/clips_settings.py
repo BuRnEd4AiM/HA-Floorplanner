@@ -4,14 +4,15 @@ from recorder import clip
 
 @clip("language", "settings",
       {"de": "Sprache und Design", "en": "Language and design"},
-      {"de": "⚙ → Allgemein: acht Sprachen, ein dunkles oder helles Design und die Einheiten.",
-       "en": "⚙ → General: eight languages, a dark or light design and the units."},
+      {"de": "⚙ → Allgemein: acht Sprachen, ein dunkles oder helles Design und die Einheiten, je mit einem Tipp.",
+       "en": "⚙ → General: eight languages, a dark or light design and the units, each with one tap."},
       "Sprache Deutsch Englisch Design hell dunkel Einheiten Einstellungen language german english design light dark units settings")
 def _(r):
     r.say("Oben rechts: ⚙ Einstellungen.", "Top right: ⚙ settings.")
     r.click("#settingsBtn")
     r.wait(1000)
-    lang, theme = r.loc("#setLanguage"), r.loc("#setTheme")
+    lang = r.loc("#setLanguage")
+    theme = lambda v: f".segBtns[data-for=setTheme] button[data-value={v}]"     # the design is a row of buttons (5.8.0)
     r.say("Die Sprache …", "The language …")
     r.click(lang)
     lang.select_option("en" if r.lang == "de" else "de")
@@ -19,14 +20,13 @@ def _(r):
     r.click(lang)
     lang.select_option(r.lang)
     r.wait(1200)
-    r.say("… und das Design: hell, dunkel oder Hologramm.", "… and the design: light, dark or hologram.")
-    r.click(theme)
-    theme.select_option("light")
+    r.say("… und das Design: ein Tipp auf Hell, Dunkel oder Hologramm.", "… and the design: one tap on light, dark or hologram.")
+    r.click(theme("light"))
     r.wait(1500)
     r.poster()
-    theme.select_option("holo")
+    r.click(theme("holo"))
     r.wait(1500)
-    theme.select_option("dark")
+    r.click(theme("dark"))
     r.wait(1200)
 
 
@@ -48,6 +48,56 @@ def _(r):
     r.poster()
     r.say("Jede Einstellung wirkt sofort, ohne Speichern.", "Every setting works at once, without saving.")
     r.wait(1800)
+
+
+@clip("settings-easy", "settings",
+      {"de": "Einstellungen mit einem Tipp", "en": "Settings with one tap"},
+      {"de": "Schalter für an und aus, Knöpfe statt Listen, Schieberegler mit Prozent, „mehr …“ bei langen Texten, Anleitungen zum Aufklappen, Licht-Gruppen als Raum-Knöpfe.",
+       "en": "Switches for on and off, buttons instead of lists, sliders in percent, “more …” for long texts, guides that fold open, light groups as room buttons."},
+      "Schalter Knopf Knöpfe Schieberegler Prozent einfach antippen mehr Anleitung switch button slider percent easy tap more guide")
+def _(r):
+    r.click("#settingsBtn")
+    r.wait(900)
+    r.say("In den Einstellungen ist an und aus ein Schalter.", "In the settings, on and off is a switch.")
+    r.click("#sgNav button[data-group=view]")
+    r.wait(900)
+    r.click("#setShadows")
+    r.wait(1100)
+    r.click("#setShadows")
+    r.wait(900)
+    r.say("Ein Wert wie die Wand-Deckkraft hat einen Schieberegler, daneben steht er in Prozent.", "A value like the wall opacity has a slider, its percent beside it.")
+    r.slide("#setWallOpacity", 0.35)
+    r.wait(900)
+    r.poster()
+    r.slide("#setWallOpacity", 0.65)
+    r.wait(900)
+    if r.pg.locator("details[data-group=view] .moreBtn").count():
+        r.say("Lange Erklärungen zeigen zwei Zeilen: „mehr …“ zeigt alles.", "Long explanations show two lines: “more …” shows all of it.")
+        r.click("details[data-group=view] .moreBtn")
+        r.wait(1400)
+    r.say("Kurze Auswahlen sind Knöpfe: alle auf einen Blick, ein Tipp genügt.", "Short choices are buttons: all at a glance, one tap is enough.")
+    r.click("#sgNav button[data-group=floors]")
+    r.wait(800)
+    r.click(".segBtns[data-for=setBelowMode] button[data-value=stacked]")
+    r.wait(1200)
+    r.click(".segBtns[data-for=setBelowMode] button[data-value=dim]")
+    r.wait(900)
+    r.say("Anleitungen, die man nur einmal braucht, sind eine Zeile zum Aufklappen.", "Guides you need only once are a line that folds open.")
+    r.click("#sgNav button[data-group=tablet]")
+    r.wait(800)
+    r.click("details.tabletGuide > summary")
+    r.wait(1500)
+    r.say("Bei den Licht-Gruppen ist jeder Raum ein Knopf: gewählte leuchten gelb.", "In the light groups every room is a button: chosen ones glow yellow.")
+    r.click("#sgNav button[data-group=quick]")
+    r.wait(700)
+    r.js("document.querySelector('#lgGroups').scrollIntoView({ block: 'center' })")
+    r.wait(700)
+    room = "#lgGroups .lgEdit:first-child .lgRoom:not(:has(input:checked))"
+    if r.pg.locator(room).count():
+        r.click(room)
+        r.wait(1300)
+        r.click("#lgGroups .lgEdit:first-child .lgRoom:has(input:checked)", nth=0)
+    r.wait(1500)
 
 
 @clip("users", "settings",
@@ -135,7 +185,9 @@ def _(r):
     r.click("#sgNav button[data-group=tablet]")
     r.wait(1300)
     r.poster()
-    r.say("Die Startansicht: dorthin geht das Tablet nach einer Weile zurück.", "The start view: the tablet goes back there after a while.")
+    r.say("Die Startansicht: dorthin geht das Tablet nach einer Weile zurück. Die Anleitung zum Einrichten ist eine Zeile zum Aufklappen.",
+          "The start view: the tablet goes back there after a while. How to set it up is a line that folds open.")
+    r.move("details.tabletGuide > summary")
     r.wait(2000)
     r.say("Weiter unten: dunkler in der Nacht und ein sparsamer Modus.", "Further down: darker at night and a saving mode.")
     r.move(1000, 520)
@@ -147,17 +199,20 @@ def _(r):
 
 @clip("notify", "settings",
       {"de": "Nachricht aufs Handy bei Alarm", "en": "A message to your phone on an alarm"},
-      {"de": "⚙ → Warnungen & Alarm: bei Rauch, Gas, Wasser oder Alarm kommt eine Nachricht per WhatsApp, Telegram oder die Home-Assistant-App.",
-       "en": "⚙ → Warnings & alarm: on smoke, gas, water or an alarm a message comes by WhatsApp, Telegram or the Home Assistant app."},
+      {"de": "⚙ → Warnungen & Alarm → Karte „Nachricht aufs Handy“: bei Rauch, Gas, Wasser oder Alarm kommt eine Nachricht per WhatsApp, Telegram oder die Home-Assistant-App.",
+       "en": "⚙ → Warnings & alarm → card “Message to your phone”: on smoke, gas, water or an alarm a message comes by WhatsApp, Telegram or the Home Assistant app."},
       "Nachricht Handy WhatsApp Telegram Benachrichtigung Alarm Rauch Wasser Gas schicken message phone notification alarm smoke water gas send")
 def _(r):
     r.click("#settingsBtn")
     r.wait(900)
-    r.say("In den Einstellungen: „Warnungen & Alarm“.", "In the settings: “Warnings & alarm”.")
+    r.say("In den Einstellungen: „Warnungen & Alarm“. Drei Karten, oben steht, ob sie an sind.", "In the settings: “Warnings & alarm”. Three cards, each says whether it is on.")
     r.click("#sgNav button[data-group=alarm]")
-    r.wait(1300)
+    r.wait(1600)
+    r.say("Tippe auf „Nachricht aufs Handy“.", "Tap “Message to your phone”.")
+    r.click("details.sgCard[data-card=notify] > summary")
+    r.wait(1200)
     r.say("Wähle, wobei eine Nachricht kommen soll, und wohin: WhatsApp, Telegram oder die App.", "Choose what sends a message and where to: WhatsApp, Telegram or the app.")
-    r.move(1000, 420)
+    r.move(1000, 520)
     r.wait(1800)
     r.poster()
     for _ in range(3):

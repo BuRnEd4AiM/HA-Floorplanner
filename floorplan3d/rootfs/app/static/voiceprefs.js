@@ -89,6 +89,8 @@ export function initVoicePrefs(ctx) {
    *  Home Assistant's Assist, which one the 🎤 uses or why it cannot listen and what to do */
   function status() {
     ctx.check.drawFacts($('#vcStatus'));
+    const now = $('#vcStatus .now'), head = $('#vcNow');           // what the 🎤 uses here, in the line of the folded check (5.8.0)
+    if (head) { head.textContent = now?.textContent || ''; head.className = now?.classList.contains('no') ? 'no' : 'ok'; }
     $('#vcGuide').hidden = !!ctx.voice.status().assist?.assist;   // how to set up Assist: only while it cannot listen
   }
   async function opened() {

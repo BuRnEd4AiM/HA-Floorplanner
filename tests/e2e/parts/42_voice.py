@@ -60,9 +60,10 @@ check("voice search: 'Wie sieht es in der Stube aus?' opens the room 'Stube'", p
 
 # --- ⚙ → 🎤 Sprachsuche: what this device can do, a code word
 pgS.click("#settingsBtn"); open_setting(pgS, "#vcAliases"); pgS.wait_for_timeout(1200)
-status_vs = pgS.inner_text("#vcStatus")
+status_vs = pgS.text_content("#vcStatus")                         # folded since 5.8.0: its line (#vcNow) says what the 🎤 uses
 check("voice settings: what this device can do (Home Assistant Assist can listen, 🎤 with Assist), the guide hidden while Assist works",
-      "Home Assistant Assist kann Sprache erkennen" in status_vs and "🎤 mit" in status_vs and pgS.is_hidden("#vcGuide"), status_vs)
+      "Home Assistant Assist kann Sprache erkennen" in status_vs and "🎤 mit" in status_vs and "🎤 mit" in pgS.inner_text("#vcNow")
+      and pgS.is_hidden("#vcGuide"), (status_vs, pgS.inner_text("#vcNow")))
 pgS.click("#vcAdd"); pgS.fill(".vcRow:last-child [data-role=say]", "Gute Stube"); pgS.press(".vcRow:last-child [data-role=say]", "Tab")
 pgS.select_option(".vcRow:last-child [data-role=add]", f"r:{room_vs}"); pgS.wait_for_timeout(800)
 al = api("api/settings").get("voice", {}).get("aliases", [])

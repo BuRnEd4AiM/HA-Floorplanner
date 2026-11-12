@@ -44,3 +44,10 @@ test('a roof is drawn as two slopes and a gable end', () => {
   R.drawThumb(cv, { kind: 'roof', walls: [], rooms: [], devices: [] }, { x0: 0, x1: 10, z0: 0, z1: 6 }, opts);
   assert.equal(cv.polys.filter((p) => p.fill).length, 3);
 });
+
+test('the floor pictures get lower when the rail is short (5.8.0), never below 44 px', () => {
+  assert.equal(R.thumbHeight(500, 5, 72), null);                 // 5 × 72 fit into 500
+  assert.equal(R.thumbHeight(300, 5, 72), 58);                   // 300 / 5 − the border
+  assert.equal(R.thumbHeight(100, 5, 72), 44);                   // too short even so: the smallest, the rail scrolls
+  assert.equal(R.thumbHeight(300, 0, 72), null);
+});

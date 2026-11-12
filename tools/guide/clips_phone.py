@@ -26,6 +26,30 @@ def _(r):
     r.wait(1500)
 
 
+@clip("phone-floors", "phone",
+      {"de": "Am Handy: Etage und Zimmer wählen", "en": "On the phone: choose the floor and the room"},
+      {"de": "Oben ein Knopf für Etage und Zimmer: die Liste zeigt die Etagen und darunter die Zimmer; der Knopf nennt, was offen ist.",
+       "en": "One button at the top for the floor and the room: its list shows the floors and the rooms below; the button names what is open."},
+      "Handy Etage Stockwerk Zimmer Raum wählen Keller Obergeschoss phone floor storey room choose basement",
+      device="phone", sky="13:00")
+def _(r):
+    r.say("Oben links steht die Etage, mit grünem Punkt, wenn jemand da ist.", "Top left is the floor, with a green dot when someone is there.")
+    r.move("#phoneNavBtn")
+    r.wait(1500)
+    r.say("Ein Tipp: oben die Etagen, darunter die Zimmer.", "One tap: the floors at the top, the rooms below.")
+    r.click("#phoneNavBtn")
+    r.wait(1600)
+    r.poster()
+    r.say("Tippe auf ein Zimmer: es öffnet sich, der Knopf nennt es.", "Tap a room: it opens, the button names it.")
+    r.click("#phoneNav .pnRoom", nth=1)
+    r.wait(2000)
+    r.say("Eine andere Etage: wieder oben antippen.", "Another floor: tap the top again.")
+    r.click("#phoneNavBtn")
+    r.wait(900)
+    r.click("#phoneNav .pnFloors .pill", nth=2)
+    r.wait(1800)
+
+
 @clip("phone-pages", "phone",
       {"de": "Am Handy: die Seiten", "en": "On the phone: the pages"},
       {"de": "Unten wechselst du die Seiten: Heute, Energie, Klima und alle anderen, zum Wischen gemacht.",

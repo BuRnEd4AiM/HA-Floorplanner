@@ -4,7 +4,7 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.7.1, 2026-11-12)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.8.0, 2026-11-12)
 
 **Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
@@ -43,6 +43,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 29. **5.6.1 bis 5.6.4: Strom je Gebäude, schneller starten, der Browser behält die Dateien, Code-Prüfer** (Abschnitte 188 bis 191): Claude hat alles geprüft (am 2026-11-12, auch ein nachgestelltes Update): nichts mehr für dich.
 30. **Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken** (Abschnitt 192, #724): Claude hat 192.1 bis 192.3 geprüft; offen ist nur die Antwort von Miicki 192.4.
 31. **Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten; 🔓 und ⋯ am Haus** (Abschnitt 193): Claude hat alles geprüft (am 2026-11-12 in der Demo mit Mausklicks): nichts mehr für dich.
+32. **Neu in 5.8.0: Einstellungen mit einem Tipp, Alarm-Karten, Handy oben** (Abschnitt 194): Claude hat 194.1 bis 194.9 geprüft; für dich nur 194.10 (am echten Tablet und Handy mit dem Finger) und 194.11 (dein Eindruck).
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -492,7 +493,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint) | 2 | 0 | 0 | 0 | – |
 | 192. Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken (#724) | 3 | 0 | 1 | 0 | 192.4 |
 | 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus | 4 | 0 | 0 | 0 | – |
-| **Zusammen** | **1250** | **2** | **71** | **92** | |
+| 194. Neu in 5.8.0: Einstellungen mit einem Tipp, „Reiter unten“ je Seite, Alarm-Karten, Anleitungen eingeklappt, Licht-Gruppen-Knöpfe, Handy oben | 8 | 0 | 3 | 0 | 194.1, 194.10, 194.11 |
+| **Zusammen** | **1258** | **2** | **74** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2943,3 +2945,20 @@ Die Frage des Besitzers vom 2026-11-11, was man in der neuen Ansicht noch verbes
 | 193.2 | In „✨ Neu“ eine Treppe antippen | Oben „🪜 Treppe“, darunter z. B. „Gerade · Erdgeschoss → Obergeschoss“, Breite und Stufen; Abschnitte „Form & Maße“, „Stufen“, „Lage“ | ✅ (2026-11-12, Claude, Demo mit Mausklicks: „Treppe“, „Gerade · Erdgeschoss → Obergeschoss“, „↔ 1.00 m“, „16 Stufen · je 17,6 cm“; Abschnitte Form & Maße, Stufen, Lage) |
 | 193.3 | Eine Bodenöffnung, einen Block, das Grundstück und eine Gartenfläche antippen | Jeweils der neue Kopf statt der alten Leiste mit Hinweis und Häusern | ✅ (2026-11-12, Claude: Bodenöffnung, ein gezeichneter Block, „Einfahrt“ und das Grundstück zeigen den neuen Kopf, kein alter Hinweis, keine Häuser darüber) |
 | 193.4 | Nichts ausgewählt: am Haus auf 🔓 tippen, dann auf ⋯ | 🔓 sperrt den Grundriss (🔒), noch einmal entsperrt; ⋯ zeigt Gebäude, Nachbarhaus, Vorlage, Duplizieren, Umbenennen, JSON, Löschen | ✅ (2026-11-12, Claude: 🔓 → 🔒 → 🔓; ⋯ zeigt Gebäude, Nachbarhaus, Vorlage, Duplizieren, Umbenennen, JSON importieren und exportieren, Haus löschen) |
+
+## 194. Neu in 5.8.0: Einstellungen mit einem Tipp, „Reiter unten“ je Seite, Alarm-Karten, Anleitungen eingeklappt, Licht-Gruppen-Knöpfe, Handy oben
+Die Bitte des Besitzers vom 2026-11-12 („schau mal, ob du in den Einstellungen oder so Sachen findest, die man vereinfachen oder visuell besser darstellen kann“); Beispielbilder in `docs/ideen-5.8/`, seine Wahl: Ideen 1, 2, 3, 4, 5, 7 und bei 6 nur der Kompass.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 194.1 | Unit-Tests `tests/setcontrols.test.mjs`, `tests/setsections.test.mjs`, `floorrail`, `phonenav`, `setgroups`; Browser-Test Teile `87_settings_look`, `28_settings`, `07_tablet`, `29_guard`, `24_alarm_notify` | Alles grün | ❓ |
+| 194.2 | ⚙ → „3D-Bild & Leistung“ | „Schatten“ und die anderen Häkchen sind Schalter; „Leistung“ ist eine Knopfleiste (Automatisch, Schön, Schnell); „Wand-Deckkraft“ ist ein Schieberegler mit „72 %“; die lange Erklärung zur Kantenglättung zeigt zwei Zeilen und „mehr …“ | ✅ (2026-11-12, Claude, Demo am PC) |
+| 194.3 | ⚙ → „Allgemein“: auf „Hell“ tippen, dann wieder „Dunkel“ | Das Design wechselt sofort; Hologramm, Dunkel, Hell haben je eine kleine Farbprobe | ✅ (2026-11-12, Claude, Demo und Browser-Test) |
+| 194.4 | ⚙ → „Reiter unten“: auf „Auto“ tippen | Oben neun Knöpfe (Heute … Garten), darunter nur die Einstellungen der gewählten Seite; beim nächsten Öffnen ist „Auto“ noch gewählt | ✅ (2026-11-12, Claude, Demo) |
+| 194.5 | ⚙ → „Warnungen & Alarm“ | Drei Karten: „Warnungen im Bild“ (An), „Urlaubs-Alarm“ (z. B. Unscharf, „3 Melder gewählt · Code gespeichert · 20 s zum Rausgehen“), „Nachricht aufs Handy“ (Aus); ein Tipp klappt eine Karte auf | ✅ (2026-11-12, Claude, Demo) |
+| 194.6 | ⚙ → „Wandtablet“ und „🎤 Sprachsuche“ | „Tablet einrichten“, „So richtest du Home Assistant Assist ein“ und „🩺 Prüfen und Mikrofon-Test“ sind je eine Zeile zum Aufklappen; die Prüfung sagt in ihrer Zeile, womit das 🎤 hier hört | ✅ (2026-11-12, Claude, Demo) |
+| 194.7 | ⚙ → „Schnellzugriff“ → Licht-Gruppen: einen Raum antippen | Jeder Raum ist ein Knopf, ein gewählter leuchtet gelb mit 💡, oben „💡 Räume: n“ | ✅ (2026-11-12, Claude, Demo) |
+| 194.8 | Am Handy oben auf „Erdgeschoss ▾“ tippen, dann ein Zimmer | Der Name ist ganz zu lesen (nicht „E…“); die Liste zeigt die Etagen und darunter die Zimmer; nach dem Tipp auf ein Zimmer steht sein Name oben; der Alarm ist nur 🛡 | ✅ (2026-11-12, Claude, nachgebautes iPhone in der Demo) |
+| 194.9 | Bearbeiten am Tablet (quer), links die Etagen-Bilder | Der Kompass liegt nicht mehr über „Keller“; die Bilder sind etwas kleiner, wenn der Platz knapp ist | ✅ (2026-11-12, Claude, nachgebautes Tablet 1180 × 820) |
+| 194.10 | Am echten Tablet und Handy: Schalter und Knöpfe in den Einstellungen mit dem Finger | Gut zu treffen, nichts abgeschnitten | ❓ |
+| 194.11 | Dein Eindruck: sind die Einstellungen jetzt einfacher? | Ja, oder was noch stört | ❓ |
