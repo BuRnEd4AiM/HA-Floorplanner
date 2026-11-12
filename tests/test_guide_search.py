@@ -27,6 +27,7 @@ QUERIES = [
     ("Bereich einem Gebäude zuordnen", "de", "building-areas"), ("Automationen vom anderen Haus", "de", "building-areas"), ("assign area to building", "en", "building-areas"),
     # other words for the same thing
     ("Rollo runter", "de", "shutter"), ("Jalousie schließen", "de", "shutter"), ("Rolladen", "de", "shutter"),
+    ("Rollladen auf 50 Prozent", "de", "shutter"), ("shutter half open", "en", "shutter"),
     ("Markise", "de", "shutter"), ("roller blind", "en", "shutter"), ("Gardine", "de", "window-setup"),
     ("Lampe heller machen", "de", "light"), ("Licht dimmen", "de", "light"), ("Lampe Farbe ändern", "de", "light"),
     ("dim the lights", "en", "light"), ("Glühbirne", "de", "light"), ("Licht im Wohnzimmer dimmen", "de", "light"),

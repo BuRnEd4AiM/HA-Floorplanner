@@ -89,9 +89,10 @@ t("lightgroups",
   "switch an area off switch a floor off group light group counter at the top")
 t("shutter",
   "Rollladen hoch Rollladen runter Rollo Rollos Jalousie Jalousien Raffstore Lamellen Markise Fensterladen Sonnenschutz "
-  "hochfahren herunterfahren runterlassen öffnen schließen anhalten Stopp abdunkeln Sichtschutz Verdunkelung Cover Shelly",
+  "hochfahren herunterfahren runterlassen öffnen schließen anhalten Stopp abdunkeln Sichtschutz Verdunkelung Cover Shelly "
+  "halb offen 50 Prozent Position Stufe Voreinstellung Leiste rechts Raumleiste",
   "shutter up shutter down roller shutter blind blinds venetian blind slats awning window shutter sun protection raise "
-  "lower open close stop darken privacy blackout cover")
+  "lower open close stop darken privacy blackout cover half open 50 percent position preset step room panel on the right")
 t("heating",
   "Heizung an Heizung aus Temperatur einstellen wärmer kälter Grad Celsius Solltemperatur Wunschtemperatur Heizkörper "
   "Radiator Thermostat Heizkörperthermostat Fußbodenheizung Klimaanlage kühlen Vorwahl Komfort Eco Boost Auto Modus",
