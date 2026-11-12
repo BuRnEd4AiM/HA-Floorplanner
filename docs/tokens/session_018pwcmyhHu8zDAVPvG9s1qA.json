@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmyhHu8zDAVPvG9s1qA",
+ "start": "2026-11-12",
+ "updated": "2026-11-12T07:28:25Z",
+ "branch": "claude/wizardly-clarke-s4xbhb",
+ "source": "counted",
+ "input": 138,
+ "cache_write": 210920,
+ "cache_read": 11378124,
+ "output": 56238,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 138,
+   "cache_write": 210920,
+   "cache_read": 11378124,
+   "output": 56238,
+   "requests": 64
+  }
+ }
+}
