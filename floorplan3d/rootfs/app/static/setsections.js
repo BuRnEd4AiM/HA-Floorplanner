@@ -49,23 +49,23 @@ export function initSetSections(ctx) {
   const stored = () => { try { return localStorage.getItem(PAGE_KEY); } catch { return null; } };
   function drawBar() {
     bar.replaceChildren(...pages().map((p) => {
-      const b = el('button', 'sgPageBtn', pageLabel(p.querySelector('h4')?.textContent)); b.type = 'button'; b.dataset.page = p.dataset.page;
+      const b = el('button', 'sgPageBtn', pageLabel(p.querySelector('h4')?.textContent)); b.type = 'button'; b.dataset.sp = p.dataset.sp;
       b.setAttribute('role', 'tab');
       return b;
     }));
-    showPage(pickPage(current ?? stored(), pages().map((p) => p.dataset.page)), false);
+    showPage(pickPage(current ?? stored(), pages().map((p) => p.dataset.sp)), false);
   }
   /** show this page of "Reiter unten" (remember: chosen by a tap) */
   function showPage(id, keep = true) {
     if (!id) return;
     current = id;
     if (keep) { try { localStorage.setItem(PAGE_KEY, id); } catch { /* not kept */ } }
-    pages().forEach((p) => { p.hidden = p.dataset.page !== id; });
-    bar.querySelectorAll('button').forEach((b) => { const on = b.dataset.page === id; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
+    pages().forEach((p) => { p.hidden = p.dataset.sp !== id; });
+    bar.querySelectorAll('button').forEach((b) => { const on = b.dataset.sp === id; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
     dlg.dispatchEvent(new CustomEvent('sg-page', { detail: id }));    // setcontrols.js measures the long explanations of the page now shown
   }
-  bar.addEventListener('click', (e) => { const b = e.target.closest('button[data-page]'); if (b) showPage(b.dataset.page); });
-  dlg.addEventListener('sg-reveal', (e) => { const p = e.target.closest?.('.sgPage'); if (p) showPage(p.dataset.page, false); });   // a link or a test goes to a field of a page
+  bar.addEventListener('click', (e) => { const b = e.target.closest('button[data-sp]'); if (b) showPage(b.dataset.sp); });
+  dlg.addEventListener('sg-reveal', (e) => { const p = e.target.closest?.('.sgPage'); if (p) showPage(p.dataset.sp, false); });   // a link or a test goes to a field of a page
 
   /* ---- "Warnungen & Alarm": the state of each card ---- */
   const card = (name) => dlg.querySelector(`details.sgCard[data-card=${name}]`);

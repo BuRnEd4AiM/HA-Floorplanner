@@ -1,6 +1,6 @@
 {
  "version": "5.8.0",
- "buildHash": "3a6fe5685b45d190dcc1aad2c011d2fffc16f7daa5ad09ea967144941bbcdee5",
+ "buildHash": "3c459da28d2ec401564831e31651486d255565ca324fd430f3e9c4e12d83e5f5",
  "files": {
   "alarmnotify.py": "4ad6881ea1778c9854989abd91fecccf1c34f559e7f4207383be911df8d61514",
   "assetver.py": "47cc1b6523381e935fc56f2c5f5d8abf5058dcebc946138a5d4314d52ddd8ca9",
@@ -274,7 +274,7 @@
   "static/houses.js": "9ced2aa19e974df9027e9d62206d0c3589d9ac97a4cea9b665afe10a625eb361",
   "static/i18n.js": "296e2a814f219dfd8dfdbb6f3bc31d954cb6bc387f17965f1a15e5e2fa8ed87d",
   "static/import.js": "cd2e988f872376fcb8e1685207ae942dab881a9eb8902a357e52e1adad32a05e",
-  "static/index.html": "42defb74d53de7b409e2a6a941978fda2fc8dff010dd2af88c635c817ff032dc",
+  "static/index.html": "9543ddd30e3dd36c49b8b5a82819034ba7c30c565a52ee7b40364567d8add882",
   "static/kelvin.js": "8f61b4b9318e7a016c3c4fa2e5b60ad8ea1d7caeb92cca66182e3472ba3c5655",
   "static/kelvinui.js": "679befe2fa4b1869608b7d48366a47cb7735ccbfca0ec84b04fe6ec11fdd32b1",
   "static/kiosk.js": "8d3834e2a4f02600a6886308ccefc0fbbb7e1df19728f0676e4646e0f441f377",
@@ -405,7 +405,7 @@
   "static/sectionsui.js": "95b60869faa62ddc4e2f78174becb4d4dc70b1ef92157aff35210701250d941d",
   "static/setcontrols.js": "d6d257cf82776e24140143fbd55870b5f6197ad86cccd700ba48598d18c28e41",
   "static/setgroups.js": "2bff77644d3319e7d0ad23c8383f4f6765909b3ccec6206af7d6e689a10a6e55",
-  "static/setsections.js": "1b21dc50fd2e8fadcf3fc45b48da1bb9fd53add62ebf74c00748adb3ff5ddc3a",
+  "static/setsections.js": "bd33a3fa21c98356b4a673ad95c826ee0ecfeffc9bdf990e9289a442905c3539",
   "static/settings.js": "8ea1bf0b880f1a3370e603d41851604933c3234189c1c85f404b2fbd9fba8fd3",
   "static/settingsui.js": "d3a219c42664053b9f9ad124e856412c95d0053b61256f5a5de592f22b6a67a2",
   "static/shapes.js": "5fc7095df73969bb45a433e1be8a051ff9b0698740755f635bdd7df5cb59f007",

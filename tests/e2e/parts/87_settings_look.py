@@ -46,11 +46,11 @@ check("① a length shows its unit", pgS.inner_text("#setWallHeight + .unit") ==
 # ② "Reiter unten": a button per page, only that page shows
 pgS.evaluate("localStorage.removeItem('fp3d.setPage')")
 pgS.click("#sgNav [data-group=tabs]"); pgS.wait_for_timeout(400)
-pages = pgS.evaluate("[...document.querySelectorAll('.sgPages button')].map((b) => [b.dataset.page, b.textContent])")
-shown = lambda: pgS.evaluate("[...document.querySelectorAll('details[data-group=tabs] .sgPage')].filter((p) => p.offsetParent).map((p) => p.dataset.page)")
+pages = pgS.evaluate("[...document.querySelectorAll('.sgPages button')].map((b) => [b.dataset.sp, b.textContent])")
+shown = lambda: pgS.evaluate("[...document.querySelectorAll('details[data-group=tabs] .sgPage')].filter((p) => p.offsetParent).map((p) => p.dataset.sp)")
 check("② „Reiter unten“ has a button per page (☀ Heute … 🌱 Garten), only one page shows", len(pages) == 9 and pages[0][0] == "today" and "Heute" in pages[0][1]
       and shown() == ["today"], (pages, shown()))
-pgS.click(".sgPages button[data-page=car]"); pgS.wait_for_timeout(300)
+pgS.click(".sgPages button[data-sp=car]"); pgS.wait_for_timeout(300)
 check("② a tap on „Auto“ shows the car's settings, not the others", shown() == ["car"] and pgS.is_visible("#addCar") and not pgS.is_visible("#addStation"), shown())
 pgS.fill("#setSearch", "Radiosender"); pgS.wait_for_timeout(400)
 check("② a search shows every page (here the one with the radio stations) and no page buttons", pgS.is_visible("#addStation") and len(shown()) == 9
