@@ -1,7 +1,9 @@
 /* Version pill in the top bar: shows the version and a short checksum, green when the files of the add-on and the files the
  * browser really loaded both match the committed manifest. The dialog behind it can also compare with GitHub (main).
  * Normal and Beta (5.2.0, channel.py): the beta says so in the pill; while the normal add-on runs too, a second pill says the beta
- * pauses (it switches nothing by itself then). */
+ * pauses (it switches nothing by itself then).
+ * Docker (#744): opened through the Home Assistant integration 3D Floorplan (Container), the dialog shows its version too and warns
+ * when it differs from this program's (both come from the same release). */
 const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 /** SHA-256 in plain JavaScript, for pages that are not a secure context (http://...), where crypto.subtle does not exist */
 export function sha256Js(buf) {
@@ -53,6 +55,13 @@ export function betaPill(ch) {
   if (ch.state === 'looking') return { key: 'ver.lookingPill', v: '' };
   return null;
 }
+/** the Home Assistant integration 3D Floorplan (Container) the page is opened through (api/version `connector`, #744): null when it is
+ *  not opened through it, else { v: its version, same: whether it is this program's version } */
+export function connectorState(info) {
+  const v = info?.connector;
+  if (typeof v !== 'string' || !v || !info.version) return null;
+  return { v, same: v === info.version };
+}
 const short = (list, max = 3) => (list.length > max ? `${list.slice(0, max).join(', ')} …` : list.join(', '));
 
 /** auto(): may the browser check run by itself a while after the start (app.js: not in the live view, so a wall tablet never does;
@@ -88,7 +97,8 @@ export function initVersion({ t, reload = () => location.reload(), active = () =
     if (!info) { pill.hidden = true; return; }
     pill.hidden = false;
     const serverOk = info.server?.ok, browserOk = !browser || browser.skipped || !browser.changed.length;
-    const state = !serverOk ? 'bad' : !browserOk ? 'warn' : 'ok';             // the browser check comes later (checkNow)
+    const conn = connectorState(info);
+    const state = !serverOk ? 'bad' : !browserOk || (conn && !conn.same) ? 'warn' : 'ok';   // the browser check comes later (checkNow)
     const news = updateAvailable(github) && state === 'ok';
     pill.className = `pill ver-${news ? 'new' : state}`;
     const beta = info.channel === 'beta' ? ` ${t('ver.beta')}` : '';
@@ -104,6 +114,8 @@ export function initVersion({ t, reload = () => location.reload(), active = () =
       line('•', `${t('ver.version')}: ${info.version}`),
       ...(info.channel === 'stable' ? [line('•', t('ver.chStable'))] : info.channel === 'beta' ? [line('•', t('ver.chBeta'))] : []),
       ...(bp ? [line('⏸', t(bp.key === 'ver.pausedPill' ? 'ver.paused' : 'ver.looking', { v: bp.v }), 'warn')] : []),
+      ...(conn ? [conn.same ? line('✓', t('ver.connectorOk', { v: conn.v }), 'ok')
+        : line('⚠', t('ver.connectorOld', { c: conn.v, v: info.version }), 'warn')] : []),
       line('•', `${t('ver.hash')}: ${info.buildHash}`),
       info.server.ok ? line('✓', t('ver.serverOk', { n: info.server.files }), 'ok')
         : line('✗', t('ver.serverBad', { n: info.server.changed.length + info.server.missing.length + info.server.extra.length, list: short([...info.server.changed, ...info.server.missing, ...info.server.extra]) }), 'bad'),

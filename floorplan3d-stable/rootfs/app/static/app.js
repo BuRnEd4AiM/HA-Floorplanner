@@ -138,6 +138,8 @@ import { initClipboard } from './clipboard.js';
 import { initEnergySetup } from './energysetup.js';
 import { initNotifyUi } from './notifyui.js';
 import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.js';
+import { initSetControls } from './setcontrols.js';
+import { initSetSections } from './setsections.js';
 import { initGuardUi } from './guardui.js';
 import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding } from './buildings.js';
 import { cardShows, pageShows } from './buildingents.js';
@@ -168,6 +170,7 @@ import { initMeasureTool } from './measuretool.js';
 import { initLogin } from './login.js';
 import { initRoomLock } from './roomlockui.js';
 import { initRoofEdit } from './roofeditui.js';
+import { showStatus } from './statusline.js';
 window.fp3dBooted = true;           // every module is loaded: the boot guard (bootguard.js) stands down (#328)
 window.fp3dReadySupported = true;   // init() will report fp3dReady: the integration's boot splash can wait for it instead of guessing
 
@@ -967,7 +970,7 @@ function applyHouseStates() {
     });
   }
   if (popup.current()) popup.render();
-  if (roomPanel.current() && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) roomPanel.render();   // (renders the heating panel too)
+  if (roomPanel.current() && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) roomPanel.render(true);   // (renders the heating panel too) only when what it shows changed (roompanel.js)
   markShadows();                                                   // things may have shown, hidden or moved (also after every build)
 }
 
@@ -1086,7 +1089,7 @@ function changed(rebuild = true) {
   scheduleSave();
   buildingsUi?.renderPanel();                                      // a new room shows up in "Buildings in this plan" (#409)
 }
-function setStatus(txt) { $('#status').textContent = txt; }
+function setStatus(txt) { showStatus($('#status'), txt, isLive()); }   // statusline.js: in the live view it goes again after a few seconds
 function scheduleSave() { persist.schedule(); historyButtons(); }
 /* ================= Resizable side panel (drag its left edge) ================= */
 (() => {
@@ -1715,7 +1718,7 @@ const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
-  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs, outdoorPrefs],   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
+  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs, outdoorPrefs, initSetControls({ $, t })],   // the last: buttons, sliders, units, "mehr …" (5.8.0)   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
   ready: (next) => loadLanguage(next.language),       // a newly chosen language: its texts first, then apply (no English in between)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
@@ -1731,9 +1734,10 @@ const settingsStore = initSettings({
   },
 });
 const loadSettings = () => settingsStore.load();
-initNotifyUi({ $, t, entities: () => entities }); // settings: a message on alarm by WhatsApp (#414) and the alarm panels, notifyui.js
+const notifyUi = initNotifyUi({ $, t, entities: () => entities }); // settings: a message on alarm by WhatsApp (#414) and the alarm panels, notifyui.js
 initSetGroups({ $, t });                         // settings in groups that fold open, with a search, setgroups.js
-initGuardUi({ $, t, entities: () => entities, layout: () => layout });   // the holiday alarm: 🛡 button, lock screen, its settings (#456), guardui.js
+const guardUi = initGuardUi({ $, t, entities: () => entities, layout: () => layout });   // the holiday alarm: 🛡 button, lock screen, its settings (#456), guardui.js
+initSetSections({ $, t, guard: () => guardUi.info?.(), notify: () => notifyUi.cfg?.() });   // "Reiter unten" by page, "Warnungen & Alarm" as cards (5.8.0)
 const commitSettings = () => settingsStore.commit();
 onLanguageLoaded(() => { if (booted) applySettings(); });   // a language that came later (i18n.js): every text again
 function applySettings(prev = {}) {
@@ -1926,6 +1930,7 @@ if (params.get('debug')) {
     ready: () => booted,
     openRoomPanel(id) { roomPanel.open(id); },
     showPopup(id) { popup.show(id); },                // the live card of a device, as a tap opens it
+    setStatus: (txt) => setStatus(txt),               // the status line (statusline.js), for tests
     powerLinks: () => power.links(),
     powerInfo: () => power.info(),
     energy: () => energyBalance(states, layout),

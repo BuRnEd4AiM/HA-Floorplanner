@@ -53,7 +53,6 @@
       <select id="buildingSelect" aria-label="Building" data-i18n-title="bld.switchTip"></select>
     </div>
     <div class="group right">
-      <span id="status"></span>
       <button id="versionPill" class="pill ver-wait" type="button" hidden></button>
       <button id="betaPill" class="pill" type="button" hidden></button>
       <button id="guideBtn" class="admin-only" type="button" data-i18n="vg.btn" data-i18n-title="vg.tip"></button>
@@ -127,6 +126,7 @@
       <button id="guardBar" type="button" hidden data-i18n-title="gd.barTip"></button>
       <div id="alertBar" hidden></div>
       <div id="compass" aria-hidden="true"><svg viewBox="-32 -32 64 64"><g id="compassRose"><circle r="29" class="cRing"/><text y="-19" class="cL cLn">N</text><text x="21" y="3" class="cL">O</text><text y="25" class="cL">S</text><text x="-21" y="3" class="cL">W</text></g><g id="compassNeedle"><path d="M0 -15 L4.5 0 L-4.5 0 Z" class="cN"/><path d="M0 12 L4.5 0 L-4.5 0 Z" class="cS"/><circle r="1.8" class="cHub"/></g></svg><span id="compassFrom"></span></div>
+      <span id="status" role="status"></span>
       <div id="skyLine" hidden></div>
       <button id="findBtn" type="button" class="pill" data-i18n-title="find.title" aria-label="Search">🔍</button>
       <button id="voiceBtn" type="button" class="pill" hidden data-i18n-title="vq.mic" aria-label="Voice search">🎤</button>
@@ -463,10 +463,10 @@
         <div class="row"><label for="setGrid" data-i18n="set.grid"></label>
           <select id="setGrid"><option value="0.05">5 cm</option><option value="0.1">10 cm</option><option value="0.25">25 cm</option><option value="0.5">50 cm</option><option value="1">1 m</option></select></div>
         <div class="row"><label for="setWallHeight" data-i18n="set.wallHeight"></label>
-          <input id="setWallHeight" type="number" step="any"></div>
+          <span class="unitBox"><input id="setWallHeight" type="number" step="any"><span class="unit" data-unit="len"></span></span></div>
         <p class="sub" data-i18n="set.storeyHint"></p>
         <div class="row"><label for="setWallThickness" data-i18n="set.wallThickness"></label>
-          <input id="setWallThickness" type="number" step="any"></div>
+          <span class="unitBox"><input id="setWallThickness" type="number" step="any"><span class="unit" data-unit="len"></span></span></div>
         <div class="row"><label for="setAutosave" data-i18n="set.autosave"></label>
           <input id="setAutosave" type="number" step="any"></div>
         <div class="row check"><input id="setWallStop" type="checkbox"><label for="setWallStop" data-i18n="set.wallStop"></label></div>
@@ -487,7 +487,7 @@
         <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
         <div class="row check"><input id="setSeeThrough" type="checkbox"><label for="setSeeThrough" data-i18n="set.seeThrough"></label></div>
         <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
-        <div class="row"><label for="setWallOpacity" data-i18n="set.wallOpacity"></label><input id="setWallOpacity" type="number" step="any" min="0.2" max="1"></div>
+        <div class="row"><label for="setWallOpacity" data-i18n="set.wallOpacity"></label><input id="setWallOpacity" type="range" step="0.01" min="0.2" max="1" data-show="pct"><output for="setWallOpacity"></output></div>
       </div>
     </details>
 
@@ -527,19 +527,22 @@
         <div class="row"><label for="setVoiceEngine" data-i18n="vc.engine"></label>
           <select id="setVoiceEngine"><option value="auto" data-i18n="vc.engine.auto"></option><option value="browser" data-i18n="vc.engine.browser"></option><option value="assist" data-i18n="vc.engine.assist"></option><option value="keyboard" data-i18n="vc.engine.keyboard"></option><option value="off" data-i18n="vc.engine.off"></option></select></div>
         <p class="hint" data-i18n="vc.keysHelp"></p>
-        <ul id="vcStatus"></ul>
-        <div id="vkBox" class="vkBox"><b data-i18n="vk.title"></b>
-          <p class="hint" data-i18n="vk.help"></p>
-          <div class="stopTools"><button type="button" id="vkMic" data-i18n="vk.mic"></button> <button type="button" id="vkRec" data-i18n="vk.rec"></button>
-            <button type="button" id="vkCopy" data-i18n="vk.copy"></button></div>
-          <div id="vkLevelBox" hidden>
-            <div class="vkMeter" aria-hidden="true"><i id="vkLevel"></i></div>
-            <div class="row"><label for="vkDevice" data-i18n="vk.device"></label><select id="vkDevice"></select></div></div>
-          <ul id="vkResult"></ul>
-          <textarea id="vkReport" rows="7" readonly hidden></textarea></div>
-        <div id="vcGuide" class="vcGuide"><b data-i18n="vc.guide"></b>
+        <details id="vcCheck" class="sgGuide">
+          <summary><span data-i18n="vc.checkTitle"></span><b id="vcNow"></b></summary>
+          <ul id="vcStatus"></ul>
+          <div id="vkBox" class="vkBox"><b data-i18n="vk.title"></b>
+            <p class="hint" data-i18n="vk.help"></p>
+            <div class="stopTools"><button type="button" id="vkMic" data-i18n="vk.mic"></button> <button type="button" id="vkRec" data-i18n="vk.rec"></button>
+              <button type="button" id="vkCopy" data-i18n="vk.copy"></button></div>
+            <div id="vkLevelBox" hidden>
+              <div class="vkMeter" aria-hidden="true"><i id="vkLevel"></i></div>
+              <div class="row"><label for="vkDevice" data-i18n="vk.device"></label><select id="vkDevice"></select></div></div>
+            <ul id="vkResult"></ul>
+            <textarea id="vkReport" rows="7" readonly hidden></textarea></div>
+        </details>
+        <details id="vcGuide" class="vcGuide sgGuide"><summary><span data-i18n="vc.guide"></span></summary>
           <ol><li data-i18n="vc.guide1"></li><li data-i18n="vc.guide2"></li><li data-i18n="vc.guide3"></li><li data-i18n="vc.guide4"></li></ol>
-          <a href="https://my.home-assistant.io/redirect/voice_assistants/" target="_blank" rel="noopener" data-i18n="vc.openHa"></a></div>
+          <a href="https://my.home-assistant.io/redirect/voice_assistants/" target="_blank" rel="noopener" data-i18n="vc.openHa"></a></details>
         <h4 data-i18n="vc.words"></h4>
         <p class="hint" data-i18n="vc.wordsHelp"></p>
         <div id="vcAliases"></div>
@@ -554,7 +557,7 @@
       <div class="sgBody">
         <div class="row"><label for="setBelowMode" data-i18n="set.belowMode"></label>
           <select id="setBelowMode"><option value="dim" data-i18n="set.belowMode.dim"></option><option value="stacked" data-i18n="set.belowMode.stacked"></option><option value="hidden" data-i18n="set.belowMode.hidden"></option></select></div>
-        <div class="row"><label for="setBelow" data-i18n="set.below"></label><input id="setBelow" type="number" step="any" min="0.05" max="1"></div>
+        <div class="row"><label for="setBelow" data-i18n="set.below"></label><input id="setBelow" type="range" step="0.01" min="0.05" max="1" data-show="pct"><output for="setBelow"></output></div>
         <div class="row check"><input id="setBelowLabels" type="checkbox"><label for="setBelowLabels" data-i18n="set.belowLabels" data-i18n-title="set.belowLabelsHint"></label></div>
         <div class="row"><label for="setHouseFloors" data-i18n="set.houseFloors" data-i18n-title="set.houseFloorsHint"></label>
           <select id="setHouseFloors"><option value="normal" data-i18n="set.houseFloors.normal"></option><option value="apart" data-i18n="set.houseFloors.apart"></option><option value="stacked" data-i18n="set.houseFloors.stacked"></option></select></div>
@@ -580,34 +583,47 @@
     <details class="setGroup" data-group="light">
       <summary><span class="sgIcon">💡</span><span class="sgText"><b data-i18n="sg.light"></b><small data-i18n="sg.light.sub"></small></span></summary>
       <div class="sgBody">
-        <div class="row"><label for="setGlowRadius" data-i18n="set.glowRadius"></label><input id="setGlowRadius" type="number" step="any"></div>
+        <div class="row"><label for="setGlowRadius" data-i18n="set.glowRadius"></label><span class="unitBox"><input id="setGlowRadius" type="number" step="any"><span class="unit" data-unit="len"></span></span></div>
         <div class="row"><label for="setGlowStrength" data-i18n="set.glowStrength"></label><input id="setGlowStrength" type="number" step="any"></div>
-        <div class="row"><label for="setGlowHeight" data-i18n="set.glowHeight"></label><input id="setGlowHeight" type="number" step="any"></div>
+        <div class="row"><label for="setGlowHeight" data-i18n="set.glowHeight"></label><span class="unitBox"><input id="setGlowHeight" type="number" step="any"><span class="unit" data-unit="len"></span></span></div>
         <div class="row"><label for="setDefaultLight" data-i18n="set.defaultLight"></label><input id="setDefaultLight" type="color"></div>
         <div class="row"><label for="setBgTop" data-i18n="set.bgTop"></label><input id="setBgTop" type="color"></div>
         <div class="row"><label for="setBgBottom" data-i18n="set.bgBottom"></label><input id="setBgBottom" type="color"></div>
         <div class="row"><label for="setBgGlow" data-i18n="set.bgGlow"></label><input id="setBgGlow" type="color"></div>
-        <div class="row"><label for="setBgGlowStrength" data-i18n="set.bgGlowStrength"></label><input id="setBgGlowStrength" type="range" min="0" max="1" step="0.05"></div>
+        <div class="row"><label for="setBgGlowStrength" data-i18n="set.bgGlowStrength"></label><input id="setBgGlowStrength" type="range" min="0" max="1" step="0.05" data-show="pct"><output for="setBgGlowStrength"></output></div>
       </div>
     </details>
 
     <details class="setGroup" data-group="alarm">
       <summary><span class="sgIcon">🚨</span><span class="sgText"><b data-i18n="sg.alarm"></b><small data-i18n="sg.alarm.sub"></small></span></summary>
       <div class="sgBody">
-        <p class="hint" data-i18n="sg.alarm.help"></p>
-        <div class="row check"><input id="setAlerts" type="checkbox"><label for="setAlerts" data-i18n="set.alerts"></label></div>
-        <div class="row check"><input id="setAlertJump" type="checkbox"><label for="setAlertJump" data-i18n="set.alertJump"></label></div>
-        <div class="row"><label for="setWeather" data-i18n="set.weather"></label><input id="setWeather" type="text" placeholder="weather.home" list="weatherList"></div>
-        <datalist id="weatherList"></datalist>
-        <div class="sgInfo">
-          <h4 data-i18n="sg.alarm.what"></h4>
-          <p class="sub" data-i18n="sg.alarm.whatHelp"></p>
-          <p id="alarmPanels" class="sub"></p>
-        </div>
-        <div id="guardBox" class="gdBox"></div>
-        <h4 id="alarmNotifyTitle" data-i18n="an.title" hidden></h4>
-        <div id="alarmNotify" hidden></div>
-        <p id="alarmNotifyOff" class="sub" data-i18n="sg.alarm.notifyOff" hidden></p>
+        <details class="sgCard" data-card="warn">
+          <summary><span class="sgCardIcon">⚠️</span><span class="sgCardText"><b data-i18n="sg.card.warn"></b><small class="sgCardSub" data-i18n="sg.card.warnSub"></small></span><span class="sgBadge"></span></summary>
+          <div class="sgSub">
+            <p class="hint" data-i18n="sg.alarm.help"></p>
+            <div class="row check"><input id="setAlerts" type="checkbox"><label for="setAlerts" data-i18n="set.alerts"></label></div>
+            <div class="row check"><input id="setAlertJump" type="checkbox"><label for="setAlertJump" data-i18n="set.alertJump"></label></div>
+            <div class="row"><label for="setWeather" data-i18n="set.weather"></label><input id="setWeather" type="text" placeholder="weather.home" list="weatherList"></div>
+            <datalist id="weatherList"></datalist>
+            <div class="sgInfo">
+              <h4 data-i18n="sg.alarm.what"></h4>
+              <p class="sub" data-i18n="sg.alarm.whatHelp"></p>
+              <p id="alarmPanels" class="sub"></p>
+            </div>
+          </div>
+        </details>
+        <details class="sgCard" data-card="guard">
+          <summary><span class="sgCardIcon">🛡️</span><span class="sgCardText"><b data-i18n="sg.card.guard"></b><small class="sgCardSub" data-i18n="sg.card.guardSub"></small></span><span class="sgBadge"></span></summary>
+          <div class="sgSub"><div id="guardBox" class="gdBox"></div></div>
+        </details>
+        <details class="sgCard" data-card="notify">
+          <summary><span class="sgCardIcon">📲</span><span class="sgCardText"><b data-i18n="sg.card.notify"></b><small class="sgCardSub" data-i18n="sg.card.notifySub"></small></span><span class="sgBadge"></span></summary>
+          <div class="sgSub">
+            <h4 id="alarmNotifyTitle" data-i18n="an.title" hidden></h4>
+            <div id="alarmNotify" hidden></div>
+            <p id="alarmNotifyOff" class="sub" data-i18n="sg.alarm.notifyOff" hidden></p>
+          </div>
+        </details>
       </div>
     </details>
 
@@ -616,44 +632,62 @@
       <div class="sgBody">
         <p class="hint" data-i18n="sg.tabs.help"></p>
         <div class="row check"><input id="setTabBar" type="checkbox"><label for="setTabBar" data-i18n="set.tabBar" data-i18n-title="set.tabBarTip"></label></div>
-        <h4 data-i18n="tp.today.title"></h4>
-        <p class="sub" data-i18n="tp.today.calsHelp"></p>
-        <div id="setAgendaCals" class="calList"></div>
-        <div class="row"><label for="setWasteCal" data-i18n="tp.today.waste"></label><select id="setWasteCal"></select></div>
-        <h4 data-i18n="tp.energy.title"></h4>
-        <p class="sub" data-i18n="tp.energy.help"></p>
-        <h4 data-i18n="rt.prefs"></h4>
-        <p class="sub" data-i18n="rt.prefsHelp"></p>
-        <div id="setRoutines" class="calList"></div>
-        <div class="row"><label for="setRoutineLeave" data-i18n="rt.prefLeave"></label><select id="setRoutineLeave"></select></div>
-        <div class="row"><label for="setRoutineNight" data-i18n="rt.prefNight"></label><select id="setRoutineNight"></select></div>
-        <h4 data-i18n="pb.prefs"></h4>
-        <p class="sub" data-i18n="pb.prefsHelp"></p>
-        <h4 data-i18n="pr.title"></h4>
-        <p class="sub" data-i18n="pr.help"></p>
-        <div class="row"><label for="setPresenceRule" data-i18n="pr.rule"></label><select id="setPresenceRule"><option value="ha" data-i18n="pr.rule.ha"></option><option value="any" data-i18n="pr.rule.any"></option><option value="two" data-i18n="pr.rule.two"></option></select></div>
-        <div class="row"><label for="setPresenceSsids" data-i18n="pr.ssids"></label><input id="setPresenceSsids" type="text" maxlength="400" data-i18n-placeholder="pr.ssidsPh"></div>
-        <h4 data-i18n="mp.prefs"></h4>
-        <p class="sub" data-i18n="mp.prefsHelp"></p>
-        <div id="setStations"></div>
-        <div class="stopTools"><button type="button" id="addStation" data-i18n="mp.addStation"></button></div>
-        <h4 data-i18n="hh.prefs"></h4>
-        <p class="sub" data-i18n="hh.prefsHelp"></p>
-        <div class="row"><label for="setShoppingList" data-i18n="hh.prefList"></label><select id="setShoppingList"></select></div>
-        <div id="setAppliances"></div>
-        <div class="row check"><input id="setHouseholdTell" type="checkbox"><label for="setHouseholdTell" data-i18n="hh.tellAlways"></label></div>
-        <h4 data-i18n="car.prefs"></h4>
-        <p class="sub" data-i18n="car.prefsHelp"></p>
-        <div id="setCar" class="odPrefs"></div>
-        <div class="row"><label for="setCarName" data-i18n="car.name"></label><input id="setCarName" type="text" maxlength="40" data-i18n-placeholder="car.namePh"></div>
-        <p class="sub" data-i18n="car.moreHelp"></p>
-        <div id="setCars"></div>
-        <div class="stopTools"><button type="button" id="addCar" data-i18n="car.add"></button></div>
-        <h4 data-i18n="garden.prefs"></h4>
-        <p class="sub" data-i18n="garden.prefsHelp"></p>
-        <div id="setZones" class="calList"></div>
-        <div class="row"><label for="setWaterMinutes" data-i18n="garden.minutesLabel"></label><select id="setWaterMinutes"></select></div>
-        <p id="outdoorFound" class="sub"></p>
+        <section class="sgPage sgSub" data-sp="today">
+          <h4 data-i18n="tp.today.title"></h4>
+          <p class="sub" data-i18n="tp.today.calsHelp"></p>
+          <div id="setAgendaCals" class="calList"></div>
+          <div class="row"><label for="setWasteCal" data-i18n="tp.today.waste"></label><select id="setWasteCal"></select></div>
+        </section>
+        <section class="sgPage sgSub" data-sp="energy">
+          <h4 data-i18n="tp.energy.title"></h4>
+          <p class="sub" data-i18n="tp.energy.help"></p>
+        </section>
+        <section class="sgPage sgSub" data-sp="routines">
+          <h4 data-i18n="rt.prefs"></h4>
+          <p class="sub" data-i18n="rt.prefsHelp"></p>
+          <div id="setRoutines" class="calList"></div>
+          <div class="row"><label for="setRoutineLeave" data-i18n="rt.prefLeave"></label><select id="setRoutineLeave"></select></div>
+          <div class="row"><label for="setRoutineNight" data-i18n="rt.prefNight"></label><select id="setRoutineNight"></select></div>
+        </section>
+        <section class="sgPage sgSub" data-sp="family">
+          <h4 data-i18n="pb.prefs"></h4>
+          <p class="sub" data-i18n="pb.prefsHelp"></p>
+        </section>
+        <section class="sgPage sgSub" data-sp="presence">
+          <h4 data-i18n="pr.title"></h4>
+          <p class="sub" data-i18n="pr.help"></p>
+          <div class="row"><label for="setPresenceRule" data-i18n="pr.rule"></label><select id="setPresenceRule"><option value="ha" data-i18n="pr.rule.ha"></option><option value="any" data-i18n="pr.rule.any"></option><option value="two" data-i18n="pr.rule.two"></option></select></div>
+          <div class="row"><label for="setPresenceSsids" data-i18n="pr.ssids"></label><input id="setPresenceSsids" type="text" maxlength="400" data-i18n-placeholder="pr.ssidsPh"></div>
+        </section>
+        <section class="sgPage sgSub" data-sp="media">
+          <h4 data-i18n="mp.prefs"></h4>
+          <p class="sub" data-i18n="mp.prefsHelp"></p>
+          <div id="setStations"></div>
+          <div class="stopTools"><button type="button" id="addStation" data-i18n="mp.addStation"></button></div>
+        </section>
+        <section class="sgPage sgSub" data-sp="household">
+          <h4 data-i18n="hh.prefs"></h4>
+          <p class="sub" data-i18n="hh.prefsHelp"></p>
+          <div class="row"><label for="setShoppingList" data-i18n="hh.prefList"></label><select id="setShoppingList"></select></div>
+          <div id="setAppliances"></div>
+          <div class="row check"><input id="setHouseholdTell" type="checkbox"><label for="setHouseholdTell" data-i18n="hh.tellAlways"></label></div>
+        </section>
+        <section class="sgPage sgSub" data-sp="car">
+          <h4 data-i18n="car.prefs"></h4>
+          <p class="sub" data-i18n="car.prefsHelp"></p>
+          <div id="setCar" class="odPrefs"></div>
+          <div class="row"><label for="setCarName" data-i18n="car.name"></label><input id="setCarName" type="text" maxlength="40" data-i18n-placeholder="car.namePh"></div>
+          <p class="sub" data-i18n="car.moreHelp"></p>
+          <div id="setCars"></div>
+          <div class="stopTools"><button type="button" id="addCar" data-i18n="car.add"></button></div>
+        </section>
+        <section class="sgPage sgSub" data-sp="garden">
+          <h4 data-i18n="garden.prefs"></h4>
+          <p class="sub" data-i18n="garden.prefsHelp"></p>
+          <div id="setZones" class="calList"></div>
+          <div class="row"><label for="setWaterMinutes" data-i18n="garden.minutesLabel"></label><select id="setWaterMinutes"></select></div>
+          <p id="outdoorFound" class="sub"></p>
+        </section>
       </div>
     </details>
 
@@ -661,8 +695,8 @@
       <summary><span class="sgIcon">📱</span><span class="sgText"><b data-i18n="sg.tablet"></b><small data-i18n="sg.tablet.sub"></small></span></summary>
       <div class="sgBody">
         <p class="hint" data-i18n="sg.tablet.help"></p>
-        <div class="tabletGuide">
-          <h4 data-i18n="tg.title"></h4>
+        <details class="tabletGuide sgGuide">
+          <summary><span data-i18n="tg.title"></span><small data-i18n="sg.guide.tablet"></small></summary>
           <ol>
             <li data-i18n="tg.step1"></li>
             <li data-i18n="tg.step2"></li>
@@ -676,7 +710,7 @@ tabs: true
 kiosk: true</pre>
           <div class="stopTools"><button type="button" id="tgCopy" data-i18n="tg.copy"></button></div>
           <p class="sub" data-i18n="tg.note"></p>
-        </div>
+        </details>
         <div class="row"><label data-i18n="sv.title"></label><span id="svState" class="sub"></span></div>
         <p class="sub" data-i18n="sv.help"></p>
         <div class="stopTools"><button type="button" id="svTake" data-i18n="sv.take"></button> <button type="button" id="svAuto" data-i18n="sv.auto"></button></div>
