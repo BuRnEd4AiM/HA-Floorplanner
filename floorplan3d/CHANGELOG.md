@@ -2,6 +2,11 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.9.1] - 2026-11-12
+### Fixed
+- **📅 Heizplan: the whole day sat squeezed on the left** (#747, the owner's photo: "der Heizplan ist glaube ich falsch dargestellt … das war eigentlich richtig eingestellt und jetzt ist es so seltsam"): every day of the week (e.g. Nacht 17° · Komfort 24° until 19:45 · Nacht 17°) stood in the left quarter only, up to about "6:00" of the hours under it, with gaps between the blocks. The plan itself was right (the line "Jetzt: … bis 19:45" said so). The button "⏸️ Heizplan aussetzen" (4.71.0) had the same class name as a day of the plan, and its rule "at most 340 px wide, 8 px gaps" applied to the plan too. The button has a name of its own now; a day fills the whole width under 0:00–24:00 again.
+- **The lock "Heizplan aussetzen" hid the whole plan** (#747, the same cause): a user or tablet with that lock (⚙ → Users & tablets) saw no 📅 Heizplan at all. Now it hides only the button.
+
 ## [5.9.0] - 2026-11-12
 ### Added
 - **🐳 Docker: a ready-made image** (#744, aixmoyu: "No prebuilt image … every update is a reinstall"): every release publishes `ghcr.io/burned4aim/floorplan3d` for amd64, arm64 and arm/v7 (Raspberry Pi, NAS): `latest`, the version and `5.9` with "Release to everyone", `beta` with every new version. The compose file names it, so `docker compose up -d` needs no clone and no build, and `docker compose pull && docker compose up -d` updates. The workflow starts the image before it publishes it and says when the package is not public yet (`.github/workflows/container-image.yml`).

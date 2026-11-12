@@ -55,7 +55,7 @@ def open_pz():
     pgP.select_option("#buildingSelect", ""); pgP.wait_for_timeout(500)
     pgP.click("#tabBar [data-tab=climate]"); pgP.wait_for_timeout(1200)
 open_pz()
-bar_pz = "[data-page=climate] [data-room=pz_ra] .hpBar"
+bar_pz = "[data-page=climate] [data-room=pz_ra] .hpPauseBar"
 check("pause: no button while the pause is off in 📋 Heiz-Regeln", pgP.locator(bar_pz).count() == 0)
 pgP.click("[data-page=climate] [data-view=rules]"); pgP.wait_for_timeout(800)
 pgP.click("[data-heat-rule=pause] input[data-rule=pause]")
@@ -91,7 +91,7 @@ pgT = b.new_page(viewport={"width": 1400, "height": 900}, extra_http_headers={"X
 pgT.goto(BASE + "?debug=1&mode=live"); pgT.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgT.wait_for_timeout(1200)
 pgT.click("#tabBar [data-tab=climate]"); pgT.wait_for_timeout(1500)
 check("pause: a user with the lock „Heizplan aussetzen“ has no button, the add-on refuses it",
-      pgT.locator("[data-page=climate] [data-room=pz_ra] .thPM").count() == 1 and pgT.locator("[data-page=climate] [data-room=pz_ra] .hpBar").count() == 0
+      pgT.locator("[data-page=climate] [data-room=pz_ra] .thPM").count() == 1 and pgT.locator("[data-page=climate] [data-room=pz_ra] .hpPauseBar").count() == 0
       and room_pz({"room": key_pz, "act": "pause", "for": "45"}, "tablet_pz") == 403)
 pgT.close()
 set_setting("userLocks", st_pz.get("userLocks", {}))

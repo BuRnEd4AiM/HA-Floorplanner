@@ -88,7 +88,7 @@ export function initHeatPause(ctx) {
     const key = ctx.roomOf(e);
     if (!key || !allowed(e, card)) return null;
     const st = pauseState(ctx.rules.status(key));
-    const box = make('div', 'hpBar'); box.dataset.room = key;
+    const box = make('div', 'hpPauseBar'); box.dataset.room = key;   // not "hpBar": that is a day of 📅 Heizplan (5.9.1)
     if (st.on) {
       const b = face('on', '▶', t('hp.resume'), t('hp.pausedUntil', { at: untilText(st.until, t) }));
       b.dataset.act = 'resume';

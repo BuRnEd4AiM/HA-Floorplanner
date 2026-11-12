@@ -520,7 +520,7 @@ def _(r):
     r.click(".hpDlg[open] .hpOpt[data-opt='45']")
     r.wait(1800)
     r.say("Jetzt regelst du selbst, keine Regel dreht zurück. Der Knopf sagt, bis wann.", "Now you regulate it yourself, no rule turns it back. The button says until when.")
-    r.move("[data-page=climate] [data-room=r1] .hpBar")
+    r.move("[data-page=climate] [data-room=r1] .hpPauseBar")
     r.wait(2200)
     r.say("„＋15 Min“ macht es länger.", "“＋15 min” makes it longer.")
     r.click("[data-page=climate] [data-room=r1] .hpMore")
