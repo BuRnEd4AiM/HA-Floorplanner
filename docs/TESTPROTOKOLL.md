@@ -499,8 +499,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 194. Neu in 5.8.0: Einstellungen mit einem Tipp, „Reiter unten“ je Seite, Alarm-Karten, Anleitungen eingeklappt, Licht-Gruppen-Knöpfe, Handy oben | 8 | 0 | 3 | 0 | 194.1, 194.10, 194.11 |
 | 195. Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links (#740, #741, #742) | 4 | 0 | 2 | 0 | 195.5, 195.6 |
 | 196. Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, Hinweis bei verschiedenen Versionen; die Karte im HACS-Store | 5 | 0 | 2 | 0 | 196.6, 196.7 |
-| 197. Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite (#747) | 0 | 0 | 4 | 0 | 197.1 bis 197.4 |
-| **Zusammen** | **1267** | **2** | **82** | **92** | |
+| 197. Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite (#747) | 2 | 0 | 2 | 0 | 197.2, 197.3 |
+| **Zusammen** | **1269** | **2** | **80** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2999,7 +2999,7 @@ Das Foto des Besitzers vom 2026-11-12 (5.7.1 auf dem Tablet): jeder Tag des Heiz
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 197.1 | Unit-Test `tests/userlocks.test.mjs`; Browser-Test Teile `50_rules`, `77_pause_buildings` | Alles grün | ❓ |
+| 197.1 | Unit-Test `tests/userlocks.test.mjs`; Browser-Test Teile `50_rules`, `77_pause_buildings` | Alles grün |✅ (2026-11-12, Claude: 132 von 132 grün, dazu ruff, eslint und die Tests von Manifest, Testprotokoll, Zeitstrahl, Anleitung) |
 | 197.2 | 🌡 Klima → 📅 Heizplan, ein Raum mit Plan | Jeder Tag füllt die ganze Breite, ein Block endet genau über seiner Uhrzeit (z. B. 19:45 kurz vor „21:00“), keine Lücken zwischen den Blöcken | ❓ |
 | 197.3 | Auf deinem Tablet nach dem Update: 📅 Heizplan „Wohnzimmer Lieselotte“ | Komfort 24° reicht bis 19:45, danach Nacht 17° bis ganz rechts (24:00) | ❓ |
-| 197.4 | Ein Benutzer mit der Sperre „Heizplan aussetzen“ (⚙ → Benutzer & Tablets) | Er sieht den 📅 Heizplan, nur der Knopf „⏸️ Heizplan aussetzen“ fehlt | ❓ |
+| 197.4 | Ein Benutzer mit der Sperre „Heizplan aussetzen“ (⚙ → Benutzer & Tablets) | Er sieht den 📅 Heizplan, nur der Knopf „⏸️ Heizplan aussetzen“ fehlt |✅ (2026-11-12, Claude, Browser-Test: der Plan bleibt mit allen 31 Blöcken, der Knopf fehlt, das Add-on lehnt die Pause ab) |
