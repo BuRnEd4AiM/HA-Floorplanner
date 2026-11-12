@@ -44,7 +44,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 30. **Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken** (Abschnitt 192, #724): Claude hat 192.1 bis 192.3 geprüft; offen ist nur die Antwort von Miicki 192.4.
 31. **Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten; 🔓 und ⋯ am Haus** (Abschnitt 193): Claude hat alles geprüft (am 2026-11-12 in der Demo mit Mausklicks): nichts mehr für dich.
 32. **Neu in 5.8.0: Einstellungen mit einem Tipp, Alarm-Karten, Handy oben** (Abschnitt 194): Claude hat 194.1 bis 194.9 geprüft; für dich nur 194.10 (am echten Tablet und Handy mit dem Finger) und 194.11 (dein Eindruck).
-33. **Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links** (Abschnitt 195, #740, #741, #742): Claude hat 195.2 bis 195.4 in der Demo geprüft; für dich 195.5 (mit deinen echten Rollläden) und 195.6 (dein Eindruck).
+33. **Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links** (Abschnitt 195, #740, #741, #742): Claude hat 195.1 bis 195.4 geprüft; für dich 195.5 (mit deinen echten Rollläden) und 195.6 (dein Eindruck).
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -495,8 +495,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 192. Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken (#724) | 3 | 0 | 1 | 0 | 192.4 |
 | 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus | 4 | 0 | 0 | 0 | – |
 | 194. Neu in 5.8.0: Einstellungen mit einem Tipp, „Reiter unten“ je Seite, Alarm-Karten, Anleitungen eingeklappt, Licht-Gruppen-Knöpfe, Handy oben | 8 | 0 | 3 | 0 | 194.1, 194.10, 194.11 |
-| 195. Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links (#740, #741, #742) | 3 | 0 | 3 | 0 | 195.1, 195.5, 195.6 |
-| **Zusammen** | **1261** | **2** | **77** | **92** | |
+| 195. Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links (#740, #741, #742) | 4 | 0 | 2 | 0 | 195.5, 195.6 |
+| **Zusammen** | **1262** | **2** | **76** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2970,7 +2970,7 @@ Die Bilder des Besitzers vom 2026-11-12: die Rollladen-Zeile in der Leiste recht
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 195.1 | Unit-Test `tests/statusline.test.mjs`; Browser-Test Teile `88_room_cover`, `30_quick`, `03_houses`, `04_lights` | Alles grün | ❓ |
+| 195.1 | Unit-Test `tests/statusline.test.mjs`; Browser-Test Teile `88_room_cover`, `30_quick`, `03_houses`, `04_lights` (dazu `07_tablet`, `11_live`, `13_card`, `23_device_controls`, `87_settings_look`) | Alles grün | ✅ (2026-11-12, Claude, lokal je Teil allein) |
 | 195.2 | Live: einen Raum mit Rollladen antippen (Demo: Dachgeschoss → Studio), rechts in der Leiste „Rollläden“ | ▲ Hoch · ■ Stopp · ▼ Runter in einer Reihe, darunter der Schieber und 0 · 25 · 50 · 75 · 100 %; die Stufe, auf der er steht, leuchtet; ein Tipp auf „50 %“ fährt ihn halb herunter und die Zeile sagt „50 % offen“ | ✅ (2026-11-12, Claude, Demo am PC und am nachgebauten Tablet) |
 | 195.3 | Oben auf „💡 n an“ tippen | Die Liste passt in ihren Rahmen: kein Rollbalken unten, „Ganzes Haus“ ganz zu lesen, jedes „Aus“ ganz zu sehen | ✅ (2026-11-12, Claude, Demo) |
 | 195.4 | In der Liste bei „Ganzes Haus“ zweimal „Aus“ tippen | Die Meldung „11 Lichter aus: Ganzes Haus“ steht über dem Kompass, nicht auf 🔍 und 🎤; nach etwa 6 Sekunden ist sie weg; am Handy steht sie kurz ganz unten auf der Zeile mit Uhrzeit und Wetter | ✅ (2026-11-12, Claude, Demo am PC, Tablet 1024 × 700 und nachgebautem Handy) |
