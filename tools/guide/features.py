@@ -121,6 +121,9 @@ f("docker", "settings", "Ohne Add-on-Store (Docker)", "Without the add-on store 
 f("dockerready", "settings", "Docker: fertiges Image, die Integration über HACS oder als ZIP, Hinweis bei verschiedenen Versionen",
   "Docker: a ready-made image, the integration through HACS or as a zip, a notice when the versions differ",
   why="eine Installation in Docker und in Home Assistant, nicht in der Demo; Anleitung in container/README.md", since="5.9.0")
+f("dockericon", "settings", "Docker: Symbol der Integration, Compose-Beispiel mit Home Assistant",
+  "Docker: the integration's icon, a compose example with Home Assistant",
+  why="ein Symbol in Home Assistant und ein Beispiel in der Anleitung, nicht in der Demo; container/README.md", since="5.9.2")
 
 # ---------- phone and tablet ----------
 f("phonehouse", "phone", "Am Handy: Haus, Räume, Licht", "On the phone: house, rooms, light", ["phone-house"])

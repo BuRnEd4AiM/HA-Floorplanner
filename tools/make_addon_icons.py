@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 """Draw floorplan3d/icon.png (128 x 128) and floorplan3d/logo.png (the images Home Assistant shows in the add-on store).
-Needs: pip install playwright pillow, a Chromium (CHROME env var optional). Usage: python3 tools/make_addon_icons.py"""
+With --brand: only the same house for the integration of the Docker version (#744), container/custom_components/floorplan3d/brand/
+(icon.png 256, icon@2x.png 512, logo.png and logo@2x.png 128 and 256 high; Home Assistant 2026.3+ shows them under Devices & services
+and in HACS). Needs: pip install playwright pillow, a Chromium (CHROME env var optional).
+Usage: python3 tools/make_addon_icons.py [--brand]"""
 import io
 import os
+import sys
 from pathlib import Path
 
 from PIL import Image
 from playwright.sync_api import sync_playwright
 
-OUT = Path(__file__).resolve().parent.parent / "floorplan3d"
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "floorplan3d"
+BRAND = ROOT / "container" / "custom_components" / "floorplan3d" / "brand"
 
 # an isometric house in the colours of the dark design: two walls with lit windows, a hip roof, a blue glow behind
 HOUSE = """
@@ -35,30 +41,47 @@ MARK = """
 """
 
 
-def html(w, h, body):
-    return f"<!doctype html><meta charset=utf-8><style>html,body{{margin:0;background:transparent}}</style><svg xmlns='http://www.w3.org/2000/svg' width='{w}' height='{h}' viewBox='0 0 {w} {h}'>{body}</svg>"
+def html(w, h, body, vw=None, vh=None):
+    return (f"<!doctype html><meta charset=utf-8><style>html,body{{margin:0;background:transparent}}</style><svg xmlns='http://www.w3.org/2000/svg' "
+            f"width='{w}' height='{h}' viewBox='0 0 {vw or w} {vh or h}'>{body}</svg>")
 
 
-def render(p, w, h, body):
+def render(p, w, h, body, vw=None, vh=None):
     pg = p.new_page(viewport={"width": w, "height": h})
-    pg.set_content(html(w, h, body))
+    pg.set_content(html(w, h, body, vw, vh))
     png = pg.screenshot(omit_background=True)
     pg.close()
     return Image.open(io.BytesIO(png)).convert("RGBA")
 
 
+ICON = HOUSE + "<rect width='512' height='512' rx='104' fill='url(#bg)'/>" + MARK % {"x": 0, "y": 6, "s": 1}
+LOGO = (HOUSE + "<rect width='1000' height='220' rx='40' fill='url(#bg)'/>" + MARK % {"x": -43, "y": -76, "s": 0.61}
+        + "<text x='240' y='112' font-family='DejaVu Sans, Arial, sans-serif' font-weight='800' font-size='78' fill='#ffffff'>3D Floorplan</text>"
+        + "<text x='244' y='162' font-family='DejaVu Sans, Arial, sans-serif' font-size='34' letter-spacing='6' fill='#7ad0ff'>FOR HOME ASSISTANT</text>")
+
+
+def save(img, path, size):
+    img.resize(size, Image.LANCZOS).save(path, optimize=True)
+    print("written", path.relative_to(ROOT), "%d x %d" % size)
+
+
 def main():
+    brand = "--brand" in sys.argv[1:]
     chrome = os.environ.get("CHROME")
     with sync_playwright() as p:
         b = p.chromium.launch(**({"executable_path": chrome} if chrome else {}))
-        icon = render(b, 512, 512, HOUSE + "<rect width='512' height='512' rx='104' fill='url(#bg)'/>" + MARK % {"x": 0, "y": 6, "s": 1})
-        icon.resize((128, 128), Image.LANCZOS).save(OUT / "icon.png", optimize=True)
-        text = ("<text x='240' y='112' font-family='DejaVu Sans, Arial, sans-serif' font-weight='800' font-size='78' fill='#ffffff'>3D Floorplan</text>"
-                "<text x='244' y='162' font-family='DejaVu Sans, Arial, sans-serif' font-size='34' letter-spacing='6' fill='#7ad0ff'>FOR HOME ASSISTANT</text>")
-        logo = render(b, 1000, 220, HOUSE + "<rect width='1000' height='220' rx='40' fill='url(#bg)'/>" + MARK % {"x": -43, "y": -76, "s": 0.61} + text)
-        logo.resize((500, 110), Image.LANCZOS).save(OUT / "logo.png", optimize=True)
+        icon = render(b, 512, 512, ICON)
+        if brand:
+            BRAND.mkdir(exist_ok=True)
+            save(icon, BRAND / "icon@2x.png", (512, 512))
+            save(icon, BRAND / "icon.png", (256, 256))
+            logo = render(b, 1164, 256, LOGO, 1000, 220)
+            save(logo, BRAND / "logo@2x.png", (1164, 256))
+            save(logo, BRAND / "logo.png", (582, 128))
+        else:
+            save(icon, OUT / "icon.png", (128, 128))
+            save(render(b, 1000, 220, LOGO), OUT / "logo.png", (500, 110))
         b.close()
-    print("written", OUT / "icon.png", OUT / "logo.png")
 
 
 if __name__ == "__main__":

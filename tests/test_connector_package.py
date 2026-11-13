@@ -24,6 +24,7 @@ def test_the_zip_holds_the_folder_to_unpack_in_the_config_folder(tmp_path):
     assert "custom_components/floorplan3d/__init__.py" in names and "custom_components/floorplan3d/manifest.json" in names
     assert "custom_components/floorplan3d/frontend/floorplan3d-container-card.js" in names
     assert "custom_components/floorplan3d/translations/de.json" in names
+    assert "custom_components/floorplan3d/brand/icon.png" in names                  # the integration's icon (#744)
     assert all(n.startswith("custom_components/floorplan3d/") for n in names)
     assert not any("__pycache__" in n or n.endswith(".pyc") for n in names)
     with zipfile.ZipFile(io.BytesIO(data)) as z:
@@ -49,3 +50,21 @@ def test_another_version_gets_no_package(tmp_path):
     assert cp.main(["--out", str(tmp_path), "--version", "0.0.1"]) == 1
     assert not (tmp_path / cp.ZIP_NAME).exists()
     assert cp.main(["--out", str(tmp_path), "--ref", "no-such-commit-here"]) == 1
+
+
+def test_the_integration_brings_its_own_icon_and_logo():
+    """#744 (aixmoyu: "The integration has no icon"): since Home Assistant 2026.3 a custom integration shows the images in its folder
+    brand/ (Devices & services, HACS). Only the names Home Assistant reads, at the sizes of its brands rules: icons square, 256 and
+    512; logos with the shorter side 128 to 256 and 256 to 512. Drawn by `python3 tools/make_addon_icons.py --brand`."""
+    from PIL import Image
+    brand = PKG / "brand"
+    assert sorted(p.name for p in brand.iterdir()) == ["icon.png", "icon@2x.png", "logo.png", "logo@2x.png"]
+    sizes = {}
+    for p in brand.iterdir():
+        with Image.open(p) as im:
+            assert im.format == "PNG" and im.mode == "RGBA", p.name
+            sizes[p.name] = im.size
+    assert sizes["icon.png"] == (256, 256) and sizes["icon@2x.png"] == (512, 512)
+    assert 128 <= min(sizes["logo.png"]) <= 256 and 256 <= min(sizes["logo@2x.png"]) <= 512
+    assert sizes["logo@2x.png"] == tuple(2 * x for x in sizes["logo.png"])
+    assert sizes["logo.png"][0] > sizes["logo.png"][1]                               # landscape, as the brands rules prefer

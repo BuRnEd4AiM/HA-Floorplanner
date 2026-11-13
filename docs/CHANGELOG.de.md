@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.9.2] - 2026-11-13
+### Neu
+- **🧩 Die Integration für Docker hat ein eigenes Symbol** (#744, aixmoyu nach seinem Test von 5.9.1 mit einem echten Home Assistant Container: „Die Integration hat kein Symbol“): dasselbe Haus wie beim Add-on, in `custom_components/floorplan3d/brand/` (Symbol und Logo, jeweils auch in doppelter Größe). Home Assistant ab 2026.3 zeigt es unter Einstellungen → Geräte & Dienste und in HACS; vorher stand dort ein leerer Platzhalter. Gezeichnet von `python3 tools/make_addon_icons.py --brand`.
+
+### Verbessert
+- **Docker-Anleitung: Home Assistant und 3D Floorplan in einer Compose-Datei** (#744, aixmoyu: „es würde helfen, so ein Compose-Beispiel in die README von HA-Floorplanner-Connector aufzunehmen“): das Beispiel, das er getestet hat, mit Home Assistant im Host-Netzwerk und 3D Floorplan daneben, in `container/README.md` und in der README von `HA-Floorplanner-Connector` (die zeigt HACS). Es sagt, welche Adresse wohin gehört: `HA_URL` ist die Adresse des Computers (nicht `http://homeassistant:8123`), die Integration bekommt Port 8100.
+
 ## [5.9.1] - 2026-11-12
 ### Repariert
 - **📅 Heizplan: der ganze Tag war links zusammengedrückt** (#747, das Foto des Besitzers: „der Heizplan ist glaube ich falsch dargestellt … das war eigentlich richtig eingestellt und jetzt ist es so seltsam“): jeder Tag der Woche (z. B. Nacht 17° · Komfort 24° bis 19:45 · Nacht 17°) stand nur im linken Viertel, bis etwa „6:00“ der Uhrzeiten darunter, mit Lücken zwischen den Blöcken. Der Plan selbst stimmte (die Zeile „Jetzt: … bis 19:45“ sagte es richtig). Der Knopf „⏸️ Heizplan aussetzen“ (4.71.0) hatte denselben Klassennamen wie ein Tag des Plans, und seine Regel „höchstens 340 px breit, 8 px Lücken“ galt auch für den Plan. Der Knopf hat jetzt einen eigenen Namen; ein Tag füllt wieder die ganze Breite unter 0:00–24:00.
