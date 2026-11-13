@@ -16,6 +16,37 @@ This repository is only the package for HACS. It is filled automatically from ev
 
 Without HACS: every [release of HA-Floorplanner](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases) has `floorplan3d-connector.zip` (and its SHA-256): unpack it in Home Assistant's configuration folder, so that `config/custom_components/floorplan3d/` exists, then go on with step 3.
 
+## Example: Home Assistant and 3D Floorplan in one compose file
+
+Both containers in one `docker-compose.yml`, nothing to build; `docker compose pull && docker compose up -d` updates both. Replace `192.168.1.10` with the address of the computer that runs Docker (Home Assistant runs in the host network, so the 3D Floorplan container reaches it there), and enter `http://192.168.1.10:8100` in step 4 above. All settings: [guide](https://github.com/BuRnEd4AiM/HA-Floorplanner/blob/main/container/README.md#settings-environment-variables).
+
+```yaml
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - ./homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+
+  floorplan3d:
+    container_name: floorplan3d
+    image: ghcr.io/burned4aim/floorplan3d:latest   # ":beta" for every new version at once
+    restart: unless-stopped
+    ports:
+      - "8100:8099"
+    environment:
+      HA_URL: "http://192.168.1.10:8123"   # this computer's address (Home Assistant uses the host network)
+      HA_TOKEN: "paste-your-token-here"    # long-lived access token of an administrator
+      TZ: "Europe/Berlin"
+    volumes:
+      - ./floorplan3d-data:/data
+```
+
 ## Update
 
 HACS offers every new version. **Container and integration belong together** (same version): update both, the container with `docker compose pull && docker compose up -d` and the integration in HACS (then restart Home Assistant). If they differ, **Settings → Repairs** says which one to update, and the page's version pill (✓ v… at the top) shows both.

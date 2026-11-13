@@ -45,8 +45,9 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 31. **Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten; 🔓 und ⋯ am Haus** (Abschnitt 193): Claude hat alles geprüft (am 2026-11-12 in der Demo mit Mausklicks): nichts mehr für dich.
 32. **Neu in 5.8.0: Einstellungen mit einem Tipp, Alarm-Karten, Handy oben** (Abschnitt 194): Claude hat 194.1 bis 194.9 geprüft; für dich nur 194.10 (am echten Tablet und Handy mit dem Finger) und 194.11 (dein Eindruck).
 33. **Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links** (Abschnitt 195, #740, #741, #742): Claude hat 195.1 bis 195.4 geprüft; für dich 195.5 (mit deinen echten Rollläden) und 195.6 (dein Eindruck).
-34. **Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, die Karte im HACS-Store** (Abschnitt 196, #744 von aixmoyu, Frencks Hinweis vom 2026-11-12): Claude hat 196.1 bis 196.4 geprüft (das Repository hast du angelegt); 5.9.0 ist freigegeben (196.5 ✅); für dich in HACS die Suche 196.7; 196.6 braucht einen echten Home Assistant Container (aixmoyu).
+34. **Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, die Karte im HACS-Store** (Abschnitt 196, #744 von aixmoyu, Frencks Hinweis vom 2026-11-12): Claude hat 196.1 bis 196.4 geprüft (das Repository hast du angelegt); 5.9.0 ist freigegeben (196.5 ✅); aixmoyu hat es mit seinem echten Home Assistant Container bestätigt (196.6 ✅, 2026-11-13); für dich nur noch in HACS die Suche 196.7.
 35. **Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite** (Abschnitt 197, #747): Claude hat 197.1, 197.2 und 197.4 geprüft; für dich 197.3 (auf deinem Tablet, dein Plan „Wohnzimmer Lieselotte“).
+36. **Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel** (Abschnitt 198, #744 von aixmoyu): Claude prüft 198.1 und 198.2; 198.3 braucht einen echten Home Assistant Container (aixmoyu, wenn er mag).
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -498,9 +499,10 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus | 4 | 0 | 0 | 0 | – |
 | 194. Neu in 5.8.0: Einstellungen mit einem Tipp, „Reiter unten“ je Seite, Alarm-Karten, Anleitungen eingeklappt, Licht-Gruppen-Knöpfe, Handy oben | 8 | 0 | 3 | 0 | 194.1, 194.10, 194.11 |
 | 195. Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links (#740, #741, #742) | 4 | 0 | 2 | 0 | 195.5, 195.6 |
-| 196. Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, Hinweis bei verschiedenen Versionen; die Karte im HACS-Store | 5 | 0 | 2 | 0 | 196.6, 196.7 |
+| 196. Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, Hinweis bei verschiedenen Versionen; die Karte im HACS-Store | 6 | 0 | 1 | 0 | 196.7 |
 | 197. Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite (#747) | 3 | 0 | 1 | 0 | 197.3 |
-| **Zusammen** | **1270** | **2** | **79** | **92** | |
+| 198. Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel mit Home Assistant (#744) | 1 | 0 | 2 | 0 | 198.2, 198.3 |
+| **Zusammen** | **1272** | **2** | **80** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2991,7 +2993,7 @@ Issue #744 von aixmoyu: für Home Assistant Container (Docker ohne Supervisor) m
 | 196.3 | Nach dem Merge: Actions → „Release“ → Job „image“ | Grün; `docker pull ghcr.io/burned4aim/floorplan3d:beta` geht ohne Anmeldung (sonst einmal das Paket auf „Public“ stellen, `docs/HACS-STORE.md`) | ✅ (2026-11-12, Claude: Job „image“ grün, Startprüfung vor dem Veröffentlichen bestanden; `:beta` und `:5.9.0-beta` ohne Anmeldung abrufbar, für amd64, arm64 und arm/v7; das Paket ist gleich öffentlich, kein Klick nötig) |
 | 196.4 | Du: das Repository `HA-Floorplanner-Connector` anlegen (`docs/HACS-STORE.md`, Schritt 4), Claude füllt es | Dort läuft „Sync from HA-Floorplanner“ grün und es gibt ein Release v5.9.0 | ✅ (2026-11-12, der Besitzer hat es angelegt, Claude hat es gefüllt: „Sync from HA-Floorplanner“ grün, Tag und Vorab-Release v5.9.0 mit `custom_components/floorplan3d` 5.9.0) |
 | 196.5 | Nach „Gib 5.9.0 frei“ | `ghcr.io/burned4aim/floorplan3d:latest` ist 5.9.0 (Actions → „Release to everyone“ → Job „image“ grün) | ✅ (2026-11-12, Claude: freigegeben, „Release to everyone“ mit Job „image“ grün, Release v5.9.0 ist das neueste) |
-| 196.6 | Mit einem echten Home Assistant Container (aixmoyu, #744): den Connector über HACS installieren; einmal mit älterem Container | Einstellungen → Reparaturen: „3D Floorplan: den Container aktualisieren“ mit beiden Versionen; nach `docker compose pull && docker compose up -d` ist der Hinweis nach höchstens einer Stunde weg | ❓ |
+| 196.6 | Mit einem echten Home Assistant Container (aixmoyu, #744): den Connector über HACS installieren; einmal mit älterem Container | Einstellungen → Reparaturen: „3D Floorplan: den Container aktualisieren“ mit beiden Versionen; nach `docker compose pull && docker compose up -d` ist der Hinweis nach höchstens einer Stunde weg | ✅ (2026-11-13, aixmoyu in #744 mit 5.9.1 auf seinem echten Home Assistant Container: fertiges Image `:latest`, das Paket des Connectors und der Hinweis bei verschiedenen Versionen gehen; er hat das Issue geschlossen. Seine zwei Wünsche, ein Compose-Beispiel und ein Symbol, sind in 5.9.2, Abschnitt 198) |
 | 196.7 | In HACS nach „3D Floorplan Card“ suchen (ohne benutzerdefiniertes Repository) | Die Karte wird gefunden | ❓ |
 
 ## 197. Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite (#747)
@@ -3003,3 +3005,12 @@ Das Foto des Besitzers vom 2026-11-12 (5.7.1 auf dem Tablet): jeder Tag des Heiz
 | 197.2 | 🌡 Klima → 📅 Heizplan, ein Raum mit Plan | Jeder Tag füllt die ganze Breite, ein Block endet genau über seiner Uhrzeit (z. B. 19:45 kurz vor „21:00“), keine Lücken zwischen den Blöcken | ✅ (2026-11-12, Claude, Demo 5.9.1 im Video „heatplan“: Komfort ab genau 6:00 bis 22:30, der Strich „jetzt“ an der richtigen Stelle; vorher stand derselbe Plan nur bis „6:00“) |
 | 197.3 | Auf deinem Tablet nach dem Update: 📅 Heizplan „Wohnzimmer Lieselotte“ | Komfort 24° reicht bis 19:45, danach Nacht 17° bis ganz rechts (24:00) | ❓ |
 | 197.4 | Ein Benutzer mit der Sperre „Heizplan aussetzen“ (⚙ → Benutzer & Tablets) | Er sieht den 📅 Heizplan, nur der Knopf „⏸️ Heizplan aussetzen“ fehlt |✅ (2026-11-12, Claude, Browser-Test: der Plan bleibt mit allen 31 Blöcken, der Knopf fehlt, das Add-on lehnt die Pause ab) |
+
+## 198. Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel mit Home Assistant (#744)
+aixmoyu hat 5.9.1 am 2026-11-13 mit seinem echten Home Assistant Container getestet (alles geht, 196.6) und sich zwei Dinge gewünscht: ein Compose-Beispiel mit Home Assistant und 3D Floorplan in der README von `HA-Floorplanner-Connector`, und ein Symbol für die Integration (sie hatte keins).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 198.1 | Tests `tests/test_connector_package.py`, `test_connector_mirror.py`, `test_container.py`, `test_manifest.py`, `test_make_guide.py` | Alles grün: der Ordner `brand/` hat Symbol und Logo in den Größen, die Home Assistant will, und ist im ZIP | ✅ (2026-11-13, Claude: 135 Tests grün, dazu ruff; ein echtes Home Assistant 2026.11.0 erkennt den Ordner (`has_branding`) und liefert über seine Bilder-Adresse icon, icon@2x, logo und logo@2x aus, für das dunkle Design dieselben) |
+| 198.2 | Nach dem Merge (spätestens eine Stunde danach): das Repository `HA-Floorplanner-Connector` öffnen | Es gibt ein Vorab-Release v5.9.2, `custom_components/floorplan3d/brand/icon.png` ist da, die README zeigt „Example: Home Assistant and 3D Floorplan in one compose file“ | ❓ |
+| 198.3 | Mit einem echten Home Assistant Container (ab 2026.3): den Connector 5.9.2 über HACS installieren, Home Assistant neu starten | Einstellungen → Geräte & Dienste zeigt bei „3D Floorplan (Container)“ das Haus statt eines leeren Platzhalters | ❓ |

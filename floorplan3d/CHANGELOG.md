@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.9.2] - 2026-11-13
+### Added
+- **🧩 The integration for Docker has its own icon** (#744, aixmoyu after testing 5.9.1 on a real Home Assistant Container: "The integration has no icon"): the same house as the add-on, in `custom_components/floorplan3d/brand/` (icon and logo, each also at double size). Home Assistant 2026.3 and newer shows it under Settings → Devices & services and in HACS; before it showed an empty placeholder. Drawn by `python3 tools/make_addon_icons.py --brand`.
+
+### Changed
+- **Docker guide: Home Assistant and 3D Floorplan in one compose file** (#744, aixmoyu: "it would help to add a compose sample like this to the HA-Floorplanner-Connector README"): the example he tested, with Home Assistant in the host network and 3D Floorplan next to it, in `container/README.md` and in the README of `HA-Floorplanner-Connector` (what HACS shows). It says which address goes where: `HA_URL` is the computer's address (not `http://homeassistant:8123`), the integration gets port 8100.
+
 ## [5.9.1] - 2026-11-12
 ### Fixed
 - **📅 Heizplan: the whole day sat squeezed on the left** (#747, the owner's photo: "der Heizplan ist glaube ich falsch dargestellt … das war eigentlich richtig eingestellt und jetzt ist es so seltsam"): every day of the week (e.g. Nacht 17° · Komfort 24° until 19:45 · Nacht 17°) stood in the left quarter only, up to about "6:00" of the hours under it, with gaps between the blocks. The plan itself was right (the line "Jetzt: … bis 19:45" said so). The button "⏸️ Heizplan aussetzen" (4.71.0) had the same class name as a day of the plan, and its rule "at most 340 px wide, 8 px gaps" applied to the plan too. The button has a name of its own now; a day fills the whole width under 0:00–24:00 again.

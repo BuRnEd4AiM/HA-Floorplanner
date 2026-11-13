@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmyhQLzUmyNMHvpw5QD",
+ "start": "2026-11-13",
+ "updated": "2026-11-13T11:46:46Z",
+ "branch": "claude/eager-dijkstra-ghiifb",
+ "source": "counted",
+ "input": 83,
+ "cache_write": 98502,
+ "cache_read": 5202506,
+ "output": 24769,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 83,
+   "cache_write": 98502,
+   "cache_read": 5202506,
+   "output": 24769,
+   "requests": 42
+  }
+ }
+}

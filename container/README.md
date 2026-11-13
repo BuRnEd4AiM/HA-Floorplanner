@@ -30,6 +30,35 @@ docker run -d --name floorplan3d --restart unless-stopped -p 8100:8099 \
   -v floorplan3d-data:/data ghcr.io/burned4aim/floorplan3d:latest
 ```
 
+**Home Assistant in the same compose file** (#744, tested by aixmoyu on a real setup): one file for both, nothing to build, `docker compose pull && docker compose up -d` updates both. `192.168.1.10` is the address of the computer that runs Docker: Home Assistant runs in the host network, so the 3D Floorplan container reaches it there (not at `http://homeassistant:8123`). In the integration, enter `http://192.168.1.10:8100`.
+
+```yaml
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - ./homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+
+  floorplan3d:
+    container_name: floorplan3d
+    image: ghcr.io/burned4aim/floorplan3d:latest   # ":beta" for every new version at once
+    restart: unless-stopped
+    ports:
+      - "8100:8099"
+    environment:
+      HA_URL: "http://192.168.1.10:8123"   # this computer's address (Home Assistant uses the host network)
+      HA_TOKEN: "paste-your-token-here"    # long-lived access token of an administrator
+      TZ: "Europe/Berlin"
+    volumes:
+      - ./floorplan3d-data:/data
+```
+
 **Build it yourself** (instead of the ready-made image): in `docker-compose.yml` put a `#` in front of `image:` and remove the ones in front of `build:`, `context:` and `dockerfile:`, then `docker compose up -d --build`. Or `git clone https://github.com/BuRnEd4AiM/HA-Floorplanner.git`, `cd HA-Floorplanner` and `docker build -f container/Dockerfile -t floorplan3d .` (a minute or two).
 
 ## Update
