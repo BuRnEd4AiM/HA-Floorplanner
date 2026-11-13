@@ -2,14 +2,14 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-12 · 137 Sitzungen
+Stand: 2026-11-13 · 138 Sitzungen
 
 **Insgesamt: 9,17 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 25,0 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 86,1 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Neu gelesen | 86,2 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
 | Wieder gelesen | 9,06 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 51 | 3,04 Mrd. | 7,2 Mio. |
+| 2026-11 | 52 | 3,05 Mrd. | 7,2 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-13 | [018pwcmy…](https://claude.ai/code/session_018pwcmyhQLzUmyNMHvpw5QD) | claude/eager-dijkstra-ghiifb | 5,3 Mio. | 25 Tsd. | gezählt |
 | 2026-11-12 | [018pwcmx…](https://claude.ai/code/session_018pwcmx1jqznnpgaLoMuQwu) | claude/eloquent-cori-6zfn9l | 12,3 Mio. | 36 Tsd. | gezählt |
 | 2026-11-12 | [018pwcmx…](https://claude.ai/code/session_018pwcmxN2zTJrLiyPdU4PpM) | claude/sleepy-curie-gbxxkb | 42,1 Mio. | 145 Tsd. | gezählt |
 | 2026-11-12 | [018pwcmy…](https://claude.ai/code/session_018pwcmy2THraLMzcwTy8iv5) | claude/loving-hopper-xuc5cj | 51,0 Mio. | 138 Tsd. | gezählt |
