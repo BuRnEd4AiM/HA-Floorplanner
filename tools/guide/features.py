@@ -194,3 +194,5 @@ f("settingseasy", "settings", "Einstellungen mit einem Tipp: Schalter, Knöpfe s
 f("tabpages", "settings", "„Reiter unten“: ein Knopf je Seite, darunter nur ihre Einstellungen", "“Tabs at the bottom”: a button per page, only its settings below", ["cars"], since="5.8.0")
 f("alarmcards", "settings", "„Warnungen & Alarm“ in drei Karten mit Zustand (An, Unscharf, Aus)", "“Warnings & alarm” as three cards with their state (on, disarmed, off)", ["notify"], since="5.8.0")
 f("phonefloors", "phone", "Am Handy: ein Knopf für Etage und Zimmer, der Alarm als 🛡", "On the phone: one button for the floor and the room, the alarm as 🛡", ["phone-floors"], since="5.8.0")
+f("looks", "edit", "Farben: Dach (jede Farbe, Dachziegel, Biberschwanz, Schiefer, Blech), Treppe (Belag wie ein Raum, Setzstufen, Geländer der Wendeltreppe), Türblatt, Zarge und Fensterrahmen je Tür und für das ganze Haus",
+  "Colours: roof (any colour, roof tiles, beaver tails, slate, metal), stairs (covering like a room, risers, the spiral stair's rail), door leaf, frame and window frames per door and for the whole house", ["house-looks"], since="5.11.0")

@@ -144,7 +144,7 @@ export function initFinishUi(ctx) {
     }
   }
 
-  return { floorFields, wallFields, faceFields, patternSelect };
+  return { floorFields, wallFields, faceFields, patternSelect, lookFields };   // lookFields: also for the treads of a stair (#753)
 }
 
 /** the facade in the settings dialog (#448): the pattern of the outside (none: the walls' colour as always) and its colour. $: query,

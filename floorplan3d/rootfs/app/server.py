@@ -110,7 +110,11 @@ DEFAULT_SETTINGS = {
     "energyCard": True,        # live mode on wide screens: the energy flow as a picture instead of the line of numbers (#420)
     "roomTiles": True,         # live mode: a card per room at the bottom (#421)
     "roomLabels": True,        # live mode, wide screens: a label over every room in the 3D view (name, temperature, lights, somebody there, #430)
-    "windowFrames": "white",   # white | anthracite: the colour of the window frames; anthracite with lighter walls (#428)
+    "windowFrames": "white",   # white | anthracite | wood: the colour of the window frames; anthracite with lighter walls (#428), wood (#754)
+    "doorLeaf": "",            # the doors of the house (#754, static/doorlook.js): the leaf of the inner doors, '' = wood as always, else '#rrggbb'
+    "doorFrame": "",           # ... their frame, '' = white
+    "outerDoorLeaf": "",       # ... the leaf of the doors to the outside (front door, terrace door), '' = as the inner doors
+    "outerDoorFrame": "",      # ... their frame, '' = as the inner doors
     "facade": "",              # the finish of the outside of the walls (#448): '' (their colour, as always) or a facade pattern (importer.FACADE_FINISHES)
     "facadeColor": "",         # ... its colour, '' for the pattern's own
     "idleReturn": 0.0,         # wall tablets: minutes without a touch until the start view returns (0 = off)
@@ -909,7 +913,9 @@ def validate_settings(data: dict) -> dict:
         out["earth"] = DEFAULT_SETTINGS["earth"]
     if out["sky"] not in ("time", "off"):
         out["sky"] = DEFAULT_SETTINGS["sky"]
-    if out["windowFrames"] not in ("white", "anthracite"):
+    for key in ("doorLeaf", "doorFrame", "outerDoorLeaf", "outerDoorFrame"):      # '' or a colour (#754)
+        out[key] = out[key].lower() if re.fullmatch(r"#[0-9a-fA-F]{6}", out[key] or "") else ""
+    if out["windowFrames"] not in ("white", "anthracite", "wood"):
         out["windowFrames"] = DEFAULT_SETTINGS["windowFrames"]
     if out["facade"] not in importer.FACADE_FINISHES:
         out["facade"] = ""

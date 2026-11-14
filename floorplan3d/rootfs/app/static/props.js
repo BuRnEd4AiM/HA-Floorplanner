@@ -17,6 +17,8 @@ import { finishChoices, finishOf, variantChoices, variantOf, variantLabel, varia
 import { zoneKeys, setZone, fitZones } from './ledzones.js';
 import { TV_SIZES, ARM, armPose } from './tvmount.js';
 import { initFinishUi } from './finishui.js';
+import { initLooksUi } from './looksui.js';
+import { facadeOf } from './facade.js';
 import { roomLevelFields, stepsFields } from './plateauui.js';
 import { balconyFields } from './balconyui.js';
 import { tiltAngleField } from './tiltui.js';
@@ -60,6 +62,10 @@ export function initProps(ctx) {
   const finishUi = initFinishUi({   // floors, walls and accent walls (#448)
     t, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), floor: () => ctx.floor(), imperial: () => ctx.imperial(),
     setStatus: (x) => ctx.setStatus(x),
+  });
+  const looksUi = initLooksUi({   // the look of a stair (#753) and the colours of a door or window (#754)
+    t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), floor: () => ctx.floor(), floorH: () => ctx.floorH(),
+    finishUi, settings: () => ctx.settings?.() || {}, windowFrame: () => facadeOf(ctx.settings?.()).frame,
   });
   const kitchenProps = initKitchenUi({
     t, changed: () => ctx.changed(), snapshot: () => ctx.snapshot(), renderProps: () => render(),
@@ -138,7 +144,10 @@ export function initProps(ctx) {
     } else if (selection.kind === 'hole') {
       mark(body, 'form');
       const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('hole.help'); body.append(hp);
-    } else if (selection.kind === 'stair') ctx.stairTool().renderProps(body, it, mark);   // its fields marked for ✨ Neu (5.7.0)
+    } else if (selection.kind === 'stair') {
+      ctx.stairTool().renderProps(body, it, mark);                  // its fields marked for ✨ Neu (5.7.0)
+      mark(body, 'look'); looksUi.stairFields(body, it);            // treads, risers, rail (#753)
+    }
     else if (selection.kind === 'opening') openingProps(body, it, f);
     else deviceProps(body, it);
     if (selection.kind !== 'room') {                    // an object of the room picked from its list: the list stays below
@@ -342,6 +351,7 @@ export function initProps(ctx) {
       body.append(field(t('prop.inv'), ci));
       mark(body, 'contact'); if (it.entity || (it.paneEntities || []).some(Boolean)) heatProps(body, it);
     }
+    mark(body, 'look'); looksUi.openingFields(body, it, wall);      // the colours of its leaf and frame (#754)
   }
 
   /** a door with a contact: "Zählt für die Heizung" (the owner, 2026-10-28: the rooms' doors lead to the corridor, which has no heating):

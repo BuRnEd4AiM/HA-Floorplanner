@@ -73,6 +73,7 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
     "storeyHeight": 2.75,                    // optional: storey height floor to floor (2.2 to 6 m, else 3 m); the stairs take their steps from it
     "footprint": [[0,0],[11,0],[11,9],[0,9]],           // optional: outline, gives thick outer walls
     "roof": { "type": "gable", "pitch": 38 },           // gable | hip | flat | shed (one slope)
+    // colour and cover (5.11.0, #752): "color": "#5c6066" (else brick red), "cover": "tiles" | "beaver" | "slate" | "metal" (else smooth); for every roof, the dormers a little darker
     // gables (gable, shed): gableOver = overhang at the gables in m (else as overhang), gableWall: false = no gable wall;
     // shed roof: high = its high side "z0" | "z1" | "x0" | "x1" (top, bottom, left, right in the plan), no overhang there
     // a canopy as a further roof: "parts": [ { "type": "shed", "pitch": 10, "high": "z0", "gableWall": false, "level": "main", "dy": -0.6, "box": { "x0": 0, "x1": 11, "z0": 9, "z1": 11.5 } } ]
@@ -122,7 +123,7 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
 | `windowFixed` | Window | fixed | 1.6 × 1.4 m | 0.6 m |
 | `windowFloor` | Window | single, lower 1.1 m fixed | 0.9 × 2.2 m | 0 m |
 
-Can be overridden: `width`, `height`, `sill`, `style`, `entity` (e.g. a window sensor), `name`. Instead of `preset` you can use `"type": "door"|"window"`. A window with a **roller shutter**: `"shutter": true` and `"shutterEntity": "cover.kitchen_shutter"` (the entity alone is enough too); doors have none. A window with a second contact that reports it **tilted** (4.59.0): `"tiltEntity": "binary_sensor.window_tilted"`; `entity` then reports it open. How far it leans in in 3D when tilted (4.64.0): `"tiltDeg": 30` (5 to 45 degrees, 14 when not given). **Fixed glass below** or **above** the panes (4.72.0, #679): `"fixedBelow": 1.1` (its height in m from the bottom of the window; e.g. a floor-to-ceiling window that only tilts at the top) or `"fixedAbove": 0.4` (a fixed transom); it has no contact, the panes keep theirs. At least 0.2 m, the panes keep 0.3 m; 0 = none. **Two openings one above the other** (5.3.0, #694): two may sit at the same place (the same `at`) when their heights (`sill` to `sill` + `height`) do not overlap, e.g. a high window over the terrace door, each with its own roller shutter. An opening that reaches above its wall gets a hint: make the wall higher (`building.wallHeight` or the wall's `height`).
+Can be overridden: `width`, `height`, `sill`, `style`, `entity` (e.g. a window sensor), `name`. Instead of `preset` you can use `"type": "door"|"window"`. A window with a **roller shutter**: `"shutter": true` and `"shutterEntity": "cover.kitchen_shutter"` (the entity alone is enough too); doors have none. A window with a second contact that reports it **tilted** (4.59.0): `"tiltEntity": "binary_sensor.window_tilted"`; `entity` then reports it open. How far it leans in in 3D when tilted (4.64.0): `"tiltDeg": 30` (5 to 45 degrees, 14 when not given). Its own **colours** (5.11.0, #754): `"look": { "leaf": "#ffffff", "frame": "#3a3e43" }` (a leaf on doors only; without: the house's, ⚙ → Outside). **Fixed glass below** or **above** the panes (4.72.0, #679): `"fixedBelow": 1.1` (its height in m from the bottom of the window; e.g. a floor-to-ceiling window that only tilts at the top) or `"fixedAbove": 0.4` (a fixed transom); it has no contact, the panes keep theirs. At least 0.2 m, the panes keep 0.3 m; 0 = none. **Two openings one above the other** (5.3.0, #694): two may sit at the same place (the same `at`) when their heights (`sill` to `sill` + `height`) do not overlap, e.g. a high window over the terrace door, each with its own roller shutter. An opening that reaches above its wall gets a hint: make the wall higher (`building.wallHeight` or the wall's `height`).
 
 ### Devices and furniture
 
@@ -170,6 +171,8 @@ Per floor (not for the roof), all sizes in metres. A stair belongs to the floor 
 | `split2` | **with `corner2`:** steps in flight 2 between the corners (default about two thirds of the rest); the remaining steps are the last flight |
 | `steps` | steps per floor, as counted on the real stair (the step onto the floor above does not count; 2 to 40, the app keeps a step between 12 and 25 cm high). Default: from the storey height, a step about 18 cm high (4.68.0) |
 | `solid` | **for `wall`:** `true` = solid steps down to the floor instead of thin plates |
+| `covering`, `floorLook` | the treads covered like a room's floor (5.11.0, #753), e.g. `"covering": "parquet", "floorLook": { "color": "#8f6a48" }`. Without it: one colour |
+| `color`, `riser`, `rail` | colours `"#rrggbb"`: the treads without a covering (else beige), risers and strings (else like the treads), a spiral stair's hand rail (else grey) |
 
 A wall stair with a landing in the corner (along the top wall, then down the right wall; the steps stick out to the right, into the room):
 `{ "type": "wall", "x": 1.6, "z": 0.1, "turn": "right", "floors": 2, "path": [[0, 0], [2.3, 0], [2.3, 4.9]] }`

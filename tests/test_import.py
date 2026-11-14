@@ -1196,3 +1196,28 @@ def test_roof_windows_on_a_shed_roof_but_not_on_a_flat_one():
 def test_schema_describes_roof_windows():
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     assert {"side", "pos", "w", "h", "eave"} <= set(schema["$defs"]["roof"]["properties"]["skylights"]["items"]["properties"])
+
+
+def test_looks_roof_stair_opening_roundtrip():
+    """5.11.0: the colour and cover of the roof (#752), a stair's covering and colours (#753), the colours of doors and windows (#754):
+    imported, kept by the export and imported again; anything else is left out with a warning"""
+    prop = {"schemaVersion": 1, "building": {"roof": {"type": "gable", "pitch": 35, "color": "#5C6066", "cover": "tiles"}, "floors": [{"name": "EG", "kind": "floor",
+            "footprint": [[0, 0], [8, 0], [8, 6], [0, 6]], "rooms": [{"name": "Diele", "points": [[0, 0], [8, 0], [8, 6], [0, 6]]}],
+            "openings": [{"type": "door", "at": [4, 0], "look": {"leaf": "#FFFFFF", "frame": "#3a3e43"}}, {"type": "window", "at": [8, 3], "look": {"leaf": "#ffffff", "frame": "#2e3338"}}],
+            "stairs": [{"type": "spiral", "x": 2, "z": 3, "covering": "parquet", "floorLook": {"color": "#8f6a48"}, "riser": "#f2f0ea", "rail": "#232528", "color": "nope"}]}]}}
+    layout, _, rep, _ = importer.build_layout(prop)
+    roof = next(f for f in layout["floors"] if f["kind"] == "roof")["roof"]
+    assert roof["color"] == "#5c6066" and roof["cover"] == "tiles"
+    ops = {o["type"]: o for w in layout["floors"][0]["walls"] for o in w["openings"]}
+    assert ops["door"]["look"] == {"leaf": "#ffffff", "frame": "#3a3e43"}
+    assert ops["window"]["look"] == {"frame": "#2e3338"}, "a window has no leaf"
+    st = layout["floors"][0]["stairs"][0]
+    assert (st["covering"], st["floorLook"], st["riser"], st["rail"]) == ("parquet", {"color": "#8f6a48"}, "#f2f0ea", "#232528") and "color" not in st
+    assert any(w["path"].endswith("stairs[0].color") for w in rep.warnings)
+    again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]
+    assert next(f for f in again["floors"] if f["kind"] == "roof")["roof"]["cover"] == "tiles"
+    assert {o["type"]: o.get("look") for w in again["floors"][0]["walls"] for o in w["openings"]} == {"door": ops["door"]["look"], "window": ops["window"]["look"]}
+    assert again["floors"][0]["stairs"][0]["rail"] == "#232528"
+    _, _, rep2, _ = importer.build_layout({**prop, "building": {**prop["building"], "roof": {"type": "gable", "cover": "straw"}}})
+    assert any(w["path"].endswith("roof.cover") for w in rep2.warnings)
+

@@ -18,6 +18,8 @@ import make_guide as mg  # noqa: E402
 
 # (what is typed, language of the page, the clip that must be among the first three; several ids: one of them)
 QUERIES = [
+    ("Dachfarbe ändern", "de", "house-looks"), ("dunkelgraue Ziegel", "de", "house-looks"), ("Treppe mit Parkett", "de", "house-looks"),
+    ("weiße Türen", "de", "house-looks"), ("roof colour", "en", "house-looks"), ("door frame colour", "en", "house-looks"),
     ("Etagen umsortieren", "de", "ui-v2-house"), ("reorder floors", "en", "ui-v2-house"), ("alle Fenster gleich einstellen", "de", "ui-v2-tools"),
     ("copy settings to other windows", "en", "ui-v2-tools"), ("wo ist die Einstellung", "de", "ui-v2-tools"),
     ("neue Oberfläche einschalten", "de", "ui-v2"), ("Leiste einklappen", "de", "ui-v2"), ("zurück zur alten Ansicht", "de", "ui-v2"), ("new interface", "en", "ui-v2"),

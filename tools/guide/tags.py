@@ -678,6 +678,14 @@ regen regnet rain
 temperatur temperaturen grad temperature degrees
 thermostat thermostate thermostats
 """.strip().splitlines()]
+t("house-looks",
+  "Dachfarbe ändern Dach Farbe dunkelgraue Ziegel graue Dachziegel schwarzes Dach rotes Dach Dachpfannen Pfannen Biberschwanz "
+  "Schieferdach Blechdach Metalldach Stehfalz Zinkdach Engobe Dacheindeckung Eindeckung Treppenbelag Stufen Parkett Treppe Fliesen "
+  "Steintreppe Holztreppe Trittstufen Setzstufen Wange Geländerfarbe Handlauf Edelstahl Türfarbe weiße Türen Türblatt Zarge "
+  "Haustür Farbe anthrazit Fensterrahmen Holzfenster Fensterfarbe",
+  "change roof colour roof color dark grey tiles grey roof tiles black roof red roof pantiles beaver tail slate roof metal roof "
+  "standing seam zinc roof roofing stair covering steps parquet stairs tiles stone stairs wooden stairs treads risers stringer "
+  "rail colour handrail stainless steel door colour white doors door leaf door frame front door anthracite window frames wooden windows")
 t("roof-editor",
   "Dach ändern Dach einstellen wie ändere ich das Dach Dachneigung steiler flacher Dachschräge Firsthöhe Drempel Kniestock Dachüberstand "
   "Stehhöhe wo kann ich stehen Gaube verschieben Dachgaube bewegen Dachfenster verschieben Velux Roto Dachform ändern Walmdach Pultdach "

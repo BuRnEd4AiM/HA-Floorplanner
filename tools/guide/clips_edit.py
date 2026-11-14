@@ -617,6 +617,54 @@ def v2_on(r):
     r.pg.wait_for_timeout(600)
 
 
+@clip("house-looks", "edit",
+      {"de": "Farben: Dach, Treppe, Türen und Fenster", "en": "Colours: roof, stairs, doors and windows"},
+      {"de": "Das Dach in jeder Farbe, mit Dachziegeln, Biberschwanz, Schiefer oder Blech (die Gauben etwas dunkler); die Treppe mit Parkett, Fliesen oder Stein wie ein Raum („Wie der Boden von …“), die Setzstufen in eigener Farbe; Türblatt und Zarge, Fensterrahmen je Tür und Fenster oder für das ganze Haus (⚙ Einstellungen → Haus außen).",
+       "en": "The roof in any colour, with roof tiles, beaver tails, slate or metal (the dormers a little darker); the stairs with parquet, tiles or stone like a room (“Like the floor of …”), the risers in their own colour; door leaf and frame, window frames per door and window or for the whole house (⚙ Settings → Outside)."},
+      "Dachfarbe Dachziegel anthrazit dunkelgrau Schiefer Blech Treppe Belag Parkett Setzstufen Türfarbe Türblatt Zarge Fensterrahmen roof colour tiles anthracite dark grey slate metal stairs covering parquet risers door colour leaf frame window frame",
+      query="mode=edit")
+def _(r):
+    r.say("Die Etage „Dach“ öffnen und aufs Dach klicken.", "Open the floor “Roof” and click the roof.")
+    r.js("window.__fp.switchFloor(4)")
+    r.wait(1500)
+    r.js("window.__fp.camAt(1.0, 11.5, -7.5, 5.0, 2.0)")
+    r.wait(1200)
+    r.click(*screen3d(r, 4.5, 7.6, -0.2))
+    r.wait(1800)
+    r.say("„Farbe & Deckung“: zum Beispiel Dunkelgrau …", "“Colour & cover”: for example dark grey …")
+    r.click(".roofEd .v2Sec[data-sec=look] > .hd")
+    r.wait(800)
+    r.click("#re-roofLookSwatches [data-key=darkgrey]")
+    r.wait(1800)
+    r.say("… mit Dachziegeln. Die Gauben werden etwas dunkler.", "… with roof tiles. The dormers get a little darker.")
+    r.click("#re-roofCover")
+    r.loc("#re-roofCover").select_option("tiles")
+    r.wait(2600)
+    r.poster()
+    r.say("Eine Treppe: Parkett, Fliesen oder Stein wie bei einem Raum, die Setzstufen in eigener Farbe.", "A stair: parquet, tiles or stone as for a room, the risers in their own colour.")
+    r.key("Escape")
+    r.js("window.__fp.switchFloor(1)")
+    r.wait(1200)
+    r.js("window.__fp.camAt(8.0, 8.0, 0.5, 8.0, 4.4)")
+    r.js("window.__fp.select('stair', 'st1')")
+    r.wait(1400)
+    cov = r.loc("#stairCovering")
+    r.click(cov)
+    cov.select_option("parquetDark")
+    r.wait(2200)
+    r.click("#stairRiserSwatches [data-key=white]")
+    r.wait(2000)
+    r.say("Eine Tür: Türblatt und Zarge. Für alle Türen auf einmal: ⚙ Einstellungen → Haus außen.", "A door: its leaf and frame. For every door at once: ⚙ Settings → Outside.")
+    r.js("window.__fp.camAt(8.0, 3.0, 8.5, 8.0, 4.5)")
+    r.js("window.__fp.select('opening', 'o6')")                      # the office door: its frame stays green, it has a contact
+    r.wait(1400)
+    p = r.js("""(() => { const e = document.querySelector('#openLeafSwatches [data-key=white]'); e.scrollIntoView({ block: 'center', behavior: 'instant' });
+      const b = e.getBoundingClientRect(); return [b.x + b.width / 2, b.y + b.height / 2]; })()""")   # (the 3D picture close up: the page is too slow for a wait until it is still)
+    r.wait(600)
+    r.click(*p)
+    r.wait(2200)
+
+
 @clip("roof-editor", "edit",
       {"de": "Das neue Dach: Form, von der Seite, von oben, Vorlagen", "en": "The new roof: shape, from the side, from above, templates"},
       {"de": "Ein Klick aufs Dach öffnet es: oben, was das Dach hat; „Form“ mit der Dachform als Bildern und dem Dach von der Seite (Punkte ziehen: Neigung, Firsthöhe, Kniestock, Überstand; grün, wo man stehen kann; ⤢ groß); „Auf dem Dach“ mit Gauben und Dachfenstern von oben zum Ziehen (auch direkt im 3D-Bild); „Vorlagen“ mit fertigen Dächern, auch L-Dach und Kreuzdach (+), und „⭐ Mein Dach merken“.",

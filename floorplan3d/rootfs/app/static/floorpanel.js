@@ -3,7 +3,7 @@
  * roof (shape, pitch, its own base, overhang, ridge; the overhang at the gables and the gable wall, a shed roof's high side, #628), steps in
  * its eaves (#342), its dormers (gable with its own pitch, flat or a long shed dormer, #339, placed by its distance from the gable) and further roofs
  * (with their ridge kept at 0° or 90°, #621; e.g. a
- * flat roof over an annex, a canopy as a shed roof, #628), its roof windows (#643, skylightui.js). The rules for the base
+ * flat roof over an annex, a canopy as a shed roof, #628), its roof windows (#643, skylightui.js), its colour and cover (#752, rooflook.js). The rules for the base
  * boxes, new floors, moving floors and placing new dormers are pure functions (tested); initFloorPanel draws the panel. */
 import { moveFloorTo as moveFloorToOf } from './uiv2more.js';
 import { dormerParts, dormerStart, posForStart, DORMER_DEFAULT, DORMER_TYPES, SHED_PITCH, GABLE_PITCH } from './dormer.js';
@@ -12,6 +12,8 @@ import { stepsAllowed, alongXOf, MAX_STEPS } from './roofsteps.js';
 import { ROOF_TYPES, SHED_HIGH, SHED_PITCH as SHED_ROOF_PITCH, hasGables, gableOverOf, shedHigh, shedHighToward, newCanopy, roofFrame } from './roofshape.js';
 import { initSkylightUi } from './skylightui.js';
 import { storeyHeight, setStoreyHeight, STOREY_MIN } from './housefloors.js';
+import { roofLook, setRoofLook, ROOF_RED, ROOF_COLORS, COVER_KEYS } from './rooflook.js';
+import { colorFields } from './colorrow.js';
 
 export const ROOF_DEFAULT = { type: 'gable', pitch: 35, overhang: 0.4 };
 /** an empty floor of a kind (a roof floor gets the default roof) */
@@ -261,7 +263,7 @@ export function initFloorPanel(ctx) {
     if (f.kind !== 'roof') return;
     roofInto(box, f, (f.roof ||= { ...ROOF_DEFAULT }));
   }
-  /** the fields of roof r (floor f) into box, each tagged with its group (data-rg: shape, pitch, size, attic, ridge, steps, dormers,
+  /** the fields of roof r (floor f) into box, each tagged with its group (data-rg: shape, pitch, size, attic, ridge, look, steps, dormers,
    *  skylights, parts): the classic panel shows them one under the other, the new roof editor (roofeditui.js, 5.1.0) puts them in tabs */
   function roofInto(box, f, r) {
     const layout = ctx.layout();
@@ -310,10 +312,22 @@ export function initFloorPanel(ctx) {
     group('attic');
     if (r.type !== 'shed') box.append(ridgeField(r, 'roofRidge'));   // a shed roof has its high side instead (#628)
     group('ridge');
+    lookFields(box, r); group('look');
     renderSteps(box, f, r); group('steps');
     renderDormers(box, f, r); group('dormers');
     skylights.render(box, f, r); group('skylights');               // roof windows without a dormer (#643)
     renderRoofParts(box, r); group('parts');
+  }
+  /** the colour and the cover of the roof (#752, rooflook.js): every roof of the floor takes them, the dormers' roofs a little darker */
+  function lookFields(box, r) {
+    const head = document.createElement('h4'); head.id = 'roofLookHead'; head.textContent = t('roof.look'); box.append(head);
+    const look = roofLook(r);
+    box.append(...colorFields({ id: 'roofLook', label: t('roof.color'), value: look.color, def: ROOF_RED, list: ROOF_COLORS, name: (k) => t(`look.roof.${k}`),
+      reset: t('look.reset'), on: (hex) => { ctx.snapshot(); setRoofLook(r, { color: hex }); redo(); } }));
+    const cs = select([['', t('roof.cover.none')], ...COVER_KEYS.map((k) => [k, t(`roof.cover.${k}`)])], look.cover || '', (v) => { setRoofLook(r, { cover: v }); });
+    cs.id = 'roofCover';
+    box.append(field(t('roof.cover'), cs));
+    const help = document.createElement('p'); help.className = 'sub'; help.id = 'roofLookHelp'; help.textContent = t('roof.lookHelp'); box.append(help);
   }
   /** steps in the eaves (#342): a house that is narrower at the front and wider at the back; one card per step */
   function renderSteps(box, f, r) {

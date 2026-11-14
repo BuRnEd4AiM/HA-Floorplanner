@@ -203,7 +203,7 @@ test('the head: its sign and the path above it', () => {
 
 test('5.7.0: stairs, floor openings and blocks get sections; the plot, its areas and cables get the head of the new panel', () => {
   for (const k of ['stair', 'hole', 'block', 'plot', 'yard', 'cable']) assert.ok(U.V2_KINDS.includes(k), k);
-  assert.deepEqual(U.SECTIONS.stair.map(([k]) => k), ['form', 'corner', 'steps', 'place']);
+  assert.deepEqual(U.SECTIONS.stair.map(([k]) => k), ['form', 'corner', 'steps', 'look', 'place']);
   assert.deepEqual(U.SECTIONS.hole.map(([k]) => k), ['form']);
   assert.deepEqual(U.SECTIONS.block.map(([k]) => k), ['bsize']);
   // a straight stair has no corner fields: that section is left out
@@ -232,4 +232,13 @@ test('5.7.0: the path of the plot and of a garden area has no floor (they are ou
   assert.deepEqual(U.crumbs({ house: 'Haus', floor: 'EG', name: 'Grundstück', kind: 'plot' }).map((c) => c.text), ['🏠 Haus', 'Grundstück']);
   assert.deepEqual(U.crumbs({ house: 'Haus', floor: 'EG', name: 'Beet', kind: 'yard' }).map((c) => c.text), ['🏠 Haus', 'Beet']);
   assert.deepEqual(U.crumbs({ house: 'Haus', floor: 'EG', name: 'Treppe', kind: 'stair' }).map((c) => c.text), ['🏠 Haus', 'EG', 'Treppe']);
+});
+
+test('#753 / #754: a stair, a door and a window have a section „Aussehen“ that says what is set', () => {
+  for (const pk of ['window', 'door', 'stair']) assert.ok(U.SECTIONS[pk].some(([k]) => k === 'look'), pk);
+  assert.deepEqual(U.summary('door', 'look', { type: 'door' }), ['v2.sum.houseColors', {}]);
+  assert.deepEqual(U.summary('window', 'look', { type: 'window', look: { frame: '#ffffff' } }), ['v2.sum.ownColors', {}]);
+  assert.deepEqual(U.summary('stair', 'look', { covering: 'parquet' }), ['v2.sum.is', { x: { key: 'cover.parquet' } }]);
+  assert.deepEqual(U.summary('stair', 'look', { rail: '#232528' }), ['v2.sum.ownColors', {}]);
+  assert.equal(U.summary('stair', 'look', {}), null);
 });

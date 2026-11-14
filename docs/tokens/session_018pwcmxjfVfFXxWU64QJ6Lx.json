@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmxjfVfFXxWU64QJ6Lx",
+ "start": "2026-11-14",
+ "updated": "2026-11-14T14:10:30Z",
+ "branch": "claude/beautiful-mendel-d6z1j6",
+ "source": "counted",
+ "input": 388,
+ "cache_write": 454807,
+ "cache_read": 66267463,
+ "output": 169358,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 388,
+   "cache_write": 454807,
+   "cache_read": 66267463,
+   "output": 169358,
+   "requests": 192
+  }
+ }
+}
