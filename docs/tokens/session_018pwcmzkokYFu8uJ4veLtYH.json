@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmzkokYFu8uJ4veLtYH",
+ "start": "2026-11-14",
+ "updated": "2026-11-14T00:44:13Z",
+ "branch": "claude/peaceful-knuth-2re8il",
+ "source": "counted",
+ "input": 117,
+ "cache_write": 209498,
+ "cache_read": 11376405,
+ "output": 78010,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 117,
+   "cache_write": 209498,
+   "cache_read": 11376405,
+   "output": 78010,
+   "requests": 59
+  }
+ }
+}
