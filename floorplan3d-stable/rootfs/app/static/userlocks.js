@@ -5,7 +5,7 @@
 
 /** what can be locked, in the order of the dialog, with what is hidden on the screen */
 export const LOCKS = [
-  ['control', '.lightctl, .roomctl, .sceneList, #livePopup :is(.actions, .devctl :is(input, select, .dc-mute, .sub), .popHeat :is(.hp-set button, .hp-modes)), #roomPanel :is(.rp-alloff, label.sw, .rp-ctl, .rp-more:not(.mi))'],   // switching lights, covers, scenes ... (the server refuses it too); what a device does now stays in sight
+  ['control', '.lightctl, .roomctl, .sceneList, #livePopup :is(.actions, .devctl :is(input, select, .dc-mute, .sub), .popHeat :is(.hp-set button, .hp-modes)), #roomPanel :is(.rp-alloff, .rp-allon, .rpScenes, .rpColors, label.sw, .rp-ctl, .rp-more:not(.mi))'],   // switching lights, covers, scenes ... (the server refuses it too); what a device does now stays in sight
   ['heatPause', '.hpPauseBar'],                                        // ⏸️ Heizplan aussetzen on the thermostats (the server refuses it too)
   ['alarm', '.devctl-alarm :is(.actions, .dc-code)'],                // arming and disarming the alarm panel (#406; the server refuses it too); its state stays in sight
   ['guard', '#guardBtn, #guardScreen :is(.gdPad, .gdGo, .gdDots)'],   // the add-on's holiday alarm (#456; the server refuses it too): the lock screen stays

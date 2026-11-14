@@ -18,7 +18,7 @@ import { initRoomSensorsUi } from './roomsensorsui.js';
 import { initHeatDiagUi } from './heatdiagui.js';
 import { initRoomGroups } from './roomgroupsui.js';
 import { initHeatPause } from './heatpauseui.js';
-import { roomMark, roomKey } from './rules.js';
+import { roomMark, roomKey, roomLine } from './rules.js';
 
 /** ctx: t, lang(), settings(), states(), entities(), nameOf(entity), canEdit(), locked() (may not switch), callService(entity, service, data),
  *  houseId(), layout() (the building shown), details(entity) (Home Assistant's window: a button or null), tabs() (the tab bar), climate()
@@ -79,6 +79,9 @@ export function initRulesUi(ctx) {
     applySensors: () => sensors.apply(ctx.states()),
     /** the mark of a room's label and tile: "⏸️ pausiert", "🚀 Boost" or '' */
     mark: (roomId) => roomMark(rules.status(roomKey(houseId(), roomId)), t),
+    /** what the heating rules do in a room now ({ icon, tone, text }: "📅 Heizplan: ☀️ Komfort 21 °C", "⏸️ … ausgesetzt bis 18:30" …) or null; the room
+     *  card shows it (5.10.0, the owner: whether the heating plan is at work must not get lost) */
+    line: (roomId) => roomLine(rules.status(roomKey(houseId(), roomId)), Math.round(Date.now() / 1000), t, deg),
     /** what the add-on pushed over the live channel ({type: "rules", rooms, lanes}) */
     pushed: (d) => rules.pushed(d),
   };

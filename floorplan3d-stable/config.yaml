@@ -1,7 +1,7 @@
-# The NORMAL add-on: a copy of floorplan3d/ (the beta) at version 5.9.2, written by tools/stable.py.
+# The NORMAL add-on: a copy of floorplan3d/ (the beta) at version 5.10.0, written by tools/stable.py.
 # Do not edit: change floorplan3d/, then release the version (workflow "Release to everyone").
 name: "3D Floorplan"
-version: "5.9.2"
+version: "5.10.0"
 slug: floorplan3d
 description: "More than a floor plan: your smart home in 3D. Lights, heating, energy, security, cameras and routines right where they are, with ready-made dashboard pages"
 url: "https://github.com/BuRnEd4AiM/HA-Floorplanner"

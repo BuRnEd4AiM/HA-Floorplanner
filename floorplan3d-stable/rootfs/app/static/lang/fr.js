@@ -2425,4 +2425,8 @@ export default {
   'lg.count': '💡 pièces : {n}', 'pn.floors': 'Étage',
   'ver.connectorOk': 'Intégration dans Home Assistant (connecteur) : la même version {v}.',
   'ver.connectorOld': 'Intégration dans Home Assistant (connecteur) : version {c}, ce programme {v}. Les deux vont ensemble : mettez à jour le plus ancien (l’intégration dans HACS, le conteneur avec « docker compose pull »).',
+  'rp.tab.light': 'Lumière', 'rp.tab.cover': 'Volets', 'rp.tab.climate': 'Climat', 'rp.tab.values': 'Mesures', 'rp.tab.devices': 'Appareils',
+  'rp.tab.open': 'Fenêtres', 'rp.nOn': '{n} allumé(s)', 'rp.nOpen': '{n} ouvert(s)', 'rp.allShut': 'tout fermé', 'rp.lightsOn': '{on} sur {n} allumé(s)',
+  'rp.lightsNone': 'toutes les lumières éteintes', 'rp.colorsAll': 'Couleur et blanc pour toutes', 'rp.more': 'Tout afficher', 'rp.less': 'Réduire',
+  'rp.close': 'Fermer',
 };

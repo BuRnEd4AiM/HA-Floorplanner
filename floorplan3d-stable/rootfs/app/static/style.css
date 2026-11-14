@@ -1128,8 +1128,9 @@ body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
 :is(#heatPanel, .popHeat) .hp-ha .mi { padding: 3px 10px; font-size: 12px; min-height: 0; }
 @media (max-width: 760px) { #heatPanel { right: 12px; left: 12px; width: auto; max-width: none; top: 52px; max-height: 38%; } }
 /* phones: the heating is part of the room sheet (roompanel.js moves it in) */
-#roomPanel > #heatPanel { position: static; width: auto; max-width: none; max-height: none; overflow: visible; margin: 10px 0 4px; padding: 10px 0 0;
-  background: none; border: 0; border-top: 1px solid var(--line); border-radius: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+#roomPanel #heatPanel { position: static; width: auto; max-width: none; max-height: none; overflow: visible; margin: 8px 0 4px; padding: 0;   /* in the tab 🌡 Klima (5.10.0) */
+  background: none; border: 0; border-radius: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+#roomPanel #heatPanel > h4 { display: none; }   /* the tab already says it */
 
 /* ---- kitchen run: the modules of a leg in the properties ---- */
 .kitchenHint { color: var(--muted); font-size: 12px; margin: 2px 0 6px; }
@@ -1456,7 +1457,7 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 #roomTiles > :first-child { margin-left: auto; }
 #roomTiles > :last-child { margin-right: auto; }
 #roomTiles[hidden], body:not(.live) #roomTiles, body.card #roomTiles, body.roomtablet #roomTiles, #livePopup:not([hidden]) ~ #roomTiles { display: none; }   /* a room tablet shows its one room */
-#roomPanel:not([hidden]) ~ #roomTiles { right: 324px; }
+#roomPanel:not([hidden]) ~ #roomTiles { right: 364px; }
 /* more tiles than fit (3.99.2): the cut side fades out, an arrow at each end with more to see */
 #roomTiles.moreR { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent); }
 #roomTiles.moreL { -webkit-mask-image: linear-gradient(90deg, transparent, #000 64px); mask-image: linear-gradient(90deg, transparent, #000 64px); }
@@ -1466,7 +1467,7 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 .tileArrow[hidden] { display: none; }
 #tilesLeft { left: 156px; }
 #tilesRight { right: 16px; }
-#roomPanel:not([hidden]) ~ #tilesRight { right: 324px; }
+#roomPanel:not([hidden]) ~ #tilesRight { right: 364px; }
 body:not(.live) .tileArrow, body.card .tileArrow, body.roomtablet .tileArrow, #livePopup:not([hidden]) ~ .tileArrow { display: none; }
 .rtTile { flex: 0 0 auto; width: 150px; padding: 9px 12px; border-radius: 14px; display: flex; flex-direction: column; gap: 1px; text-align: left; font: inherit;
   color: #eef3f8; cursor: pointer; background: rgba(16, 22, 30, .72); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
@@ -3206,3 +3207,99 @@ body.live .v2Nops { display: none; }
 .stackRow { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 10px; }
 .stackRow .stackBtn { flex: 1 1 auto; padding: 6px 8px; font-size: 13px; text-align: left; }
 .stackClash { color: var(--warn, #ffb04a); }
+
+/* Room card (5.10.0, docs/ideen-5.10, the owner's choice: tabs, and on phones first small): the chips with the room's values, the tabs,
+   the lights as rows to swipe, the heating with what its plan does, the small card with big buttons (roompanel.js, roomcardui.js) */
+#roomPanel { width: 340px; padding: 14px 14px 16px; border-radius: 22px; }
+#roomPanel .rp-head { justify-content: flex-start; gap: 10px; margin-bottom: 0; }
+#roomPanel .rpIco { width: 40px; height: 40px; flex: none; border-radius: 13px; display: grid; place-items: center; font-size: 21px;
+  background: linear-gradient(135deg, rgba(255, 190, 90, .28), rgba(255, 140, 60, .10)); border: 1px solid rgba(255, 190, 90, .35); }
+#roomPanel .rpTitle { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+#roomPanel .rpTitle b { font-size: 18px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#roomPanel .rpTitle .sub { font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#roomPanel .rp-x { width: 34px; height: 34px; flex: none; border-radius: 50%; padding: 0; display: grid; place-items: center; line-height: 1;
+  background: color-mix(in srgb, var(--text) 9%, transparent); }
+#roomPanel .rpChips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+#roomPanel .rpChip { display: inline-flex; align-items: center; gap: 5px; min-height: 28px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
+  color: var(--text); background: color-mix(in srgb, var(--text) 7%, transparent); border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  font-variant-numeric: tabular-nums; white-space: nowrap; }
+#roomPanel .rpChip i { font-style: normal; }
+#roomPanel .rpChip.good { color: #2fae6b; }
+#roomPanel .rpChip.warn { color: #e09a1f; background: rgba(255, 178, 36, .13); border-color: rgba(255, 178, 36, .45); }
+#roomPanel .rpChip.bad { color: #ef5b50; background: rgba(239, 91, 80, .13); border-color: rgba(239, 91, 80, .5); }
+[data-theme="light"] #roomPanel .rpChip.warn, [data-theme="light"] #roomPanel .rpVal.warn .v { color: #a86a00; }   /* readable on white */
+[data-theme="light"] #roomPanel .rpChip.good { color: #1f8a52; }
+#roomPanel .rpTabs { display: flex; gap: 6px; margin: 12px -2px 2px; padding: 2px; overflow-x: auto; scrollbar-width: none; }
+#roomPanel .rpTabs::-webkit-scrollbar { display: none; }
+#roomPanel .rpTab { position: relative; flex: 1 0 auto; min-width: 54px; display: flex; flex-direction: column; align-items: center; padding: 6px 6px 5px;
+  border-radius: 14px; background: color-mix(in srgb, var(--text) 5%, transparent); border: 1px solid color-mix(in srgb, var(--text) 9%, transparent); line-height: 1.15; }
+#roomPanel .rpTab i { font-style: normal; font-size: 18px; line-height: 1.25; }
+#roomPanel .rpTab span { font-size: 11.5px; font-weight: 650; }
+#roomPanel .rpTab small { font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#roomPanel .rpTab.on { background: var(--accent); border-color: var(--accent); color: var(--accent-text); box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 35%, transparent); }
+#roomPanel .rpTab.on small { color: inherit; opacity: .8; }
+#roomPanel .rpTab.alarm::after { content: ''; position: absolute; top: 5px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: #ef5b50; box-shadow: 0 0 0 2px var(--panel); }
+#roomPanel .rpBody > h4:first-child { margin-top: 10px; }
+#roomPanel .rpScenes { display: flex; gap: 8px; margin: 10px 0 2px; padding-bottom: 2px; overflow-x: auto; scrollbar-width: none; }
+#roomPanel .rpScenes::-webkit-scrollbar { display: none; }
+#roomPanel .rpScene { flex: none; display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 4px 12px 4px 4px; border-radius: 999px; white-space: nowrap;
+  font-weight: 600; font-size: 13px; }
+#roomPanel .rpScene i { font-style: normal; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 15px;
+  background: color-mix(in srgb, var(--text) 9%, transparent); }
+#roomPanel .rpScene.ran { border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
+#roomPanel .rpPills { display: flex; gap: 6px; }
+#roomPanel :is(.rp-allon, .rp-alloff) { min-height: 26px; padding: 0 10px; font-size: 11.5px; letter-spacing: 0; border-radius: 999px; }
+#roomPanel .row.rpLight { position: relative; overflow: hidden; flex-wrap: nowrap; min-height: 52px; padding: 6px 8px 6px 12px; border-radius: 14px;
+  touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: pointer; }
+#roomPanel .row.rpLight.on { border-color: rgba(var(--lc), .75); box-shadow: 0 0 12px rgba(var(--lc), .25); }
+#roomPanel .rpLight .rpFill { position: absolute; inset: 0 auto 0 0; width: var(--pct); pointer-events: none; transition: width .15s;
+  background: linear-gradient(90deg, rgba(var(--lc), .20), rgba(var(--lc), .42)); border-right: 2px solid rgba(var(--lc), .9); }
+#roomPanel .rpLight:not(.on) .rpFill { display: none; }
+#roomPanel .rpLight.dragging .rpFill { transition: none; }
+#roomPanel .rpLight > :not(.rpFill) { position: relative; }
+#roomPanel .rpLight .rpIc { font-style: normal; font-size: 17px; width: 22px; text-align: center; flex: none; }
+#roomPanel .rpLight .n { flex: 1 1 auto; font-weight: 600; }
+#roomPanel .rpLight .v { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+#roomPanel .rpLight.on .v { color: var(--text); }
+#roomPanel .rpLight.na { opacity: .55; cursor: default; }
+#roomPanel .rpLight:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+#roomPanel .rpBody > .rp-ctl { margin: -2px 0 8px; padding: 8px 10px; border: 1px dashed var(--line); border-radius: 12px; }
+#roomPanel details.rpColors { margin-top: 4px; border: 1px dashed var(--line); border-radius: 12px; }
+#roomPanel details.rpColors > summary { list-style: none; display: flex; justify-content: space-between; padding: 9px 12px; cursor: pointer; font-weight: 600; color: var(--muted); }
+#roomPanel details.rpColors > summary::-webkit-details-marker { display: none; }
+#roomPanel details.rpColors > summary::after { content: '▸'; }
+#roomPanel details.rpColors[open] > summary::after { content: '▾'; }
+#roomPanel details.rpColors > .lightctl { padding: 0 12px 10px; }
+#roomPanel .rpVals { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+#roomPanel .rpVal { position: relative; min-width: 0; display: flex; flex-direction: column; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); }
+#roomPanel .rpVal .n { font-size: 11.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 18px; }
+#roomPanel .rpVal .v { font-size: 16px; font-variant-numeric: tabular-nums; }
+#roomPanel .rpVal .mi { position: absolute; top: 4px; right: 4px; min-height: 0; padding: 0 6px; font-size: 11px; border-radius: 999px; }
+#roomPanel .rpVal.warn { border-color: rgba(255, 178, 36, .6); } #roomPanel .rpVal.warn .v { color: #e09a1f; }
+#roomPanel .rpVal.bad { border-color: rgba(239, 91, 80, .6); } #roomPanel .rpVal.bad .v { color: #ef5b50; }
+#roomPanel .rpRules { margin-top: 10px; }
+#roomPanel .rpRules .tpChip { font-size: 12.5px; padding: 4px 10px; }
+#roomPanel .hpPauseBar { max-width: none; margin-top: 8px; }
+#roomPanel .rpEmpty { margin-top: 12px; }
+#roomPanel .rpGrip { display: flex; justify-content: center; margin: -8px -14px 6px; padding: 8px 0 8px; cursor: grab; touch-action: none; }
+#roomPanel .rpGrip i { width: 42px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--text) 30%, transparent); }
+#roomPanel .rpQuick { display: flex; gap: 8px; margin-top: 12px; }
+#roomPanel .rpQ { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 10px 4px 8px; border-radius: 18px; }
+#roomPanel .rpQ i { font-style: normal; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 20px; margin-bottom: 4px;
+  background: color-mix(in srgb, var(--text) 9%, transparent); }
+#roomPanel .rpQ b { font-size: 12.5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#roomPanel .rpQ small { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#roomPanel .rpQ.on { background: linear-gradient(160deg, rgba(255, 200, 110, .30), rgba(255, 150, 60, .08)); border-color: rgba(255, 195, 100, .6); }
+#roomPanel .rpQ.on i { background: #ffcf5c; box-shadow: 0 0 14px rgba(255, 200, 90, .6); }
+#roomPanel .rpQ[data-q=open].on { background: rgba(239, 91, 80, .14); border-color: rgba(239, 91, 80, .55); }
+#roomPanel .rpQ[data-q=open].on i { background: rgba(239, 91, 80, .3); box-shadow: none; }
+#roomPanel .rpLine { margin-top: 10px; font-size: 12.5px; }
+#roomPanel .rpMore { display: block; width: 100%; margin-top: 8px; padding: 6px; background: none; border: 0; color: var(--muted); font-size: 12.5px; }
+@media (max-width: 760px) {
+  body #roomPanel.rpPeek { max-height: 66%; }
+  #roomPanel .rpChips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -14px; padding-right: 14px;   /* one row to swipe: more room for the buttons */
+    -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+  #roomPanel .rpChips::-webkit-scrollbar { display: none; }
+  body #roomPanel.rpFull { max-height: calc(100% - 64px); }
+  #roomPanel { transition: transform .12s; }
+}
