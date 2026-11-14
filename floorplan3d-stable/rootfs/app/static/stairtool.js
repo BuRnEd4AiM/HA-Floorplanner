@@ -1,9 +1,13 @@
 /* Stair tool: the settings of the stair that will be placed (type, direction, turn, rotation, floors, landing), placing a stair and the "Treppenhaus"
  * preset (a U stair with four walls, a room, a landing in front of the stair and a door onto it, the same on every floor it reaches, #229), the wall stair (a light stair with landings, hanging on a
- * wall along a path drawn in the plan), the stair fields of the properties panel, and the 3D mesh of a stair.
+ * wall along a path drawn in the plan), the stair fields of the properties panel, and the 3D mesh of a stair (its treads with a floor covering,
+ * the risers and the rail in their colours, #753, stairlook.js).
  * The geometry of the shaft is a pure function (tested). */
 import * as THREE from './vendor/three.module.min.js';
 import { mergeParts } from './meshmerge.js';
+import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
+import { finishMaterial } from './finishtex.js';
+import { treadFinish, treadHex, riserHex, railLook, oneLook, treadUVs } from './stairlook.js';
 import { stairDefaults, stairBounds, stairLocal, splitStoreys, POLE_R, stairCounts, stairLength, stairRun, stairSteps, stepsRange, autoSteps, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD, RAIL_H, MAX_LANDING, landingLength, FLOOR_LANDING } from './stairs.js';
 import { OPENING_DEFAULTS, wallLength } from './walls.js';
 import { hasWinders, winderCount, hasCorner2, hasWinders2, winderCount2, WINDER_RANGE } from './winders.js';
@@ -29,7 +33,16 @@ export function shaftPlan(base, H, wallThickness, rot, cx, cz) {
   return { corners, stair: { x: +wx.toFixed(3), z: +wz.toFixed(3), rot: r } };
 }
 
-/** ctx: $, t, settings(), layout(), floor(), floorIdx(), floorH() (the storey height, #671), fmtLen(m), imperial(), snapshot(), changed(), select(sel), setTool(name), plan(), uid(), mat(color, ghost, extra),
+/** an extruded step in two: its caps (the tread on top, its bottom; group 0 of three.js' ExtrudeGeometry) and its sides (riser, strings) */
+function splitCaps(geo) {
+  return geo.groups.slice(0, 2).map((gr) => {
+    const g2 = new THREE.BufferGeometry();
+    for (const [k, a] of Object.entries(geo.attributes)) g2.setAttribute(k, new THREE.BufferAttribute(a.array.slice(gr.start * a.itemSize, (gr.start + gr.count) * a.itemSize), a.itemSize));
+    return g2;
+  });
+}
+
+/** ctx: $, t, settings(), layout(), floor(), floorIdx(), floorH() (the storey height, #671), fmtLen(m), imperial(), snapshot(), changed(), select(sel), setTool(name), plan(), uid(), mat(color, ghost, extra), fast() (the "fast" performance mode),
  *  ui: { field, inp, lenInput } (the helpers of the properties panel) */
 export function initStairTool(ctx) {
   const { $, t } = ctx;
@@ -47,13 +60,21 @@ export function initStairTool(ctx) {
     const g = new THREE.Group();
     const stepMat = holo
       ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: ghost ? 0.12 : 0.38, depthWrite: false, side: THREE.DoubleSide })
-      : ctx.mat('#c9bba1', ghost, { side: THREE.DoubleSide });
+      : ctx.mat(treadHex(st), ghost, { side: THREE.DoubleSide });
     const parts = splitStoreys(stairLocal(st, ctx.floorH()), upTo, ctx.floorH());
-    const railMat = holo ? stepMat : ctx.mat('#7c838b', ghost, { metalness: 0.5, roughness: 0.4 });
+    const rl = railLook(st), railOf = (gh) => ctx.mat(rl.color, gh, rl.metal ? { metalness: 0.5, roughness: 0.4 } : { metalness: 0.05, roughness: 0.7 });
+    const railMat = holo ? stepMat : railOf(ghost);
+    // the treads' covering (parquet, tiles, stone …) and the risers in their own colour (#753): a step in two, its caps and its sides
+    const fin = !holo && !ghost ? treadFinish(st) : null;
+    const look = holo || oneLook(st) ? null : {
+      fin, cap: fin ? Object.assign(finishMaterial(fin, ctx.fast?.()), { side: THREE.DoubleSide }) : stepMat,
+      side: ctx.mat(riserHex(st), ghost, { side: THREE.DoubleSide }),
+    };
     const add = (into, geo, m, edges) => { const o = new THREE.Mesh(geo, m); into.add(o); if (holo && edgeMaterial && edges) into.add(new THREE.LineSegments(edges(geo), edgeMaterial)); return o; };
     /** one part: the pole from `from` up `poleH` (spiral, #209), the hand rails (one per storey, open at every landing, #318) with a
      *  baluster per step, the steps */
-    function drawPart(into, part, sMat, rMat, solid, from = 0) {
+    function drawPart(into, part, sMat, rMat, solid, from = 0, lk = null) {
+      const caps = [];                                                // the covered treads: one mesh in the end (a texture is never merged by mergeParts)
       const rail = (geo) => { add(into, geo, rMat, (x) => new THREE.EdgesGeometry(x, 30)).castShadow = solid && !holo; };
       if (part.poleH > 0) rail(new THREE.CylinderGeometry(POLE_R, POLE_R, part.poleH, 16).translate(0, from + part.poleH / 2, 0));
       part.rails.filter((r) => r.length > 1).forEach((r) => {
@@ -65,16 +86,29 @@ export function initStairTool(ctx) {
         const geo = new THREE.ExtrudeGeometry(shape, { depth: tr.thin || tr.top, bevelEnabled: false });   // a thin step is a plate with nothing below it
         geo.rotateX(-Math.PI / 2);
         if (tr.thin) geo.translate(0, tr.top - tr.thin, 0);
+        if (lk) {
+          const [cap, sides] = splitCaps(geo);
+          geo.dispose();
+          if (lk.fin) {
+            const pos = cap.attributes.position, xz = Array.from({ length: pos.count }, (_, i) => [pos.getX(i), pos.getZ(i)]);
+            const uv = treadUVs(lk.fin, tr.poly, xz);
+            cap.setAttribute('uv', new THREE.Float32BufferAttribute(uv.flat(), 2));
+            caps.push(cap);
+          } else { const c = add(into, cap, lk.cap); c.castShadow = solid; c.receiveShadow = true; }
+          const sm = add(into, sides, lk.side); sm.castShadow = solid; sm.receiveShadow = true;
+          return;
+        }
         const m = add(into, geo, sMat, (x) => new THREE.EdgesGeometry(x));
         m.castShadow = solid && !holo; m.receiveShadow = !holo;
       });
+      if (caps.length) { const c = add(into, mergeGeometries(caps), lk.cap); c.castShadow = solid; c.receiveShadow = true; }
     }
-    drawPart(g, parts.below, stepMat, railMat, true);
+    drawPart(g, parts.below, stepMat, railMat, true, 0, look);
     if (parts.above) {
       const up = new THREE.Group();
       const upMat = holo ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide })
-        : ctx.mat('#c9bba1', true, { side: THREE.DoubleSide });
-      drawPart(up, parts.above, upMat, holo ? upMat : ctx.mat('#7c838b', true, { metalness: 0.5, roughness: 0.4 }), false, parts.above.poleFrom);
+        : ctx.mat(treadHex(st), true, { side: THREE.DoubleSide });
+      drawPart(up, parts.above, upMat, holo ? upMat : railOf(true), false, parts.above.poleFrom);
       up.visible = !ctx.isLive?.();
       g.add(up); g.userData.upper = up;
     }

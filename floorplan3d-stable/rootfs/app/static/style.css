@@ -3303,3 +3303,7 @@ body.live .v2Nops { display: none; }
   body #roomPanel.rpFull { max-height: calc(100% - 64px); }
   #roomPanel { transition: transform .12s; }
 }
+/* one colour to choose (colorrow.js): roof #752, stairs #753, doors and windows #754 */
+.colorRow .colorBack { flex: 0 0 auto; margin: 0; font-size: 15px; }
+.looksBtn { display: block; width: 100%; margin: 0 0 10px; padding: 6px 8px; font-size: 13px; text-align: left; }
+.roofEd .v2Sec .hd .sum .rfDot { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 50%; vertical-align: -1px; border: 1px solid rgba(0,0,0,.35); }

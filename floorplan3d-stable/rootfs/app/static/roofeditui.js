@@ -9,6 +9,7 @@ import { profileOf, pitchAt, kneeAt, overAt, pitchForRise, roofMap, solarOn, alo
 import { TEMPLATES, applyTemplate, ownRoof, applyOwn, cleanOwn, MAX_OWN } from './rooftemplates.js';
 import { clampPitch, setDormerType } from './floorpanel.js';
 import { DORMER_TYPES } from './dormer.js';
+import { roofLook, roofHex, ROOF_COLORS } from './rooflook.js';
 
 const COL = { wall: '#ece5d8', side: '#cbc1b0', roof: '#c2583e', roofD: '#8f3b28', flat: '#7d8996', flatD: '#5b6672', edge: 'rgba(0,0,0,.3)' };
 const P = (pts, fill, extra = '') => `<polygon points="${pts.map((p) => p.join(',')).join(' ')}" fill="${fill}" stroke="${COL.edge}" stroke-width="1" stroke-linejoin="round" ${extra}/>`;
@@ -58,7 +59,7 @@ export function initRoofEdit(ctx) {
   let cur = null;                                       // { host, opts, root }: where the editor is drawn, and the editor itself
   let lastPart = null;                                  // the further roof clicked last (its tab opens once)
   let tab = 'form', open = null;                        // the tab, the part opened on „Auf dem Dach“ ({ kind: 'dormer' | 'sky' | 'solar', i })
-  const folded = { size: true, ridge: true, attic: true, steps: true };
+  const folded = { size: true, ridge: true, look: true, attic: true, steps: true };
   let lastPreview = 0, previewTimer = null;
   /** while dragging: the 3D roof follows, at most five times a second */
   function preview() {
@@ -171,10 +172,20 @@ export function initRoofEdit(ctx) {
     const sizeLine = `${r.box ? t('rf.size.own') : t('rf.size.auto')} · ${ctx.fmtLen(r.overhang ?? 0.4)}`;
     body.append(section('size', '📏', t('rf.sec.size'), sizeLine, grp('size')));
     if (r.type !== 'shed' && r.type !== 'flat') body.append(section('ridge', '🧭', t('roof.ridge'), t(r.ridge === 'x' ? 'roof.ridge0' : r.ridge === 'z' ? 'roof.ridge90' : 'roof.auto'), grp('ridge')));
+    body.append(lookSection(r, grp));
     body.append(section('attic', '🛏', t('rf.sec.attic'), r.knee != null ? t('rf.attic.yes', { k: ctx.fmtLen(r.knee) }) : t('rf.attic.no'), grp('attic')));
     if (r.type !== 'flat') body.append(section('steps', '↔', t('rf.sec.steps'), (r.steps || []).length ? String(r.steps.length) : t('rf.none'), grp('steps')));
   }
 
+  /** „Farbe & Deckung“ (#752): the colour (a dot and its name in the head) and the cover; the fields are the classic ones (group look) */
+  function lookSection(r, grp) {
+    const look = roofLook(r), named = ROOF_COLORS.find(([, c]) => c === roofHex(r));
+    const line = `${named ? t(`look.roof.${named[0]}`) : roofHex(r)} · ${t(look.cover ? `roof.cover.${look.cover}` : 'roof.cover.none')}`;
+    const sec = section('look', '🎨', t('roof.look'), line, grp('look').filter((e) => e.id !== 're-roofLookHead'));
+    const dot = el('i', 'rfDot'); dot.style.background = roofHex(r);
+    sec.querySelector('.hd .sum')?.prepend(dot);
+    return sec;
+  }
   /** the roof from the side, small in the panel or big over the picture (⤢); its points are dragged, its numbers typed */
   function profileCard(f, r, bb, fi, big) {
     const card = el('div', `rfCard rfProfile${big ? ' big' : ''}`); card.id = big ? 'roofProfileBig' : 'roofProfile';

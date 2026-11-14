@@ -24,6 +24,7 @@ import { withoutParts } from './balcony.js';
 import { slabDepth, wallUpTo, wallUnder, inRoom, shutterLabelIn } from './housefloors.js';
 import { patternOf, floorHex } from './floorcover.js';
 import { facadeOf, facadeFinish } from './facade.js';
+import { openingColors, leadsOut } from './doorlook.js';
 import { floorUVs, floorLook } from './floortex.js';
 import { wallSkins, hasSkins } from './finishes.js';
 import { dressWall } from './wallskin.js';
@@ -298,6 +299,10 @@ export function initFloorBuild(ctx) {
     const dormerOut = new Map();                                  // roller shutters (#331) hang outside: a dormer window's dormer knows where that is
     (f.dormerWalls || []).forEach((d) => d.openings.forEach((op) => dormerOut.set(op.id, d.outside)));
     const sideOf = (w) => (op) => dormerOut.get(op.id) ?? shutterSide(w, op, f.rooms);
+    // the colours of the doors and windows (#754, doorlook.js): their own, else the house's (a door to the outside: the front door's)
+    let doorRing = null;                                          // the outline of the floor: a corridor that is no room is inside too
+    const ring = () => (doorRing ||= houseFootprint([f], 0));
+    const colorsOf = (w) => (op) => openingColors(op, { settings: ctx.settings(), outer: op.type === 'door' && leadsOut(w, op, f.rooms, ring()), windowFrame: look.frame });
     const facade = facadeFinish(ctx.settings()), skins = !holo && !ghost && hasSkins(f, facade);   // finishes on the walls (#448)
     let outline = null;                                          // the outline of the floor: a side outside it gets the facade
     const dressOf = (w) => (skins ? (grp, pieces, len) => {
@@ -317,7 +322,7 @@ export function initFloorBuild(ctx) {
       const wallMat = holo
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * ctx.belowVis() : ctx.settings().wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : ctx.mat(look.wall, ghost);
-      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge, shutterSide: sideOf(w), windowFrame: look.frame, dress: dressOf(w), ends: ends[k] });
+      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge, shutterSide: sideOf(w), windowFrame: look.frame, dress: dressOf(w), ends: ends[k], colorsOf: colorsOf(w) });
       const lift = up.wall(w);
       wg.position.y = lift;
       if (half) {                                                // what sticks out above the cut (door leaves, window frames) is clipped off
@@ -340,7 +345,7 @@ export function initFloorBuild(ctx) {
       if (w.host) return;                                        // cut into a wall of the room, drawn with it (above)
       const [ox, oz] = w.skylight ? w.openings[0].at || [] : [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];
       if (iso && !ghost && !inIso(iso, ox, oz)) return;
-      const wg = buildWall(w, { material: null, ghost, low, makeMat: ctx.mat, holo, bare: true, shutterSide: sideOf(w), windowFrame: look.frame });
+      const wg = buildWall(w, { material: null, ghost, low, makeMat: ctx.mat, holo, bare: true, shutterSide: sideOf(w), windowFrame: look.frame, colorsOf: colorsOf(w) });
       const lift = up.wall(w);
       wg.position.y = lift;
       if (half) {

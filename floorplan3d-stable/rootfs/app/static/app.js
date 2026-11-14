@@ -61,6 +61,7 @@ import { initFloorPanel, newFloor } from './floorpanel.js';
 import { hexVec, colorFromStops, roomLightMat as makeRoomLightMat, fillLights as fillRoomLights } from './roomlight.js';
 import { paintFloor } from './floortex.js';                                      // floor coverings (#427)
 import { initFacadeUi } from './finishui.js';                                    // the facade in the settings (#448)
+import { initDoorSettings } from './looksui.js';                                // the house's doors in the settings (#754)
 import { sweepTextures } from './finishtex.js';                                   // finishes of floors and walls (#448)
 import { initRoomLabels } from './roomlabels.js';
 import { lampLights, lampRgb } from './lamplight.js';
@@ -1605,7 +1606,7 @@ const plotUi = initPlotUi({
 const stairTool = initStairTool({
   $, t, settings: () => settings, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, floorH, snapshot: () => snapshot(), changed: (...a) => changed(...a),
   select: (sel) => { selection = sel; }, setTool: (x) => setTool(x), plan: () => plan, uid: () => uid(), mat: (...a) => mat(...a), isLive: () => isLive(),
-  ui: { field: (...a) => field(...a), inp: (...a) => inp(...a), lenInput: (...a) => lenInput(...a) }, fmtLen: (m) => fmtLen(m), imperial: () => imperial(),
+  ui: { field: (...a) => field(...a), inp: (...a) => inp(...a), lenInput: (...a) => lenInput(...a) }, fmtLen: (m) => fmtLen(m), imperial: () => imperial(), fast: () => LOW,
 });
 
 /* ================= Background image (template to trace): the code lives in background.js ================= */
@@ -1672,7 +1673,7 @@ const props = initProps({
   deleteItem: (sel) => deleteItem(sel), applyStates: () => applyStates(), setStatus: (x) => setStatus(x), renderObjList: () => renderObjList(),
   renderRoomEntities: () => renderRoomEntities(), stateText: (id) => stateText(id), roomAt: (x, z) => roomAt(x, z), pointInPoly, controlsTarget: () => controls.target,
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type, dev) => baseSize(type, dev), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
-  uploadPicture: (f, d) => uploadPicture(f, d), floorH, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
+  uploadPicture: (f, d) => uploadPicture(f, d), floorH, settings: () => settings, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
   roomSources: (r, mode, chosen) => { const f = layout.floors.find((x) => x.rooms.includes(r)) || floor(); return sourceChoices(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode, partOf(), chosen); },   // 🌡 #705
   lang: () => currentLanguage(),
@@ -1724,6 +1725,7 @@ const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
+  doorsUi: initDoorSettings({ $, t }),                 // the colours of the house's doors (#754)
   parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs, outdoorPrefs, initSetControls({ $, t })],   // the last: buttons, sliders, units, "mehr …" (5.8.0)   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
   ready: (next) => loadLanguage(next.language),       // a newly chosen language: its texts first, then apply (no English in between)
   committed: (prev) => {
@@ -1966,6 +1968,11 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     elev: (i) => elev(i),
+    looksOf: (id) => {                                        // the colours of a stair, door or window in 3D (#753, #754), for tests
+      const g = registry.get(id), out = new Map();
+      g?.traverse((m) => [].concat(m.material || []).forEach((x) => { if (x.color) out.set(x.uuid, { color: `#${x.color.getHexString()}`, map: !!x.map }); }));
+      return { mats: [...out.values()], tint: Object.fromEntries((g?.userData.tint || []).map(({ k, base }) => [k, `#${base.toString(16).padStart(6, '0')}`])) };
+    },
     roofMeshes: () => { const out = []; scene.traverse((o) => { if (o.userData?.roofPart) { const w = new THREE.Vector3(); o.getWorldPosition(w); out.push({ tag: o.userData.roofPart, y: +w.y.toFixed(3), tris: (o.geometry?.attributes?.position?.count || 0) / 3, part: o.userData.dormerPart || (o.userData.skylightPart ? `skylight-${o.userData.skylightPart}` : null) || (o.userData.gableWall ? 'gablewall' : null), box: ((b3) => [b3.min.x, b3.max.x, b3.min.z, b3.max.z].map((v) => +v.toFixed(3)))(new THREE.Box3().setFromObject(o)) }); } }); return out; },
     heatGlow: (id) => registry.get(id)?.userData.heat?.[0]?.emissiveIntensity ?? -1,
     cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests

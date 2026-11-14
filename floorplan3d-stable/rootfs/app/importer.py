@@ -65,6 +65,7 @@ FINISHES = {
     **{k: _A for k in ("woodCladding", "woodGrey", "shingles", "facadePanels")},
 }
 COVERINGS = tuple(k for k, on in FINISHES.items() if "floor" in on)
+ROOF_COVERS = ("tiles", "beaver", "slate", "metal")              # static/rooflook.js COVER_KEYS (#752)
 FACADE_FINISHES = tuple(k for k, on in FINISHES.items() if "facade" in on)
 _HEX6 = re.compile(r"#[0-9a-fA-F]{6}")
 
@@ -386,6 +387,13 @@ def _opening_from(rep: Report, path: str, spec: dict):
                 wanted = "out" if legacy else "in"                # the old curtainOutside flag (4.50.1): true = facade side
             if wanted != default_side:
                 o["curtainSide"] = wanted                         # the style's default side is not stored
+    if isinstance(spec.get("look"), dict):                        # its own colours (#754, static/doorlook.js): a door's leaf and frame, a window's frame
+        look = {k: spec["look"][k].lower() for k in (("leaf", "frame") if o["type"] == "door" else ("frame",))
+                if isinstance(spec["look"].get(k), str) and _HEX6.fullmatch(spec["look"][k])}
+        if look:
+            o["look"] = look
+        else:
+            rep.warn(f"{path}.look", "look needs a colour '#rrggbb' for leaf (doors) or frame, ignored")
     if "openOutward" in spec:
         outward = spec["openOutward"]
         if o["type"] != "window":
@@ -769,6 +777,18 @@ def _stair(rep: Report, path: str, spec, ids, ox, oz):
             rep.warn(f"{path}.steps", f"steps (treads per floor) must be a whole number from {STAIR_STEPS[0]} to {STAIR_STEPS[1]}: ignored")
     if spec.get("solid") is True and typ == "wall":         # a wall stair with solid steps instead of thin plates (#623)
         st["solid"] = True
+    if spec.get("covering") is not None:                    # the treads covered like a room's floor (#753, static/stairlook.js)
+        if spec["covering"] in COVERINGS:
+            st["covering"] = spec["covering"]
+            if (look := clean_look(spec.get("floorLook"))):
+                st["floorLook"] = look
+        else:
+            rep.warn(f"{path}.covering", "unknown floor covering, ignored (the steps keep their colour)")
+    for k in ("color", "riser", "rail"):                    # the treads without a covering, risers and strings, the spiral stair's rail
+        if isinstance(spec.get(k), str) and _HEX6.fullmatch(spec[k]):
+            st[k] = spec[k].lower()
+        elif spec.get(k) is not None:
+            rep.warn(f"{path}.{k}", f"{k} must be a colour '#rrggbb', ignored")
     st["x"], st["z"] = round(st["x"] + ox, 3), round(st["z"] + oz, 3)
     return st
 
@@ -1087,6 +1107,15 @@ def _roof(rep, path, spec, part=False):
             "overhang": float(spec["overhang"]) if _num(spec.get("overhang"), 0, 3) else 0.4}
     if spec.get("ridge") in ("x", "z") and typ != "shed":
         roof["ridge"] = spec["ridge"]
+    if not part:                                          # the colour and cover of every roof of the floor (#752, static/rooflook.js)
+        if isinstance(spec.get("color"), str) and _HEX6.fullmatch(spec["color"]):
+            roof["color"] = spec["color"].lower()
+        elif spec.get("color") is not None:
+            rep.warn(f"{path}.color", "color must be a colour '#rrggbb', ignored (brick red)")
+        if spec.get("cover") in ROOF_COVERS:
+            roof["cover"] = spec["cover"]
+        elif spec.get("cover") is not None:
+            rep.warn(f"{path}.cover", f"cover must be one of {', '.join(ROOF_COVERS)}, ignored (smooth)")
     if typ == "shed":                                     # a shed roof (#628): the edge of its base box that is high
         high = spec.get("high", "z0")
         if high not in SHED_HIGH:
@@ -1368,7 +1397,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "fixedBelow", "fixedAbove", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "rainWarn", "heat") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "fixedBelow", "fixedAbove", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "rainWarn", "heat", "look") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []
@@ -1404,6 +1433,7 @@ def layout_to_property(layout, name="Haus"):
                 os_["steps"] = st["steps"]
             if st["type"] == "wall" and st.get("solid") is True:
                 os_["solid"] = True
+            os_.update({k: st[k] for k in ("covering", "floorLook", "color", "riser", "rail") if st.get(k)})   # #753
             stairs.append(os_)
         if stairs:
             item["stairs"] = stairs

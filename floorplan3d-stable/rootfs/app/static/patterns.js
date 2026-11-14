@@ -1,7 +1,8 @@
 /* Drawing the patterns of floors and walls (#448) on a square canvas in the browser (no picture files): planks, herringbone, chevron,
  * basket weave, tiles (straight, checkerboard, mosaic, cement tiles, zellige, marble), running bond (large tiles, metro tiles, bricks,
  * paving), hexagons, stones (polygonal, cobbles, random slabs), terrazzo, concrete, carpet, cork, woodchip, plaster, limewash, linen,
- * wallpapers (stripes, damask, dots, harlequin, leaves, fans, zigzag, plaid), wood slats and slate shingles. Every picture repeats without
+ * wallpapers (stripes, damask, dots, harlequin, leaves, fans, zigzag, plaid), wood slats and slate shingles, and for roofs (#752, rooflook.js)
+ * tiles and metal with standing seams. Every picture repeats without
  * a seam. The same drawing in grey gives the relief (height = true): joints deep, tiles and stones up; it draws the very same shapes, as
  * it takes the same "random" numbers in the same order. Needs only a 2D canvas context (unit test with a recording one:
  * tests/patterns.test.mjs); finishtex.js makes textures of it. A finish (finishes.js resolve) gives kind, p, color, color2. */
@@ -535,15 +536,43 @@ function shingles(g, S, f, ink, rnd) {
   for (let row = 7; row >= -1; row--) for (let c = -1; c <= 4; c++) {          // from the bottom up: each row lies over the top of the one under it
     const x = c * w + (mod(row, 2) ? w / 2 : 0), y = row * h, tone = tones[mod(row, 6) * 4 + mod(c, 4)];
     g.fillStyle = ink.h ? grey(0.55 + (tone - 0.85) * 0.6) : shade(f.color, tone);
-    g.beginPath(); g.moveTo(x + 2 * k, y - h * 0.6); g.lineTo(x + w - 2 * k, y - h * 0.6); g.lineTo(x + w - 2 * k, y + h * 0.45);
-    g.quadraticCurveTo(x + w - 2 * k, y + h - 2 * k, x + w / 2, y + h - 2 * k); g.quadraticCurveTo(x + 2 * k, y + h - 2 * k, x + 2 * k, y + h * 0.45); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(x + 2 * k, y - h * 0.6); g.lineTo(x + w - 2 * k, y - h * 0.6);
+    if (f.p?.square) { g.lineTo(x + w - 2 * k, y + h - 2 * k); g.lineTo(x + 2 * k, y + h - 2 * k); }   // slate on a roof: square at the bottom (#752)
+    else { g.lineTo(x + w - 2 * k, y + h * 0.45); g.quadraticCurveTo(x + w - 2 * k, y + h - 2 * k, x + w / 2, y + h - 2 * k); g.quadraticCurveTo(x + 2 * k, y + h - 2 * k, x + 2 * k, y + h * 0.45); }
+    g.closePath(); g.fill();
     g.fillStyle = 'rgba(255,255,255,.06)'; g.fillRect(x + 2 * k, y - h * 0.6, w - 4 * k, 3 * k);
+  }
+}
+/** roof tiles (Dachziegel, pan tiles, #752): 4 x 4 tiles in straight columns, each with its wave (bright on the roll, dark in the trough)
+ *  and a shadow under its lower edge where it lies on the row below; drawn from the bottom up */
+function rooftiles(g, S, f, ink, rnd) {
+  const w = S / 4, h = S / 4;
+  const bands = [[0, 0.12, 0.95], [0.12, 0.38, 1.12], [0.38, 0.6, 1], [0.6, 0.88, 0.84], [0.88, 1, 0.7]];   // across a tile: [from, to, light]
+  g.fillStyle = ink.h ? '#202020' : shade(f.color, 0.55); g.fillRect(0, 0, S, S);
+  const tones = Array.from({ length: 16 }, () => 0.9 + rnd() * 0.2);
+  for (let r = 3; r >= 0; r--) for (let c = 0; c < 4; c++) {
+    const x = c * w, y = r * h, tone = tones[r * 4 + c];
+    bands.forEach(([a, b, l]) => { g.fillStyle = ink.h ? grey(0.25 + 0.5 * (l - 0.7) / 0.42) : shade(f.color, tone * l); g.fillRect(x + a * w, y, (b - a) * w + 0.5, h); });
+    g.fillStyle = ink.h ? grey(0.9) : shade(f.color, tone * 1.05); g.fillRect(x, y + h * 0.9, w, h * 0.04);      // the thick lower edge of the tile
+    g.fillStyle = ink.h ? '#101010' : 'rgba(0,0,0,.35)'; g.fillRect(x, y + h * 0.94, w, h * 0.06);               // its shadow on the row below
+  }
+}
+/** a metal roof with standing seams (Stehfalz, #752): four panels, each a little lighter or darker, a raised seam between them (light
+ *  edge, dark shadow beside it) */
+function seams(g, S, f, ink, rnd) {
+  const w = S / 4, k = S / 512;
+  g.fillStyle = ink.h ? grey(0.45) : f.color; g.fillRect(0, 0, S, S);
+  for (let c = 0; c < 4; c++) {
+    const tone = 0.95 + rnd() * 0.1;
+    g.fillStyle = ink.h ? grey(0.45) : shade(f.color, tone); g.fillRect(c * w, 0, w, S);
+    g.fillStyle = ink.h ? grey(0.95) : shade(f.color, 1.25); g.fillRect(c * w, 0, 4 * k, S);
+    g.fillStyle = ink.h ? grey(0.15) : shade(f.color, 0.6); g.fillRect(c * w + 4 * k, 0, 3 * k, S);
   }
 }
 const plain = (g, S, f, ink) => { g.fillStyle = ink.a; g.fillRect(0, 0, S, S); };
 
 /** how every kind is drawn (finishes.js kind) and whether it is a printed motif (its relief stays flat, the motif a little raised) */
-export const KINDS = { plain, planks, herringbone, chevron, basket, grid, bond, hex, cells, rows, terrazzo, concrete, carpet, cork, woodchip, plaster, limewash, linen, stripes, slats, damask, dots, diamonds, leaves, scallop, zigzag, plaid, shingles };
+export const KINDS = { plain, planks, herringbone, chevron, basket, grid, bond, hex, cells, rows, terrazzo, concrete, carpet, cork, woodchip, plaster, limewash, linen, stripes, slats, damask, dots, diamonds, leaves, scallop, zigzag, plaid, shingles, rooftiles, seams };
 const MOTIFS = new Set(['stripes', 'damask', 'dots', 'diamonds', 'leaves', 'scallop', 'zigzag', 'plaid']);
 
 /** draw finish fin (finishes.js resolve) on context g of a square canvas S x S; height: the relief in grey instead of the colours */

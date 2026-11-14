@@ -1,6 +1,8 @@
 /* Floor rail: a side bar with a little isometric picture of every floor (rooms, walls with windows and doors, or the roof) and a button for the whole
  * house. The drawing is done by drawThumb (a plain 2D canvas, tested with a fake canvas); initFloorRail builds the buttons. */
 import { floorHex } from './floorcover.js';
+import { roofLook } from './rooflook.js';
+import { mixHex } from './finishes.js';
 
 const ISO = (x, z, h) => [(x - z) * 0.866, (x + z) * 0.5 - h];
 
@@ -36,9 +38,11 @@ export function drawThumb(cv, f, rb, opts) {
     const m = (rb.z0 + rb.z1) / 2, hr = Math.min(1.8, Math.max(0.8, (rb.z1 - rb.z0) * 0.25));
     const r0 = P(rb.x0, m, hr), r1 = P(rb.x1, m, hr);
     const c00 = P(rb.x0, rb.z0, 0), c10 = P(rb.x1, rb.z0, 0), c01 = P(rb.x0, rb.z1, 0), c11 = P(rb.x1, rb.z1, 0);
-    poly([c00, c10, r1, r0], holo ? null : '#8c4234', holo ? accent : null);
-    poly([c01, c11, r1, r0], holo ? null : '#a8503f', holo ? accent : null);
-    poly([c10, c11, r1], holo ? null : '#6f332a', holo ? accent : null);
+    const c = roofLook(f.roof).color;                       // in the roof's own colour (#752)
+    const [s0, s1, s2] = c ? [mixHex(c, '#000000', 0.15), mixHex(c, '#ffffff', 0.04), mixHex(c, '#000000', 0.32)] : ['#8c4234', '#a8503f', '#6f332a'];
+    poly([c00, c10, r1, r0], holo ? null : s0, holo ? accent : null);
+    poly([c01, c11, r1, r0], holo ? null : s1, holo ? accent : null);
+    poly([c10, c11, r1], holo ? null : s2, holo ? accent : null);
     return;
   }
   f.rooms.forEach((r) => poly(r.points.map(([x, z]) => P(x, z, 0)), holo ? accent + '30' : floorHex(r), holo ? accent : 'rgba(0,0,0,.25)'));

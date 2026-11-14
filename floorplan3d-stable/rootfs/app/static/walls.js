@@ -135,12 +135,17 @@ function addCurtain(g, x0, x1, yB, yT, t, ft, mat, side, hangSide, style) {
   return [panel(leftEdge, atLeft, cw / 2), panel(rightEdge, -atLeft, cw / 2)];
 }
 
-function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null) {
+function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null, colors = null) {
   const g = new THREE.Group();
   g.userData = { kind: 'opening', id: o.id };
   // every opening gets its own materials so a contact sensor can tint just this door/window
   const mats = {};
   for (const [k, m] of Object.entries(mats0)) mats[k] = m.clone();
+  if (colors) {                                          // its colours (#754, doorlook.js): leaf and frame; a garage door's slats only when it has its own
+    mats.frame.color.set(colors.frame);
+    if (o.style !== 'garage') mats.door.color.set(colors.leaf);
+    else if (o.look?.leaf) mats.metal.color.set(colors.leaf);
+  }
   const cx = 0, w = o.width, h = o.height, s = o.sill;
   const fd = t + 0.02, ft = 0.05;                        // frame depth / thickness
   const x0 = cx - w / 2, x1 = cx + w / 2;
@@ -309,8 +314,9 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
  *  shutterSide(o): the side (local z, +1 / -1) the roller shutter of window o hangs on, outside (shutters.js), +1 without it.
  *  windowFrame: the colour of the window frames ('#rrggbb', facade.js, #428), the door frames stay white; null: white as well.
  *  dress(group, pieces, len): puts the finishes on the faces of the wall (wallskin.js, #448); pieces: its solid parts { x0, x1, y0, y1 } */
-/** ends: how far each face reaches past the ends at a slanted corner ({ a, b }, wallmiter.js miterEnds; null: square ends) */
-export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null, bare = false, shutterSide = null, windowFrame = null, dress = null, ends = null }) {
+/** ends: how far each face reaches past the ends at a slanted corner ({ a, b }, wallmiter.js miterEnds; null: square ends)
+ *  colorsOf(o): the colours of door / window o ({ leaf, frame }, doorlook.js openingColors, #754); null: as always (and windowFrame) */
+export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null, bare = false, shutterSide = null, windowFrame = null, dress = null, ends = null, colorsOf = null }) {
   const len = wallLength(w);
   const t = w.thickness;
   const H = (w.height || 2.6) * (low ? 0.12 : cut || 1);   // `cut`: fraction of the height that stays (half section)
@@ -360,7 +366,7 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
   for (const o of openings) {
     const c = o.pos - half;
     if (!low) {
-      const og = buildOpening({ ...o }, t, o.type === 'window' ? winMats : mats, low, shutterMat, shutterSide && (hasShutter(o) || o.type === 'window') ? shutterSide(o) : 1, curtainMat);
+      const og = buildOpening({ ...o }, t, o.type === 'window' ? winMats : mats, low, shutterMat, shutterSide && (hasShutter(o) || o.type === 'window') ? shutterSide(o) : 1, curtainMat, colorsOf && !holo ? colorsOf(o) : null);
       og.position.x = c;
       group.add(og);
     }
