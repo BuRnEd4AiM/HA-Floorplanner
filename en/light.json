@@ -1,0 +1,40 @@
+{
+ "id": "light",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe auf einen Raum, um näher heranzugehen.",
+   "en": "Tap a room to get closer."
+  },
+  {
+   "t": 5.29,
+   "de": "Jede Lampe hat eine Kugel. Tippe sie an: ihre Karte öffnet sich.",
+   "en": "Every lamp has a ball. Tap it and its card opens."
+  },
+  {
+   "t": 7.06,
+   "de": "Mit der rechten Maustaste schiebst du den Raum neben die Karte.",
+   "en": "Drag with the right mouse button to move the room beside the card."
+  },
+  {
+   "t": 10.05,
+   "de": "„Aus“ schaltet sie aus, „An“ wieder an.",
+   "en": "“Off” turns it off, “On” on again."
+  },
+  {
+   "t": 16.11,
+   "de": "Mit dem Schieber wird sie heller oder dunkler.",
+   "en": "The slider makes it brighter or darker."
+  },
+  {
+   "t": 23.64,
+   "de": "Ein Tipp auf eine Farbe färbt das Licht.",
+   "en": "Tap a colour to colour the light."
+  }
+ ],
+ "duration": 30.95,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

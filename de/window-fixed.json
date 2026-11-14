@@ -1,0 +1,55 @@
+{
+ "id": "window-fixed",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Klicke das Fenster an: es geht vom Boden bis 2,20 m.",
+   "en": "Click the window: it goes from the floor up to 2.20 m."
+  },
+  {
+   "t": 2.79,
+   "de": "Nur oben geht es auf: „Feste Scheibe unten“ auf 1,1 m.",
+   "en": "Only the top opens: “Fixed glass below” to 1.1 m."
+  },
+  {
+   "t": 8.25,
+   "de": "Unten ist jetzt eine feste Scheibe, darüber ein Querholz und der Flügel, der kippt und aufgeht.",
+   "en": "Below there is fixed glass now, above it a bar and the pane that tilts and opens."
+  },
+  {
+   "t": 10.05,
+   "de": "Der Flügel geht links auf, wie ein Dreh-Kipp-Fenster.",
+   "en": "The pane opens on the left, like a tilt-and-turn window."
+  },
+  {
+   "t": 13.32,
+   "de": "Der Kontakt gehört zum Flügel, darunter der Kontakt „gekippt“.",
+   "en": "The contact belongs to the pane, below it the tilt contact."
+  },
+  {
+   "t": 27.82,
+   "de": "Gekippt: nur der Flügel oben wird gelb und kippt nach innen. Die feste Scheibe unten bleibt, wie sie ist.",
+   "en": "Tilted: only the pane at the top turns yellow and tilts in. The fixed glass below stays as it is."
+  },
+  {
+   "t": 30.42,
+   "de": "Offen: der Flügel oben wird rot und geht auf.",
+   "en": "Open: the pane at the top turns red and swings open."
+  },
+  {
+   "t": 33.45,
+   "de": "„Feste Scheibe oben“ ist ein festes Oberlicht über dem Flügel, zum Beispiel 0,4 m.",
+   "en": "“Fixed glass above” is a fixed transom over the pane, for example 0.4 m."
+  },
+  {
+   "t": 39.56,
+   "de": "Leer lassen oder 0: keine feste Scheibe. Neue Fenster dieser Art gibt es unter „Tür/Fenster“ als „Bodentief, unten fest“.",
+   "en": "Leave it empty or 0: no fixed glass. New windows like this are under “Door/Window” as “Floor-length, fixed below”."
+  }
+ ],
+ "duration": 48.36,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

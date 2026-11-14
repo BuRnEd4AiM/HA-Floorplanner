@@ -1,0 +1,35 @@
+{
+ "id": "heatdiag",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 5.71,
+   "de": "Unter „Klima“ oben: „🩺 Protokoll“.",
+   "en": "Under “Climate” at the top: “🩺 Log”."
+  },
+  {
+   "t": 8.83,
+   "de": "Je Raum: das Thermostat, wer zuletzt gedreht hat, jedes Fenster und jede Tür.",
+   "en": "Per room: the thermostat, who turned it last, every window and every door."
+  },
+  {
+   "t": 10.63,
+   "de": "Ein Raum für sich: oben antippen.",
+   "en": "One room on its own: tap it at the top."
+  },
+  {
+   "t": 13.46,
+   "de": "Weiter unten: was die Regeln wann gemacht haben.",
+   "en": "Further down: what the rules did and when."
+  },
+  {
+   "t": 17.03,
+   "de": "„📋 Bericht kopieren“ gibt alles als Text, zum Beispiel für eine Frage.",
+   "en": "“📋 Copy report” gives everything as text, for example for a question."
+  }
+ ],
+ "duration": 22.07,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

@@ -1,0 +1,30 @@
+{
+ "id": "doorbell",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Jemand klingelt an der Haustür …",
+   "en": "Someone rings at the front door …"
+  },
+  {
+   "t": 2.87,
+   "de": "… das Tablet zeigt die Kamera an der Tür.",
+   "en": "… the tablet shows the camera at the door."
+  },
+  {
+   "t": 4.37,
+   "de": "„Tür öffnen“ fragt noch einmal, bevor es aufmacht.",
+   "en": "“Open the door” asks once more before it opens."
+  },
+  {
+   "t": 8.55,
+   "de": "„Schließen“ und alles ist wie vorher.",
+   "en": "“Close” and everything is as before."
+  }
+ ],
+ "duration": 14.1,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

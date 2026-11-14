@@ -1,0 +1,25 @@
+{
+ "id": "settings-search",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 4.9,
+   "de": "Links stehen alle Bereiche der Einstellungen.",
+   "en": "All groups of settings are on the left."
+  },
+  {
+   "t": 8.47,
+   "de": "Schneller geht die Suche oben.",
+   "en": "The search at the top is quicker."
+  },
+  {
+   "t": 14.9,
+   "de": "Jede Einstellung wirkt sofort, ohne Speichern.",
+   "en": "Every setting works at once, without saving."
+  }
+ ],
+ "duration": 17.7,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

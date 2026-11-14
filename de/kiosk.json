@@ -1,0 +1,25 @@
+{
+ "id": "kiosk",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 5.37,
+   "de": "In den Einstellungen: „Wandtablet“.",
+   "en": "In the settings: “Wall tablet”."
+  },
+  {
+   "t": 10.52,
+   "de": "Die Startansicht: dorthin geht das Tablet nach einer Weile zurück. Die Anleitung zum Einrichten ist eine Zeile zum Aufklappen.",
+   "en": "The start view: the tablet goes back there after a while. How to set it up is a line that folds open."
+  },
+  {
+   "t": 15.89,
+   "de": "Weiter unten: dunkler in der Nacht und ein sparsamer Modus.",
+   "en": "Further down: darker at night and a saving mode."
+  }
+ ],
+ "duration": 21.78,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

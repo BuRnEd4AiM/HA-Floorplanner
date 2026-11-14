@@ -1,0 +1,25 @@
+{
+ "id": "warnings",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Es regnet, und im Wohnzimmer ist ein Fenster offen.",
+   "en": "It is raining, and a window is open in the living room."
+  },
+  {
+   "t": 1.6,
+   "de": "Oben steht die Warnung; ein Tipp zeigt das Fenster.",
+   "en": "The warning is at the top; a tap shows the window."
+  },
+  {
+   "t": 11.25,
+   "de": "Rauch, Gas, Wasser und Alarm warnen genauso, nur in Rot und mit Blinken.",
+   "en": "Smoke, gas, water and alarm warn the same way, only in red and flashing."
+  }
+ ],
+ "duration": 14.44,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

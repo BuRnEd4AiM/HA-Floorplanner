@@ -1,0 +1,30 @@
+{
+ "id": "walls",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben im Bearbeiten-Modus: „Wand“.",
+   "en": "At the top in edit mode: “Wall”."
+  },
+  {
+   "t": 2.46,
+   "de": "Klicke Punkt für Punkt: jede Ecke eine Wand.",
+   "en": "Click point by point: every corner a wall."
+  },
+  {
+   "t": 10.5,
+   "de": "Esc beendet die Wand.",
+   "en": "Esc ends the wall."
+  },
+  {
+   "t": 11.5,
+   "de": "Im 3D-Bild stehen die Wände sofort.",
+   "en": "The walls stand in the 3D view at once."
+  }
+ ],
+ "duration": 16.14,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

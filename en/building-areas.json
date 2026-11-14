@@ -1,0 +1,50 @@
+{
+ "id": "building-areas",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.44,
+   "de": "Dieser Plan hat zwei Gebäude. Öffne im Bearbeiten „🏘 Gebäude in diesem Plan“.",
+   "en": "This plan has two buildings. While editing, open “🏘 Buildings in this plan”."
+  },
+  {
+   "t": 6.31,
+   "de": "Unter den Räumen und Dächern: „Bereiche von Home Assistant“.",
+   "en": "Below the rooms and roofs: “Areas of Home Assistant”."
+  },
+  {
+   "t": 11.87,
+   "de": "Jeder Bereich gehört von selbst zu dem Gebäude, in dem seine Geräte im Plan stehen: „automatisch (Haupthaus)“.",
+   "en": "Every area belongs by itself to the building its devices stand in in the plan: “automatic (Main house)”."
+  },
+  {
+   "t": 16.78,
+   "de": "Dann zeigt sich alles aus dem Bereich nur bei diesem Gebäude, auch was nicht im Plan steht. Automationen, Skripte und Szenen folgen ihren Geräten.",
+   "en": "Then everything of the area shows only with that building, also what is not in the plan. Automations, scripts and scenes follow their devices."
+  },
+  {
+   "t": 19.98,
+   "de": "Stimmt das Gebäude nicht, oder steht „kein Gebäude“ da: hier wählen.",
+   "en": "If the building is wrong, or it says “no building”: choose here."
+  },
+  {
+   "t": 25.48,
+   "de": "„Alle Gebäude (immer zeigen)“ ist für Bereiche wie den Garten.",
+   "en": "“All buildings (always show)” is for areas like the garden."
+  },
+  {
+   "t": 30.04,
+   "de": "Darunter: was zu keinem Gebäude gehört und sich deshalb bei jedem zeigt. Gib solchen Geräten in Home Assistant einen Bereich.",
+   "en": "Below: what belongs to no building and therefore shows with every one. Give such devices an area in Home Assistant."
+  },
+  {
+   "t": 37.1,
+   "de": "Oben ein Gebäude wählen: jede Seite zeigt jetzt nur noch seins.",
+   "en": "Choose a building at the top: every page now shows only its things."
+  }
+ ],
+ "duration": 43.23,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

@@ -1,0 +1,40 @@
+{
+ "id": "shutter",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe auf den Raum mit dem Rollladen.",
+   "en": "Tap the room with the shutter."
+  },
+  {
+   "t": 5.43,
+   "de": "Tippe auf die Kugel des Rollladens.",
+   "en": "Tap the ball of the shutter."
+  },
+  {
+   "t": 7.31,
+   "de": "„Schließen“ fährt ihn herunter, auch im Bild.",
+   "en": "“Close” lowers it, in the picture too."
+  },
+  {
+   "t": 11.73,
+   "de": "„Öffnen“ fährt ihn wieder hoch.",
+   "en": "“Open” raises it again."
+  },
+  {
+   "t": 15.88,
+   "de": "Rechts in der Karte des Raums, Reiter „Rollo“, geht es auch: Hoch, Stopp, Runter und feste Stufen von 0 bis 100 %.",
+   "en": "The room's card on the right has it too, tab “Blinds”: up, stop, down and fixed steps from 0 to 100 %."
+  },
+  {
+   "t": 20.86,
+   "de": "„50 %“: er fährt halb herunter.",
+   "en": "“50 %”: it goes halfway down."
+  }
+ ],
+ "duration": 26.13,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

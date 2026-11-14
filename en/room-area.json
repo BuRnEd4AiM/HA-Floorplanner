@@ -1,0 +1,40 @@
+{
+ "id": "room-area",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 4.99,
+   "de": "Einen Raum anklicken, hier die Küche.",
+   "en": "Click a room, here the kitchen."
+  },
+  {
+   "t": 7.75,
+   "de": "Rechts unter dem Namen: „HA-Bereich“ mit den Bereichen aus Home Assistant.",
+   "en": "On the right under the name: “HA area” with the areas from Home Assistant."
+  },
+  {
+   "t": 11.55,
+   "de": "Der Raum heißt jetzt wie der Bereich und zeigt seine Geräte.",
+   "en": "The room is now called like the area and shows its devices."
+  },
+  {
+   "t": 13.35,
+   "de": "Ein eigener Name geht trotzdem: oben eintippen, der Bereich bleibt.",
+   "en": "An own name still works: type it at the top, the area stays."
+  },
+  {
+   "t": 17.07,
+   "de": "„↺ Name aus Home Assistant“ holt den Namen des Bereichs zurück.",
+   "en": "“↺ Name from Home Assistant” brings the area's name back."
+  },
+  {
+   "t": 19.51,
+   "de": "Heißen Räume schon wie ein Bereich: „🔗 alle verknüpfen“ ordnet sie auf einmal zu.",
+   "en": "Rooms already called like an area: “🔗 link them all” links them in one go."
+  }
+ ],
+ "duration": 23.6,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

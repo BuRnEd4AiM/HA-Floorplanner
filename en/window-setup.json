@@ -1,0 +1,60 @@
+{
+ "id": "window-setup",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Klicke das Fenster an: rechts stehen seine Einstellungen.",
+   "en": "Click the window: its settings are on the right."
+  },
+  {
+   "t": 2.97,
+   "de": "„Anzahl Flügel“: 2 macht zwei Flügel daraus.",
+   "en": "“Panes”: 2 makes two panes of it."
+  },
+  {
+   "t": 7.99,
+   "de": "Jeder Flügel hat seinen Anschlag: der linke geht links auf …",
+   "en": "Each pane has its hinge: the left one opens on the left …"
+  },
+  {
+   "t": 11.43,
+   "de": "… der rechte rechts. „Fest“ wäre ein Flügel, der nie aufgeht.",
+   "en": "… the right one on the right. “Fixed” would be a pane that never opens."
+  },
+  {
+   "t": 15.21,
+   "de": "Der Kontakt aus Home Assistant: ist er offen, steht das Fenster auch im Bild offen.",
+   "en": "The contact from Home Assistant: when it is open, the window is open in the picture too."
+  },
+  {
+   "t": 24.38,
+   "de": "Darunter „Kontakt gekippt“: ein zweiter Sensor für ein Dreh-Kipp-Fenster (eigenes Video).",
+   "en": "Below it “Tilt contact”: a second sensor for a tilt-and-turn window (a video of its own)."
+  },
+  {
+   "t": 27.53,
+   "de": "„Vorhang / Rollladen“ anhaken.",
+   "en": "Tick “Curtain / roller shutter”."
+  },
+  {
+   "t": 31.04,
+   "de": "„Vorhangart“: ein Rollladen, ein Vorhang nach links oder rechts, oder einer, der sich in der Mitte teilt.",
+   "en": "“Curtain type”: a roller shutter, a curtain to the left or the right, or one that parts in the middle."
+  },
+  {
+   "t": 35.32,
+   "de": "Darunter der Rollladen oder Vorhang aus Home Assistant: er steht im Bild, wie er wirklich steht.",
+   "en": "Below it the cover from Home Assistant: it stands in the picture as it really does."
+  },
+  {
+   "t": 44.94,
+   "de": "Unter „Einzelne Flügel“ bekommt auf Wunsch jeder Flügel seinen eigenen Kontakt.",
+   "en": "Under “Individual panes” each pane can get a contact of its own."
+  }
+ ],
+ "duration": 49.89,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

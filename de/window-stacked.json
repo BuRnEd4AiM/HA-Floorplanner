@@ -1,0 +1,45 @@
+{
+ "id": "window-stacked",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Die Wände sind hier 3,80 m hoch. Klicke die Terrassentür an.",
+   "en": "The walls are 3.80 m high here. Click the terrace door."
+  },
+  {
+   "t": 2.78,
+   "de": "„＋ Fenster darüber“ setzt ein eigenes Fenster in gleicher Breite darüber, mit 25 cm Wand dazwischen.",
+   "en": "“＋ Window above” puts a window of its own above it in the same width, with 25 cm of wall in between."
+  },
+  {
+   "t": 7.39,
+   "de": "Brüstung und Höhe passen wir an: ab 2,95 m, 0,65 m hoch.",
+   "en": "We adjust the sill and the height: from 2.95 m, 0.65 m high."
+  },
+  {
+   "t": 16.63,
+   "de": "Tiefer als die Tür geht es nicht: dann sagt eine Zeile „Geht nicht“, und der alte Wert bleibt.",
+   "en": "It cannot go down into the door: a line then says “Not possible” and the old value stays."
+  },
+  {
+   "t": 21.84,
+   "de": "Das Fenster hat seinen eigenen Kontakt und Rollladen, die Tür ihre. „⇅ Darunter“ wählt die Tür.",
+   "en": "The window has its own contact and roller shutter, the door has its own. “⇅ Below” selects the door."
+  },
+  {
+   "t": 26.02,
+   "de": "Im 2D-Plan ist das obere Fenster gestrichelt. Ein zweiter Klick auf die gewählte Tür wählt das Fenster darüber.",
+   "en": "In the 2D plan the upper window is dashed. A second click on the selected door picks the window above."
+  },
+  {
+   "t": 33.93,
+   "de": "Beim Import geht es auch: beide mit demselben „at“, ihre Höhen (Brüstung bis Brüstung + Höhe) dürfen sich nicht überschneiden.",
+   "en": "It works in the import too: both with the same “at”, their heights (sill to sill + height) must not overlap."
+  }
+ ],
+ "duration": 38.03,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

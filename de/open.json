@@ -1,0 +1,20 @@
+{
+ "id": "open",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Rot oben: so viele Fenster und Türen sind offen.",
+   "en": "Red at the top: this many windows and doors are open."
+  },
+  {
+   "t": 5.52,
+   "de": "Tippe auf ein Fenster: das Bild zeigt, wo es ist.",
+   "en": "Tap a window: the picture shows where it is."
+  }
+ ],
+ "duration": 14.98,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

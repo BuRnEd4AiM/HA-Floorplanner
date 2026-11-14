@@ -1,0 +1,25 @@
+{
+ "id": "toolbar",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Rechts neben den Werkzeugen: ✎.",
+   "en": "Right of the tools: ✎."
+  },
+  {
+   "t": 5.01,
+   "de": "Der Haken blendet ein Werkzeug aus, ▲ ▼ ändern die Reihenfolge.",
+   "en": "The tick hides a tool, ▲ ▼ change the order."
+  },
+  {
+   "t": 13.39,
+   "de": "„Zurücksetzen“ stellt die normale Leiste wieder her.",
+   "en": "“Reset” brings back the normal bar."
+  }
+ ],
+ "duration": 19.61,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

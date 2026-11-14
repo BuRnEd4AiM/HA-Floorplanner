@@ -1,0 +1,25 @@
+{
+ "id": "buttons",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Eigene Seiten stehen auch unten in der Leiste.",
+   "en": "Pages of your own are in the bar at the bottom too."
+  },
+  {
+   "t": 4.29,
+   "de": "Ein Tipp auf einen Knopf schaltet.",
+   "en": "A tap on a button switches."
+  },
+  {
+   "t": 9.1,
+   "de": "Die Lichter-Karte dimmt mehrere Lampen mit einem Balken.",
+   "en": "The lights card dims several lamps with one bar."
+  }
+ ],
+ "duration": 14.06,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

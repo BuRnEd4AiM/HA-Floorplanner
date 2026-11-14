@@ -1,0 +1,40 @@
+{
+ "id": "backup",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben: „Backup“.",
+   "en": "At the top: “Backup”."
+  },
+  {
+   "t": 5.14,
+   "de": "Herunterladen sichert alles: Häuser, Seiten, Einstellungen, Bilder und die Codes.",
+   "en": "Download saves everything: houses, pages, settings, pictures and the codes."
+  },
+  {
+   "t": 9.78,
+   "de": "Die Codes nur als Fingerabdruck: niemand kann sie aus der Datei lesen.",
+   "en": "The codes only as a fingerprint: nobody can read them from the file."
+  },
+  {
+   "t": 11.78,
+   "de": "Mit Häkchen auch die Aufzeichnungen …",
+   "en": "Ticked: the recordings too …"
+  },
+  {
+   "t": 15.59,
+   "de": "… und auf Wunsch die CallMeBot-Schlüssel. Die stehen lesbar drin: die Datei dann nicht weitergeben.",
+   "en": "… and, if you like, the CallMeBot keys. They are readable in the file: then do not pass it on."
+  },
+  {
+   "t": 24.14,
+   "de": "Mit der Datei holst du später alles zurück.",
+   "en": "With that file you get everything back later."
+  }
+ ],
+ "duration": 30.33,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

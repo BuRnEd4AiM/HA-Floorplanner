@@ -1,0 +1,40 @@
+{
+ "id": "skylight",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Etage Dach, „Etage verwalten“: der Abschnitt „Dachfenster“.",
+   "en": "Roof floor, “Manage floor”: the section “Roof windows”."
+  },
+  {
+   "t": 3.34,
+   "de": "„＋ Dachfenster“ setzt ein Fenster in die Dachschräge, ohne Gaube.",
+   "en": "“＋ Roof window” puts a window into the slope of the roof, without a dormer."
+  },
+  {
+   "t": 7.18,
+   "de": "„Position am First“ schiebt es entlang des Dachs.",
+   "en": "“Position along the ridge” moves it along the roof."
+  },
+  {
+   "t": 11.99,
+   "de": "„Übliche Größe“: zum Beispiel 114 × 140 cm. Oder Breite und Höhe selbst eintragen.",
+   "en": "“Usual size”: for example 114 × 140 cm. Or type width and height yourself."
+  },
+  {
+   "t": 15.9,
+   "de": "Noch eins daneben.",
+   "en": "Another one beside it."
+  },
+  {
+   "t": 24.05,
+   "de": "Kontakt, Name, Rollladen: das Dachfenster antippen, wie jedes Fenster. Offen wird es rot, die Scheibe klappt nach außen.",
+   "en": "Contact, name, roller shutter: tap the roof window, like any window. Open it turns red, its pane opens outwards."
+  }
+ ],
+ "duration": 27.94,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

@@ -1,0 +1,40 @@
+{
+ "id": "ui-v2-house",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben „✨ Neu“ wählen: ist nichts ausgewählt, steht rechts das Haus als Baum.",
+   "en": "Choose “✨ New” at the top: with nothing selected the right side shows the house as a tree."
+  },
+  {
+   "t": 3.36,
+   "de": "„＋ Keller“: darunter kommt ein Keller dazu.",
+   "en": "“＋ Basement”: a basement goes below."
+  },
+  {
+   "t": 6.77,
+   "de": "Tippe eine Etage an: ihre Art als Knöpfe und die Geschosshöhe mit dem Haus von der Seite.",
+   "en": "Tap a floor: its kind as buttons and the storey height with the house seen from the side."
+  },
+  {
+   "t": 9.76,
+   "de": "Am Haus: 🔓 sperrt den ganzen Grundriss, „⋯“ öffnet Gebäude, Nachbarhaus, Vorlage, Duplizieren und mehr.",
+   "en": "On the house: 🔓 locks the whole floor plan, “⋯” opens buildings, neighbour house, template, duplicate and more."
+  },
+  {
+   "t": 14.48,
+   "de": "Die Etagen lassen sich mit ⠿ an eine andere Stelle ziehen; ein Raum im Baum wird angetippt und ausgewählt.",
+   "en": "Drag ⠿ to put a floor elsewhere; a room in the tree is tapped and selected."
+  },
+  {
+   "t": 17.33,
+   "de": "„Klassisch“ bringt die alte Leiste zurück.",
+   "en": "“Classic” brings the old panel back."
+  }
+ ],
+ "duration": 21.34,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

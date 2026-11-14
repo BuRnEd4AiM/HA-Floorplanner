@@ -1,0 +1,50 @@
+{
+ "id": "ui-v2",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben „✨ Neu“ schaltet die neue Leiste ein.",
+   "en": "At the top, “✨ New” switches on the new panel."
+  },
+  {
+   "t": 3.98,
+   "de": "Klicke das Fenster an.",
+   "en": "Click the window."
+  },
+  {
+   "t": 6.82,
+   "de": "Oben der Weg und der Name, darunter Abschnitte: jede Zeile sagt, was eingestellt ist.",
+   "en": "On top the path and the name, below them sections: each line says what is set."
+  },
+  {
+   "t": 9.02,
+   "de": "Das Fenster ist halb offen gezeichnet. Tippe den Flügel an …",
+   "en": "The window is drawn half open. Tap the pane …"
+  },
+  {
+   "t": 12.73,
+   "de": "… und wähle, wie er aufgeht: links angeschlagen.",
+   "en": "… and choose how it opens: hinged on the left."
+  },
+  {
+   "t": 16.57,
+   "de": "„Fensterart“: ein Tipp stellt Größe, Brüstung und Flügel auf einmal ein.",
+   "en": "“Kind of window”: one tap sets size, sill and panes at once."
+  },
+  {
+   "t": 23.31,
+   "de": "Ein Raum hat Reiter. Unter „Boden“ sind die Böden kleine Bilder.",
+   "en": "A room has tabs. Under “Floor” the floors are small pictures."
+  },
+  {
+   "t": 31.05,
+   "de": "„Klassisch“ bringt die alte Leiste zurück.",
+   "en": "“Classic” brings the old panel back."
+  }
+ ],
+ "duration": 36.69,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

@@ -1,0 +1,30 @@
+{
+ "id": "phone-pages",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten stehen die Seiten.",
+   "en": "The pages are at the bottom."
+  },
+  {
+   "t": 3.39,
+   "de": "„Energie“ zeigt Verbrauch und Solarstrom.",
+   "en": "“Energy” shows usage and solar power."
+  },
+  {
+   "t": 6.02,
+   "de": "„Klima“ alle Räume mit Temperatur.",
+   "en": "“Climate” every room with its temperature."
+  },
+  {
+   "t": 8.87,
+   "de": "„Haus“ bringt dich zurück zum 3D-Bild.",
+   "en": "“House” brings you back to the 3D view."
+  }
+ ],
+ "duration": 12.7,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

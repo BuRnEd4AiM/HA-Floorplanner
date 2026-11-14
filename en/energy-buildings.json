@@ -1,0 +1,50 @@
+{
+ "id": "energy-buildings",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.44,
+   "de": "Dieser Plan hat zwei Gebäude: das Haupthaus und den Anbau. Oben lässt sich umschalten.",
+   "en": "This plan has two buildings: the main house and the wing. You can switch at the top."
+  },
+  {
+   "t": 4.49,
+   "de": "Im Bearbeiten: „Strom“, dann „Rechnung“.",
+   "en": "While editing: “Power”, then “Bookkeeping”."
+  },
+  {
+   "t": 12.16,
+   "de": "Ganz oben, in „🏘 2 Gebäude in diesem Plan“: „⚡ Eigene Rechnung je Gebäude“.",
+   "en": "At the very top, in “🏘 2 buildings in this plan”: “⚡ A calculation of its own per building”."
+  },
+  {
+   "t": 16.47,
+   "de": "Jedes Gebäude rechnet jetzt für sich. „Rechnung für“ wählt, welches du einstellst; es steht auch fest oben im Titel.",
+   "en": "Each building counts on its own now. “Calculation for” picks the one you set; it also stays at the top in the title."
+  },
+  {
+   "t": 21.14,
+   "de": "Der Anbau: nur die Stromgeräte in seinen Räumen, hier Solar und Batterie.",
+   "en": "The wing: only the power devices in its rooms, here solar and battery."
+  },
+  {
+   "t": 30.79,
+   "de": "Oben „🏘 Alle Gebäude“: jedes Gebäude für sich, mit seinem eigenen Bild.",
+   "en": "At the top “🏘 All buildings”: each building on its own, with its own picture."
+  },
+  {
+   "t": 35.73,
+   "de": "Ein Gebäude oben gewählt: nur sein Strom.",
+   "en": "One building chosen at the top: only its power."
+  },
+  {
+   "t": 42.15,
+   "de": "Auf der Seite „Energie“ ist jedes Gebäude wie ein eigenes Haus, mit „⚖ Vergleichen“.",
+   "en": "On the page “Energy” each building is like a house of its own, with “⚖ Compare”."
+  }
+ ],
+ "duration": 51.95,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

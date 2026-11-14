@@ -1,0 +1,30 @@
+{
+ "id": "dormer-pitch",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "„＋ Gaube“ setzt eine Gaube ins Dach.",
+   "en": "“＋ Dormer” puts a dormer into the roof."
+  },
+  {
+   "t": 4.19,
+   "de": "„Breite“: diese Gaube wird 6 m breit.",
+   "en": "“Width”: this dormer gets 6 m wide."
+  },
+  {
+   "t": 9.09,
+   "de": "„Neigung der Gaube“: 35° macht ihr Dach steiler.",
+   "en": "“Dormer pitch”: 35° makes its roof steeper."
+  },
+  {
+   "t": 14.23,
+   "de": "10 m breit: zu breit für 35°, ihr Dach wird von selbst flacher und bleibt unter dem First.",
+   "en": "10 m wide: too wide for 35°, its roof gets flatter by itself and stays under the ridge."
+  }
+ ],
+ "duration": 20.81,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

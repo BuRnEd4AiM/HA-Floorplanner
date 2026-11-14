@@ -1,0 +1,40 @@
+{
+ "id": "room-temp-source",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 5.02,
+   "de": "Den Raum anklicken, hier das Wohnzimmer.",
+   "en": "Click the room, here the living room."
+  },
+  {
+   "t": 8.07,
+   "de": "Hier messen ein Thermostat, ein Sensor und ein Lichtschalter, der von sich selbst warm wird.",
+   "en": "Here a thermostat, a sensor and a light switch measure; the switch is warm from itself."
+  },
+  {
+   "t": 11.2,
+   "de": "„Automatisch“: das Mittel der Sensoren, mit dem warmen Schalter zu hoch.",
+   "en": "“Automatic”: the mean of the sensors, too high with the warm switch."
+  },
+  {
+   "t": 14.16,
+   "de": "„Thermostat“: nur, was das Thermostat misst. Die anderen Sensoren bleiben, zählen hier aber nicht.",
+   "en": "“Thermostat”: only what the thermostat measures. The other sensors stay but do not count here."
+  },
+  {
+   "t": 17.31,
+   "de": "Oder genau einen Sensor wählen. Gibt es einen Feuchte-Sensor, geht „Luftfeuchte von“ genauso.",
+   "en": "Or pick exactly one sensor. With a humidity sensor, “Humidity from” works the same way."
+  },
+  {
+   "t": 20.45,
+   "de": "Schild, Kachel, Farben und 🌡 Klima zeigen jetzt diesen Wert.",
+   "en": "The label, the tile, the colours and 🌡 Climate now show this value."
+  }
+ ],
+ "duration": 25.99,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

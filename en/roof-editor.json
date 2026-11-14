@@ -1,0 +1,55 @@
+{
+ "id": "roof-editor",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Die Etage „Dach“ öffnen …",
+   "en": "Open the floor “Roof” …"
+  },
+  {
+   "t": 5.65,
+   "de": "… und aufs Dach im Bild klicken: das Dach-Fenster geht auf, oben steht, was das Dach hat.",
+   "en": "… and click the roof in the picture: the roof panel opens, the top says what the roof has."
+  },
+  {
+   "t": 9.72,
+   "de": "Die Dachform als Bilder: ein Tipp, und das Dach ändert sich.",
+   "en": "The roof shapes as pictures: one tap and the roof changes."
+  },
+  {
+   "t": 23.01,
+   "de": "Von der Seite: den Punkt am Bogen ziehen ändert die Neigung; grün ist, wo man aufrecht stehen kann.",
+   "en": "From the side: dragging the point on the arc changes the pitch; green is where one can stand upright."
+  },
+  {
+   "t": 29.02,
+   "de": "⤢ zeigt es groß, mit Firsthöhe, Kniestock und Überstand zum Ziehen.",
+   "en": "⤢ shows it big, with ridge height, knee wall and overhang to drag."
+  },
+  {
+   "t": 41.94,
+   "de": "Im 3D-Bild eine Gaube anfassen und am Dach entlang ziehen: rechts geht „Auf dem Dach“ mit ihr auf.",
+   "en": "In the 3D picture grab a dormer and drag it along the roof: on the right “On the roof” opens with it."
+  },
+  {
+   "t": 48.63,
+   "de": "Von oben: Gauben und Dachfenster ziehen statt Zahlen tippen.",
+   "en": "From above: drag dormers and roof windows instead of typing numbers."
+  },
+  {
+   "t": 61.56,
+   "de": "„Vorlagen“: fertige Dächer, auch ein Kreuzdach (+) und ein L-Dach.",
+   "en": "“Templates”: ready-made roofs, also a cross roof (+) and an L roof."
+  },
+  {
+   "t": 82.05,
+   "de": "„⭐ Mein Dach merken“ hebt es auf, auch für ein anderes Haus; ↶ macht alles rückgängig.",
+   "en": "“⭐ Keep my roof” keeps it, also for another house; ↶ undoes everything."
+  }
+ ],
+ "duration": 89.5,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

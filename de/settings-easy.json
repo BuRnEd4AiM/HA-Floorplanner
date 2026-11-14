@@ -1,0 +1,40 @@
+{
+ "id": "settings-easy",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 5.36,
+   "de": "In den Einstellungen ist an und aus ein Schalter.",
+   "en": "In the settings, on and off is a switch."
+  },
+  {
+   "t": 18.59,
+   "de": "Ein Wert wie die Wand-Deckkraft hat einen Schieberegler, daneben steht er in Prozent.",
+   "en": "A value like the wall opacity has a slider, its percent beside it."
+  },
+  {
+   "t": 32.4,
+   "de": "Lange Erklärungen zeigen zwei Zeilen: „mehr …“ zeigt alles.",
+   "en": "Long explanations show two lines: “more …” shows all of it."
+  },
+  {
+   "t": 37.4,
+   "de": "Kurze Auswahlen sind Knöpfe: alle auf einen Blick, ein Tipp genügt.",
+   "en": "Short choices are buttons: all at a glance, one tap is enough."
+  },
+  {
+   "t": 51.22,
+   "de": "Anleitungen, die man nur einmal braucht, sind eine Zeile zum Aufklappen.",
+   "en": "Guides you need only once are a line that folds open."
+  },
+  {
+   "t": 61.18,
+   "de": "Bei den Licht-Gruppen ist jeder Raum ein Knopf: gewählte leuchten gelb.",
+   "en": "In the light groups every room is a button: chosen ones glow yellow."
+  }
+ ],
+ "duration": 77.26,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

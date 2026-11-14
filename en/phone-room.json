@@ -1,0 +1,40 @@
+{
+ "id": "phone-room",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe auf einen Raum: seine Karte kommt erst klein, das Haus bleibt zu sehen.",
+   "en": "Tap a room: its card first comes small and the house stays in sight."
+  },
+  {
+   "t": 3.4,
+   "de": "Oben die Werte, darunter große Knöpfe: Licht, Szenen, Rollo, Heizung.",
+   "en": "The values on top, big buttons below: light, scenes, blinds, heating."
+  },
+  {
+   "t": 5.51,
+   "de": "Darunter steht, was der Heizplan gerade macht.",
+   "en": "Below it says what the heating plan does right now."
+  },
+  {
+   "t": 7.39,
+   "de": "„Licht“ öffnet die ganze Karte mit den Lampen.",
+   "en": "“Light” opens the whole card with the lamps."
+  },
+  {
+   "t": 9.91,
+   "de": "Oben die Reiter: Licht, Rollo, Klima, Geräte, Fenster.",
+   "en": "The tabs on top: light, blinds, climate, devices, windows."
+  },
+  {
+   "t": 11.92,
+   "de": "Am Griff herunterziehen macht die Karte wieder klein.",
+   "en": "Pulling the grip down makes the card small again."
+  }
+ ],
+ "duration": 16.81,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

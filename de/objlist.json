@@ -1,0 +1,30 @@
+{
+ "id": "objlist",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 5.31,
+   "de": "Rechts unter „Objekte“: alles im Haus, nach Räumen.",
+   "en": "On the right under “Objects”: everything in the house, by room."
+  },
+  {
+   "t": 7.64,
+   "de": "Suchen, zum Beispiel „Lampe“.",
+   "en": "Search, for example “lamp”."
+  },
+  {
+   "t": 10.14,
+   "de": "Ein Tipp wählt es im Plan aus.",
+   "en": "A tap selects it in the plan."
+  },
+  {
+   "t": 12.6,
+   "de": "Der Haken davor sperrt es.",
+   "en": "The tick in front locks it."
+  }
+ ],
+ "duration": 16.11,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

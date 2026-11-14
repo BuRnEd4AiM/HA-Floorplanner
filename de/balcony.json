@@ -1,0 +1,40 @@
+{
+ "id": "balcony",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Vor der Balkontür liegt schon ein Raum (Werkzeug „Raum“). Antippen.",
+   "en": "In front of the balcony door there is a room already (tool “Room”). Tap it."
+  },
+  {
+   "t": 2.85,
+   "de": "In den Eigenschaften: „Balkon / Dachterrasse“ ankreuzen.",
+   "en": "In its properties: tick “Balcony / roof terrace”."
+  },
+  {
+   "t": 5.82,
+   "de": "Hier liegt der Hang vorne 3 m tiefer: der Balkon hängt frei, eine Platte trägt ihn.",
+   "en": "Here the slope lies 3 m lower in front: the balcony hangs free, a plate carries it."
+  },
+  {
+   "t": 8.57,
+   "de": "„Geländer“: Metall, Glas oder Holz.",
+   "en": "“Railing”: metal, glass or wood."
+  },
+  {
+   "t": 10.84,
+   "de": "„Stützen bis zum Boden“ stellt Pfosten an die äußeren Ecken.",
+   "en": "“Supports down to the ground” puts posts at the outer corners."
+  },
+  {
+   "t": 13.16,
+   "de": "Im 3D-Bild: Glasgeländer, Platte und Stützen, der Hang geht darunter weiter.",
+   "en": "In 3D: a glass railing, the plate and the supports, the slope goes on under it."
+  }
+ ],
+ "duration": 21.48,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

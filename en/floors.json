@@ -1,0 +1,30 @@
+{
+ "id": "floors",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Links siehst du alle Etagen deines Hauses.",
+   "en": "On the left you see every floor of your house."
+  },
+  {
+   "t": 4.54,
+   "de": "Ein Tipp auf eine Etage zeigt sie im 3D-Bild.",
+   "en": "Tap a floor to show it in the 3D view."
+  },
+  {
+   "t": 15.68,
+   "de": "„Ganzes Haus“ zeigt alle Etagen und das Grundstück zusammen.",
+   "en": "“Whole house” shows every floor and the plot together."
+  },
+  {
+   "t": 20.17,
+   "de": "Zurück ins Erdgeschoss.",
+   "en": "Back to the ground floor."
+  }
+ ],
+ "duration": 27.24,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

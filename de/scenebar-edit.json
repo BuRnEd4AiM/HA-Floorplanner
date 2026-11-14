@@ -1,0 +1,30 @@
+{
+ "id": "scenebar-edit",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 4.76,
+   "de": "Unten rechts: „Bearbeiten“.",
+   "en": "Bottom right: “Edit”."
+  },
+  {
+   "t": 7.38,
+   "de": "„🎬 Szenen-Leiste“.",
+   "en": "“🎬 Scene bar”."
+  },
+  {
+   "t": 10.24,
+   "de": "Jede Szene mit Symbol und Farbe; ⠿ zieht sie an einen anderen Platz.",
+   "en": "Every scene with icon and colour; ⠿ drags it to another place."
+  },
+  {
+   "t": 12.24,
+   "de": "Oben: für alle Seiten gleich oder eine eigene Leiste für diese Seite.",
+   "en": "At the top: the same for all pages or a bar of its own for this page."
+  }
+ ],
+ "duration": 19.68,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

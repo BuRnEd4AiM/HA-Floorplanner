@@ -1,0 +1,25 @@
+{
+ "id": "heatrules",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 5.11,
+   "de": "Unter „Klima“ oben auf „Heiz-Regeln“.",
+   "en": "Under “Climate” tap “Heating rules” at the top."
+  },
+  {
+   "t": 8.34,
+   "de": "Jede Regel hat einen Schalter: an oder aus.",
+   "en": "Every rule has a switch: on or off."
+  },
+  {
+   "t": 9.84,
+   "de": "Zum Beispiel: Fenster auf, dann geht die Heizung im Raum aus.",
+   "en": "For example: window open, then the heating in that room goes off."
+  }
+ ],
+ "duration": 17.77,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

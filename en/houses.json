@@ -1,0 +1,50 @@
+{
+ "id": "houses",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben steht, welches Haus du siehst.",
+   "en": "At the top it says which house you see."
+  },
+  {
+   "t": 7.51,
+   "de": "Ein anderes Haus, mit eigenen Etagen, Geräten und eigenem Strom.",
+   "en": "Another house, with its own floors, devices and power."
+  },
+  {
+   "t": 9.11,
+   "de": "Rechts unter „Häuser“: „+ Neues Haus“ fängt mit einem leeren Plan an.",
+   "en": "On the right under “Houses”: “+ New house” starts with an empty plan."
+  },
+  {
+   "t": 15.76,
+   "de": "„Duplizieren“ macht eine Kopie, „Umbenennen“ gibt ihm einen neuen Namen.",
+   "en": "“Duplicate” makes a copy, “Rename” gives it a new name."
+  },
+  {
+   "t": 21.3,
+   "de": "Zurück zum ersten Haus.",
+   "en": "Back to the first house."
+  },
+  {
+   "t": 26.71,
+   "de": "„Nachbarhaus“: ein anderes Haus der Liste steht daneben, hier rechts vorne.",
+   "en": "“Neighbour house”: another house of the list stands beside it, here at the front right."
+  },
+  {
+   "t": 31.23,
+   "de": "Lage, Drehung und Höhe stellst du hier ein, zum Beispiel 30° gedreht.",
+   "en": "Set its position, rotation and height here, for example turned by 30°."
+  },
+  {
+   "t": 37.61,
+   "de": "Bearbeiten kannst du es, wenn du oben zu ihm wechselst.",
+   "en": "To edit it, switch to it at the top."
+  }
+ ],
+ "duration": 48.32,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

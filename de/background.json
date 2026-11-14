@@ -1,0 +1,30 @@
+{
+ "id": "background",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Rechts: „Hintergrundbild (Vorlage)“.",
+   "en": "On the right: “Background picture (template)”."
+  },
+  {
+   "t": 2.35,
+   "de": "Ein Bild deines Grundrisses wählen, zum Beispiel ein Foto vom Bauplan.",
+   "en": "Pick a picture of your floor plan, for example a photo of the building plan."
+  },
+  {
+   "t": 4.66,
+   "de": "Jetzt mit „Wand“ einfach auf den Linien nachzeichnen.",
+   "en": "Now simply trace the lines with “Wall”."
+  },
+  {
+   "t": 14.4,
+   "de": "Die Vorlage bleibt nur im Editor; im Live-Bild ist sie weg.",
+   "en": "The template stays in the editor only; it is gone in the live view."
+  }
+ ],
+ "duration": 16.9,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

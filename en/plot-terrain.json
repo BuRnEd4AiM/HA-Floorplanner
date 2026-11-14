@@ -1,0 +1,55 @@
+{
+ "id": "plot-terrain",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Ist das Grundstück schräg? Oben „Grundstück“, dann „⛰ Gelände“.",
+   "en": "Is the plot on a slope? At the top “Plot”, then “⛰ Terrain”."
+  },
+  {
+   "t": 5.44,
+   "de": "„Hang in einem Schritt“: der Boden fällt um ein Geschoss, 3 m.",
+   "en": "“A slope in one step”: the ground falls by one storey, 3 m."
+  },
+  {
+   "t": 8.82,
+   "de": "Dann in den Plan tippen, wo der Boden tiefer liegt: hier die Straße.",
+   "en": "Then tap the plan where the ground lies lower: the street here."
+  },
+  {
+   "t": 12.66,
+   "de": "Im Plan zeigen Höhenlinien alle 50 cm, wie der Boden fällt.",
+   "en": "In the plan contour lines every 50 cm show how the ground falls."
+  },
+  {
+   "t": 15.06,
+   "de": "Jeder Höhenpunkt hat seine Höhe zum Eintippen; ein Tipp in den Plan setzt einen weiteren, ziehen verschiebt ihn.",
+   "en": "Every spot height has its height to type in; a tap in the plan sets another one, dragging moves it."
+  },
+  {
+   "t": 18.82,
+   "de": "Im 3D-Bild: vorne steht der Keller frei, mit dem Garagentor auf Straßenhöhe; Rasen, Wege und Bäume folgen dem Hang.",
+   "en": "In 3D: in front the basement stands free, its garage door at street level; lawn, paths and trees follow the slope."
+  },
+  {
+   "t": 25.67,
+   "de": "Ebenes Grundstück, der Keller schaut halb heraus? Beim Keller „Etage verwalten“: „⛰ Gelände einstellen“.",
+   "en": "Level plot, the basement half out of the ground? For the basement “Manage floor”: “⛰ Set the terrain”."
+  },
+  {
+   "t": 34.45,
+   "de": "„Gelände entfernen“, dann ein einziger Höhenpunkt: −1,5 m. Der ganze Rasen liegt so tief.",
+   "en": "“Remove terrain”, then a single spot height: −1.5 m. The whole lawn lies that low."
+  },
+  {
+   "t": 43.07,
+   "de": "Im 3D-Bild: der Keller schaut zur Hälfte aus dem Rasen, mit seinen Fenstern.",
+   "en": "In 3D: the basement sticks out of the lawn by half, with its windows."
+  }
+ ],
+ "duration": 52.63,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

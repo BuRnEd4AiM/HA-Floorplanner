@@ -1,0 +1,35 @@
+{
+ "id": "sceneedit",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 5.47,
+   "de": "Unter „Abläufe“: „＋ Neue Szene“.",
+   "en": "Under “Routines”: “＋ New scene”."
+  },
+  {
+   "t": 8.24,
+   "de": "Oben bekommt sie einen Namen.",
+   "en": "At the top it gets a name."
+  },
+  {
+   "t": 8.94,
+   "de": "Rechts eine Lampe antippen: sie kommt in die Szene, so wie sie gerade ist.",
+   "en": "Tap a lamp on the right: it joins the scene as it is right now."
+  },
+  {
+   "t": 11.18,
+   "de": "Dann für jede Lampe: an oder aus, wie hell, welche Farbe.",
+   "en": "Then for every lamp: on or off, how bright, which colour."
+  },
+  {
+   "t": 12.98,
+   "de": "„Speichern“, und die Szene steht in der Leiste und in Home Assistant.",
+   "en": "“Save”, and the scene is in the bar and in Home Assistant."
+  }
+ ],
+ "duration": 17.34,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

@@ -1,0 +1,30 @@
+{
+ "id": "devices",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe oben auf „Geräte“.",
+   "en": "Tap “Devices” at the top."
+  },
+  {
+   "t": 4.85,
+   "de": "Zuerst die Geräte mit schwacher Batterie.",
+   "en": "First the devices with a low battery."
+  },
+  {
+   "t": 6.05,
+   "de": "„An / offen“ zeigt, was gerade läuft oder offen ist.",
+   "en": "“On / open” shows what is running or open."
+  },
+  {
+   "t": 11.0,
+   "de": "Ein Tipp auf ein Gerät zeigt es im Haus.",
+   "en": "Tap a device to see it in the house."
+  }
+ ],
+ "duration": 16.95,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

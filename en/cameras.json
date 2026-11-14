@@ -1,0 +1,25 @@
+{
+ "id": "cameras",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe unten auf „Kameras“.",
+   "en": "Tap “Cameras” at the bottom."
+  },
+  {
+   "t": 4.29,
+   "de": "Rot heißt: hier hat sich etwas bewegt.",
+   "en": "Red means: something moved here."
+  },
+  {
+   "t": 5.89,
+   "de": "Ein Tipp zeigt die Kamera groß.",
+   "en": "A tap shows the camera big."
+  }
+ ],
+ "duration": 11.7,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

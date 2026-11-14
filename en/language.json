@@ -1,0 +1,25 @@
+{
+ "id": "language",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben rechts: ⚙ Einstellungen.",
+   "en": "Top right: ⚙ settings."
+  },
+  {
+   "t": 4.9,
+   "de": "Die Sprache …",
+   "en": "The language …"
+  },
+  {
+   "t": 14.66,
+   "de": "… und das Design: ein Tipp auf Hell, Dunkel oder Hologramm.",
+   "en": "… and the design: one tap on light, dark or hologram."
+  }
+ ],
+ "duration": 28.61,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

@@ -1,0 +1,35 @@
+{
+ "id": "ui-v2-tools",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 3.39,
+   "de": "Klicke ein Fenster an.",
+   "en": "Click a window."
+  },
+  {
+   "t": 6.05,
+   "de": "Ein Wort in „Einstellung suchen“, z. B. „kipp“: nur die passenden Felder bleiben.",
+   "en": "A word in “Find a setting”, e.g. “tilt”: only the matching fields stay."
+  },
+  {
+   "t": 12.64,
+   "de": "Links hängen die Abschnitte als Reiter, ein aufgeklappter leuchtet mit. Ein Tipp springt zum Abschnitt.",
+   "en": "The sections hang as tabs on the left, an open one is lit. A tap jumps to its section."
+  },
+  {
+   "t": 19.53,
+   "de": "Dieser Flügel geht links auf …",
+   "en": "This pane opens on the left …"
+  },
+  {
+   "t": 25.53,
+   "de": "… „⇉ Übernehmen“ gibt das an das andere Fenster weiter.",
+   "en": "… “⇉ Pass on” gives that to the other window."
+  }
+ ],
+ "duration": 37.36,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

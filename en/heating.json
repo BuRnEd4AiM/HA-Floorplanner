@@ -1,0 +1,35 @@
+{
+ "id": "heating",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe auf einen Raum, dann in seiner Karte auf „Klima“.",
+   "en": "Tap a room, then “Climate” in its card."
+  },
+  {
+   "t": 9.02,
+   "de": "Oben steht, was der Heizplan gerade macht, zum Beispiel „pausiert, Fenster offen“.",
+   "en": "On top it says what the heating plan does right now, for example “paused, window open”."
+  },
+  {
+   "t": 11.79,
+   "de": "„Heizen“ schaltet das Thermostat ein.",
+   "en": "“Heat” turns the thermostat on."
+  },
+  {
+   "t": 15.04,
+   "de": "Mit + und − stellst du die Wunsch-Temperatur.",
+   "en": "+ and − set the temperature you want."
+  },
+  {
+   "t": 21.01,
+   "de": "Eine Vorwahl wie „Eco“ oder „Boost“ geht mit einem Tipp.",
+   "en": "A preset like “Eco” or “Boost” is one tap."
+  }
+ ],
+ "duration": 29.15,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

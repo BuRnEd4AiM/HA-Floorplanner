@@ -1,0 +1,40 @@
+{
+ "id": "climate",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe unten auf „Klima“.",
+   "en": "Tap “Climate” at the bottom."
+  },
+  {
+   "t": 5.72,
+   "de": "Jeder Raum zeigt seine Temperatur. Rot heißt: hier gibt es einen Hinweis.",
+   "en": "Every room shows its temperature. Red means: there is a hint here."
+  },
+  {
+   "t": 7.32,
+   "de": "Am Büro-Thermostat: mit + wird es wärmer.",
+   "en": "On the office thermostat: + makes it warmer."
+  },
+  {
+   "t": 11.35,
+   "de": "Oder den Punkt am Ring ziehen: der Wert folgt, beim Loslassen wird er geschickt.",
+   "en": "Or drag the dot along the ring: the value follows, letting go sends it."
+  },
+  {
+   "t": 15.21,
+   "de": "„Heizen“, „Auto“ oder „Aus“ und eine Vorwahl wie „Eco“.",
+   "en": "“Heat”, “Auto” or “Off” and a preset like “Eco”."
+  },
+  {
+   "t": 20.2,
+   "de": "„Nur mit Hinweis“ zeigt nur Räume, um die du dich kümmern solltest.",
+   "en": "“Only those to look at” shows only rooms that need you."
+  }
+ ],
+ "duration": 24.51,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

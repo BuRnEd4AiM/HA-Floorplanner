@@ -1,0 +1,30 @@
+{
+ "id": "today",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten in der Leiste: „Heute“.",
+   "en": "In the bar at the bottom: “Today”."
+  },
+  {
+   "t": 4.74,
+   "de": "Uhrzeit und das Wetter der nächsten Tage.",
+   "en": "The time and the weather of the next days."
+  },
+  {
+   "t": 6.34,
+   "de": "Dein Zug zur Arbeit, mit Verspätung und Gleis.",
+   "en": "Your train to work, with delay and platform."
+  },
+  {
+   "t": 8.9,
+   "de": "Weiter unten kommt noch mehr.",
+   "en": "There is more further down."
+  }
+ ],
+ "duration": 13.11,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

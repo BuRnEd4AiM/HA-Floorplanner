@@ -1,0 +1,45 @@
+{
+ "id": "stairs-storey",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.42,
+   "de": "„Etage verwalten“: die „Geschosshöhe“, von Boden zu Boden, hier 2,75 m.",
+   "en": "“Manage floor”: the “Storey height”, floor to floor, here 2.75 m."
+  },
+  {
+   "t": 6.95,
+   "de": "„Treppe“, „L-Treppe“, „Ecke: Gewendelt“, dann in den Raum klicken.",
+   "en": "“Stairs”, “L stair”, “Corner: Winders”, then click into the room."
+  },
+  {
+   "t": 15.66,
+   "de": "„Stufen im 1. Lauf“ 0: man steigt von der Seite gleich auf die Keilstufen.",
+   "en": "“Steps in flight 1” 0: you step on from the side right onto the wedge steps."
+  },
+  {
+   "t": 18.96,
+   "de": "„2. Ecke: Gewendelt“: oben dreht sie noch einmal, zur selben Seite.",
+   "en": "“2nd corner: Winders”: at the top it turns once more, to the same side."
+  },
+  {
+   "t": 21.31,
+   "de": "5 Wendelstufen oben, 6 Stufen im geraden Lauf dazwischen.",
+   "en": "5 winders at the top, 6 steps in the straight flight between."
+  },
+  {
+   "t": 26.03,
+   "de": "„Stufen je Etage“: 14 aus 2,75 m; eine andere Zahl, wenn deine Treppe mehr oder weniger hat.",
+   "en": "“Steps per floor”: 14 from 2.75 m; another number if your stair has more or fewer."
+  },
+  {
+   "t": 28.26,
+   "de": "Im 3D-Bild: unten Keilstufen, der gerade Lauf, oben wieder Keilstufen.",
+   "en": "In 3D: wedge steps at the bottom, the straight flight, wedge steps again at the top."
+  }
+ ],
+ "duration": 34.73,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

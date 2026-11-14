@@ -1,0 +1,40 @@
+{
+ "id": "room-lock",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 1.31,
+   "de": "Einen Raum antippen, oben 🔒 „Sperren“.",
+   "en": "Tap a room, at the top 🔒 “Lock”."
+  },
+  {
+   "t": 11.84,
+   "de": "Wähle, was fest bleibt – zum Beispiel auch die Geräte im Raum – und für welche Räume.",
+   "en": "Choose what stays fixed – for example the devices in the room too – and for which rooms."
+  },
+  {
+   "t": 21.27,
+   "de": "Im 2D-Plan lässt sich die Wand nicht mehr ziehen, ein Hinweis sagt, warum.",
+   "en": "In the 2D plan the wall can no longer be dragged, a note says why."
+  },
+  {
+   "t": 31.57,
+   "de": "„🔒 Grundriss fertig“ sperrt alle Wände und Räume auf einmal, Geräte bleiben frei.",
+   "en": "“🔒 Floor plan finished” locks every wall and room at once, devices stay free."
+  },
+  {
+   "t": 37.24,
+   "de": "Oben steht dann „🔒 Grundriss gesperrt“; antippen entsperrt wieder.",
+   "en": "The top then says “🔒 Floor plan locked”; a tap unlocks it again."
+  },
+  {
+   "t": 39.4,
+   "de": "„Ansicht“ → „🔒 Gesperrte zeigen“ blendet die Streifen im 3D-Bild aus.",
+   "en": "“View” → “🔒 Show locked” hides the stripes in the 3D picture."
+  }
+ ],
+ "duration": 58.11,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

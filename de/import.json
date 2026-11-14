@@ -1,0 +1,30 @@
+{
+ "id": "import",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unter „Häuser“: „Import“.",
+   "en": "Under “Houses”: “Import”."
+  },
+  {
+   "t": 9.49,
+   "de": "Ein Beispiel laden, oder den Text einer KI einfügen.",
+   "en": "Load an example, or paste the text of an AI."
+  },
+  {
+   "t": 14.34,
+   "de": "„Prüfen“ sagt, ob alles stimmt und was gebaut wird.",
+   "en": "“Check” says whether everything is right and what will be built."
+  },
+  {
+   "t": 20.09,
+   "de": "„Importieren“ legt daraus ein neues Haus an; die anderen bleiben, wie sie sind.",
+   "en": "“Import” creates a new house from it; the others stay as they are."
+  }
+ ],
+ "duration": 26.53,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

@@ -1,0 +1,30 @@
+{
+ "id": "users",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 4.11,
+   "de": "In den Einstellungen: „Benutzer & Tablets“.",
+   "en": "In the settings: “Users & tablets”."
+  },
+  {
+   "t": 7.91,
+   "de": "„＋ Benutzer“ legt eine Zeile für eine Person oder ein Tablet an.",
+   "en": "“＋ User” adds a row for a person or a tablet."
+  },
+  {
+   "t": 11.6,
+   "de": "Dort wählst du den Raum, die Seiten und was gesperrt ist.",
+   "en": "There you choose the room, the pages and what is locked."
+  },
+  {
+   "t": 13.4,
+   "de": "„Wer sieht was“ zeigt alles in einer Tabelle.",
+   "en": "“Who sees what” shows everything in a table."
+  }
+ ],
+ "duration": 18.58,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

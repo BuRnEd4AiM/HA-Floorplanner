@@ -1,0 +1,50 @@
+{
+ "id": "heat-pause",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 5.06,
+   "de": "Unter − und + jedes Thermostats: „⏸️ Heizplan aussetzen“.",
+   "en": "Under − and + of every thermostat: “⏸️ Pause the schedule”."
+  },
+  {
+   "t": 7.44,
+   "de": "Kurz antippen tut nichts. Gedrückt halten …",
+   "en": "A short tap does nothing. Hold it …"
+  },
+  {
+   "t": 10.22,
+   "de": "… dann wählen, wie lange: eine halbe Stunde, eine dreiviertel, eine Stunde, bis zum nächsten Block oder für heute.",
+   "en": "… then choose how long: half an hour, three quarters, an hour, until the next block or for today."
+  },
+  {
+   "t": 16.04,
+   "de": "Jetzt regelst du selbst, keine Regel dreht zurück. Der Knopf sagt, bis wann.",
+   "en": "Now you regulate it yourself, no rule turns it back. The button says until when."
+  },
+  {
+   "t": 19.15,
+   "de": "„＋15 Min“ macht es länger.",
+   "en": "“＋15 min” makes it longer."
+  },
+  {
+   "t": 21.91,
+   "de": "„▶ Heizplan fortsetzen“: sofort wieder nach Plan.",
+   "en": "“▶ Resume the schedule”: back to the plan at once."
+  },
+  {
+   "t": 24.71,
+   "de": "In den Heiz-Regeln: an oder aus, welche Zeiten, und was trotzdem gilt, zum Beispiel ein offenes Fenster.",
+   "en": "In the heating rules: on or off, which times, and what counts anyway, for example an open window."
+  },
+  {
+   "t": 31.42,
+   "de": "Wer den Knopf bekommt: je Benutzer unter ⚙ → Benutzer & Tablets und an jeder eigenen Thermostat-Karte.",
+   "en": "Who gets the button: per user in ⚙ → Users & tablets and on every own thermostat card."
+  }
+ ],
+ "duration": 34.92,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

@@ -1,0 +1,80 @@
+{
+ "id": "energy-calc",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben im Bearbeiten: „Strom“. Jetzt siehst du nur die Stromgeräte und „Strom jetzt“.",
+   "en": "At the top while editing: “Power”. Now you see only the power devices and “Power now”."
+  },
+  {
+   "t": 6.27,
+   "de": "Daneben: „Rechnung“, der Strom-Rechner.",
+   "en": "Next to it: “Bookkeeping”, the power calculator."
+  },
+  {
+   "t": 10.46,
+   "de": "Oben das Strom-Bild, daneben die Rechnung: Solar + Netz − Batterie = was das Haus braucht.",
+   "en": "At the top the power picture, next to it the sum: solar + grid − battery = what the house uses."
+  },
+  {
+   "t": 13.8,
+   "de": "Jede Zeile sagt, woher ihr Wert kommt. Ein Tipp darauf öffnet ihren Teil.",
+   "en": "Every line says where its value comes from. A tap on it opens its part."
+  },
+  {
+   "t": 18.93,
+   "de": "Jeder Teil ist eine Karte: oben steht, ob der Sensor gewählt ist oder aus dem Plan kommt, und sein Wert jetzt.",
+   "en": "Every part is a card: at the top it says whether the sensor is chosen or comes from the plan, and its value now."
+  },
+  {
+   "t": 21.92,
+   "de": "Die Leiste oben springt zu jedem Teil. Der Punkt: grün gewählt, blau aus dem Plan, orange fehlt.",
+   "en": "The bar at the top jumps to every part. The dot: green chosen, blue from the plan, orange missing."
+  },
+  {
+   "t": 27.16,
+   "de": "Ein Sensor oder zwei, und „Vorzeichen umdrehen“, wenn er andersherum zählt.",
+   "en": "One sensor or two, and “turn the sign round” when it counts the other way."
+  },
+  {
+   "t": 31.92,
+   "de": "Am schnellsten: „⤵ Aus dem Energie-Dashboard übernehmen“.",
+   "en": "The quickest way: “⤵ Take over from the energy dashboard”."
+  },
+  {
+   "t": 37.23,
+   "de": "Es zeigt, was es gefunden hat. „✓ Übernehmen“ trägt alles ein.",
+   "en": "It shows what it found. “✓ Take over” fills it all in."
+  },
+  {
+   "t": 43.95,
+   "de": "Die Checkliste sagt, was fertig ist und was noch fehlt. Ist alles fertig, ist sie zugeklappt.",
+   "en": "The check list says what is done and what is still missing. When all is done it is folded away."
+  },
+  {
+   "t": 46.61,
+   "de": "Bei „Räume“ ordnet „Vorschlagen“ die Zwischenstecker den Räumen zu.",
+   "en": "Under “Rooms”, “Suggest” puts the smart plugs into their rooms."
+  },
+  {
+   "t": 56.61,
+   "de": "Oben stehen dann die Räume und der „Rest“, den kein Raum misst.",
+   "en": "At the top you then see the rooms and the “rest” that no room measures."
+  },
+  {
+   "t": 59.57,
+   "de": "Zählt ein Sensor falsch herum oder doppelt, steht dort eine Warnung, mit einem Knopf zum Umdrehen.",
+   "en": "When a sensor counts the wrong way or twice, a warning comes up there, with a button to turn it round."
+  },
+  {
+   "t": 61.58,
+   "de": "Fertig: „Strom jetzt“ rechnet so, auch in der Live-Ansicht.",
+   "en": "Done: “Power now” counts like this, in the live view too."
+  }
+ ],
+ "duration": 71.67,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

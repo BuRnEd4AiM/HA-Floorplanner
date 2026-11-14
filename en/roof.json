@@ -1,0 +1,30 @@
+{
+ "id": "roof",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 3.32,
+   "de": "Oben: „Dach“.",
+   "en": "At the top: “Roof”."
+  },
+  {
+   "t": 7.24,
+   "de": "Die Form des Dachs: Walmdach …",
+   "en": "The shape of the roof: hip roof …"
+  },
+  {
+   "t": 11.14,
+   "de": "… oder wieder ein Satteldach.",
+   "en": "… or a gable roof again."
+  },
+  {
+   "t": 12.72,
+   "de": "„＋ Gaube“ setzt eine Gaube ins Dach.",
+   "en": "“＋ Dormer” puts a dormer into the roof."
+  }
+ ],
+ "duration": 17.16,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

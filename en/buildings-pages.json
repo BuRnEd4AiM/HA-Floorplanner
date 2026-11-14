@@ -1,0 +1,40 @@
+{
+ "id": "buildings-pages",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.42,
+   "de": "Dieser Plan hat zwei Gebäude. Oben wählst du, welches du anschaust.",
+   "en": "This plan has two buildings. At the top you choose which one you look at."
+  },
+  {
+   "t": 11.12,
+   "de": "„Klima“ zeigt jetzt nur die Räume und Thermostate des Anbaus.",
+   "en": "“Climate” now shows only the rooms and thermostats of the wing."
+  },
+  {
+   "t": 15.84,
+   "de": "„Musik & TV“: nur seine Lautsprecher, der Fernseher im Wohnzimmer fehlt.",
+   "en": "“Music & TV”: only its speakers, the TV in the living room is gone."
+  },
+  {
+   "t": 20.98,
+   "de": "Auch die eigenen Karten: was im anderen Gebäude steht, ist weg.",
+   "en": "The own cards too: what stands in the other building is gone."
+  },
+  {
+   "t": 23.38,
+   "de": "Eine eigene Seite kann einem Gebäude gehören: beim Bearbeiten, „⚙️ Seite“, „Gehört zu Gebäude“.",
+   "en": "An own page can belong to a building: while editing, “⚙️ Page”, “Belongs to building”."
+  },
+  {
+   "t": 34.28,
+   "de": "„🏘 Alle Gebäude“: wieder alles.",
+   "en": "“🏘 All buildings”: everything again."
+  }
+ ],
+ "duration": 38.88,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

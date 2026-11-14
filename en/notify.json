@@ -1,0 +1,30 @@
+{
+ "id": "notify",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 4.81,
+   "de": "In den Einstellungen: „Warnungen & Alarm“. Drei Karten, oben steht, ob sie an sind.",
+   "en": "In the settings: “Warnings & alarm”. Three cards, each says whether it is on."
+  },
+  {
+   "t": 9.78,
+   "de": "Tippe auf „Nachricht aufs Handy“.",
+   "en": "Tap “Message to your phone”."
+  },
+  {
+   "t": 14.3,
+   "de": "Wähle, wobei eine Nachricht kommen soll, und wohin: WhatsApp, Telegram oder die App.",
+   "en": "Choose what sends a message and where to: WhatsApp, Telegram or the app."
+  },
+  {
+   "t": 18.92,
+   "de": "Mit „Testen“ kommt sofort eine Probe-Nachricht.",
+   "en": "“Test” sends a sample message at once."
+  }
+ ],
+ "duration": 21.96,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}

@@ -1,0 +1,30 @@
+{
+ "id": "phone-floors",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben links steht die Etage, mit grünem Punkt, wenn jemand da ist.",
+   "en": "Top left is the floor, with a green dot when someone is there."
+  },
+  {
+   "t": 2.76,
+   "de": "Ein Tipp: oben die Etagen, darunter die Zimmer.",
+   "en": "One tap: the floors at the top, the rooms below."
+  },
+  {
+   "t": 5.15,
+   "de": "Tippe auf ein Zimmer: es öffnet sich, der Knopf nennt es.",
+   "en": "Tap a room: it opens, the button names it."
+  },
+  {
+   "t": 8.18,
+   "de": "Eine andere Etage: wieder oben antippen.",
+   "en": "Another floor: tap the top again."
+  }
+ ],
+ "duration": 13.92,
+ "version": "5.11.0",
+ "date": "2026-11-14",
+ "slow": 2.0
+}
