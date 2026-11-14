@@ -2363,4 +2363,8 @@ export default {
   'an.stepsTitleTg': 'Jak skonfigurować Telegram:', 'lg.count': '💡 pokoje: {n}', 'pn.floors': 'Piętro',
   'ver.connectorOk': 'Integracja w Home Assistant (łącznik): ta sama wersja {v}.',
   'ver.connectorOld': 'Integracja w Home Assistant (łącznik): wersja {c}, ten program {v}. Należą do siebie: zaktualizuj starszy (integrację w HACS, kontener poleceniem „docker compose pull”).',
+  'rp.tab.light': 'Światło', 'rp.tab.cover': 'Rolety', 'rp.tab.climate': 'Klimat', 'rp.tab.values': 'Odczyty', 'rp.tab.devices': 'Urządzenia',
+  'rp.tab.open': 'Okna', 'rp.nOn': '{n} wł.', 'rp.nOpen': '{n} otw.', 'rp.allShut': 'wszystko zamknięte', 'rp.lightsOn': '{on} z {n} wł.',
+  'rp.lightsNone': 'wszystkie światła wył.', 'rp.colorsAll': 'Kolor i barwa bieli dla wszystkich', 'rp.more': 'Pokaż wszystko', 'rp.less': 'Mniejszy',
+  'rp.close': 'Zamknij',
 };

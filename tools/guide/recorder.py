@@ -299,6 +299,7 @@ class Rec:
     def drag(self, x0, y0, x1, y1, ms=900, button="left"):
         """press at one point, move to another, let go (walls, sliders, turning the 3D view)"""
         self.move(x0, y0)
+        self.pg.mouse.move(x0, y0)    # a phone clip glides without the mouse (taps): press where the drag starts, not where the mouse was last
         self.wait(100)
         self.pg.mouse.down(button=button)
         t = self.now()

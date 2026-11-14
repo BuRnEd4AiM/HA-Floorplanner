@@ -86,11 +86,15 @@ pgH.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx
     {id: 'hTherm', type: 'thermostat', x: 5, z: 4.7, y: 0.2, rot: 180, scale: 1, name: 'Heizung', entity: 'climate.wohnzimmer'});
   window.__fp.rebuild(); window.__fp.openRoomPanel('hRoom'); }""")
 pgH.wait_for_timeout(1500)
-check("heating: the heating panel is shown next to the room panel", pgH.locator("#heatPanel").is_visible() and pgH.locator("#roomPanel").is_visible())
+rp = pgH.inner_text("#roomPanel")
+check("heating: the room card opens on 💡 Licht with the lamp, the thermostat is not among its rows", "Lampe" in rp and "Heizkörper" not in rp
+      and pgH.evaluate("window.__fp.roomCard().tab") == "light" and pgH.locator("#heatPanel").is_hidden(), rp)
+clim_tab = pgH.inner_text("#roomPanel .rpTab[data-tab=climate]")
+check("heating: the tab 🌡 Klima says the temperature (°C or °F)", "20" in clim_tab or "68" in clim_tab or "69" in clim_tab, clim_tab)
+pgH.click("#roomPanel .rpTab[data-tab=climate]"); pgH.wait_for_timeout(500)
+check("heating: the heating panel is in the tab 🌡 Klima of the room card (5.10.0)", pgH.locator("#roomPanel #heatPanel").is_visible() and pgH.locator("#roomPanel").is_visible())
 txt = pgH.inner_text("#heatPanel")
 check("heating: it shows the room temperature, the target and that it heats", "20.5" in txt and "21" in txt and ("heizt" in txt or "heating" in txt), txt)
-rp = pgH.inner_text("#roomPanel")
-check("heating: the thermostat is no longer in the room panel's list (the lamp still is)", "Heizkörper" not in rp and "Lampe" in rp, rp)
 check("heating: the radiator glows while it heats", pgH.evaluate("window.__fp.heatGlow('hRad')") > 0.5, pgH.evaluate("window.__fp.heatGlow('hRad')"))
 check("heating: a thermostat's whole radiator glows too, not only its little light", pgH.evaluate("window.__fp.heatGlow('hTherm')") > 0.5, pgH.evaluate("window.__fp.heatGlow('hTherm')"))
 bH = pgH.evaluate("window.__fp.badge('hRad')")

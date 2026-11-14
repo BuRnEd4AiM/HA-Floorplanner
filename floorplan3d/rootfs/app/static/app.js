@@ -81,7 +81,8 @@ import { DEVICE_TYPES, catOf, makeModel, isCustom, baseSize } from './models.js'
 import {
   OPENING_DEFAULTS, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
 } from './walls.js';
-import { t, setLanguage, loadLanguage, onLanguageLoaded, applyI18n, currentLanguage, fmtArea } from './i18n.js';
+import { t, setLanguage, loadLanguage, onLanguageLoaded, applyI18n, currentLanguage, fmtArea, fmtNum } from './i18n.js';
+import { airLimit } from './climate.js';
 import { createPlan } from './plan2d.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
@@ -1278,6 +1279,11 @@ const roomPanel = initRoomPanel({
   closeLivePopup: () => popup.close(), leaveFocus: () => { if (focusedRoom) focusRoom(null); },
   off: () => cardUi?.roomPanel() === false,                                  // a dashboard card without the room panel (#13)
   alone: () => !!cardUi?.panelOnly(),                                        // a dashboard card with nothing but the room panel (#356)
+  num: (v, d) => fmtNum(v, d), co2Limit: () => airLimit(settings.co2Stops),
+  heat: {                                                                    // what the heating rules do in the room, in 🌡 Klima of the room card (5.10.0)
+    extras: (id, climate) => rulesUi.heat.roomExtras({ id, climate }), line: (id) => rulesUi.line(id),
+    sig: (id, climate) => rulesUi.heat.sig({ id, climate }) + rulesUi.pause.sig(climate), pause: (e) => rulesUi.pause.button(e), busy: () => rulesUi.pause.busy(),
+  },
 });
 /* ---- Phones: the room shows above the room sheet, not behind it; the code lives in sheetview.js ---- */
 sheetView = initSheetView({ camera, canvas, panel: $('#roomPanel'), side: () => floorCards.column() });   // side: the floor cards' column (phones)
@@ -1966,7 +1972,7 @@ if (params.get('debug')) {
     liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, ball: !!h.data.tapBall } : null; },   // ball: a tap ball or a heater's temperature was hit
     touchSize: (id) => { let m = 0; registry.get(id)?.children.forEach((c) => { if (c.userData.touchOnly) { c.geometry.computeBoundingBox(); const s = c.geometry.boundingBox.getSize(new THREE.Vector3()); m = Math.min(s.x, s.y, s.z); } }); return m; },
     addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach', uid())); build(); }, viewShift: () => (camera.view?.enabled ? camera.view.offsetY : 0), camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofsUi.faded.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),
-    liveTapRoom: (id) => liveSelect({ kind: 'room', id }), liveTap: (id) => liveSelect({ kind: 'device', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
+    liveTapRoom: (id) => liveSelect({ kind: 'room', id }), roomTab: (k) => roomPanel.show(k), roomCard: () => ({ tab: roomPanel.tab(), full: roomPanel.full() }), liveTap: (id) => liveSelect({ kind: 'device', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
     select(kind, id) { selection = { kind, id }; refreshSelection(); },
     selectMany: (items) => multiSel.selectOnly(items),               // several things selected at once (for tests, #405)
     houseCards: () => [...document.querySelectorAll('.floorCard')].map((e) => e.innerText),

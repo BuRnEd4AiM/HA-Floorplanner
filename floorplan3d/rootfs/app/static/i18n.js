@@ -1317,6 +1317,9 @@ const DICT = {
     'vc.checkTitle': '🩺 Prüfen und Mikrofon-Test', 'an.stepsTitleTg': 'So richtest du Telegram ein:', 'lg.count': '💡 Räume: {n}', 'pn.floors': 'Etage',
     'ver.connectorOk': 'Integration in Home Assistant (Connector): dieselbe Version {v}.',
     'ver.connectorOld': 'Integration in Home Assistant (Connector): Version {c}, dieses Programm {v}. Beide gehören zusammen: das ältere aktualisieren (die Integration in HACS, den Container mit „docker compose pull“).',
+    'rp.tab.light': 'Licht', 'rp.tab.cover': 'Rollo', 'rp.tab.climate': 'Klima', 'rp.tab.values': 'Werte', 'rp.tab.devices': 'Geräte', 'rp.tab.open': 'Fenster',
+    'rp.nOn': '{n} an', 'rp.nOpen': '{n} offen', 'rp.allShut': 'alle zu', 'rp.lightsOn': '{on} von {n} an', 'rp.lightsNone': 'alle Lichter aus',
+    'rp.colorsAll': 'Farbe & Weißton für alle', 'rp.more': 'Alles zeigen', 'rp.less': 'Kleiner', 'rp.close': 'Schließen',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2585,6 +2588,9 @@ const DICT = {
     'vc.checkTitle': '🩺 Check and microphone test', 'an.stepsTitleTg': 'How to set up Telegram:', 'lg.count': '💡 rooms: {n}', 'pn.floors': 'Floor',
     'ver.connectorOk': 'Home Assistant integration (connector): the same version {v}.',
     'ver.connectorOld': 'Home Assistant integration (connector): version {c}, this program {v}. They belong together: update the older one (the integration in HACS, the container with “docker compose pull”).',
+    'rp.tab.light': 'Light', 'rp.tab.cover': 'Blinds', 'rp.tab.climate': 'Climate', 'rp.tab.values': 'Readings', 'rp.tab.devices': 'Devices',
+    'rp.tab.open': 'Windows', 'rp.nOn': '{n} on', 'rp.nOpen': '{n} open', 'rp.allShut': 'all shut', 'rp.lightsOn': '{on} of {n} on',
+    'rp.lightsNone': 'all lights off', 'rp.colorsAll': 'Colour & white tone for all', 'rp.more': 'Show everything', 'rp.less': 'Smaller', 'rp.close': 'Close',
   },
 };
 

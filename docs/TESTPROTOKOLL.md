@@ -4,7 +4,7 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.9.1, 2026-11-12)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.10.0, 2026-11-14)
 
 **Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
@@ -48,6 +48,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 34. **Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, die Karte im HACS-Store** (Abschnitt 196, #744 von aixmoyu, Frencks Hinweis vom 2026-11-12): Claude hat 196.1 bis 196.4 geprüft (das Repository hast du angelegt); 5.9.0 ist freigegeben (196.5 ✅); aixmoyu hat es mit seinem echten Home Assistant Container bestätigt (196.6 ✅, 2026-11-13); für dich nur noch in HACS die Suche 196.7.
 35. **Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite** (Abschnitt 197, #747): Claude hat 197.1, 197.2 und 197.4 geprüft; für dich 197.3 (auf deinem Tablet, dein Plan „Wohnzimmer Lieselotte“).
 36. **Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel** (Abschnitt 198, #744 von aixmoyu): Claude prüft 198.1 und 198.2; 198.3 braucht einen echten Home Assistant Container (aixmoyu, wenn er mag).
+37. **Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein** (Abschnitt 199, deine Wahl aus `docs/ideen-5.10` vom 2026-11-14, #750): Claude hat 199.1 bis 199.6 geprüft (Demo am PC, am nachgebauten iPhone, Browser-Test); für dich mit deinem echten Haus 199.7 (die Zeile des Heizplans), 199.8 (Lampen wischen) und dein Eindruck 199.9.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -502,7 +503,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 196. Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, Hinweis bei verschiedenen Versionen; die Karte im HACS-Store | 6 | 0 | 1 | 0 | 196.7 |
 | 197. Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite (#747) | 3 | 0 | 1 | 0 | 197.3 |
 | 198. Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel mit Home Assistant (#744) | 1 | 0 | 2 | 0 | 198.2, 198.3 |
-| **Zusammen** | **1272** | **2** | **80** | **92** | |
+| 199. Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein (docs/ideen-5.10, #750) | 6 | 0 | 3 | 0 | 199.7 bis 199.9 |
+| **Zusammen** | **1278** | **2** | **83** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3014,3 +3016,18 @@ aixmoyu hat 5.9.1 am 2026-11-13 mit seinem echten Home Assistant Container getes
 | 198.1 | Tests `tests/test_connector_package.py`, `test_connector_mirror.py`, `test_container.py`, `test_manifest.py`, `test_make_guide.py` | Alles grün: der Ordner `brand/` hat Symbol und Logo in den Größen, die Home Assistant will, und ist im ZIP | ✅ (2026-11-13, Claude: 135 Tests grün, dazu ruff; ein echtes Home Assistant 2026.11.0 erkennt den Ordner (`has_branding`) und liefert über seine Bilder-Adresse icon, icon@2x, logo und logo@2x aus, für das dunkle Design dieselben) |
 | 198.2 | Nach dem Merge (spätestens eine Stunde danach): das Repository `HA-Floorplanner-Connector` öffnen | Es gibt ein Vorab-Release v5.9.2, `custom_components/floorplan3d/brand/icon.png` ist da, die README zeigt „Example: Home Assistant and 3D Floorplan in one compose file“ | ❓ |
 | 198.3 | Mit einem echten Home Assistant Container (ab 2026.3): den Connector 5.9.2 über HACS installieren, Home Assistant neu starten | Einstellungen → Geräte & Dienste zeigt bei „3D Floorplan (Container)“ das Haus statt eines leeren Platzhalters | ❓ |
+
+## 199. Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein (docs/ideen-5.10, #750)
+Dein Wunsch vom 2026-11-14 („Designvorschläge … diese Raumkarte … schöner, einfacher zu bedienen … zauber mal irgendwas“) und deine Wahl aus den Bildern: Idee 3 „Reiter“ und am Handy Idee 4 „erst kurz“, dazu: „bitte beachte, dass … bei der Heizungssteuerung … dort dann auch angezeigt wird ob es gerade im Heizplan oder so verwendet wird. Nicht dass es dann untergeht“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 199.1 | Unit-Tests `tests/roomcard.test.mjs`, `heatpanel.test.mjs`, `userlocks.test.mjs`; Browser-Test Teile `89_room_card` (neu), `04_lights`, `06_ledring`, `09_floors`, `13_card`, `25_sky_tiles`, `69_window_tilt`, `88_room_cover`, `07_tablet`, `11_live`, `26_look`, `81_roof_lock`; ruff, eslint, `tests/test_i18n.py`, `test_make_guide.py`, `test_guide_search.py` | Alles grün | ✅ (2026-11-14, Claude, lokal je Teil allein) |
+| 199.2 | Am PC: in der Demo (Erdgeschoss) auf das Wohnzimmer tippen | Rechts eine Karte: oben 🛋️ Wohnzimmer, „27,0 m² · 💡 … an“, darunter die Werte als Chips (🌡 21,4 °C, 💧, 🫧 920 ppm gelb, ⚡ Strom, 🪟 3 offen rot), dann die Reiter Licht · Rollo · Klima · Geräte · Fenster; kein zweiter Kasten „Heizung“ daneben | ✅ (2026-11-14, Claude, Demo am PC; auch im hellen Design und in Holo) |
+| 199.3 | Reiter „💡 Licht“: über eine Lampe nach links oder rechts wischen, eine Lampe antippen, 🎨 antippen | Wischen stellt die Helligkeit (die Zahl läuft mit), ein Tipp schaltet sie, 🎨 klappt Farben und Szenen auf; die Szenen stehen nur einmal oben als Knöpfe, ohne Datum (#750) | ✅ (2026-11-14, Claude, Demo und Browser-Test `89_room_card`) |
+| 199.4 | Reiter „🌡 Klima“ im Wohnzimmer der Demo | Oben steht, was der Heizplan macht (in der Demo „⏸️ Heizung pausiert · Fenster offen …“ mit „🔥 Trotzdem heizen“), darunter das Thermostat mit den Modi und „⏸️ Heizplan aussetzen“, unten die Sensoren als Kästchen; der Reiter zeigt „21,4° ⏸️“ | ✅ (2026-11-14, Claude, Demo) |
+| 199.5 | Am Handy (Demo): auf das Wohnzimmer tippen | Die Karte kommt klein, das Haus bleibt darüber zu sehen: Werte in einer Zeile, vier große Knöpfe (Licht, Szenen, Rollo, Klima „21,4° ⏸️“), darunter die Zeile des Heizplans und „⌃ Alles zeigen“ | ✅ (2026-11-14, Claude, Demo am nachgebauten iPhone) |
+| 199.6 | Am Handy: auf „Klima“ tippen, dann den Griff oben nach unten ziehen, noch einmal nach unten ziehen | „Klima“ öffnet die ganze Karte beim Reiter Klima; einmal herunterziehen macht sie wieder klein, noch einmal geht sie zu | ✅ (2026-11-14, Claude, Browser-Test `89_room_card` und Video „phone-room“) |
+| 199.7 | Mit deinem echten Haus am Handy (Home-Assistant-App): ein Zimmer mit Lichtern und Heizplan antippen | Wie 199.5; die Zeile des Heizplans sagt, was er gerade macht (z. B. „📅 Heizplan: ☀️ Komfort 21 °C“) | ❓ |
+| 199.8 | Mit deinen echten Lampen: über eine Lampe wischen | Die echte Lampe wird heller oder dunkler, wenn du loslässt | ❓ |
+| 199.9 | Dein Eindruck: gefällt dir die neue Karte am Handy und am PC? | Ja, oder was noch stört | ❓ |

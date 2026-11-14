@@ -121,7 +121,7 @@ box = fr.evaluate("(() => { const r = document.getElementById('roomPanel').getBo
 check("card (#356): only the controls: the room panel of the room fills the card, no 3D picture, no close button, the heating inside it",
       "card-panel" in fr.evaluate("[...document.body.classList]") and fr.locator("#roomPanel").is_visible() and fr.locator("#view").is_hidden()
       and fr.locator("#roomPanel .rp-head b").inner_text().strip() == rr[2].strip() and fr.locator("#roomPanel .rp-x").count() == 0
-      and fr.evaluate("document.getElementById('heatPanel').parentNode.id") == "roomPanel"
+      and fr.evaluate("(() => { const h = document.getElementById('heatPanel'); return h.hidden || !!h.closest('#roomPanel'); })()")   # the heating only in its tab (5.10.0)
       and box[0] == 0 and box[1] == 0 and abs(box[2] - box[4]) <= 2 and abs(box[3] - box[5]) <= 2, box)
 fr.evaluate("window.__fp.kioskIdle(2 * 60000); window.__fp.kioskTick()"); fr.wait_for_timeout(1200)
 check("card (#356): only the controls: the room panel stays open after the idle time", fr.locator("#roomPanel").is_visible()

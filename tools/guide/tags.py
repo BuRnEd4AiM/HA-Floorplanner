@@ -46,9 +46,11 @@ t("viewmenu",
   "lower walls floors stacked hide labels hide names hide tiles display change the view")
 t("room",
   "Raum anklicken Raum antippen Zimmer öffnen Raumansicht Raumkarte alles im Raum alle Lampen im Raum Raum ausschalten "
-  "Wohnzimmer Küche Bad Schlafzimmer Büro Kinderzimmer heranfahren Seitenleiste rechts schließen",
+  "Wohnzimmer Küche Bad Schlafzimmer Büro Kinderzimmer heranfahren Seitenleiste rechts schließen Reiter Registerkarte "
+  "Werte Temperatur CO2 Luftqualität Stromverbrauch dimmen wischen Schieberegler",
   "click a room tap a room open a room room view room card everything in a room all lamps of a room switch a room off "
-  "living room kitchen bathroom bedroom office kids room fly to side panel close")
+  "living room kitchen bathroom bedroom office kids room fly to side panel close tabs values temperature CO2 air quality "
+  "power usage dim swipe slider")
 t("search",
   "Lupe Suchfeld finden wo ist Gerät suchen Lampe finden Sensor finden Steckdose Name eintippen schnell finden zeigen "
   "Wo ist die Stehlampe",
@@ -556,6 +558,11 @@ t("phone-house",
   "zwei Finger drehen klein Bildschirm",
   "phone smartphone iPhone Android mobile on the go app companion app Home Assistant app touch tap finger zoom "
   "two fingers turn small screen")
+t("phone-room",
+  "Handy Raumkarte klein groß hochziehen runterziehen Griff wischen Knöpfe Schnellknöpfe Licht Szene Rollo Heizung "
+  "Heizplan läuft pausiert Raum antippen Smartphone iPhone Android Bottom Sheet",
+  "phone room card small big pull up pull down grip swipe buttons quick buttons light scene blinds heating schedule "
+  "running paused tap room smartphone iPhone Android bottom sheet")
 t("phone-pages",
   "Handy Seiten wechseln wischen Leiste unten Menü Handy Energie Klima Heute App Smartphone",
   "phone switch pages swipe bottom bar phone menu energy climate today app smartphone")

@@ -134,6 +134,7 @@ row_wt = pgW.evaluate("[...document.querySelectorAll('#openList li')].map(li => 
 check("tilt: the list „offen“ has the window as „Gekippt“", "Gekippt" in row_wt, row_wt)
 pgW.keyboard.press("Escape"); pgW.wait_for_timeout(300)
 pgW.evaluate("window.__fp.openRoomPanel('wt_r')"); pgW.wait_for_timeout(600)
+pgW.evaluate("window.__fp.roomTab('open')"); pgW.wait_for_timeout(300)   # the windows are in the tab 🚪 Fenster of the room card (5.10.0)
 panel_wt = pgW.evaluate("(document.querySelector('#roomPanel') || {}).textContent || ''")
 check("tilt: the room panel says „Gekippt“ for the window (one row for both contacts)", "Gekippt" in panel_wt and panel_wt.count("Kippfenster") == 1, panel_wt[:300])
 check("tilt: no errors", not own_wt, own_wt)
