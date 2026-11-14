@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-14 · 139 Sitzungen
+Stand: 2026-11-14 · 140 Sitzungen
 
-**Insgesamt: 9,22 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 9,29 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 25,2 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 86,6 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 9,11 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 25,3 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 87,1 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 9,18 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 53 | 3,10 Mrd. | 7,4 Mio. |
+| 2026-11 | 54 | 3,16 Mrd. | 7,6 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-14 | [018pwcmx…](https://claude.ai/code/session_018pwcmxjfVfFXxWU64QJ6Lx) | claude/beautiful-mendel-d6z1j6 | 66,9 Mio. | 169 Tsd. | gezählt |
 | 2026-11-14 | [018pwcmz…](https://claude.ai/code/session_018pwcmzkokYFu8uJ4veLtYH) | claude/peaceful-knuth-2re8il | 51,2 Mio. | 191 Tsd. | gezählt |
 | 2026-11-13 | [018pwcmy…](https://claude.ai/code/session_018pwcmyhQLzUmyNMHvpw5QD) | claude/eager-dijkstra-ghiifb | 5,3 Mio. | 25 Tsd. | gezählt |
 | 2026-11-12 | [018pwcmx…](https://claude.ai/code/session_018pwcmx1jqznnpgaLoMuQwu) | claude/eloquent-cori-6zfn9l | 12,3 Mio. | 36 Tsd. | gezählt |
