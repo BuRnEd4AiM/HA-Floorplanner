@@ -1,4 +1,4 @@
-/* Heating panel (#134): next to the room panel, for the thermostats of the room (live mode), each with the other entities of its device
+/* Heating panel (#134): in the tab 🌡 Klima of the room card (beside it before 5.10.0), for the thermostats of the room (live mode), each with the other entities of its device
  * (child lock, window detection ..., #370) instead of among the room's switches, its presets and fan modes (#406), and a button that opens the
  * thermostat in Home Assistant. The live card of a thermostat or air conditioner shows the same (livepopup.js).
  * A target temperature that is clicked with - / + is only sent after a short pause, so clicks in a row become one call. */
@@ -44,9 +44,10 @@ export function chipText(t, kind, m) {
  * @param {{box: HTMLElement, t: Function, states: () => object, callService: Function, open: () => boolean, stateText?: Function, isOn?: Function, details?: Function}} ctx
  *   `open` says whether the room panel is open (the heating panel only shows next to it); stateText(id) / isOn(id): a part's state;
  *   details(id): a button that opens the entity in Home Assistant (its own dialog), null where that is not possible; heading: false in the live
- *   card of a thermostat or air conditioner (#406), which has its own title.
+ *   card of a thermostat or air conditioner (#406), which has its own title; extra(entity): something under − / + (the room card puts
+ *   ⏸️ Heizplan aussetzen there, 5.10.0), null for nothing.
  */
-export function initHeatPanel({ box, t, states, callService, open, stateText = (e) => states()[e]?.state ?? '', isOn = (e) => states()[e]?.state === 'on', details = () => null, heading = true }) {
+export function initHeatPanel({ box, t, states, callService, open, stateText = (e) => states()[e]?.state ?? '', isOn = (e) => states()[e]?.state === 'on', details = () => null, heading = true, extra = () => null }) {
   const pending = new Map();                 // entity -> { v, timer }: a target that was clicked but not sent yet
   let devs = [], parts = {};
   const target = (e, s) => pending.get(e)?.v ?? s?.tt;
@@ -117,6 +118,7 @@ export function initHeatPanel({ box, t, states, callService, open, stateText = (
         set.append(minus, val, plus); temps.append(set);
       }
       card.append(head, temps);
+      const more = extra(e); if (more) card.append(more);
       if (Array.isArray(s?.modes) && s.modes.length) {
         const modes = document.createElement('div'); modes.className = 'hp-modes';
         s.modes.forEach((m) => {

@@ -71,28 +71,34 @@ def _(r):
 
 @clip("room", "start",
       {"de": "Einen Raum öffnen", "en": "Open a room"},
-      {"de": "Ein Tipp auf den Namen eines Raums: die Kamera fährt hin, rechts stehen alle Lampen, die Heizung und die Szenen des Raums.",
-       "en": "Tap the name of a room: the camera flies there, and all lamps, the heating and the scenes of the room are listed on the right."},
-      "raum zimmer öffnen raumkarte lampen alle aus heizung room open panel lamps all off heating", sky="18:40")
+      {"de": "Ein Tipp auf den Namen eines Raums: die Kamera fährt hin, rechts öffnet sich seine Karte. Oben die Werte (Temperatur, CO₂, Strom, offene Fenster), darunter Reiter: Licht, Rollo, Klima, Geräte, Fenster. Über eine Lampe wischen dimmt sie.",
+       "en": "Tap the name of a room: the camera flies there and its card opens on the right. The values on top (temperature, CO₂, power, open windows), tabs below: light, blinds, climate, devices, windows. Swiping over a lamp dims it."},
+      "raum zimmer öffnen raumkarte reiter werte lampen dimmen wischen alle aus heizung klima room open card tabs values lamps dim swipe all off heating climate", sky="18:40")
 def _(r):
     r.say("Tippe auf den Namen eines Raums.", "Tap the name of a room.")
     r.click("#roomLabels [data-room=r1]")
     r.wait(2000)
-    r.say("Die Kamera fährt hin, rechts öffnet sich der Raum.", "The camera flies there and the room opens on the right.")
+    r.say("Die Kamera fährt hin, rechts öffnet sich die Karte des Raums.", "The camera flies there and the room's card opens on the right.")
     r.wait(1200)
     r.poster()
-    r.say("Hier schaltest du alle Lampen des Raums auf einmal.", "Here you switch all lamps of the room at once.")
+    r.say("Oben stehen seine Werte: Temperatur, Luftfeuchte, CO₂, Strom und offene Fenster.", "On top its values: temperature, humidity, CO₂, power and open windows.")
+    r.move("#roomPanel .rpChips")
+    r.wait(1300)
+    r.say("Darunter die Reiter: Licht, Rollo, Klima, Geräte, Fenster. Es ist immer nur einer offen.", "Below them the tabs: light, blinds, climate, devices, windows. Only one is open at a time.")
+    r.move("#roomPanel .rpTabs")
+    r.wait(1300)
+    r.say("„Alle aus“ schaltet alle Lampen des Raums auf einmal.", "“All off” switches all lamps of the room at once.")
     r.move("#roomPanel button >> text=/Alle aus|All off/")
     r.wait(900)
-    r.say("Weiter unten: jede Lampe einzeln, die Heizung und mehr.", "Further down: every lamp on its own, the heating and more.")
-    r.move(1300, 600)
-    for _ in range(3):
-        r.pg.mouse.wheel(0, 220)
-        r.wait(450)
-    r.wait(700)
-    for _ in range(3):
-        r.pg.mouse.wheel(0, -260)
-        r.wait(300)
+    r.say("Über eine Lampe wischen macht sie heller oder dunkler, ein Tipp schaltet sie.", "Swiping over a lamp makes it brighter or darker, a tap switches it.")
+    row = r.pg.locator("#roomPanel .rpLight.dim").first
+    if row.count():
+        bx = row.bounding_box()
+        r.drag(bx["x"] + bx["width"] * 0.75, bx["y"] + bx["height"] / 2, bx["x"] + bx["width"] * 0.35, bx["y"] + bx["height"] / 2)
+        r.wait(1500)
+    r.say("„Klima“ zeigt die Heizung und was der Heizplan gerade macht.", "“Climate” shows the heating and what the heating plan does right now.")
+    r.click("#roomPanel .rpTab[data-tab=climate]")
+    r.wait(1800)
     r.say("Mit ✕ ist der Raum wieder zu.", "✕ closes the room again.")
     r.click("#roomPanel .rp-x")
     r.wait(1500)

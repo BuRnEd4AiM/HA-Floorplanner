@@ -89,8 +89,11 @@ def _(r):
     r.say("„Öffnen“ fährt ihn wieder hoch.", "“Open” raises it again.")
     r.click("#livePopup .actions button", nth=0)
     r.wait(2600)
-    r.say("Rechts in der Leiste des Raums geht es auch: Hoch, Stopp, Runter und feste Stufen von 0 bis 100 %.",
-          "The room's panel on the right has it too: up, stop, down and fixed steps from 0 to 100 %.")
+    r.say("Rechts in der Karte des Raums, Reiter „Rollo“, geht es auch: Hoch, Stopp, Runter und feste Stufen von 0 bis 100 %.",
+          "The room's card on the right has it too, tab “Blinds”: up, stop, down and fixed steps from 0 to 100 %.")
+    if r.pg.locator("#roomPanel .rpTab[data-tab=cover]").count():
+        r.click("#roomPanel .rpTab[data-tab=cover]")
+        r.wait(900)
     r.move("#roomPanel .rpCoverActs button", nth=1)
     r.wait(900)
     r.say("„50 %“: er fährt halb herunter.", "“50 %”: it goes halfway down.")
@@ -100,13 +103,17 @@ def _(r):
 
 @clip("heating", "live",
       {"de": "Heizung einstellen", "en": "Set the heating"},
-      {"de": "Im Raum zeigt die Karte „Heizung“ die Temperatur. Heizen, Auto oder Aus und eine Vorwahl wie Eco oder Boost.",
-       "en": "In a room the card “Heating” shows the temperature. Heat, auto or off and a preset like eco or boost."},
-      "Heizung Thermostat Temperatur heizen warm Eco Komfort Boost Vorwahl heating thermostat temperature heat preset comfort")
+      {"de": "In der Karte eines Raums zeigt der Reiter „Klima“ die Heizung: was der Heizplan gerade macht, die Temperatur, Heizen, Auto oder Aus und eine Vorwahl wie Eco oder Boost.",
+       "en": "In a room's card the tab “Climate” shows the heating: what the heating plan does right now, the temperature, heat, auto or off and a preset like eco or boost."},
+      "Heizung Thermostat Temperatur heizen warm Eco Komfort Boost Vorwahl Heizplan Klima heating thermostat temperature heat preset comfort schedule climate")
 def _(r):
-    r.say("Tippe auf einen Raum: oben erscheint seine Heizung.", "Tap a room: its heating shows up at the top.")
+    r.say("Tippe auf einen Raum, dann in seiner Karte auf „Klima“.", "Tap a room, then “Climate” in its card.")
     room(r)
-    r.wait(400)
+    r.click("#roomPanel .rpTab[data-tab=climate]")
+    r.wait(900)
+    r.say("Oben steht, was der Heizplan gerade macht, zum Beispiel „pausiert, Fenster offen“.", "On top it says what the heating plan does right now, for example “paused, window open”.")
+    r.move("#roomPanel .rpRules")
+    r.wait(1500)
     r.say("„Heizen“ schaltet das Thermostat ein.", "“Heat” turns the thermostat on.")
     r.click("#heatPanel .hp-modes button", nth=1)
     r.wait(1300)

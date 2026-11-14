@@ -25,4 +25,4 @@ Knopf mit Symbol; Farbe und Weißton erst auf Wunsch; die Heizung in derselben K
 | ④ Am Handy erst kurz | `11`, `12` | Die Karte kommt zuerst klein: Kopf, Werte und vier große Knöpfe (💡 Licht, Szenen, 🪟 Rollo, 🌡 Heizung); das Haus bleibt groß zu sehen. Hochziehen am Griff zeigt alles (Bild 12, hier mit den Kacheln von ①). Geht mit ①, ② oder ③ zusammen. |
 | ⑤ Kleiner Grundriss | `13`, `14` | Oben in der Karte der Raum von oben: Lampen dort, wo sie stehen, an = leuchtend gelb mit Lichtschein; Fernseher, Lautsprecher, Ventilator, Thermostat (21,4°) und Rollladen (60 %) als runde Knöpfe zum Antippen; Fenster blau, offen rot, gekippt orange; offene Türen als roter Bogen. Darunter Szenen, Alle an / Alle aus und eine Zeile Licht · Rollo · Heizung. |
 
-Seine Wahl: offen.
+Seine Wahl (2026-11-14, per Auswahl im Chat): ③ Reiter und am Handy ④ „Ja, erst kurz“, dazu: „bitte beachte, dass … bei der Heizungssteuerung … dort dann auch angezeigt wird ob es gerade im Heizplan oder so verwendet wird. Nicht dass es dann untergeht“. Gebaut in 5.10.0 (`roompanel.js`, `roomcard.js`, `roomcardui.js`).

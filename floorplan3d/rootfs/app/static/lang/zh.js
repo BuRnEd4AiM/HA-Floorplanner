@@ -3960,4 +3960,7 @@ export default {
   'vc.checkTitle': '🩺 检查与麦克风测试', 'an.stepsTitleTg': '如何设置 Telegram：', 'lg.count': '💡 房间：{n}', 'pn.floors': '楼层',
   'ver.connectorOk': 'Home Assistant 中的集成（连接器）：版本相同 {v}。',
   'ver.connectorOld': 'Home Assistant 中的集成（连接器）：版本 {c}，本程序 {v}。两者需要配套：请更新较旧的一方（在 HACS 中更新集成，用 “docker compose pull” 更新容器）。',
+  'rp.tab.light': '灯光', 'rp.tab.cover': '卷帘', 'rp.tab.climate': '温控', 'rp.tab.values': '读数', 'rp.tab.devices': '设备', 'rp.tab.open': '门窗', 'rp.nOn': '{n} 开',
+  'rp.nOpen': '{n} 开着', 'rp.allShut': '全部关闭', 'rp.lightsOn': '{n} 盏中 {on} 盏开', 'rp.lightsNone': '灯全关', 'rp.colorsAll': '全部的颜色和色温', 'rp.more': '显示全部',
+  'rp.less': '收起', 'rp.close': '关闭',
 };

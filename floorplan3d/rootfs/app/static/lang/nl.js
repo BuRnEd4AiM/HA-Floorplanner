@@ -2370,4 +2370,7 @@ export default {
   'an.stepsTitleTg': 'Zo stel je Telegram in:', 'lg.count': '💡 kamers: {n}', 'pn.floors': 'Verdieping',
   'ver.connectorOk': 'Integratie in Home Assistant (connector): dezelfde versie {v}.',
   'ver.connectorOld': 'Integratie in Home Assistant (connector): versie {c}, dit programma {v}. Ze horen bij elkaar: werk de oudste bij (de integratie in HACS, de container met „docker compose pull”).',
+  'rp.tab.light': 'Licht', 'rp.tab.cover': 'Rolluik', 'rp.tab.climate': 'Klimaat', 'rp.tab.values': 'Waarden', 'rp.tab.devices': 'Apparaten',
+  'rp.tab.open': 'Ramen', 'rp.nOn': '{n} aan', 'rp.nOpen': '{n} open', 'rp.allShut': 'alles dicht', 'rp.lightsOn': '{on} van {n} aan',
+  'rp.lightsNone': 'alle lampen uit', 'rp.colorsAll': 'Kleur en wittint voor alle', 'rp.more': 'Alles tonen', 'rp.less': 'Kleiner', 'rp.close': 'Sluiten',
 };

@@ -26,6 +26,37 @@ def _(r):
     r.wait(1500)
 
 
+@clip("phone-room", "phone",
+      {"de": "Am Handy: die Karte eines Raums", "en": "On the phone: a room's card"},
+      {"de": "Ein Raum antippen: seine Karte kommt erst klein, das Haus bleibt zu sehen. Oben die Werte, darunter große Knöpfe für Licht, Szenen, Rollo und Heizung (mit dem, was der Heizplan macht). Am Griff hochziehen zeigt alles mit Reitern, herunterziehen macht sie wieder klein.",
+       "en": "Tap a room: its card first comes small and the house stays in sight. The values on top, big buttons below for light, scenes, blinds and heating (with what the heating plan does). Pulling the grip up shows everything with tabs, pulling it down makes it small again."},
+      "Handy Raumkarte Raum antippen klein hochziehen Griff Knöpfe Licht Szenen Rollo Heizung Heizplan phone room card tap small pull up grip buttons light scenes blinds heating schedule",
+      device="phone", sky="21:30")
+def _(r):
+    r.say("Tippe auf einen Raum: seine Karte kommt erst klein, das Haus bleibt zu sehen.", "Tap a room: its card first comes small and the house stays in sight.")
+    r.click("#roomLabels [data-room=r1]")
+    r.wait(2000)
+    r.poster()
+    r.say("Oben die Werte, darunter große Knöpfe: Licht, Szenen, Rollo, Heizung.", "The values on top, big buttons below: light, scenes, blinds, heating.")
+    r.move("#roomPanel .rpQuick")
+    r.wait(1500)
+    if r.pg.locator("#roomPanel .rpLine").count():
+        r.say("Darunter steht, was der Heizplan gerade macht.", "Below it says what the heating plan does right now.")
+        r.move("#roomPanel .rpLine")
+        r.wait(1400)
+    r.say("„Licht“ öffnet die ganze Karte mit den Lampen.", "“Light” opens the whole card with the lamps.")
+    r.click("#roomPanel .rpQ[data-q=light]")
+    r.wait(1600)
+    r.say("Oben die Reiter: Licht, Rollo, Klima, Geräte, Fenster.", "The tabs on top: light, blinds, climate, devices, windows.")
+    r.move("#roomPanel .rpTabs")
+    r.wait(1300)
+    r.say("Am Griff herunterziehen macht die Karte wieder klein.", "Pulling the grip down makes the card small again.")
+    g = r.pg.locator("#roomPanel .rpGrip").bounding_box()
+    if g:
+        r.drag(g["x"] + g["width"] / 2, g["y"] + g["height"] / 2, g["x"] + g["width"] / 2, g["y"] + g["height"] / 2 + 120)
+    r.wait(1800)
+
+
 @clip("phone-floors", "phone",
       {"de": "Am Handy: Etage und Zimmer wählen", "en": "On the phone: choose the floor and the room"},
       {"de": "Oben ein Knopf für Etage und Zimmer: die Liste zeigt die Etagen und darunter die Zimmer; der Knopf nennt, was offen ist.",

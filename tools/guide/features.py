@@ -22,6 +22,8 @@ f("floors", "start", "Etagen wechseln, ganzes Haus", "Switch floors, the whole h
 f("views", "start", "2D-Plan, 3D, beides nebeneinander", "2D plan, 3D, both side by side", ["views"])
 f("viewmenu", "start", "Ansicht: durchsichtig, Wände absenken (Auto), Halbschnitt, aufeinander", "View: see-through, lowered walls (Auto), half cut, stacked", ["viewmenu"])
 f("room", "start", "Raum öffnen, ganzer Raum auf einmal", "Open a room, the whole room at once", ["room"])
+f("roomcard", "start", "Karte eines Raums mit Werten oben und Reitern (Licht, Rollo, Klima, Geräte, Fenster), Lampen zum Wischen, am Handy erst klein",
+  "A room's card with its values on top and tabs (light, blinds, climate, devices, windows), lamps to swipe, small first on phones", ["room", "phone-room", "heating"], since="5.10.0")
 f("search", "start", "Suche („Wo ist …?“)", "Search (“Where is …?”)", ["search"])
 f("voice", "start", "Sprachsuche und Schalten per Sprache 🎤", "Voice search and switching by voice 🎤", ["voice"])
 f("colors", "start", "Temperatur, Feuchte, CO₂ als Farbe", "Temperature, humidity, CO₂ as colours", ["colors"])
@@ -127,6 +129,7 @@ f("dockericon", "settings", "Docker: Symbol der Integration, Compose-Beispiel mi
 
 # ---------- phone and tablet ----------
 f("phonehouse", "phone", "Am Handy: Haus, Räume, Licht", "On the phone: house, rooms, light", ["phone-house"])
+f("phoneroom", "phone", "Am Handy: Raumkarte erst klein mit großen Knöpfen, hochziehen zeigt alles", "On the phone: the room card small first with big buttons, pull up for everything", ["phone-room"], since="5.10.0")
 f("phonepages", "phone", "Am Handy: die Seiten", "On the phone: the pages", ["phone-pages"])
 
 # ---------- added by a version (since=) ----------
