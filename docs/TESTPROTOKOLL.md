@@ -4,7 +4,7 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.10.0, 2026-11-14)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.11.0, 2026-11-14)
 
 **Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
@@ -49,6 +49,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 35. **Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite** (Abschnitt 197, #747): Claude hat 197.1, 197.2 und 197.4 geprüft; für dich 197.3 (auf deinem Tablet, dein Plan „Wohnzimmer Lieselotte“).
 36. **Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel** (Abschnitt 198, #744 von aixmoyu): Claude prüft 198.1 und 198.2; 198.3 braucht einen echten Home Assistant Container (aixmoyu, wenn er mag).
 37. **Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein** (Abschnitt 199, deine Wahl aus `docs/ideen-5.10` vom 2026-11-14, #750): Claude hat 199.1 bis 199.6 geprüft (Demo am PC, am nachgebauten iPhone, Browser-Test); für dich mit deinem echten Haus 199.7 (die Zeile des Heizplans), 199.8 (Lampen wischen) und dein Eindruck 199.9.
+38. **Neu in 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern** (Abschnitt 200, #752, #753, #754 von Miicki vom 2026-11-14): Claude hat 200.1 bis 200.9 geprüft (Demo, Browser-Test); für Miicki mit seinem Haus 200.10, für dich dein Eindruck 200.11.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -504,7 +505,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 197. Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite (#747) | 3 | 0 | 1 | 0 | 197.3 |
 | 198. Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel mit Home Assistant (#744) | 1 | 0 | 2 | 0 | 198.2, 198.3 |
 | 199. Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein (docs/ideen-5.10, #750) | 6 | 0 | 3 | 0 | 199.7 bis 199.9 |
-| **Zusammen** | **1278** | **2** | **83** | **92** | |
+| 200. Neu in 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern (#752, #753, #754 von Miicki) | 9 | 0 | 2 | 0 | 200.10, 200.11 |
+| **Zusammen** | **1287** | **2** | **85** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3031,3 +3033,20 @@ Dein Wunsch vom 2026-11-14 („Designvorschläge … diese Raumkarte … schöne
 | 199.7 | Mit deinem echten Haus am Handy (Home-Assistant-App): ein Zimmer mit Lichtern und Heizplan antippen | Wie 199.5; die Zeile des Heizplans sagt, was er gerade macht (z. B. „📅 Heizplan: ☀️ Komfort 21 °C“) | ❓ |
 | 199.8 | Mit deinen echten Lampen: über eine Lampe wischen | Die echte Lampe wird heller oder dunkler, wenn du loslässt | ❓ |
 | 199.9 | Dein Eindruck: gefällt dir die neue Karte am Handy und am PC? | Ja, oder was noch stört | ❓ |
+
+## 200. Neu in 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern (#752, #753, #754 von Miicki)
+Miickis drei Wünsche vom 2026-11-14 („Mein Haus hat zum Beispiel dunkelgraue Ziegel, in der App ist das Dach aber immer ziegelrot“; Treppen „mit denselben Bodenbelägen … wie die Räume“ und die Farbe des Geländers; „Die Farbe von Türblatt und Zarge einstellen können, pro Türe und als Standard für das ganze Haus“), deine Bitte: „Schau dir mal die neuen Issues an … und probier die mal umzusetzen“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 200.1 | Unit-Tests `tests/rooflook.test.mjs`, `stairlook.test.mjs`, `doorlook.test.mjs` (neu), `uiv2`, `facade`, `finishes`, `patterns`; Browser-Test Teile `90_looks` (neu), `79_ui_v2`, `86_ui_v2_objects`, `08_stairs`, `10_roofs`, `27_finishes`, `87_settings_look`, `81_roof_lock`, `72_skylights`; ruff, eslint, `tests/test_i18n.py`, `test_server.py`, `test_make_guide.py`, `test_guide_search.py` | Alles grün | ✅ (2026-11-14, Claude: alle 173 Unit-Tests der CI, 692 Python-Tests, Browser-Test-Teile wie genannt; `81_roof_lock` einmal rot, als vier Läufe gleichzeitig liefen, allein grün) |
+| 200.2 | Demo: Etage „Dach“, aufs Dach klicken, unter „Form“ „🎨 Farbe & Deckung“ aufklappen, „Dunkelgrau“ antippen, Deckung „Dachziegel“ | Das Dach wird dunkelgrau mit Ziegelreihen entlang der Traufe, die Gauben etwas dunkler; der Abschnitt sagt „Dunkelgrau · Dachziegel“ | ✅ (2026-11-14, Claude, Demo und Browser-Test `90_looks`) |
+| 200.3 | Deckung „Biberschwanz“, „Schiefer“, „Blech (Stehfalz)“, dann „Glatt“; ↺ neben der Farbe | Jedes Muster passt (Blech: die Falze laufen die Schräge hinunter); „Glatt“ ist eine Farbe wie früher; ↺ macht das Dach wieder ziegelrot | ✅ (2026-11-14, Claude, Demo: Fotos aller vier Deckungen angesehen) |
+| 200.4 | Erdgeschoss: die Treppe anklicken, unten „Belag & Farben“: Trittstufen „Parkett dunkel“, bei „Setzstufen & Wange“ Weiß antippen | Parkett auf den Stufen (die Dielen quer zur Laufrichtung), die Setzstufen weiß | ✅ (2026-11-14, Claude, Demo und Video „house-looks“) |
+| 200.5 | „⇣ Wie der Boden von …“ antippen | Die Treppe bekommt den Belag des Raums, in dem sie steht | ✅ (2026-11-14, Claude, Browser-Test `90_looks`) |
+| 200.6 | Die Wendeltreppe zur Dachterrasse: „Geländer“ Schwarz antippen; danach die gerade Treppe | Handlauf und Säule werden schwarz; bei der geraden Treppe steht, dass die App ein Geländer bisher nur an Wendeltreppen zeichnet | ✅ (2026-11-14, Claude, Demo und Browser-Test `90_looks`) |
+| 200.7 | Eine Tür anklicken: Türblatt Weiß, Zarge Anthrazit; ein Fenster: Rahmen Anthrazit | Tür und Fenster in den Farben; eine Tür oder ein Fenster mit Kontakt wird offen weiter rot | ✅ (2026-11-14, Claude, Demo und Browser-Test `90_looks`) |
+| 200.8 | ⚙ Einstellungen → Haus außen: „Türblatt innen“ Weiß, „Türblatt Haustür“ Anthrazit, „Fensterrahmen“ Holz | Alle Innentüren weiß, die Türen nach draußen anthrazit, die Fenster aus Holz; eine Tür mit eigener Farbe behält sie | ✅ (2026-11-14, Claude, Browser-Test `90_looks`: Haustür anthrazit, Innentür mit eigener Farbe bleibt weiß) |
+| 200.9 | ✨ Neu: eine Tür, ein Fenster, eine Treppe wählen; „🔍 Einstellung suchen“: „Türblatt“, „Setzstufen“ | Ein Abschnitt „🎨 Aussehen“ mit „Eigene Farben“ oder „Wie im Haus“; die Suche findet die Felder | ✅ (2026-11-14, Claude, Browser-Test `90_looks`) |
+| 200.10 | Miicki mit seinem Haus (Antwort in #752, #753, #754) | Dunkelgraue Ziegel, Treppenbelag und Türfarben wie bei ihm | ❓ |
+| 200.11 | Dein Eindruck: passen die Farben und Muster? | Ja, oder was noch stört | ❓ |

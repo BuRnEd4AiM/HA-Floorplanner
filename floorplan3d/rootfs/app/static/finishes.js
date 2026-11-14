@@ -154,6 +154,8 @@ export function repeatOf(kind, p = {}, s = 1) {
     case 'damask': return [2 * s, 2 * s];
     case 'diamonds': return [2 * s, 3 * s];
     case 'shingles': return [4 * s, 6 * 0.7 * s];
+    case 'rooftiles': return [4 * s, 4 * 1.15 * s];              // roofs (#752, rooflook.js): a tile a little longer than wide
+    case 'seams': return [4 * s, 4 * s];
     case 'carpet': return p.tiles ? [2 * s, 2 * s] : [s, s];
     case 'concrete': return p.formwork ? [s, s / 2] : [s, s];
     default: return [s, s];                            // grain: plaster, woodchip, cork, terrazzo, limewash, linen ...; plain

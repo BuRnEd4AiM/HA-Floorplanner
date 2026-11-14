@@ -24,11 +24,11 @@ export const panelKind = (kind, it) => (kind === 'opening' ? (it?.type === 'wind
 /** the sections per kind, in the order shown: [key, icon, open at the start]. props.js marks where its fields belong (v2mark); fields
  *  before the first mark stay on top, a section without fields is left out. 'kind' is drawn by uiv2ui.js (the kinds of window). */
 export const SECTIONS = {
-  window: [['kind', '🧩', false], ['size', '📐', true], ['panes', '🪟', true], ['fixed', '▭', false], ['contact', '🔗', false], ['shutter', '🎚', false], ['more', '⋯', false], ['inroom', '📟', false]],
-  door: [['size', '📐', true], ['style', '🚪', false], ['contact', '🔗', false], ['more', '⋯', false], ['inroom', '📟', false]],
+  window: [['kind', '🧩', false], ['size', '📐', true], ['panes', '🪟', true], ['fixed', '▭', false], ['contact', '🔗', false], ['shutter', '🎚', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],
+  door: [['size', '📐', true], ['style', '🚪', false], ['contact', '🔗', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],   // look: its colours (#754)
   device: [['entity', '🔗', true], ['special', '⚙️', true], ['place', '📍', false], ['dsize', '📏', false], ['tilt', '↻', false], ['look', '🎨', false], ['inroom', '📟', false]],
   wall: [['wsize', '📐', true], ['split', '✂️', false], ['finish', '🎨', false]],
-  stair: [['form', '📐', true], ['corner', '↪️', true], ['steps', '🪜', true], ['place', '📍', false]],   // 5.7.0 (the owner, 2026-11-11)
+  stair: [['form', '📐', true], ['corner', '↪️', true], ['steps', '🪜', true], ['look', '🎨', false], ['place', '📍', false]],   // 5.7.0 (the owner, 2026-11-11); look: covering, rail (#753)
   hole: [['form', '📐', true]],
   block: [['bsize', '📐', true]],
 };
@@ -218,6 +218,7 @@ export function summary(pk, key, it, h = {}) {
     if (key === 'shutter') return it.shutter || it.shutterEntity ? (it.shutterEntity ? ['v2.sum.is', { x: ent(it.shutterEntity) }] : ['v2.sum.yes', {}]) : ['v2.sum.noneM', {}];
     if (key === 'style') return [`st.${it.style || 'single'}`, {}];
     if (key === 'more') return pk === 'window' && it.style !== 'fixed' ? ['v2.sum.tiltDeg', { d: tiltDeg(it) }] : null;
+    if (key === 'look') return it.look && (it.look.leaf || it.look.frame) ? ['v2.sum.ownColors', {}] : ['v2.sum.houseColors', {}];   // #754
   }
   if (pk === 'device') {
     if (key === 'entity') return it.entity ? ['v2.sum.is', { x: ent(it.entity) }] : ['v2.sum.noEntity', {}];
@@ -236,6 +237,7 @@ export function summary(pk, key, it, h = {}) {
     if (key === 'form') return ['v2.sum.stairForm', { dir: { key: it.dir === 'down' ? 'stair.down' : 'stair.up' }, w: len(it.w) }];
     if (key === 'steps') return Number.isFinite(+it.steps) && +it.steps > 0 ? ['v2.sum.steps', { n: Math.round(+it.steps) }] : ['v2.sum.stepsAuto', {}];
     if (key === 'place') return ['v2.sum.where', { x: len(it.x), z: len(it.z), r: Math.round(it.rot || 0) }];
+    if (key === 'look') return it.covering ? ['v2.sum.is', { x: { key: `cover.${it.covering}` } }] : it.color || it.rail || it.riser ? ['v2.sum.ownColors', {}] : null;   // #753
   }
   if (pk === 'hole' && key === 'form') {
     const pts = it.points || [];

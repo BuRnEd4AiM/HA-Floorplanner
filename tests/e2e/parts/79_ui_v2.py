@@ -46,8 +46,8 @@ check("ui v2: a window: path (house › floor › room › window), the head wit
       "Probe" in pgV.inner_text("#v2Crumbs") and "Probefenster" in pgV.inner_text("#v2Head") and pgV.locator("#v2Delete").is_visible()
       and not pgV.locator("#propsTitle").is_visible() and not pgV.locator("#hint").is_visible() and not pgV.locator("#propsDelete").is_visible(),
       [pgV.inner_text("#v2Crumbs"), pgV.inner_text("#v2Head")])
-check("ui v2: the window's sections in order: Fensterart, Größe & Lage, Flügel & Öffnen, Feste Scheibe, Home Assistant, Rollladen, Mehr",
-      secs_v2() == ["kind", "size", "panes", "fixed", "contact", "shutter", "more"], secs_v2())
+check("ui v2: the window's sections in order: Fensterart, Größe & Lage, Flügel & Öffnen, Feste Scheibe, Home Assistant, Rollladen, Aussehen (#754), Mehr",
+      secs_v2() == ["kind", "size", "panes", "fixed", "contact", "shutter", "look", "more"], secs_v2())
 check("ui v2: a section line says what is set (1,20 × 1,20, Brüstung 0,90; kein Kontakt)",
       "Brüstung" in pgV.inner_text(".v2Sec[data-sec=size] .sum") and "kein Kontakt" in pgV.inner_text(".v2Sec[data-sec=contact] .sum"),
       [pgV.inner_text(".v2Sec[data-sec=size] .sum"), pgV.inner_text(".v2Sec[data-sec=contact] .sum")])

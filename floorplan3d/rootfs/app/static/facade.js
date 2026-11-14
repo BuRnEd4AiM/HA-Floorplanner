@@ -1,5 +1,5 @@
 /* The look of the outside (#428): the colour of the window frames, white as always or anthracite; with anthracite frames the walls are a
- * little lighter, the modern look. The door frames keep their colour. And the finish of the facade (#448): plaster, brick, wood, slate ...
+ * little lighter, the modern look; or wood (#754; one window can have its own frame, doorlook.js). The door frames keep their colour. And the finish of the facade (#448): plaster, brick, wood, slate ...
  * on the outer faces of the walls (setting facade, its colour facadeColor), drawn by wallskin.js. Pure (unit test: tests/facade.test.mjs);
  * floorbuild.js and walls.js use the colours. */
 import { cleanFinish } from './finishes.js';
@@ -8,6 +8,7 @@ import { cleanFinish } from './finishes.js';
 export const FACADES = {
   white: { frame: '#f4f4f4', wall: '#d9d4cc' },
   anthracite: { frame: '#2e3338', wall: '#f4f0ea' },
+  wood: { frame: '#a8784c', wall: '#d9d4cc' },                    // wooden windows (#754)
 };
 export const FACADE_KEYS = Object.keys(FACADES);
 

@@ -10,7 +10,7 @@ test('white window frames and the walls as always, unless anthracite is chosen',
   assert.deepEqual(F.facadeOf({ windowFrames: 'white' }), F.FACADES.white);
   assert.deepEqual(F.facadeOf({ windowFrames: 'pink' }), F.FACADES.white);
   assert.deepEqual(F.facadeOf(null), F.FACADES.white);
-  assert.deepEqual(F.FACADE_KEYS, ['white', 'anthracite']);
+  assert.deepEqual(F.FACADE_KEYS, ['white', 'anthracite', 'wood']);
 });
 
 test('anthracite: dark frames and lighter walls', () => {

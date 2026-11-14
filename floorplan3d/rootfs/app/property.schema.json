@@ -275,6 +275,26 @@
      "type": "boolean",
      "description": "Type 'wall': solid steps down to the floor instead of thin plates."
     },
+    "covering": {
+     "enum": ["parquet", "parquetLight", "parquetDark", "plankWide", "herringbone", "chevron", "basket", "laminate", "deck", "cork", "tiles", "tilesSmall", "tilesDark", "tilesLarge", "tilesWood", "checker", "hexFloor", "mosaic", "cement", "terrazzo", "marble", "slate", "stoneSlabs", "flagstone", "paving", "cobble", "concrete", "carpet", "carpetTiles"],
+     "description": "The treads covered like a room's floor (#753): parquet, tiles, stone, concrete, carpet … (the planks along each tread). Without it one colour."
+    },
+    "floorLook": {
+     "$ref": "#/$defs/look",
+     "description": "How the covering of the treads looks, like a room's floorLook."
+    },
+    "color": {
+     "$ref": "#/$defs/hex",
+     "description": "The colour of the treads without a covering (default beige)."
+    },
+    "riser": {
+     "$ref": "#/$defs/hex",
+     "description": "The colour of the risers and strings (#753). Without it like the treads."
+    },
+    "rail": {
+     "$ref": "#/$defs/hex",
+     "description": "The colour of the hand rail and pole of a spiral stair (#753; the other stairs have no hand rail in 3D yet)."
+    },
     "landing": {
      "type": "number",
      "minimum": 0,
@@ -368,6 +388,14 @@
      "type": "boolean",
      "default": true,
      "description": "Gable and shed roofs: the wall under each gable (a shed roof: its sides and its high side) goes on up to the roof in the colour of the walls. false: no wall there (an open carport, a canopy)."
+    },
+    "color": {
+     "$ref": "#/$defs/hex",
+     "description": "The colour of the roof (#752): every roof of the floor takes it, the dormers' roofs a little darker. Without it brick red."
+    },
+    "cover": {
+     "enum": ["tiles", "beaver", "slate", "metal"],
+     "description": "What the roof is covered with (#752): roof tiles, beaver tail tiles, slate or metal with standing seams, drawn as a pattern in its colour. Without it one smooth colour."
     },
     "ridge": {
      "enum": [
@@ -913,6 +941,11 @@
     "rainWarn": {
      "type": "boolean",
      "description": "false: no warning when this window is open in the rain (windows only; default true)"
+    },
+    "look": {
+     "type": "object",
+     "description": "Its own colours (#754): leaf (doors: the door leaf, a garage door's gate) and frame (the door frame, a window's frame). Without them the house's (settings doorLeaf, doorFrame, outerDoorLeaf, outerDoorFrame, windowFrames).",
+     "properties": { "leaf": { "$ref": "#/$defs/hex" }, "frame": { "$ref": "#/$defs/hex" } }
     }
    }
   },

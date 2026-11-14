@@ -26,7 +26,7 @@ check("✨ Neu / stair: the new panel, not the old one with the hint above it",
       "v2" in (pgO.get_attribute("#props", "class") or "") and not pgO.is_visible("#hint") and not pgO.is_visible("#housePanel"), pgO.get_attribute("#props", "class"))
 check("✨ Neu / stair: the head says what it is, where it goes, how wide and how many steps",
       all(x in head_vo() for x in ["Probetreppe", "Gerade", "→", "↔ 1.10 m", "16 Stufen", "17,6 cm"]) and pgO.locator("#v2Delete").count() == 1, head_vo())
-check("✨ Neu / stair: sections Form & Maße, Stufen, Lage (a straight stair has no corner)", secs_vo() == ["form", "steps", "place"], secs_vo())
+check("✨ Neu / stair: sections Form & Maße, Stufen, Aussehen (#753), Lage (a straight stair has no corner)", secs_vo() == ["form", "steps", "look", "place"], secs_vo())
 pgO.fill("#v2Search", "Breite"); pgO.wait_for_timeout(300)
 check("✨ Neu / stair: „🔍 Einstellung suchen“ finds the width", pgO.locator("#propsBody .v2Sec[data-sec=form] .prop:not(.v2Miss)").count() >= 1
       and "Breite" in pgO.inner_text("#propsBody .v2Sec[data-sec=form]"), pgO.inner_text("#v2SearchRes"))
