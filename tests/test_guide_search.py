@@ -84,7 +84,7 @@ QUERIES = [
     ("Widget", "de", "addcard"), ("Karte verstecken", "de", "arrange"), ("Reiter sortieren", "de", "tabs"),
     ("Kinder sollen eine andere Seite sehen", "de", "variants"), ("Dark Mode", "de", "language"), ("Sprache ändern", "de", "language"),
     ("Einstellung suchen", "de", "settings-search"), ("Benutzerrechte", "de", "users"), ("Datensicherung", "de", "backup"),
-    ("Kioskmodus", "de", "fullscreen kiosk"), ("Bildschirmschoner", "de", "kiosk"), ("Push Nachricht", "de", "notify"),
+    ("Kioskmodus", "de", "fullscreen kiosk"), ("Bildschirmschoner", "de", "kiosk"), ("Tablet putzen", "de", "kiosk"), ("Kindertablet nur an und aus", "de", "users"), ("Rechte je Geräteart", "de", "users"), ("Garagentor sperren Tablet", "de", "users"), ("Push Nachricht", "de", "notify"),
     ("WhatsApp", "de", "notify"), ("Update", "de", "version"), ("Cache leeren", "de", "version"),
     ("iPhone", "de", "phone-house phone-pages phone-edit"), ("am Handy zeichnen", "de", "phone-edit"),
     ("Ansicht drehen", "de", "orbit"), ("rauszoomen", "de", "orbit"), ("Obergeschoss anzeigen", "de", "floors"),

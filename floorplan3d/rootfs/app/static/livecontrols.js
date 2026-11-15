@@ -52,12 +52,14 @@ export function roomEntityIds(env, room, domain) {
 }
 
 /** ctx: t, states(), entities(), areas(), floor(), entityDevices(f), pointInPoly, onStates, setStatus(txt), afterService() (fetch states when there is no
- *  live channel), canEdit(), settings(), saveEffectColors(), canMoreInfo(), openMoreInfo(id), locked(key) (userlocks.js: 'control' = no switching) */
+ *  live channel), canEdit(), settings(), saveEffectColors(), canMoreInfo(), openMoreInfo(id), locked(key) (userlocks.js: 'control' = no switching), refused(entity, service, data) (userrights.js: true when this
+ *  user may not do that with this kind of device, 5.13.0) */
 export function initLiveControls(ctx) {
   const { t } = ctx;
   /** -> true when Home Assistant took the call (the routines of ▶ Abläufe show ✓, #483) */
   async function callService(entityId, service, data) {
     if (ctx.locked?.('control')) { ctx.setStatus(t('lock.controlMsg')); return false; }
+    if (ctx.refused?.(entityId, serviceBody(entityId, service).service, data)) { ctx.setStatus(t('ur.refused')); return false; }   // only on / off or only look (userrights.js)
     try {
       const r = await fetch('api/service', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(serviceBody(entityId, service, data)) });
       if (!r.ok) throw new Error(String(r.status));

@@ -514,9 +514,9 @@ t("settings-search",
   "search the settings find an option where do I find gear options configuration performance shadows quality")
 t("users",
   "Benutzer Benutzerverwaltung Rechte Berechtigungen Admin Gast Kinder sperren nur ansehen Wandtablet einrichten "
-  "Startraum Seiten freigeben Zugriff wer darf was",
+  "Startraum Seiten freigeben Zugriff wer darf was Kindertablet nur einschalten nicht dimmen Garagentor sperren Fully Kiosk Helligkeit",
   "users user management rights permissions admin guest children lock view only set up a wall tablet start room "
-  "share pages access who may do what")
+  "share pages access who may do what kids tablet only switch on no dimming lock the garage door Fully Kiosk brightness")
 t("backup",
   "Sicherung Datensicherung Backup erstellen sichern speichern exportieren wiederherstellen zurückspielen einspielen "
   "Restore Umzug neuer Rechner Daten verloren Datei herunterladen hochladen",
@@ -528,15 +528,15 @@ t("fullscreen",
   "full screen fullscreen mode kiosk kiosk mode no bars no menu fill the screen tablet on the wall lock code exit")
 t("kiosk",
   "Wandtablet einrichten Tablet an der Wand Startansicht zurück zum Start Bildschirmschoner dimmen nachts dunkel "
-  "Bewegungsmelder aufwecken Fire Tablet Display Fully Kiosk",
+  "Bewegungsmelder aufwecken Fire Tablet Display Fully Kiosk putzen abwischen reinigen Putzmodus sperren",
   "set up a wall tablet tablet on the wall start view back to start screen saver dim at night dark motion sensor "
-  "wake up Fire tablet display Fully Kiosk")
+  "wake up Fire tablet display Fully Kiosk clean wipe cleaning mode lock")
 t("tablet-saver",
   "Bildschirmschoner Screensaver Uhr große Uhr Uhrzeit Datum Wetter schwarzer Bildschirm Haus dreht sich drehen "
   "Abdunkeln dimmen Helligkeit wie dunkel Nachtmodus Bildschirm aus Display einbrennen Bewegungsmelder "
-  "Bildschirm anlassen wach halten neu laden",
+  "Bildschirm anlassen wach halten neu laden Etagen nacheinander Stockwerke",
   "screen saver screensaver clock big clock time date weather black screen house turns rotate dimming dim brightness "
-  "how dark night mode screen off display burn in motion sensor keep screen on keep awake wake lock reload")
+  "how dark night mode screen off display burn in motion sensor keep screen on keep awake wake lock reload floors in turn")
 t("notify",
   "Benachrichtigung Push Push-Nachricht Nachricht aufs Handy WhatsApp Telegram CallMeBot Companion App Meldung "
   "Rauchalarm Wasseralarm Einbruch informieren Testnachricht Karte Karten Zustand",

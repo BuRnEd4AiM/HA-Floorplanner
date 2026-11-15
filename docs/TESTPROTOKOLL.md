@@ -4,7 +4,7 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.12.0, 2026-11-15)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.13.0, 2026-11-15)
 
 **Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
@@ -51,6 +51,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 37. **Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein** (Abschnitt 199, deine Wahl aus `docs/ideen-5.10` vom 2026-11-14, #750): Claude hat 199.1 bis 199.6 geprüft (Demo am PC, am nachgebauten iPhone, Browser-Test); für dich mit deinem echten Haus 199.7 (die Zeile des Heizplans), 199.8 (Lampen wischen) und dein Eindruck 199.9.
 38. **Neu in 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern** (Abschnitt 200, #752, #753, #754 von Miicki vom 2026-11-14): Claude hat 200.1 bis 200.9 geprüft (Demo, Browser-Test); für Miicki mit seinem Haus 200.10, für dich dein Eindruck 200.11.
 39. **Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder** (Abschnitt 201, dein Wunsch vom 2026-11-15, #756): Claude hat 201.1 bis 201.7 geprüft (Demo, Browser-Test); für dich auf deinem echten Tablet 201.8 (Bildschirmschoner und Abdunkeln), 201.9 (Bewegungsmelder), 201.10 (Bildschirm anlassen) und dein Eindruck 201.11.
+40. **Neu in 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart** (Abschnitt 202, deine Wahl im Chat vom 2026-11-15): Claude hat 202.1 bis 202.7 geprüft (Demo, nachgebautes iPad, Browser-Test); für dich am echten Tablet 202.8 bis 202.11 (eigener Bewegungsmelder, Fully Kiosk, Putzen, Kindertablet) und dein Eindruck 202.12.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -508,7 +509,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 199. Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein (docs/ideen-5.10, #750) | 6 | 0 | 3 | 0 | 199.7 bis 199.9 |
 | 200. Neu in 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern (#752, #753, #754 von Miicki) | 9 | 0 | 2 | 0 | 200.10, 200.11 |
 | 201. Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder (#756) | 7 | 0 | 4 | 0 | 201.8 bis 201.11 |
-| **Zusammen** | **1294** | **2** | **89** | **92** | |
+| 202. Neu in 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart | 7 | 0 | 5 | 0 | 202.8 bis 202.12 |
+| **Zusammen** | **1301** | **2** | **94** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3069,3 +3071,21 @@ Dein Wunsch vom 2026-11-15: „mehr Einstellungen für Tablets … das man nicht
 | 201.9 | „Aufwecken durch“: einen deiner Bewegungsmelder wählen, vor dem Tablet vorbeigehen, während der Bildschirmschoner läuft | Der Bildschirmschoner geht weg, solange der Melder jemanden sieht | ❓ |
 | 201.10 | „Bildschirm nie ausgehen lassen“ an, in der Live-Ansicht lassen | Das Tablet schaltet den Bildschirm nicht mehr selbst aus (nur über https; Fully Kiosk hat dafür eine eigene Einstellung) | ❓ |
 | 201.11 | Dein Eindruck: fehlt noch eine Einstellung fürs Tablet? | Ja, oder was noch fehlt | ❓ |
+
+## 202. Neu in 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart
+Dein Wunsch vom 2026-11-15 („Kannst du mal mehr Einstellungen für Tablets hinzufügen, dass man nicht nur ein und aus schalten kann“) und deine Wahl im Chat: Bildschirmschoner wählen, nachts wie dunkel, je Tablet eigene Werte, Bewegungsmelder weckt, Schalten je Geräteart mit Stufen, nachts neu laden, Putz-Modus, echte Helligkeit mit Fully Kiosk. Bildschirmschoner, Abdunkeln, Bewegungsmelder und Neu laden kamen schon in 5.12.0 (Abschnitt 201, aus einem zweiten Chat mit derselben Bitte); hier ist der Rest.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 202.1 | Unit-Tests `tests/kioskprefs.test.mjs` (neu), `kiosk`, `settingsui`, `settings`, `viewprefs`, `livecontrols`, `appstate`, `setcontrols`; `tests/test_tablets.py` (neu), `test_server.py`, alle Python-Tests; Browser-Test Teile `91_tablet_more` (neu), `07_tablet`, `28_settings`, `01_users`, `31_tabs`; ruff, eslint, `test_i18n.py`, `test_make_guide.py`, `test_guide_search.py` | Alles grün | ✅ (2026-11-15, Claude, lokal je Teil) |
+| 202.2 | Demo: ⚙ → 📱 Wandtablet → Bildschirmschoner „Etagen nacheinander“, „▶ Bildschirmschoner jetzt zeigen“ | Das Haus dreht sich, alle 12 Sekunden kommt die nächste Etage; die Geschwindigkeit und „Uhr über dem Haus“ gelten wie beim drehenden Haus | ✅ (2026-11-15, Claude, Demo und Browser-Test `91_tablet_more`) |
+| 202.3 | Weiter unten: „🧽 Putz-Knopf am Tablet“ und „Bildschirm gesperrt für (Sekunden)“ | Der Knopf ist an, 30 Sekunden; eine andere Zahl wird gespeichert | ✅ (2026-11-15, Claude, Browser-Test) |
+| 202.4 | Am Tablet (nachgebautes iPad) in „Live“: 🧽 oben antippen | „Putzen … noch 29 s“ mit Balken; ein Tipp aufs Haus tut nichts; am PC mit Maus und am Handy kein 🧽 | ✅ (2026-11-15, Claude, Demo am nachgebauten iPad, Browser-Test) |
+| 202.5 | ⚙ → 👥 Benutzer & Tablets → „+ Benutzer“, ⚙ der Zeile: „📱 Wandtablet: mehr eigene Werte“ und „🎚 Schalten je Geräteart“ | Jeder Wert „Wie allgemein“ oder ein eigener (auch ein eigener Bewegungsmelder), dazu Fully Kiosk; je Geräteart ✋ / 💡 / 🎚 (Schlösser und Szenen nur ✋ / 🎚); der ⚙ der Zeile zählt mit | ✅ (2026-11-15, Claude, Demo und Browser-Test) |
+| 202.6 | Ein Tablet mit eigener Minute und eigenem Bewegungsmelder | Sein Bildschirmschoner kommt nach seiner Minute (allgemein 5), sein Melder weckt es | ✅ (2026-11-15, Claude, Browser-Test `91_tablet_more`) |
+| 202.7 | Ein Tablet mit „💡 Licht: nur an/aus“ schaltet eine Lampe und will sie dimmen | An/aus geht, dimmen lehnt das Add-on ab (auch am Add-on vorbei), Helligkeit und Farben sind ausgeblendet | ✅ (2026-11-15, Claude, Browser-Test und `tests/test_server.py`) |
+| 202.8 | Nur im Add-on, an deinem Wandtablet: beim Benutzer des Tablets einen eigenen Bewegungsmelder eintragen (der im Raum des Tablets), Bildschirmschoner „Große Uhr“, davorstellen | Die Uhr verschwindet, sobald der Melder dich sieht; andere Tablets bleiben bei ihrem Melder | ❓ |
+| 202.9 | Nur im Add-on, Tablet mit Fully Kiosk: beim Benutzer des Tablets unter „💡 Echte Helligkeit“ die Helligkeit (`number.…_screen_brightness`) und den Bildschirm (`switch.…_screen`) eintragen | Wach hell, abgedunkelt dunkel; mit „Bildschirm aus beim Bildschirmschoner“ geht er aus | ❓ |
+| 202.10 | Am echten Tablet mit dem Finger: 🧽 antippen und abwischen | Nichts schaltet sich, nach 30 Sekunden geht es weiter | ❓ |
+| 202.11 | Ein Kindertablet: Licht „💡 nur an/aus“, „🚪 Schlösser, Tore, Garage“ „✋ nur ansehen“ | Licht an/aus geht, dimmen und das Garagentor nicht („🔒 Das darf dieses Tablet …“) | ❓ |
+| 202.12 | Dein Eindruck: sind es jetzt die Einstellungen, die du gemeint hast? | Ja, oder was noch fehlt | ❓ |
