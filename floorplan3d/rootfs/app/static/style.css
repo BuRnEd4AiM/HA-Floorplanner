@@ -860,8 +860,25 @@ body.v-2d #status, body.card-nobar #status { bottom: 62px; }
 .vcChip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; background: var(--field); }
 .vcChip button { padding: 0 6px; border: 0; background: none; color: var(--muted); font-size: 15px; line-height: 1; }
 
-/* ---------- night dimming on wall tablets ---------- */
-#nightDim { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .72); }
+/* ---------- wall tablets: the dimmed screen and the screen saver (kiosk.js, kioskscreen.js) ---------- */
+#nightDim { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .7); display: flex; align-items: center; justify-content: center; }
+#saverScreen { position: fixed; inset: 0; z-index: 49; background: #000; display: flex; align-items: center; justify-content: center; }
+#saverScreen.orbit { inset: 0 0 auto 0; background: none; pointer-events: none; }
+#nightDim[hidden], #saverScreen[hidden], .kClock[hidden] { display: none; }
+.kClock { display: flex; flex-direction: column; align-items: center; gap: .35em; color: #fff; text-align: center; transition: transform 3s ease;
+  font-variant-numeric: tabular-nums; user-select: none; }
+.kClock b { font-size: clamp(64px, 17vw, 230px); font-weight: 200; line-height: 1; letter-spacing: -.02em; }
+.kClock span { font-size: clamp(18px, 3.2vw, 42px); opacity: .85; }
+.kClock small { font-size: clamp(15px, 2.4vw, 30px); opacity: .7; }
+.kClock small:empty { display: none; }
+.kClockDim { opacity: .5; }
+#saverScreen.orbit .kClock { text-shadow: 0 2px 14px rgba(0, 0, 0, .8); }
+#saverScreen.orbit { top: 18%; }
+#saverScreen.orbit .kClock { gap: .2em; }
+#saverScreen.orbit .kClock b { font-size: clamp(34px, 5.5vw, 72px); font-weight: 300; }
+#saverScreen.orbit .kClock span { font-size: clamp(13px, 1.6vw, 20px); }
+#saverScreen.orbit .kClock small { font-size: clamp(12px, 1.4vw, 17px); }
+dialog .stopTools[hidden] { display: none; }
 
 /* colour scale for temperature / humidity / CO2 colouring: vertical, at the left edge */
 #viewLegend { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 4; display: flex; flex-direction: column; gap: 8px;

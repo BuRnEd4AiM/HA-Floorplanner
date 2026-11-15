@@ -18,6 +18,8 @@ import make_guide as mg  # noqa: E402
 
 # (what is typed, language of the page, the clip that must be among the first three; several ids: one of them)
 QUERIES = [
+    ("Bildschirmschoner mit Uhr", "de", "tablet-saver"), ("Display abdunkeln", "de", "tablet-saver"), ("screen saver clock", "en", "tablet-saver"),
+    ("Bildschirm anlassen", "de", "tablet-saver"), ("how dark at night", "en", "tablet-saver"),
     ("Dachfarbe ändern", "de", "house-looks"), ("dunkelgraue Ziegel", "de", "house-looks"), ("Treppe mit Parkett", "de", "house-looks"),
     ("weiße Türen", "de", "house-looks"), ("roof colour", "en", "house-looks"), ("door frame colour", "en", "house-looks"),
     ("Etagen umsortieren", "de", "ui-v2-house"), ("reorder floors", "en", "ui-v2-house"), ("alle Fenster gleich einstellen", "de", "ui-v2-tools"),

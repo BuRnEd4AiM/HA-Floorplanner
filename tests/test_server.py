@@ -888,9 +888,39 @@ def test_kiosk_and_alert_settings_are_validated():
     assert s["idleReturn"] == 5.0 and s["nightDim"] == "time" and s["nightFrom"] == "23:30"
     assert s["nightTo"] == "06:00"            # not HH:MM: back to the default
     assert s["weatherEntity"] == "weather.home" and s["alerts"] is False and s["alertJump"] is True
-    s = server.validate_settings({"idleReturn": 0, "nightDim": "always", "weatherEntity": "sensor.x", "idleReturn2": 1})
+    s = server.validate_settings({"idleReturn": 0, "nightDim": "sometimes", "weatherEntity": "sensor.x", "idleReturn2": 1})
     assert s["idleReturn"] == 0.0 and s["nightDim"] == "off" and s["weatherEntity"] == ""
     assert server.validate_settings({"idleReturn": 999})["idleReturn"] == 240.0
+    assert server.validate_settings({"nightDim": "always"})["nightDim"] == "always"      # 5.12.0: whenever nobody touches it
+
+
+def test_wall_tablet_settings_of_5_12_are_validated():
+    """5.12.0: the screen saver (kind, minutes, speed, clock), how and when it dims, a motion sensor, keep the screen on, reload daily."""
+    s = server.validate_settings({"saver": "clock", "saverAfter": 3, "saverSpeed": "fast", "saverClock": True, "dimAfter": 10, "dimLevel": 0.9,
+                                  "dimClock": True, "wakeEntity": "binary_sensor.flur_bewegung", "keepAwake": True, "reloadAt": "04:30"})
+    assert (s["saver"], s["saverAfter"], s["saverSpeed"], s["saverClock"]) == ("clock", 3.0, "fast", True)
+    assert (s["dimAfter"], s["dimLevel"], s["dimClock"]) == (10.0, 0.9, True)
+    assert (s["wakeEntity"], s["keepAwake"], s["reloadAt"]) == ("binary_sensor.flur_bewegung", True, "04:30")
+    s = server.validate_settings({"saver": "fireworks", "saverAfter": 9999, "saverSpeed": "warp", "dimAfter": -1, "dimLevel": 5,
+                                  "wakeEntity": "light.x; rm", "keepAwake": "yes", "reloadAt": "4 Uhr"})
+    assert (s["saver"], s["saverAfter"], s["saverSpeed"]) == ("off", 240.0, "normal")
+    assert (s["dimAfter"], s["dimLevel"], s["wakeEntity"], s["keepAwake"], s["reloadAt"]) == (1.0, 0.95, "", False, "")
+    assert server.validate_settings({"dimLevel": 0.01})["dimLevel"] == 0.2
+    assert "idleOrbit" not in s
+    p = server.validate_settings({"userPresets": {"Tablet_WZ": {"saver": "clock", "nightDim": "always", "keepAwake": True, "saverAfter": 3},
+                                                  "phone": {"saver": "lava", "keepAwake": 1}}})["userPresets"]
+    assert p == {"Tablet_WZ": {"saver": "clock", "nightDim": "always", "keepAwake": True}}      # per tablet, not on the phone
+
+
+def test_the_old_turning_house_tick_becomes_the_screen_saver():
+    """Before 5.12.0 the screen saver was a tick (idleOrbit) that only worked together with "back to the start view": it becomes
+    'orbit', starting after the minutes of the start view when there were some."""
+    s = server.validate_settings({"idleOrbit": True, "idleReturn": 2})
+    assert (s["saver"], s["saverAfter"]) == ("orbit", 2.0)
+    s = server.validate_settings({"idleOrbit": True, "idleReturn": 0})
+    assert (s["saver"], s["saverAfter"]) == ("orbit", 5.0)
+    assert server.validate_settings({"idleOrbit": False})["saver"] == "off"
+    assert server.validate_settings({"idleOrbit": True, "saver": "clock"})["saver"] == "clock"   # saved since 5.12.0: the new one counts
 
 
 async def test_start_views_are_cleaned_and_reach_the_right_user(client, tmp_path):

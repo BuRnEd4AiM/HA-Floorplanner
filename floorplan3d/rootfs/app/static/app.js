@@ -20,6 +20,7 @@ import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
 import { initBadges } from './badges.js';
 import { initKiosk } from './kiosk.js';
+import { HOME } from './tabs.js';
 import { cardOptions, initCardMode } from './cardmode.js';
 import { initPhoneMenu, phoneView } from './phonemenu.js';
 import { initPhoneNav } from './phonenav.js';
@@ -1007,12 +1008,13 @@ const search = initSearch({
 const phoneMenu = initPhoneMenu({ $, onPhone: () => applyViewPolicy() });   // phones: the tool bar folds into a ☰ menu, live only 3D (phonemenu.js, #299, #624)
 initSafeArea();   // the iPhone's home bar strip: not kept clear twice in the Home Assistant app (safearea.js)
 const kiosk = initKiosk({
-  $, controls, settings: () => settings, states: () => states, isLive: () => isLive(),
+  $, t, lang: () => currentLanguage(), controls, settings: () => settings, states: () => states, isLive: () => isLive(),
   closeLivePopup: () => popup.close(), closeRoomPanel: () => roomPanel.close(), closeSearch: () => search.close(),
   tabletRoom: () => tabletRoom, findRoomByName: (n) => findRoomByName(n), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom,
   openRoomPanel: (id) => roomPanel.open(id), groundIdx: () => groundIdx(), fitCamera: () => fitCamera(),
   applyStart: () => cardUi?.start() ?? (me.start ? startView.apply(me.start) : null),             // the card's floor (#13), else a saved start view (#315)
   homeTab: () => tabsUi.home(),                                                                    // the start tab of the tab bar (#479)
+  houseTab: () => { if (tabsUi.covered()) tabsUi.show(HOME); },                                    // the turning house of the screen saver must be seen
 });
 /* ---- Dashboard card (#13): the floor to start with, the room colouring, without room panel or bars, only one room or only its panel; the code lives in cardmode.js ---- */
 const cardUi = card && initCardMode({
@@ -1954,7 +1956,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
+    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), kioskSaver: () => kiosk.saver(), kioskWake: () => kiosk.checkWake(), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
     edges: () => edges.info(), edgesCompare: () => edges.compare(scene, camera),   // #560, for tests
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => hs.id(), states: () => states,

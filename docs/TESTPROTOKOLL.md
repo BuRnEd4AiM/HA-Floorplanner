@@ -4,7 +4,7 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.11.0, 2026-11-14)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.12.0, 2026-11-15)
 
 **Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
@@ -50,6 +50,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 36. **Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel** (Abschnitt 198, #744 von aixmoyu): Claude prüft 198.1 und 198.2; 198.3 braucht einen echten Home Assistant Container (aixmoyu, wenn er mag).
 37. **Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein** (Abschnitt 199, deine Wahl aus `docs/ideen-5.10` vom 2026-11-14, #750): Claude hat 199.1 bis 199.6 geprüft (Demo am PC, am nachgebauten iPhone, Browser-Test); für dich mit deinem echten Haus 199.7 (die Zeile des Heizplans), 199.8 (Lampen wischen) und dein Eindruck 199.9.
 38. **Neu in 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern** (Abschnitt 200, #752, #753, #754 von Miicki vom 2026-11-14): Claude hat 200.1 bis 200.9 geprüft (Demo, Browser-Test); für Miicki mit seinem Haus 200.10, für dich dein Eindruck 200.11.
+39. **Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder** (Abschnitt 201, dein Wunsch vom 2026-11-15, #756): Claude hat 201.1 bis 201.7 geprüft (Demo, Browser-Test); für dich auf deinem echten Tablet 201.8 (Bildschirmschoner und Abdunkeln), 201.9 (Bewegungsmelder), 201.10 (Bildschirm anlassen) und dein Eindruck 201.11.
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -506,7 +507,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 198. Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel mit Home Assistant (#744) | 1 | 0 | 2 | 0 | 198.2, 198.3 |
 | 199. Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein (docs/ideen-5.10, #750) | 6 | 0 | 3 | 0 | 199.7 bis 199.9 |
 | 200. Neu in 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern (#752, #753, #754 von Miicki) | 9 | 0 | 2 | 0 | 200.10, 200.11 |
-| **Zusammen** | **1287** | **2** | **85** | **92** | |
+| 201. Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder (#756) | 7 | 0 | 4 | 0 | 201.8 bis 201.11 |
+| **Zusammen** | **1294** | **2** | **89** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3050,3 +3052,20 @@ Miickis drei Wünsche vom 2026-11-14 („Mein Haus hat zum Beispiel dunkelgraue 
 | 200.9 | ✨ Neu: eine Tür, ein Fenster, eine Treppe wählen; „🔍 Einstellung suchen“: „Türblatt“, „Setzstufen“ | Ein Abschnitt „🎨 Aussehen“ mit „Eigene Farben“ oder „Wie im Haus“; die Suche findet die Felder | ✅ (2026-11-14, Claude, Browser-Test `90_looks`) |
 | 200.10 | Miicki mit seinem Haus (Antwort in #752, #753, #754) | Dunkelgraue Ziegel, Treppenbelag und Türfarben wie bei ihm | ❓ |
 | 200.11 | Dein Eindruck: passen die Farben und Muster? | Ja, oder was noch stört | ❓ |
+
+## 201. Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder (#756)
+Dein Wunsch vom 2026-11-15: „mehr Einstellungen für Tablets … das man nicht nur ein und aus schalten kann … bisher kann man nur irgendwie Bildschirm abdunkeln … hätte gerne mehr Sachen und der Bildschirmschoner glaube ich geht auch nicht“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 201.1 | Unit-Tests `tests/kiosk.test.mjs`, `viewprefs`, `settings`, `settingsui`, `setgroups`, `setcontrols`, `appstate`, `cardmode`, `i18n`; `tests/test_server.py`, `test_i18n.py`, `test_make_guide.py`, `test_guide_search.py`, `test_make_timeline.py`; Browser-Test Teile `07_tablet`, `28_settings`, `01_users`, `13_card`, `31_tabs`; ruff, eslint | Alles grün | ✅ (2026-11-15, Claude, lokal je Teil allein) |
+| 201.2 | Demo: ⚙ Einstellungen → Wandtablet | Drei Teile: 💤 Bildschirmschoner (Aus, Haus dreht sich, Große Uhr, Schwarz; Starten nach … Minuten), 🌙 Abdunkeln (Aus, Nach Sonnenstand, Nach Uhrzeit, Immer; nach … Minuten, wie dunkel, Uhr), ⚡ Aufwecken und wach halten (Bewegungsmelder, Bildschirm nie ausgehen lassen, täglich neu laden); was nicht passt, ist ausgeblendet (die Geschwindigkeit nur bei „Haus dreht sich“) | ✅ (2026-11-15, Claude, Demo und Browser-Test `28_settings`) |
+| 201.3 | „Große Uhr“ wählen, „▶ Bildschirmschoner jetzt zeigen“ | Die Einstellungen gehen zu, schwarz mit großer Uhrzeit, Datum und Wetter; ein Tipp weckt den Bildschirm | ✅ (2026-11-15, Claude, Demo und Browser-Test `28_settings`, `07_tablet`) |
+| 201.4 | „Haus dreht sich“, „Uhr über dem Haus zeigen“, in der Live-Ansicht warten | Das Haus dreht sich, oben eine kleinere Uhr; „Langsam“, „Normal“ und „Schnell“ ändern das Tempo | ✅ (2026-11-15, Claude, Demo: Bild `docs/timeline/5.12.0/3-haus-dreht-sich.jpg`; die drei Tempi nur im Unit-Test) |
+| 201.5 | Abdunkeln „Immer“, „Wie dunkel“ 85 %, „Uhr auf dem dunklen Bildschirm“, „▶ Abdunkeln jetzt zeigen“ | Der Bildschirm wird so dunkel wie eingestellt, mit Uhr; ein Tipp macht ihn wieder hell | ✅ (2026-11-15, Claude, Demo und Browser-Test `07_tablet`, `28_settings`) |
+| 201.6 | Der Fehler #756: „Zurück zur Startansicht“ auf 0 lassen, Bildschirmschoner an, die Seite neu laden und nichts berühren | Nach den eingestellten Minuten kommt der Bildschirmschoner (vorher nie) | ✅ (2026-11-15, Claude, Unit-Test und Browser-Test `07_tablet`) |
+| 201.7 | ⚙ → Benutzer & Tablets → ⚙ in der Zeile eines Benutzers | Auch „Bildschirmschoner“, „Abdunkeln“ und „Bildschirm nie ausgehen lassen“ (Standard = wie oben in Wandtablet) | ✅ (2026-11-15, Claude, Unit-Tests `viewprefs`, `test_server.py`; der Browser-Test `01_users` der Benutzer-Zeilen bleibt grün) |
+| 201.8 | Auf deinem echten Wandtablet: Bildschirmschoner „Große Uhr“ nach 2 Minuten, Abdunkeln nach Uhrzeit, dann 2 Minuten nichts berühren | Die Uhr kommt (mit deinem Wetter), nachts dunkel; ein Tipp weckt es | ❓ |
+| 201.9 | „Aufwecken durch“: einen deiner Bewegungsmelder wählen, vor dem Tablet vorbeigehen, während der Bildschirmschoner läuft | Der Bildschirmschoner geht weg, solange der Melder jemanden sieht | ❓ |
+| 201.10 | „Bildschirm nie ausgehen lassen“ an, in der Live-Ansicht lassen | Das Tablet schaltet den Bildschirm nicht mehr selbst aus (nur über https; Fully Kiosk hat dafür eine eigene Einstellung) | ❓ |
+| 201.11 | Dein Eindruck: fehlt noch eine Einstellung fürs Tablet? | Ja, oder was noch fehlt | ❓ |

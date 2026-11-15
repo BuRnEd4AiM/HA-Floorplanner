@@ -20,6 +20,9 @@ export const PRESET_UI = [
   ['houseFloors', [['normal', 'set.houseFloors.normal'], ['apart', 'set.houseFloors.apart'], ['stacked', 'set.houseFloors.stacked']]],
   ['roomTiles', [[true, 'set.preset.show'], [false, 'set.preset.hide']]],
   ['roomLabels', [[true, 'set.preset.show'], [false, 'set.preset.hide']]],
+  ['saver', [['off', 'set.saver.off'], ['orbit', 'set.saver.orbit'], ['clock', 'set.saver.clock'], ['black', 'set.saver.black']]],   // the wall tablet (5.12.0)
+  ['nightDim', [['off', 'set.nightDim.off'], ['sun', 'set.nightDim.sun'], ['time', 'set.nightDim.time'], ['always', 'set.nightDim.always']]],
+  ['keepAwake', [[true, 'set.preset.on'], [false, 'set.preset.off']]],
 ];
 /** a preset read from the dropdowns [{ key, value }] (values are strings: '' = default, 'true' / 'false' for yes / no) */
 export function readPreset(fields) {
