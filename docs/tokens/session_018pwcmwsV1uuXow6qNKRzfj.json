@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmwsV1uuXow6qNKRzfj",
+ "start": "2026-11-15",
+ "updated": "2026-11-15T14:33:36Z",
+ "branch": "claude/nice-carson-ljuun4",
+ "source": "counted",
+ "input": 295,
+ "cache_write": 370927,
+ "cache_read": 38799238,
+ "output": 154539,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 295,
+   "cache_write": 370927,
+   "cache_read": 38799238,
+   "output": 154539,
+   "requests": 144
+  }
+ }
+}

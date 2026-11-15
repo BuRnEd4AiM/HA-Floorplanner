@@ -102,9 +102,12 @@ def _(r):
 
 @clip("users", "settings",
       {"de": "Benutzer und Wandtablets", "en": "Users and wall tablets"},
-      {"de": "Für jeden Benutzer oder jedes Tablet: welcher Raum zuerst, welche Seiten, was gesperrt ist.",
-       "en": "For every user or tablet: which room first, which pages, what is locked."},
-      "Benutzer Tablet Wandtablet Rechte sperren Kinder Seiten wer sieht was Admin users tablet wall tablet rights lock children pages admin")
+      {"de": "Für jeden Benutzer oder jedes Tablet: welcher Raum zuerst, welche Seiten, was gesperrt ist, was er je Geräteart schalten darf "
+             "(✋ nur ansehen, 💡 nur an/aus, 🎚 alles) und eigene Werte fürs Wandtablet (auch die Helligkeit mit Fully Kiosk).",
+       "en": "For every user or tablet: which room first, which pages, what is locked, what it may switch per kind of device "
+             "(✋ only look, 💡 only on/off, 🎚 everything) and its own wall tablet values (also the brightness with Fully Kiosk)."},
+      "Benutzer Tablet Wandtablet Rechte sperren Kinder Seiten wer sieht was Admin Geräteart nur an aus Fully "
+      "users tablet wall tablet rights lock children pages admin kind of device only on off Fully")
 def _(r):
     r.click("#settingsBtn")
     r.wait(900)
@@ -116,7 +119,14 @@ def _(r):
     r.wait(1300)
     r.poster()
     r.say("Dort wählst du den Raum, die Seiten und was gesperrt ist.", "There you choose the room, the pages and what is locked.")
-    r.wait(1800)
+    r.wait(1500)
+    r.click("#tabletRows .tablet:last-child .presetBtn")
+    r.wait(900)
+    r.js("document.querySelectorAll('#tabletRows .tablet:last-child .rtBox').forEach((d) => { d.open = true; })")
+    r.say("Je Geräteart: ✋ nur ansehen, 💡 nur an und aus, 🎚 alles. Und unter „📱 Wandtablet“ eigene Werte für dieses Tablet.",
+          "Per kind of device: ✋ only look, 💡 only on and off, 🎚 everything. And under “📱 Wall tablet” own values for this tablet.")
+    r.move("#tabletRows .tablet:last-child .rtBox select[data-right=light]")
+    r.wait(2400)
     r.say("„Wer sieht was“ zeigt alles in einer Tabelle.", "“Who sees what” shows everything in a table.")
     r.click("#pvTableBtn")
     r.wait(2000)
@@ -174,27 +184,46 @@ def _(r):
 
 
 @clip("kiosk", "settings",
-      {"de": "Wandtablet: Startansicht und Bildschirmschoner", "en": "Wall tablet: start view and screen saver"},
-      {"de": "⚙ → Wandtablet: wohin das Tablet nach einer Weile zurückgeht, wann es dunkel wird, sparsamer Modus für schwache Tablets.",
-       "en": "⚙ → Wall tablet: where the tablet goes back to after a while, when it dims, a saving mode for weak tablets."},
-      "Wandtablet Tablet Kiosk Startansicht zurück Bildschirmschoner dunkel Nacht sparsam Fire Tablet wall tablet kiosk start view screen saver dim night")
+      {"de": "Wandtablet: Bildschirmschoner, Nacht, Bewegungsmelder, Putzen", "en": "Wall tablet: screen saver, night, motion sensor, cleaning"},
+      {"de": "⚙ → Wandtablet: wohin das Tablet nach einer Weile zurückgeht, welcher Bildschirmschoner (Haus dreht sich, Etagen nacheinander, "
+             "große Uhr, schwarz) und wann, wie dunkel die Nacht wird, ein Bewegungsmelder weckt es, jede Nacht neu laden, 🧽 zum Putzen sperren.",
+       "en": "⚙ → Wall tablet: where the tablet goes back to after a while, which screen saver (house turns, floors in turn, big clock, black) "
+             "and when, how dark the night gets, a motion sensor wakes it, reload every night, 🧽 locks it for cleaning."},
+      "Wandtablet Tablet Kiosk Startansicht zurück Bildschirmschoner Uhr schwarz Etagen dunkel Nacht Bewegungsmelder putzen neu laden "
+      "wall tablet kiosk start view screen saver clock black floors dim night motion sensor cleaning reload", query="mode=live")
 def _(r):
     r.click("#settingsBtn")
     r.wait(900)
     r.say("In den Einstellungen: „Wandtablet“.", "In the settings: “Wall tablet”.")
     r.click("#sgNav button[data-group=tablet]")
     r.wait(1300)
-    r.poster()
     r.say("Die Startansicht: dorthin geht das Tablet nach einer Weile zurück. Die Anleitung zum Einrichten ist eine Zeile zum Aufklappen.",
           "The start view: the tablet goes back there after a while. How to set it up is a line that folds open.")
     r.move("details.tabletGuide > summary")
+    r.wait(1800)
+    r.say("Der Bildschirmschoner: das Haus dreht sich, die Etagen nacheinander, eine große Uhr oder schwarz.",
+          "The screen saver: the house turns, the floors in turn, a big clock or black.")
+    r.click(".segBtns[data-for=setSaver] button[data-value=clock]")
+    r.wait(1800)
+    r.say("Ein Bewegungsmelder weckt das Tablet, sobald jemand davorsteht.", "A motion sensor wakes the tablet as soon as somebody stands in front of it.")
+    r.move("#setWakeSensor")
+    r.wait(1800)
+    r.say("Nachts: wie dunkel, nach wie vielen Minuten, auf Wunsch mit Uhr.", "At night: how dark, after how many minutes, with a clock if you like.")
+    r.move("#setNightLevel")
+    r.wait(1800)
+    r.say("Dazu: jede Nacht neu laden und der 🧽 Putz-Knopf. Jedes Tablet kann eigene Werte haben (Benutzer & Tablets).",
+          "And: reload every night and the 🧽 cleaning button. Every tablet can have its own values (Users & tablets).")
+    r.move("#setCleanBtn")
+    r.wait(2200)
+    r.key("Escape")
+    r.wait(600)
+    r.say("So sieht die Uhr aus: Datum und Wetter dazu. Die erste Berührung weckt nur.", "This is the clock: with the date and the weather. The first touch only wakes it.")
+    r.js("Object.assign(window.__fp.settings(), { saver: 'clock', saverAfter: 1, nightDim: 'off' }); window.__fp.kioskIdle(2 * 60000); window.__fp.kioskTick()")
+    r.wait(1200)
+    r.poster()
     r.wait(2000)
-    r.say("Weiter unten: dunkler in der Nacht und ein sparsamer Modus.", "Further down: darker at night and a saving mode.")
-    r.move(1000, 520)
-    for _ in range(3):
-        r.pg.mouse.wheel(0, 300)
-        r.wait(450)
-    r.wait(1500)
+    r.click(900, 500)
+    r.wait(900)
 
 
 @clip("notify", "settings",

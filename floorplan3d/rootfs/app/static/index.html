@@ -9,6 +9,8 @@
 </head>
 <body>
 <div id="nightDim" hidden></div>
+<div id="saverScreen" hidden></div>
+<div id="cleanScreen" hidden></div>
 <div id="app">
   <header id="toolbar">
     <div class="group" id="modeSwitch">
@@ -87,6 +89,7 @@
         <button id="energyPill" class="pill" hidden type="button"></button>
         <span id="meterPill" class="pill" hidden></span>
         <span class="spacer"></span>
+        <button id="cleanBtn" class="pill" hidden type="button" data-i18n-title="ks.cleanTip">🧽</button>
         <button id="guardBtn" class="pill" hidden type="button" data-i18n-title="gd.btnTip"></button>
         <button id="houseToggle" class="pill" hidden></button>
         <button id="lightsPill" class="pill" hidden type="button" aria-haspopup="true" aria-expanded="false"></button>
@@ -719,11 +722,31 @@ kiosk: true</pre>
         <p class="sub" data-i18n="sv.help"></p>
         <div class="stopTools"><button type="button" id="svTake" data-i18n="sv.take"></button> <button type="button" id="svAuto" data-i18n="sv.auto"></button></div>
         <div class="row"><label for="setIdleReturn" data-i18n="set.idleReturn"></label><input id="setIdleReturn" type="number" min="0" step="1"></div>
-        <div class="row check"><input id="setIdleOrbit" type="checkbox"><label for="setIdleOrbit" data-i18n="set.idleOrbit"></label></div>
+        <h4 data-i18n="ks.saverHead"></h4>
+        <div class="row"><label for="setSaver" data-i18n="ks.saver"></label>
+          <select id="setSaver"><option value="off" data-i18n="ks.saver.off"></option><option value="orbit" data-i18n="ks.saver.orbit"></option><option value="floors" data-i18n="ks.saver.floors"></option><option value="clock" data-i18n="ks.saver.clock"></option><option value="black" data-i18n="ks.saver.black"></option></select></div>
+        <div class="row" data-ks="speed"><label for="setSaverSpeed" data-i18n="ks.speed"></label>
+          <select id="setSaverSpeed"><option value="slow" data-i18n="ks.speed.slow"></option><option value="mid" data-i18n="ks.speed.mid"></option><option value="fast" data-i18n="ks.speed.fast"></option></select></div>
+        <div class="row"><label for="setSaverAfter" data-i18n="ks.after"></label><input id="setSaverAfter" type="number" min="0" max="240" step="1"></div>
+        <p class="sub" data-i18n="ks.afterHelp"></p>
+        <div class="row"><label for="setWakeSensor" data-i18n="ks.wake"></label><input id="setWakeSensor" type="text" list="wakeList" autocomplete="off" data-i18n-placeholder="ks.wakePh"></div>
+        <datalist id="wakeList"></datalist>
+        <p class="sub" data-i18n="ks.wakeHelp"></p>
+        <h4 data-i18n="ks.nightHead"></h4>
         <div class="row"><label for="setNightDim" data-i18n="set.nightDim"></label>
           <select id="setNightDim"><option value="off" data-i18n="set.nightDim.off"></option><option value="sun" data-i18n="set.nightDim.sun"></option><option value="time" data-i18n="set.nightDim.time"></option></select></div>
         <div class="row"><label for="setNightFrom" data-i18n="set.nightFrom"></label><input id="setNightFrom" type="time"></div>
         <div class="row"><label for="setNightTo" data-i18n="set.nightTo"></label><input id="setNightTo" type="time"></div>
+        <div class="row"><label for="setNightLevel" data-i18n="ks.nightLevel"></label><input id="setNightLevel" type="range" step="0.01" min="0.1" max="0.95" data-show="pct"><output for="setNightLevel"></output></div>
+        <div class="row"><label for="setNightAfter" data-i18n="ks.nightAfter"></label><input id="setNightAfter" type="number" min="1" max="60" step="1"></div>
+        <div class="row check"><input id="setNightClock" type="checkbox"><label for="setNightClock" data-i18n="ks.nightClock"></label></div>
+        <h4 data-i18n="ks.moreHead"></h4>
+        <div class="row"><label for="setReloadAt" data-i18n="ks.reload"></label><input id="setReloadAt" type="time"></div>
+        <p class="sub" data-i18n="ks.reloadHelp"></p>
+        <div class="row check"><input id="setCleanBtn" type="checkbox"><label for="setCleanBtn" data-i18n="ks.clean"></label></div>
+        <div class="row"><label for="setCleanSecs" data-i18n="ks.cleanSecs"></label><input id="setCleanSecs" type="number" min="10" max="300" step="5"></div>
+        <p class="sub" data-i18n="ks.cleanHelp"></p>
+        <p class="hint" data-i18n="ks.perTablet"></p>
         <h4 data-i18n="bell.prefs"></h4>
         <p class="sub" data-i18n="bell.prefsHelp"></p>
         <div class="row check"><input id="setBellOn" type="checkbox"><label for="setBellOn" data-i18n="bell.on"></label></div>
@@ -738,7 +761,7 @@ kiosk: true</pre>
       <summary><span class="sgIcon">👥</span><span class="sgText"><b data-i18n="sg.users"></b><small data-i18n="sg.users.sub"></small></span></summary>
       <div class="sgBody">
         <p class="hint" data-i18n="set.tabletHelp"></p>
-        <datalist id="haUsers"></datalist>
+        <datalist id="haUsers"></datalist><datalist id="fullyBrightList"></datalist><datalist id="fullyScreenList"></datalist>
         <div id="tabletRows"></div>
         <div class="stopTools"><button type="button" id="addTablet" data-i18n="set.addTablet"></button> <button type="button" id="pvTableBtn" data-i18n="pv.tableBtn" data-i18n-title="pv.tableSub"></button></div>
         <div id="fullCodeBox"></div>

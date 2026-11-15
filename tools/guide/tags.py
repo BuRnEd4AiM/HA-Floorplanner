@@ -514,9 +514,9 @@ t("settings-search",
   "search the settings find an option where do I find gear options configuration performance shadows quality")
 t("users",
   "Benutzer Benutzerverwaltung Rechte Berechtigungen Admin Gast Kinder sperren nur ansehen Wandtablet einrichten "
-  "Startraum Seiten freigeben Zugriff wer darf was",
+  "Startraum Seiten freigeben Zugriff wer darf was Kindertablet nur einschalten nicht dimmen Garagentor sperren Fully Kiosk Helligkeit",
   "users user management rights permissions admin guest children lock view only set up a wall tablet start room "
-  "share pages access who may do what")
+  "share pages access who may do what kids tablet only switch on no dimming lock the garage door Fully Kiosk brightness")
 t("backup",
   "Sicherung Datensicherung Backup erstellen sichern speichern exportieren wiederherstellen zurückspielen einspielen "
   "Restore Umzug neuer Rechner Daten verloren Datei herunterladen hochladen",
@@ -528,9 +528,11 @@ t("fullscreen",
   "full screen fullscreen mode kiosk kiosk mode no bars no menu fill the screen tablet on the wall lock code exit")
 t("kiosk",
   "Wandtablet einrichten Tablet an der Wand Startansicht zurück zum Start Bildschirmschoner dimmen nachts dunkel "
-  "Energiesparmodus sparsam langsames Tablet altes Tablet Fire Tablet Display",
+  "Energiesparmodus sparsam langsames Tablet altes Tablet Fire Tablet Display Uhr Uhrzeit Nachtuhr schwarzer Bildschirm "
+  "Bewegungsmelder Präsenzmelder aufwecken putzen abwischen reinigen neu laden Helligkeit",
   "set up a wall tablet tablet on the wall start view back to start screen saver dim at night dark power saving "
-  "economy slow tablet old tablet Fire tablet display")
+  "economy slow tablet old tablet Fire tablet display clock time night clock black screen motion sensor presence sensor "
+  "wake up clean wipe reload brightness")
 t("notify",
   "Benachrichtigung Push Push-Nachricht Nachricht aufs Handy WhatsApp Telegram CallMeBot Companion App Meldung "
   "Rauchalarm Wasseralarm Einbruch informieren Testnachricht Karte Karten Zustand",

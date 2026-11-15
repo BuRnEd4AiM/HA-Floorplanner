@@ -110,7 +110,7 @@ f("variants", "dash", "Seiten je Person (Fassungen)", "Pages per person (version
 f("language", "settings", "Sprache, Design, Einheiten", "Language, design, units", ["language"])
 f("settingssearch", "settings", "Einstellungen finden", "Find a setting", ["settings-search"])
 f("users", "settings", "Benutzer, Rechte, Wandtablets", "Users, rights, wall tablets", ["users"])
-f("kiosk", "settings", "Wandtablet: Startansicht, Bildschirmschoner, sparsam", "Wall tablet: start view, screen saver, saving mode", ["kiosk"])
+f("kiosk", "settings", "Wandtablet: Startansicht, Bildschirmschoner, Nacht, sparsam", "Wall tablet: start view, screen saver, night, saving mode", ["kiosk"])
 f("notify", "settings", "Nachricht aufs Handy bei Alarm", "Message to the phone on an alarm", ["notify"])
 f("backup", "settings", "Backup und Wiederherstellen: alles, auch Codes und Aufzeichnungen", "Backup and restore: everything, codes and recordings too",
   ["backup"], since="4.53.0")
@@ -196,3 +196,6 @@ f("alarmcards", "settings", "„Warnungen & Alarm“ in drei Karten mit Zustand 
 f("phonefloors", "phone", "Am Handy: ein Knopf für Etage und Zimmer, der Alarm als 🛡", "On the phone: one button for the floor and the room, the alarm as 🛡", ["phone-floors"], since="5.8.0")
 f("looks", "edit", "Farben: Dach (jede Farbe, Dachziegel, Biberschwanz, Schiefer, Blech), Treppe (Belag wie ein Raum, Setzstufen, Geländer der Wendeltreppe), Türblatt, Zarge und Fensterrahmen je Tür und für das ganze Haus",
   "Colours: roof (any colour, roof tiles, beaver tails, slate, metal), stairs (covering like a room, risers, the spiral stair's rail), door leaf, frame and window frames per door and for the whole house", ["house-looks"], since="5.11.0")
+f("tabletmore", "settings", "Wandtablet: Bildschirmschoner wählen (Haus dreht sich, Etagen, Uhr, schwarz), Nacht mit Stärke und Uhr, Bewegungsmelder weckt, jede Nacht neu laden, 🧽 Putzen, eigene Werte je Tablet, Helligkeit mit Fully Kiosk",
+  "Wall tablet: choose the screen saver (house turns, floors, clock, black), night with strength and clock, a motion sensor wakes it, reload every night, 🧽 cleaning, own values per tablet, brightness with Fully Kiosk", ["kiosk", "users"], since="5.12.0")
+f("rights", "settings", "Je Benutzer und Tablet: je Geräteart ✋ nur ansehen, 💡 nur an/aus oder 🎚 alles", "Per user and tablet: per kind of device ✋ only look, 💡 only on/off or 🎚 everything", ["users"], since="5.12.0")
