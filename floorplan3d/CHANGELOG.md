@@ -2,6 +2,15 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.12.0] - 2026-11-15
+### Added
+- **💤 More for the wall tablet: the screen saver, dimming and waking up** (the owner, 2026-11-15: "mehr Einstellungen für Tablets … das man nicht nur ein und aus schalten kann … bisher kann man nur irgendwie Bildschirm abdunkeln"): ⚙ → **Wandtablet** has three parts now. **💤 Bildschirmschoner**: *Haus dreht sich* (slow, normal or fast, with a clock above the house if wanted), *Große Uhr* (time, date and the weather, black behind it; the clock moves a little every minute so it does not burn into the screen) or *Schwarz*, starting after the minutes set. **🌙 Abdunkeln**: by the sun, by the clock or now also *Immer (wenn niemand tippt)*, after the minutes set (before always one minute), how dark (20 to 95 %, before always 72 %) and a clock on the dimmed screen. **⚡ Aufwecken und wach halten**: a motion sensor that keeps the screen bright while it sees someone, *Bildschirm nie ausgehen lassen* (the browser's wake lock, over https) and *Jeden Tag neu laden um* (only when nobody is touching the screen). Each part has a button **▶ … jetzt zeigen** to see it at once, until the next touch (`kiosk.js`, `kioskscreen.js`).
+- **Per tablet**: ⚙ → Benutzer & Tablets → ⚙ in a user's row can give that tablet its own screen saver, dimming and "Bildschirm nie ausgehen lassen", so the phone stays as it is.
+- Video guide: the clip "Wandtablet" shows the screen saver and the dimming.
+
+### Fixed
+- **The screen saver never started** (#756): the turning house only came together with "Zurück zur Startansicht nach … Minuten", so never while that was 0 (as it is unless changed), and not on a tablet nobody had touched since the page was loaded. It has its own minutes now and starts in both cases. A tick set before becomes "Haus dreht sich".
+
 ## [5.11.0] - 2026-11-14
 ### Added
 - **🎨 The roof in its own colour, with tiles, slate or metal** (#752, Miicki: "Mein Haus hat zum Beispiel dunkelgraue Ziegel, in der App ist das Dach aber immer ziegelrot"): the roof editor has a section **🎨 Farbe & Deckung** in "Form" (the classic panel too): a colour field and the usual colours to tap (brick red, dark red engobe, brown, anthracite, dark grey, slate grey, black, zinc grey) and the cover: smooth (one colour, as before), roof tiles, beaver tails, slate or metal with standing seams, drawn as a pattern with its relief, the rows along the eaves and the seams down the slope. Every roof of the floor takes it (the further roofs, the wing of an L-shaped house), the dormers' little roofs a little darker, as red was to dark red. Nothing set: brick red as always. In the "Fast" mode one colour, in the hologram theme as before (`rooflook.js`).

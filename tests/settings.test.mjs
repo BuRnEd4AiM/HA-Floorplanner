@@ -66,3 +66,11 @@ test('saving (#333): a save that fails does not block the next one', async () =>
   await save();
   assert.equal(n, 2);
 });
+
+test('5.12.0: the entities that can wake a wall tablet, motion and presence sensors first', () => {
+  const ents = [{ entity_id: 'light.a' }, { entity_id: 'binary_sensor.fenster' }, { entity_id: 'person.anna' }, { entity_id: 'binary_sensor.flur_bewegung' },
+    { entity_id: 'input_boolean.gast' }, { entity_id: 'binary_sensor.x', device_class: 'occupancy' }, { entity_id: 'sensor.temp' }, {}];
+  assert.deepEqual(S.wakeEntities(ents).map((e) => e.entity_id),
+    ['binary_sensor.flur_bewegung', 'binary_sensor.x', 'binary_sensor.fenster', 'input_boolean.gast', 'person.anna']);
+  assert.deepEqual(S.wakeEntities(null), []);
+});

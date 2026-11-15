@@ -44,11 +44,18 @@ test('presets from the users dialog: trimmed users, empty presets and rows witho
 test('the dashboard card (#13) may set more for its screen: theme, warnings, idle return, night; only allowed values', () => {
   const p = { theme: 'light', alerts: false, idleReturn: 5, nightDim: 'sun', seeThrough: true, units: 'imperial' };
   assert.deepEqual(V.cleanPreset(p, V.CARD_FIELDS), { theme: 'light', alerts: false, idleReturn: 5, nightDim: 'sun', seeThrough: true });
-  assert.deepEqual(V.cleanPreset(p), { seeThrough: true });                                     // a user's preset still cannot set the theme
-  assert.deepEqual(V.cleanPreset({ theme: 'pink', idleReturn: -1, nightDim: 'always' }, V.CARD_FIELDS), {});
+  assert.deepEqual(V.cleanPreset(p), { seeThrough: true, nightDim: 'sun' });                     // a user's preset still cannot set the theme (dimming: since 5.12.0)
+  assert.deepEqual(V.cleanPreset({ theme: 'pink', idleReturn: -1, nightDim: 'sometimes' }, V.CARD_FIELDS), {});
   assert.deepEqual(V.cleanPreset({ idleReturn: 2.5 }, V.CARD_FIELDS), {});
   assert.deepEqual(V.cleanPreset({ idleReturn: 0 }, V.CARD_FIELDS), { idleReturn: 0 });
   const st = V.startPreset({ theme: 'dark', alerts: true, seeThrough: false }, { theme: 'light', alerts: false }, V.CARD_FIELDS);
   assert.deepEqual(st.settings, { theme: 'light', alerts: false, seeThrough: false });
   assert.deepEqual(V.forSaving(st.settings, st).body, { theme: 'dark', alerts: true, seeThrough: false });   // never saved as everybody's
+});
+test('5.12.0: a tablet user can have its own screen saver, dimming and screen kept on (not the phone)', () => {
+  assert.deepEqual(V.cleanPreset({ saver: 'clock', nightDim: 'always', keepAwake: true, saverAfter: 3 }), { saver: 'clock', nightDim: 'always', keepAwake: true });
+  assert.deepEqual(V.cleanPreset({ saver: 'lava', keepAwake: 1 }), {});
+  const st = V.startPreset({ saver: 'off', keepAwake: false }, { saver: 'orbit', keepAwake: true });
+  assert.deepEqual(st.settings, { saver: 'orbit', keepAwake: true });
+  assert.deepEqual(V.forSaving(st.settings, st).body, { saver: 'off', keepAwake: false });           // the tablet's values are never everybody's
 });

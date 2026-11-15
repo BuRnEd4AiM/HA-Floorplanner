@@ -121,7 +121,7 @@ pg17.click("#fitBtn"); pg17.wait_for_timeout(300)
 check("phone menu: a choice closes it again", pg17.locator("#toolbar").is_hidden() and pg17.locator("#tbMenuBtn").inner_text() == "☰")
 pg17.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].devices = window.__fp.layout.floors[window.__fp.floorIdx()].devices.filter(d => d.id !== 'alSmoke')")
 pg17.evaluate("""() => { const d = new Date(), now = d.getHours() * 60 + d.getMinutes(), hm = (m) => { m = (m + 1440) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
-  Object.assign(window.__fp.settings(), { idleReturn: 1, idleOrbit: true, nightDim: 'time', nightFrom: hm(now - 60), nightTo: hm(now + 60) }); }""")   # night from an hour ago to in an hour ('00:00' to '23:59' missed the minute 23:59)
+  Object.assign(window.__fp.settings(), { idleReturn: 1, saver: 'orbit', saverAfter: 1, nightDim: 'time', nightFrom: hm(now - 60), nightTo: hm(now + 60) }); }""")   # night from an hour ago to in an hour ('00:00' to '23:59' missed the minute 23:59)
 # phones: at the top ☰ and one button for the floor and the room (phonenav.js, 5.8.0: with a button of their own the floor read "E…"),
 # instead of the floor pills; its list has the floors and below them the rooms of the floor
 pnb = pg17.evaluate("(() => { const b = document.getElementById('phoneNavBtn'); return [b.scrollWidth <= b.clientWidth + 1, b.textContent]; })()")
@@ -148,5 +148,24 @@ check("kiosk: after the idle time the start view returns and the house turns", p
 check("kiosk: dimmed at night", pg17.locator("#nightDim").is_visible())
 pg17.mouse.click(300, 400); pg17.wait_for_timeout(300)
 check("kiosk: a touch wakes the screen and stops the turning", pg17.locator("#nightDim").is_hidden() and not pg17.evaluate("window.__fp.autoRotate()"))
-pg17.evaluate("Object.assign(window.__fp.settings(), { idleReturn: 0, idleOrbit: false, nightDim: 'off' })")
+# 5.12.0: the screen saver on its own (before it only came with "back to the start view"), a big clock, the clock on the dimmed screen,
+# how dark, and a motion sensor (here the switch of the test house) that keeps the screen awake
+pg17.evaluate("Object.assign(window.__fp.settings(), { idleReturn: 0, saver: 'clock', saverAfter: 2, nightDim: 'always', dimAfter: 1, dimLevel: 0.85, dimClock: true })")
+pg17.evaluate("window.__fp.kioskIdle(90000); window.__fp.kioskTick()"); pg17.wait_for_timeout(400)
+check("kiosk (5.12.0): dimmed after the minutes set, as dark as set, with a clock; no screen saver yet", pg17.locator("#nightDim").is_visible()
+      and "0.85" in pg17.evaluate("getComputedStyle(document.getElementById('nightDim')).backgroundColor") and pg17.locator("#nightDim .kClock b").is_visible()
+      and pg17.evaluate("window.__fp.kioskSaver()") is None)
+pg17.evaluate("window.__fp.kioskIdle(3 * 60000); window.__fp.kioskTick()"); pg17.wait_for_timeout(400)
+check("kiosk (5.12.0): the big clock starts without 'back to the start view', the dimmed screen shows no second clock",
+      pg17.evaluate("window.__fp.kioskSaver()") == "clock" and pg17.locator("#saverScreen .kClock b").is_visible() and pg17.locator("#nightDim .kClock").is_hidden())
+pg17.mouse.click(300, 400); pg17.wait_for_timeout(300)
+check("kiosk (5.12.0): a touch ends the clock and the dimming", pg17.locator("#saverScreen").is_hidden() and pg17.locator("#nightDim").is_hidden())
+urllib.request.urlopen(HA + "/_set?e=switch.garage&s=off")
+pg17.evaluate("Object.assign(window.__fp.settings(), { saver: 'black', nightDim: 'off', wakeEntity: 'switch.garage' })")
+pg17.evaluate("window.__fp.kioskIdle(3 * 60000); window.__fp.kioskTick()"); pg17.wait_for_timeout(400)
+black = pg17.locator("#saverScreen").is_visible() and pg17.evaluate("getComputedStyle(document.getElementById('saverScreen')).backgroundColor") == "rgb(0, 0, 0)"
+urllib.request.urlopen(HA + "/_set?e=switch.garage&s=on"); pg17.wait_for_timeout(2500)
+check("kiosk (5.12.0): a black screen; the motion sensor wakes it", black and pg17.locator("#saverScreen").is_hidden() and pg17.evaluate("window.__fp.kioskSaver()") is None, black)
+urllib.request.urlopen(HA + "/_set?e=switch.garage&s=off")
+pg17.evaluate("Object.assign(window.__fp.settings(), { idleReturn: 0, saver: 'off', saverAfter: 5, nightDim: 'off', dimAfter: 1, dimLevel: 0.7, dimClock: false, wakeEntity: '' })")
 pg17.close()

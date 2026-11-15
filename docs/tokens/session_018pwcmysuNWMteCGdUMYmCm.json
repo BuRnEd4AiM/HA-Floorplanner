@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmysuNWMteCGdUMYmCm",
+ "start": "2026-11-15",
+ "updated": "2026-11-15T14:06:18Z",
+ "branch": "claude/hopeful-dijkstra-5ul8bv",
+ "source": "counted",
+ "input": 220,
+ "cache_write": 260959,
+ "cache_read": 24906868,
+ "output": 102692,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 220,
+   "cache_write": 260959,
+   "cache_read": 24906868,
+   "output": 102692,
+   "requests": 115
+  }
+ }
+}

@@ -174,10 +174,10 @@ def _(r):
 
 
 @clip("kiosk", "settings",
-      {"de": "Wandtablet: Startansicht und Bildschirmschoner", "en": "Wall tablet: start view and screen saver"},
-      {"de": "⚙ → Wandtablet: wohin das Tablet nach einer Weile zurückgeht, wann es dunkel wird, sparsamer Modus für schwache Tablets.",
-       "en": "⚙ → Wall tablet: where the tablet goes back to after a while, when it dims, a saving mode for weak tablets."},
-      "Wandtablet Tablet Kiosk Startansicht zurück Bildschirmschoner dunkel Nacht sparsam Fire Tablet wall tablet kiosk start view screen saver dim night")
+      {"de": "Wandtablet: Startansicht, Bildschirmschoner, Abdunkeln", "en": "Wall tablet: start view, screen saver, dimming"},
+      {"de": "⚙ → Wandtablet: wohin das Tablet nach einer Weile zurückgeht, welcher Bildschirmschoner kommt, wann und wie dunkel es wird, und ein Bewegungsmelder, der es aufweckt.",
+       "en": "⚙ → Wall tablet: where the tablet goes back to after a while, which screen saver comes, when and how dark it dims, and a motion sensor that wakes it up."},
+      "Wandtablet Tablet Kiosk Startansicht zurück Bildschirmschoner dunkel Nacht Bewegungsmelder aufwecken wall tablet kiosk start view screen saver dim night motion sensor wake")
 def _(r):
     r.click("#settingsBtn")
     r.wait(900)
@@ -189,12 +189,59 @@ def _(r):
           "The start view: the tablet goes back there after a while. How to set it up is a line that folds open.")
     r.move("details.tabletGuide > summary")
     r.wait(2000)
-    r.say("Weiter unten: dunkler in der Nacht und ein sparsamer Modus.", "Further down: darker at night and a saving mode.")
+    r.say("Weiter unten: der Bildschirmschoner, das Abdunkeln und das Aufwecken durch einen Bewegungsmelder.",
+          "Further down: the screen saver, the dimming and waking up by a motion sensor.")
     r.move(1000, 520)
-    for _ in range(3):
+    for _ in range(4):
         r.pg.mouse.wheel(0, 300)
         r.wait(450)
     r.wait(1500)
+
+
+@clip("tablet-saver", "settings",
+      {"de": "Bildschirmschoner und Abdunkeln am Wandtablet", "en": "Screen saver and dimming on the wall tablet"},
+      {"de": "⚙ → Wandtablet: das Haus dreht sich, eine große Uhr mit Wetter oder schwarz; abdunkeln nachts oder immer, so dunkel wie du willst, mit Uhr. „▶ … jetzt zeigen“ zeigt es sofort.",
+       "en": "⚙ → Wall tablet: the house turns, a big clock with the weather, or black; dim at night or always, as dark as you like, with a clock. “▶ … now” shows it at once."},
+      "Bildschirmschoner Uhr Abdunkeln dunkel Nacht Wandtablet Tablet screen saver clock dim dark night wall tablet")
+def _(r):
+    r.click("#settingsBtn")
+    r.wait(900)
+    r.click("#sgNav button[data-group=tablet]")
+    r.wait(900)
+    r.js("(() => { const s = document.getElementById('setSaver'); s.closest('.sgTile, .row').previousElementSibling?.scrollIntoView({ block: 'start' }); })()")
+    r.wait(700)
+    r.say("Der Bildschirmschoner: das Haus dreht sich, eine große Uhr oder schwarz.", "The screen saver: the house turns, a big clock or black.")
+    r.click(".segBtns[data-for=setSaver] button[data-value=clock]")
+    r.wait(1400)
+    r.say("„Starten nach“: so viele Minuten ohne Berührung.", "“Start after”: this many minutes without a touch.")
+    r.move("#setSaverAfter")
+    r.wait(1600)
+    r.say("Ausprobieren: „Bildschirmschoner jetzt zeigen“.", "Try it: “Show the screen saver now”.")
+    r.click("#saverTry")
+    r.wait(1200)
+    r.poster()
+    r.say("Uhrzeit, Datum und Wetter. Sie rückt jede Minute ein Stück, damit sich nichts einbrennt.",
+          "Time, date and the weather. It moves a little every minute so nothing burns in.")
+    r.wait(2600)
+    r.say("Eine Berührung weckt den Bildschirm.", "A touch wakes the screen.")
+    r.click(900, 500)
+    r.wait(900)
+    r.click("#settingsBtn")
+    r.wait(900)
+    r.js("(() => { const s = document.getElementById('setNightDim'); s.closest('.sgTile, .row').previousElementSibling?.scrollIntoView({ block: 'start' }); })()")
+    r.wait(700)
+    r.say("Abdunkeln: nach Sonnenstand, nach Uhrzeit oder immer, wenn niemand tippt.", "Dimming: by the sun, by the clock or always when nobody touches it.")
+    r.click(".segBtns[data-for=setNightDim] button[data-value=always]")
+    r.wait(1200)
+    r.say("Wie dunkel, und auf Wunsch mit Uhr.", "How dark, and with a clock if you like.")
+    r.slide("#setDimLevel", 0.8)
+    r.wait(700)
+    r.click("label[for=setDimClock]")
+    r.wait(900)
+    r.click("#dimTry")
+    r.wait(2600)
+    r.click(900, 500)
+    r.wait(900)
 
 
 @clip("notify", "settings",

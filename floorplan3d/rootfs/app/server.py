@@ -118,10 +118,19 @@ DEFAULT_SETTINGS = {
     "facade": "",              # the finish of the outside of the walls (#448): '' (their colour, as always) or a facade pattern (importer.FACADE_FINISHES)
     "facadeColor": "",         # ... its colour, '' for the pattern's own
     "idleReturn": 0.0,         # wall tablets: minutes without a touch until the start view returns (0 = off)
-    "idleOrbit": False,        # ... and the house then turns slowly (screen saver)
-    "nightDim": "off",         # off | sun | time: dim the live view at night
+    "saver": "off",            # wall tablets, screen saver (static/kiosk.js): off | orbit (the house turns) | clock | black
+    "saverAfter": 5.0,         # ... after these minutes without a touch
+    "saverSpeed": "normal",    # ... how fast the house turns: slow | normal | fast
+    "saverClock": False,       # ... a clock over the turning house
+    "nightDim": "off",         # off | sun | time | always: dim the live view at night (always: whenever nobody touches it)
     "nightFrom": "22:00",
     "nightTo": "06:00",
+    "dimAfter": 1.0,           # ... after these minutes without a touch
+    "dimLevel": 0.7,           # ... how dark: the opacity of the black layer (0.2..0.95)
+    "dimClock": False,         # ... with a clock on the dimmed screen
+    "wakeEntity": "",          # a motion sensor that wakes the screen ('' = none)
+    "keepAwake": False,        # keep the screen on (the browser's wake lock)
+    "reloadAt": "",            # 'HH:MM': load the page again once a day ('' = never)
     "belowMode": "dim",        # floors below the open one: dim (see-through, belowVisibility) | stacked (clearly visible) | hidden
     "belowLabels": True,       # room names and value labels of the floors below the open one (#249)
     "houseFloors": "normal",   # floors of the whole-house view: normal (as built) | apart (pulled apart) | stacked (like a real house)
@@ -176,12 +185,15 @@ DEFAULT_SETTINGS = {
     "co2Stops": [{"v": 400, "c": "#2ad0a0"}, {"v": 800, "c": "#ffd84a"}, {"v": 1200, "c": "#ff8a2a"},
                  {"v": 2000, "c": "#ff3a3a"}],
 }
-RANGES = {"idleReturn": (0.0, 240.0), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0), "backupEveryHours": (1.0, 720.0), "backupKeepDays": (1.0, 3650.0), "backupKeepCount": (1.0, 500.0), "timelineKeepDays": (1.0, 31.0)}
+RANGES = {"idleReturn": (0.0, 240.0), "saverAfter": (1.0, 240.0), "dimAfter": (1.0, 240.0), "dimLevel": (0.2, 0.95), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0), "backupEveryHours": (1.0, 720.0), "backupKeepDays": (1.0, 3650.0), "backupKeepCount": (1.0, 500.0), "timelineKeepDays": (1.0, 31.0)}
 VIEWS = ("3d", "2d", "split", "all")
+SAVERS = ("off", "orbit", "clock", "black")          # the screen savers of a wall tablet (static/kiosk.js)
+DIM_MODES = ("off", "sun", "time", "always")        # when it dims
 # what a user preset may set and the values allowed (the same list as PRESET_FIELDS in static/viewprefs.js, #250)
 PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWalls": (True, False),
                  "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False),
-                 "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False), "roomLabels": (True, False)}
+                 "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False), "roomLabels": (True, False),
+                 "saver": SAVERS, "nightDim": DIM_MODES, "keepAwake": (True, False)}
 
 # the tabs of the tab bar (the same keys as TABS in static/tabs.js, #479); the house is always there, the others can be hidden per user
 TABS = boards.TABS            # own pages of an admin (#484) are "p_…" (boards.CUSTOM_ID)
@@ -834,6 +846,9 @@ def validate_settings(data: dict) -> dict:
     out = dict(DEFAULT_SETTINGS)
     if "labelMode" not in data and data.get("showLabels") is False:     # settings saved before the three label modes existed
         data = {**data, "labelMode": "none"}
+    if "saver" not in data and data.get("idleOrbit") is True:          # settings saved before 5.12.0: the turning house was a tick
+        idle = data.get("idleReturn")
+        data = {**data, "saver": "orbit", **({} if "saverAfter" in data or not isinstance(idle, (int, float)) or idle <= 0 else {"saverAfter": idle})}
     for key, default in DEFAULT_SETTINGS.items():
         if key not in data:
             continue
@@ -922,11 +937,19 @@ def validate_settings(data: dict) -> dict:
     if not (out["facade"] and re.fullmatch(r"#[0-9a-fA-F]{6}", out["facadeColor"] or "")):
         out["facadeColor"] = ""
     out["facadeColor"] = out["facadeColor"].lower()
-    if out["nightDim"] not in ("off", "sun", "time"):
+    if out["nightDim"] not in DIM_MODES:
         out["nightDim"] = DEFAULT_SETTINGS["nightDim"]
+    if out["saver"] not in SAVERS:
+        out["saver"] = DEFAULT_SETTINGS["saver"]
+    if out["saverSpeed"] not in ("slow", "normal", "fast"):
+        out["saverSpeed"] = DEFAULT_SETTINGS["saverSpeed"]
     for key in ("nightFrom", "nightTo"):
         if not re.match(r"^([01]\d|2[0-3]):[0-5]\d$", out[key]):
             out[key] = DEFAULT_SETTINGS[key]
+    if out["reloadAt"] and not re.match(r"^([01]\d|2[0-3]):[0-5]\d$", out["reloadAt"]):
+        out["reloadAt"] = ""
+    if out["wakeEntity"] and not re.match(r"^(binary_sensor|input_boolean|switch|person|device_tracker|media_player)\.[a-z0-9_]+$", out["wakeEntity"]):
+        out["wakeEntity"] = ""
     if out["weatherEntity"] and not re.match(r"^weather\.[a-z0-9_]+$", out["weatherEntity"]):
         out["weatherEntity"] = ""
     if out["wasteCalendar"] and not pages.CALENDAR_ID.match(out["wasteCalendar"]):

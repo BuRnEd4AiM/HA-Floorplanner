@@ -2,6 +2,7 @@
 "Warnings & alarm" says what the alarm panel is and which one Home Assistant has. 4.35.0: on a wide screen the settings fill it, the groups
 are a list on the left and the chosen one stands on the right with its settings as tiles.
 """
+import re
 lang_st, dim_st = api("api/settings")["language"], api("api/settings").get("nightDim", "off")
 set_setting("language", "de")                   # the texts below are the German ones
 def extra(d):
@@ -103,6 +104,40 @@ shown_w = pgW.is_visible("#setNightFrom")
 pgW.select_option("#setNightDim", "off"); pgW.wait_for_timeout(500)
 check("wide: a hidden row hides its tile (the night times only with dimming by the clock)", shown_w and not pgW.is_visible("#setNightFrom")
       and pgW.evaluate("getComputedStyle(document.querySelector('#setNightFrom').closest('.sgTile')).display") == "none")
+# 5.12.0: more for the wall tablet: the screen saver (kind, after, speed, clock over the house), how and when it dims, try both at once
+open_setting(pgW, "#setSaver"); pgW.wait_for_timeout(300)
+vis = lambda *ids: [pgW.is_visible(i) for i in ids]
+off_rows = vis("#setSaverAfter", "#setSaverSpeed", "#saverTry", "#setDimAfter", "#setDimLevel", "#dimTry")
+pgW.select_option("#setSaver", "orbit"); pgW.wait_for_timeout(500)
+orbit_rows = vis("#setSaverAfter", "#setSaverSpeed", "#setSaverClock", "#saverTry")
+pgW.select_option("#setSaver", "clock"); pgW.wait_for_timeout(500)
+clock_rows = vis("#setSaverAfter", "#setSaverSpeed", "#setSaverClock")
+pgW.select_option("#setNightDim", "always"); pgW.wait_for_timeout(500)
+dim_rows = vis("#setDimAfter", "#setDimLevel", "#setDimClock", "#dimTry", "#setNightFrom")
+check("tablet (5.12.0): only what the screen saver and the dimming chosen use shows", not any(off_rows) and all(orbit_rows) and clock_rows == [True, False, False]
+      and dim_rows == [True, True, True, True, False], [off_rows, orbit_rows, clock_rows, dim_rows])
+pgW.fill("#setSaverAfter", "3"); pgW.press("#setSaverAfter", "Tab"); pgW.wait_for_timeout(800)
+st = api("api/settings")
+check("tablet (5.12.0): the choices are saved", st["saver"] == "clock" and st["saverAfter"] == 3 and st["nightDim"] == "always", {k: st[k] for k in ("saver", "saverAfter", "nightDim")})
+pgW.click("#saverTry"); pgW.wait_for_timeout(600)
+clock = pgW.evaluate("(() => { const s = document.getElementById('saverScreen'); return s && !s.hidden ? s.querySelector('.kClock b').textContent : ''; })()")
+check("tablet (5.12.0): '▶ Bildschirmschoner jetzt zeigen' closes the settings and shows the big clock", not pgW.evaluate("document.querySelector('#settingsDialog').open")
+      and bool(re.fullmatch(r"\d{1,2}:\d{2}( ?[AP]M)?", clock)), clock)
+pgW.wait_for_timeout(5600)
+check("tablet (5.12.0): it stays until a touch, also in the edit mode", pgW.evaluate("window.__fp.kioskSaver()") == "clock" and pgW.is_visible("#saverScreen"))
+pgW.mouse.click(700, 500); pgW.wait_for_timeout(400)
+check("tablet (5.12.0): a touch ends it", pgW.is_hidden("#saverScreen") and pgW.evaluate("window.__fp.kioskSaver()") is None)
+pgW.click("#settingsBtn"); pgW.wait_for_timeout(500)
+open_setting(pgW, "#dimTry"); pgW.wait_for_timeout(300)
+pgW.evaluate("(() => { const r = document.getElementById('setDimLevel'); r.value = '0.9'; r.dispatchEvent(new Event('input', { bubbles: true })); r.dispatchEvent(new Event('change', { bubbles: true })); })()")
+pgW.wait_for_timeout(600)
+pgW.click("#dimTry"); pgW.wait_for_timeout(600)
+bg = pgW.evaluate("getComputedStyle(document.getElementById('nightDim')).backgroundColor")
+check("tablet (5.12.0): '▶ Abdunkeln jetzt zeigen' dims as dark as set (90 %)", pgW.is_visible("#nightDim") and "0.9" in bg, bg)
+pgW.mouse.click(700, 500); pgW.wait_for_timeout(400)
+check("tablet (5.12.0): a touch wakes it", pgW.is_hidden("#nightDim"))
+for k, v in (("saver", "off"), ("saverAfter", 5), ("dimLevel", 0.7)):
+    set_setting(k, v)
 pgW.close()
 
 pgT = b.new_page(viewport={"width": 1400, "height": 950}, extra_http_headers={"X-Remote-User-Name": "tablet_e2e"})

@@ -110,7 +110,10 @@ f("variants", "dash", "Seiten je Person (Fassungen)", "Pages per person (version
 f("language", "settings", "Sprache, Design, Einheiten", "Language, design, units", ["language"])
 f("settingssearch", "settings", "Einstellungen finden", "Find a setting", ["settings-search"])
 f("users", "settings", "Benutzer, Rechte, Wandtablets", "Users, rights, wall tablets", ["users"])
-f("kiosk", "settings", "Wandtablet: Startansicht, Bildschirmschoner, sparsam", "Wall tablet: start view, screen saver, saving mode", ["kiosk"])
+f("kiosk", "settings", "Wandtablet: Startansicht, Bildschirmschoner, Abdunkeln", "Wall tablet: start view, screen saver, dimming", ["kiosk", "tablet-saver"])
+f("tabletsaver", "settings", "Wandtablet: Bildschirmschoner (Haus dreht sich, große Uhr, schwarz), abdunkeln wann und wie dunkel, Bewegungsmelder weckt, Bildschirm anlassen, täglich neu laden, je Tablet",
+  "Wall tablet: screen saver (the house turns, big clock, black), dim when and how dark, a motion sensor wakes it, keep the screen on, reload daily, per tablet",
+  ["tablet-saver", "kiosk"], since="5.12.0")
 f("notify", "settings", "Nachricht aufs Handy bei Alarm", "Message to the phone on an alarm", ["notify"])
 f("backup", "settings", "Backup und Wiederherstellen: alles, auch Codes und Aufzeichnungen", "Backup and restore: everything, codes and recordings too",
   ["backup"], since="4.53.0")

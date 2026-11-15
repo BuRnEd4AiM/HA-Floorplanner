@@ -528,9 +528,15 @@ t("fullscreen",
   "full screen fullscreen mode kiosk kiosk mode no bars no menu fill the screen tablet on the wall lock code exit")
 t("kiosk",
   "Wandtablet einrichten Tablet an der Wand Startansicht zurück zum Start Bildschirmschoner dimmen nachts dunkel "
-  "Energiesparmodus sparsam langsames Tablet altes Tablet Fire Tablet Display",
-  "set up a wall tablet tablet on the wall start view back to start screen saver dim at night dark power saving "
-  "economy slow tablet old tablet Fire tablet display")
+  "Bewegungsmelder aufwecken Fire Tablet Display Fully Kiosk",
+  "set up a wall tablet tablet on the wall start view back to start screen saver dim at night dark motion sensor "
+  "wake up Fire tablet display Fully Kiosk")
+t("tablet-saver",
+  "Bildschirmschoner Screensaver Uhr große Uhr Uhrzeit Datum Wetter schwarzer Bildschirm Haus dreht sich drehen "
+  "Abdunkeln dimmen Helligkeit wie dunkel Nachtmodus Bildschirm aus Display einbrennen Bewegungsmelder "
+  "Bildschirm anlassen wach halten neu laden",
+  "screen saver screensaver clock big clock time date weather black screen house turns rotate dimming dim brightness "
+  "how dark night mode screen off display burn in motion sensor keep screen on keep awake wake lock reload")
 t("notify",
   "Benachrichtigung Push Push-Nachricht Nachricht aufs Handy WhatsApp Telegram CallMeBot Companion App Meldung "
   "Rauchalarm Wasseralarm Einbruch informieren Testnachricht Karte Karten Zustand",

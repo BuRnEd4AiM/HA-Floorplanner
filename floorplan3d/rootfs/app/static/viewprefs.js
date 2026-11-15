@@ -14,6 +14,9 @@ export const PRESET_FIELDS = {
   houseFloors: ['normal', 'apart', 'stacked'], // the floors of the whole-house view: as built, pulled apart, stacked like a real house
   roomTiles: [true, false],                   // the room tiles at the bottom of the live mode (#421)
   roomLabels: [true, false],                  // the labels over the rooms in the 3D view of the live mode (#430)
+  saver: ['off', 'orbit', 'clock', 'black'],  // the screen saver of a wall tablet (kiosk.js, 5.12.0): only on the tablet, not on the phone
+  nightDim: ['off', 'sun', 'time', 'always'], // when its screen dims
+  keepAwake: [true, false],                   // its screen stays on
 };
 /** what the dashboard card (#13, cardmode.js) can set for its screen: the preset fields and a few more; a function checks a number */
 export const CARD_FIELDS = {
@@ -21,7 +24,6 @@ export const CARD_FIELDS = {
   theme: ['holo', 'dark', 'light'],
   alerts: [true, false],                      // warnings (smoke, water, open windows in the rain ...)
   idleReturn: (v) => Number.isInteger(v) && v >= 0 && v <= 1440,   // minutes without a touch, then back to the start view (0 = never)
-  nightDim: ['off', 'sun', 'time'],           // dim at night
 };
 const allowed = (vals, v) => (typeof vals === 'function' ? vals(v) : vals.includes(v));
 

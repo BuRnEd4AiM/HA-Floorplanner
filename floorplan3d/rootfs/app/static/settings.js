@@ -9,7 +9,7 @@ export const BINDINGS = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
   shadows: '#setShadows', labelMode: '#setLabels', cameraImages: '#setCameraImages', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls', sky: '#setSky', energyCard: '#setEnergyCard', roomTiles: '#setRoomTiles', roomLabels: '#setRoomLabels', windowFrames: '#setWindowFrames',
-  alerts: '#setAlerts', alertJump: '#setAlertJump', tabBar: '#setTabBar', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', seeThrough: '#setSeeThrough', belowLabels: '#setBelowLabels', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect', updateCheck: '#setUpdateCheck', autoBackup: '#setAutoBackup', backupEveryHours: '#setBackupEvery', backupKeepDays: '#setBackupKeepDays', backupKeepCount: '#setBackupKeepCount', backupRecording: '#setBackupRecording', backupSecrets: '#setBackupSecrets', timelineOn: '#setTimelineOn', timelineKeepDays: '#setTimelineKeep',
+  alerts: '#setAlerts', alertJump: '#setAlertJump', tabBar: '#setTabBar', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', saver: '#setSaver', saverAfter: '#setSaverAfter', saverSpeed: '#setSaverSpeed', saverClock: '#setSaverClock', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', dimAfter: '#setDimAfter', dimLevel: '#setDimLevel', dimClock: '#setDimClock', wakeEntity: '#setWakeEntity', keepAwake: '#setKeepAwake', reloadAt: '#setReloadAt', cutaway: '#setCutaway', seeThrough: '#setSeeThrough', belowLabels: '#setBelowLabels', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect', updateCheck: '#setUpdateCheck', autoBackup: '#setAutoBackup', backupEveryHours: '#setBackupEvery', backupKeepDays: '#setBackupKeepDays', backupKeepCount: '#setBackupKeepCount', backupRecording: '#setBackupRecording', backupSecrets: '#setBackupSecrets', timelineOn: '#setTimelineOn', timelineKeepDays: '#setTimelineKeep',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', belowMode: '#setBelowMode', houseFloors: '#setHouseFloors', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
@@ -20,6 +20,7 @@ export const DISP_KEYS = new Set(['wallHeight', 'wallThickness', 'glowRadius', '
 export function formValue(key, el, fromDisp) {
   if (el.type === 'checkbox') return el.checked;
   if (key === 'idleReturn') return Math.max(0, parseFloat(el.value) || 0);   // 0 = off
+  if (key === 'wakeEntity') return el.value.trim();
   if (el.type === 'number') {
     const v = parseFloat(el.value);
     return Number.isFinite(v) && v > 0 ? (DISP_KEYS.has(key) ? fromDisp(v) : v) : undefined;
@@ -36,6 +37,17 @@ export function fieldValue(key, value, toDisp) {
 export function resolveWallView(prev, next) {
   if (!(next.seeThrough && next.cutaway)) return next;
   return !prev.seeThrough ? { ...next, cutaway: false } : { ...next, seeThrough: false };
+}
+/** the entities that can wake a wall tablet (⚙ → Wandtablet, kiosk.js): motion and presence sensors first, then the other binary sensors,
+ *  helpers, switches and people */
+export function wakeEntities(entities) {
+  const rank = (e) => {
+    const [dom] = e.entity_id.split('.');
+    if (dom === 'binary_sensor') return /motion|occupancy|presence|moving|bewegung|praesenz|präsenz|anwesen/i.test(`${e.entity_id} ${e.device_class || ''} ${e.name || ''}`) ? 0 : 1;
+    return { input_boolean: 2, person: 3, switch: 4, device_tracker: 5, media_player: 6 }[dom] ?? 9;
+  };
+  return (entities || []).filter((e) => typeof e?.entity_id === 'string' && rank(e) < 9)
+    .sort((a, b) => rank(a) - rank(b) || a.entity_id.localeCompare(b.entity_id));
 }
 /** how many users have a tablet assignment (room or view) */
 export const tabletUsers = (s) => new Set([...Object.keys(s.userRooms || {}), ...Object.keys(s.userViews || {}), ...Object.keys(s.userPresets || {}), ...Object.keys(s.userLocks || {}), ...Object.keys(s.userBuildings || {}), ...Object.keys(s.userTabs || {}),
@@ -82,6 +94,7 @@ export function initSettings(ctx) {
     }
     $('#earthMarginNote').hidden = !(ctx.layout().plot?.boundary?.length >= 3);
     $('#weatherList').replaceChildren(...ctx.entities().filter((e) => e.entity_id.startsWith('weather.')).map((e) => { const o = document.createElement('option'); o.value = e.entity_id; o.label = e.name; return o; }));
+    $('#wakeList').replaceChildren(...wakeEntities(ctx.entities()).map((e) => { const o = document.createElement('option'); o.value = e.entity_id; o.label = e.name; return o; }));   // ⚙ → Wandtablet (kiosk.js)
     $('#setPerf').value = ctx.perfStored;
     ctx.facadeUi?.fill(settings);                                  // the facade (#448, finishui.js)
     ctx.doorsUi?.fill(settings);                                   // the house's doors (#754, looksui.js)
