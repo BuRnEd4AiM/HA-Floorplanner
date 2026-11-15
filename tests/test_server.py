@@ -974,6 +974,62 @@ async def test_locks_per_user_are_cleaned_reach_that_user_and_are_enforced(clien
     assert r.status == 403
 
 
+async def test_rights_per_kind_of_device_reach_that_user_and_are_enforced(client, monkeypatch, tmp_path):
+    """5.13.0: per kind of device a user may only look or only switch on / off; the server refuses the rest"""
+    body = {"userRights": {"Kid": {"light": "onoff", "gate": "view", "scene": "onoff", "junk": "view"}, "Ok": {"light": "all"}}}
+    s = await (await client.put("/api/settings", json=body)).json()
+    assert s["userRights"] == {"Kid": {"light": "onoff", "gate": "view"}}          # a scene has no "only on / off"; "all" is no entry
+    kid, other = {"X-Remote-User-Name": "kid"}, {"X-Remote-User-Name": "someone"}
+    assert (await (await client.get("/api/me", headers=kid)).json())["rights"] == {"light": "onoff", "gate": "view"}
+    assert (await (await client.get("/api/me", headers=other)).json())["rights"] == {}
+    import json
+    assert json.loads((tmp_path / "addon_config" / "users.json").read_text("utf-8"))["userRights"] == s["userRights"]   # mirrored too
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "HA_API", "http://127.0.0.1:9")                      # nothing behind it: an allowed call fails later, not with 403
+    dim = {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"brightness_pct": 30}}
+    assert (await client.post("/api/service", json=dim, headers=kid)).status == 403
+    assert (await client.post("/api/service", json={"domain": "lock", "service": "unlock", "entity_id": "lock.door"}, headers=kid)).status == 403
+    assert (await client.post("/api/service", json={"domain": "light", "service": "toggle", "entity_id": "light.x"}, headers=kid)).status != 403
+    assert (await client.post("/api/service", json=dim, headers=other)).status != 403
+
+
+async def test_a_tablets_own_values_and_its_fully_kiosk(client, monkeypatch):
+    """5.13.0: a tablet's own wall tablet values reach it (api/me); api/tablet/screen sets only its own Fully Kiosk entities"""
+    body = {"userKiosk": {"Wand": {"saverAfter": 2, "dimLevel": 0.9, "wakeEntity": "binary_sensor.wand_bewegung", "fullyBright": "number.wand_screen_brightness",
+                                   "fullyScreen": "switch.wand_screen", "brightDay": 60, "brightNight": 5, "screenOff": True, "bogus": 1, "saverSpeed": "warp"},
+                          "x": {"junk": True}},
+            "saver": "floors", "cleanBtn": False, "cleanSecs": 2}
+    s = await (await client.put("/api/settings", json=body)).json()
+    assert s["userKiosk"] == {"Wand": {"saverAfter": 2, "dimLevel": 0.9, "wakeEntity": "binary_sensor.wand_bewegung", "fullyBright": "number.wand_screen_brightness",
+                                       "fullyScreen": "switch.wand_screen", "brightDay": 60, "brightNight": 5, "screenOff": True}}
+    assert (s["saver"], s["cleanBtn"], s["cleanSecs"]) == ("floors", False, 10)
+    wand, other = {"X-Remote-User-Name": "wand"}, {"X-Remote-User-Name": "someone"}
+    assert (await (await client.get("/api/me", headers=wand)).json())["kiosk"]["saverAfter"] == 2
+    assert (await (await client.get("/api/me", headers=other)).json())["kiosk"] == {}
+    calls = []
+
+    async def fake_call(domain, service, data, *a, **k):
+        calls.append((domain, service, data))
+        return True
+
+    async def fake_states(app):
+        return {"number.wand_screen_brightness": {"attributes": {"max": 255}}}
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "ha_call", fake_call)
+    monkeypatch.setattr(server, "ha_states_cached", fake_states)
+    assert (await client.post("/api/tablet/screen", json={"mode": "night"}, headers=other)).status == 404     # no Fully Kiosk for this user
+    assert (await client.post("/api/tablet/screen", json={"mode": "disco"}, headers=wand)).status == 400
+    assert (await client.post("/api/tablet/screen", json={"mode": "night"}, headers=wand)).status == 200
+    assert calls == [("switch", "turn_on", {"entity_id": "switch.wand_screen"}), ("number", "set_value", {"entity_id": "number.wand_screen_brightness", "value": 13})]
+    calls.clear()
+    assert (await client.post("/api/tablet/screen", json={"mode": "off"}, headers=wand)).status == 200
+    assert calls == [("switch", "turn_off", {"entity_id": "switch.wand_screen"})]
+    calls.clear()
+    monkeypatch.setattr(server, "beta_paused", lambda request: True)                  # the beta while the normal add-on runs: nothing
+    assert (await (await client.post("/api/tablet/screen", json={"mode": "day"}, headers=wand)).json())["paused"] is True
+    assert calls == []
+
+
 async def test_the_alarm_panel_can_be_locked_for_a_user(client, monkeypatch):
     """#406: arming and disarming the alarm can be taken away from a tablet on its own; the server refuses it"""
     s = await (await client.put("/api/settings", json={"userLocks": {"Flur": ["alarm"]}})).json()
@@ -998,7 +1054,7 @@ async def test_users_and_tablets_are_mirrored_into_the_config_folder_and_synced_
     assert (await (await client.get("/api/users-file")).json())["exists"] is False
     await client.put("/api/settings", json={"userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d", "tv": "bogus"}})
     import json
-    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}, "userPresets": {}, "userLocks": {}, "startViews": {}, "userBuildings": {}, "userTabs": {}}
+    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}, "userPresets": {}, "userLocks": {}, "startViews": {}, "userBuildings": {}, "userTabs": {}, "userRights": {}, "userKiosk": {}}
     st = await (await client.get("/api/users-file")).json()
     assert st["exists"] and st["inSync"] and st["users"] == 1
 

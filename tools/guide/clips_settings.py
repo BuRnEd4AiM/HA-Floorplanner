@@ -102,9 +102,12 @@ def _(r):
 
 @clip("users", "settings",
       {"de": "Benutzer und Wandtablets", "en": "Users and wall tablets"},
-      {"de": "Für jeden Benutzer oder jedes Tablet: welcher Raum zuerst, welche Seiten, was gesperrt ist.",
-       "en": "For every user or tablet: which room first, which pages, what is locked."},
-      "Benutzer Tablet Wandtablet Rechte sperren Kinder Seiten wer sieht was Admin users tablet wall tablet rights lock children pages admin")
+      {"de": "Für jeden Benutzer oder jedes Tablet: welcher Raum zuerst, welche Seiten, was gesperrt ist, was er je Geräteart schalten darf "
+             "(✋ nur ansehen, 💡 nur an/aus, 🎚 alles) und eigene Werte fürs Wandtablet (Bewegungsmelder, Helligkeit mit Fully Kiosk).",
+       "en": "For every user or tablet: which room first, which pages, what is locked, what it may switch per kind of device "
+             "(✋ only look, 💡 only on/off, 🎚 everything) and its own wall tablet values (motion sensor, brightness with Fully Kiosk)."},
+      "Benutzer Tablet Wandtablet Rechte sperren Kinder Seiten wer sieht was Admin Geräteart nur an aus Fully "
+      "users tablet wall tablet rights lock children pages admin kind of device only on off Fully")
 def _(r):
     r.click("#settingsBtn")
     r.wait(900)
@@ -116,7 +119,14 @@ def _(r):
     r.wait(1300)
     r.poster()
     r.say("Dort wählst du den Raum, die Seiten und was gesperrt ist.", "There you choose the room, the pages and what is locked.")
-    r.wait(1800)
+    r.wait(1500)
+    r.click("#tabletRows .tablet:last-child .presetBtn")
+    r.wait(900)
+    r.js("document.querySelectorAll('#tabletRows .tablet:last-child .rtBox').forEach((d) => { d.open = true; })")
+    r.say("Je Geräteart: ✋ nur ansehen, 💡 nur an und aus, 🎚 alles. Unter „📱 Wandtablet“ eigene Werte für dieses Tablet, auch die Helligkeit mit Fully Kiosk.",
+          "Per kind of device: ✋ only look, 💡 only on and off, 🎚 everything. Under “📱 Wall tablet” own values for this tablet, also the brightness with Fully Kiosk.")
+    r.move("#tabletRows .tablet:last-child .rtBox select[data-right=light]")
+    r.wait(2600)
     r.say("„Wer sieht was“ zeigt alles in einer Tabelle.", "“Who sees what” shows everything in a table.")
     r.click("#pvTableBtn")
     r.wait(2000)
@@ -175,8 +185,8 @@ def _(r):
 
 @clip("kiosk", "settings",
       {"de": "Wandtablet: Startansicht, Bildschirmschoner, Abdunkeln", "en": "Wall tablet: start view, screen saver, dimming"},
-      {"de": "⚙ → Wandtablet: wohin das Tablet nach einer Weile zurückgeht, welcher Bildschirmschoner kommt, wann und wie dunkel es wird, und ein Bewegungsmelder, der es aufweckt.",
-       "en": "⚙ → Wall tablet: where the tablet goes back to after a while, which screen saver comes, when and how dark it dims, and a motion sensor that wakes it up."},
+      {"de": "⚙ → Wandtablet: wohin das Tablet nach einer Weile zurückgeht, welcher Bildschirmschoner kommt, wann und wie dunkel es wird, ein Bewegungsmelder, der es aufweckt, und der 🧽 Putz-Knopf.",
+       "en": "⚙ → Wall tablet: where the tablet goes back to after a while, which screen saver comes, when and how dark it dims, a motion sensor that wakes it up, and the 🧽 cleaning button."},
       "Wandtablet Tablet Kiosk Startansicht zurück Bildschirmschoner dunkel Nacht Bewegungsmelder aufwecken wall tablet kiosk start view screen saver dim night motion sensor wake")
 def _(r):
     r.click("#settingsBtn")
@@ -195,13 +205,17 @@ def _(r):
     for _ in range(4):
         r.pg.mouse.wheel(0, 300)
         r.wait(450)
-    r.wait(1500)
+    r.wait(1200)
+    r.say("Und der 🧽 Putz-Knopf: am Tablet nimmt der Bildschirm dann eine halbe Minute keine Berührung an.",
+          "And the 🧽 cleaning button: on the tablet the screen then ignores every touch for half a minute.")
+    r.move("#setCleanBtn")
+    r.wait(2200)
 
 
 @clip("tablet-saver", "settings",
       {"de": "Bildschirmschoner und Abdunkeln am Wandtablet", "en": "Screen saver and dimming on the wall tablet"},
-      {"de": "⚙ → Wandtablet: das Haus dreht sich, eine große Uhr mit Wetter oder schwarz; abdunkeln nachts oder immer, so dunkel wie du willst, mit Uhr. „▶ … jetzt zeigen“ zeigt es sofort.",
-       "en": "⚙ → Wall tablet: the house turns, a big clock with the weather, or black; dim at night or always, as dark as you like, with a clock. “▶ … now” shows it at once."},
+      {"de": "⚙ → Wandtablet: das Haus dreht sich, die Etagen nacheinander, eine große Uhr mit Wetter oder schwarz; abdunkeln nachts oder immer, so dunkel wie du willst, mit Uhr. „▶ … jetzt zeigen“ zeigt es sofort.",
+       "en": "⚙ → Wall tablet: the house turns, the floors in turn, a big clock with the weather, or black; dim at night or always, as dark as you like, with a clock. “▶ … now” shows it at once."},
       "Bildschirmschoner Uhr Abdunkeln dunkel Nacht Wandtablet Tablet screen saver clock dim dark night wall tablet")
 def _(r):
     r.click("#settingsBtn")
@@ -210,7 +224,7 @@ def _(r):
     r.wait(900)
     r.js("(() => { const s = document.getElementById('setSaver'); s.closest('.sgTile, .row').previousElementSibling?.scrollIntoView({ block: 'start' }); })()")
     r.wait(700)
-    r.say("Der Bildschirmschoner: das Haus dreht sich, eine große Uhr oder schwarz.", "The screen saver: the house turns, a big clock or black.")
+    r.say("Der Bildschirmschoner: das Haus dreht sich, die Etagen nacheinander, eine große Uhr oder schwarz.", "The screen saver: the house turns, the floors in turn, a big clock or black.")
     r.click(".segBtns[data-for=setSaver] button[data-value=clock]")
     r.wait(1400)
     r.say("„Starten nach“: so viele Minuten ohne Berührung.", "“Start after”: this many minutes without a touch.")

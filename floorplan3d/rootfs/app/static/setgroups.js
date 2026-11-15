@@ -186,7 +186,7 @@ export function initSetGroups(ctx) {
   function refresh() {
     const dim = $('#setNightDim')?.value, saver = $('#setSaver')?.value;
     ['#setNightFrom', '#setNightTo'].forEach((s) => { const row = $(s)?.closest('.row'); if (row) row.hidden = dim !== 'time'; });
-    const on = { saver: !!saver && saver !== 'off', orbit: saver === 'orbit', dim: !!dim && dim !== 'off' };
+    const on = { saver: !!saver && saver !== 'off', orbit: saver === 'orbit' || saver === 'floors', dim: !!dim && dim !== 'off' };   // the floors turn too (5.13.0)
     dlg.querySelectorAll('[data-kiosk]').forEach((el) => { el.hidden = !on[el.dataset.kiosk]; });
     label();
   }

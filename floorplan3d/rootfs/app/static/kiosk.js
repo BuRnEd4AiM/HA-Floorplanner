@@ -1,12 +1,25 @@
-/* Wall tablet (#61): after a while without a touch the start view comes back and the screen saver starts (the house turns, a big clock or a
- * black screen); the screen dims at night or whenever nobody touches it, a motion sensor wakes it, the screen may be kept on and the page
+/* Wall tablet (#61): after a while without a touch the start view comes back and the screen saver starts (the house turns, the floors
+ * one after another, a big clock or a black screen); the screen dims at night or whenever nobody touches it, a motion sensor wakes it, the screen may be kept on and the page
  * may load itself again once a day. The rules are pure (tested: tests/kiosk.test.mjs); initKiosk wires them to the page, what the overlays
  * show is in kioskscreen.js. */
 import { nightActive } from './alerts.js';
 import { initKioskScreen } from './kioskscreen.js';
 
-/** the screen savers: off, the house turns, a big clock, a black screen */
-export const SAVERS = ['off', 'orbit', 'clock', 'black'];
+/** the screen savers: off, the house turns, the floors one after another (5.13.0), a big clock, a black screen */
+export const SAVERS = ['off', 'orbit', 'floors', 'clock', 'black'];
+/** the screen saver "floors": each floor this long, the house turning slowly */
+export const FLOOR_SECONDS = 12;
+/** the floors it shows one after another: every floor that is not a roof, the lowest first */
+export function saverFloors(floors) {
+  return (floors || []).map((f, i) => (f?.kind === 'roof' ? -1 : i)).filter((i) => i >= 0);
+}
+/** the next floor of that tour after `cur` (the first one when cur is not in it); null without floors */
+export function nextSaverFloor(list, cur) {
+  if (!list.length) return null;
+  return list[(list.indexOf(cur) + 1) % list.length];
+}
+/** the screen savers in which the house turns */
+const turning = (k) => k === 'orbit' || k === 'floors';
 /** how fast the house turns (OrbitControls' autoRotateSpeed: 1 = one turn a minute); normal is the speed it always had */
 export const SAVER_SPEED = { slow: 0.3, normal: 0.6, fast: 1.5 };
 /** when the screen dims: off, at night by the sun, at night by the clock, always when nobody touches it */
@@ -47,17 +60,22 @@ export const wakeState = (s) => ['on', 'open', 'detected', 'home', 'playing'].in
 /** ctx: $, t, lang(), controls, settings(), states(), isLive(), closeLivePopup(), closeRoomPanel(), closeSearch(), tabletRoom(), findRoomByName(name),
  *  switchFloor(i), focusRoom(id), focusedRoom(), openRoomPanel(id), groundIdx(), fitCamera(),
  *  applyStart() (go to the saved start view: a promise of true / false, null when there is none, #315), homeTab() (the start tab, #479),
- *  houseTab() (the tab with the house: the turning house must be seen), reload() (load the page again) */
+ *  houseTab() (the tab with the house: the turning house must be seen), reload() (load the page again),
+ *  layout(), floorIdx() (the screen saver "floors", 5.13.0), onScreen({ live, saver, dim }) (the 🧽 button and Fully Kiosk follow the
+ *  screen: tabletextras.js, 5.13.0) */
 export function initKiosk(ctx) {
   const { $ } = ctx;
   const loadedAt = Date.now();
   let lastInput = Date.now(), kioskHome = true, saverOn = null, preview = null;   // preview: 'saver' / 'dim' shown by "Ausprobieren" until a touch
+  let floorTimer = 0;                                              // the screen saver "floors": the next floor every FLOOR_SECONDS
+  const told = (dim) => ctx.onScreen?.({ live: ctx.isLive(), saver: saverOn, dim });
   const screen = initKioskScreen({ $, t: ctx.t, lang: ctx.lang, settings: ctx.settings, states: ctx.states, onTouch: () => touched() });
   /** the screen saver ends: the house stops turning, the clock or the black screen goes */
   function stopSaver() {
     if (!saverOn) return;
-    if (saverOn === 'orbit') kioskHome = false;                    // the house stands turned: back to the start view after the idle time again
+    if (turning(saverOn)) kioskHome = false;                       // the house stands turned: back to the start view after the idle time again
     saverOn = null;
+    clearInterval(floorTimer); floorTimer = 0;
     if (ctx.controls.autoRotate) ctx.controls.autoRotate = false;
     screen.saver(null);
   }
@@ -66,6 +84,7 @@ export function initKiosk(ctx) {
     lastInput = Date.now(); preview = null;
     stopSaver();
     screen.dim(false);
+    told(false);
   }
   /** any touch, key or wheel: wake the screen, stop the turning */
   function touched() {
@@ -97,12 +116,18 @@ export function initKiosk(ctx) {
   }
   function startSaver(kind, st) {
     saverOn = kind;
-    if (kind === 'orbit') {
+    if (turning(kind)) {
       if (!kioskHome) { kioskHome = true; goHome(); }
       ctx.houseTab?.();                                            // a page of the tab bar would hide the turning house
       ctx.closeRoomPanel();
       ctx.controls.autoRotate = true;
       ctx.controls.autoRotateSpeed = SAVER_SPEED[st.saverSpeed] || SAVER_SPEED.normal;
+    }
+    if (kind === 'floors' && ctx.layout) {
+      floorTimer = setInterval(() => {
+        const n = nextSaverFloor(saverFloors(ctx.layout().floors), ctx.floorIdx());
+        if (n != null && n !== ctx.floorIdx()) ctx.switchFloor(n);
+      }, FLOOR_SECONDS * 1000);
     }
     screen.saver(kind);
   }
@@ -115,8 +140,9 @@ export function initKiosk(ctx) {
     const d = kioskDecision({ live, idleReturn: st.idleReturn, idleMs, home: kioskHome, night, saver: st.saver, saverAfter: st.saverAfter, saverOn: !!saverOn, dimAfter: st.dimAfter });
     if (d.goHome) { kioskHome = true; goHome(); }
     if (d.saverStart) startSaver(st.saver, st);
-    else if (saverOn === 'orbit') ctx.controls.autoRotateSpeed = SAVER_SPEED[st.saverSpeed] || SAVER_SPEED.normal;
+    else if (turning(saverOn)) ctx.controls.autoRotateSpeed = SAVER_SPEED[st.saverSpeed] || SAVER_SPEED.normal;
     screen.dim(d.dimShown, saverOn);
+    told(d.dimShown);
     screen.keepAwake(!!st.keepAwake && live);
     if (live && reloadDue(st.reloadAt, loadedAt, Date.now(), idleMs)) (ctx.reload || (() => location.reload()))();
   }
@@ -133,6 +159,7 @@ export function initKiosk(ctx) {
       preview = what;
       if (what === 'saver' && st.saver !== 'off') { stopSaver(); startSaver(st.saver, st); }
       if (what === 'dim') screen.dim(true, saverOn);
+      told(what === 'dim');
     }, 50);
   }
   $('#saverTry')?.addEventListener('click', () => tryNow('saver'));

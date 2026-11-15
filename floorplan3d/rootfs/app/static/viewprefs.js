@@ -14,7 +14,7 @@ export const PRESET_FIELDS = {
   houseFloors: ['normal', 'apart', 'stacked'], // the floors of the whole-house view: as built, pulled apart, stacked like a real house
   roomTiles: [true, false],                   // the room tiles at the bottom of the live mode (#421)
   roomLabels: [true, false],                  // the labels over the rooms in the 3D view of the live mode (#430)
-  saver: ['off', 'orbit', 'clock', 'black'],  // the screen saver of a wall tablet (kiosk.js, 5.12.0): only on the tablet, not on the phone
+  saver: ['off', 'orbit', 'floors', 'clock', 'black'],   // the screen saver of a wall tablet (kiosk.js, 5.12.0; floors 5.13.0): only on the tablet, not on the phone
   nightDim: ['off', 'sun', 'time', 'always'], // when its screen dims
   keepAwake: [true, false],                   // its screen stays on
 };

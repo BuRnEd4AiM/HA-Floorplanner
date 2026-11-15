@@ -46,7 +46,7 @@ export function initKioskScreen(ctx) {
   }
   function draw() {
     const st = ctx.settings();
-    saverClock.hidden = !kind || kind === 'black' || (kind === 'orbit' && !st.saverClock);
+    saverClock.hidden = !kind || kind === 'black' || ((kind === 'orbit' || kind === 'floors') && !st.saverClock);   // over the turning house only when wanted
     if (!saverClock.hidden) fill(saverClock, kind === 'clock');
     if (!dimEl.hidden && !dimClock.hidden) fill(dimClock, true);
   }
@@ -59,12 +59,12 @@ export function initKioskScreen(ctx) {
   }
   [dimEl, saverEl].forEach((el) => el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); ctx.onTouch(); }));   // the first touch only wakes the screen
   return {
-    /** the screen saver: null (none), 'orbit' (only the clock over the house, the house turns in kiosk.js), 'clock', 'black' */
+    /** the screen saver: null (none), 'orbit' or 'floors' (only the clock over the house, the house turns in kiosk.js), 'clock', 'black' */
     saver(k) {
       if (k === kind) return;
       kind = k || null;
       saverEl.hidden = !kind;
-      saverEl.className = kind || '';
+      saverEl.className = kind === 'floors' ? 'orbit' : kind || '';   // the floors one after another: like the turning house
       run();
     },
     /** dim the screen (on) or not; `saverKind`: the screen saver running now (a big clock or black: no second clock on the dim layer) */

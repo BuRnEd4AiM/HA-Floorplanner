@@ -20,6 +20,10 @@ import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
 import { initBadges } from './badges.js';
 import { initKiosk } from './kiosk.js';
+import { initTabletExtras } from './tabletextras.js';
+import { kioskFor } from './kioskprefs.js';
+import { initKioskForm } from './kioskprefsui.js';
+import { rightAllows, rightsCss } from './userrights.js';
 import { HOME } from './tabs.js';
 import { cardOptions, initCardMode } from './cardmode.js';
 import { initPhoneMenu, phoneView } from './phonemenu.js';
@@ -214,6 +218,7 @@ let plan = null;                   // 2D blueprint editor
 let layoutMode = '3d';             // '3d' | '2d' | 'split'
 let me = { user: '', canEdit: true, room: null, view: 'all' };
 let locks = new Set();                                    // what this user may not use (userlocks.js, from api/me)
+let rights = {};                                          // what this user may switch per kind of device (userrights.js, from api/me, 5.13.0)
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
 
 const $ = (s) => document.querySelector(s);
@@ -1007,8 +1012,13 @@ const search = initSearch({
 /* ================= Wall tablet (#61): the code lives in kiosk.js ================= */
 const phoneMenu = initPhoneMenu({ $, onPhone: () => applyViewPolicy() });   // phones: the tool bar folds into a ☰ menu, live only 3D (phonemenu.js, #299, #624)
 initSafeArea();   // the iPhone's home bar strip: not kept clear twice in the Home Assistant app (safearea.js)
+const tabletSettings = () => kioskFor(settings, me.kiosk);   // the settings with this tablet's own values over them (kioskprefs.js, 5.13.0)
+const tabletExtras = initTabletExtras({    // 🧽 cleaning and the brightness of Fully Kiosk (tabletextras.js, 5.13.0)
+  $, t, settings: tabletSettings, isPhone: () => phoneMenu.isPhone(), closePopups: () => { popup.close(); search.close(); },
+});
 const kiosk = initKiosk({
-  $, t, lang: () => currentLanguage(), controls, settings: () => settings, states: () => states, isLive: () => isLive(),
+  $, t, lang: () => currentLanguage(), controls, settings: tabletSettings, states: () => states, isLive: () => isLive(),
+  layout: () => layout, floorIdx: () => floorIdx, onScreen: (x) => tabletExtras.onScreen(x),   // the screen saver "floors", 🧽 and Fully Kiosk (5.13.0)
   closeLivePopup: () => popup.close(), closeRoomPanel: () => roomPanel.close(), closeSearch: () => search.close(),
   tabletRoom: () => tabletRoom, findRoomByName: (n) => findRoomByName(n), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom,
   openRoomPanel: (id) => roomPanel.open(id), groundIdx: () => groundIdx(), fitCamera: () => fitCamera(),
@@ -1268,6 +1278,7 @@ const live = initLiveControls({
   onStates: ON_STATES, setStatus: (x) => setStatus(x), afterService: () => { if (!liveChan.ok()) setTimeout(liveChan.poll, 400); },   // with the live channel the new state arrives by itself
   canEdit: () => me.canEdit, settings: () => settings, saveEffectColors: () => saveEffectColors(), canMoreInfo, openMoreInfo,
   locked: (k) => locks.has(k) || (k === 'control' && !!replayBack),   // security view only shows the past
+  refused: (e, svc, data) => !rightAllows(rights, e.split('.')[0], svc, data, states[e]?.dc),   // only on / off or only look for this kind (5.13.0)
 });
 const popup = initLivePopup({
   $, t, lang: () => currentLanguage(), live, floor: () => floor(), findOpening: (id) => findOpening(id), stateText: (id) => stateText(id), openText: (e) => openText(e), windowText: (o) => openings.windowText(o), cams,
@@ -1691,9 +1702,10 @@ function renderProps() { props.render(); }
 
 /* ================= Settings: form, loading, saving and the users dialog live in settings.js (tablet rows and colour scales in settingsui.js);
    applying them to the house and the view stays here ================= */
+const kioskForm = initKioskForm({ $, t, entities: () => entities, states: () => states });   // a tablet's own values and rights in ⚙ → Benutzer & Tablets (kioskprefsui.js, 5.13.0)
 const settingsUi = initSettingsUi({
   $, t, settings: () => settings, defaults: DEFAULT_LOOK, layout: () => layout, houses: () => hs.list(), houseId: () => hs.id(), houseName: () => hs.current()?.name || '', commit: () => commitSettings(),
-  captureView: () => startView.capture(),
+  captureView: () => startView.capture(), kioskForm,
 });
 /* the start view (#315): saved for everybody in the settings, per user in the users dialog; the code lives in startview.js */
 const startView = initStartView({
@@ -1854,6 +1866,8 @@ async function init() {
   if (!(await loadSettings())) setStatus(t('set.notLoaded'));
   settingsStore.usePreset(card ? { ...me.preset, ...card.look } : me.preset, card ? CARD_FIELDS : undefined);   // this user's / tablet's own start values for the look (#250), and the dashboard card's (#13): never saved
   locks = applyLocks(document, me.locks);                 // and what this user may not use: hidden here, control / cameras refused by the server
+  rights = me.rights || {};                               // ... and what he may switch per kind of device (5.13.0): refused by the server too
+  if (rightsCss(rights)) document.head.append(Object.assign(document.createElement('style'), { id: 'userRights', textContent: rightsCss(rights) }));
   lowWalls = settings.lowWalls;
   await loadLanguage(settings.language);                  // fr, es, it, nl, pl, zh: fetched only when chosen (i18n.js)
   setLanguage(settings.language);
@@ -1956,7 +1970,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), kioskSaver: () => kiosk.saver(), kioskWake: () => kiosk.checkWake(), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
+    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), kioskSaver: () => kiosk.saver(), cleaning: () => tabletExtras.cleaning(), kioskWake: () => kiosk.checkWake(), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
     edges: () => edges.info(), edgesCompare: () => edges.compare(scene, camera),   // #560, for tests
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => hs.id(), states: () => states,

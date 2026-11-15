@@ -114,6 +114,9 @@ f("kiosk", "settings", "Wandtablet: Startansicht, Bildschirmschoner, Abdunkeln",
 f("tabletsaver", "settings", "Wandtablet: Bildschirmschoner (Haus dreht sich, große Uhr, schwarz), abdunkeln wann und wie dunkel, Bewegungsmelder weckt, Bildschirm anlassen, täglich neu laden, je Tablet",
   "Wall tablet: screen saver (the house turns, big clock, black), dim when and how dark, a motion sensor wakes it, keep the screen on, reload daily, per tablet",
   ["tablet-saver", "kiosk"], since="5.12.0")
+f("tabletmore", "settings", "Wandtablet: Bildschirmschoner „Etagen nacheinander“, 🧽 Putz-Knopf, mehr eigene Werte je Tablet (Minuten, Bewegungsmelder, wie dunkel, neu laden), Helligkeit mit Fully Kiosk",
+  "Wall tablet: screen saver “floors in turn”, 🧽 cleaning button, more own values per tablet (minutes, motion sensor, how dark, reload), brightness with Fully Kiosk", ["tablet-saver", "kiosk", "users"], since="5.13.0")
+f("rights", "settings", "Je Benutzer und Tablet: je Geräteart ✋ nur ansehen, 💡 nur an/aus oder 🎚 alles", "Per user and tablet: per kind of device ✋ only look, 💡 only on/off or 🎚 everything", ["users"], since="5.13.0")
 f("notify", "settings", "Nachricht aufs Handy bei Alarm", "Message to the phone on an alarm", ["notify"])
 f("backup", "settings", "Backup und Wiederherstellen: alles, auch Codes und Aufzeichnungen", "Backup and restore: everything, codes and recordings too",
   ["backup"], since="4.53.0")
