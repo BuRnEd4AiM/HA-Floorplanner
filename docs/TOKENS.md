@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-15 · 141 Sitzungen
+Stand: 2026-11-15 · 142 Sitzungen
 
-**Insgesamt: 9,32 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 9,39 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 25,4 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 87,4 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 9,20 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 25,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 87,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 9,27 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 55 | 3,19 Mrd. | 7,7 Mio. |
+| 2026-11 | 56 | 3,26 Mrd. | 7,9 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-15 | [018pwcmw…](https://claude.ai/code/session_018pwcmwsV1uuXow6qNKRzfj) | claude/nice-carson-ljuun4 | 68,7 Mio. | 228 Tsd. | gezählt |
 | 2026-11-15 | [018pwcmy…](https://claude.ai/code/session_018pwcmysuNWMteCGdUMYmCm) | claude/hopeful-dijkstra-5ul8bv | 25,3 Mio. | 103 Tsd. | gezählt |
 | 2026-11-14 | [018pwcmx…](https://claude.ai/code/session_018pwcmxjfVfFXxWU64QJ6Lx) | claude/beautiful-mendel-d6z1j6 | 66,9 Mio. | 169 Tsd. | gezählt |
 | 2026-11-14 | [018pwcmz…](https://claude.ai/code/session_018pwcmzkokYFu8uJ4veLtYH) | claude/peaceful-knuth-2re8il | 51,2 Mio. | 191 Tsd. | gezählt |
