@@ -2,6 +2,17 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.13.1] - 2026-11-16
+### Changed
+- **The start is faster on a slow tablet** (#759, the owner, 2026-11-16: "es lädt immer lange"): the page asked the add-on six times in a row (who is looking, the settings, the houses, the plan, the models …) and waited for every answer; now it asks for everything at once. On the rebuilt tablet with 1.5 s per answer the house is there after 3 s instead of more than 10 s.
+- **A loading sign while the page starts**: a turning ring instead of the half-built page (buttons without text, no house, a list of dots at the right). It takes no touch, so nothing is hit by accident.
+
+### Fixed
+- **The touch that wakes the tablet opened a room** (#759: "manchmal leere Sachen … nur wenn ich erneut auf den Stock drücke"): while the screen saver "Haus dreht sich" or "Etagen nacheinander" ran, the waking touch went through to the house and opened the room under the finger on its own (or switched what lay there). The touch only wakes the screen now, like with the big clock and the black screen.
+- **After "Etagen nacheinander" the floor of the tour stayed**: whatever floor the tour had reached (an empty attic, the basement) was left on the screen. Waking the tablet (a touch, the motion sensor) brings the start view back at once.
+- **Opening the app again needed a touch first**: a page that is seen again (the app is opened, the screen goes on) ends the screen saver and the dimming by itself.
+- **The welcome card lay over the page while it loaded**: on a slow start the card "Willkommen" of an empty house showed with three empty buttons until the plan had come, and a touch on it started to draw. It only shows once the plan is loaded and really empty.
+
 ## [5.13.0] - 2026-11-15
 ### Added
 - **🏢 Screen saver "Etagen nacheinander"** (the owner, 2026-11-15: "mehr Einstellungen für Tablets … nicht nur ein und aus"; his choices in the chat, the rest of them came in 5.12.0): ⚙ → 📱 Wandtablet → Bildschirmschoner has a fifth button: the floors one after another, each for 12 seconds, the house turning slowly at the speed set (a clock over it if wanted). Also as a preset per tablet.

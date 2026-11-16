@@ -870,7 +870,8 @@ body.v-2d #status, body.card-nobar #status { bottom: 62px; }
 #nightDim { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .7); display: flex; align-items: center; justify-content: center; }
 #saverScreen { position: fixed; inset: 0; z-index: 49; background: #000; display: flex; align-items: center; justify-content: center; }
 #saverScreen.orbit { inset: 0 0 auto 0; background: none; pointer-events: none; }
-#nightDim[hidden], #saverScreen[hidden], .kClock[hidden] { display: none; }
+#saverCatch { position: fixed; inset: 0; z-index: 48; }
+#nightDim[hidden], #saverScreen[hidden], #saverCatch[hidden], .kClock[hidden] { display: none; }
 /* 🧽 cleaning (5.13.0, tabletextras.js): over everything, every touch swallowed */
 #cleanScreen { position: fixed; inset: 0; z-index: 9999; background: rgba(5, 12, 22, .94); display: grid; place-items: center; touch-action: none; user-select: none; }
 #cleanScreen[hidden] { display: none; }
@@ -3338,3 +3339,8 @@ body.live .v2Nops { display: none; }
 .colorRow .colorBack { flex: 0 0 auto; margin: 0; font-size: 15px; }
 .looksBtn { display: block; width: 100%; margin: 0 0 10px; padding: 6px 8px; font-size: 13px; text-align: left; }
 .roofEd .v2Sec .hd .sum .rfDot { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 50%; vertical-align: -1px; border: 1px solid rgba(0,0,0,.35); }
+
+/* the loading sign while the page starts (5.13.1): the half-built page (buttons without text, no house) stays behind it and takes no touch */
+#bootLoad { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center; background: var(--bg, #0d1117); }
+#bootLoad i { width: 46px; height: 46px; border-radius: 50%; border: 4px solid rgba(127, 127, 127, .3); border-top-color: var(--accent, #3fa9f5); animation: bootSpin .9s linear infinite; }
+@keyframes bootSpin { to { transform: rotate(360deg); } }

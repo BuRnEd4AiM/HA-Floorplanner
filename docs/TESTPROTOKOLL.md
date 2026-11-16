@@ -4,7 +4,7 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.13.0, 2026-11-15)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.13.1, 2026-11-16)
 
 **Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
@@ -52,6 +52,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 38. **Neu in 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern** (Abschnitt 200, #752, #753, #754 von Miicki vom 2026-11-14): Claude hat 200.1 bis 200.9 geprüft (Demo, Browser-Test); für Miicki mit seinem Haus 200.10, für dich dein Eindruck 200.11.
 39. **Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder** (Abschnitt 201, dein Wunsch vom 2026-11-15, #756): Claude hat 201.1 bis 201.7 geprüft (Demo, Browser-Test); für dich auf deinem echten Tablet 201.8 (Bildschirmschoner und Abdunkeln), 201.9 (Bewegungsmelder), 201.10 (Bildschirm anlassen) und dein Eindruck 201.11.
 40. **Neu in 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart** (Abschnitt 202, deine Wahl im Chat vom 2026-11-15): Claude hat 202.1 bis 202.7 geprüft (Demo, nachgebautes iPad, Browser-Test); für dich am echten Tablet 202.8 bis 202.11 (eigener Bewegungsmelder, Fully Kiosk, Putzen, Kindertablet) und dein Eindruck 202.12.
+41. **Neu in 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr** (Abschnitt 203, #759, deine Fotos vom 2026-11-16): Claude hat 203.1 bis 203.4 geprüft (nachgebautes Tablet, Browser-Test); für dich am echten Wandtablet 203.5 bis 203.7 (schneller Start, kein leeres Stockwerk nach dem Aufwecken, sofort drin nach dem Öffnen).
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -510,7 +511,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 200. Neu in 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern (#752, #753, #754 von Miicki) | 9 | 0 | 2 | 0 | 200.10, 200.11 |
 | 201. Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder (#756) | 7 | 0 | 4 | 0 | 201.8 bis 201.11 |
 | 202. Neu in 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart | 7 | 0 | 5 | 0 | 202.8 bis 202.12 |
-| **Zusammen** | **1301** | **2** | **94** | **92** | |
+| 203. Neu in 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr (#759) | 4 | 0 | 3 | 0 | 203.5 bis 203.7 |
+| **Zusammen** | **1305** | **2** | **97** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3089,3 +3091,15 @@ Dein Wunsch vom 2026-11-15 („Kannst du mal mehr Einstellungen für Tablets hin
 | 202.10 | Am echten Tablet mit dem Finger: 🧽 antippen und abwischen | Nichts schaltet sich, nach 30 Sekunden geht es weiter | ❓ |
 | 202.11 | Ein Kindertablet: Licht „💡 nur an/aus“, „🚪 Schlösser, Tore, Garage“ „✋ nur ansehen“ | Licht an/aus geht, dimmen und das Garagentor nicht („🔒 Das darf dieses Tablet …“) | ❓ |
 | 202.12 | Dein Eindruck: sind es jetzt die Einstellungen, die du gemeint hast? | Ja, oder was noch fehlt | ❓ |
+
+## 203. Neu in 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr (#759)
+
+| Nr. | Was tun | Was du sehen solltest | Ergebnis |
+|---|---|---|---|
+| 203.1 | Unit-Test `kiosk`; Browser-Test Teile `91_tablet_more` (vier neue Prüfungen), `07_tablet`, `28_settings`; ruff, eslint | Alles grün | ✅ (2026-11-16, Claude) |
+| 203.2 | Nachgebautes Tablet, jede Antwort des Add-ons 1,5 s später: die Seite öffnen | Ein drehender Ring, dann das Haus nach etwa 3 s (vorher über 10 s mit Knöpfen ohne Text und der Willkommen-Karte) | ✅ (2026-11-16, Claude, nachgebautes Tablet) |
+| 203.3 | Bildschirmschoner „Etagen nacheinander“ läuft, mitten aufs Haus tippen | Der Schoner endet, kein Zimmer geht auf, die Startansicht ist wieder da | ✅ (2026-11-16, Claude, Browser-Test `91_tablet_more`) |
+| 203.4 | Der Schoner läuft, die Seite wird wieder sichtbar (App geöffnet) | Der Schoner endet ohne Tipper | ✅ (2026-11-16, Claude, Browser-Test) |
+| 203.5 | An deinem Wandtablet: die App öffnen (in der Seitenleiste „3D Floorplan Beta“) | Ein drehender Ring, dann das Haus; spürbar schneller als vorher, keine leeren Knöpfe | ❓ |
+| 203.6 | An deinem Wandtablet: warten, bis der Bildschirmschoner läuft, dann einmal tippen | Das Tablet wacht auf, das Haus steht in der Startansicht, kein leeres Stockwerk | ❓ |
+| 203.7 | An deinem Wandtablet: die App verlassen und nach ein paar Minuten wieder öffnen | Du bist sofort drin, ohne erst auf den Bildschirm zu tippen | ❓ |

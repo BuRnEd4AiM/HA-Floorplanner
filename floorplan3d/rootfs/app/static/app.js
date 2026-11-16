@@ -1155,7 +1155,7 @@ buildingsUi = initBuildingsUi({
 });
 initImport({ t, lang: () => currentLanguage(), houseId: () => hs.id(), onImported: (j) => houseLoad.openImported(j) });
 welcomeUi = initWelcome({
-  t, getLayout: () => layout, isEdit: () => !isLive(),
+  t, getLayout: () => layout, isEdit: () => !isLive(), loaded: () => planLoaded,
   draw: () => { $('#viewSplit').click(); setTool('wall'); },
   example: () => houseLoad.openExample(),
   importJson: () => $('#importOpen').click(),
@@ -1853,9 +1853,13 @@ plan = createPlan({
   terrainMove: (id, x, z) => plotUi.terrain.move(id, x, z), terrainPick: (id) => plotUi.terrain.pick(id), terrainClick: (x, z) => plotUi.terrain.click(x, z),
 });
 
+var planLoaded = false;                                   // the plan came from the add-on: only then an empty house is really empty (the welcome card)
 var booted = false;                                       // init() is through: layout, models and first scene are there (test hook ready())
 async function init() {
   if (params.get('kiosk') || card) document.body.classList.add('kiosk');
+  // everything the start needs is asked for at once, not one after another (5.13.1: a slow tablet waited for six answers in a row)
+  const settingsLoad = loadSettings(), modelsLoad = palettes.loadModels();
+  const layoutLoad = hs.load().then(() => persist.load()).then((l) => ({ l }), () => null);
   try { me = await (await fetch('api/me')).json(); } catch { /* standalone */ }
   const start = startup(me, params);                      // wall tablet, room tablet, read-only, live (appstate.js)
   tabletRoom = start.tabletRoom;
@@ -1863,7 +1867,7 @@ async function init() {
   if (tabletRoom) document.body.classList.add('roomtablet');
   if (start.readonly) document.body.classList.add('readonly');
   if (!me.canEdit && me.adminCheck === false) setStatus(t('me.noAdminCheck'));
-  if (!(await loadSettings())) setStatus(t('set.notLoaded'));
+  if (!(await settingsLoad)) setStatus(t('set.notLoaded'));
   settingsStore.usePreset(card ? { ...me.preset, ...card.look } : me.preset, card ? CARD_FIELDS : undefined);   // this user's / tablet's own start values for the look (#250), and the dashboard card's (#13): never saved
   locks = applyLocks(document, me.locks);                 // and what this user may not use: hidden here, control / cameras refused by the server
   rights = me.rights || {};                               // ... and what he may switch per kind of device (5.13.0): refused by the server too
@@ -1874,14 +1878,14 @@ async function init() {
   initLogin(me, t);                                       // without the Supervisor: logged in with Home Assistant (#489)
   full.refresh();                                         // a full screen kept on for this user (#487), in this language
   voiceUi.update();                                       // the 🎤 where this browser can listen and the user may (#509)
-  await hs.load();
-  try { layout = await persist.load(); } catch { setStatus(t('loadFailed')); }
+  const got = await layoutLoad;
+  if (got) { layout = got.l; planLoaded = true; } else setStatus(t('loadFailed'));
   normalizeLayout();
   buildingsUi.start(me.building, (me.locks || []).includes('building'));   // one building of several: this user's / tablet's, maybe kept to it (#409)
   knownRooms = roomIds();
   floorIdx = groundIdx();                                 // start on the ground floor, not in the basement
   hs.renderUi(); neighbors.renderUi();
-  await palettes.loadModels();
+  await modelsLoad;
   applySettings();
   fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); bgUi.render(); renderFloorPanel();
   if (start.live || phoneMenu.isPhone()) setMode('live');
@@ -1945,7 +1949,7 @@ function animate(now = performance.now()) {
   if (layoutMode !== '2d') edges.render(scene, camera, now);  // only the 2D plan shows: the hidden 3D picture is not drawn (#542); edges: #560
   perfHud.frame(now, due, frameStart);
 }
-init();
+init().finally(() => $('#bootLoad')?.remove());         // the loading sign over the half-built page goes (also when the start failed: the status line says why)
 animate();
 
 /* Test hook: only active with ?debug=1, used by the browser tests to find objects on screen. */

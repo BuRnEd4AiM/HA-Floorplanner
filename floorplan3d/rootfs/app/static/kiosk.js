@@ -70,28 +70,34 @@ export function initKiosk(ctx) {
   let floorTimer = 0;                                              // the screen saver "floors": the next floor every FLOOR_SECONDS
   const told = (dim) => ctx.onScreen?.({ live: ctx.isLive(), saver: saverOn, dim });
   const screen = initKioskScreen({ $, t: ctx.t, lang: ctx.lang, settings: ctx.settings, states: ctx.states, onTouch: () => touched() });
-  /** the screen saver ends: the house stops turning, the clock or the black screen goes */
-  function stopSaver() {
+  /** the screen saver ends: the house stops turning, the clock or the black screen goes. `home`: somebody woke the screen while the house
+   *  turned: the start view comes back at once (5.13.1: it stood turned on whatever floor the tour had reached, e.g. an empty attic) */
+  function stopSaver(home = false) {
     if (!saverOn) return;
-    if (turning(saverOn)) kioskHome = false;                       // the house stands turned: back to the start view after the idle time again
+    const turned = turning(saverOn);
     saverOn = null;
     clearInterval(floorTimer); floorTimer = 0;
     if (ctx.controls.autoRotate) ctx.controls.autoRotate = false;
     screen.saver(null);
+    if (turned && home && ctx.isLive()) { kioskHome = true; goHome(); }
+    else if (turned) kioskHome = false;                            // the house stands turned: back to the start view after the idle time again
   }
-  /** somebody is there (a motion sensor): the screen wakes, the view stays as it is */
+  /** somebody is there (a touch, a motion sensor, the page is seen again): the screen wakes */
   function wakeUp() {
     lastInput = Date.now(); preview = null;
-    stopSaver();
+    stopSaver(true);
     screen.dim(false);
     told(false);
   }
   /** any touch, key or wheel: wake the screen, stop the turning */
   function touched() {
-    kioskHome = false;
+    const saved = !!saverOn;
     if (ctx.controls.autoRotate) ctx.controls.autoRotate = false;
     wakeUp();
+    if (!saved) kioskHome = false;                                 // the touch that only woke the screen left the start view as it is
   }
+  /* the page is seen again (the app was opened, the tablet's screen went on): somebody is there, no touch needed to wake it (5.13.1) */
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && (saverOn || screen.dimmed())) wakeUp(); });
   ['pointerdown', 'keydown', 'wheel'].forEach((ev) => addEventListener(ev, touched, { passive: true, capture: true }));
   function goHome() {
     ctx.closeLivePopup(); ctx.closeRoomPanel(); ctx.closeSearch();
