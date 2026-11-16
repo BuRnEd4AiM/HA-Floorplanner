@@ -105,7 +105,7 @@ nops_at = lambda h: (pgW.set_viewport_size({"width": 1400, "height": h}), pgW.wa
 # every tab keeps its name (the owner's iPad, a window with 8 tabs, 2026-11-09: „das sind aktuell nur Icons“): upright beside the panel
 # when they all fit, else across under their signs, on a very low screen the tabs scroll; never only the signs
 check("ui v2 tabs: every tab shows its name", all(n and ok for n, ok in names_v3()) and len(names_v3()) == len(secs_v3), names_v3())
-tall_v3 = nops_at(1500)
+tall_v3 = nops_at(1600)   # 5.14.0: „🔓 Grundriss offen“ is always in the top bar; with a wide font (CI) the bar has one row more there
 check("ui v2 tabs: a tall screen: the names upright beside the panel", "flat" not in tall_v3[0] and tall_v3[1] and all(n and ok for n, ok in names_v3()), [tall_v3, names_v3()])
 low_v3 = nops_at(560)
 check("ui v2 tabs: a low screen: the names across under the signs (not only the signs), the tabs end on the screen",
