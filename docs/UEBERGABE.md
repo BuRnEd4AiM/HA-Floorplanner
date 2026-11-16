@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-16, Version **5.13.1**. Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-16, Version **5.14.0**. Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,13 +10,14 @@ Stand: 2026-11-16, Version **5.13.1**. Erst diese Datei lesen, dann `.claude/CLA
 
 ## Zuletzt
 
+- **2026-11-16, 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen (#761, #762, Branch `claude/zealous-darwin-8lwy2g`):** Sechs Wünsche in einem Chat, mit Fotos seines Hauses (Plateau 0,60 m, Balkon „Raum 17“ im 1. Stock, Garage „Raum 6“): Geländer je Seite mit Geländertür (`railsides.js`, `rail2d.js`), Knopf oben immer da (seine Wahl „Knopf oben“), Balkon über dem Plateau geht mit hoch (`levels.js` `lifter(…, upper)`), Flächen und Plateau gehören zu einem Gebäude (`buildings.js` `areaOwner`), Garage aus dem Plateau ausschneiden (`groundCut`, seine Wahl „Garage unten auf Rasen“, kein Hang), ∟/∥ beim Zeichnen (`drawguide.js`), Haus löschen nur mit eingetipptem Namen (Kopie in `deleted-houses/`).
 - **2026-11-16, 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr (#759, Branch `claude/gracious-dirac-bt3gos`):** Seine zwei Fotos vom Wandtablet („lädt immer lange“, „manchmal leere Sachen … nur wenn ich erneut auf den Stock drücke“). Nachgestellt und repariert: die Seite lädt alles auf einmal und zeigt solange einen Ring (`#bootLoad`), die Willkommen-Karte kommt erst nach dem Plan; der Tipper, der den drehenden Schoner weckt, wird abgefangen (`#saverCatch`) und die Startansicht kommt zurück; eine wieder sichtbare Seite wacht von selbst auf. Ob sein leeres Stockwerk genau daher kam, zeigt erst sein Test.
 - **2026-11-15, 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart (Branch `claude/nice-carson-ljuun4`):** Dieselbe Bitte wie 5.12.0 lief in zwei Chats gleichzeitig; hier wählte er per Auswahl alles Angebotene. 5.12.0 war schon gemergt, darum hier nur, was dort fehlte: Bildschirmschoner `floors` (`kiosk.js`), 🧽 und Fully Kiosk (`tabletextras.js`, `api/tablet/screen`), mehr eigene Werte je Tablet (`userKiosk`, `kioskprefs.js`, Klappe in `kioskprefsui.js`), Schalten je Geräteart ✋/💡/🎚 (`userRights`, `userrights.js`, `tablets.py`, vom Server geprüft).
 - **2026-11-15, 5.12.0: 💤 mehr fürs Wandtablet, Bildschirmschoner repariert (#756, Branch `claude/hopeful-dijkstra-5ul8bv`):** Seine Bitte „mehr Einstellungen für Tablets … nicht nur ein und aus … der Bildschirmschoner glaube ich geht auch nicht“. Der Schoner hing an „Zurück zur Startansicht“ (bei 0 nie, und nie ohne Berührung seit dem Laden). Gebaut: Bildschirmschoner (Haus dreht sich, große Uhr, schwarz; Minuten, Tempo, Uhr), Abdunkeln (auch „Immer“, Minuten, wie dunkel, Uhr), Bewegungsmelder weckt, Bildschirm anlassen, täglich neu laden, je Tablet in „Benutzer & Tablets“, Knöpfe „▶ jetzt zeigen“ (`kiosk.js`, `kioskscreen.js`).
-- **2026-11-14, 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern (#752, #753, #754 von Miicki, Branch `claude/beautiful-mendel-d6z1j6`):** Seine Bitte „Schau dir mal die neuen Issues an … probier die mal umzusetzen und antworte ihm dann“. Gebaut: Dachfarbe und Deckung (Ziegel, Biberschwanz, Schiefer, Blech) im Dach-Editor (`rooflook.js`), Treppenbelag wie ein Raum, Setzstufen, Geländer der Wendeltreppe (`stairlook.js`), Türblatt/Zarge/Fensterrahmen je Öffnung und in ⚙ Haus außen (`doorlook.js`), alles auch im JSON-Import. Gerade, L-, U- und Wandtreppen haben im 3D-Bild noch gar kein Geländer: Miicki gefragt, ob er eins möchte.
 
 ## Offen
 
+- **5.14.0:** sein Test mit seinem Haus (Testprotokoll 204.2 bis 204.9), vor allem Balkon „Raum 17“ (204.5) und Garage „Raum 6“ (204.6).
 - **Tablet 5.13.1 (#759):** sein Test am echten Wandtablet (Testprotokoll 203.5 bis 203.7); kommt das leere Stockwerk noch, fragen, welcher Bildschirmschoner läuft und was davor getippt wurde.
 - **Wandtablet (5.12.0):** sein Eindruck am echten Tablet (Testprotokoll 201.8 bis 201.11); nicht gebaut: echte Helligkeit über Fully Kiosk oder eine Entität, je Tablet ein eigener Bewegungsmelder.
 - **Tablet 5.13.0:** sein Test am echten Tablet (Testprotokoll 202.8 bis 202.12: eigener Bewegungsmelder, Fully Kiosk, Putzen, Kindertablet).

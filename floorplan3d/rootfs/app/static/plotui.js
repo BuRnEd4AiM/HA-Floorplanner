@@ -9,6 +9,7 @@ import { SURFACES, SURFACE_KEYS, DEFAULT_SURFACE, MAX_AREAS, polyArea, perimeter
   surfaceTotals, surfaceColor } from './yard.js';
 import { fmtNum, fmtArea } from './i18n.js';
 import { initPlateauUi } from './plateauui.js';
+import { buildingsOf, areaOwner } from './buildings.js';
 import { initTerrainUi } from './terrainui.js';
 
 /** ctx: $, t, layout(), snapshot(), changed(), setStatus(txt), select(sel), selection(), uid(), fmtLen(m), imperial(), toDisp(m), fromDisp(v),
@@ -188,6 +189,16 @@ export function initPlotUi(ctx) {
       s.value = a.surface;
       s.addEventListener('change', () => { ctx.snapshot(); a.surface = s.value; ctx.changed(); });
       pbody.append(field(t('plot.surface'), s));
+      const bl = buildingsOf(ctx.layout());                     // several buildings (#409): the area shows only with its own (5.14.0, the owner:
+      if (bl.length) {                                          // „ich möchte, dass zum Beispiel der Rasen zu einem Gebäude gehört und dann nur dann sichtbar ist“)
+        const auto = areaOwner(ctx.layout(), { ...a, building: undefined }), nm = (id) => bl.find((x) => x.id === id)?.name || t('bld.unnamed');
+        const b = make('select'); b.id = 'yardBuilding';
+        b.add(new Option(auto ? t('bld.auto', { name: nm(auto) }) : t('bld.areaAll'), ''));
+        bl.forEach((x) => b.add(new Option(x.name || t('bld.unnamed'), x.id)));
+        b.value = bl.some((x) => x.id === a.building) ? a.building : '';
+        b.addEventListener('change', () => { ctx.snapshot(); if (b.value) a.building = b.value; else delete a.building; ctx.changed(); });
+        pbody.append(field(t('bld.user'), b), make('p', 'sub', t('yard.buildingHint')));
+      }
       plateau.areaFields(pbody, a);                             // a plateau: its height, its edge, the steps up (#566)
     }
     const size = make('p', 'plotSize', t('plot.size', { area: m2(pts), len: ctx.fmtLen(perimeter(pts)) })); size.id = 'yardSize';

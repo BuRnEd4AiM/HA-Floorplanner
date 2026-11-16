@@ -47,7 +47,9 @@ export function initHouses(ctx) {
     const cur = houses.find((h) => h.id === houseId);
     try {
       if (kind === 'delete') {
-        if (!confirm(t('house.deleteConfirm'))) return;
+        const want = (cur?.name || '').trim() || t('house.deleteWord'), typed = prompt(t('house.deleteType', { name: want }), '');   // typed, never by accident (5.14.0)
+        if (typed === null) return;
+        if (typed.trim().toLowerCase() !== want.toLowerCase()) { (ctx.alert || alert)(t('house.deleteNo')); return; }
         const r = await fetch(`api/houses/${houseId}`, { method: 'DELETE' });
         if (!r.ok) throw new Error(r.status);
         houses = houses.filter((h) => h.id !== houseId);

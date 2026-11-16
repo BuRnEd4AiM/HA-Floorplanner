@@ -182,6 +182,36 @@ def _num(v, lo=-math.inf, hi=math.inf):
     return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and lo <= v <= hi
 
 
+def _rail_sides(rep, path, v, n):
+    """the railing of a balcony side by side (5.14.0, static/railsides.js): one entry per edge, null (as usual), {"off": true} or from / to
+    (m from the edge's first corner) and a gate {at, w}; None when nothing is set"""
+    if not isinstance(v, list):
+        rep.warn(path, "railSides must be a list (one entry per edge): ignored")
+        return None
+    out = []
+    for k, s in enumerate(v[:n]):
+        if s is None:
+            out.append(None)
+            continue
+        if not isinstance(s, dict):
+            rep.warn(f"{path}[{k}]", "a side is null or an object: as usual")
+            out.append(None)
+            continue
+        if s.get("off") is True:
+            out.append({"off": True})
+            continue
+        side = {k2: round(float(s[k2]), 3) for k2 in ("from", "to") if _num(s.get(k2), 0, 1000)}
+        g = s.get("gate")
+        if isinstance(g, dict) and _num(g.get("at"), 0, 1000):
+            side["gate"] = {"at": round(float(g["at"]), 3), "w": round(min(2.5, max(0.5, float(g["w"]))), 3) if _num(g.get("w")) else 0.9}
+        elif g is not None:
+            rep.warn(f"{path}[{k}].gate", "gate must be {\"at\": m, \"w\": m}: ignored")
+        out.append(side or None)
+    while out and out[-1] is None:
+        out.pop()
+    return out or None
+
+
 def _closet(src: dict) -> dict:
     """a cabinet built in the editor ("cab" of type closet), cleaned like cleanCloset in static/closet.js: columns (width, inside, front,
     hinge), height, depth, plinth, up to two roof slopes (one per side) and the look; anything unknown back to its default"""
@@ -928,6 +958,9 @@ def build_layout(data):
                     rep.warn(f"{rp}.rail", "rail must be \"metal\", \"glass\" or \"wood\": metal used")
                 if r.get("posts") is True:
                     room["posts"] = True                        # a balcony that hangs free: supports down to the ground (#646)
+                sides = _rail_sides(rep, f"{rp}.railSides", r.get("railSides"), len(poly)) if "railSides" in r else None
+                if sides:
+                    room["railSides"] = sides                   # the railing side by side: off, from … to, a gate (5.14.0)
             if _num(r.get("raise"), -ROOM_MAX_RAISE, ROOM_MAX_RAISE) and abs(float(r["raise"])) >= 0.01:
                 room["raise"] = round(float(r["raise"]), 2)     # its floor higher (or lower) than the storey (#566)
                 if r.get("steps") is False:
@@ -1392,7 +1425,7 @@ def layout_to_property(layout, name="Haus"):
             if not (f.get("rooms") or f.get("walls") or f.get("devices")):      # a plain roof; otherwise also its solar panels, a loft's rooms
                 floors.append(item)
                 continue
-        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "tempFrom", "humidFrom", "terrace", "rail", "posts", "raise", "steps", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
+        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "tempFrom", "humidFrom", "terrace", "rail", "posts", "railSides", "raise", "steps", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
         item["walls"] = []
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}

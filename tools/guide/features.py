@@ -116,6 +116,11 @@ f("tabletsaver", "settings", "Wandtablet: Bildschirmschoner (Haus dreht sich, gr
   ["tablet-saver", "kiosk"], since="5.12.0")
 f("tabletmore", "settings", "Wandtablet: Bildschirmschoner „Etagen nacheinander“, 🧽 Putz-Knopf, mehr eigene Werte je Tablet (Minuten, Bewegungsmelder, wie dunkel, neu laden), Helligkeit mit Fully Kiosk",
   "Wall tablet: screen saver “floors in turn”, 🧽 cleaning button, more own values per tablet (minutes, motion sensor, how dark, reload), brightness with Fully Kiosk", ["tablet-saver", "kiosk", "users"], since="5.13.0")
+f("railsides", "edit", "Balkon: Geländer je Seite (aus, nur ein Stück, im Grundriss ziehen), 🚪 Geländertür", "Balcony: the railing side by side (off, only a stretch, dragged in the 2D plan), 🚪 a gate", ["balcony"], since="5.14.0")
+f("planlocktop", "edit", "🔓 „Grundriss offen“ / 🔒 „Grundriss gesperrt“ immer oben in der Leiste", "🔓 “Floor plan open” / 🔒 “Floor plan locked” always in the top bar", ["room-lock"], since="5.14.0")
+f("plotbuildings", "edit", "🏘 Rasen, Wege, Terrassen und Plateaus gehören zu einem Gebäude und zeigen sich nur mit ihm", "🏘 Lawn, paths, terraces and plateaus belong to a building and show only with it", ["plot-buildings"], since="5.14.0")
+f("garagelawn", "edit", "🚗 Garage unten auf dem Rasen: aus dem Plateau ausgeschnitten", "🚗 A garage down on the lawn: cut out of the plateau", ["garage-lawn"], since="5.14.0")
+f("drawguides", "edit", "📐 Beim Zeichnen: ∟ rechter Winkel und ∥ parallel, fast getroffen genau", "📐 While drawing: ∟ right angle and ∥ parallel, almost hit becomes exact", ["walls"], since="5.14.0")
 f("rights", "settings", "Je Benutzer und Tablet: je Geräteart ✋ nur ansehen, 💡 nur an/aus oder 🎚 alles", "Per user and tablet: per kind of device ✋ only look, 💡 only on/off or 🎚 everything", ["users"], since="5.13.0")
 f("notify", "settings", "Nachricht aufs Handy bei Alarm", "Message to the phone on an alarm", ["notify"])
 f("backup", "settings", "Backup und Wiederherstellen: alles, auch Codes und Aufzeichnungen", "Backup and restore: everything, codes and recordings too",

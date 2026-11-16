@@ -2,7 +2,7 @@
  * fields of a plateau (its height over the lawn, its edge: a wall of natural stone, concrete, clinker or gabions, or a bank of lawn) and
  * "＋ Außentreppe" at its front door; the fields of the outdoor steps (device `steps`); a room's floor higher or lower than its storey and
  * whether its doors get steps. The rules are in levels.js (tested). */
-import { cleanRise, cleanRaise, EDGES, WALL_KEYS, WALL_LOOKS, LEVELS, plateauRing, stepsAtDoor, stepsSize } from './levels.js';
+import { cleanRise, cleanRaise, EDGES, WALL_KEYS, WALL_LOOKS, LEVELS, plateauRing, stepsAtDoor, stepsSize, groundCut } from './levels.js';
 import { buildingsOf, roomOwners } from './buildings.js';
 import { houseFootprint } from './earth.js';
 import { inIso } from './roomclip.js';
@@ -20,9 +20,24 @@ function seg(id, items, value, on) {
 }
 const groundIdx = (L) => Math.max(0, (L.floors || []).findIndex((f) => f.kind !== 'basement'));
 
-/** the fields of a room (props.js): its floor over its storey, steps at its doors. u: { t, field, lenInput, snapshot(), changed(), render() } */
+/** the fields of a room (props.js): its floor over its storey, steps at its doors; on the ground floor of a plan with a plateau „🚗 Steht unten
+ *  auf dem Rasen“ (a garage: cut out of the plateau, 5.14.0). u: { t, field, lenInput, snapshot(), changed(), render(), setStatus(txt),
+ *  plateauHere() (the ground floor of a plan with a plateau), groundCut(room, on) (levels.js: how many plateaus changed, -1: a hole) } */
 export function roomLevelFields(body, it, u) {
   const { t } = u;
+  if (u.plateauHere?.() || it.onGround) {
+    const g = make('input'); g.type = 'checkbox'; g.id = 'roomOnGround'; g.checked = !!it.onGround;
+    g.addEventListener('change', () => {
+      u.snapshot();
+      const n = u.groundCut(it, g.checked);
+      u.changed();
+      u.setStatus?.(t(n < 0 ? 'room.onGroundHole' : g.checked ? 'room.onGroundOn' : 'room.onGroundOff', { name: it.name || t('prop.room') }));
+      u.render();
+    });
+    const l = make('label', 'chk'); l.title = t('room.onGroundHint'); l.append(g, document.createTextNode(` ${t('room.onGround')}`));
+    const row = make('div', 'onGroundRow'); row.append(l);                   // a line of its own (a label alone would sit beside the one before)
+    body.append(row);
+  }
   body.append(u.field(t('room.raise'), Object.assign(u.lenInput(() => cleanRaise(it.raise), (v) => {
     const r = cleanRaise(v);
     if (r) it.raise = r; else delete it.raise;
@@ -56,8 +71,9 @@ export function initPlateauUi(ctx) {
   function ringOf(b) {
     const L = ctx.layout(), gi = groundIdx(L), f = L.floors?.[gi];
     if (!f) return null;
-    if (!b) return plateauRing(houseFootprint([f], 0));
-    const rooms = (roomOwners(L)[gi] || []).filter((x) => x.b === b).map((x) => x.room);
+    const low = (r) => !r.onGround;                              // a garage on the lawn is left out (5.14.0, groundCut trims the rest)
+    if (!b && !(f.rooms || []).some((r) => r.onGround)) return plateauRing(houseFootprint([f], 0));
+    const rooms = (b ? (roomOwners(L)[gi] || []).filter((x) => x.b === b).map((x) => x.room) : f.rooms || []).filter(low);
     const walls = (f.walls || []).filter((w) => rooms.some((r) => inIso(r, (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2)));
     return rooms.length ? plateauRing(houseFootprint([{ walls, rooms, blocks: [] }], 0)) : null;
   }
@@ -76,6 +92,8 @@ export function initPlateauUi(ctx) {
       const lay = ctx.layout(), a = { id: ctx.uid(), name: t('plat.name'), surface: 'slabs', points: ring, rise: 0.6, edge: 'wall', wall: 'stone' };
       lay.plot = lay.plot || {};
       (lay.plot.areas ||= []).push(a);
+      const gi = groundIdx(lay);
+      (lay.floors[gi]?.rooms || []).filter((r) => r.onGround).forEach((r) => groundCut(lay, gi, r, true));   // its garages stay on the lawn
       ctx.select({ kind: 'yard', id: a.id });
       ctx.changed();
       ctx.setStatus(t('plat.made', { name: pick.selectedOptions[0]?.textContent || '' }));

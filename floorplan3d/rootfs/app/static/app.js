@@ -42,7 +42,7 @@ import { floorOpenings as floorOpeningsOf, initBlocks } from './blocks.js';
 import { initPlotUi } from './plotui.js';
 import { buildYards } from './yard3d.js';
 import { buildPlateaus } from './plateau3d.js';
-import { groundAt, plateausOf } from './levels.js';
+import { groundAt, plateausOf, groundCut } from './levels.js';
 import { YARD } from './yarddeco.js';
 import { memoField, standsOn } from './terrain.js';
 import { drapeLine } from './terrain3d.js';
@@ -148,7 +148,7 @@ import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.
 import { initSetControls } from './setcontrols.js';
 import { initSetSections } from './setsections.js';
 import { initGuardUi } from './guardui.js';
-import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding } from './buildings.js';
+import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding, areaShown } from './buildings.js';
 import { cardShows, pageShows } from './buildingents.js';
 import { initBuildingScope } from './buildingscope.js';
 import { initBuildingsUi } from './buildingsui.js';
@@ -391,6 +391,8 @@ function refreshView() {
   energyUnitsUi?.invalidate();                                     // power per building: the rooms and devices of each may have changed
 }
 const shownLayout = () => view || layout;
+/** the areas of the plot that show with the building shown: a plateau goes with the building on it (5.14.0, buildings.js areaOwner) */
+const shownAreas = () => { const b = buildingsUi?.shown(); return b ? plotUi.areas().filter((a) => areaShown(layout, a, b, owners)) : plotUi.areas(); };
 const shownFloor = () => shownLayout().floors[floorIdx];
 /** a roof is drawn: it belongs to the building shown or to all of them */
 function roofShown(i, R) {
@@ -531,10 +533,10 @@ function build() {
     plotLoop = loop;
     world.add(loop);
   }
-  if ((houseMode || floorIdx >= groundIdx()) && !iso && plotUi.areas().length) {   // the areas of the plot (#538): yard, terrace, drive ... on the ground
-    const hf = terrainHere();                                    // on a slope they lie on the ground, a plateau stays level (#629)
-    buildYards(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, low: perfParam === 'low', clip: earth.cut() ? earth.plane : null, hf });
-    buildPlateaus(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, clip: earth.cut() ? earth.plane : null, hf });   // their walls or banks (#566)
+  if ((houseMode || floorIdx >= groundIdx()) && !iso && shownAreas().length) {   // the areas of the plot (#538): yard, terrace, drive ... on the ground
+    const hf = terrainHere(), shown = shownAreas();              // on a slope they lie on the ground, a plateau stays level (#629); one building: its plateau
+    buildYards(world, shown, { y: withEarth ? -0.014 : -0.034, holo, low: perfParam === 'low', clip: earth.cut() ? earth.plane : null, hf });
+    buildPlateaus(world, shown, { y: withEarth ? -0.014 : -0.034, holo, clip: earth.cut() ? earth.plane : null, hf });   // their walls or banks (#566)
   }
   if (tool === 'plot') plotUi.render();
   const stacked = floorsMode(settings, houseMode) === 'stacked' && !iso;   // like a real house: ceilings between the floors (housefloors.js)
@@ -1690,6 +1692,8 @@ const props = initProps({
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
   roomSources: (r, mode, chosen) => { const f = layout.floors.find((x) => x.rooms.includes(r)) || floor(); return sourceChoices(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode, partOf(), chosen); },   // 🌡 #705
   lang: () => currentLanguage(),
+  plateauHere: () => floorIdx === groundIdx() && plateausOf(layout.plot?.areas).length > 0,   // „🚗 Steht unten auf dem Rasen“ (a garage, 5.14.0)
+  groundCut: (room, on) => groundCut(layout, groundIdx(), room, on),
   balconyFree: (id) => balconies.freeness(floorIdx, id),        // a balcony that hangs free, all of it or a part (#646, #703): its fields say so
   select: (s) => { multiSel.clear(); selection = s; refreshSelection(); },   // the window above / below a door (#694, openingstackui.js)
   previewTilt: (id) => openings.preview(id), allOpenings: () => layout.floors.flatMap((f) => openingWalls(f).flatMap((w) => w.openings || [])),   // "Kippwinkel" (tiltui.js)
@@ -1847,7 +1851,7 @@ plan = createPlan({
   roomHeat: (room, f) => (viewMode === 'normal' ? null : roomHeat(room, f)),
   states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, windowText: (o) => openings.windowText(o), fmtLen, t, setStatus, measure: measureTool,
   area: (p) => fmtArea(polyArea(p), imperial()),
-  yards: () => plotUi.areas(), yardShown: () => tool === 'plot' || floorIdx === groundIdx(), plotRect: () => plotUi.rect(),   // the plot and its areas (#538)
+  yards: () => shownAreas(), yardShown: () => tool === 'plot' || floorIdx === groundIdx(), plotRect: () => plotUi.rect(),   // the plot and its areas (#538)
   groundIdx: () => groundIdx(),                                   // a plateau lifts the ground floor and the floors over it, not a basement (#713)
   terrainMode: () => tool === 'plot' && plotUi.mode() === 'terrain', terrainSvg: (o) => plotUi.terrain.svg(o), terrainHit: (x, z, tol) => plotUi.terrain.hit(x, z, tol),   // ⛰ spot heights (#629, terrainui.js)
   terrainMove: (id, x, z) => plotUi.terrain.move(id, x, z), terrainPick: (id) => plotUi.terrain.pick(id), terrainClick: (x, z) => plotUi.terrain.click(x, z),

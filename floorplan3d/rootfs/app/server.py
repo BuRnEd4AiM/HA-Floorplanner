@@ -732,9 +732,20 @@ async def delete_house(request):
     houses = houses_index(request)
     if len(houses) < 2 or not any(h["id"] == hid for h in houses):
         return web.json_response({"error": "cannot delete"}, status=400)
+    src = house_file(request, hid)
+    try:                                         # a copy stays (5.14.0, the owner: „das sollte niemals aus Versehen passieren“): the last 10
+        if src.is_file():
+            keep = data_dir(request) / "deleted-houses"
+            keep.mkdir(parents=True, exist_ok=True)
+            name = next((h.get("name", "") for h in houses if h["id"] == hid), "")
+            write_json_atomic(keep / f"{time.strftime('%Y%m%d-%H%M%S')}-{hid}.json", {"id": hid, "name": name, "layout": json.loads(src.read_text(encoding="utf-8"))})
+            for old in sorted(keep.glob("*.json"))[:-10]:
+                old.unlink(missing_ok=True)
+    except (OSError, ValueError):
+        pass
     save_houses(request, [h for h in houses if h["id"] != hid])
     try:
-        house_file(request, hid).unlink()
+        src.unlink()
     except OSError:
         pass
     return web.json_response({"ok": True})

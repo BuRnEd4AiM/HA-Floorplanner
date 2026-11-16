@@ -58,7 +58,8 @@ export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
   /** what the fields of plateauui.js need: a floor higher than its storey, the outdoor steps (#566) */
-  const levelUi = { t, field, lenInput, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), fmtLen: (m) => ctx.fmtLen(m) };
+  const levelUi = { t, field, lenInput, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), fmtLen: (m) => ctx.fmtLen(m),
+    setStatus: (x) => ctx.setStatus(x), plateauHere: () => !!ctx.plateauHere?.(), groundCut: (room, on) => ctx.groundCut?.(room, on) ?? 0 };   // a garage on the lawn (5.14.0)
   const finishUi = initFinishUi({   // floors, walls and accent walls (#448)
     t, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), floor: () => ctx.floor(), imperial: () => ctx.imperial(),
     setStatus: (x) => ctx.setStatus(x),
@@ -209,7 +210,7 @@ export function initProps(ctx) {
     mark(body, 'floor');
     finishUi.floorFields(body, it, () => field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v), { id: 'roomColor' })));
     mark(body, 'balcony');
-    balconyFields(body, it, { t, field, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), free: (id) => ctx.balconyFree?.(id) });   // a balcony / roof terrace (#646)
+    balconyFields(body, it, { t, field, lenInput, fmtLen: (m) => ctx.fmtLen(m), floor: () => ctx.floor(), snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), free: (id) => ctx.balconyFree?.(id) });   // a balcony / roof terrace (#646)
     mark(body, 'level'); roomLevelFields(body, it, levelUi);    // its floor higher or lower than the storey (#566)
     mark(body, 'walls'); finishUi.wallFields(body, it);
     ctx.setRoomCtx(it.id);
