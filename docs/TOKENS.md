@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-16 · 143 Sitzungen
+Stand: 2026-11-16 · 144 Sitzungen
 
-**Insgesamt: 9,39 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 9,50 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 25,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 88,0 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 9,28 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 26,0 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 88,6 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 9,38 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 57 | 3,27 Mrd. | 8,0 Mio. |
+| 2026-11 | 58 | 3,37 Mrd. | 8,2 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-16 | [018pwcmy…](https://claude.ai/code/session_018pwcmyVso4aeGpxYBhTccz) | claude/zealous-darwin-8lwy2g | 103,1 Mio. | 245 Tsd. | gezählt |
 | 2026-11-16 | [012p9z3L…](https://claude.ai/code/session_012p9z3LJwSrnoP2mxZCzpuS) | claude/gracious-dirac-bt3gos | 9,9 Mio. | 46 Tsd. | gezählt |
 | 2026-11-15 | [018pwcmw…](https://claude.ai/code/session_018pwcmwsV1uuXow6qNKRzfj) | claude/nice-carson-ljuun4 | 68,7 Mio. | 228 Tsd. | gezählt |
 | 2026-11-15 | [018pwcmy…](https://claude.ai/code/session_018pwcmysuNWMteCGdUMYmCm) | claude/hopeful-dijkstra-5ul8bv | 25,3 Mio. | 103 Tsd. | gezählt |
