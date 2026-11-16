@@ -245,9 +245,10 @@ t("sceneedit",
 # ---------- drawing the plan (clips_edit.py) ----------
 t("walls",
   "Wand zeichnen Wände ziehen Mauer Grundriss zeichnen Haus zeichnen Haus erstellen Plan erstellen neues Haus Anfang "
-  "erste Schritte bauen Ecke Linie Bearbeiten-Modus Editor Außenwand Innenwand Trennwand",
+  "erste Schritte bauen Ecke Linie Bearbeiten-Modus Editor Außenwand Innenwand Trennwand rechter Winkel 90 Grad parallel gerade Wand "
+  "Winkel anzeigen schief gezeichnet",
   "draw a wall draw walls wall draw a floor plan draw a house create a house make a plan new house getting started "
-  "build corner line edit mode editor outer wall inner wall partition")
+  "build corner line edit mode editor outer wall inner wall partition right angle 90 degrees parallel straight wall show angle drawn crooked")
 t("rooms",
   "Raum erstellen Raum anlegen Zimmer Raumname benennen umbenennen Quadratmeter m² Wohnfläche Größe Fläche berechnen "
   "Räume automatisch erkennen",
@@ -390,11 +391,13 @@ t("balcony",
   "Balkon Balkone Balkon anlegen Balkon hinzufügen Balkongeländer Geländer Brüstung Glasgeländer Glasbalkon Holzgeländer "
   "Holzbalkon Stahlbalkon Vorstellbalkon Stützen Pfosten Säulen Balkonplatte Kragplatte Loggia Austritt Dachterrasse "
   "Terrasse oben wie mache ich einen Balkon Balkon am Hang Balkontür Terrasse über der Garage auskragend Sockel "
-  "Terrasse halb frei zwei Terrassen",
+  "Terrasse halb frei zwei Terrassen Geländertür Tür im Geländer Gartentor Geländer nur an zwei Seiten Geländer kürzen Geländer weglassen "
+  "Geländer je Seite wie weit geht das Geländer Seite ohne Geländer",
   "balcony balconies add a balcony balcony railing railing balustrade glass railing glass balcony wooden railing "
   "wooden balcony steel balcony supported balcony supports posts columns balcony slab cantilever loggia roof terrace "
   "deck upstairs how do I add a balcony balcony on a slope balcony door terrace over the garage overhang plinth "
-  "terrace partly free two terraces")
+  "terrace partly free two terraces gate railing gate railing on two sides only shorter railing leave the railing out "
+  "railing per side how far the railing goes side without railing")
 t("plot-terrain",
   "Hang Hanglage Gefälle abschüssig schräges Grundstück Gelände Höhe Höhenunterschied Höhenlinien Geländemodell "
   "Hanghaus Souterrain Keller frei Böschung Sockel Straße tiefer halber Keller Keller halb aus der Erde Hochparterre Rasen tiefer Geländehöhe",
@@ -442,6 +445,16 @@ t("building-areas",
   "vom anderen Haus Szenen falsches Gebäude ohne Gebäude kein Gebäude zeigt sich immer Keller zuordnen Gartenhaus Einliegerwohnung zwei Häuser trennen",
   "assign an area to a building areas of Home Assistant building assign rooms wrong house devices of the other building automations "
   "of the other house scenes wrong building without a building no building always shows assign the cellar garden house granny flat separate two houses")
+t("plot-buildings",
+  "Rasen einem Gebäude zuordnen Grundstück Gebäude Fläche zuordnen Plateau bleibt stehen Weg Terrasse Garten nur bei einem Haus sichtbar "
+  "Gartenhaus Rasen verschwindet Grundstückszeug zuordnen Flächen des Grundstücks Rasen gehört zu Haus ausblenden",
+  "assign the lawn to a building plot building assign an area plateau stays path terrace garden visible only with one house "
+  "garden house lawn disappears assign plot things areas of the plot lawn belongs to house hide")
+t("garage-lawn",
+  "Garage auf dem Rasen Garage unten Plateau unter Garage Sockel unter Garage Klotz unter der Garage Carport ebenerdig Garage tiefer "
+  "Garage bis zum Boden Einfahrt Garage auf Bodenhöhe Garage zu hoch Garage schwebt Plateau ausschneiden",
+  "garage on the lawn garage down plateau under the garage plinth under the garage block under the garage carport level garage lower "
+  "garage down to the ground driveway garage at ground level garage too high garage floats cut out of the plateau")
 t("energy-buildings",
   "Strom je Gebäude Gebäude im Plan zwei Gebäude Nebengebäude Anbau Gartenhaus Einliegerwohnung Doppelhaus Haupthaus Stromrechner je Haus "
   "getrennt rechnen eigener Stromzähler Gebäude trennen Strom getrennt anzeigen zwei Häuser nebeneinander Bereiche "
@@ -701,6 +714,7 @@ t("roof-editor",
   "plus roof L roof save my roof")
 t("room-lock",
   "Raum sperren Raum festmachen Raum fixieren Wand verrutscht aus Versehen verschoben nicht mehr verschieben Grundriss sperren Grundriss fertig "
-  "Schloss abschließen schützen Wände schützen Gerät sperren Gerät fixieren nur Admin Streifen ausblenden gesperrt anzeigen entsperren",
+  "Schloss abschließen schützen Wände schützen Gerät sperren Gerät fixieren nur Admin Streifen ausblenden gesperrt anzeigen entsperren "
+  "Grundriss offen Knopf oben wo kann ich den Grundriss sperren",
   "lock a room fix a room pin room wall moved by accident stop moving lock the floor plan floor plan finished padlock protect walls "
-  "lock a device pin device admin only hide stripes show locked unlock freeze layout")
+  "lock a device pin device admin only hide stripes show locked unlock freeze layout floor plan open button at the top where do I lock the plan")

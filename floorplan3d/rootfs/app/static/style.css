@@ -3344,3 +3344,14 @@ body.live .v2Nops { display: none; }
 #bootLoad { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center; background: var(--bg, #0d1117); }
 #bootLoad i { width: 46px; height: 46px; border-radius: 50%; border: 4px solid rgba(127, 127, 127, .3); border-top-color: var(--accent, #3fa9f5); animation: bootSpin .9s linear infinite; }
 @keyframes bootSpin { to { transform: rotate(360deg); } }
+/* 🏗 the railing of a balcony side by side (5.14.0, balconyui.js); the numbers are the same as in the 2D plan (rail2d.js) */
+#railSides { margin: 8px 0 4px; }
+#railSides h5 { margin: 6px 0 2px; font-size: 13px; }
+#railSides .railSide { border: 1px solid rgba(255, 183, 77, .35); border-radius: 8px; padding: 4px 8px 6px; margin: 6px 0; }
+#railSides .railSide.off { border-color: rgba(255, 255, 255, .12); opacity: .75; }
+#railSides .railSideHead { font-weight: 600; }
+#railSides .railNum { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%;
+  background: #ffb74d; color: #1d1408; font-size: 11px; font-weight: 700; }
+#railSides .railSide.off .railNum { background: #7d8796; }
+#railSides .railRange { align-items: center; }
+#railSides .railReset { margin-top: 2px; }

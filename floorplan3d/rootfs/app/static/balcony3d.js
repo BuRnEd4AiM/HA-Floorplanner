@@ -4,8 +4,8 @@
 import * as THREE from './vendor/three.module.min.js';
 import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
 import { floorShapes } from './blocks.js';
-import { onBridge } from './bridge.js';
-import { BALCONY, railRuns, railParts, supportSpots, atWall, atRoom, freeParts, outlineBelow, onOutline } from './balcony.js';
+import { BALCONY, railParts, gateParts, supportSpots, atWall, railCover, freeParts, outlineBelow, onOutline } from './balcony.js';
+import { railPlan } from './railsides.js';
 
 const HOLO_RAIL = 0x3df2ff;
 /** the material of a part of the railing (metal, glass, wood) */
@@ -27,24 +27,25 @@ function addMerged(g, byKind, matOf, tag) {
 }
 
 /** Railing round an open room (a balcony, a roof terrace): along every edge that is not a wall, where no other open room of the floor joins
- *  (#703) and where no bridge arrives (the bridges of this floor, and `bridges`: more bridge devices in this floor's frame, e.g. the one
- *  coming over from the next house); its look: room.rail */
+ *  (#703) and where no bridge arrives (balcony.js railCover; `bridges`: more bridge devices in this floor's frame, e.g. the one coming over
+ *  from the next house), on each side only as far as room.railSides says, with its gates (5.14.0, railsides.js); its look: room.rail */
 export function buildRailing(g, room, f, holo, ghost, bridges = []) {
-  const landing = [...(f.devices || []).filter((d) => d.type === 'bridge'), ...bridges];
-  const others = (f.rooms || []).filter((r) => r !== room && r.terrace && r.id !== room.id);   // a terrace drawn as two rooms: no railing between them
-  const covered = (x, z) => landing.some((d) => onBridge(d, x, z)) || atWall(f.walls, x, z) || atRoom(others, x, z);   // a wall (also in a doorway) already closes this spot
-  const byKind = new Map();
-  railRuns(room.points, covered).forEach(({ a, b }) => {
+  const { runs, gates } = railPlan(room, railCover(room, f, bridges));
+  const byKind = new Map(), gateKind = new Map();
+  const place = (list, { a, b }, parts) => {
     const len = Math.hypot(b[0] - a[0], b[1] - a[1]), ux = (b[0] - a[0]) / len, uz = (b[1] - a[1]) / len, rot = -Math.atan2(uz, ux);
-    railParts(len, room.rail).forEach((p) => {
+    parts(len).forEach((p) => {
       const geo = new THREE.BoxGeometry(p.u1 - p.u0, p.y1 - p.y0, p.th), u = (p.u0 + p.u1) / 2;
       geo.rotateY(rot);
       geo.translate(a[0] + ux * u, (p.y0 + p.y1) / 2, a[1] + uz * u);
-      if (!byKind.has(p.mat)) byKind.set(p.mat, []);
-      byKind.get(p.mat).push(geo);
+      if (!list.has(p.mat)) list.set(p.mat, []);
+      list.get(p.mat).push(geo);
     });
-  });
+  };
+  runs.forEach((r) => place(byKind, r, (len) => railParts(len, room.rail)));
+  gates.forEach((r) => place(gateKind, r, (len) => gateParts(len, room.rail)));
   addMerged(g, byKind, (k) => railMaterial(k, holo, ghost), 'railing');
+  addMerged(g, gateKind, (k) => railMaterial(k, holo, ghost), 'railGate');
 }
 
 /** ctx: layout() (the floors drawn), groundIdx(), terrain() (the height of the ground on a slope (x, z) => h, null when level), elev(i),

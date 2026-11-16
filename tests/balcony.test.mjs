@@ -159,3 +159,14 @@ test('supports: a long free edge gets more in between, an inner corner none', ()
   assert.equal(spots.length, 5);
   assert.ok(!spots.some(([x, z]) => Math.abs(x - 2) < 0.3 && Math.abs(z - 2) < 0.3));
 });
+
+test('a gate (5.14.0): two posts, a leaf in a frame filled like the railing, a handle', () => {
+  const metal = B.gateParts(1, undefined), glass = B.gateParts(1, 'glass'), wood = B.gateParts(1, 'wood');
+  const posts = (p) => p.filter((x) => x.y0 === 0 && x.y1 === B.BALCONY.railH);
+  assert.equal(posts(metal).length, 2);
+  assert.equal(glass.filter((x) => x.mat === 'glass').length, 1);
+  assert.ok(metal.filter((x) => x.mat === 'metal').length > 8);                       // bars between the stiles
+  assert.ok(wood.every((x) => x.mat === 'wood' || x.mat === 'metal') && wood.filter((x) => x.mat === 'wood').length > 6);
+  assert.ok(metal.every((x) => x.u0 >= -0.05 && x.u1 <= 1.05));
+  assert.equal(B.gateParts(0.1, 'metal').length, 2);                                  // too narrow for a leaf: only the posts
+});

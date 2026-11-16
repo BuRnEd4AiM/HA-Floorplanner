@@ -60,9 +60,9 @@ def empty_house(walls=False, rooms=False, sofa=False):
 
 @clip("walls", "edit",
       {"de": "Wände zeichnen", "en": "Draw walls"},
-      {"de": "Im Bearbeiten-Modus „Wand“ wählen und Punkt für Punkt klicken. Doppelklick oder Esc beendet die Wand.",
-       "en": "In edit mode choose “Wall” and click point by point. A double click or Esc ends the wall."},
-      "Wand Wände zeichnen Grundriss Haus bauen neu Ecke Raster wall walls draw floor plan build new corner grid",
+      {"de": "Im Bearbeiten-Modus „Wand“ wählen und Punkt für Punkt klicken. Ein grünes ∟ 90° zeigt einen rechten Winkel, ∥ eine Parallele zu einer Wand: fast getroffen rückt der Punkt genau darauf (Alt: frei). Doppelklick oder Esc beendet die Wand.",
+       "en": "In edit mode choose “Wall” and click point by point. A green ∟ 90° shows a right angle, ∥ a line parallel to a wall: almost hit, the point moves exactly onto it (Alt: free). A double click or Esc ends the wall."},
+      "Wand Wände zeichnen Grundriss Haus bauen neu Ecke Raster rechter Winkel parallel wall walls draw floor plan build new corner grid right angle parallel",
       query="mode=edit", prep=empty_house())
 def _(r):
     r.say("Oben im Bearbeiten-Modus: „Wand“.", "At the top in edit mode: “Wall”.")
@@ -73,6 +73,11 @@ def _(r):
     for i, (x, y) in enumerate(BOX + BOX[:1]):
         r.click(cx + x, cy + y, ms=900 if i else 700)
         r.wait(250)
+        if i == 1:
+            r.say("Das grüne ∟ 90° zeigt den rechten Winkel, ∥ eine Parallele; fast getroffen rückt der Punkt genau darauf.",
+                  "The green ∟ 90° shows the right angle, ∥ a parallel; almost hit, the point moves exactly onto it.")
+            r.move(cx + BOX[2][0] + 6, cy + BOX[2][1] + 4, ms=900)
+            r.wait(1600)
         if i == 2:
             r.poster()
     r.say("Esc beendet die Wand.", "Esc ends the wall.")
@@ -721,8 +726,8 @@ def _(r):
 
 @clip("room-lock", "edit",
       {"de": "Räume sperren und „Grundriss fertig“", "en": "Lock rooms and “Floor plan finished”"},
-      {"de": "🔒 oben beim Raum sperrt ihn: Wände und Ecken (auch die Wand zum Nachbarraum) bleiben, dazu nach Wahl Fenster und Türen, die Geräte im Raum und seine Einstellungen; für den Raum, die Etage oder das ganze Haus. Wer trotzdem zieht, bekommt einen Hinweis. „🔒 Grundriss fertig“ sperrt alle Wände und Räume auf einmal (Geräte bleiben frei, nach Wahl nur ein Admin entsperrt), oben steht dann „🔒 Grundriss gesperrt“. „Ansicht“ → „🔒 Gesperrte zeigen“ blendet die Streifen aus. Ein einzelnes Gerät sperrt 🔒 beim Gerät.",
-       "en": "🔒 at the top of a room locks it: walls and corners (also the wall to the room next to it) stay, and as chosen its windows and doors, the devices in it and its settings; for the room, the floor or the whole house. Whoever drags anyway gets a note. “🔒 Floor plan finished” locks every wall and room at once (devices stay free, as chosen only an admin unlocks), then the top says “🔒 Floor plan locked”. “View” → “🔒 Show locked” hides the stripes. 🔒 at a device locks a single device."},
+      {"de": "🔒 oben beim Raum sperrt ihn: Wände und Ecken (auch die Wand zum Nachbarraum) bleiben, dazu nach Wahl Fenster und Türen, die Geräte im Raum und seine Einstellungen; für den Raum, die Etage oder das ganze Haus. Wer trotzdem zieht, bekommt einen Hinweis. Oben neben „Speichern“ steht beim Bearbeiten immer „🔓 Grundriss offen“: ein Tipper sperrt alle Wände und Räume auf einmal (Geräte bleiben frei, nach Wahl nur ein Admin entsperrt), dann steht dort „🔒 Grundriss gesperrt“; genauso 🔓 am Haus im Baum. „Ansicht“ → „🔒 Gesperrte zeigen“ blendet die Streifen aus. Ein einzelnes Gerät sperrt 🔒 beim Gerät.",
+       "en": "🔒 at the top of a room locks it: walls and corners (also the wall to the room next to it) stay, and as chosen its windows and doors, the devices in it and its settings; for the room, the floor or the whole house. Whoever drags anyway gets a note. At the top next to “Save” there is always “🔓 Floor plan open” while editing: one tap locks every wall and room at once (devices stay free, as chosen only an admin unlocks), then it says “🔒 Floor plan locked”; the same with 🔓 at the house in the tree. “View” → “🔒 Show locked” hides the stripes. 🔒 at a device locks a single device."},
       "sperren Raum sperren gesperrt nicht verschieben verrutschen festhalten Schloss Grundriss fertig Wände sperren Gerät sperren nur Admin entsperren lock room locked cannot move fixed padlock floor plan finished lock walls lock device admin unlock",
       query="mode=edit", prep=v2_on)
 def _(r):
@@ -745,13 +750,17 @@ def _(r):
     x, y = r.js("(() => { const p = window.__fp.plan().toClient(6, 2.6); return [p[0], p[1]]; })()")
     r.drag(x, y, x + 60, y, ms=1100)
     r.wait(2200)
-    r.say("„🔒 Grundriss fertig“ sperrt alle Wände und Räume auf einmal, Geräte bleiben frei.", "“🔒 Floor plan finished” locks every wall and room at once, devices stay free.")
+    r.say("Alles auf einmal: oben neben „Speichern“ steht immer „🔓 Grundriss offen“. Ein Tipper sperrt alle Wände und Räume, Geräte bleiben frei.",
+          "Everything at once: at the top next to “Save” it always says “🔓 Floor plan open”. One tap locks every wall and room, devices stay free.")
     r.click("#v2Crumbs button.c", nth=0)                             # „🏠 Demo-Haus“ at the top: nothing selected, the tree shows
-    r.wait(1200)
-    r.click("#planLockSwitch")
-    r.wait(1800)
-    r.say("Oben steht dann „🔒 Grundriss gesperrt“; antippen entsperrt wieder.", "The top then says “🔒 Floor plan locked”; a tap unlocks it again.")
+    r.wait(1000)
     r.move("#planLockPill")
+    r.wait(1200)
+    r.click("#planLockPill")
+    r.wait(1800)
+    r.say("Jetzt steht dort „🔒 Grundriss gesperrt“; antippen entsperrt wieder (nach einer Frage). Dasselbe kann 🔓 beim Haus im Baum.",
+          "Now it says “🔒 Floor plan locked”; a tap unlocks it again (after asking). 🔓 at the house in the tree does the same.")
+    r.move("#planLockSwitch")
     r.wait(1500)
     r.say("„Ansicht“ → „🔒 Gesperrte zeigen“ blendet die Streifen im 3D-Bild aus.", "“View” → “🔒 Show locked” hides the stripes in the 3D picture.")
     r.click("#view3d")
@@ -1497,9 +1506,9 @@ def balcony_view(r):
 
 @clip("balcony", "edit",
       {"de": "Balkon mit Geländer", "en": "A balcony with a railing"},
-      {"de": "Einen Raum vor die Tür zeichnen und „Balkon / Dachterrasse“ ankreuzen: Geländer aus Metall, Glas oder Holz, auf Wunsch Stützen bis zum Boden. Ragt er hinaus oder liegt der Hang tiefer, hängt er frei auf einer Platte; eine Terrasse auf der Garage nur dort, wo sie hinausragt.",
-       "en": "Draw a room in front of the door and tick “Balcony / roof terrace”: a railing of metal, glass or wood, supports down to the ground if you like. Where it reaches out or the slope lies lower, it hangs free on a plate; a terrace on the garage only where it reaches out."},
-      "Balkon Geländer Balkongeländer Glasgeländer Holzgeländer Stützen Dachterrasse Hang Platte balcony railing glass railing wooden railing supports posts roof terrace slope plate",
+      {"de": "Einen Raum vor die Tür zeichnen und „Balkon / Dachterrasse“ ankreuzen: Geländer aus Metall, Glas oder Holz, auf Wunsch Stützen bis zum Boden. „Geländer je Seite“: jede Seite (mit Nummer, auch im Grundriss) aus, nur ein Stück („von … bis“, oder die ◆ im Grundriss ziehen) oder mit 🚪 Geländertür. Ragt er hinaus oder liegt der Hang tiefer, hängt er frei auf einer Platte; eine Terrasse auf der Garage nur dort, wo sie hinausragt.",
+       "en": "Draw a room in front of the door and tick “Balcony / roof terrace”: a railing of metal, glass or wood, supports down to the ground if you like. “Railing side by side”: each side (numbered, also in the 2D plan) off, only a stretch (“from … to”, or drag the ◆ in the 2D plan) or with a 🚪 gate. Where it reaches out or the slope lies lower, it hangs free on a plate; a terrace on the garage only where it reaches out."},
+      "Balkon Geländer Balkongeländer Glasgeländer Holzgeländer Stützen Dachterrasse Hang Platte Geländertür Seite balcony railing glass railing wooden railing supports posts roof terrace slope plate gate side",
       query="mode=edit", prep=balcony_view)
 def _(r):
     r.say("Vor der Balkontür liegt schon ein Raum (Werkzeug „Raum“). Antippen.", "In front of the balcony door there is a room already (tool “Room”). Tap it.")
@@ -1519,7 +1528,15 @@ def _(r):
     r.say("„Stützen bis zum Boden“ stellt Pfosten an die äußeren Ecken.", "“Supports down to the ground” puts posts at the outer corners.")
     r.click("#roomPosts")
     r.wait(1200)
-    r.say("Im 3D-Bild: Glasgeländer, Platte und Stützen, der Hang geht darunter weiter.", "In 3D: a glass railing, the plate and the supports, the slope goes on under it.")
+    r.say("„Geländer je Seite“: die Nummern stehen auch im Grundriss an den Seiten. Seite 3 ausschalten …", "“Railing side by side”: the numbers are at the sides in the 2D plan too. Switch side 3 off …")
+    r.js("document.getElementById('railSides').scrollIntoView({ block: 'center', behavior: 'smooth' })")
+    r.wait(700)
+    r.click("#railSideOn3")
+    r.wait(1400)
+    r.say("… und an Seite 1 eine 🚪 Geländertür. Die Enden ◆ und die Tür ■ lassen sich im Grundriss ziehen.", "… and a 🚪 gate on side 1. The ends ◆ and the gate ■ can be dragged in the 2D plan.")
+    r.click("#railGate0")
+    r.wait(1800)
+    r.say("Im 3D-Bild: Glasgeländer mit Tür, Platte und Stützen, der Hang geht darunter weiter.", "In 3D: a glass railing with its gate, the plate and the supports, the slope goes on under it.")
     r.js("(() => { const s = window.__fp.settings(); s.houseFloors = 'stacked'; s.seeThrough = false; })()")
     r.click("#view3d")
     r.js("window.__fp.setHouseMode(true)")
@@ -1651,9 +1668,9 @@ def _(r):
 @clip("houses", "edit",
       {"de": "Mehrere Häuser und das Nachbarhaus", "en": "Several houses and the neighbour house"},
       {"de": "Ein Plan für jedes Haus (Haupthaus, Ferienhaus, Gartenhaus): oben umschalten; unter „Häuser“ ein neues anlegen, duplizieren, "
-             "umbenennen, löschen; unter „Nachbarhaus“ ein anderes Haus daneben zeigen, verschoben und gedreht.",
+             "umbenennen, löschen (dafür den Namen eintippen); unter „Nachbarhaus“ ein anderes Haus daneben zeigen, verschoben und gedreht.",
        "en": "One plan per house (main house, holiday home, garden house): switch at the top; under “Houses” create a new one, duplicate, "
-             "rename, delete; under “Neighbour house” show another house beside this one, moved and turned."},
+             "rename, delete (typing its name); under “Neighbour house” show another house beside this one, moved and turned."},
       "Häuser mehrere Haus Ferienhaus Nachbarhaus wechseln anlegen duplizieren umbenennen daneben Lage Drehung "
       "houses several house holiday home neighbour house switch create duplicate rename beside position rotation",
       query="mode=edit")
@@ -1788,6 +1805,93 @@ def _(r):
     r.say("Oben ein Gebäude wählen: jede Seite zeigt jetzt nur noch seins.", "Choose a building at the top: every page now shows only its things.")
     r.move("#buildingSelect")
     r.wait(2200)
+
+
+def two_buildings_yard(r):
+    """prep: two_buildings, a lawn beside the house and a plateau under the wing (5.14.0)"""
+    two_buildings(r)
+    r.pg.evaluate("""() => { const fp = window.__fp, L = fp.layout, gi = L.floors.findIndex((f) => f.kind !== 'basement'), f = L.floors[gi];
+      const ps = f.rooms.flatMap((q) => q.points), x1 = Math.max(...ps.map((p) => p[0])), z0 = Math.min(...ps.map((p) => p[1])), z1 = Math.max(...ps.map((p) => p[1]));
+      L.plot = L.plot || {}; L.plot.areas = L.plot.areas || [];
+      L.plot.areas.push({ id: 'clipLawn', name: '', surface: 'lawn', points: [[x1 + 1.5, z0], [x1 + 8, z0], [x1 + 8, z1], [x1 + 1.5, z1]] });
+      fp.rebuild(); }""")
+    r.pg.wait_for_timeout(600)
+
+
+@clip("plot-buildings", "edit",
+      {"de": "🏘 Rasen, Wege und Plateau gehören zu einem Gebäude", "en": "🏘 Lawn, paths and plateau belong to a building"},
+      {"de": "Mit zwei Gebäuden in einem Plan zeigen sich Rasen, Wege, Terrassen und Plateaus bei jedem Gebäude. In „🏘 Gebäude in diesem Plan“ "
+             "unter „Flächen des Grundstücks“ (oder bei der Fläche selbst: „Gebäude“) eine Fläche einem Gebäude geben: dann zeigt sie sich nur, "
+             "wenn oben dieses Gebäude gewählt ist. Ein Plateau gehört von selbst zu dem Gebäude, dessen Räume darauf stehen.",
+       "en": "With two buildings in one plan lawn, paths, terraces and plateaus show with every building. In “🏘 Buildings in this plan” under "
+             "“Areas of the plot” (or at the area itself: “Building”) give an area to a building: then it shows only when that building is "
+             "chosen at the top. A plateau belongs by itself to the building whose rooms stand on it."},
+      "Rasen Gebäude zuordnen Fläche Grundstück Plateau Weg Terrasse nur sichtbar bei Gebäude Gartenhaus "
+      "lawn building assign area plot plateau path terrace only visible with building garden house",
+      query="mode=edit", prep=two_buildings_yard)
+def _(r):
+    ids = r.js("window.__fp.layout.buildings.map((b) => b.id)")
+    r.say("Dieser Plan hat zwei Gebäude und daneben einen Rasen. Öffne „🏘 Gebäude in diesem Plan“.", "This plan has two buildings and a lawn beside them. Open “🏘 Buildings in this plan”.")
+    r.js("document.getElementById('buildingPanel').scrollIntoView({ block: 'start', behavior: 'smooth' })")
+    r.wait(600)
+    r.click("#buildingPanel > summary")
+    r.wait(1200)
+    r.say("Unter „Flächen des Grundstücks“ steht jede Fläche: „Alle Gebäude“ heißt, sie zeigt sich immer.", "Under “Areas of the plot” every area is listed: “All buildings” means it always shows.")
+    r.js("document.querySelector('#buildingPanel select[data-yard=clipLawn]').scrollIntoView({ block: 'center', behavior: 'smooth' })")
+    r.wait(1400)
+    r.poster()
+    r.say("Den Rasen dem Anbau geben …", "Give the lawn to the wing …")
+    r.click("#buildingPanel select[data-yard=clipLawn]")
+    r.loc("#buildingPanel select[data-yard=clipLawn]").select_option(ids[1])
+    r.wait(1500)
+    r.say("… dann ist er weg, wenn oben das Haupthaus gewählt ist. Ein Plateau geht von selbst mit dem Gebäude, das darauf steht.",
+          "… then it is gone when the main house is chosen at the top. A plateau goes by itself with the building standing on it.")
+    r.click("#buildingSelect")
+    r.loc("#buildingSelect").select_option(ids[0])
+    r.wait(2600)
+    r.loc("#buildingSelect").select_option("")
+    r.wait(1500)
+
+
+def garage_plateau(r):
+    """prep: the demo's ground floor with a garage to the right of the house, a plateau 60 cm high as a box round both (5.14.0)"""
+    r.pg.evaluate("""() => { const fp = window.__fp, L = fp.layout, gi = L.floors.findIndex((f) => f.kind !== 'basement'), f = L.floors[gi];
+      const ps = f.rooms.flatMap((q) => q.points), x0 = Math.min(...ps.map((p) => p[0])), x1 = Math.max(...ps.map((p) => p[0]));
+      const z0 = Math.min(...ps.map((p) => p[1])), z1 = Math.max(...ps.map((p) => p[1])), gz = Math.min(z1, z0 + 5.5), W = (id, a, b) => ({ id, a, b, thickness: 0.24, height: 2.6, openings: [] });
+      f.walls.push(W('cgw1', [x1, z0], [x1 + 3.2, z0]), W('cgw2', [x1 + 3.2, z0], [x1 + 3.2, gz]), W('cgw3', [x1 + 3.2, gz], [x1, gz]));
+      f.rooms.push({ id: 'clipGarage', name: 'Garage', color: '#9a948a', points: [[x1, z0], [x1 + 3.2, z0], [x1 + 3.2, gz], [x1, gz]] });
+      L.plot = L.plot || {}; L.plot.areas = (L.plot.areas || []).filter((a) => !(a.rise > 0));
+      L.plot.areas.push({ id: 'clipPlat', name: 'Plateau', surface: 'slabs', rise: 0.6, edge: 'wall', wall: 'stone', points: [[x0 - 0.35, z0 - 0.35], [x1 + 3.55, z0 - 0.35], [x1 + 3.55, z1 + 0.35], [x0 - 0.35, z1 + 0.35]] });
+      const s = fp.settings(); s.houseFloors = 'stacked'; s.seeThrough = false;
+      fp.rebuild(); fp.switchFloor(gi); }""")
+    r.pg.wait_for_timeout(800)
+
+
+@clip("garage-lawn", "edit",
+      {"de": "🚗 Garage unten auf dem Rasen, das Haus auf dem Plateau", "en": "🚗 A garage down on the lawn, the house on the plateau"},
+      {"de": "Steht das Haus auf einem Plateau, liegt eine Garage daneben oft unten auf dem Rasen. Die Garage antippen, unter „Höhe des Bodens“ "
+             "„🚗 Steht unten auf dem Rasen (Garage, Carport)“ ankreuzen: sie wird aus dem Plateau ausgeschnitten, ihr Boden liegt auf dem Rasen.",
+       "en": "When the house stands on a plateau, a garage beside it often lies down on the lawn. Tap the garage, under “Height of the floor” tick "
+             "“🚗 Stands down on the lawn (garage, carport)”: it is cut out of the plateau, its floor lies on the lawn."},
+      "Garage Carport Plateau Rasen unten Boden ebenerdig Sockel Klotz darunter ausschneiden Einfahrt "
+      "garage carport plateau lawn down ground floor level plinth block under it cut out driveway",
+      query="mode=edit", prep=garage_plateau)
+def _(r):
+    r.say("Das Plateau liegt hier auch unter der Garage: sie steht 60 cm hoch auf einem Klotz.", "Here the plateau lies under the garage too: it stands 60 cm up on a block.")
+    r.click("#view3d")
+    r.js("window.__fp.select('room', 'clipGarage')")
+    r.js("window.__fp.camAt(21.5, 8.5, -5.5, 16, 2.5)")
+    r.wait(2600)
+    r.say("Bei der Garage unter „Höhe des Bodens“: „🚗 Steht unten auf dem Rasen“.", "At the garage under “Height of the floor”: “🚗 Stands down on the lawn”.")
+    r.js("document.getElementById('roomOnGround').scrollIntoView({ block: 'center', behavior: 'smooth' })")
+    r.wait(800)
+    r.click("#roomOnGround")
+    r.js("window.__fp.camAt(21.5, 8.5, -5.5, 16, 2.5)")
+    r.wait(2600)
+    r.poster()
+    r.say("Jetzt endet das Plateau am Haus, die Garage liegt unten auf dem Rasen. Der Haken aus gibt sie dem Plateau zurück.",
+          "Now the plateau ends at the house, the garage lies down on the lawn. The tick off gives it back to the plateau.")
+    r.wait(3000)
 
 
 @clip("energy-buildings", "edit",

@@ -2,6 +2,7 @@
  * "Split wall" fields in the wall's properties (props.js), so a corner can be put at an exact distance, also very close to
  * another corner. Doors / windows go with the piece they sit on; the corner is also added to the rooms and blocks that run
  * along this wall, so moving it later keeps them together. Pure logic (no three.js, no DOM), tested in tests/wallsplit.test.mjs. */
+import { splitSide } from './railsides.js';
 
 export const SPLIT_MIN = 0.05;   // a corner keeps at least 5 cm to the ends of the wall
 
@@ -40,7 +41,7 @@ export function splitWall(f, w, d, uid) {
     const ps = poly.points;
     for (let i = 0; i < ps.length; i++) {
       const a = ps[i], b = ps[(i + 1) % ps.length];
-      if (distSeg(pt[0], pt[1], a, b) < 0.03 && Math.hypot(pt[0] - a[0], pt[1] - a[1]) > 0.02 && Math.hypot(pt[0] - b[0], pt[1] - b[1]) > 0.02) { ps.splice(i + 1, 0, [...pt]); break; }
+      if (distSeg(pt[0], pt[1], a, b) < 0.03 && Math.hypot(pt[0] - a[0], pt[1] - a[1]) > 0.02 && Math.hypot(pt[0] - b[0], pt[1] - b[1]) > 0.02) { ps.splice(i + 1, 0, [...pt]); splitSide(poly, i, Math.hypot(pt[0] - a[0], pt[1] - a[1])); break; }   // a balcony keeps its railing per side (5.14.0)
     }
   });
   return second;

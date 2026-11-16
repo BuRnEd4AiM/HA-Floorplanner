@@ -50,3 +50,10 @@ test('distance along a slanted wall', () => {
   assert.equal(S.wallLength(w), 5);
   assert.ok(Math.abs(S.distAlong(w, 1.5, 2) - 2.5) < 1e-9);
 });
+
+test('a balcony along the wall keeps its railing per side at its place (5.14.0)', () => {
+  const f = { walls: [wall()], rooms: [{ id: 'b', terrace: true, points: [[0, 0], [10, 0], [10, -2], [0, -2]], railSides: [null, null, { from: 2, to: 8 }] }] };
+  S.splitWall(f, f.walls[0], 4, uid);
+  assert.deepEqual(f.rooms[0].points[1], [4, 0]);
+  assert.deepEqual(f.rooms[0].railSides, [null, null, null, { from: 2, to: 8 }]);
+});

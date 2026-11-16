@@ -99,6 +99,37 @@ export function pointOwners(ro, x, z, under = () => undefined) {
   const u = under(x, z);
   return u === undefined ? [] : [u];
 }
+/** the building an area of the plot belongs to (5.14.0, the owner: „wenn ich die Räume obendrüber einem Gebäude zuordne … bleibt aber das
+ *  Plateau stehen“): its own (area.building); a plateau without one that of the rooms of the ground floor on it (the room under its middle,
+ *  else the rooms whose middle lies on it when they all belong to one building); an ordinary area, or a plateau under no building's rooms,
+ *  belongs to the plot (null) and shows with every building. ro: roomOwners */
+export function areaOwner(layout, area, ro = null) {
+  if (pickBuilding(layout, area?.building)) return area.building;
+  if (!(+area?.rise > 0) || !polyOk(area)) return null;
+  const floors = layout?.floors || [], gi = Math.max(0, floors.findIndex((f) => f.kind !== 'basement'));
+  const o = ((ro || roomOwners(layout))[gi] || []).filter(({ room }) => polyOk(room));
+  const [cx, cz] = insidePoint(area.points);
+  const under = o.find(({ room }) => pointInPoly(cx, cz, room.points));
+  if (under) return under.b;
+  const on = new Set(o.filter(({ room }) => pointInPoly(...insidePoint(room.points), area.points)).map((x) => x.b));
+  return on.size === 1 ? [...on][0] : null;
+}
+/** the area of the plot shows with building b (null: all buildings shown) */
+export const areaShown = (layout, area, b, ro = null) => { if (!pickBuilding(layout, b)) return true; const o = areaOwner(layout, area, ro); return o === null || o === b; };
+/** the building of the plateau under (x, z) (the last one drawn on top) when it has one, else undefined: what stands on a plateau outside
+ *  the rooms (the steps up to it) goes with it */
+function plateauOwnerAt(layout, ro, x, z, reach = 0) {
+  const pl = (layout?.plot?.areas || []).filter((a) => +a?.rise > 0 && polyOk(a));
+  for (let i = pl.length - 1; i >= 0; i--) if (pointInPoly(x, z, pl[i].points)) return areaOwner(layout, pl[i], ro) ?? undefined;
+  if (!reach) return undefined;
+  let best = null, bd = reach;                                        // outdoor steps stand in front of its edge: the nearest plateau
+  pl.forEach((a) => a.points.forEach((p, k) => {
+    const q = a.points[(k + 1) % a.points.length], dx = q[0] - p[0], dz = q[1] - p[1], l2 = dx * dx + dz * dz || 1;
+    const u = Math.max(0, Math.min(1, ((x - p[0]) * dx + (z - p[1]) * dz) / l2)), d = Math.hypot(x - (p[0] + u * dx), z - (p[1] + u * dz));
+    if (d <= bd) { bd = d; best = a; }
+  }));
+  return best ? areaOwner(layout, best, ro) ?? undefined : undefined;
+}
 /** shows with building b: belongs to no room, to the plot, or to b */
 const shownWith = (owners, b) => !owners.length || owners.some((x) => x === null || x === b);
 /** a piece of a wall shorter than this does not show alone: where a wall of another building meets a room of the one shown */
@@ -138,7 +169,12 @@ export function viewOf(layout, b, owners = null) {
   if (!pickBuilding(layout, b)) return layout;
   const ro = owners || roomOwners(layout);
   return { ...layout, floors: (layout.floors || []).map((f, fi) => {
-    const o = ro[fi] || [], under = (x, z) => groundOwner(layout, ro, fi, x, z), at = (x, z) => shownWith(pointOwners(o, x, z, under), b);
+    const gi = Math.max(0, (layout.floors || []).findIndex((x) => x.kind !== 'basement'));
+    const under = (x, z) => {                                        // in no room on the floors below: on a plateau, its building (5.14.0)
+      const u = groundOwner(layout, ro, fi, x, z);
+      return u === undefined && fi >= gi ? plateauOwnerAt(layout, ro, x, z) : u;
+    };
+    const o = ro[fi] || [], at = (x, z) => shownWith(pointOwners(o, x, z, under), b);
     const inside = (k) => !polyOk(k) || at(...insidePoint(k.points));
     const wallCuts = new Map(), walls = (f.walls || []).filter((w) => {
       const p = wallParts(o, w, b, under);
@@ -150,7 +186,9 @@ export function viewOf(layout, b, owners = null) {
       rooms: o.filter((x) => x.b === null || x.b === b).map((x) => x.room),
       walls,
       wallCuts,
-      devices: (f.devices || []).filter((d) => at(d.x || 0, d.z || 0)),
+      devices: (f.devices || []).filter((d) => (d.type === 'steps' && fi >= gi   // the steps up to a plateau go with it (5.14.0)
+        ? shownWith(pointOwners(o, d.x || 0, d.z || 0, (x, z) => groundOwner(layout, ro, fi, x, z) ?? plateauOwnerAt(layout, ro, x, z, 2.5)), b)
+        : at(d.x || 0, d.z || 0))),
       stairs: (f.stairs || []).filter((s) => at(s.x || 0, s.z || 0)),
       blocks: (f.blocks || []).filter(inside),
       holes: (f.holes || []).filter(inside),

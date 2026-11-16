@@ -200,3 +200,26 @@ test('what lies in no room upstairs belongs to the room under it; in no room on 
   assert.deepEqual(mh.devices.map((d) => d.id), ['l3', 'air']);
   assert.deepEqual(B.viewOf(l, 'gh').floors[0].devices.map((d) => d.id), ['l2', 'bank']);   // the garden bench (ground floor, no room): always
 });
+
+test('a plateau goes with the building of the rooms on it (5.14.0); the steps on it too; an ordinary area stays with the plot', () => {
+  const sq = (x0, z0, x1, z1) => [[x0, z0], [x1, z0], [x1, z1], [x0, z1]];
+  const lay = {
+    buildings: [{ id: 'A', name: 'Haus' }, { id: 'B', name: 'Garten' }],
+    plot: { areas: [{ id: 'pA', rise: 0.6, points: sq(-0.2, -0.2, 10.2, 6.2) }, { id: 'lawn', points: sq(-10, -10, 40, 30) },
+      { id: 'pB', rise: 0.3, points: sq(19.8, -0.2, 24.2, 4.2), building: 'A' }, { id: 'pX', rise: 0.2, points: sq(30, 20, 34, 24) }] },
+    floors: [{ id: 'eg', walls: [], devices: [{ id: 'st', type: 'steps', x: 5, z: 6.1 }, { id: 'st2', type: 'steps', x: 5, z: 7.2 }, { id: 'tree', type: 'tree', x: 30, z: 25 }, { id: 'tree2', type: 'tree', x: 5, z: 7.2 }],
+      rooms: [{ id: 'a1', building: 'A', points: sq(0, 0, 10, 6) }, { id: 'b1', building: 'B', points: sq(20, 0, 24, 4) }] }],
+  };
+  const [pA, lawn, pB, pX] = lay.plot.areas;
+  assert.equal(B.areaOwner(lay, pA), 'A');
+  assert.equal(B.areaOwner(lay, lawn), null);
+  assert.equal(B.areaOwner(lay, pB), 'A');                                         // its own building wins
+  assert.equal(B.areaOwner(lay, pX), null);                                        // under no building's rooms: the plot
+  assert.equal(B.areaShown(lay, pA, 'B'), false);
+  assert.equal(B.areaShown(lay, pA, 'A'), true);
+  assert.equal(B.areaShown(lay, lawn, 'B'), true);
+  assert.equal(B.areaShown(lay, pA, null), true);
+  const vB = B.viewOf(lay, 'B'), vA = B.viewOf(lay, 'A');
+  assert.deepEqual(vB.floors[0].devices.map((d) => d.id), ['tree', 'tree2']);     // the steps on and in front of the plateau of A go with A, a tree there not
+  assert.deepEqual(vA.floors[0].devices.map((d) => d.id), ['st', 'st2', 'tree', 'tree2']);
+});

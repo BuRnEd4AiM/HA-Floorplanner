@@ -1020,6 +1020,21 @@ def test_a_balcony_keeps_its_railing_and_supports():                            
     assert again["Balkon"]["rail"] == "glass" and again["Balkon"]["posts"] is True
 
 
+def test_a_balcony_keeps_its_railing_side_by_side():                                  # 5.14.0: off, from … to, a gate
+    sides = [None, {"off": True}, {"from": 0.5, "to": 2.5, "gate": {"at": 1.5, "w": 0.8}}, "x", {"gate": {"at": 1, "w": 9}}, {"gate": "x"}]
+    rooms = [{"name": "Zimmer", "points": [[0, 0], [4, 0], [4, 3], [0, 3]]},
+             {"name": "Balkon", "points": [[4, 0], [6, 0], [6, 3], [4, 3]], "terrace": True, "railSides": sides},
+             {"name": "Flur", "points": [[0, 3], [4, 3], [4, 5], [0, 5]], "railSides": [{"off": True}]}]
+    layout, _, rep, _ = importer.build_layout(square_flat(rooms=rooms))
+    by = {r["name"]: r for r in layout["floors"][0]["rooms"]}
+    assert by["Balkon"]["railSides"] == [None, {"off": True}, {"from": 0.5, "to": 2.5, "gate": {"at": 1.5, "w": 0.8}}]   # one per edge (4)
+    assert any(w["path"].endswith("railSides[3]") for w in rep.warnings) and "railSides" not in by["Flur"]   # only an open room
+    again = {r["name"]: r for r in importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["rooms"]}
+    assert again["Balkon"]["railSides"] == by["Balkon"]["railSides"]
+    one = importer._rail_sides(importer.Report(), "p", [{"gate": {"at": 1, "w": 9}}, {"gate": "x"}], 4)
+    assert one == [{"gate": {"at": 1.0, "w": 2.5}}]
+
+
 def test_the_floor_covering_of_a_room_survives_import_and_export():                    # parquet, tiles, concrete (#427)
     rooms = [{"name": "Wohnen", "points": [[0, 0], [4, 0], [4, 3], [0, 3]], "covering": "parquet"},
              {"name": "Bad", "points": [[4, 0], [7, 0], [7, 3], [4, 3]], "covering": "marmor"}]

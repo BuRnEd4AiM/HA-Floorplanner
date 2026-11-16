@@ -4,7 +4,7 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.13.1, 2026-11-16)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.14.0, 2026-11-16)
 
 **Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
@@ -53,6 +53,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 39. **Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder** (Abschnitt 201, dein Wunsch vom 2026-11-15, #756): Claude hat 201.1 bis 201.7 geprüft (Demo, Browser-Test); für dich auf deinem echten Tablet 201.8 (Bildschirmschoner und Abdunkeln), 201.9 (Bewegungsmelder), 201.10 (Bildschirm anlassen) und dein Eindruck 201.11.
 40. **Neu in 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart** (Abschnitt 202, deine Wahl im Chat vom 2026-11-15): Claude hat 202.1 bis 202.7 geprüft (Demo, nachgebautes iPad, Browser-Test); für dich am echten Tablet 202.8 bis 202.11 (eigener Bewegungsmelder, Fully Kiosk, Putzen, Kindertablet) und dein Eindruck 202.12.
 41. **Neu in 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr** (Abschnitt 203, #759, deine Fotos vom 2026-11-16): Claude hat 203.1 bis 203.4 geprüft (nachgebautes Tablet, Browser-Test); für dich am echten Wandtablet 203.5 bis 203.7 (schneller Start, kein leeres Stockwerk nach dem Aufwecken, sofort drin nach dem Öffnen).
+42. **Neu in 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen** (Abschnitt 204, deine Wünsche und Bilder vom 2026-11-16): Claude hat 204.1 geprüft (Browser-Test); für dich in der Beta mit deinem Haus 204.2 bis 204.9 (vor allem 204.5 Balkon „Raum 17“ und 204.6 Garage „Raum 6“).
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -512,7 +513,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 201. Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder (#756) | 7 | 0 | 4 | 0 | 201.8 bis 201.11 |
 | 202. Neu in 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart | 7 | 0 | 5 | 0 | 202.8 bis 202.12 |
 | 203. Neu in 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr (#759) | 4 | 0 | 3 | 0 | 203.5 bis 203.7 |
-| **Zusammen** | **1305** | **2** | **97** | **92** | |
+| 204. Neu in 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen | 1 | 0 | 8 | 0 | 204.2 bis 204.9 |
+| **Zusammen** | **1306** | **2** | **105** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3103,3 +3105,17 @@ Dein Wunsch vom 2026-11-15 („Kannst du mal mehr Einstellungen für Tablets hin
 | 203.5 | An deinem Wandtablet: die App öffnen (in der Seitenleiste „3D Floorplan Beta“) | Ein drehender Ring, dann das Haus; spürbar schneller als vorher, keine leeren Knöpfe | ❓ |
 | 203.6 | An deinem Wandtablet: warten, bis der Bildschirmschoner läuft, dann einmal tippen | Das Tablet wacht auf, das Haus steht in der Startansicht, kein leeres Stockwerk | ❓ |
 | 203.7 | An deinem Wandtablet: die App verlassen und nach ein paar Minuten wieder öffnen | Du bist sofort drin, ohne erst auf den Bildschirm zu tippen | ❓ |
+
+## 204. Neu in 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen
+
+| Nr. | Was tun | Was du sehen solltest | Ergebnis |
+|---|---|---|---|
+| 204.1 | Unit-Tests `railsides`, `balcony`, `levels`, `buildings`, `drawguide`, `wallsplit`; `test_import.py`; Browser-Test Teile `92_rail_sides`, `93_plateau_more`, `81_roof_lock`, `03_houses`, `21_buildings`, `48_plot`, `55_levels`, `73_balcony`, `85_wall_mitre`, `02_tools`; ruff, eslint | Alles grün | ✅ (2026-11-16, Claude) |
+| 204.2 | Einen Balkon anklicken, in den Eigenschaften „Geländer je Seite“: eine Seite ausschalten, bei einer anderen „von … bis“ kürzer machen | Im Grundriss stehen dieselben Nummern an den Seiten; im 3D-Bild fehlt das Geländer an der ausgeschalteten Seite, die andere ist kürzer | ❓ |
+| 204.3 | Beim Balkon „🚪 Tür im Geländer“ ankreuzen, im Grundriss das ■ der Tür und die ◆ an den Enden ziehen | Eine Tür im Geländer (Flügel mit Griff); beim Ziehen sagt die Statuszeile, wie weit | ❓ |
+| 204.4 | Bearbeiten: oben neben „Speichern“ „🔓 Grundriss offen“ antippen, dann „🔒 Grundriss gesperrt“ antippen | Erst gesperrt (Wände und Räume lassen sich nicht ziehen), dann nach einer Frage wieder offen | ❓ |
+| 204.5 | Dein Plan mit Plateau: im Obergeschoss den Balkon „Raum 17“ ansehen | Er liegt so hoch wie die Zimmer daneben, nicht mehr 60 cm tiefer; im Grundriss „▲ +0,60 m“ auch beim Balkon | ❓ |
+| 204.6 | Deine Garage „Raum 6“ anklicken, unter „Höhe des Bodens“ „🚗 Steht unten auf dem Rasen“ ankreuzen | Der graue Klotz ist weg, die Garage liegt unten auf dem Rasen, das Haus bleibt oben auf dem Plateau | ❓ |
+| 204.7 | „🏘 Gebäude in diesem Plan“ → „Flächen des Grundstücks“: den Rasen einem Gebäude geben, oben ein anderes Gebäude wählen | Der Rasen ist weg; das Plateau geht von selbst mit dem Gebäude, das darauf steht | ❓ |
+| 204.8 | Eine Wand oder einen Raum zeichnen und mit der Maus fast rechtwinklig oder fast parallel zu einer Wand gehen | Ein grünes ∟ 90° bzw. ∥, der Punkt rückt genau darauf; mit gedrückter Alt-Taste nicht | ❓ |
+| 204.9 | ⚙ → Häuser → „Löschen“, einen falschen Namen eintippen; dann den richtigen | Erst „Nicht gelöscht“, dann ist das Haus weg | ❓ |

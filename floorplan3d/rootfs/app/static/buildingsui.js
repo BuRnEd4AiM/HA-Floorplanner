@@ -5,7 +5,7 @@
  * house of the list in as a building of its own; since 5.5.0 which building an area of Home Assistant belongs to (by itself: where its
  * devices stand in the plan; chosen here: layout.areaBuildings) and what is in no building. The rules are in buildings.js and
  * buildingents.js (tested). */
-import { buildingsOf, showSwitch, pickBuilding, roomOwners, inheritedBuilding, roofOwner, roofsPerBuilding, mergePlan, planBox } from './buildings.js';
+import { buildingsOf, showSwitch, pickBuilding, roomOwners, inheritedBuilding, roofOwner, roofsPerBuilding, mergePlan, planBox, areaOwner } from './buildings.js';
 import { autoRoofBox, partBox } from './roofs.js';
 import { ALL, cleanAreaBuildings } from './buildingents.js';
 
@@ -144,6 +144,21 @@ export function initBuildingsUi(ctx) {
           });
           out.push(el('div', { className: 'stopTools' }, each));
         }
+      });
+    }
+
+    // the areas of the plot (5.14.0): lawn, paths, plateaus … show with every building, or only with the one chosen here; a plateau
+    // goes by itself with the building whose rooms stand on it (the owner: „ich möchte, dass zum Beispiel der Rasen zu einem Gebäude gehört“)
+    const plats = list.length ? (l.plot?.areas || []).filter((a) => Array.isArray(a?.points) && a.points.length >= 3) : [];
+    if (plats.length) {
+      const owners = roomOwners(l);
+      out.push(el('h4', { textContent: t('bld.plateaus') }), el('p', { className: 'sub', textContent: t('bld.plateausHelp') }));
+      plats.forEach((a) => {
+        const auto = areaOwner(l, { ...a, building: undefined }, owners);
+        const s = buildingSelect(a.building, auto ? t('bld.auto', { name: nameOf(auto) }) : t('bld.areaAll'), (id) => edit(() => { if (id) a.building = id; else delete a.building; }));
+        s.dataset.yard = a.id;
+        const plat = +a.rise > 0, label = a.name || (plat ? t('plat.name') : t(`yard.s.${a.surface}`));
+        out.push(el('label', { className: 'bldRoom' }, el('span', { textContent: `${plat ? '▲ ' : ''}${label}` }), s));
       });
     }
 

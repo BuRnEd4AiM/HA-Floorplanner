@@ -155,3 +155,45 @@ test('the stair from the basement up to the ground floor on a plateau reaches th
   near(L.stairLift(0, 2, 1, 0.6, H).scale, (5.6 + 0.6) / 5.6);                                   // over two floors: from the basement to the 1st floor
   assert.equal(L.slabExtra(1, 1, 0.6), 0.6); assert.equal(L.slabExtra(2, 1, 0.6), 0); assert.equal(L.slabExtra(0, 0, 0.6), 0); assert.equal(L.slabExtra(1, 1, 0), 0);
 });
+
+test('upstairs a balcony reaching out beyond the plateau goes up with the house (5.14.0), on the ground floor not', () => {
+  const plateau = [{ points: rect(-0.2, -0.2, 10.2, 6.2), rise: 0.6 }];          // under the house (0 … 10, 0 … 6) and 20 cm round it
+  const bal = { id: 'bal', terrace: true, points: rect(-2, 1, 0, 5) }, room = { id: 'r', points: rect(0, 0, 10, 6) };
+  const f = { rooms: [room, bal], walls: [{ a: [-2, 1], b: [0, 1], thickness: 0.2 }] };
+  const up = L.lifter(f, plateau, null, true);
+  near(up.room(room), 0.6); near(up.room(bal), 0.6);
+  near(up.device({ type: 'lamp', x: -1, z: 3 }), 0.6);                          // what stands on it goes up with it
+  near(up.wall(f.walls[0]), 0.6);                                                // a wall along its side too
+  near(up.ground(-5, 3), 0);                                                     // the garden beyond it stays
+  near(L.lifter(f, plateau).room(bal), 0);                                       // the ground floor: a terrace on the lawn stays there
+  const far = { rooms: [{ id: 'gh', points: rect(20, 0, 24, 4) }] };             // a garden house far off the plateau: not lifted
+  near(L.lifter(far, plateau, null, true).room(far.rooms[0]), 0);
+  near(L.edgeLift(plateau, bal.points), 0.6);
+});
+
+test('a garage on the lawn beside the house on a plateau (5.14.0): cut out of the plateau, its floor stays down, and back', () => {
+  const W = (a, b) => ({ a, b, thickness: 0.3 });
+  const f = { rooms: [{ id: 'h', points: rect(0, 0, 10, 7) }, { id: 'g', points: rect(10, 0, 16, 5) }],
+    walls: [W([0, 0], [10, 0]), W([10, 0], [10, 7]), W([10, 7], [0, 7]), W([0, 7], [0, 0]), W([10, 0], [16, 0]), W([16, 0], [16, 5]), W([16, 5], [10, 5])] };
+  const plateau = { id: 'p', rise: 0.6, points: rect(-0.35, -0.35, 16.35, 7.35) };   // made as a box round house and garage
+  const layout = { floors: [f], plot: { areas: [plateau] } };
+  near(L.lifter(f, [plateau]).room(f.rooms[1]), 0.6);
+  assert.equal(L.groundCut(layout, 0, f.rooms[1], true), 1);
+  assert.equal(f.rooms[1].onGround, true);
+  assert.equal(L.groundAt([plateau], 13, 2.5), 0);                                  // no plateau under the garage any more
+  assert.equal(L.groundAt([plateau], 13, 6.5), 0);                                  // the strip of the box in front of it goes too
+  assert.equal(L.groundAt([plateau], 5, 7.2), 0.6);                                 // the lip in front of the house stays
+  assert.equal(L.groundAt([plateau], 5, 3), 0.6);
+  assert.equal(L.groundAt([plateau], 10, 2.5), 0.6);                                // the wall between house and garage stays on it
+  near(L.lifter(f, [plateau]).room(f.rooms[1]), 0);
+  near(L.lifter(f, [plateau]).room(f.rooms[0]), 0.6);
+  const before = JSON.stringify(plateau.points);
+  near(L.lifter(f, [{ id: 'q', rise: 0.6, points: rect(-1, -1, 20, 9) }]).device({ type: 'car', x: 13, z: 2.5 }), 0);   // what stands in it stays down too
+  assert.equal(L.groundCut(layout, 0, f.rooms[1], false), 1);                       // the tick off: the garage goes back on the plateau
+  assert.equal(f.rooms[1].onGround, undefined);
+  assert.equal(L.groundAt([plateau], 13, 2.5), 0.6);
+  assert.notEqual(JSON.stringify(plateau.points), before);
+  const mid = { floors: [{ rooms: [{ id: 'm', points: rect(4, 2, 6, 4) }], walls: [] }], plot: { areas: [{ rise: 0.6, points: rect(0, 0, 10, 7) }] } };
+  assert.equal(L.groundCut(mid, 0, mid.floors[0].rooms[0], true), -1);              // in the middle of a plateau: no hole cut
+  assert.deepEqual(mid.plot.areas[0].points, rect(0, 0, 10, 7));
+});

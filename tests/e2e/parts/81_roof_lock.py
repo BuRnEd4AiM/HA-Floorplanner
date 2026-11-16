@@ -78,7 +78,14 @@ pgL.mouse.move(x, y); pgL.mouse.down(); pgL.mouse.move(x + 20, y, steps=3); pgL.
 check("plan lock: now no wall moves, the note names the plan", walls_rl() == w1 and "Grundriss" in status_rl(), [status_rl()])
 pgL.evaluate("window.__fp.select(null, null)"); pgL.wait_for_timeout(300)
 pgL.click("#planLockPill"); pgL.wait_for_timeout(500)
-check("plan lock: the pill unlocks (after asking)", L_rl("L.planLock") is None and not pgL.locator("#planLockPill").is_visible(), L_rl("L.planLock"))
+check("plan lock: the pill unlocks (after asking) and stays in the top bar as „🔓 Grundriss offen“ (5.14.0)",
+      L_rl("L.planLock") is None and pgL.locator("#planLockPill").is_visible() and "Grundriss offen" in pgL.inner_text("#planLockPill")
+      and pgL.get_attribute("#planLockPill", "data-lock") == "none", (L_rl("L.planLock"), pgL.inner_text("#planLockPill")))
+pgL.click("#planLockPill"); pgL.wait_for_timeout(500)          # the owner (5.14.0): „Grundriss sperren ist so schwer zu finden“: one tap at the top
+check("plan lock: „🔓 Grundriss offen“ in the top bar locks the plan with one tap",
+      L_rl("JSON.stringify(L.planLock)") == '{"on":true}' and "Grundriss gesperrt" in pgL.inner_text("#planLockPill")
+      and pgL.get_attribute("#planLockPill", "data-lock") == "plan", L_rl("L.planLock"))
+pgL.click("#planLockPill"); pgL.wait_for_timeout(500)
 pgL.click("#viewMenuBtn"); pgL.wait_for_timeout(200)
 pgL.click("#lockHatchToggle"); pgL.wait_for_timeout(200)
 check("„🔒 Gesperrte zeigen“ in „Ansicht“ hides the stripes (kept per device)", pgL.evaluate("localStorage.getItem('fp.lockHatch')") == "off"

@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmyVso4aeGpxYBhTccz",
+ "start": "2026-11-16",
+ "updated": "2026-11-16T17:39:39Z",
+ "branch": "claude/zealous-darwin-8lwy2g",
+ "source": "counted",
+ "input": 482,
+ "cache_write": 489712,
+ "cache_read": 82666377,
+ "output": 221824,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 482,
+   "cache_write": 489712,
+   "cache_read": 82666377,
+   "output": 221824,
+   "requests": 234
+  }
+ }
+}
