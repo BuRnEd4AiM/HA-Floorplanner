@@ -2,6 +2,17 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.13.1] - 2026-11-16
+### Verbessert
+- **Der Start geht am langsamen Tablet schneller** (#759, der Besitzer, 2026-11-16: „es lädt immer lange“): die Seite fragte das Add-on sechsmal nacheinander (wer schaut, die Einstellungen, die Häuser, der Plan, die Modelle …) und wartete auf jede Antwort; jetzt fragt sie alles auf einmal. Am nachgebauten Tablet mit 1,5 s je Antwort steht das Haus nach 3 s da statt nach über 10 s.
+- **Ein Lade-Zeichen, solange die Seite startet**: ein drehender Ring statt der halb fertigen Seite (Knöpfe ohne Text, kein Haus, rechts eine Liste aus Punkten). Er nimmt keine Berührung an, so trifft man nichts aus Versehen.
+
+### Repariert
+- **Der Tipper, der das Tablet weckt, öffnete ein Zimmer** (#759: „manchmal leere Sachen … nur wenn ich erneut auf den Stock drücke“): lief der Bildschirmschoner „Haus dreht sich“ oder „Etagen nacheinander“, ging der Aufweck-Tipper durch bis ins Haus und öffnete das Zimmer unter dem Finger für sich allein (oder schaltete, was dort lag). Der Tipper weckt jetzt nur noch, wie bei der großen Uhr und beim schwarzen Bildschirm.
+- **Nach „Etagen nacheinander“ blieb das Stockwerk der Runde stehen**: das Stockwerk, bei dem die Runde gerade war (ein leerer Dachboden, der Keller), blieb auf dem Bildschirm. Beim Aufwecken (Tipper, Bewegungsmelder) kommt sofort die Startansicht zurück.
+- **Nach dem Öffnen der App musste man erst tippen**: eine Seite, die wieder zu sehen ist (die App wird geöffnet, der Bildschirm geht an), beendet Bildschirmschoner und Abdunkeln von selbst.
+- **Die Willkommen-Karte lag beim Laden über der Seite**: bei einem langsamen Start stand die Karte „Willkommen“ eines leeren Hauses mit drei leeren Knöpfen da, bis der Plan kam, und ein Tipper darauf begann zu zeichnen. Sie kommt erst, wenn der Plan geladen und wirklich leer ist.
+
 ## [5.13.0] - 2026-11-15
 ### Neu
 - **🏢 Bildschirmschoner „Etagen nacheinander“** (der Besitzer, 2026-11-15: „mehr Einstellungen für Tablets … nicht nur ein und aus“; seine Wahl im Chat, der Rest davon kam in 5.12.0): ⚙ → 📱 Wandtablet → Bildschirmschoner hat einen fünften Knopf: die Etagen nacheinander, jede 12 Sekunden, das Haus dreht sich dabei langsam mit der eingestellten Geschwindigkeit (auf Wunsch mit Uhr darüber). Auch als Voreinstellung je Tablet.

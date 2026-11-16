@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3LJwSrnoP2mxZCzpuS",
+ "start": "2026-11-16",
+ "updated": "2026-11-16T10:52:11Z",
+ "branch": "claude/gracious-dirac-bt3gos",
+ "source": "counted",
+ "input": 112,
+ "cache_write": 164190,
+ "cache_read": 9735356,
+ "output": 46357,
+ "models": {
+  "claude-fable-5-2": {
+   "input": 112,
+   "cache_write": 164190,
+   "cache_read": 9735356,
+   "output": 46357,
+   "requests": 58
+  }
+ }
+}

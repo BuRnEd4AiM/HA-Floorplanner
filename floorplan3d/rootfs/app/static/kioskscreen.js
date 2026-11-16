@@ -35,6 +35,10 @@ export function initKioskScreen(ctx) {
   };
   const dimClock = makeClock('kClockDim'), saverClock = makeClock('kClockBig');
   dimEl.append(dimClock); saverEl.append(saverClock);
+  /* while the house turns the clock is only a strip: this clear sheet over the whole page takes the touch that wakes the screen, so it
+   * never opens a room or switches a light under the finger (5.13.1) */
+  const catchEl = document.createElement('div'); catchEl.id = 'saverCatch'; catchEl.hidden = true;
+  document.body.append(catchEl);
   let kind = null, timer = 0, lock = null, asking = false;
   function fill(c, move) {
     const now = new Date(), l = clockLines(now, ctx.lang?.()), [b, span, small] = c.children;
@@ -57,7 +61,7 @@ export function initKioskScreen(ctx) {
     if (on && !timer) timer = setInterval(draw, 5000);
     else if (!on && timer) { clearInterval(timer); timer = 0; }
   }
-  [dimEl, saverEl].forEach((el) => el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); ctx.onTouch(); }));   // the first touch only wakes the screen
+  [dimEl, saverEl, catchEl].forEach((el) => el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); ctx.onTouch(); }));   // the first touch only wakes the screen
   return {
     /** the screen saver: null (none), 'orbit' or 'floors' (only the clock over the house, the house turns in kiosk.js), 'clock', 'black' */
     saver(k) {
@@ -65,6 +69,7 @@ export function initKioskScreen(ctx) {
       kind = k || null;
       saverEl.hidden = !kind;
       saverEl.className = kind === 'floors' ? 'orbit' : kind || '';   // the floors one after another: like the turning house
+      catchEl.hidden = !(kind === 'orbit' || kind === 'floors');
       run();
     },
     /** dim the screen (on) or not; `saverKind`: the screen saver running now (a big clock or black: no second clock on the dim layer) */

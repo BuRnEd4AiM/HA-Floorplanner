@@ -67,12 +67,30 @@ f0 = pgW.evaluate("window.__fp.floorIdx()")
 pgW.evaluate("window.__fp.kioskIdle(90000); window.__fp.kioskTick()"); pgW.wait_for_timeout(800)
 check("tablet: its own minute starts the floors screen saver (the general setting says 5), the house turns",
       pgW.evaluate("window.__fp.kioskSaver()") == "floors" and pgW.evaluate("window.__fp.autoRotate()"), pgW.evaluate("window.__fp.kioskSaver()"))
+fh = pgW.evaluate("window.__fp.floorIdx()")                     # the start floor: the tour begins there
 if nfl >= 2:
     pgW.wait_for_function(f"window.__fp.floorIdx() !== {f0}", timeout=20000)
     check("tablet: after 12 seconds the next floor", pgW.evaluate("window.__fp.floorIdx()") != f0)
 urllib.request.urlopen(HA + "/_set?e=binary_sensor.flur_bewegung&s=on"); pgW.wait_for_timeout(2500)
 check("tablet: its own motion sensor wakes it", pgW.evaluate("window.__fp.kioskSaver()") is None and not pgW.evaluate("window.__fp.autoRotate()"))
 urllib.request.urlopen(HA + "/_set?e=binary_sensor.flur_bewegung&s=off"); pgW.wait_for_timeout(800)
+# 5.13.1: the touch that wakes the screen from the turning house opens no room under the finger, the start view comes back (before: the
+# floor the tour had reached, with a room on its own), and a page that is seen again wakes without a touch
+check("tablet (5.13.1): waking from the floors brings the start floor back", pgW.evaluate("window.__fp.floorIdx()") == fh, [pgW.evaluate("window.__fp.floorIdx()"), fh])
+pgW.evaluate("window.__fp.kioskIdle(90000); window.__fp.kioskTick()"); pgW.wait_for_timeout(800)
+if nfl >= 2:
+    pgW.wait_for_function(f"window.__fp.floorIdx() !== {fh}", timeout=20000)
+vp = pgW.viewport_size
+pgW.touchscreen.tap(vp["width"] // 2, vp["height"] // 2); pgW.wait_for_timeout(800)
+check("tablet (5.13.1): the touch that wakes the turning house opens nothing and brings the start floor back",
+      pgW.evaluate("window.__fp.kioskSaver()") is None and pgW.evaluate("window.__fp.focusedRoom()") is None and pgW.locator("#roomPanel").is_hidden()
+      and pgW.locator("#saverCatch").is_hidden() and pgW.evaluate("window.__fp.floorIdx()") == fh,
+      [pgW.evaluate("window.__fp.focusedRoom()"), pgW.evaluate("window.__fp.floorIdx()"), fh])
+pgW.evaluate("window.__fp.kioskIdle(90000); window.__fp.kioskTick()"); pgW.wait_for_timeout(800)
+on = pgW.evaluate("window.__fp.kioskSaver()")
+pgW.evaluate("document.dispatchEvent(new Event('visibilitychange'))"); pgW.wait_for_timeout(500)
+check("tablet (5.13.1): a page that is seen again wakes without a touch", on == "floors" and pgW.evaluate("window.__fp.kioskSaver()") is None, on)
+check("start (5.13.1): the loading sign is gone once the house is there", pgW.locator("#bootLoad").count() == 0)
 r = pgW.evaluate("""async () => { const r = await fetch('api/service', { method: 'POST', headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ domain: 'light', service: 'turn_on', entity_id: 'light.wohnzimmer', data: { brightness_pct: 30 } }) }); return r.status; }""")
 check("tablet: the add-on refuses a brightness for „only on / off“", r == 403, r)
