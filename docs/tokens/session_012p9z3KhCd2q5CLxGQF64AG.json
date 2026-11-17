@@ -1,13 +1,13 @@
 {
  "session": "session_012p9z3KhCd2q5CLxGQF64AG",
  "start": "2026-11-17",
- "updated": "2026-11-17T13:02:52Z",
+ "updated": "2026-11-17T13:12:05Z",
  "branch": "claude/exciting-edison-r6hv5l",
  "source": "counted",
- "input": 641,
- "cache_write": 995218,
- "cache_read": 118828025,
- "output": 287824,
+ "input": 679,
+ "cache_write": 1023959,
+ "cache_read": 129658245,
+ "output": 305139,
  "models": {
   "claude-fable-5-2": {
    "input": 100,
@@ -17,11 +17,11 @@
    "requests": 50
   },
   "claude-opus-5-5": {
-   "input": 541,
-   "cache_write": 826687,
-   "cache_read": 111126489,
-   "output": 222469,
-   "requests": 255
+   "input": 579,
+   "cache_write": 855428,
+   "cache_read": 121956709,
+   "output": 239784,
+   "requests": 271
   }
  }
 }
