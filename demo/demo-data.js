@@ -770,6 +770,16 @@ function sceneShow(m) {                                 // ▶ Ausprobieren and 
   });
 }
 entities['automation.flurlicht_nachts'].at = nowS() - 17 * 60;
+/* 📡 Funk-Karte (5.17.0): the radio signal of some devices, as Home Assistant's registries would give them (renames.signal_of): Zigbee
+ * lights and contacts with their linkquality (LQI), two WiFi devices in dBm; the bath is far from the router (weak), one is switched off */
+const signalDemo = { of: {}, off: ['sensor.rauchmelder_flur_linkquality'] };
+[['light.wohnzimmer', 168], ['light.stehlampe', 142], ['light.kueche', 74], ['light.schlafzimmer', 121], ['light.bad', 31], ['light.buero', 96],
+  ['binary_sensor.fenster_wohnzimmer', 118], ['binary_sensor.fenster_kueche', 58], ['sensor.bad_feuchte', 22], ['climate.wohnzimmer', 131],
+  ['media_player.tv', -54, 'dBm'], ['climate.klima_buero', -83, 'dBm']].forEach(([e, v, unit = 'lqi']) => {
+  const sig = `sensor.${e.split('.')[1]}_${unit === 'dBm' ? 'wifi_signal' : 'linkquality'}`;
+  entities[sig] = { name: `${e.split('.')[1]} ${unit === 'dBm' ? 'WiFi signal' : 'Linkquality'}`, state: String(v), unit };
+  signalDemo.of[e] = sig;
+});
 /* ☀ Sonnenschutz (5.15.0, sunshade.py): the windows with a shutter as the add-on works them out of this plan (roommap.rooms_of), the sun
  * of the demo's clock (or ?skytime=…), and what the rule does while it is switched on (the shutter in the sun goes down at once) */
 const sunDemo = { on: false, elev: 15, angle: 75, out: 22, inside: 24, pos: 30, back: 20, open: true, clouds: true, skip: [] };
@@ -1422,6 +1432,7 @@ export function installDemoBackend() {
       return json({ ok: true });
     }
     if (path === 'api/batteries') return json(batteryOf);
+    if (path === 'api/signals') return json(signalDemo);                // 📡 Funk-Karte (5.17.0)
     if (path === 'api/log') return json(logAnswer(new URL(url, location.href).searchParams));   // 📜 Protokoll
     if (path === 'api/timeline') {
       return json({ days: recordedDays().map((day) => ({ day, size: JSON.stringify(recordedDay(day).lines).length })), on: true, keepDays: 7, recording: true,

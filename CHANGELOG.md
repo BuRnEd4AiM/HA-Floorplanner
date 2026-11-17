@@ -2,6 +2,11 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.17.0] - 2026-11-17
+### Added
+- **📡 Radio map: how well every device hears its sender** (the owner's choice 2026-11-17, picture docs/ideen-5.15/03): the button **"📡 Funk"** beside the colour views (Normal · Temp. · Feuchte · CO₂ · Strom) shows over every device and window contact of the building shown a small sign with its reception, **green good, yellow middle, red weak** (Zigbee LQI from 110 / 50, WiFi from −67 / −80 dBm), and a card "Empfang im Haus" with the counts, the weakest ones (a tap shows the device in the house) and a tip (a mains-powered Zigbee device near the red ones strengthens the network). The add-on finds the signal entity of each device in Home Assistant's registries (`renames.signal_of`: Zigbee2MQTT's linkquality, ZHA's rssi / lqi, the WiFi signal of ESPHome, Shelly, Tasmota). Zigbee2MQTT and ZHA ship these entities switched off: the card says how many are off and how to switch them on. The signs keep their size on the screen, the weak ones on top.
+- Video guide: the clip "📡 Funk".
+
 ## [5.16.0] - 2026-11-17
 ### Added
 - **📸 Alarm with a picture through your own Telegram bot** (the owner's choice 2026-11-17, pictures docs/ideen-5.15/04, 05: "wäre cool wenn das auch gehen würde über Telegram das mit dem Bild"; his choice: his own bot, the floor plan and a camera): ⚙ → Warnungen & Alarm → Nachricht aufs Handy → **"Telegram – eigener Bot (mit Bild)"**. When water, smoke, gas, carbon monoxide or the alarm goes off, the message comes with **the floor from above, the room in red and a ring where the sensor is** (drawn by the add-on, `alarmpic.py`), and with **the picture of a camera in that room** (Home Assistant's camera picture). The bot is made once with @BotFather (five numbered steps with the link), its key stays in the add-on; **"🔎 Chat finden"** lists who wrote to the bot ("Hallo"), the first one ticked. "Testnachricht" sends a sample picture. Plan and camera can be switched off. CallMeBot, WhatsApp and Home Assistant's notify services stay as they were (text).

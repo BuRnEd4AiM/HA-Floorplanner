@@ -2508,4 +2508,12 @@ export default {
   'an.bot.noChat': 'Bot {bot} encontrado, pero aún sin chat: escríbele «Hola» en Telegram y toca otra vez «Buscar chat».', 'an.bot.chats': '¿A quién?',
   'an.bot.plan': '📸 Enviar el plano con la habitación en rojo', 'an.bot.camera': '📷 Enviar la imagen de una cámara de la habitación',
   'an.ready.bottoken': 'Aún falta la clave del bot.', 'an.ready.botchat': 'Aún falta un chat: escribe «Hola» al bot y luego «Buscar chat».',
+  'rd.btn': '📡 Radio', 'rd.btnTip': 'Lo bien que cada aparato oye su emisor (Zigbee, WiFi …)', 'rd.title': 'Recepción en la casa',
+  'rd.sub': 'Zigbee, WiFi y más: lo bien que cada aparato oye su emisor. Verde bien, amarillo medio, rojo débil.', 'rd.close': 'Cerrar', 'rd.q.good': 'bien',
+  'rd.q.mid': 'medio', 'rd.q.bad': 'débil', 'rd.weakest': 'Los más débiles (toca para verlo en la casa)',
+  'rd.tipBad': 'Un aparato Zigbee con corriente (enchufe, lámpara) cerca de los rojos refuerza la red. En WiFi ayuda un repetidor u otro sitio.',
+  'rd.tipGood': 'Todo bien: ningún aparato con recepción débil.',
+  'rd.none': 'Home Assistant aún no conoce ningún valor de recepción para los aparatos del plano.',
+  'rd.off': '{n} valores de recepción están desactivados en Home Assistant',
+  'rd.offHow': 'Zigbee2MQTT y ZHA los traen desactivados. Para activarlos: Home Assistant → Ajustes → Dispositivos y servicios → Entidades, busca «linkquality» o «rssi», abre la entidad → ⚙ → activa «Habilitado». Aparecen aquí tras un minuto.',
 };

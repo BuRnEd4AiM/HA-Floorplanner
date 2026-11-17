@@ -1416,6 +1416,13 @@ const DICT = {
     'an.bot.noChat': 'Bot {bot} gefunden, aber noch kein Chat: schreib ihm in Telegram „Hallo“ und tippe noch einmal „Chat finden“.', 'an.bot.chats': 'An wen?',
     'an.bot.plan': '📸 Grundriss mit dem Raum in Rot mitschicken', 'an.bot.camera': '📷 Bild einer Kamera im Raum mitschicken',
     'an.ready.bottoken': 'Es fehlt noch der Schlüssel des Bots.', 'an.ready.botchat': 'Es fehlt noch ein Chat: dem Bot „Hallo“ schreiben, dann „Chat finden“.',
+    'rd.btn': '📡 Funk', 'rd.btnTip': 'Wie gut jedes Gerät seinen Sender hört (Zigbee, WLAN …)', 'rd.title': 'Empfang im Haus',
+    'rd.sub': 'Zigbee, WLAN und mehr: wie gut jedes Gerät seinen Sender hört. Grün gut, gelb mittel, rot schwach.', 'rd.close': 'Schließen', 'rd.q.good': 'gut',
+    'rd.q.mid': 'mittel', 'rd.q.bad': 'schwach', 'rd.weakest': 'Am schwächsten (antippen zeigt es im Haus)',
+    'rd.tipBad': 'Ein Zigbee-Gerät mit Strom (Steckdose, Lampe) in der Nähe der roten Geräte verstärkt das Netz. Bei WLAN hilft ein Repeater oder ein anderer Platz.',
+    'rd.tipGood': 'Alles in Ordnung: kein Gerät mit schwachem Empfang.', 'rd.none': 'Für die Geräte im Grundriss kennt Home Assistant noch keinen Empfangswert.',
+    'rd.off': '{n} Empfangswerte sind in Home Assistant ausgeschaltet',
+    'rd.offHow': 'Zigbee2MQTT und ZHA liefern sie ausgeschaltet. Einschalten: Home Assistant → Einstellungen → Geräte & Dienste → Entitäten, nach „linkquality“ oder „rssi“ suchen, die Entität öffnen → ⚙ → „Aktiviert“ einschalten. Nach etwa einer Minute erscheinen sie hier.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2779,6 +2786,13 @@ const DICT = {
     'an.bot.noChat': 'Bot {bot} found, but no chat yet: write “Hello” to it in Telegram and tap “Find chat” again.', 'an.bot.chats': 'To whom?',
     'an.bot.plan': '📸 Send the floor plan with the room in red', 'an.bot.camera': '📷 Send the picture of a camera in the room',
     'an.ready.bottoken': 'The key of the bot is still missing.', 'an.ready.botchat': 'A chat is still missing: write “Hello” to the bot, then “Find chat”.',
+    'rd.btn': '📡 Radio', 'rd.btnTip': 'How well every device hears its sender (Zigbee, WiFi …)', 'rd.title': 'Reception in the house',
+    'rd.sub': 'Zigbee, WiFi and more: how well every device hears its sender. Green good, yellow middle, red weak.', 'rd.close': 'Close', 'rd.q.good': 'good',
+    'rd.q.mid': 'middle', 'rd.q.bad': 'weak', 'rd.weakest': 'The weakest (tap to see it in the house)',
+    'rd.tipBad': 'A Zigbee device on mains power (plug, lamp) near the red ones strengthens the network. For WiFi a repeater or another spot helps.',
+    'rd.tipGood': 'All fine: no device with weak reception.', 'rd.none': 'Home Assistant knows no reception value yet for the devices of the plan.',
+    'rd.off': '{n} reception values are switched off in Home Assistant',
+    'rd.offHow': 'Zigbee2MQTT and ZHA ship them switched off. To switch on: Home Assistant → Settings → Devices & services → Entities, search “linkquality” or “rssi”, open the entity → ⚙ → turn on “Enabled”. They show here after about a minute.',
   },
 };
 

@@ -358,3 +358,26 @@ async def test_put_layout_corrects_ids_renamed_meanwhile(aiohttp_client, tmp_pat
     assert (await client.put("/api/layout", json=plan())).status == 200
     devs = (await (await client.get("/api/layout")).json())["floors"][0]["devices"]
     assert devs[1]["entity"] == "light.b" and devs[3]["ledEntity"] == "light.b"
+
+
+def test_signal_of_is_the_radio_signal_of_each_entitys_device():
+    """📡 Funk-Karte (5.17.0): Zigbee2MQTT's linkquality, ZHA's rssi, the WiFi signal in dBm; the ones Home Assistant switched off are named"""
+    def ent(eid, dev, **k):
+        return {**entry(eid, eid), "device_id": dev, **k}
+    def st(eid, dc=None, unit=None):
+        return {"entity_id": eid, "state": "1", "attributes": {**({"device_class": dc} if dc else {}), **({"unit_of_measurement": unit} if unit else {})}}
+    entries = [ent("light.flur", "z2m"), ent("sensor.flur_linkquality", "z2m"),
+               ent("switch.steckdose", "esp"), ent("sensor.steckdose_wifi_signal", "esp"), ent("sensor.steckdose_uptime", "esp"),
+               ent("binary_sensor.fenster", "zha"), ent("sensor.fenster_rssi", "zha"), ent("sensor.fenster_lqi", "zha"),
+               ent("climate.bad", "trv"), ent("sensor.bad_linkquality", "trv", disabled_by="integration"),
+               ent("light.ohne", "wlan")]
+    states = [st("light.flur"), st("sensor.flur_linkquality", unit="lqi"), st("switch.steckdose"), st("sensor.steckdose_wifi_signal", "signal_strength", "dBm"),
+              st("sensor.steckdose_uptime", "duration"), st("binary_sensor.fenster"), st("sensor.fenster_rssi", "signal_strength", "dBm"),
+              st("sensor.fenster_lqi"), st("climate.bad"), st("light.ohne")]
+    sig = rn.signal_of(entries, states)
+    assert sig["light.flur"] == "sensor.flur_linkquality" and sig["switch.steckdose"] == "sensor.steckdose_wifi_signal"
+    assert sig["sensor.steckdose_uptime"] == "sensor.steckdose_wifi_signal" and sig["binary_sensor.fenster"] == "sensor.fenster_rssi"   # dBm first
+    assert "climate.bad" not in sig and "light.ohne" not in sig                       # switched off: no state; no signal at all
+    assert rn.signals_off(entries) == ["sensor.bad_linkquality"]
+    kept = rn.look({}, entries, states, T)[2]
+    assert kept["signal"] == sig and kept["signalOff"] == ["sensor.bad_linkquality"]

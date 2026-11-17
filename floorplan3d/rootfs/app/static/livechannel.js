@@ -40,6 +40,15 @@ export async function fetchBatteries() {
   } catch { return {}; }
 }
 
+/** 📡 { of: { entity: the radio signal entity of its device }, off: [signal entities switched off in Home Assistant] } (5.17.0, api/signals) */
+export async function fetchSignals() {
+  try {
+    const r = await fetch('api/signals');
+    const m = r.ok ? await r.json() : {};
+    return { of: m?.of && typeof m.of === 'object' && !Array.isArray(m.of) ? m.of : {}, off: Array.isArray(m?.off) ? m.off : [] };
+  } catch { return { of: {}, off: [] }; }
+}
+
 export async function fetchAreas() {
   try {
     const r = await fetch('api/areas');

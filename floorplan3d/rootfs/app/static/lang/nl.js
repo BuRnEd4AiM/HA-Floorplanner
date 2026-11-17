@@ -2468,4 +2468,11 @@ export default {
   'an.bot.noChat': 'Bot {bot} gevonden, maar nog geen chat: schrijf hem „Hallo” in Telegram en tik opnieuw op „Chat zoeken”.', 'an.bot.chats': 'Aan wie?',
   'an.bot.plan': '📸 Plattegrond met de kamer in rood meesturen', 'an.bot.camera': '📷 Beeld van een camera in de kamer meesturen',
   'an.ready.bottoken': 'De sleutel van de bot ontbreekt nog.', 'an.ready.botchat': 'Er ontbreekt nog een chat: schrijf „Hallo” aan de bot, dan „Chat zoeken”.',
+  'rd.btn': '📡 Radio', 'rd.btnTip': 'Hoe goed elk apparaat zijn zender hoort (Zigbee, wifi …)', 'rd.title': 'Ontvangst in huis',
+  'rd.sub': 'Zigbee, wifi en meer: hoe goed elk apparaat zijn zender hoort. Groen goed, geel middel, rood zwak.', 'rd.close': 'Sluiten', 'rd.q.good': 'goed',
+  'rd.q.mid': 'middel', 'rd.q.bad': 'zwak', 'rd.weakest': 'Het zwakst (tik om het in huis te zien)',
+  'rd.tipBad': 'Een Zigbee-apparaat op netstroom (stekker, lamp) bij de rode versterkt het netwerk. Bij wifi helpt een repeater of een andere plek.',
+  'rd.tipGood': 'Alles in orde: geen apparaat met zwakke ontvangst.',
+  'rd.none': 'Home Assistant kent nog geen ontvangstwaarde voor de apparaten in de plattegrond.', 'rd.off': '{n} ontvangstwaarden staan uit in Home Assistant',
+  'rd.offHow': 'Zigbee2MQTT en ZHA leveren ze uitgeschakeld. Aanzetten: Home Assistant → Instellingen → Apparaten en diensten → Entiteiten, zoek „linkquality” of „rssi”, open de entiteit → ⚙ → „Ingeschakeld” aan. Na ongeveer een minuut verschijnen ze hier.',
 };

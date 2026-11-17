@@ -2527,4 +2527,12 @@ export default {
   'an.bot.noChat': 'Bot {bot} trouvé, mais aucun chat : écrivez-lui « Bonjour » dans Telegram et touchez à nouveau « Trouver le chat ».',
   'an.bot.chats': 'À qui ?', 'an.bot.plan': '📸 Joindre le plan avec la pièce en rouge', 'an.bot.camera': '📷 Joindre l’image d’une caméra de la pièce',
   'an.ready.bottoken': 'Il manque encore la clé du bot.', 'an.ready.botchat': 'Il manque encore un chat : écrivez « Bonjour » au bot, puis « Trouver le chat ».',
+  'rd.btn': '📡 Radio', 'rd.btnTip': 'La qualité de réception de chaque appareil (Zigbee, WiFi …)', 'rd.title': 'Réception dans la maison',
+  'rd.sub': 'Zigbee, WiFi et plus : la qualité de réception de chaque appareil. Vert bon, jaune moyen, rouge faible.', 'rd.close': 'Fermer', 'rd.q.good': 'bon',
+  'rd.q.mid': 'moyen', 'rd.q.bad': 'faible', 'rd.weakest': 'Les plus faibles (touchez pour le voir dans la maison)',
+  'rd.tipBad': 'Un appareil Zigbee sur secteur (prise, lampe) près des rouges renforce le réseau. En WiFi, un répéteur ou un autre emplacement aide.',
+  'rd.tipGood': 'Tout va bien : aucun appareil avec une réception faible.',
+  'rd.none': 'Home Assistant ne connaît encore aucune valeur de réception pour les appareils du plan.',
+  'rd.off': '{n} valeurs de réception sont désactivées dans Home Assistant',
+  'rd.offHow': 'Zigbee2MQTT et ZHA les livrent désactivées. Pour les activer : Home Assistant → Paramètres → Appareils et services → Entités, cherchez « linkquality » ou « rssi », ouvrez l’entité → ⚙ → activez « Activé ». Elles apparaissent ici après environ une minute.',
 };

@@ -2498,4 +2498,12 @@ export default {
   'an.bot.noChat': 'Bot {bot} trovato, ma nessuna chat: scrivigli «Ciao» in Telegram e tocca di nuovo «Trova chat».', 'an.bot.chats': 'A chi?',
   'an.bot.plan': '📸 Inviare la pianta con la stanza in rosso', 'an.bot.camera': '📷 Inviare l’immagine di una telecamera nella stanza',
   'an.ready.bottoken': 'Manca ancora la chiave del bot.', 'an.ready.botchat': 'Manca ancora una chat: scrivi «Ciao» al bot, poi «Trova chat».',
+  'rd.btn': '📡 Radio', 'rd.btnTip': 'Quanto bene ogni dispositivo sente il suo trasmettitore (Zigbee, WiFi …)', 'rd.title': 'Ricezione in casa',
+  'rd.sub': 'Zigbee, WiFi e altro: quanto bene ogni dispositivo sente il trasmettitore. Verde buono, giallo medio, rosso debole.', 'rd.close': 'Chiudi',
+  'rd.q.good': 'buono', 'rd.q.mid': 'medio', 'rd.q.bad': 'debole', 'rd.weakest': 'I più deboli (tocca per vederlo in casa)',
+  'rd.tipBad': 'Un dispositivo Zigbee alimentato (presa, lampada) vicino ai rossi rafforza la rete. Per il WiFi aiuta un ripetitore o un altro posto.',
+  'rd.tipGood': 'Tutto a posto: nessun dispositivo con ricezione debole.',
+  'rd.none': 'Home Assistant non conosce ancora alcun valore di ricezione per i dispositivi della pianta.',
+  'rd.off': '{n} valori di ricezione sono disattivati in Home Assistant',
+  'rd.offHow': 'Zigbee2MQTT e ZHA li forniscono disattivati. Per attivarli: Home Assistant → Impostazioni → Dispositivi e servizi → Entità, cerca «linkquality» o «rssi», apri l’entità → ⚙ → attiva «Abilitato». Compaiono qui dopo circa un minuto.',
 };

@@ -132,7 +132,8 @@ import { initVoiceUi } from './voiceui.js';
 import { initVoicePrefs } from './voiceprefs.js';
 import { initVoiceCheck } from './voicecheck.js';
 import { initTapBalls } from './tapballs.js';
-import { initLiveChannel, fetchAreas, fetchBatteries } from './livechannel.js';
+import { initLiveChannel, fetchAreas, fetchBatteries, fetchSignals } from './livechannel.js';
+import { initRadioUi } from './radioui.js';
 import { initDeviceList } from './devicelist.js';
 import { initTimeline } from './timelineui.js';
 import { replayEntities } from './timeline.js';
@@ -208,6 +209,7 @@ let entities = [];
 let areas = [];                      // Home Assistant areas: [{id, name, entities[]}]
 let areaOf = {};                     // entity_id -> area id
 let batteryOf = {};                  // entity_id -> the battery entity of its device (#376, the device overview)
+let signals = { of: {}, off: [] };   // 📡 the radio signal entity of each entity's device, the ones switched off (radioui.js, 5.17.0)
 let offReasons = new Map();          // device / opening id -> why it is offline (offline.js), for the device overview
 const fxRgb = (name) => fxRgbOf(name, settings.effectColors);            // the colour of a light effect (entitystate.js)
 let states = {};                   // entity_id -> { state, unit }
@@ -503,7 +505,7 @@ function build() {
   plan?.render();
   liveBatch.reset();                    // the parts back in the scene: clearGroup frees them
   clearGroup(world);
-  registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); offMarks.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0; roomLabels.clear();
+  registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); offMarks.clear(); radio.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0; roomLabels.clear();
   syncDormerWindows(layout.floors, roofList, elev, uid);   // dormer windows are real windows on the floor they belong to (dormerwin.js)
   const holo = isHolo();
   const iso = isolatedRoom();
@@ -960,6 +962,7 @@ function applyHouseStates() {
   });
   tapBalls.settle();                      // tap balls that would cover each other move apart (#244)
   offMarks.update(offIds, new Map(offList.map((x) => [x.id, x.floor])));   // the offline sign over what has no ball showing it (offlinemarks.js)
+  radio.update();                         // 📡 the signal signs while „Funk“ is on (radioui.js)
   buildNav();                             // room pills show a dot while somebody is in the room
   {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
     const holo = isHolo();
@@ -990,6 +993,13 @@ const deviceList = initDeviceList({
 });
 /* ---- Offline devices: the code lives in offline.js, their signs in 3D in offlinemarks.js (#375) ---- */
 const offMarks = initOfflineMarks({ registry, labelSprites, ballShown: (id) => tapBalls.shown(id), floorShown: (fi) => houseMode || fi === floorIdx });
+const radio = initRadioUi({ $, t, registry, layout: () => shownLayout(), states: () => states, signals: () => signals,   // 📡 Funk-Karte (radioui.js)
+  openings: (f) => openingWalls(f).flatMap((w) => w.openings || []), floorShown: (fi) => houseMode || fi === floorIdx, wake: () => wake(),
+  locate: (id) => {                                              // a tap on a row of the card: fly to it, as the search does
+    const fl = shownLayout().floors, fi = fl.findIndex((x) => (x.devices || []).some((d) => d.id === id));
+    if (fi >= 0) search.goTo({ kind: 'device', id, floor: fi });
+    else search.goTo({ kind: 'opening', id, floor: fl.findIndex((x) => openingWalls(x).some((w) => (w.openings || []).some((o) => o.id === id))) });
+  } });
 const offline = initOffline({
   $, t, layout: () => shownLayout(), entities: () => entities, states: () => states, catOf, pointInPoly: (...a) => pointInPoly(...a), currentLanguage: () => currentLanguage(),
   houseMode: () => houseMode, floorIdx: () => floorIdx, switchFloor: (i) => switchFloor(i), isLive: () => isLive(), liveSelect: (h) => liveSelect(h),
@@ -1788,7 +1798,7 @@ initVersion({ t, active: () => !isLive() && !!settings.updateCheck, auto: () => 
 initGuide({ $, t, lang: () => currentLanguage() });                 // 🎬 video guide in the top bar (guideui.js, only for editors)
 
 /* ================= Data loading ================= */
-async function loadAreas() { let a; [a, batteryOf] = await Promise.all([fetchAreas(), fetchBatteries()]); ({ areas, areaOf } = a); buildingScope.load(); }   // Home Assistant's areas and which entity is in which (livechannel.js)
+async function loadAreas() { let a; [a, batteryOf, signals] = await Promise.all([fetchAreas(), fetchBatteries(), fetchSignals()]); ({ areas, areaOf } = a); buildingScope.load(); radio.update(); }   // Home Assistant's areas and which entity is in which (livechannel.js)
 
 function toState(e) { return toStateOf(e, settings.effectColors); }       // what is kept of an entity (entitystate.js)
 
@@ -2062,6 +2072,7 @@ if (params.get('debug')) {
     ballIcon: (id) => tapBalls.icon(id),
     ballOff: (id) => tapBalls.off(id),                               // the offline sign on a tap ball: 'offline' | 'unlinked' | null (#375)
     offMark: (id) => (offMarks.shown(id) ? offMarks.reason(id) : null),   // the offline sign over a thing without a ball (#375)
+    radioMark: (id) => (radio.shown(id) ? radio.quality(id) : null),   // 📡 the signal sign over a thing (radioui.js, 5.17.0)
     openingLook: (id) => registry.get(id)?.userData.look ?? null,    // a door / window: open (red), closed (green frame), offline (amber), #375                             // the icon of a tap ball ('switch': the drawn light switch, #366)
     roomLights: (id) => {                                            // the lamps lighting a room now: reach (m) and colour (0..1), #367
       const rm = roomMeshes.get(id), U = (isHolo() ? rm?.mesh : rm?.glow)?.material.uniforms;

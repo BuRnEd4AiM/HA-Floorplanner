@@ -40,6 +40,8 @@ f("shutter", "live", "Rollläden und Vorhänge", "Roller shutters and curtains",
 f("heating", "live", "Heizung im Raum einstellen", "Set the heating in a room", ["heating"])
 f("devices", "live", "Geräte-Übersicht, Batterien, offline", "Device overview, batteries, offline", ["devices"])
 f("open", "live", "Offene Fenster und Türen", "Open windows and doors", ["open"])
+f("radiomap", "live", "📡 Funk-Karte: Empfang jedes Geräts (Zigbee, WLAN) farbig im Haus, die schwächsten, ausgeschaltete Werte",
+  "📡 Radio map: every device's reception (Zigbee, WiFi) in colour in the house, the weakest, values switched off", ["radio"], since="5.17.0")
 f("warnings", "live", "Warnungen: Regen am offenen Fenster, Rauch, Gas, Wasser", "Warnings: rain at an open window, smoke, gas, water", ["warnings"])
 f("alarm", "live", "Urlaubs-Alarm", "Holiday alarm", ["alarm"])
 f("security", "live", "Sicherheit: einen Tag abspielen", "Security: play back a day", ["security"])

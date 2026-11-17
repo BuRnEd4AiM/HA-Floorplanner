@@ -1643,6 +1643,13 @@ async def get_batteries(request):
     return web.json_response(request.app[KEY_RENAMES].get("battery") or {})
 
 
+async def get_signals(request):
+    """📡 Funk-Karte (5.17.0): {"of": {entity: the radio signal entity of its device}, "off": [signal entities switched off in Home Assistant]}
+    from Home Assistant's registries (renames.signal_of). Empty without Home Assistant or before the registry was read."""
+    w = request.app[KEY_RENAMES]
+    return web.json_response({"of": w.get("signal") or {}, "off": w.get("signalOff") or []})
+
+
 async def call_service(request):
     if not SUPERVISOR_TOKEN:
         return web.json_response({"error": "no supervisor token"}, status=503)
@@ -2408,6 +2415,8 @@ async def rename_watcher(app):
                                     side=set(state.get("side") or ()),      # kept off the area lists (#368)
                                     parts=dict(state.get("parts") or {}),   # the entities of a thermostat's device (#370)
                                     battery=dict(state.get("battery") or {}),   # the battery entity of each entity's device (#376)
+                                    signal=dict(state.get("signal") or {}),     # 📡 the radio signal entity of each entity's device (5.17.0)
+                                    signalOff=list(state.get("signalOff") or []),   # 📡 signal entities switched off in Home Assistant
                                     plat=dict(state.get("plat") or {}))         # the integration of each thermostat (🌡 Raumfühler, #573)
 
         def load():
@@ -4759,6 +4768,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/live", live_ws),
         web.get("/api/areas", get_areas),
         web.get("/api/batteries", get_batteries),
+        web.get("/api/signals", get_signals),
         web.get("/api/energy/prefs", get_energy_prefs),
         web.get("/api/energy/meters", get_energy_meters),
         web.get("/api/energy/counters", get_energy_counters), web.post("/api/energy/counter", make_energy_counter),

@@ -517,7 +517,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 205. Verbessert in 5.14.1: das Haus dreht sich leichter am Tablet (#138) | 3 | 0 | 1 | 0 | 205.4 |
 | 206. Neu in 5.15.0: ☀ Sonnenschutz, 🧭 wo Norden ist | 4 | 0 | 3 | 0 | 206.5 bis 206.7 |
 | 207. Neu in 5.16.0: 📸 Alarm mit Bild über deinen Telegram-Bot | 2 | 0 | 3 | 0 | 207.3 bis 207.5 |
-| **Zusammen** | **1315** | **2** | **112** | **92** | |
+| 208. Neu in 5.17.0: 📡 Funk-Karte | 3 | 0 | 2 | 0 | 208.4, 208.5 |
+| **Zusammen** | **1318** | **2** | **114** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3156,4 +3157,15 @@ Deine Wahl vom 2026-11-17 (Bilder `docs/ideen-5.15`, Bild 4 und 5): eigener Bot,
 | 207.3 | Nur im Add-on: in Telegram bei @BotFather einen Bot anlegen, den Schlüssel einfügen, dem Bot „Hallo“ schreiben, „🔎 Chat finden“ | Dein Name erscheint angekreuzt; „Speichern“ sagt „Bereit“ | ❓ |
 | 207.4 | „Testnachricht“ | In Telegram kommt ein Bild deines Grundrisses mit einem Raum in Rot und „TEST“, darunter der Text | ❓ |
 | 207.5 | Einen Wassermelder (oder Rauchmelder) auslösen, z. B. kurz ins Wasser halten | Die Nachricht kommt mit dem Grundriss (der Raum rot, „WASSER“ an der Stelle); hängt im Raum eine Kamera, kommt ihr Bild als zweites | ❓ |
+
+## 208. Neu in 5.17.0: 📡 Funk-Karte
+Deine Wahl vom 2026-11-17 (Bild `docs/ideen-5.15`, Bild 3).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 208.1 | Unit-Tests `tests/radiomap.test.mjs` (neu), `test_renames.py` (Empfangswert je Gerät); Browser-Test Teil `96_radio_map` (neu), dazu `43_battery_levels`, `11_live`, `07_tablet` | Alles grün | ✅ (2026-11-17, Claude) |
+| 208.2 | Demo: unten „📡 Funk“ | Über den Geräten Schilder in Grün, Gelb, Rot mit dem Wert; rechts „Empfang im Haus“ mit 9 gut, 3 mittel, 3 schwach, oben „Luftfeuchte Bad LQI 22“ | ✅ (2026-11-17, Claude, Demo) |
+| 208.3 | In der Karte „Luftfeuchte Bad“ antippen | Die Kamera fliegt zum Gerät im Bad | ✅ (2026-11-17, Claude, Demo) |
+| 208.4 | Dein Haus: „📡 Funk“ | Deine Zigbee-Geräte haben Schilder; steht unten „… Empfangswerte sind in Home Assistant ausgeschaltet“, dort steht, wie man sie einschaltet | ❓ |
+| 208.5 | Dein Eindruck: stimmen die roten Geräte mit denen überein, die bei dir manchmal „offline“ sind? | Ja, oder welche nicht | ❓ |
 
