@@ -4014,4 +4014,10 @@ export default {
   'ss.log.hand': '已手动调整：保持不变',
   'ss.north': '北在哪里？', 'ss.northNow': '平面图上方是{dir}（{deg}°）。旋转指南针直到 N 正确——房屋保持不变。', 'ss.northTip': '旋转指南针（度）',
   'ss.others': '也控制它：{names}', 'ss.calm': '如果有人、例程或警报调整了卷帘，遮阳会在阳光离开前不再改动它。如果已经更低，则保持不变。',
+  'an.via.tgbot': 'Telegram – 自己的机器人（带图片）', 'an.bot.help': '你自己的 Telegram 机器人会发送带图片的消息：楼层平面图（房间标红），如有摄像头还会附上其画面。', 'an.bot.s1': '在 Telegram 中打开“BotFather”：',
+  'an.bot.s2': '发送“/newbot”，选择名称和用户名（必须以“bot”结尾，例如 house_li_bot）。', 'an.bot.s3': 'BotFather 会发送类似“123456789:AA…”的密钥——粘贴到下方。',
+  'an.bot.s4': '在 Telegram 中给新机器人发送“你好”。若用于群组：将机器人邀请进群并在群里发一条消息。', 'an.bot.s5': '点击这里的“🔎 查找聊天”——你的聊天会出现并被勾选。然后点“测试消息”。', 'an.bot.token': '机器人密钥',
+  'an.bot.find': '查找聊天', 'an.bot.finding': '正在询问 Telegram …', 'an.bot.found': '机器人 {bot}：找到 {n} 个聊天。勾选接收者后保存。',
+  'an.bot.noChat': '已找到机器人 {bot}，但还没有聊天：在 Telegram 中给它发“你好”，再点一次“查找聊天”。', 'an.bot.chats': '发给谁？', 'an.bot.plan': '📸 附带房间标红的平面图',
+  'an.bot.camera': '📷 附带房间内摄像头的画面', 'an.ready.bottoken': '还缺少机器人密钥。', 'an.ready.botchat': '还缺少聊天：给机器人发“你好”，然后点“查找聊天”。',
 };

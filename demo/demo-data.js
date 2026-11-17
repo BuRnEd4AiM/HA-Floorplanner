@@ -614,7 +614,8 @@ const pinboard = [
   { id: 'a1b2c3d4e5f60003', text: 'Lena: Training fällt Do aus', by: 'Anna', at: new Date(Date.now() - 26 * 3600000).toISOString(), color: 'blue' },
 ];
 
-const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
+const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '',
+  bottoken: '', botChats: [], plan: true, camera: true };   // api/notify in the demo (📸 the own Telegram bot: 5.16.0)
 let fullCode = '1234';
 // 🧺 Haushalt (#490): the washing machine runs (started 48 minutes ago, 42 to go), the dryer ran yesterday, the dishwasher is done
 const t0 = Date.now(), hhAck = {}, hhTell = {}, gardenTimers = {}, gardenOff = {};
@@ -1307,18 +1308,19 @@ export function installDemoBackend() {
       if (method === 'PUT') {
         const b = JSON.parse(init.body || '{}'), keep = (k) => (typeof b[k] === 'string' && b[k].trim() ? b[k].trim() : notify[k]);
         const list = (v) => (Array.isArray(v) ? v : String(v || '').split(/[\s,;|]+/)).filter(Boolean);
-        Object.assign(notify, b, { apikey: keep('apikey'), tgkey: keep('tgkey'), services: list(b.services ?? notify.services),
+        Object.assign(notify, b, { apikey: keep('apikey'), tgkey: keep('tgkey'), bottoken: keep('bottoken'), botChats: Array.isArray(b.botChats) ? b.botChats : notify.botChats, services: list(b.services ?? notify.services),
           entities: list(b.entities ?? notify.entities).filter((e) => /^notify\.[a-z0-9_]+$/.test(e)),
           tgUsers: list(b.tgUsers ?? notify.tgUsers).map((u) => (/^[@+]/.test(u) ? u : `@${u}`)) });
       }
       const n = notify, ready = !n.on ? 'off' : n.via === 'ha' ? (n.services.length || n.entities.length ? null : 'service')
         : n.via === 'telegram' ? (n.tgMode === 'group' ? (n.tgkey ? null : 'tgkey') : (n.tgUsers.length ? null : 'tguser'))
+        : n.via === 'tgbot' ? (!n.bottoken ? 'bottoken' : n.botChats.length ? null : 'botchat')
         : !n.phone ? 'phone' : n.apikey ? null : 'apikey';
       return json({ on: n.on, kinds: n.kinds, via: n.via, phone: n.phone, services: n.services, entities: n.entities,
         available: [{ id: 'mobile_app_handy', name: 'mobile_app_handy', origin: 'app', platform: '' },     // where each one comes from (#460)
           { id: 'notify.telegram_bot_familie', name: 'Familien-Chat', origin: 'integration', platform: 'telegram_bot' },
           { id: 'telegram_familie', name: 'telegram_familie', origin: 'yaml', platform: '' }, { id: 'whatsapp', name: 'whatsapp', origin: 'yaml', platform: '' }],
-        tgMode: n.tgMode, tgUsers: n.tgUsers, clear: n.clear, hasKey: !!n.apikey, hasTgKey: !!n.tgkey, ready });
+        tgMode: n.tgMode, tgUsers: n.tgUsers, clear: n.clear, hasKey: !!n.apikey, hasTgKey: !!n.tgkey, hasBot: !!n.bottoken, botChats: n.botChats, plan: n.plan, camera: n.camera, ready });
     }
     if (path === 'api/guard') {
       if (method === 'PUT') {
@@ -1444,6 +1446,7 @@ export function installDemoBackend() {
     }
     if (path === 'api/import') return json({ error: ONLY_ADDON }, 501);   // building a house from JSON is the add-on's (importer.py)
     if (path === 'api/notify/test') return json({ error: 'in der Demo wird nichts gesendet' }, 501);
+    if (path === 'api/notify/tgchats') return json(notify.bottoken ? { bot: '@demo_haus_bot', chats: [{ id: '4711', name: 'Demo' }] } : { error: 'bottoken' }, notify.bottoken ? 200 : 400);   // 📸 nothing goes to Telegram from the demo
     if (path === 'api/backgrounds' && method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);
     if (path === 'api/models') {
       if (method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);

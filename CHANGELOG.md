@@ -2,6 +2,11 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.16.0] - 2026-11-17
+### Added
+- **📸 Alarm with a picture through your own Telegram bot** (the owner's choice 2026-11-17, pictures docs/ideen-5.15/04, 05: "wäre cool wenn das auch gehen würde über Telegram das mit dem Bild"; his choice: his own bot, the floor plan and a camera): ⚙ → Warnungen & Alarm → Nachricht aufs Handy → **"Telegram – eigener Bot (mit Bild)"**. When water, smoke, gas, carbon monoxide or the alarm goes off, the message comes with **the floor from above, the room in red and a ring where the sensor is** (drawn by the add-on, `alarmpic.py`), and with **the picture of a camera in that room** (Home Assistant's camera picture). The bot is made once with @BotFather (five numbered steps with the link), its key stays in the add-on; **"🔎 Chat finden"** lists who wrote to the bot ("Hallo"), the first one ticked. "Testnachricht" sends a sample picture. Plan and camera can be switched off. CallMeBot, WhatsApp and Home Assistant's notify services stay as they were (text).
+- Video guide: the clip "📸 Alarm mit Bild über deinen Telegram-Bot"; "Nachricht aufs Handy" mentions it.
+
 ## [5.15.0] - 2026-11-17
 ### Added
 - **☀ Sun protection: roller shutters only where the sun shines** (the owner's choice 2026-11-17 from nine ideas, pictures docs/ideen-5.15/01, 02): 🌡 Klima → **☀ Sonnenschutz**. The plan knows which way every window looks (the side of its wall in no room is outside), Home Assistant knows where the sun is (`sun.sun`): only the shutter whose window the sun shines on goes down (to 30 %, adjustable) while the sun is higher than 15°, no more than 75° to the side and it is warm (outside above 22 °C or in the room above 24 °C; each can be "egal"), optionally only while the weather says sun; it goes back to where it was when the sun has been off the window for 20 minutes. An open window keeps its shutter up (one that is down goes up at once, to air). The add-on runs it itself like the heating rules (also with no screen open, `sunshade.py`); the card lists every window with a shutter, which way it looks, "jetzt Sonne" / "Schatten" / "unten", and a switch per window to leave it out. ▶ Abläufe and 📜 Protokoll say what it did.

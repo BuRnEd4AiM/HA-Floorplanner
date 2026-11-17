@@ -11,7 +11,7 @@ RUN case "$CHANNEL" in stable|beta) mv "/$CHANNEL" /app ;; *) echo "CHANNEL must
 
 FROM alpine:3.21
 ARG CHANNEL=stable
-RUN apk add --no-cache python3 py3-aiohttp tzdata
+RUN apk add --no-cache python3 py3-aiohttp py3-pillow font-dejavu tzdata
 COPY --from=source /app /app
 ENV DATA_DIR=/data \
     PORT=8099 \

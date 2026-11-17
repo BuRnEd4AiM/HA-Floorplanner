@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-17, Version **5.15.0** (5.14.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-17, Version **5.16.0** (5.14.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,15 +10,16 @@ Stand: 2026-11-17, Version **5.15.0** (5.14.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
+- **2026-11-17, 5.16.0: 📸 Alarm mit Bild über den eigenen Telegram-Bot (Branch `claude/exciting-edison-r6hv5l`):** seine nächste Idee aus `docs/ideen-5.15` (Bild 4, 5), seine Wahl: eigener Bot, Grundriss und Kamera. Das Add-on zeichnet die Etage mit Pillow (`alarmpic.py`, Raum rot, Ring am Melder) und schickt sie mit dem Kamerabild des Raums über die Telegram-Bot-API (`tgbot.py`, Schlüssel bleibt im Add-on, „Chat finden“ über getUpdates).
 - **2026-11-17, 5.15.0: ☀ Sonnenschutz und 🧭 wo Norden ist (Branch `claude/exciting-edison-r6hv5l`):** Aus neun Ideen mit Bildern (`docs/ideen-5.15`) wählte er alle und zuerst die Sonne. Die Rollläden fahren nur auf der Sonnenseite runter (`sunshade.py` im Regel-Lauf, Karte `sunshadeui.js` in 🌡 Klima); seine Wünsche dazu: Norden am Kompass einstellen ohne neu zu zeichnen (`layout.north`, auch der 3D-Kompass), und „die Regeln dürfen sich nicht beißen“ (von Hand oder per Ablauf verstellt: in Ruhe lassen).
 - **2026-11-17, 5.14.1: das Haus dreht sich leichter am Tablet (#138, Branch `claude/exciting-edison-r6hv5l`):** Er war in der Firma und konnte nicht testen: erst 5.14.0 für alle freigegeben, dann „Tablet flüssiger“. In „Live“ kommen alle Farben einer Oberfläche in ein Stück (`meshmerge.js` `blendKey`, Farbe an den Ecken), auch bei Geräten mit Home Assistant; was sich danach bewegt oder versteckt, nimmt `livebatch.js` wieder heraus. Musterhaus ganzes Haus 1.205 → etwa 800 Zeichenaufrufe.
 - **2026-11-16, 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen (#761, #762, Branch `claude/zealous-darwin-8lwy2g`):** Sechs Wünsche in einem Chat, mit Fotos seines Hauses (Plateau 0,60 m, Balkon „Raum 17“ im 1. Stock, Garage „Raum 6“): Geländer je Seite mit Geländertür (`railsides.js`, `rail2d.js`), Knopf oben immer da (seine Wahl „Knopf oben“), Balkon über dem Plateau geht mit hoch (`levels.js` `lifter(…, upper)`), Flächen und Plateau gehören zu einem Gebäude (`buildings.js` `areaOwner`), Garage aus dem Plateau ausschneiden (`groundCut`, seine Wahl „Garage unten auf Rasen“, kein Hang), ∟/∥ beim Zeichnen (`drawguide.js`), Haus löschen nur mit eingetipptem Namen (Kopie in `deleted-houses/`).
-- **2026-11-16, 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr (#759, Branch `claude/gracious-dirac-bt3gos`):** Seine zwei Fotos vom Wandtablet („lädt immer lange“, „manchmal leere Sachen … nur wenn ich erneut auf den Stock drücke“). Nachgestellt und repariert: die Seite lädt alles auf einmal und zeigt solange einen Ring (`#bootLoad`), die Willkommen-Karte kommt erst nach dem Plan; der Tipper, der den drehenden Schoner weckt, wird abgefangen (`#saverCatch`) und die Startansicht kommt zurück; eine wieder sichtbare Seite wacht von selbst auf. Ob sein leeres Stockwerk genau daher kam, zeigt erst sein Test.
 
 ## Offen
 
 - **5.15.0 Sonnenschutz:** sein Test (Testprotokoll 206.5 bis 206.7), vor allem ob Norden bei seinem Haus stimmt.
-- **Acht Ideen aus `docs/ideen-5.15` noch zu bauen** (alle von ihm gewählt): 📡 Funk-Karte, 📸 Bild bei Alarm, 🔌 Stromfresser, 🏠 Urlaubs-Licht, 🌙 Nachtlicht-Weg, 🔧 Wartung, 👥 Gäste-Modus, 📊 Monatsbericht; fragen, welche als Nächstes.
+- **5.16.0 Bild bei Alarm:** sein Test mit seinem Bot (Testprotokoll 207.3 bis 207.5).
+- **Sieben Ideen aus `docs/ideen-5.15` noch zu bauen** (alle von ihm gewählt): 📡 Funk-Karte, 🔌 Stromfresser, 🏠 Urlaubs-Licht, 🌙 Nachtlicht-Weg, 🔧 Wartung, 👥 Gäste-Modus, 📊 Monatsbericht; fragen, welche als Nächstes.
 - **5.14.0:** sein Test mit seinem Haus (Testprotokoll 204.2 bis 204.9), vor allem Balkon „Raum 17“ (204.5) und Garage „Raum 6“ (204.6).
 - **Tablet 5.13.1 (#759):** sein Test am echten Wandtablet (Testprotokoll 203.5 bis 203.7); kommt das leere Stockwerk noch, fragen, welcher Bildschirmschoner läuft und was davor getippt wurde.
 - **Wandtablet (5.12.0):** sein Eindruck am echten Tablet (Testprotokoll 201.8 bis 201.11); nicht gebaut: echte Helligkeit über Fully Kiosk oder eine Entität, je Tablet ein eigener Bewegungsmelder.

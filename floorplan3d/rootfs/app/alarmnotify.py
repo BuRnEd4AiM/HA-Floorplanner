@@ -20,6 +20,7 @@ import re
 import time
 
 import hanames
+import tgbot
 from roommap import roof_windows
 
 log = logging.getLogger("floorplan3d.alarmnotify")
@@ -34,10 +35,10 @@ NOTIFY_ENTITY = re.compile(r"^notify\.[a-z0-9_]{1,100}$")
 PHONE = re.compile(r"^\+?[0-9]{6,16}$")
 APIKEY = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 TG_USER = re.compile(r"^(@[A-Za-z0-9_]{5,32}|\+[0-9]{6,16})$")   # a Telegram user name or a phone number (CallMeBot text.php)
-VIA = ("whatsapp", "telegram", "ha")
+VIA = ("whatsapp", "telegram", "ha", "tgbot")   # tgbot: the add-on's own Telegram bot, with pictures (5.16.0, tgbot.py)
 SECRETS = ("apikey", "tgkey")      # the CallMeBot keys of WhatsApp and of a Telegram group: stay in the add-on
 DEFAULT = {"on": False, "kinds": list(KINDS), "via": "whatsapp", "phone": "", "services": [], "entities": [], "tgMode": "user", "tgUsers": [],
-           "clear": False}
+           "clear": False, "botChats": [], "plan": True, "camera": True}   # 📸 the bot's chats; a picture of the plan, of a camera in the room
 
 TEXTS = {
     "de": {"alarm": "🚨 ALARM: {name}", "smoke": "🔥 Rauch erkannt: {name}", "gas": "⚠️ Gas erkannt: {name}", "co": "☠️ Kohlenmonoxid erkannt: {name}",
@@ -85,6 +86,16 @@ def clean(data, old=None) -> dict:
         out["entities"] = list(dict.fromkeys(e for e in data["entities"] if isinstance(e, str) and NOTIFY_ENTITY.match(e)))[:10]
     if isinstance(data.get("tgUsers"), (list, str)):
         out["tgUsers"] = tg_users(data["tgUsers"])
+    if isinstance(data.get("botChats"), list):
+        out["botChats"] = tgbot.chats_of(data["botChats"])
+    for k in ("plan", "camera"):
+        if isinstance(data.get(k), bool):
+            out[k] = data[k]
+    tok = old.get("bottoken", "")                                  # 📸 the bot's key ("123456:ABC…"), kept like the CallMeBot keys
+    if "bottoken" in data:
+        v = data["bottoken"]
+        tok = tgbot.check_token(v) or ("" if v in ("", None) else tok)
+    out["bottoken"] = tgbot.check_token(tok)
     for name in SECRETS:
         key = old.get(name, "")
         if name in data:
@@ -123,15 +134,18 @@ def tg_users(v) -> list:
 
 def public(cfg: dict) -> dict:
     """the settings as the browser sees them: the keys themselves stay in the add-on, only whether there are some"""
-    return {**{k: v for k, v in cfg.items() if k not in SECRETS}, "hasKey": bool(cfg.get("apikey")), "hasTgKey": bool(cfg.get("tgkey"))}
+    return {**{k: v for k, v in cfg.items() if k not in SECRETS and k != "bottoken"}, "hasKey": bool(cfg.get("apikey")), "hasTgKey": bool(cfg.get("tgkey")),
+            "hasBot": bool(cfg.get("bottoken"))}
 
 
 def ready(cfg: dict):
-    """None when the messages can be sent, else why not ('off', 'phone', 'apikey', 'service', 'tguser', 'tgkey')"""
+    """None when the messages can be sent, else why not ('off', 'phone', 'apikey', 'service', 'tguser', 'tgkey', 'bottoken', 'botchat')"""
     if not cfg.get("on"):
         return "off"
     if cfg.get("via") == "ha":
         return None if cfg.get("services") or cfg.get("entities") else "service"
+    if cfg.get("via") == "tgbot":
+        return "bottoken" if not cfg.get("bottoken") else None if cfg.get("botChats") else "botchat"
     if cfg.get("via") == "telegram":
         if cfg.get("tgMode") == "group":
             return None if cfg.get("tgkey") else "tgkey"
@@ -278,7 +292,8 @@ def test_text(lang="de") -> str:
 
 async def run_watch(*, connect, config, send, places=lambda: [], lang=lambda: "de", clock=lambda: "", check: float = 5.0):
     """Keep a websocket to Home Assistant and send a message when something goes off. connect(): async context manager of an
-    authenticated websocket; config(): the settings (clean()); send(text) -> (ok, error): sends one message; places(): [(house, layout)]
+    authenticated websocket; config(): the settings (clean()); send(text, alarm) -> (ok, error): sends one message (alarm: {ev, kind, eid,
+    name}, for the pictures of the bot, 5.16.0); places(): [(house, layout)]
     for where_of; lang(): the language of the texts; clock(): the time to put in. Waits while the messages are off. Never raises."""
     delay = 1
     watcher = Watcher()
@@ -309,7 +324,7 @@ async def run_watch(*, connect, config, send, places=lambda: [], lang=lambda: "d
                             if eid and (eid.startswith("binary_sensor.") or eid.startswith("alarm_control_panel.")):
                                 for ev, kind, e, name in watcher.change(eid, d.get("new_state"), time.time(), cfg.get("kinds", KINDS), cfg.get("clear")):
                                     where = where_of(await asyncio.to_thread(places), e)
-                                    ok, err = await send(text(ev, kind, name, where, lang(), clock()))
+                                    ok, err = await send(text(ev, kind, name, where, lang(), clock()), {"ev": ev, "kind": kind, "eid": e, "name": name})
                                     log.info("alarm message (%s %s, %s): %s", ev, kind, e, "sent" if ok else f"not sent: {err}")
                     if time.monotonic() - last >= check:
                         last = time.monotonic()

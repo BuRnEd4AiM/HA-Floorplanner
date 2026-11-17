@@ -516,7 +516,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 204. Neu in 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen | 1 | 0 | 8 | 0 | 204.2 bis 204.9 |
 | 205. Verbessert in 5.14.1: das Haus dreht sich leichter am Tablet (#138) | 3 | 0 | 1 | 0 | 205.4 |
 | 206. Neu in 5.15.0: ☀ Sonnenschutz, 🧭 wo Norden ist | 4 | 0 | 3 | 0 | 206.5 bis 206.7 |
-| **Zusammen** | **1313** | **2** | **109** | **92** | |
+| 207. Neu in 5.16.0: 📸 Alarm mit Bild über deinen Telegram-Bot | 2 | 0 | 3 | 0 | 207.3 bis 207.5 |
+| **Zusammen** | **1315** | **2** | **112** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3144,4 +3145,15 @@ Deine Wahl vom 2026-11-17 aus den neun Ideen (Bilder `docs/ideen-5.15`, Bild 1 u
 | 206.5 | Dein Haus: „Wo ist Norden?“ so drehen, dass es stimmt (zum Vergleich: Kompass am Handy oder Google Maps) | Die Fenster schauen in die richtige Richtung | ❓ |
 | 206.6 | Dein Haus an einem sonnigen Tag: Sonnenschutz an | Nur die Rollläden auf der Sonnenseite fahren runter; wenn die Sonne weg ist, wieder hoch | ❓ |
 | 206.7 | Einen Rollladen, den der Sonnenschutz runtergefahren hat, von Hand oder per Ablauf wieder hochfahren | Er bleibt oben, bis die Sonne weg ist (kein Hin und Her) | ❓ |
+
+## 207. Neu in 5.16.0: 📸 Alarm mit Bild über deinen Telegram-Bot
+Deine Wahl vom 2026-11-17 (Bilder `docs/ideen-5.15`, Bild 4 und 5): eigener Bot, Grundriss und Kamera.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 207.1 | Unit-Tests `tests/test_alarmpic.py`, `tests/test_tgbot.py` (neu), `test_alarmnotify.py`; Browser-Test Teil `95_alarm_picture` (neu), dazu `24_alarm_notify`, `29_guard`, `45_tell`, `28_settings` | Alles grün | ✅ (2026-11-17, Claude) |
+| 207.2 | Demo: ⚙ → Warnungen & Alarm → Nachricht aufs Handy → „Wohin?“ auf „Telegram – eigener Bot (mit Bild)“ | Fünf Schritte mit dem Link zu BotFather, das Feld für den Schlüssel, „🔎 Chat finden“, „📸 Grundriss …“ und „📷 Bild einer Kamera …“ angekreuzt | ✅ (2026-11-17, Claude, Demo und Browser-Test) |
+| 207.3 | Nur im Add-on: in Telegram bei @BotFather einen Bot anlegen, den Schlüssel einfügen, dem Bot „Hallo“ schreiben, „🔎 Chat finden“ | Dein Name erscheint angekreuzt; „Speichern“ sagt „Bereit“ | ❓ |
+| 207.4 | „Testnachricht“ | In Telegram kommt ein Bild deines Grundrisses mit einem Raum in Rot und „TEST“, darunter der Text | ❓ |
+| 207.5 | Einen Wassermelder (oder Rauchmelder) auslösen, z. B. kurz ins Wasser halten | Die Nachricht kommt mit dem Grundriss (der Raum rot, „WASSER“ an der Stelle); hängt im Raum eine Kamera, kommt ihr Bild als zweites | ❓ |
 

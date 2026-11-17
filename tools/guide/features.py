@@ -125,6 +125,8 @@ f("garagelawn", "edit", "🚗 Garage unten auf dem Rasen: aus dem Plateau ausges
 f("drawguides", "edit", "📐 Beim Zeichnen: ∟ rechter Winkel und ∥ parallel, fast getroffen genau", "📐 While drawing: ∟ right angle and ∥ parallel, almost hit becomes exact", ["walls"], since="5.14.0")
 f("rights", "settings", "Je Benutzer und Tablet: je Geräteart ✋ nur ansehen, 💡 nur an/aus oder 🎚 alles", "Per user and tablet: per kind of device ✋ only look, 💡 only on/off or 🎚 everything", ["users"], since="5.13.0")
 f("notify", "settings", "Nachricht aufs Handy bei Alarm", "Message to the phone on an alarm", ["notify"])
+f("notifybot", "settings", "📸 Alarm mit Bild: eigener Telegram-Bot, Grundriss mit dem Raum in Rot, Kamerabild", "📸 Alarm with a picture: own Telegram bot, floor plan with the room in red, camera picture",
+  ["notify-bot"], since="5.16.0")
 f("backup", "settings", "Backup und Wiederherstellen: alles, auch Codes und Aufzeichnungen", "Backup and restore: everything, codes and recordings too",
   ["backup"], since="4.53.0")
 f("fullscreen", "settings", "Vollbild (mit Code)", "Full screen (with a code)", ["fullscreen"])

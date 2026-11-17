@@ -560,6 +560,11 @@ t("notify",
   "Rauchalarm Wasseralarm Einbruch informieren Testnachricht Karte Karten Zustand",
   "notification push push message message to my phone WhatsApp Telegram CallMeBot companion app alert smoke alarm "
   "water alarm burglary inform test message card cards state")
+t("notify-bot",
+  "Telegram Bot BotFather Bild Foto Grundriss Kamera Kamerabild Alarm mit Bild Wassermelder Wasser Rauch Einbruch Chat finden "
+  "Schlüssel Token Wo ist es passiert Nachricht mit Foto",
+  "Telegram bot BotFather picture photo floor plan camera camera picture alarm with picture water sensor water smoke burglary find chat "
+  "key token where did it happen message with photo")
 t("settings-easy",
   "Schalter Kippschalter Häkchen Knopf Knöpfe Auswahl Liste Schieberegler Regler Prozent Deckkraft Einheit Meter "
   "mehr lesen Erklärung Anleitung aufklappen einklappen übersichtlich einfacher Licht-Gruppe Raumknopf Wie stelle ich etwas ein",

@@ -4,7 +4,8 @@
  * notify services and notify entities of Home Assistant, ticked in a list grouped by where they come from (the phone app, set up in
  * Home Assistant's UI such as its own Telegram bot, or the old way in configuration.yaml; #456, #460). Only editors see it;
  * the phone number and the keys are kept by the add-on (api/notify), not in the settings every tablet reads. Saved with its own button; "Send a test" saves
- * first. Above it, in the group "Warnings & alarm", which alarm panels Home Assistant has: the add-on has no alarm of its own, the doors
+ * first. 📸 Since 5.16.0 also the add-on's own Telegram bot (tgbot.py): text and a picture of the plan with the room in red and of a camera in
+ * it (alarmpic.py); "🔎 Chat finden" lists who wrote to the bot. Above it, in the group "Warnings & alarm", which alarm panels Home Assistant has: the add-on has no alarm of its own, the doors
  * and windows that set it off are chosen in the alarm panel (e.g. Alarmo). */
 import { alarmPanels } from './alerts.js';
 
@@ -13,6 +14,7 @@ const CALLMEBOT = 'https://www.callmebot.com/blog/free-api-whatsapp-messages/';
 const CMB_TG = 'https://www.callmebot.com/blog/telegram-text-messages/';
 const CMB_TG_GROUP = 'https://www.callmebot.com/blog/telegram-group-messages-api-easy/';
 const ADD_TELEGRAM_BOT = 'https://my.home-assistant.io/redirect/config_flow_start/?domain=telegram_bot';
+const BOTFATHER = 'https://t.me/BotFather';
 const SIGNS = [[/^mobile_app_/, '📱'], [/telegram/, '✈️'], [/whatsapp/, '💬'], [/signal/, '🔵'], [/mail|smtp/, '✉️'], [/alexa|echo/, '🔊']];
 const PLATFORMS = { telegram_bot: 'Telegram-Bot', mobile_app: 'Home Assistant App', signal_messenger: 'Signal', smtp: 'E-Mail', ntfy: 'ntfy',
   pushover: 'Pushover', matrix: 'Matrix', discord: 'Discord', slack: 'Slack', whatsapp: 'WhatsApp', alexa_media: 'Alexa', gotify: 'Gotify' };
@@ -35,7 +37,7 @@ export function targetGroups(available, picked = []) {
 export function initNotifyUi(ctx) {
   const { $, t } = ctx;
   const box = $('#alarmNotify'), head = $('#alarmNotifyTitle'), off = $('#alarmNotifyOff'), panelsEl = $('#alarmPanels');
-  let cfg = null, services = [], status = '', busy = false;
+  let cfg = null, services = [], status = '', busy = false, found = null;   // found: the chats that wrote to the bot (📸 5.16.0)
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const check = (id, key, on) => {
     const row = el('div', 'row check'), cb = el('input'); cb.type = 'checkbox'; cb.id = id; cb.checked = !!on;
@@ -72,9 +74,12 @@ export function initNotifyUi(ctx) {
       services: [...box.querySelectorAll('[data-svc]:checked')].map((c) => c.dataset.svc).concat(v('anService')?.value.split(/[\s,;|]+/).filter(Boolean) || []),
       entities: [...box.querySelectorAll('[data-ent]:checked')].map((c) => c.dataset.ent),
     };
-    const key = v('anKey').value.trim(), tgKey = v('anTgKey').value.trim();
+    const key = v('anKey').value.trim(), tgKey = v('anTgKey').value.trim(), bot = v('anBotToken').value.trim();
     if (key) out.apikey = key;                                // empty: the stored key stays
     if (tgKey) out.tgkey = tgKey;
+    if (bot) out.bottoken = bot;                              // 📸 the own Telegram bot (5.16.0)
+    out.botChats = [...box.querySelectorAll('[data-chat]:checked')].map((c) => ({ id: c.dataset.chat, name: c.dataset.name || '' }));
+    out.plan = v('anPlan').checked; out.camera = v('anCamera').checked;
     return out;
   }
   /** numbered steps, folded in a line that opens (needed once, 5.8.0); the link goes after the step at `at` */
@@ -111,6 +116,24 @@ export function initNotifyUi(ctx) {
     busy = false;
     render();
   }
+  /** 📸 the chats that wrote to the bot: the key typed now (not saved yet) or the saved one */
+  async function findChats() {
+    if (busy) return;
+    const body = read();
+    busy = true; status = t('an.bot.finding'); render();
+    try {
+      const r = await fetch('api/notify/tgchats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bottoken: body.bottoken || '' }) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok) {
+        found = j.chats || [];
+        cfg = { ...cfg, ...body, botChats: body.botChats.length ? body.botChats : found.slice(0, 1) };   // the first one ticked at once
+        if (body.bottoken) { await save({ ...body, botChats: cfg.botChats }); cfg.via = body.via; }
+        status = found.length ? t('an.bot.found', { bot: j.bot || '', n: found.length }) : t('an.bot.noChat', { bot: j.bot || '' });
+      } else status = t('an.failed', { e: j.error === 'bottoken' ? t('an.ready.bottoken') : j.error || r.status });
+    } catch (err) { status = t('an.failed', { e: err.message }); }
+    busy = false;
+    render();
+  }
   function render() {
     if (!box) return;
     if (head) head.hidden = !cfg;
@@ -122,7 +145,7 @@ export function initNotifyUi(ctx) {
     KINDS.forEach((k) => kinds.append(check(`anKind_${k}`, `an.kind.${k}`, (cfg.kinds || []).includes(k))));
     out.push(el('div', 'sub', t('an.kinds')), kinds);
     const via = el('select');
-    [['whatsapp', 'an.via.whatsapp'], ['telegram', 'an.via.telegram'], ['ha', 'an.via.ha']].forEach(([v, k]) => via.add(new Option(t(k), v)));
+    [['whatsapp', 'an.via.whatsapp'], ['telegram', 'an.via.telegram'], ['tgbot', 'an.via.tgbot'], ['ha', 'an.via.ha']].forEach(([v, k]) => via.add(new Option(t(k), v)));
     via.value = cfg.via || 'whatsapp';
     out.push(field('anVia', 'an.via', via));
     // WhatsApp through CallMeBot: the steps to get the key (#454), the number, the key
@@ -167,12 +190,33 @@ export function initNotifyUi(ctx) {
     const add = el('a', 'anMy', t('an.tgbot.add')); add.href = ADD_TELEGRAM_BOT; add.target = '_blank'; add.rel = 'noopener';
     guide.append(ol, add, el('p', 'sub', t('an.tgbot.note')));
     ha.append(guide);
+    // 📸 the own Telegram bot (5.16.0): text and pictures straight from the add-on; made once with @BotFather, the chat found by itself
+    const bot = el('div', 'anBot'), tok = secret(cfg.hasBot); tok.placeholder = cfg.hasBot ? t('an.keySaved') : '123456789:AA…';
+    bot.append(el('p', 'sub', t('an.bot.help')), ...steps(['an.bot.s1', 'an.bot.s2', 'an.bot.s3', 'an.bot.s4', 'an.bot.s5'], BOTFATHER, 0, 'an.stepsTitleTg'),
+      field('anBotToken', 'an.bot.token', tok));
+    const find = el('button', '', `🔎 ${t('an.bot.find')}`); find.type = 'button'; find.id = 'anBotFind'; find.disabled = busy;
+    find.addEventListener('click', findChats);
+    bot.append(find);
+    const chats = [...(cfg.botChats || [])];
+    (found || []).forEach((c) => { if (!chats.some((x) => x.id === c.id)) chats.push(c); });
+    if (chats.length) {
+      const list = el('div', 'anSvcs anChats');
+      list.append(el('div', 'anSrcHead', t('an.bot.chats')));
+      chats.forEach((c) => {
+        const row = el('label', 'row check anTarget'), cb = el('input'); cb.type = 'checkbox';
+        cb.checked = (cfg.botChats || []).some((x) => x.id === c.id); cb.dataset.chat = c.id; cb.dataset.name = c.name || '';
+        const name = el('span', 'n', `✈️ ${c.name || c.id}`); name.append(el('small', '', c.id));
+        row.append(cb, name); list.append(row);
+      });
+      bot.append(list);
+    }
+    bot.append(check('anPlan', 'an.bot.plan', cfg.plan !== false), check('anCamera', 'an.bot.camera', cfg.camera !== false));
     const shown = () => {
-      wa.hidden = via.value !== 'whatsapp'; tg.hidden = via.value !== 'telegram'; ha.hidden = via.value !== 'ha';
+      wa.hidden = via.value !== 'whatsapp'; tg.hidden = via.value !== 'telegram'; ha.hidden = via.value !== 'ha'; bot.hidden = via.value !== 'tgbot';
       tgUser.hidden = mode.value !== 'user'; tgGroup.hidden = mode.value !== 'group';
     };
     via.addEventListener('change', shown); mode.addEventListener('change', shown); shown();
-    out.push(wa, tg, ha, check('anClear', 'an.clear', cfg.clear));
+    out.push(wa, tg, bot, ha, check('anClear', 'an.clear', cfg.clear));
     const bar = el('div', 'stopTools'), sv = el('button', '', t('an.save')), ts = el('button', '', t('an.test'));
     sv.type = ts.type = 'button'; sv.id = 'anSave'; ts.id = 'anTest'; sv.disabled = ts.disabled = busy;
     sv.addEventListener('click', () => act(false)); ts.addEventListener('click', () => act(true));
