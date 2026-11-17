@@ -518,7 +518,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 206. Neu in 5.15.0: ☀ Sonnenschutz, 🧭 wo Norden ist | 4 | 0 | 3 | 0 | 206.5 bis 206.7 |
 | 207. Neu in 5.16.0: 📸 Alarm mit Bild über deinen Telegram-Bot | 2 | 0 | 3 | 0 | 207.3 bis 207.5 |
 | 208. Neu in 5.17.0: 📡 Funk-Karte | 3 | 0 | 2 | 0 | 208.4, 208.5 |
-| **Zusammen** | **1318** | **2** | **114** | **92** | |
+| 209. Neu in 5.18.0: 🏠 Urlaubs-Licht | 2 | 0 | 3 | 0 | 209.3 bis 209.5 |
+| **Zusammen** | **1320** | **2** | **117** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3168,4 +3169,15 @@ Deine Wahl vom 2026-11-17 (Bild `docs/ideen-5.15`, Bild 3).
 | 208.3 | In der Karte „Luftfeuchte Bad“ antippen | Die Kamera fliegt zum Gerät im Bad | ✅ (2026-11-17, Claude, Demo) |
 | 208.4 | Dein Haus: „📡 Funk“ | Deine Zigbee-Geräte haben Schilder; steht unten „… Empfangswerte sind in Home Assistant ausgeschaltet“, dort steht, wie man sie einschaltet | ❓ |
 | 208.5 | Dein Eindruck: stimmen die roten Geräte mit denen überein, die bei dir manchmal „offline“ sind? | Ja, oder welche nicht | ❓ |
+
+## 209. Neu in 5.18.0: 🏠 Urlaubs-Licht
+Deine Wahl vom 2026-11-17 (Bild `docs/ideen-5.15`, Bild 7): solange der Urlaubs-Alarm scharf ist, Lampen und Rollläden, eingestellt beim Urlaubs-Alarm; dazu dein Wunsch nach einem „Spielraum“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 209.1 | Unit-Tests `tests/test_vacation.py`, `tests/vacation.test.mjs` (neu), `test_rulesrun.py`; Browser-Test Teil `97_holiday_light` (neu), dazu `29_guard`, `50_rules`, `94_sun_shade` | Alles grün | ✅ (2026-11-17, Claude) |
+| 209.2 | Demo: ⚙ → Warnungen & Alarm → 🛡 Urlaubs-Alarm → unten „🏠 Urlaubs-Licht“ einschalten, Lampen ankreuzen, „Speichern“ | Der Plan für heute Abend als Balken; in der Rollladen-Liste kein Garagentor; „Spielraum ± 30 Minuten“ | ✅ (2026-11-17, Claude, Demo) |
+| 209.3 | Dein Haus: Urlaubs-Licht mit deinen Wohnzimmer-, Küchen- und Flurlampen und den Rollläden einschalten, „Speichern“, Einstellungen noch einmal öffnen | Je Lampe „gelernte Abende: …“ und Balken ungefähr zu euren üblichen Zeiten | ❓ |
+| 209.4 | Vor dem Urlaub (oder zum Ausprobieren einen Abend lang): den Urlaubs-Alarm scharf schalten und von draußen schauen | Die Lampen gehen abends wie bei euch an und aus, die Rollläden nach Sonnenuntergang runter, morgens hoch | ❓ |
+| 209.5 | Den Alarm ausschalten, während Lampen des Urlaubs-Lichts an sind | Die Lampen des Urlaubs-Lichts gehen sofort aus, andere bleiben, wie sie sind | ❓ |
 

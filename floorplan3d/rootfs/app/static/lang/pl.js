@@ -2466,4 +2466,13 @@ export default {
   'rd.tipGood': 'Wszystko w porządku: żadne urządzenie nie ma słabego zasięgu.',
   'rd.none': 'Home Assistant nie zna jeszcze wartości zasięgu dla urządzeń na rzucie.', 'rd.off': '{n} wartości zasięgu jest wyłączonych w Home Assistant',
   'rd.offHow': 'Zigbee2MQTT i ZHA dostarczają je wyłączone. Włączanie: Home Assistant → Ustawienia → Urządzenia i usługi → Encje, szukaj „linkquality” lub „rssi”, otwórz encję → ⚙ → włącz „Włączona”. Po około minucie pojawią się tutaj.',
+  'vac.title': 'Światło urlopowe',
+  'vac.help': 'Gdy alarm urlopowy jest uzbrojony, lampy włączają się i wyłączają wieczorem jak u was – nauczone z ostatnich 14 wieczorów, każdego wieczoru trochę inaczej. Rolety zjeżdżają po zachodzie słońca i podnoszą się rano.',
+  'vac.on': 'Włącz światło urlopowe (działa tylko przy uzbrojonym alarmie urlopowym)', 'vac.lights': 'Lampy', 'vac.covers': 'Rolety',
+  'vac.calm': 'Steruje tylko tymi lampami i wyłącza tylko to, co samo włączyło. Gdy ktoś wróci (alarm wyłączony), od razu przestaje.',
+  'vac.running': 'Działa teraz (alarm urlopowy uzbrojony)', 'vac.waiting': 'Rusza, gdy tylko alarm urlopowy zostanie uzbrojony.',
+  'vac.noPlan': 'Plan na dziś wieczór pojawi się po zapisaniu (dodatek czyta historię Home Assistant).', 'vac.tonight': 'Dziś wieczorem (plan)',
+  'vac.learned': 'nauczone wieczory: {n}', 'vac.plain': 'brak historii: zwykły wieczór',
+  'vac.jitter': 'Margines', 'vac.jitterN': '± {n} minut',
+  'vac.jitterHelp': 'Każda godzina przesuwa się o tyle, każdego wieczoru inaczej – i każdego wieczoru bierze inny prawdziwy wieczór. Dzięki temu z zewnątrz nie widać wzoru.',
 };

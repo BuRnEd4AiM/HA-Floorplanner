@@ -149,6 +149,7 @@ import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.
 import { initSetControls } from './setcontrols.js';
 import { initSetSections } from './setsections.js';
 import { initGuardUi } from './guardui.js';
+import { initVacationUi } from './vacationui.js';
 import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding, areaShown } from './buildings.js';
 import { cardShows, pageShows } from './buildingents.js';
 import { initBuildingScope } from './buildingscope.js';
@@ -1770,7 +1771,8 @@ const settingsStore = initSettings({
 const loadSettings = () => settingsStore.load();
 const notifyUi = initNotifyUi({ $, t, entities: () => entities }); // settings: a message on alarm by WhatsApp (#414) and the alarm panels, notifyui.js
 initSetGroups({ $, t });                         // settings in groups that fold open, with a search, setgroups.js
-const guardUi = initGuardUi({ $, t, entities: () => entities, layout: () => layout });   // the holiday alarm: 🛡 button, lock screen, its settings (#456), guardui.js
+const guardUi = initGuardUi({ $, t, entities: () => entities, layout: () => layout,   // the holiday alarm: 🛡 button, lock screen, its settings (#456), guardui.js
+  vacation: initVacationUi({ t, rules: () => rulesUi.rules, entities: () => entities }) });   // 🏠 Urlaubs-Licht in its settings (vacationui.js)
 initSetSections({ $, t, guard: () => guardUi.info?.(), notify: () => notifyUi.cfg?.() });   // "Reiter unten" by page, "Warnungen & Alarm" as cards (5.8.0)
 const commitSettings = () => settingsStore.commit();
 onLanguageLoaded(() => { if (booted) applySettings(); });   // a language that came later (i18n.js): every text again

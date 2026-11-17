@@ -2516,4 +2516,13 @@ export default {
   'rd.none': 'Home Assistant aún no conoce ningún valor de recepción para los aparatos del plano.',
   'rd.off': '{n} valores de recepción están desactivados en Home Assistant',
   'rd.offHow': 'Zigbee2MQTT y ZHA los traen desactivados. Para activarlos: Home Assistant → Ajustes → Dispositivos y servicios → Entidades, busca «linkquality» o «rssi», abre la entidad → ⚙ → activa «Habilitado». Aparecen aquí tras un minuto.',
+  'vac.title': 'Luz de vacaciones',
+  'vac.help': 'Mientras la alarma de vacaciones está activada, las lámparas se encienden y apagan por la tarde como cuando estáis en casa: aprendido de las últimas 14 tardes, cada tarde un poco distinto. Las persianas bajan tras la puesta de sol y suben por la mañana.',
+  'vac.on': 'Activar la luz de vacaciones (solo mientras la alarma de vacaciones está activada)', 'vac.lights': 'Lámparas', 'vac.covers': 'Persianas',
+  'vac.calm': 'Solo maneja estas lámparas y solo apaga lo que él mismo encendió. Cuando alguien vuelve a casa (alarma apagada), para enseguida.',
+  'vac.running': 'En marcha (la alarma de vacaciones está activada)', 'vac.waiting': 'Empieza en cuanto se active la alarma de vacaciones.',
+  'vac.noPlan': 'El plan de esta noche aparece tras guardar (el add-on lee el historial de Home Assistant).', 'vac.tonight': 'Esta noche (previsto)',
+  'vac.learned': 'tardes aprendidas: {n}', 'vac.plain': 'aún sin historial: una tarde sencilla',
+  'vac.jitter': 'Margen', 'vac.jitterN': '± {n} minutos',
+  'vac.jitterHelp': 'Cada hora se desplaza hasta este margen, distinto cada tarde, y cada tarde toma otra tarde real. Así no hay un patrón visible desde fuera.',
 };

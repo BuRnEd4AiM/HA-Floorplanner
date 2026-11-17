@@ -52,6 +52,7 @@ import pages
 import renames as rn
 import roommap as rm
 import sunshade
+import vacation
 import alarmpic as apic
 import tgbot
 import scenes as sc
@@ -1917,7 +1918,8 @@ def backup_extras(request, secrets: bool = False) -> dict:
             "fullscreen": {"code": gd.stored_code(full.get("code") if isinstance(full, dict) else None)},
             "notify": {k: v for k, v in an.clean(n, n).items() if secrets or k not in an.SECRETS},
             "rules": {"heat": hr.clean_rules(rules.get("heat")), "flows": fl.clean_flows(rules.get("flows")),   # heating rules, routines (#546)
-                      "days": sdays.clean_days(rules.get("days")), "sun": sunshade.clean_sun(rules.get("sun"))}}   # 📅 Besondere Tage, ☀ Sonnenschutz
+                      "days": sdays.clean_days(rules.get("days")), "sun": sunshade.clean_sun(rules.get("sun")),   # 📅 Besondere Tage, ☀ Sonnenschutz
+                      "vac": vacation.clean_vac(rules.get("vac"))}}                                            # 🏠 Urlaubs-Licht
 
 
 def apply_extras(request, extras) -> list:
@@ -1950,7 +1952,8 @@ def apply_extras(request, extras) -> list:
         done.append("notify")
     if isinstance(extras.get("rules"), dict):
         cfg = {"heat": hr.clean_rules(extras["rules"].get("heat")), "flows": fl.clean_flows(extras["rules"].get("flows")),
-               "days": sdays.clean_days(extras["rules"].get("days")), "sun": sunshade.clean_sun(extras["rules"].get("sun"))}   # ☀ Sonnenschutz
+               "days": sdays.clean_days(extras["rules"].get("days")), "sun": sunshade.clean_sun(extras["rules"].get("sun")),   # ☀ Sonnenschutz
+               "vac": vacation.clean_vac(extras["rules"].get("vac"))}                                                        # 🏠 Urlaubs-Licht
         write_json_atomic(rules_path(request), cfg)
         store = app_state(request).get(KEY_RULES)
         if store is not None and "rules" in store:
@@ -3737,7 +3740,7 @@ async def sun_now(request, r: rr.Rules) -> dict | None:
 
 async def rules_answer(request, r: rr.Rules) -> dict:
     status = r.status if r.connected or not SUPERVISOR_TOKEN else {**r.status, **await sensor_caps(app_state(request))}
-    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "days": r.cfg.get("days", []), "sun": r.cfg["sun"], "sunWindows": sun_windows(request, r), "sunPos": await sun_now(request, r), "status": status, "log": r.mem["log"][-100:], "running": r.connected,
+    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "days": r.cfg.get("days", []), "sun": r.cfg["sun"], "vac": r.cfg["vac"], "sunWindows": sun_windows(request, r), "sunPos": await sun_now(request, r), "status": status, "log": r.mem["log"][-100:], "running": r.connected,
             "active": r.active(), "ha": bool(SUPERVISOR_TOKEN), "canEdit": await can_edit(request), "now": round(time.time()),
             "haLink": hl.browser_ha(HA_URL, HA_PUBLIC_URL, request.host) if HA_URL else ""}   # where the browser opens Home Assistant (#548)
 
@@ -3783,6 +3786,8 @@ async def put_rules(request):
         if not isinstance(body["flows"], list):
             return web.json_response({"error": "flows: a list expected"}, status=400)
         r.cfg["flows"] = fl.clean_flows(body["flows"])
+    if "vac" in body:                                    # 🏠 Urlaubs-Licht (vacation.py)
+        r.cfg["vac"] = vacation.clean_vac(body["vac"])
     if "sun" in body:                                    # ☀ Sonnenschutz (sunshade.py)
         r.cfg["sun"] = sunshade.clean_sun(body["sun"])
     if "days" in body:                                   # 📅 Besondere Tage (specialdays.py) for "Nur wenn: besonderer Tag"
@@ -3911,6 +3916,21 @@ async def rules_runner(app):
 
             def local(self):
                 return datetime.datetime.now(app[KEY_RULES].get("tz")).replace(tzinfo=None)
+
+            async def history(self, entities, days):
+                """🏠 Urlaubs-Licht: when each lamp was on in the evenings of the last days (vacation.on_spans); None when not answered"""
+                tz = app[KEY_RULES].get("tz") or datetime.datetime.now().astimezone().tzinfo
+                now = datetime.datetime.now(datetime.timezone.utc)
+                try:
+                    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as s:
+                        async with s.get(f"{HA_API}/history/period/{(now - datetime.timedelta(days=days)).isoformat()}", headers=ha_headers(),
+                                         params={"filter_entity_id": ",".join(entities), "minimal_response": "", "no_attributes": ""}) as r:
+                            if r.status != 200:
+                                return None
+                            return vacation.on_spans(await r.json(), tz, now)
+                except Exception as err:  # noqa: BLE001 - no history: the plain evening, asked again tomorrow
+                    log.info("vacation history: %s", err)
+                    return None
 
             err = None
 

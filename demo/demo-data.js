@@ -804,9 +804,19 @@ function sunStatusDemo() {
   });
   return out;
 }
+/* 🏠 Urlaubs-Licht (5.18.0, vacation.py): set up with the holiday alarm; the demo shows a made-up plan for tonight (as learned from the
+ * evenings of the last 14 days), the holiday alarm is not armed here */
+const vacDemo = { on: false, lights: [], covers: [], jitter: 30 };
+const VAC_EVENINGS = { 'light.wohnzimmer': [[350, 650]], 'light.kueche': [[365, 440], [550, 575]], 'light.bad': [[500, 512], [645, 660]], 'light.schlafzimmer': [[630, 700]] };
+function vacStatusDemo() {
+  if (!vacDemo.on) return { on: false };
+  const plan = {}, learned = {};
+  vacDemo.lights.forEach((e, i) => { plan[e] = VAC_EVENINGS[e] || [[370 + i * 7, 640 - i * 9]]; learned[e] = VAC_EVENINGS[e] ? 12 : 0; });
+  return { on: true, armed: false, plan, learned, ours: [], left: [] };
+}
 function rulesAnswer() {
-  return { heat: rulesDemo.heat, flows: rulesDemo.flows, days: rulesDemo.days, sun: sunDemo, sunWindows: sunWindowsDemo, sunPos: sunPosDemo(),
-    status: { ...rulesStatus(), sun: sunStatusDemo() }, log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS(), haLink: '' };
+  return { heat: rulesDemo.heat, flows: rulesDemo.flows, days: rulesDemo.days, sun: sunDemo, vac: vacDemo, sunWindows: sunWindowsDemo, sunPos: sunPosDemo(),
+    status: { ...rulesStatus(), sun: sunStatusDemo(), vac: vacStatusDemo() }, log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS(), haLink: '' };
 }
 /* 🩺 Protokoll (#579): every room as the add-on sees it (roommap.py) and the journal of today, as the add-on would have written it: the
  * schedule, a turn at the thermostat and back, Home Assistant starting again, the kitchen door (between two rooms: it does not count), the
@@ -1357,6 +1367,7 @@ export function installDemoBackend() {
         const b = JSON.parse(init.body || '{}');
         if (b.heat) rulesDemo.heat = b.heat;
         if (b.sun) Object.assign(sunDemo, b.sun);                               // ☀ Sonnenschutz
+        if (b.vac) Object.assign(vacDemo, b.vac);                               // 🏠 Urlaubs-Licht
         if (Array.isArray(b.days)) rulesDemo.days = b.days;                    // 📅 Besondere Tage (the add-on cleans them, specialdays.py)
         if (Array.isArray(b.flows)) return json({ ...rulesAnswer(), flows: (rulesDemo.flows = b.flows), haSync: haSyncDemo() });
       }

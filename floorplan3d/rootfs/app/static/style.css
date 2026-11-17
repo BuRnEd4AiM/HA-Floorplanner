@@ -3391,3 +3391,13 @@ body.live .v2Nops { display: none; }
 #radioCard .rcRow.rc-bad { background: rgba(230, 70, 60, .16); } #radioCard .rcRow.rc-mid { background: rgba(240, 190, 40, .12); }
 #radioCard .rcOff { margin-top: 6px; font-size: 12.5px; } #radioCard .rcOff summary { cursor: pointer; color: #f0c13c; }
 #radioCard .rcOff ul { margin: 4px 0 0; padding-left: 18px; color: var(--muted); font-size: 12px; word-break: break-all; }
+
+/* 🏠 Urlaubs-Licht in the holiday alarm's settings (vacationui.js, 5.18.0) */
+.vacTitle { margin-top: 16px; }
+.vacPlan { margin: 6px 0 10px; }
+.vacH { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 8px 0 4px; }
+.vacRow { display: grid; grid-template-columns: minmax(110px, 38%) 1fr; gap: 8px; align-items: center; margin: 4px 0; }
+.vacName { display: flex; flex-direction: column; font-size: 13px; } .vacName small { color: var(--muted); font-size: 11px; }
+.vacTrack { position: relative; height: 14px; border-radius: 4px; background: rgba(127,127,127,.15); }
+.vacTrack i { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: #f2b416; }
+.vacAxis { display: flex; justify-content: space-between; margin-left: calc(38% + 8px); font-size: 11px; color: var(--muted); }

@@ -2506,4 +2506,13 @@ export default {
   'rd.none': 'Home Assistant non conosce ancora alcun valore di ricezione per i dispositivi della pianta.',
   'rd.off': '{n} valori di ricezione sono disattivati in Home Assistant',
   'rd.offHow': 'Zigbee2MQTT e ZHA li forniscono disattivati. Per attivarli: Home Assistant → Impostazioni → Dispositivi e servizi → Entità, cerca «linkquality» o «rssi», apri l’entità → ⚙ → attiva «Abilitato». Compaiono qui dopo circa un minuto.',
+  'vac.title': 'Luce delle vacanze',
+  'vac.help': 'Finché l’allarme vacanze è inserito, le lampade si accendono e spengono la sera come quando siete a casa – imparato dalle ultime 14 sere, ogni sera un po’ diverso. Le tapparelle scendono dopo il tramonto e salgono al mattino.',
+  'vac.on': 'Attiva la luce delle vacanze (solo con l’allarme vacanze inserito)', 'vac.lights': 'Lampade', 'vac.covers': 'Tapparelle',
+  'vac.calm': 'Comanda solo queste lampade e spegne solo ciò che ha acceso lui. Quando qualcuno torna (allarme spento), si ferma subito.',
+  'vac.running': 'In corso (l’allarme vacanze è inserito)', 'vac.waiting': 'Parte appena l’allarme vacanze è inserito.',
+  'vac.noPlan': 'Il piano di stasera compare dopo il salvataggio (l’add-on legge la cronologia di Home Assistant).', 'vac.tonight': 'Stasera (previsto)',
+  'vac.learned': 'sere imparate: {n}', 'vac.plain': 'ancora nessuna cronologia: una sera semplice',
+  'vac.jitter': 'Margine', 'vac.jitterN': '± {n} minuti',
+  'vac.jitterHelp': 'Ogni orario si sposta di questo margine, diverso ogni sera – e ogni sera prende un’altra sera vera. Così da fuori non si vede uno schema.',
 };

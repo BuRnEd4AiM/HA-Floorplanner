@@ -333,3 +333,39 @@ async def test_the_sun_sends_a_shutter_down_and_an_opened_window_brings_it_up():
     task.cancel()
     with contextlib.suppress(asyncio.CancelledError):
         await task
+
+
+async def test_the_holiday_light_learns_and_plays_while_the_alarm_is_armed():
+    """🏠 Urlaubs-Licht (vacation.py, 5.18.0): the loop learns once a day and switches only while the holiday alarm is armed"""
+    ha = FakeHa()
+    ha.states["light.wz"] = {"entity_id": "light.wz", "state": "off", "attributes": {}}
+
+    @contextlib.asynccontextmanager
+    async def connect():
+        yield ha
+
+    class VacEnv(Env):
+        armed, asked = False, []
+
+        def local(self):
+            return datetime.datetime(2026, 11, 17, 19, 0)
+
+        def guard_armed(self):
+            return self.armed
+
+        async def history(self, entities, days):
+            self.asked.append((tuple(entities), days))
+            return {"light.wz": {"2026-11-10": [[360, 700]]}}            # 18:00 … 23:40
+
+    rules = rr.Rules({"vac": {"on": True, "lights": ["light.wz"]}})
+    env = VacEnv(ha)
+    task = asyncio.create_task(rr.run_rules(rules, connect=connect, env=env, check=0.2, idle=0.05))
+    assert await until(lambda: env.asked)
+    await asyncio.sleep(0.5)
+    assert not any(c[0] == "light" for c in env.calls)                       # not armed: nothing
+    env.armed = True
+    assert await until(lambda: ("light", "turn_on", {"entity_id": "light.wz"}) in env.calls)
+    assert rules.mem["log"][-1]["src"] == "vac" and len(env.asked) == 1       # learned once
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task

@@ -20,5 +20,5 @@
   "loggers": [
     "custom_components.floorplan3d"
   ],
-  "version": "5.17.0"
+  "version": "5.18.0"
 }
