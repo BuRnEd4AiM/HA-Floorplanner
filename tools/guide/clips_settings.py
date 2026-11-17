@@ -260,8 +260,8 @@ def _(r):
 
 @clip("notify", "settings",
       {"de": "Nachricht aufs Handy bei Alarm", "en": "A message to your phone on an alarm"},
-      {"de": "⚙ → Warnungen & Alarm → Karte „Nachricht aufs Handy“: bei Rauch, Gas, Wasser oder Alarm kommt eine Nachricht per WhatsApp, Telegram oder die Home-Assistant-App.",
-       "en": "⚙ → Warnings & alarm → card “Message to your phone”: on smoke, gas, water or an alarm a message comes by WhatsApp, Telegram or the Home Assistant app."},
+      {"de": "⚙ → Warnungen & Alarm → Karte „Nachricht aufs Handy“: bei Rauch, Gas, Wasser oder Alarm kommt eine Nachricht per WhatsApp, Telegram (auch mit Bild über deinen eigenen Bot) oder die Home-Assistant-App.",
+       "en": "⚙ → Warnings & alarm → card “Message to your phone”: on smoke, gas, water or an alarm a message comes by WhatsApp, Telegram (also with a picture through your own bot) or the Home Assistant app."},
       "Nachricht Handy WhatsApp Telegram Benachrichtigung Alarm Rauch Wasser Gas schicken message phone notification alarm smoke water gas send")
 def _(r):
     r.click("#settingsBtn")
@@ -281,6 +281,32 @@ def _(r):
         r.wait(450)
     r.say("Mit „Testen“ kommt sofort eine Probe-Nachricht.", "“Test” sends a sample message at once.")
     r.wait(2000)
+
+
+@clip("notify-bot", "settings",
+      {"de": "📸 Alarm mit Bild über deinen Telegram-Bot", "en": "📸 Alarm with a picture through your Telegram bot"},
+      {"de": "Dein eigener Telegram-Bot schickt bei Wasser, Rauch oder Alarm den Grundriss mit dem Raum in Rot und das Bild der Kamera dort.",
+       "en": "Your own Telegram bot sends the floor plan with the room in red and the picture of the camera there on water, smoke or an alarm."},
+      "Telegram Bot Bild Foto Grundriss Kamera Alarm Wasser BotFather Telegram bot picture photo floor plan camera alarm water")
+def _(r):
+    r.click("#settingsBtn")
+    r.wait(900)
+    r.click("#sgNav button[data-group=alarm]")
+    r.wait(1200)
+    r.click("details.sgCard[data-card=notify] > summary")
+    r.wait(1000)
+    r.say("„Wohin?“: Telegram – eigener Bot, mit Bild.", "“Where to?”: Telegram – own bot, with a picture.")
+    r.pg.select_option("#anVia", "tgbot")
+    r.wait(1400)
+    r.poster()
+    r.say("Die Anleitung: bei BotFather einen Bot anlegen und seinen Schlüssel hier einfügen.", "The steps: make a bot with BotFather and paste its key here.")
+    r.click("#alarmNotify .anBot details.anStepsBox > summary")
+    r.wait(2600)
+    r.say("Dem Bot „Hallo“ schreiben, dann „Chat finden“ – fertig.", "Write “Hello” to the bot, then “Find chat” – done.")
+    r.pg.mouse.wheel(0, 300)
+    r.wait(2200)
+    r.say("Bei Alarm kommt der Grundriss mit dem Raum in Rot, und das Bild der Kamera dort.", "On an alarm the floor plan comes with the room in red, and the picture of the camera there.")
+    r.wait(2200)
 
 
 @clip("version", "settings",

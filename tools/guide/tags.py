@@ -190,6 +190,11 @@ t("sunshade",
   "Norden Kompass Ausrichtung gedreht Sonnenstand automatisch runter Hitzeschutz Wie verhindere ich dass es heiß wird",
   "sun protection shading roller shutter blind awning sun heat summer too hot window direction south west north compass "
   "orientation turned sun position automatic down heat protection keep the house cool")
+t("radio",
+  "Funk Funkkarte Empfang Signal Signalstärke Zigbee Zigbee2MQTT ZHA WLAN WiFi Linkqualität LQI RSSI dBm Reichweite Verstärker Repeater "
+  "Router offline nicht erreichbar Warum ist mein Gerät offline schwacher Empfang",
+  "radio radio map reception signal signal strength Zigbee Zigbee2MQTT ZHA WiFi link quality LQI RSSI dBm range repeater router "
+  "offline unavailable why is my device offline weak reception")
 t("cameras",
   "Kamera Überwachungskamera Kamerabild Livebild Video Stream Bewegung Bewegungsmelder Garten Einfahrt Haustür "
   "Reolink Unifi Frigate Vollbild groß",
@@ -560,6 +565,11 @@ t("notify",
   "Rauchalarm Wasseralarm Einbruch informieren Testnachricht Karte Karten Zustand",
   "notification push push message message to my phone WhatsApp Telegram CallMeBot companion app alert smoke alarm "
   "water alarm burglary inform test message card cards state")
+t("notify-bot",
+  "Telegram Bot BotFather Bild Foto Grundriss Kamera Kamerabild Alarm mit Bild Wassermelder Wasser Rauch Einbruch Chat finden "
+  "Schlüssel Token Wo ist es passiert Nachricht mit Foto",
+  "Telegram bot BotFather picture photo floor plan camera camera picture alarm with picture water sensor water smoke burglary find chat "
+  "key token where did it happen message with photo")
 t("settings-easy",
   "Schalter Kippschalter Häkchen Knopf Knöpfe Auswahl Liste Schieberegler Regler Prozent Deckkraft Einheit Meter "
   "mehr lesen Erklärung Anleitung aufklappen einklappen übersichtlich einfacher Licht-Gruppe Raumknopf Wie stelle ich etwas ein",

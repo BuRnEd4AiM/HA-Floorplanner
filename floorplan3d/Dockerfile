@@ -1,7 +1,7 @@
 ARG BUILD_FROM=ghcr.io/home-assistant/base:3.21
 FROM $BUILD_FROM
 
-RUN apk add --no-cache python3 py3-aiohttp
+RUN apk add --no-cache python3 py3-aiohttp py3-pillow font-dejavu
 
 COPY rootfs /
 # the beta (floorplan3d/); tools/stable.py writes "stable" into the copy of the normal add-on (channel.py)

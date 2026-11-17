@@ -361,6 +361,18 @@ async def cmb_tg_group(r):        # ... into a group with its key; "bad" is a wr
     NOTIFIED.append(["tg_group", r.query.get("apikey"), r.query.get("text")])
     if r.query.get("apikey") == "bad": return web.Response(text="<p>Error: wrong apikey</p>", content_type="text/html")
     return web.Response(text="<p>Message sent to the group</p>", content_type="text/html")
+async def tg_bot(r):              # 📸 the add-on's own Telegram bot (5.16.0, tgbot.py): getMe, getUpdates (one chat wrote "Hallo"), sendMessage, sendPhoto
+    token, method = r.match_info["token"], r.match_info["method"]
+    if not token.startswith("123456789:"): return web.json_response({"ok": False, "description": "Unauthorized"}, status=401)
+    if method == "getMe": return web.json_response({"ok": True, "result": {"id": 1, "is_bot": True, "username": "haus_test_bot"}})
+    if method == "getUpdates": return web.json_response({"ok": True, "result": [{"update_id": 7, "message": {"chat": {"id": 4711, "first_name": "Flo"}, "text": "Hallo"}}]})
+    if method == "sendMessage":
+        b = await r.json(); NOTIFIED.append(["tg_bot", str(b.get("chat_id")), b.get("text")]); return web.json_response({"ok": True, "result": {}})
+    if method == "sendPhoto":
+        form = await r.post(); photo = form.get("photo")
+        data = photo.file.read() if photo is not None and hasattr(photo, "file") else b""
+        NOTIFIED.append(["tg_photo", str(form.get("chat_id")), form.get("caption"), len(data), data[:4].hex()]); return web.json_response({"ok": True, "result": {}})
+    return web.json_response({"ok": False, "description": "Not Found"}, status=404)
 async def notified(r): return web.json_response(NOTIFIED)
 async def set_voice(r):           # test helper (#509): {"assist": false} = no speech-to-text, {"text": ...} = what is heard; answers what was heard
     VOICE.update({k: v for k, v in (await r.json()).items() if k in ("assist", "text")})
@@ -437,7 +449,7 @@ async def set_areas(r):          # test helper (#590)
     return web.json_response({"ok": True})
 app = web.Application()
 app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.post("/_regevent", reg_event), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified), web.post("/_voice", set_voice),
-                web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group),
+                web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group), web.post("/_tg/bot{token}/{method}", tg_bot),
                 web.get("/websocket", websocket), web.post("/template", template), web.post("/_areas", set_areas), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),
                 web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_calreset", cal_reset), web.post("/config/config_entries/flow", flow_start), web.post("/config/config_entries/flow/{id}", flow_step), web.get("/_flows", flows), web.get("/_stats", stats_asked), web.get("/_levels", levels_asked),

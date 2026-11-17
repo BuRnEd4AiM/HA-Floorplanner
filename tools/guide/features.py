@@ -40,6 +40,8 @@ f("shutter", "live", "Rollläden und Vorhänge", "Roller shutters and curtains",
 f("heating", "live", "Heizung im Raum einstellen", "Set the heating in a room", ["heating"])
 f("devices", "live", "Geräte-Übersicht, Batterien, offline", "Device overview, batteries, offline", ["devices"])
 f("open", "live", "Offene Fenster und Türen", "Open windows and doors", ["open"])
+f("radiomap", "live", "📡 Funk-Karte: Empfang jedes Geräts (Zigbee, WLAN) farbig im Haus, die schwächsten, ausgeschaltete Werte",
+  "📡 Radio map: every device's reception (Zigbee, WiFi) in colour in the house, the weakest, values switched off", ["radio"], since="5.17.0")
 f("warnings", "live", "Warnungen: Regen am offenen Fenster, Rauch, Gas, Wasser", "Warnings: rain at an open window, smoke, gas, water", ["warnings"])
 f("alarm", "live", "Urlaubs-Alarm", "Holiday alarm", ["alarm"])
 f("security", "live", "Sicherheit: einen Tag abspielen", "Security: play back a day", ["security"])
@@ -125,6 +127,8 @@ f("garagelawn", "edit", "🚗 Garage unten auf dem Rasen: aus dem Plateau ausges
 f("drawguides", "edit", "📐 Beim Zeichnen: ∟ rechter Winkel und ∥ parallel, fast getroffen genau", "📐 While drawing: ∟ right angle and ∥ parallel, almost hit becomes exact", ["walls"], since="5.14.0")
 f("rights", "settings", "Je Benutzer und Tablet: je Geräteart ✋ nur ansehen, 💡 nur an/aus oder 🎚 alles", "Per user and tablet: per kind of device ✋ only look, 💡 only on/off or 🎚 everything", ["users"], since="5.13.0")
 f("notify", "settings", "Nachricht aufs Handy bei Alarm", "Message to the phone on an alarm", ["notify"])
+f("notifybot", "settings", "📸 Alarm mit Bild: eigener Telegram-Bot, Grundriss mit dem Raum in Rot, Kamerabild", "📸 Alarm with a picture: own Telegram bot, floor plan with the room in red, camera picture",
+  ["notify-bot"], since="5.16.0")
 f("backup", "settings", "Backup und Wiederherstellen: alles, auch Codes und Aufzeichnungen", "Backup and restore: everything, codes and recordings too",
   ["backup"], since="4.53.0")
 f("fullscreen", "settings", "Vollbild (mit Code)", "Full screen (with a code)", ["fullscreen"])

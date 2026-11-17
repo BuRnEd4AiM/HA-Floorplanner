@@ -52,6 +52,8 @@ import pages
 import renames as rn
 import roommap as rm
 import sunshade
+import alarmpic as apic
+import tgbot
 import scenes as sc
 import trains as tr
 import rulesrun as rr
@@ -1641,6 +1643,13 @@ async def get_batteries(request):
     return web.json_response(request.app[KEY_RENAMES].get("battery") or {})
 
 
+async def get_signals(request):
+    """📡 Funk-Karte (5.17.0): {"of": {entity: the radio signal entity of its device}, "off": [signal entities switched off in Home Assistant]}
+    from Home Assistant's registries (renames.signal_of). Empty without Home Assistant or before the registry was read."""
+    w = request.app[KEY_RENAMES]
+    return web.json_response({"of": w.get("signal") or {}, "off": w.get("signalOff") or []})
+
+
 async def call_service(request):
     if not SUPERVISOR_TOKEN:
         return web.json_response({"error": "no supervisor token"}, status=503)
@@ -2406,6 +2415,8 @@ async def rename_watcher(app):
                                     side=set(state.get("side") or ()),      # kept off the area lists (#368)
                                     parts=dict(state.get("parts") or {}),   # the entities of a thermostat's device (#370)
                                     battery=dict(state.get("battery") or {}),   # the battery entity of each entity's device (#376)
+                                    signal=dict(state.get("signal") or {}),     # 📡 the radio signal entity of each entity's device (5.17.0)
+                                    signalOff=list(state.get("signalOff") or []),   # 📡 signal entities switched off in Home Assistant
                                     plat=dict(state.get("plat") or {}))         # the integration of each thermostat (🌡 Raumfühler, #573)
 
         def load():
@@ -3213,6 +3224,7 @@ async def post_todo(request):
 CALLMEBOT_URL = os.environ.get("CALLMEBOT_URL", "https://api.callmebot.com/whatsapp.php")
 DBF_URL = os.environ.get("DBF_URL", tr.DBF)          # 🚆 the departures of Deutsche Bahn for the card "Zug" (#550; the browser test's stand-in)
 CALLMEBOT_TG = os.environ.get("CALLMEBOT_TG", "https://api.callmebot.com")   # Telegram: text.php (users), telegram/group.php (a group, #456)
+TELEGRAM_API = os.environ.get("TELEGRAM_API", "https://api.telegram.org")   # 📸 the add-on's own Telegram bot (tgbot.py; the browser test's stand-in)
 KEY_NOTIFY = web.AppKey("notify", dict)         # {"cfg": the settings of the messages, "lang": Home Assistant's language}
 
 
@@ -3242,12 +3254,17 @@ def notify_lang(request) -> str:
     return ha if ha in an.TEXTS else "en"
 
 
-async def send_notify(cfg: dict, message: str):
-    """one message the way the settings say (WhatsApp or Telegram through CallMeBot, or notify services of Home Assistant): (ok, error
-    text); with several services it is sent to each, an error names the ones that failed"""
+async def send_notify(cfg: dict, message: str, pics=()):
+    """one message the way the settings say (WhatsApp or Telegram through CallMeBot, notify services of Home Assistant, or the add-on's own
+    Telegram bot with pictures, 5.16.0): (ok, error text); with several services it is sent to each, an error names the ones that failed"""
     why = an.ready({**cfg, "on": True})
     if why:
         return False, f"not set up: {why}"
+    if cfg["via"] == "tgbot":
+        try:
+            return await tgbot.send(TELEGRAM_API, cfg["bottoken"], cfg["botChats"], message, list(pics))
+        except Exception as err:  # noqa: BLE001 - no network, a timeout ...: said, never raised
+            return False, str(err) or type(err).__name__
     try:
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=20)) as s:
             if cfg["via"] == "ha":
@@ -3317,12 +3334,71 @@ async def put_notify(request):
     return web.json_response({**an.public(cfg), "ready": an.ready(cfg)})
 
 
+async def alarm_pics(request, cfg: dict, places: list, alarm: dict | None, lang: str) -> list:
+    """📸 the pictures of an alarm for the bot (5.16.0): the floor from above with the room in red (alarmpic.plan_png) and the picture of a
+    camera in the room (Home Assistant's camera_proxy); none for "back to normal", nothing that fails stops the message"""
+    if cfg.get("via") != "tgbot" or not alarm or alarm.get("ev") == "clear":
+        return []
+    out = []
+    place = apic.place_of(places, alarm.get("eid"))
+    if cfg.get("plan") and place:
+        try:
+            title = " · ".join(x for x in (place["house"] if len(places) > 1 else "", place["floor"].get("name"),
+                                            (place["room"] or {}).get("name"), alarm.get("name")) if x)
+            out.append(await asyncio.to_thread(apic.plan_png, place, alarm.get("kind", "alarm"), lang, title))
+        except Exception as err:  # noqa: BLE001 - no picture then, the text still goes
+            log.info("alarm picture: %s", err)
+    if cfg.get("camera") and place and SUPERVISOR_TOKEN:
+        for cam in apic.cameras_near(place)[:1]:
+            try:
+                async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+                    async with s.get(f"{HA_API}/camera_proxy/{cam}", headers=ha_headers()) as r:
+                        body = await r.read()
+                        if r.status == 200 and body[:2] in (b"\xff\xd8", b"\x89P") and len(body) < 9_000_000:
+                            out.append(body)
+            except Exception as err:  # noqa: BLE001 - the plan and the text still go
+                log.info("alarm camera %s: %s", cam, err)
+    return out
+
+
 async def test_notify(request):
-    """send a test message the way it is set up now"""
+    """send a test message the way it is set up now (the bot: with a picture of the first room of the house shown, as an alarm would)"""
     if not await can_edit(request):
         return forbidden()
-    ok, err = await send_notify(notify_cfg(request), an.test_text(notify_lang(request)))
-    return web.json_response({"ok": ok, "error": err}, status=200 if ok else 502)
+    cfg, lang = notify_cfg(request), notify_lang(request)
+    pics = []
+    if cfg.get("via") == "tgbot" and cfg.get("plan"):
+        places = notify_places(request, {})
+        sample = next(((h, f, r) for h, lay in places for f in (lay or {}).get("floors") or [] for r in f.get("rooms") or []
+                       if isinstance(r, dict) and len(r.get("points") or []) >= 3), None)
+        if sample:
+            h, f, r = sample
+            pts = r["points"]
+            place = {"house": h, "floor": f, "room": r, "x": sum(float(p[0]) for p in pts) / len(pts), "z": sum(float(p[1]) for p in pts) / len(pts)}
+            try:
+                pics.append(await asyncio.to_thread(apic.plan_png, place, "test", lang, " · ".join(x for x in (f.get("name"), r.get("name")) if x)))
+            except Exception as err:  # noqa: BLE001 - the text still goes
+                log.info("test picture: %s", err)
+    ok, err = await send_notify(cfg, an.test_text(lang), pics)
+    return web.json_response({"ok": ok, "error": err, "pics": len(pics)}, status=200 if ok else 502)
+
+
+async def find_tg_chats(request):
+    """📸 the chats that wrote to the bot (editors): the key given in the body ("bottoken", not saved here) or the saved one"""
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        body = {}
+    token = tgbot.check_token((body or {}).get("bottoken")) or notify_cfg(request).get("bottoken", "")
+    if not token:
+        return web.json_response({"error": "bottoken"}, status=400)
+    try:
+        found, err = await tgbot.find_chats(TELEGRAM_API, token)
+    except Exception as e:  # noqa: BLE001 - no network: said
+        found, err = None, str(e) or type(e).__name__
+    return web.json_response(found if found else {"error": err}, status=200 if found else 502)
 
 
 def notify_places(request, cache: dict) -> list:
@@ -3338,6 +3414,13 @@ def notify_places(request, cache: dict) -> list:
             cache[p] = (key, read_json(p, {}))
         out.append((h.get("name") or "", cache[p][1]))
     return out
+
+
+async def send_alarm(ctx, cache: dict, message: str, alarm: dict | None = None):
+    """an alarm message: the text, with the bot also the pictures (📸 5.16.0)"""
+    cfg = notify_cfg(ctx)
+    pics = await alarm_pics(ctx, cfg, await asyncio.to_thread(notify_places, ctx, cache), alarm, notify_lang(ctx)) if cfg.get("via") == "tgbot" else []
+    return await send_notify(cfg, message, pics)
 
 
 async def alarm_notifier(app):
@@ -3358,7 +3441,7 @@ async def alarm_notifier(app):
                 pass
             # the beta while the normal add-on runs: as if the messages were off (the normal one sends them, channel.py)
             await an.run_watch(connect=_HaSocket, config=lambda: {**notify_cfg(ctx), "on": False} if beta_paused(ctx) else notify_cfg(ctx),
-                               send=lambda msg: send_notify(notify_cfg(ctx), msg),
+                               send=lambda msg, alarm=None: send_alarm(ctx, cache, msg, alarm),
                                places=lambda: notify_places(ctx, cache), lang=lambda: notify_lang(ctx),
                                clock=lambda: datetime.datetime.now(tz).strftime("%d.%m. %H:%M"))
 
@@ -4685,6 +4768,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/live", live_ws),
         web.get("/api/areas", get_areas),
         web.get("/api/batteries", get_batteries),
+        web.get("/api/signals", get_signals),
         web.get("/api/energy/prefs", get_energy_prefs),
         web.get("/api/energy/meters", get_energy_meters),
         web.get("/api/energy/counters", get_energy_counters), web.post("/api/energy/counter", make_energy_counter),
@@ -4713,6 +4797,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/notify", get_notify),
         web.put("/api/notify", put_notify),
         web.post("/api/notify/test", test_notify),
+        web.post("/api/notify/tgchats", find_tg_chats),
         web.get("/api/guard", get_guard),
         web.put("/api/guard", put_guard),
         web.post("/api/guard/arm", arm_guard),

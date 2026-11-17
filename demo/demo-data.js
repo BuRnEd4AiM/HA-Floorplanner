@@ -614,7 +614,8 @@ const pinboard = [
   { id: 'a1b2c3d4e5f60003', text: 'Lena: Training fällt Do aus', by: 'Anna', at: new Date(Date.now() - 26 * 3600000).toISOString(), color: 'blue' },
 ];
 
-const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
+const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '',
+  bottoken: '', botChats: [], plan: true, camera: true };   // api/notify in the demo (📸 the own Telegram bot: 5.16.0)
 let fullCode = '1234';
 // 🧺 Haushalt (#490): the washing machine runs (started 48 minutes ago, 42 to go), the dryer ran yesterday, the dishwasher is done
 const t0 = Date.now(), hhAck = {}, hhTell = {}, gardenTimers = {}, gardenOff = {};
@@ -769,6 +770,16 @@ function sceneShow(m) {                                 // ▶ Ausprobieren and 
   });
 }
 entities['automation.flurlicht_nachts'].at = nowS() - 17 * 60;
+/* 📡 Funk-Karte (5.17.0): the radio signal of some devices, as Home Assistant's registries would give them (renames.signal_of): Zigbee
+ * lights and contacts with their linkquality (LQI), two WiFi devices in dBm; the bath is far from the router (weak), one is switched off */
+const signalDemo = { of: {}, off: ['sensor.rauchmelder_flur_linkquality'] };
+[['light.wohnzimmer', 168], ['light.stehlampe', 142], ['light.kueche', 74], ['light.schlafzimmer', 121], ['light.bad', 31], ['light.buero', 96],
+  ['binary_sensor.fenster_wohnzimmer', 118], ['binary_sensor.fenster_kueche', 58], ['sensor.bad_feuchte', 22], ['climate.wohnzimmer', 131],
+  ['media_player.tv', -54, 'dBm'], ['climate.klima_buero', -83, 'dBm']].forEach(([e, v, unit = 'lqi']) => {
+  const sig = `sensor.${e.split('.')[1]}_${unit === 'dBm' ? 'wifi_signal' : 'linkquality'}`;
+  entities[sig] = { name: `${e.split('.')[1]} ${unit === 'dBm' ? 'WiFi signal' : 'Linkquality'}`, state: String(v), unit };
+  signalDemo.of[e] = sig;
+});
 /* ☀ Sonnenschutz (5.15.0, sunshade.py): the windows with a shutter as the add-on works them out of this plan (roommap.rooms_of), the sun
  * of the demo's clock (or ?skytime=…), and what the rule does while it is switched on (the shutter in the sun goes down at once) */
 const sunDemo = { on: false, elev: 15, angle: 75, out: 22, inside: 24, pos: 30, back: 20, open: true, clouds: true, skip: [] };
@@ -1307,18 +1318,19 @@ export function installDemoBackend() {
       if (method === 'PUT') {
         const b = JSON.parse(init.body || '{}'), keep = (k) => (typeof b[k] === 'string' && b[k].trim() ? b[k].trim() : notify[k]);
         const list = (v) => (Array.isArray(v) ? v : String(v || '').split(/[\s,;|]+/)).filter(Boolean);
-        Object.assign(notify, b, { apikey: keep('apikey'), tgkey: keep('tgkey'), services: list(b.services ?? notify.services),
+        Object.assign(notify, b, { apikey: keep('apikey'), tgkey: keep('tgkey'), bottoken: keep('bottoken'), botChats: Array.isArray(b.botChats) ? b.botChats : notify.botChats, services: list(b.services ?? notify.services),
           entities: list(b.entities ?? notify.entities).filter((e) => /^notify\.[a-z0-9_]+$/.test(e)),
           tgUsers: list(b.tgUsers ?? notify.tgUsers).map((u) => (/^[@+]/.test(u) ? u : `@${u}`)) });
       }
       const n = notify, ready = !n.on ? 'off' : n.via === 'ha' ? (n.services.length || n.entities.length ? null : 'service')
         : n.via === 'telegram' ? (n.tgMode === 'group' ? (n.tgkey ? null : 'tgkey') : (n.tgUsers.length ? null : 'tguser'))
+        : n.via === 'tgbot' ? (!n.bottoken ? 'bottoken' : n.botChats.length ? null : 'botchat')
         : !n.phone ? 'phone' : n.apikey ? null : 'apikey';
       return json({ on: n.on, kinds: n.kinds, via: n.via, phone: n.phone, services: n.services, entities: n.entities,
         available: [{ id: 'mobile_app_handy', name: 'mobile_app_handy', origin: 'app', platform: '' },     // where each one comes from (#460)
           { id: 'notify.telegram_bot_familie', name: 'Familien-Chat', origin: 'integration', platform: 'telegram_bot' },
           { id: 'telegram_familie', name: 'telegram_familie', origin: 'yaml', platform: '' }, { id: 'whatsapp', name: 'whatsapp', origin: 'yaml', platform: '' }],
-        tgMode: n.tgMode, tgUsers: n.tgUsers, clear: n.clear, hasKey: !!n.apikey, hasTgKey: !!n.tgkey, ready });
+        tgMode: n.tgMode, tgUsers: n.tgUsers, clear: n.clear, hasKey: !!n.apikey, hasTgKey: !!n.tgkey, hasBot: !!n.bottoken, botChats: n.botChats, plan: n.plan, camera: n.camera, ready });
     }
     if (path === 'api/guard') {
       if (method === 'PUT') {
@@ -1420,6 +1432,7 @@ export function installDemoBackend() {
       return json({ ok: true });
     }
     if (path === 'api/batteries') return json(batteryOf);
+    if (path === 'api/signals') return json(signalDemo);                // 📡 Funk-Karte (5.17.0)
     if (path === 'api/log') return json(logAnswer(new URL(url, location.href).searchParams));   // 📜 Protokoll
     if (path === 'api/timeline') {
       return json({ days: recordedDays().map((day) => ({ day, size: JSON.stringify(recordedDay(day).lines).length })), on: true, keepDays: 7, recording: true,
@@ -1444,6 +1457,7 @@ export function installDemoBackend() {
     }
     if (path === 'api/import') return json({ error: ONLY_ADDON }, 501);   // building a house from JSON is the add-on's (importer.py)
     if (path === 'api/notify/test') return json({ error: 'in der Demo wird nichts gesendet' }, 501);
+    if (path === 'api/notify/tgchats') return json(notify.bottoken ? { bot: '@demo_haus_bot', chats: [{ id: '4711', name: 'Demo' }] } : { error: 'bottoken' }, notify.bottoken ? 200 : 400);   // 📸 nothing goes to Telegram from the demo
     if (path === 'api/backgrounds' && method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);
     if (path === 'api/models') {
       if (method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);

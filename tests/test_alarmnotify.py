@@ -16,9 +16,10 @@ def st(eid, state, dc=None, name=None):
 def test_settings_are_cleaned_and_the_key_stays_in_the_add_on():
     c = an.clean({"on": True, "via": "whatsapp", "phone": "+49 170 / 123-4567", "apikey": "123456", "kinds": ["smoke", "bogus", "alarm"], "clear": True})
     assert c == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "entities": [], "tgMode": "user",
-                 "tgUsers": [], "clear": True, "apikey": "123456", "tgkey": ""}
+                 "tgUsers": [], "clear": True, "botChats": [], "plan": True, "camera": True, "bottoken": "", "apikey": "123456", "tgkey": ""}
     assert an.public(c) == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "entities": [],
-                            "tgMode": "user", "tgUsers": [], "clear": True, "hasKey": True, "hasTgKey": False}
+                            "tgMode": "user", "tgUsers": [], "clear": True, "botChats": [], "plan": True, "camera": True, "hasKey": True, "hasTgKey": False,
+                            "hasBot": False}
     kept = an.clean({"phone": "+491701234567"}, c)
     assert kept["apikey"] == "123456" and kept["on"] is True              # a save without the key keeps it
     assert an.clean({"apikey": ""}, c)["apikey"] == ""                    # "" removes it
@@ -29,7 +30,7 @@ def test_settings_are_cleaned_and_the_key_stays_in_the_add_on():
     assert an.clean({}, {"service": "whatsapp"})["services"] == ["whatsapp"]                            # an old file: its one service is kept
     assert an.clean({"phone": "abc"})["phone"] == ""
     assert an.clean({"via": "sms"})["via"] == "whatsapp"
-    assert an.clean("junk") == {**an.DEFAULT, "apikey": "", "tgkey": ""}
+    assert an.clean("junk") == {**an.DEFAULT, "bottoken": "", "apikey": "", "tgkey": ""}
 
 
 def test_several_services_and_telegram_by_callmebot():
@@ -172,10 +173,11 @@ def test_run_watch_sends_what_goes_off():
         async def __aexit__(self, *a):
             return False
 
-    out = []
+    out, alarms = [], []
 
-    async def send(msg):
+    async def send(msg, alarm=None):
         out.append(msg)
+        alarms.append(alarm)
         return True, None
 
     async def go():
@@ -188,6 +190,7 @@ def test_run_watch_sends_what_goes_off():
         t.cancel()
     asyncio.run(go())
     assert out == ["🔥 Rauch erkannt: Rauch Küche\n18:22"]
+    assert alarms[0]["kind"] == "smoke" and alarms[0]["ev"] != "clear" and alarms[0]["eid"].startswith("binary_sensor.")   # for the pictures (5.16.0)
     assert ws.sent[0] == {"id": 1, "type": "subscribe_events", "event_type": "state_changed"}
 
 
@@ -199,3 +202,19 @@ def test_where_a_roof_window_is():
          "roof": {"type": "gable", "skylights": [{"window": {"type": "window", "entity": "binary_sensor.dachfenster", "at": [5, 1.5], "floor": "og"}}]}},
     ]}
     assert an.where_of([("Haus", lay)], "binary_sensor.dachfenster") == "OG · Studio"
+
+
+TOKEN = "123456789:AAH" + "x" * 32
+
+
+def test_the_own_telegram_bot_keeps_its_key_and_needs_a_chat():
+    """📸 5.16.0: the add-on's own Telegram bot (tgbot.py): its key stays in the add-on like the CallMeBot keys"""
+    c = an.clean({"on": True, "via": "tgbot", "bottoken": f" {TOKEN} ", "botChats": [{"id": "12345", "name": "Flo"}, {"id": "12345"}, {"id": "x y"}, "-1001234"]})
+    assert c["via"] == "tgbot" and c["bottoken"] == TOKEN and c["botChats"] == [{"id": "12345", "name": "Flo"}, {"id": "-1001234", "name": ""}]
+    assert an.public(c)["hasBot"] is True and "bottoken" not in an.public(c)
+    assert an.ready(c) is None
+    assert an.ready({**c, "botChats": []}) == "botchat" and an.ready({**c, "bottoken": ""}) == "bottoken"
+    assert an.clean({"botChats": []}, c)["bottoken"] == TOKEN                          # kept when not given
+    assert an.clean({"bottoken": "nonsense"}, c)["bottoken"] == TOKEN                   # junk is not taken
+    assert an.clean({"bottoken": ""}, c)["bottoken"] == ""                              # "" removes it
+    assert an.clean({"plan": False, "camera": False}, c)["plan"] is False

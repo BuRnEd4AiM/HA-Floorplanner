@@ -191,6 +191,26 @@ def _(r):
     r.wait(2200)
 
 
+@clip("radio", "live",
+      {"de": "📡 Funk: wie gut jedes Gerät seinen Sender hört", "en": "📡 Radio: how well every device hears its sender"},
+      {"de": "Unten „📡 Funk“: über jedem Gerät der Empfang in Grün, Gelb oder Rot, dazu die schwächsten Geräte und ein Tipp.",
+       "en": "“📡 Radio” at the bottom: over every device its reception in green, yellow or red, the weakest ones and a tip."},
+      "Funk Empfang Zigbee WLAN Signal schwach offline Verstärker radio reception Zigbee WiFi signal weak offline repeater")
+def _(r):
+    r.say("Unten bei den Ansichten: „📡 Funk“.", "At the bottom with the views: “📡 Radio”.")
+    r.click("#radioBtn")
+    r.wait(1600)
+    r.poster()
+    r.say("Über jedem Gerät steht, wie gut es seinen Sender hört: grün gut, gelb mittel, rot schwach.",
+          "Over every device: how well it hears its sender – green good, yellow middle, red weak.")
+    r.wait(2200)
+    r.say("Rechts die schwächsten. Ein Tipp zeigt das Gerät im Haus.", "On the right the weakest ones. A tap shows the device in the house.")
+    r.click("#radioCard .rcRow")
+    r.wait(2400)
+    r.say("Ein Gerät mit Strom in der Nähe der roten verstärkt das Zigbee-Netz.", "A mains-powered device near the red ones strengthens the Zigbee network.")
+    r.wait(2000)
+
+
 @clip("open", "live",
       {"de": "Offene Fenster und Türen", "en": "Open windows and doors"},
       {"de": "Das rote Schild oben zählt offene Fenster und Türen. Ein Tipp listet sie, noch ein Tipp zeigt sie im Plan.",
