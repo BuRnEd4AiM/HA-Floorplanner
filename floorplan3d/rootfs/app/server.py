@@ -1908,7 +1908,7 @@ def backup_extras(request, secrets: bool = False) -> dict:
             "fullscreen": {"code": gd.stored_code(full.get("code") if isinstance(full, dict) else None)},
             "notify": {k: v for k, v in an.clean(n, n).items() if secrets or k not in an.SECRETS},
             "rules": {"heat": hr.clean_rules(rules.get("heat")), "flows": fl.clean_flows(rules.get("flows")),   # heating rules, routines (#546)
-                      "days": sdays.clean_days(rules.get("days"))}}                                        # 📅 Besondere Tage
+                      "days": sdays.clean_days(rules.get("days")), "sun": sunshade.clean_sun(rules.get("sun"))}}   # 📅 Besondere Tage, ☀ Sonnenschutz
 
 
 def apply_extras(request, extras) -> list:
@@ -1941,7 +1941,7 @@ def apply_extras(request, extras) -> list:
         done.append("notify")
     if isinstance(extras.get("rules"), dict):
         cfg = {"heat": hr.clean_rules(extras["rules"].get("heat")), "flows": fl.clean_flows(extras["rules"].get("flows")),
-               "days": sdays.clean_days(extras["rules"].get("days"))}
+               "days": sdays.clean_days(extras["rules"].get("days")), "sun": sunshade.clean_sun(extras["rules"].get("sun"))}   # ☀ Sonnenschutz
         write_json_atomic(rules_path(request), cfg)
         store = app_state(request).get(KEY_RULES)
         if store is not None and "rules" in store:
