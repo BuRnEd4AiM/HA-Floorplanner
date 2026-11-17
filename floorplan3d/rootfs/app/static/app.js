@@ -154,7 +154,7 @@ import { initBuildingScope } from './buildingscope.js';
 import { initBuildingsUi } from './buildingsui.js';
 import { initPicking } from './picking.js';
 import { batchModels, unbatch } from './meshmerge.js';
-import { staticDevice } from './pickrules.js';
+import { initLiveBatch } from './livebatch.js';
 import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
 import { frameDue, shadowDue, dampingFor, MAX_STEP } from './frameloop.js';
@@ -362,11 +362,7 @@ const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundId
 const sky = initSky({ $, t, canvas, params, settings: () => settings, states: () => states, isLive: () => isLive(), isHolo: () => isHolo(),   // sky and weather (#418, #419), skyui.js
   low: () => perfParam === 'low', earthTint: (c) => earth.setTint(c) });
 let plotLoop = null;                  // the plot outline: a drawing aid, only in edit mode
-let statics = [], batched = [];       // furniture linked to nothing, per floor, drawn together in the live mode (#138, batchModels)
-function batchStatics() {             // live: batched, editor: every piece on its own again (it can be moved)
-  batched.forEach(unbatch);
-  batched = isLive() ? statics.map(({ g, models }) => batchModels(g, models)).filter(Boolean) : [];
-}
+const liveBatch = initLiveBatch({ isLive: () => isLive(), batch: batchModels, unbatch });   // the models of a floor drawn together in the live mode (#138, livebatch.js)
 /** the grid is a drawing aid (never in live mode, under any ground only while drawing, on the level of the floor shown); the earth cut follows the camera */
 function updateEarthCut() {
   if (grid) {
@@ -504,7 +500,7 @@ function build() {
   wake();
   refreshView();
   plan?.render();
-  batched.forEach(unbatch); batched = []; statics = [];   // the parts back in the scene: clearGroup frees them
+  liveBatch.reset();                    // the parts back in the scene: clearGroup frees them
   clearGroup(world);
   registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); offMarks.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0; roomLabels.clear();
   syncDormerWindows(layout.floors, roofList, elev, uid);   // dormer windows are real windows on the floor they belong to (dormerwin.js)
@@ -571,7 +567,7 @@ function build() {
     floorBuild.walls(g, f, i, { ...part, edge: edgeMaterial, roofClip: roofsUi.wallClip(i) });   // under the roof the walls follow the slope (#260)
 
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
-    if (!ghost && !holo) statics.push({ g, models: f.devices.filter(staticDevice).map((d) => registry.get(d.id)).filter(Boolean) });
+    if (!ghost && !holo) liveBatch.add(g, f.devices.map((d) => registry.get(d.id)).filter(Boolean));
     floorBuild.inside(g, part);
     if (!ghost && !houseMode && i === floorIdx) roomLocks?.draw3d(g, f, iso);   // locked rooms hatched while editing; a room on its own: only its own (roomlockui.js)
   });
@@ -585,8 +581,8 @@ function build() {
       registry.get(d.id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { m.clippingPlanes = [earth.plane]; m.needsUpdate = true; }); });
     }));
   }
-  batchStatics();
   applyStates();
+  liveBatch.apply();                    // after the states: who is not at home is hidden by now
   refreshSelection();
   buildNav();
   floorRail.schedule();
@@ -1399,9 +1395,9 @@ function setMode(next) {
   stairTool.showUpper(scene, !isLive());                              // stairs over several floors: whole height only in the editor (#246)
   if (plotLoop) plotLoop.visible = !isLive();
   roomLocks?.showHatch(!isLive()); roomLocks?.closePop();
-  batchStatics();
   applyViewPolicy();
   applyStates();
+  liveBatch.apply();
   welcomeUi?.update();                                              // the welcome card is for the editor only
   requestAnimationFrame(resize);
 }
@@ -1950,6 +1946,7 @@ function animate(now = performance.now()) {
   if (shadowDue(shadowDirty, now, lastShadow, { sinking, sank: wallsSank, lastMove })) {   // shadows only when something changed (#253)
     renderer.shadowMap.needsUpdate = true; shadowDirty = wallsSank = false; lastShadow = now;
   }
+  liveBatch.check();                                             // a model hidden, shown or moved since the merge is drawn by itself again (#138)
   if (layoutMode !== '2d') edges.render(scene, camera, now);  // only the 2D plan shows: the hidden 3D picture is not drawn (#542); edges: #560
   perfHud.frame(now, due, frameStart);
 }
@@ -1980,10 +1977,10 @@ if (params.get('debug')) {
     },
     get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), kioskSaver: () => kiosk.saver(), cleaning: () => tabletExtras.cleaning(), kioskWake: () => kiosk.checkWake(), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
     edges: () => edges.info(), edgesCompare: () => edges.compare(scene, camera),   // #560, for tests
-    renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
+    renderer, scene, frame: () => { const t0 = performance.now(); liveBatch.check(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => hs.id(), states: () => states,
     bellOpen: () => doorbell.isOpen(), bells: () => doorbell.bells(), bellTest: () => doorbell.test(), bellClose: () => doorbell.close(),   // 🔔, for tests
-    batchedParts: () => batched.reduce((n, b) => n + b.parts.length, 0), unbatchAll: () => { batched.forEach(unbatch); batched = []; },   // #138, for tests
+    batchedParts: () => liveBatch.parts(), batchedMeshes: () => liveBatch.meshes(), batchRestless: (id) => liveBatch.restless(registry.get(id)), unbatchAll: () => liveBatch.undo(), rebatch: () => liveBatch.apply(),   // #138, for tests
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)
       const v = cams.coneCenter(id);
       if (!v) return null;

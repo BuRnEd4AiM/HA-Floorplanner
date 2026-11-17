@@ -2,6 +2,11 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.14.1] - 2026-11-17
+### Changed
+- **Turning and zooming the house is lighter on a tablet** (#138, the owner, 2026-11-17: "Tablet flüssiger beim Drehen"): in "Live" the furniture of a floor is drawn together, and now all colours of one kind of surface (matt, shiny, metal ...) go into one piece instead of one piece per colour. The show house ("alles drin") needs about **800 draw calls** in the whole house instead of 1,205 (1,689 in the editor); a single floor about a third fewer. Devices linked to Home Assistant take part too: only what a state changes (the glow of a lamp, a TV screen, a door leaf, a roller shutter) stays on its own. It looks the same as before: every colour, every corner, solar cells over their frame.
+- A piece that is hidden, shown or moved in "Live" after that (a person who comes home, the power editor) is drawn by itself again at once.
+
 ## [5.14.0] - 2026-11-16
 ### Added
 - **🏗 The railing of a balcony side by side** (the owner, 2026-11-16: "ich hätte gerne, dass ich sagen kann, wie weit das Geländer in einer Richtung geht oder ob eine Geländertür dort ist … bei mir geht das Geländer nur an zwei Seiten"): a balcony or roof terrace has **Geländer je Seite** in its properties: every side that has a railing gets a number („Seite 1 · 4,00 m“, the same number stands at that side in the 2D plan) and can be **switched off**, made **shorter** („Geländer von … bis“) or get a **🚪 gate** (its middle and width, 90 cm to start). In the 2D plan the railing is a light line, a gate a gap with its swing; the ends ◆ and the gate ■ can be **dragged** along the side. In 3D the gate is a leaf in a frame like the railing (bars, glass or slats) with a handle. A corner added or taken away keeps the settings at their place. Also in the JSON import and export (`railSides`).

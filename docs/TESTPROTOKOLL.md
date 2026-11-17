@@ -514,7 +514,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 202. Neu in 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart | 7 | 0 | 5 | 0 | 202.8 bis 202.12 |
 | 203. Neu in 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr (#759) | 4 | 0 | 3 | 0 | 203.5 bis 203.7 |
 | 204. Neu in 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen | 1 | 0 | 8 | 0 | 204.2 bis 204.9 |
-| **Zusammen** | **1306** | **2** | **105** | **92** | |
+| 205. Verbessert in 5.14.1: das Haus dreht sich leichter am Tablet (#138) | 3 | 0 | 1 | 0 | 205.4 |
+| **Zusammen** | **1309** | **2** | **106** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3119,3 +3120,13 @@ Dein Wunsch vom 2026-11-15 („Kannst du mal mehr Einstellungen für Tablets hin
 | 204.7 | „🏘 Gebäude in diesem Plan“ → „Flächen des Grundstücks“: den Rasen einem Gebäude geben, oben ein anderes Gebäude wählen | Der Rasen ist weg; das Plateau geht von selbst mit dem Gebäude, das darauf steht | ❓ |
 | 204.8 | Eine Wand oder einen Raum zeichnen und mit der Maus fast rechtwinklig oder fast parallel zu einer Wand gehen | Ein grünes ∟ 90° bzw. ∥, der Punkt rückt genau darauf; mit gedrückter Alt-Taste nicht | ❓ |
 | 204.9 | ⚙ → Häuser → „Löschen“, einen falschen Namen eintippen; dann den richtigen | Erst „Nicht gelöscht“, dann ist das Haus weg | ❓ |
+
+## 205. Verbessert in 5.14.1: das Haus dreht sich leichter am Tablet (#138)
+Dein Wunsch vom 2026-11-17 („dann fangen wir mit 1 an“: Tablet flüssiger beim Drehen). In „Live“ zeichnet das Add-on die Möbel einer Etage mit allen Farben einer Oberfläche zusammen.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 205.1 | Unit-Tests `tests/meshmerge.test.mjs`, `tests/livebatch.test.mjs` (neu), `pickrules`; Browser-Test Teile `14_showcase`, `11_live`, `04_lights`, `16_leisure`, `05_power`, `07_tablet` | Alles grün | ✅ (2026-11-17, Claude) |
+| 205.2 | Musterhaus „alles drin“, „Live“, „Ganzes Haus“, unten „Ansicht“ → „⏱ Leistung“ auf „alle Werte“ | „Zeichenaufrufe“ etwa 800 (vorher etwa 1.200) | ✅ (2026-11-17, Claude, nachgebautes Add-on: 798) |
+| 205.3 | Dasselbe Bild mit und ohne Zusammenfassen vergleichen (ganzes Haus und je Etage aus vier Blickwinkeln) | Gleiche Farben und Formen, Solarzellen über ihrem Rahmen; anders sind nur die roten „offline“-Zeichen, die auch sonst etwas wandern | ✅ (2026-11-17, Claude) |
+| 205.4 | Am iPad oder Wandtablet: dein Haus in „Live“, „Ganzes Haus“, drehen und zoomen | Flüssiger als vorher, alle Möbel sehen aus wie immer | ❓ |

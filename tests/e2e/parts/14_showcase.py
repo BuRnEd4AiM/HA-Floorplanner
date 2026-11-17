@@ -47,7 +47,7 @@ edit_calls, edit_parts = calls, pgS.evaluate("window.__fp.batchedParts()")
 pgS.click("#modeSwitch button[data-mode=live]"); pgS.wait_for_timeout(1500)
 live_calls = pgS.evaluate("(() => { window.__fp.frame(); window.__fp.frame(); return window.__fp.renderer.info.render.calls; })()")
 live_parts = pgS.evaluate("window.__fp.batchedParts()")
-check("show house (#138): live mode draws the furniture without an entity together, far fewer draw calls than the editor (about 1180 to 1660)",
+check("show house (#138): live mode draws the furniture without an entity together, far fewer draw calls than the editor (about 800 since 5.14.1, all colours of a surface in one mesh)",
       edit_parts == 0 and live_parts > 300 and live_calls < edit_calls - 300, (edit_calls, edit_parts, live_calls, live_parts))
 pgS.click("#modeSwitch button[data-mode=edit]"); pgS.wait_for_timeout(800)
 back = pgS.evaluate("(() => { window.__fp.frame(); return window.__fp.renderer.info.render.calls; })()")

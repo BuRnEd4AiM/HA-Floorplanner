@@ -95,47 +95,117 @@ function dropEmpty(o, root, refs) {
   if (o !== root && o.type === 'Group' && !o.children.length && !refs.objects.has(o) && !Object.keys(o.userData).length) o.removeFromParent();
 }
 
+/** the look of a material without its colour: parts whose materials differ in nothing but the colour can be one mesh, the colour then
+ *  sits on every corner of the part (blended). null as lookKey, and for a material that has such colours itself */
+export function blendKey(m, live = new Set()) {
+  if (lookKey(m, live) === null || m.vertexColors) return null;
+  return [m.type, hex(m.emissive), m.emissiveIntensity, m.roughness, m.metalness, m.opacity, m.transparent, m.side, m.depthWrite,
+    m.depthTest, m.wireframe, m.flatShading, m.alphaTest, m.visible, m.fog, m.blending].join('|');
+}
+
+const floats = (a) => !!a && !a.isInterleavedBufferAttribute && a.array instanceof Float32Array;
+/** can this part go into a blended mesh: plain corners and their directions, nothing that moves by itself */
+const blendable = (g) => floats(g.attributes.position) && floats(g.attributes.normal) && g.attributes.position.itemSize === 3
+  && g.attributes.normal.itemSize === 3 && !Object.keys(g.morphAttributes).length;
+
+/** the part o for a blended mesh: its geometry moved by mx with nothing but the corners, their directions and the colour of its material on
+ *  every corner (always with an index, so all parts fit together) */
+function coloured(o, mx) {
+  const c = placed(o.geometry, mx), g = new THREE.BufferGeometry(), n = c.attributes.position.count, col = new Float32Array(n * 3);
+  const { r, g: gr, b } = o.material.color;
+  for (let i = 0; i < n; i++) { col[i * 3] = r; col[i * 3 + 1] = gr; col[i * 3 + 2] = b; }
+  g.setAttribute('position', c.attributes.position);
+  g.setAttribute('normal', c.attributes.normal);
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  g.setIndex(c.index ? Array.from(c.index.array) : Array.from({ length: n }, (_, i) => i));
+  return g;
+}
+
+/** how much later the parts that stay themselves are drawn than the merged ones (renderOrder) */
+export const LATER = 1e-4;
+
 /**
- * Fewer draw calls in the live mode (#138, the show house drew 1661 times in the whole house): there nothing changes furniture that is
- * linked to nothing (staticDevice in pickrules.js), so the parts of all of it on one floor that look the same are drawn as one mesh, the
- * grey of the sofa with the grey of the shelf, as mergeParts does inside one model. `container` is the floor's group, `roots` the models.
- * Only plain parts move into the merged meshes; a model keeps its pick box and every part something refers to. Left alone too: glass
- * (transparent parts are drawn in the order of their distance) and parts cut by a plane (the earth). Returns what unbatch needs to put
- * the parts back (the editor moves them one by one), null when nothing was merged.
+ * Fewer draw calls in the live mode (#138, the show house drew 1661 times in the whole house, 1205 after the first step): there nobody
+ * moves furniture, so the parts of all models on one floor that look the same are drawn as one mesh, the grey of the sofa with the grey of
+ * the shelf, as mergeParts does inside one model. Since 5.14.1 the colour does not have to be the same: it sits on the corners of every
+ * part (blendKey), so a floor needs about one mesh per kind of surface (matt, shiny, glowing ...), not one per colour. `container` is the
+ * floor's group, `roots` the models. Only plain parts go into the merged meshes (they stay in their model, hidden); a model keeps every part something
+ * refers to (what a state changes: glow, heat, LED, a moving part). Left alone too: hidden models, glass (transparent parts are drawn in
+ * the order of their distance), parts with a texture and parts cut by a plane (the earth). Returns what unbatch needs to put the parts
+ * back (the editor moves them one by one), null when nothing was merged.
  */
 export function batchModels(container, roots) {
-  const groups = new Map();
+  const models = [], looks = new Map();
   container.updateMatrixWorld(true);
   roots.forEach((root) => {
     if (!root.visible) return;
     const refs = referenced(root.userData);
     root.traverse((o) => { if (o !== root && o.userData) referenced(o.userData, refs); });
+    const mine = [];
     root.traverse((o) => {
-      if (!plain(o, root, refs)) return;
-      const look = lookKey(o.material, refs.materials);
+      if (!plain(o, root, refs) || !blendable(o.geometry)) return;
+      const look = blendKey(o.material, refs.materials);
       if (look === null || o.material.transparent || o.material.clippingPlanes?.length) return;
-      const key = `${look}#${geoKey(o.geometry)}#${o.renderOrder}#${o.castShadow ? 1 : 0}${o.receiveShadow ? 1 : 0}`;
-      (groups.get(key) || groups.set(key, { mat: o.material, list: [] }).get(key)).list.push(o);
+      mine.push({ o, key: `${look}#${o.renderOrder}#${o.castShadow ? 1 : 0}${o.receiveShadow ? 1 : 0}` });
+    });
+    if (!mine.length) return;
+    // Two faces of a model that lie nearly on each other (the cells on a solar panel, 5 mm over its frame) look the same depth from far
+    // away; then the one drawn later is in front, and three.js draws solid things in the order their materials were made. The merged
+    // meshes keep that order inside every model: its parts sorted by material, each noting where its material stands (0 first, 1 last)
+    mine.sort((p, q) => p.o.material.id - q.o.material.id);
+    const ids = [...new Set(mine.map(({ o }) => o.material.id))];
+    mine.forEach(({ o, key }) => {
+      const l = looks.get(key) || looks.set(key, { rank: 0, n: 0, first: o.material.id }).get(key);
+      l.rank += ids.length > 1 ? ids.indexOf(o.material.id) / (ids.length - 1) : 0.5; l.n++;
+    });
+    models.push(mine);
+  });
+  // the looks in the order most models have them (the body first, the details last) ...
+  const pos = new Map([...looks.entries()].sort(([, p], [, q]) => p.rank / p.n - q.rank / q.n || p.first - q.first).map(([key], i) => [key, i]));
+  // ... and a model that has them the other way round (frame, cells, lines: the lines look like the frame) starts a new layer there
+  const groups = new Map();
+  models.forEach((mine) => {
+    let layer = 0, last = -1, lastMat = null;
+    mine.forEach(({ o, key }) => {
+      const at = pos.get(key);
+      if (at < last && o.material !== lastMat) layer++;
+      last = at; lastMat = o.material;
+      const k = `${layer}|${key}`;
+      (groups.get(k) || groups.set(k, { layer, at, list: [] }).get(k)).list.push(o);
     });
   });
   const inv = container.matrixWorld.clone().invert(), rel = new THREE.Matrix4(), meshes = [], parts = [];
-  groups.forEach(({ mat, list }) => {
-    if (list.length < 2) return;
-    const geo = mergeGeometries(list.map((o) => placed(o.geometry, rel.multiplyMatrices(inv, o.matrixWorld))), false);
+  [...groups.values()].filter((g) => g.list.length > 1).sort((p, q) => p.layer - q.layer || p.at - q.at).forEach(({ list }) => {   // one part alone: no gain
+    const geo = mergeGeometries(list.map((o) => coloured(o, rel.multiplyMatrices(inv, o.matrixWorld))), false);
     if (!geo) return;
+    const mat = list[0].material.clone();                        // made in this order, so drawn in this order
+    mat.color.set(0xffffff); mat.vertexColors = true;
     const m = new THREE.Mesh(geo, mat);
     m.castShadow = list[0].castShadow; m.receiveShadow = list[0].receiveShadow; m.renderOrder = list[0].renderOrder;
     m.userData.batch = true;
     container.add(m);
     meshes.push(m);
-    list.forEach((o) => { parts.push({ o, parent: o.parent }); o.removeFromParent(); });
+    list.forEach((o) => { parts.push(o); o.visible = false; });  // hidden, not taken out: the model keeps its size for whoever measures it, and a tap still hits it
   });
-  return meshes.length ? { meshes, parts } : null;
+  if (!meshes.length) return null;
+  // what stays itself in these models (a glowing screen 3 mm in front of its TV) was made before the merged materials: drawn a touch later
+  const later = [];
+  models.forEach((mine) => {
+    let root = mine[0].o;
+    while (root.parent && !roots.includes(root)) root = root.parent;
+    root.traverse((o) => {
+      if (!o.isMesh || !o.visible || [].concat(o.material).some((x) => x.transparent || !x.visible)) return;
+      later.push({ o, renderOrder: o.renderOrder });
+      o.renderOrder += LATER;
+    });
+  });
+  return { meshes, parts, later };
 }
 
-/** the parts of batchModels back in their models (their own places, sizes and turns never changed), the merged meshes away */
+/** the parts of batchModels shown again in their models, the merged meshes away */
 export function unbatch(b) {
   if (!b) return;
-  b.meshes.forEach((m) => { m.removeFromParent(); m.geometry.dispose(); });
-  b.parts.forEach(({ o, parent }) => parent.add(o));
+  b.meshes.forEach((m) => { m.removeFromParent(); m.geometry.dispose(); m.material.dispose(); });
+  b.parts.forEach((o) => { o.visible = true; });
+  b.later.forEach(({ o, renderOrder }) => { o.renderOrder = renderOrder; });
 }

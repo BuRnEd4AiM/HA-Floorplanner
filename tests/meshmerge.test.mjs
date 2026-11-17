@@ -10,6 +10,7 @@ const THREE = await import(`${dir}/vendor/three.module.min.js`);
 const std = (c = '#888888', extra = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.7, metalness: 0.05, ...extra });
 const box = (mat, x = 0, y = 0, z = 0, s = 0.2) => { const m = new THREE.Mesh(new THREE.BoxGeometry(s, s, s), mat); m.position.set(x, y, z); return m; };
 const meshes = (g) => { const out = []; g.traverse((o) => { if (o.isMesh) out.push(o); }); return out; };
+const drawn = (g) => meshes(g).filter((m) => { for (let p = m; p; p = p.parent) if (!p.visible) return false; return true; });
 const bounds = (g) => { g.updateMatrixWorld(true); return new THREE.Box3().setFromObject(g); };
 const near = (a, b, eps = 1e-5) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
 const sameBox = (a, b) => ['min', 'max'].forEach((k) => ['x', 'y', 'z'].forEach((c) => near(a[k][c], b[k][c])));
@@ -17,7 +18,7 @@ const sameBox = (a, b) => ['min', 'max'].forEach((k) => ['x', 'y', 'z'].forEach(
 function triangles(g) {
   g.updateMatrixWorld(true);
   const inv = g.matrixWorld.clone().invert(), out = [], v = new THREE.Vector3();
-  meshes(g).forEach((m) => {
+  drawn(g).forEach((m) => {
     const pos = m.geometry.attributes.position, ix = m.geometry.index, mx = new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld);
     const n = ix ? ix.count : pos.count;
     for (let i = 0; i < n; i++) { v.fromBufferAttribute(pos, ix ? ix.getX(i) : i).applyMatrix4(mx); out.push(v.toArray().map((x) => x.toFixed(4)).join(',')); }
@@ -109,28 +110,46 @@ test('only geometries with the same attributes join; a model of one mesh stays a
   assert.equal(M.mergeParts(one), 0);
 });
 
-test('live mode (#138): the furniture of a floor that looks the same is drawn as one mesh, each piece where it was; back in the editor every piece is whole again', () => {
+/** every drawn corner with its colour (the material's, or its own colour in a merged mesh), in the floor's frame, sorted */
+function coloured(g) {
+  g.updateMatrixWorld(true);
+  const inv = g.matrixWorld.clone().invert(), out = [], v = new THREE.Vector3(), c = new THREE.Color();
+  drawn(g).forEach((m) => {
+    const pos = m.geometry.attributes.position, col = m.geometry.attributes.color, ix = m.geometry.index, mx = new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld);
+    const n = ix ? ix.count : pos.count;
+    for (let i = 0; i < n; i++) {
+      const k = ix ? ix.getX(i) : i;
+      v.fromBufferAttribute(pos, k).applyMatrix4(mx);
+      if (m.material.vertexColors) c.fromBufferAttribute(col, k).multiply(m.material.color); else c.copy(m.material.color);
+      out.push(`${v.toArray().map((x) => x.toFixed(4)).join(',')}|${c.getHexString()}|${m.material.roughness}`);
+    }
+  });
+  return out.sort();
+}
+
+test('live mode (#138): the furniture of a floor is drawn as one mesh per kind of surface, every colour and piece where it was; back in the editor every piece is whole again', () => {
   const floor = new THREE.Group(); floor.position.set(0, 2.8, 0);
-  const grey = std('#777777'), wood = std('#8b5a2b'), glass = std('#ccddee', { transparent: true, opacity: 0.4 });
+  const grey = std('#777777'), wood = std('#8b5a2b'), shiny = std('#222222', { roughness: 0.2 }), glass = std('#ccddee', { transparent: true, opacity: 0.4 });
   const sofa = new THREE.Group(), shelf = new THREE.Group();
   sofa.position.set(1, 0, 2); sofa.rotation.y = 0.7; shelf.position.set(-2, 0, 1); shelf.scale.set(1, 1.5, 1);
-  sofa.add(box(grey, 0), box(wood, 0.5)); shelf.add(box(std('#777777'), 0, 1), box(wood, 0, 0.5), box(glass, 0, 0.8), box(glass, 0, 0.9));
-  const pick = box(std(), 0, 0, 0, 1); pick.userData.proxy = true; shelf.add(pick);   // the pick box stays in its model
+  sofa.add(box(grey, 0), box(wood, 0.5), box(shiny, 1)); shelf.add(box(grey, 0, 1), box(wood, 0, 0.5), box(shiny, 0, 0.3), box(glass, 0, 0.8), box(glass, 0, 0.9));
+  const pick = box(std(), 0, 0, 0, 1); pick.userData.proxy = true; pick.material.visible = false; shelf.add(pick);   // the pick box stays in its model
   floor.add(sofa, shelf);
-  const before = triangles(floor), sofaBox = bounds(sofa);
+  const before = coloured(floor), sofaBox = bounds(sofa), count = meshes(floor).length;
   const b = M.batchModels(floor, [sofa, shelf]);
   assert.ok(b);
-  assert.equal(b.meshes.length, 2);                              // the greys together, the woods together
-  assert.equal(b.parts.length, 4);
-  assert.deepEqual(triangles(floor), before);                    // the floor looks exactly the same
-  assert.ok(b.meshes.every((m) => m.parent === floor));
-  assert.equal(meshes(shelf).filter((m) => m.material === glass).length, 2, 'glass keeps its own meshes (drawn by distance)');
-  assert.ok(shelf.children.includes(pick));
+  assert.equal(b.meshes.length, 2);                              // grey and wood (both matt) together, the shiny ones together
+  assert.equal(b.parts.length, 6);
+  assert.deepEqual(coloured(floor), before);                     // the floor looks exactly the same: every corner, every colour
+  assert.ok(b.meshes.every((m) => m.parent === floor && m.material.vertexColors));
+  assert.equal(drawn(shelf).filter((m) => m.material === glass).length, 2, 'glass keeps its own meshes (drawn by distance)');
+  assert.ok(shelf.children.includes(pick) && b.parts.every((o) => o.parent && !o.visible), 'the parts stay in their models, hidden');
+  sameBox(bounds(sofa), sofaBox);                                // its size for whoever measures it (the tap ball)
   M.unbatch(b);
-  assert.deepEqual(triangles(floor), before);
-  assert.equal(meshes(sofa).length, 2);
-  assert.equal(meshes(shelf).length, 5);
+  assert.deepEqual(coloured(floor), before);
+  assert.equal(meshes(floor).length, count);
   assert.ok(b.meshes.every((m) => !m.parent));
+  assert.ok(drawn(floor).every((m) => m.renderOrder === 0), 'the draw order is as it was');
   sofa.position.x += 1;                                          // the editor moves the sofa: all of it
   sameBox(bounds(sofa), sofaBox.translate(new THREE.Vector3(1, 0, 0)));
 });
@@ -138,16 +157,34 @@ test('live mode (#138): the furniture of a floor that looks the same is drawn as
 test('live mode (#138): a hidden model, a part something refers to and a lone look are not batched; nothing to merge gives null', () => {
   const floor = new THREE.Group(), red = std('#aa0000');
   const hidden = new THREE.Group(), lamp = new THREE.Group(), chair = new THREE.Group();
-  hidden.visible = false; hidden.add(box(red, 0));
-  const shade = box(red, 1); lamp.add(shade); lamp.userData.glow = [shade.material];
-  chair.add(box(red, 2), box(std('#00aa00'), 3));
+  hidden.visible = false; hidden.add(box(red, 0), box(red, 0.5));
+  const shade = box(red, 1); lamp.add(shade, box(std('#444444'), 1.5)); lamp.userData.glow = [shade.material];   // a lamp: its glowing shade and a plain foot
+  chair.add(box(red, 2), box(std('#00aa00', { roughness: 0.3 }), 3));
   floor.add(hidden, lamp, chair);
-  assert.equal(M.batchModels(floor, [hidden, lamp, chair]), null);
-  assert.equal(meshes(chair).length, 2);
-  assert.ok(lamp.children.includes(shade));
-  const two = new THREE.Group(); two.add(box(red, 5));
+  assert.equal(M.batchModels(floor, [hidden, chair]), null);
+  assert.equal(drawn(chair).length, 2);
+  const two = new THREE.Group(); two.add(box(std('#0000aa'), 5));
   floor.add(two);
   const b = M.batchModels(floor, [hidden, lamp, chair, two]);
-  assert.equal(b.parts.length, 2);                               // the chair's red and the second red piece, not the lamp's
-  assert.ok(lamp.children.includes(shade) && hidden.children.length === 1);
+  assert.equal(b.parts.length, 3);                               // the chair's red, the lamp's foot and the blue piece (all matt), not the shade
+  assert.ok(shade.visible && lamp.children.includes(shade) && hidden.children.every((o) => o.visible));
+  assert.ok(shade.renderOrder > 0 && shade.renderOrder < 1, 'what stays itself is drawn a touch after the merged meshes');
+  M.unbatch(b);
+  assert.equal(shade.renderOrder, 0);
+});
+
+test('live mode (#138): faces lying on each other keep their order (the cells of a solar panel over its frame, the lines over the cells)', () => {
+  const floor = new THREE.Group(), panels = [], lineBlue = new THREE.Color('#9fb0d0').b;
+  for (let i = 0; i < 3; i++) {                                  // made in this order: frame, cells, lines (the lines look like the frame)
+    const frame = std('#9aa0a6'), cells = std('#1d2d54', { roughness: 0.25, metalness: 0.4 }), lines = std('#9fb0d0');
+    const p = new THREE.Group(); p.position.x = i * 3;
+    p.add(box(frame, 0, 0), box(cells, 0, 0.001), box(lines, 0, 0.002));
+    panels.push(p); floor.add(p);
+  }
+  const before = coloured(floor);
+  const b = M.batchModels(floor, panels);
+  assert.deepEqual(coloured(floor), before);
+  const order = b.meshes.map((m) => m.material.roughness === 0.25 ? 'cells' : Math.abs(m.geometry.attributes.color.getZ(0) - lineBlue) < 1e-6 ? 'lines' : 'frame');
+  assert.deepEqual(order, ['frame', 'cells', 'lines'], 'the frame and the lines in two meshes, drawn before and after the cells');
+  assert.ok(b.meshes.every((m, i) => i === 0 || m.material.id > b.meshes[i - 1].material.id), 'three.js draws them in the order of their materials');
 });
