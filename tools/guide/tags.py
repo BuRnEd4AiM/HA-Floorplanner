@@ -565,6 +565,11 @@ t("notify",
   "Rauchalarm Wasseralarm Einbruch informieren Testnachricht Karte Karten Zustand",
   "notification push push message message to my phone WhatsApp Telegram CallMeBot companion app alert smoke alarm "
   "water alarm burglary inform test message card cards state")
+t("vacation",
+  "Urlaubs-Licht Urlaub Anwesenheit simulieren Anwesenheitssimulation Licht zufällig Einbrecher abschrecken Rollläden abends "
+  "bewohnt aussehen verreist weg Ferien Licht an aus Wie sieht das Haus bewohnt aus",
+  "holiday light vacation presence simulation simulate presence random lights deter burglars shutters evening "
+  "look lived in away travelling lights on off how do I make the house look occupied")
 t("notify-bot",
   "Telegram Bot BotFather Bild Foto Grundriss Kamera Kamerabild Alarm mit Bild Wassermelder Wasser Rauch Einbruch Chat finden "
   "Schlüssel Token Wo ist es passiert Nachricht mit Foto",

@@ -2475,4 +2475,13 @@ export default {
   'rd.tipGood': 'Alles in orde: geen apparaat met zwakke ontvangst.',
   'rd.none': 'Home Assistant kent nog geen ontvangstwaarde voor de apparaten in de plattegrond.', 'rd.off': '{n} ontvangstwaarden staan uit in Home Assistant',
   'rd.offHow': 'Zigbee2MQTT en ZHA leveren ze uitgeschakeld. Aanzetten: Home Assistant → Instellingen → Apparaten en diensten → Entiteiten, zoek „linkquality” of „rssi”, open de entiteit → ⚙ → „Ingeschakeld” aan. Na ongeveer een minuut verschijnen ze hier.',
+  'vac.title': 'Vakantielicht',
+  'vac.help': 'Zolang het vakantiealarm aan staat, gaan de lampen ’s avonds aan en uit zoals bij jullie – geleerd uit de laatste 14 avonden, elke avond een beetje anders. De rolluiken gaan na zonsondergang omlaag en ’s ochtends omhoog.',
+  'vac.on': 'Vakantielicht aanzetten (alleen zolang het vakantiealarm aan staat)', 'vac.lights': 'Lampen', 'vac.covers': 'Rolluiken',
+  'vac.calm': 'Het schakelt alleen deze lampen en zet alleen uit wat het zelf aangezet heeft. Komt er iemand thuis (alarm uit), dan stopt het meteen.',
+  'vac.running': 'Loopt nu (het vakantiealarm staat aan)', 'vac.waiting': 'Start zodra het vakantiealarm aan staat.',
+  'vac.noPlan': 'Het plan voor vanavond verschijnt na het opslaan (de add-on leest daarvoor de geschiedenis van Home Assistant).',
+  'vac.tonight': 'Vanavond (gepland)', 'vac.learned': 'geleerde avonden: {n}', 'vac.plain': 'nog geen geschiedenis: een eenvoudige avond',
+  'vac.jitter': 'Speling', 'vac.jitterN': '± {n} minuten',
+  'vac.jitterHelp': 'Elke tijd schuift zo ver op, elke avond anders – en elke avond neemt het een andere echte avond. Zo ontstaat er geen patroon dat je van buiten kunt zien.',
 };

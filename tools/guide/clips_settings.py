@@ -283,6 +283,32 @@ def _(r):
     r.wait(2000)
 
 
+@clip("vacation", "settings",
+      {"de": "🏠 Urlaubs-Licht: im Urlaub sieht das Haus bewohnt aus", "en": "🏠 Holiday light: the house looks lived in on holiday"},
+      {"de": "Solange der Urlaubs-Alarm scharf ist, gehen Lampen abends wie bei euch an und aus, die Rollläden runter und hoch.",
+       "en": "While the holiday alarm is armed, lamps go on and off in the evening as when you are home, the shutters down and up."},
+      "Urlaubs-Licht Anwesenheit Urlaub Licht Rollläden holiday light presence vacation lights shutters")
+def _(r):
+    r.click("#settingsBtn")
+    r.wait(900)
+    r.click("#sgNav button[data-group=alarm]")
+    r.wait(1200)
+    r.say("Beim Urlaubs-Alarm, ganz unten: „Urlaubs-Licht“.", "In the holiday alarm, at the bottom: “Holiday light”.")
+    r.pg.evaluate("document.querySelector('details.sgCard[data-card=guard]').open = true")
+    r.wait(800)
+    r.pg.locator("#vacOn").scroll_into_view_if_needed()
+    r.wait(1200)
+    r.poster()
+    r.say("Einschalten und die Lampen und Rollläden ankreuzen. Ein Garagentor ist nie dabei.", "Switch it on and tick the lamps and shutters. A garage door is never among them.")
+    r.click("#vacOn")
+    r.wait(1600)
+    r.say("Das Add-on lernt aus euren letzten 14 Abenden und spielt jeden Abend einen davon ab – jedes Mal etwas anders.",
+          "The add-on learns from your last 14 evenings and plays one of them every evening – a little different each time.")
+    r.wait(2400)
+    r.say("Kommt jemand heim und schaltet den Alarm aus, hört es sofort auf.", "When somebody comes home and switches the alarm off, it stops at once.")
+    r.wait(2000)
+
+
 @clip("notify-bot", "settings",
       {"de": "📸 Alarm mit Bild über deinen Telegram-Bot", "en": "📸 Alarm with a picture through your Telegram bot"},
       {"de": "Dein eigener Telegram-Bot schickt bei Wasser, Rauch oder Alarm den Grundriss mit dem Raum in Rot und das Bild der Kamera dort.",

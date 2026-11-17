@@ -4024,4 +4024,8 @@ export default {
   'rd.q.good': '好', 'rd.q.mid': '一般', 'rd.q.bad': '弱', 'rd.weakest': '最弱的（点击在房屋中查看）', 'rd.tipBad': '在红色设备附近放一个插电的 Zigbee 设备（插座、灯）可增强网络。WiFi 可用中继器或换个位置。',
   'rd.tipGood': '一切正常：没有信号弱的设备。', 'rd.none': 'Home Assistant 尚不知道平面图中设备的信号值。', 'rd.off': '{n} 个信号值在 Home Assistant 中已关闭',
   'rd.offHow': 'Zigbee2MQTT 和 ZHA 默认关闭它们。开启：Home Assistant → 设置 → 设备与服务 → 实体，搜索“linkquality”或“rssi”，打开实体 → ⚙ → 打开“已启用”。约一分钟后会显示在这里。',
+  'vac.title': '度假灯光', 'vac.help': '度假警报启用时，灯会在晚上像你们在家时一样开关——从最近 14 个晚上学习，每晚略有不同。卷帘在日落后放下，早上升起。', 'vac.on': '开启度假灯光（仅在度假警报启用时运行）', 'vac.lights': '灯',
+  'vac.covers': '卷帘', 'vac.calm': '它只控制这些灯，只关闭自己打开的灯。有人回家（警报关闭）时立即停止。', 'vac.running': '正在运行（度假警报已启用）', 'vac.waiting': '度假警报一启用就开始。',
+  'vac.noPlan': '保存后会显示今晚的计划（插件会读取 Home Assistant 的历史记录）。', 'vac.tonight': '今晚（计划）', 'vac.learned': '已学习的晚上：{n}', 'vac.plain': '暂无历史：普通的晚上',
+  'vac.jitter': '浮动范围', 'vac.jitterN': '± {n} 分钟', 'vac.jitterHelp': '每个时间每晚都会在这个范围内不同地偏移——而且每晚会取一个不同的真实夜晚。这样外人看不出规律。',
 };

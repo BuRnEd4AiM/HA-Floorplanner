@@ -2535,4 +2535,13 @@ export default {
   'rd.none': 'Home Assistant ne connaît encore aucune valeur de réception pour les appareils du plan.',
   'rd.off': '{n} valeurs de réception sont désactivées dans Home Assistant',
   'rd.offHow': 'Zigbee2MQTT et ZHA les livrent désactivées. Pour les activer : Home Assistant → Paramètres → Appareils et services → Entités, cherchez « linkquality » ou « rssi », ouvrez l’entité → ⚙ → activez « Activé ». Elles apparaissent ici après environ une minute.',
+  'vac.title': 'Lumière de vacances',
+  'vac.help': 'Tant que l’alarme vacances est armée, les lampes s’allument et s’éteignent le soir comme chez vous – apprises des 14 derniers soirs, un peu différemment chaque soir. Les volets descendent après le coucher du soleil et remontent le matin.',
+  'vac.on': 'Activer la lumière de vacances (seulement quand l’alarme vacances est armée)', 'vac.lights': 'Lampes', 'vac.covers': 'Volets',
+  'vac.calm': 'Il ne commande que ces lampes et n’éteint que ce qu’il a allumé. Quand quelqu’un rentre (alarme coupée), il s’arrête aussitôt.',
+  'vac.running': 'En cours (l’alarme vacances est armée)', 'vac.waiting': 'Démarre dès que l’alarme vacances est armée.',
+  'vac.noPlan': 'Le plan de ce soir apparaît après l’enregistrement (l’add-on lit l’historique de Home Assistant).', 'vac.tonight': 'Ce soir (prévu)',
+  'vac.learned': 'soirs appris : {n}', 'vac.plain': 'pas encore d’historique : une soirée simple',
+  'vac.jitter': 'Marge', 'vac.jitterN': '± {n} minutes',
+  'vac.jitterHelp': 'Chaque heure est décalée de cette marge, différemment chaque soir – et chaque soir il prend un autre vrai soir. Ainsi aucun motif n’est visible de l’extérieur.',
 };
