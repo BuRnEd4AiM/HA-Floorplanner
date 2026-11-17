@@ -17,6 +17,7 @@ Stand: 2026-11-17, Version **5.14.1** (5.14.0 ist für alle freigegeben). Erst d
 
 ## Offen
 
+- **Neun neue Ideen (2026-11-17, Bilder in `docs/ideen-5.15`):** ☀ Rollläden nach Sonne, 📡 Funk-Karte, 📸 Bild bei Alarm, 🔌 Stromfresser, 🏠 Urlaubs-Licht, 🌙 Nachtlicht-Weg, 🔧 Wartung, 👥 Gäste-Modus, 📊 Monatsbericht; er hat alle gewählt, offen ist, welche zuerst gebaut wird.
 - **5.14.0:** sein Test mit seinem Haus (Testprotokoll 204.2 bis 204.9), vor allem Balkon „Raum 17“ (204.5) und Garage „Raum 6“ (204.6).
 - **Tablet 5.13.1 (#759):** sein Test am echten Wandtablet (Testprotokoll 203.5 bis 203.7); kommt das leere Stockwerk noch, fragen, welcher Bildschirmschoner läuft und was davor getippt wurde.
 - **Wandtablet (5.12.0):** sein Eindruck am echten Tablet (Testprotokoll 201.8 bis 201.11); nicht gebaut: echte Helligkeit über Fully Kiosk oder eine Entität, je Tablet ein eigener Bewegungsmelder.
