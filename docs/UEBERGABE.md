@@ -19,7 +19,7 @@ Stand: 2026-11-17, Version **5.16.0** (5.14.0 ist für alle freigegeben). Erst d
 
 - **5.15.0 Sonnenschutz:** sein Test (Testprotokoll 206.5 bis 206.7), vor allem ob Norden bei seinem Haus stimmt.
 - **5.16.0 Bild bei Alarm:** sein Test mit seinem Bot (Testprotokoll 207.3 bis 207.5).
-- **Sieben Ideen aus `docs/ideen-5.15` noch zu bauen** (alle von ihm gewählt): 📡 Funk-Karte, 🔌 Stromfresser, 🏠 Urlaubs-Licht, 🌙 Nachtlicht-Weg, 🔧 Wartung, 👥 Gäste-Modus, 📊 Monatsbericht; fragen, welche als Nächstes.
+- **Sieben Ideen aus `docs/ideen-5.15` noch zu bauen** (alle von ihm gewählt): 📡 Funk-Karte, 🔌 Stromfresser, 🏠 Urlaubs-Licht, 🔧 Wartung, 👥 Gäste-Modus, 📊 Monatsbericht (🌙 Nachtlicht-Weg: von ihm weggelassen, `docs/ideen-5.17`); fragen, welche als Nächstes.
 - **5.14.0:** sein Test mit seinem Haus (Testprotokoll 204.2 bis 204.9), vor allem Balkon „Raum 17“ (204.5) und Garage „Raum 6“ (204.6).
 - **Tablet 5.13.1 (#759):** sein Test am echten Wandtablet (Testprotokoll 203.5 bis 203.7); kommt das leere Stockwerk noch, fragen, welcher Bildschirmschoner läuft und was davor getippt wurde.
 - **Wandtablet (5.12.0):** sein Eindruck am echten Tablet (Testprotokoll 201.8 bis 201.11); nicht gebaut: echte Helligkeit über Fully Kiosk oder eine Entität, je Tablet ein eigener Bewegungsmelder.

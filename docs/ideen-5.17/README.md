@@ -16,4 +16,4 @@ Die Bilder sind die echte Demo (5.16.0, 2:30 Uhr), der Helfer ist nur fürs Foto
 | `03` | Schritt 3 „Wann und wie lange?“: 23–6 Uhr oder „wenn es dunkel ist“, aus nach 3 Minuten ohne Bewegung, neue Bewegung verlängert, eine Lampe, die schon an war, bleibt, wie sie war. „Vorher geprüft“: das Flurlicht steckt schon in „Flurlicht nachts“, der Helfer kann den alten Ablauf abschalten. |
 | `04` | Das Ergebnis in ▶ Abläufe: ein normaler Ablauf „🌙 Nachtlicht: Schlafzimmer → Bad“ (Wenn / Nur wenn / Dann / Warten / Lampen wie vorher), läuft in Home Assistant, „✏ Ändern“, „▶ Jetzt ausprobieren“, „🌙 Weg im Haus zeigen“. |
 
-Seine Wahl: noch offen.
+Seine Wahl (2026-11-17, nach der Frage „brauch ich das überhaupt“): **weggelassen**. Er hat nachts kein echtes Problem damit; ein solcher Ablauf lässt sich auch heute von Hand in ▶ Abläufe anlegen. Nicht wieder anbieten.
