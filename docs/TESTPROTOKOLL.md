@@ -515,7 +515,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 203. Neu in 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr (#759) | 4 | 0 | 3 | 0 | 203.5 bis 203.7 |
 | 204. Neu in 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen | 1 | 0 | 8 | 0 | 204.2 bis 204.9 |
 | 205. Verbessert in 5.14.1: das Haus dreht sich leichter am Tablet (#138) | 3 | 0 | 1 | 0 | 205.4 |
-| **Zusammen** | **1309** | **2** | **106** | **92** | |
+| 206. Neu in 5.15.0: ☀ Sonnenschutz, 🧭 wo Norden ist | 4 | 0 | 3 | 0 | 206.5 bis 206.7 |
+| **Zusammen** | **1313** | **2** | **109** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3130,3 +3131,17 @@ Dein Wunsch vom 2026-11-17 („dann fangen wir mit 1 an“: Tablet flüssiger be
 | 205.2 | Musterhaus „alles drin“, „Live“, „Ganzes Haus“, unten „Ansicht“ → „⏱ Leistung“ auf „alle Werte“ | „Zeichenaufrufe“ etwa 800 (vorher etwa 1.200) | ✅ (2026-11-17, Claude, nachgebautes Add-on: 798) |
 | 205.3 | Dasselbe Bild mit und ohne Zusammenfassen vergleichen (ganzes Haus und je Etage aus vier Blickwinkeln) | Gleiche Farben und Formen, Solarzellen über ihrem Rahmen; anders sind nur die roten „offline“-Zeichen, die auch sonst etwas wandern | ✅ (2026-11-17, Claude) |
 | 205.4 | Am iPad oder Wandtablet: dein Haus in „Live“, „Ganzes Haus“, drehen und zoomen | Flüssiger als vorher, alle Möbel sehen aus wie immer | ❓ |
+
+## 206. Neu in 5.15.0: ☀ Sonnenschutz, 🧭 wo Norden ist
+Deine Wahl vom 2026-11-17 aus den neun Ideen (Bilder `docs/ideen-5.15`, Bild 1 und 2), dazu: „die Ausrichtung am Kompass anpassen ohne das Haus neu zu zeichnen“ und „pass auf das die regeln sich dann nicht beißen“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 206.1 | Unit-Tests `tests/test_sunshade.py` (neu), `tests/sunshade.test.mjs` (neu), `test_rulesrun.py`, `test_roommap.py`, `compass.test.mjs`, `test_i18n.py`; Browser-Test Teil `94_sun_shade` (neu), dazu `50_rules`, `33_climate_routines_family`, `57_heatdiag`, `11_live` | Alles grün | ✅ (2026-11-17, Claude) |
+| 206.2 | Demo: 🌡 Klima → oben „☀ Sonnenschutz“ | Links die Einstellungen, rechts „Fenster mit Rollladen“: Küche schaut nach Norden (Schatten), Schlafzimmer nach Süden (mittags „jetzt Sonne“), Studio „Richtung unbekannt“ | ✅ (2026-11-17, Claude, Demo) |
+| 206.3 | Sonnenschutz einschalten | Der Rollladen in der Sonne fährt auf 30 %, die Karte zeigt „unten · 30 %“ | ✅ (2026-11-17, Claude, Demo und Browser-Test) |
+| 206.4 | „Wo ist Norden?“: zweimal +45 | „Oben im Grundriss ist Osten (90°)“, die Fenster schauen jetzt nach Osten bzw. Westen, der Kompass im Haus zeigt eine andere Seite; das Haus selbst bleibt gleich | ✅ (2026-11-17, Claude, Demo und Browser-Test) |
+| 206.5 | Dein Haus: „Wo ist Norden?“ so drehen, dass es stimmt (zum Vergleich: Kompass am Handy oder Google Maps) | Die Fenster schauen in die richtige Richtung | ❓ |
+| 206.6 | Dein Haus an einem sonnigen Tag: Sonnenschutz an | Nur die Rollläden auf der Sonnenseite fahren runter; wenn die Sonne weg ist, wieder hoch | ❓ |
+| 206.7 | Einen Rollladen, den der Sonnenschutz runtergefahren hat, von Hand oder per Ablauf wieder hochfahren | Er bleibt oben, bis die Sonne weg ist (kein Hin und Her) | ❓ |
+

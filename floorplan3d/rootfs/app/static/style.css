@@ -2508,6 +2508,25 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .hdLog .roLogRow.other span { color: #b48cff; }
 .hrNote { margin: 0; } .hrSaved { margin: 0; color: #5fd37a; font-weight: 700; }
 .hrGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 14px; align-items: start; }
+/* ☀ Sonnenschutz (sunshadeui.js): the settings beside a wider list of the windows */
+.ssView .hrGrid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
+.ssView .ssWins { grid-column: span 2; }
+@media (max-width: 760px) { .ssView .ssWins { grid-column: auto; } }
+.ssH { margin: 8px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.ssWin > span:first-child { display: flex; flex-direction: column; color: inherit; }
+.ssWin > span:first-child small { font-size: 12px; }
+.ssChip, .ssWin > span.ssChip { white-space: nowrap; pointer-events: none; flex: none; }
+.ssNorth > .ssTurn { flex: none; }
+.ssNorth { gap: 12px; }
+.ssOther { color: #e0a040; } .ssCalm { margin: 0; font-size: 12.5px; }
+.ssNorth > span:nth-child(2) { display: flex; flex-direction: column; color: inherit; }
+.ssRose { width: 46px; height: 46px; flex: none; }
+.ssRose .ring { fill: none; stroke: var(--muted); stroke-width: 1.5; } .ssRose .n { fill: #e5484d; } .ssRose .s { fill: var(--muted); }
+.ssRose text { font-size: 8px; text-anchor: middle; fill: var(--muted); } .ssRose .nl { fill: #fff; font-weight: 700; font-size: 7px; }
+.ssTurn button { width: auto; min-width: 40px; padding: 0 6px; font-size: 13px; }
+
+.ssChip.ss-sun { background: rgba(255, 196, 60, .22); color: #f0b324; } .ssChip.ss-down { background: rgba(47, 125, 216, .22); }
+.ssChip.ss-hand, .ssChip.ss-nopos, .ssChip.ss-none { background: rgba(224, 131, 43, .22); }
 .hrCard { display: flex; flex-direction: column; gap: 10px; }
 .hrCard.off { opacity: .75; }
 .hrHead { display: flex; align-items: flex-start; gap: 12px; }

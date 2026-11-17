@@ -61,6 +61,8 @@ f("climate", "pages", "🌡 Klima: alle Räume und Thermostate", "🌡 Climate: 
 f("heatplan", "pages", "📅 Heizplan je Raum", "📅 Heating schedule per room", ["heatplan"])
 f("heatrules", "pages", "📋 Heiz-Regeln, Raumfühler, Zu warm", "📋 Heating rules, room sensors, too warm", ["heatrules"])
 f("heatdiag", "pages", "🩺 Protokoll der Heizung", "🩺 Heating log", ["heatdiag"])
+f("sunshade", "pages", "☀ Sonnenschutz: Rollläden nur dort runter, wo die Sonne aufs Fenster scheint; 🧭 wo Norden ist",
+  "☀ Sun protection: shutters down only where the sun shines on the window; 🧭 where north is", ["sunshade"], since="5.15.0")
 f("cameras", "pages", "📷 Kameras", "📷 Cameras", ["cameras"])
 f("media", "pages", "🎵 Musik und Fernseher", "🎵 Music and TV", ["media"])
 f("household", "pages", "🧺 Haushalt: Wäsche, Saugroboter, Auto, Garten, Einkauf", "🧺 Household: laundry, vacuum, car, garden, shopping", ["household"])
