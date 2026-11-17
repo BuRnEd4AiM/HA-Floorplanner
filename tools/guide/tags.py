@@ -185,6 +185,11 @@ t("heatrules",
   "Sommer Nacht Raumfühler externer Sensor zu warm Vorrang Automatik Heizung sparen Energie sparen",
   "heating rules rule window open heating off switch heating off airing away nobody home summer night room sensor "
   "external sensor too warm priority automatic save heating save energy")
+t("sunshade",
+  "Sonnenschutz Beschattung Rollladen Rolladen Jalousie Markise Sonne Hitze Sommer zu heiß Fenster Himmelsrichtung Süden Westen "
+  "Norden Kompass Ausrichtung gedreht Sonnenstand automatisch runter Hitzeschutz Wie verhindere ich dass es heiß wird",
+  "sun protection shading roller shutter blind awning sun heat summer too hot window direction south west north compass "
+  "orientation turned sun position automatic down heat protection keep the house cool")
 t("cameras",
   "Kamera Überwachungskamera Kamerabild Livebild Video Stream Bewegung Bewegungsmelder Garten Einfahrt Haustür "
   "Reolink Unifi Frigate Vollbild groß",

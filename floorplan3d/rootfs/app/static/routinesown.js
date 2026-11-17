@@ -216,6 +216,7 @@ export function initRoutinesOwn(ctx) {
   function logText(x) {
     const name = x.ent ? ctx.nameOf(x.ent) || x.ent : '';
     if (x.src === 'sensor' && ctx.sensorLog) return ctx.sensorLog(x);   // 🌡 Raumfühler (#573)
+    if (x.src === 'sun' && ctx.sunLog) return ctx.sunLog(x, name);      // ☀ Sonnenschutz
     if (x.src === 'heat') {
       const what = x.act === 'off' ? t('fl.heat.off') : x.act === 'temp' ? `${String(x.v).replace('.', ',')}°` : t(`fl.heat.${x.v}`) === `fl.heat.${x.v}` ? x.v : t(`fl.heat.${x.v}`);
       return { icon: '🔥', text: `${name} ${what}`, sub: t(`hr.why.${x.why}`) };

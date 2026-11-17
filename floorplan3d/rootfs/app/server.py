@@ -51,6 +51,7 @@ import manifest as mf
 import pages
 import renames as rn
 import roommap as rm
+import sunshade
 import scenes as sc
 import trains as tr
 import rulesrun as rr
@@ -1907,7 +1908,7 @@ def backup_extras(request, secrets: bool = False) -> dict:
             "fullscreen": {"code": gd.stored_code(full.get("code") if isinstance(full, dict) else None)},
             "notify": {k: v for k, v in an.clean(n, n).items() if secrets or k not in an.SECRETS},
             "rules": {"heat": hr.clean_rules(rules.get("heat")), "flows": fl.clean_flows(rules.get("flows")),   # heating rules, routines (#546)
-                      "days": sdays.clean_days(rules.get("days"))}}                                        # 📅 Besondere Tage
+                      "days": sdays.clean_days(rules.get("days")), "sun": sunshade.clean_sun(rules.get("sun"))}}   # 📅 Besondere Tage, ☀ Sonnenschutz
 
 
 def apply_extras(request, extras) -> list:
@@ -1940,7 +1941,7 @@ def apply_extras(request, extras) -> list:
         done.append("notify")
     if isinstance(extras.get("rules"), dict):
         cfg = {"heat": hr.clean_rules(extras["rules"].get("heat")), "flows": fl.clean_flows(extras["rules"].get("flows")),
-               "days": sdays.clean_days(extras["rules"].get("days"))}
+               "days": sdays.clean_days(extras["rules"].get("days")), "sun": sunshade.clean_sun(extras["rules"].get("sun"))}   # ☀ Sonnenschutz
         write_json_atomic(rules_path(request), cfg)
         store = app_state(request).get(KEY_RULES)
         if store is not None and "rules" in store:
@@ -3632,9 +3633,28 @@ async def sensor_caps(app) -> dict:
             "cal": rsens.caps(states, rsens.parts_of(ren.get("parts")))}
 
 
+def sun_windows(request, r: rr.Rules) -> list:
+    """☀ the windows with a roller shutter and the way each looks (sunshade.py), for the card on the page"""
+    rooms = r.rooms if r.connected and r.rooms is not None else rm.rooms_of([(h["id"], read_json(house_file(request, h["id"]), {})) for h in houses_index(request)])
+    return [{"cover": sh["cover"], "room": x["key"], "house": x["house"], "name": x["name"], "bearing": sh["bearing"], "plan": sh["plan"],
+             "dir": sunshade.compass(sh["bearing"]) if sh["bearing"] is not None else None} for x in rooms for sh in x.get("shutters") or []]
+
+
+async def sun_now(request, r: rr.Rules) -> dict | None:
+    """☀ where the sun is now ({az, elev} of sun.sun), for the card: the page's states keep only its elevation (the sky)"""
+    if r.connected:
+        return sunshade.sun_of(r.states)
+    if not SUPERVISOR_TOKEN:
+        return None
+    try:
+        return sunshade.sun_of(await asyncio.wait_for(ha_states_cached(app_state(request)), 5))
+    except Exception:  # noqa: BLE001 - Home Assistant not reachable: the card says it does not know
+        return None
+
+
 async def rules_answer(request, r: rr.Rules) -> dict:
     status = r.status if r.connected or not SUPERVISOR_TOKEN else {**r.status, **await sensor_caps(app_state(request))}
-    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "days": r.cfg.get("days", []), "status": status, "log": r.mem["log"][-100:], "running": r.connected,
+    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "days": r.cfg.get("days", []), "sun": r.cfg["sun"], "sunWindows": sun_windows(request, r), "sunPos": await sun_now(request, r), "status": status, "log": r.mem["log"][-100:], "running": r.connected,
             "active": r.active(), "ha": bool(SUPERVISOR_TOKEN), "canEdit": await can_edit(request), "now": round(time.time()),
             "haLink": hl.browser_ha(HA_URL, HA_PUBLIC_URL, request.host) if HA_URL else ""}   # where the browser opens Home Assistant (#548)
 
@@ -3680,6 +3700,8 @@ async def put_rules(request):
         if not isinstance(body["flows"], list):
             return web.json_response({"error": "flows: a list expected"}, status=400)
         r.cfg["flows"] = fl.clean_flows(body["flows"])
+    if "sun" in body:                                    # ☀ Sonnenschutz (sunshade.py)
+        r.cfg["sun"] = sunshade.clean_sun(body["sun"])
     if "days" in body:                                   # 📅 Besondere Tage (specialdays.py) for "Nur wenn: besonderer Tag"
         if not isinstance(body["days"], list):
             return web.json_response({"error": "days: a list expected"}, status=400)

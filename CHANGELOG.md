@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.15.0] - 2026-11-17
+### Added
+- **☀ Sun protection: roller shutters only where the sun shines** (the owner's choice 2026-11-17 from nine ideas, pictures docs/ideen-5.15/01, 02): 🌡 Klima → **☀ Sonnenschutz**. The plan knows which way every window looks (the side of its wall in no room is outside), Home Assistant knows where the sun is (`sun.sun`): only the shutter whose window the sun shines on goes down (to 30 %, adjustable) while the sun is higher than 15°, no more than 75° to the side and it is warm (outside above 22 °C or in the room above 24 °C; each can be "egal"), optionally only while the weather says sun; it goes back to where it was when the sun has been off the window for 20 minutes. An open window keeps its shutter up (one that is down goes up at once, to air). The add-on runs it itself like the heating rules (also with no screen open, `sunshade.py`); the card lists every window with a shutter, which way it looks, "jetzt Sonne" / "Schatten" / "unten", and a switch per window to leave it out. ▶ Abläufe and 📜 Protokoll say what it did.
+- **The rules do not fight** (the owner: "pass auf das die regeln sich dann nicht beißen"): a shutter moved by hand, by a routine or by the alarm is left alone until the sun has gone (not put back), one already lower stays so; the card names the own routines that move the same shutter.
+- **🧭 Where is north?** (the owner: "die Ausrichtung am Kompass anpassen ohne das Haus neu zu zeichnen"): a plan not drawn with north up gets its direction in the card (−45 · −5 · +5 · +45, a small compass), saved with the house (`layout.north`). The window directions, the sun protection and the compass of the 3D view ("Blick von …") follow; nothing is drawn anew.
+- Video guide: the clip "☀ Sonnenschutz".
+
 ## [5.14.1] - 2026-11-17
 ### Changed
 - **Turning and zooming the house is lighter on a tablet** (#138, the owner, 2026-11-17: "Tablet flüssiger beim Drehen"): in "Live" the furniture of a floor is drawn together, and now all colours of one kind of surface (matt, shiny, metal ...) go into one piece instead of one piece per colour. The show house ("alles drin") needs about **800 draw calls** in the whole house instead of 1,205 (1,689 in the editor); a single floor about a third fewer. Devices linked to Home Assistant take part too: only what a state changes (the glow of a lamp, a TV screen, a door leaf, a roller shutter) stays on its own. It looks the same as before: every colour, every corner, solar cells over their frame.

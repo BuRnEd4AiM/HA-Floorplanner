@@ -155,6 +155,7 @@ import { initBuildingsUi } from './buildingsui.js';
 import { initPicking } from './picking.js';
 import { batchModels, unbatch } from './meshmerge.js';
 import { initLiveBatch } from './livebatch.js';
+import { northOf } from './sunshade.js';
 import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
 import { frameDue, shadowDue, dampingFor, MAX_STEP } from './frameloop.js';
@@ -667,6 +668,7 @@ const rulesUi = initRulesUi({                                    // the add-on's
   layout: () => shownLayout(), details: (e) => live.detailsButton(e, true), tabs: () => tabsUi, climate: () => climatePage, routines: () => routinesPage,
   redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); }, partOf, areas: () => areas, areaOf: () => areaOf,   // ▶ Abläufe by room (#590)
   shows: inBuilding,                                             // only the routines, automations and scenes of the building shown (#677)
+  north: () => northOf(layout), setNorth: (v) => { snapshot(); layout.north = v; changed(false); },   // ☀ where north is (sunshade.js), no new drawing
 });
 const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
   settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf,
@@ -794,7 +796,7 @@ const climatePage = initClimatePage({                            // 🌡 Klima (
   t, el: $('#tabPages [data-page=climate]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => shownLayout(),
   placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf, isOpen: (e) => isOpen(e), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
   callService: (e, svc, data) => live.callService(e, svc, data), openRoom: openRoomAt, board, thermo: dash.thermo, shows: inBuilding,   // the thermostat as a circle (#495)
-  heat: rulesUi.heat, plan: rulesUi.plan, diag: rulesUi.diag,     // 📋 Heiz-Regeln, 📅 Heizplan (#546), 🩺 Protokoll (#579)
+  heat: rulesUi.heat, plan: rulesUi.plan, diag: rulesUi.diag, sun: rulesUi.sun,   // 📋 Heiz-Regeln, 📅 Heizplan (#546), 🩺 Protokoll (#579), ☀ Sonnenschutz
 });
 const routinesPage = initRoutinesPage({                          // ▶ Abläufe (pageroutines.js, routines.js, #483)
   t, el: $('#tabPages [data-page=routines]'), states: () => states, settings: () => settings, canEdit: () => me.canEdit,
@@ -1071,7 +1073,7 @@ const wallCutawayInfo = (w, group) => cutaway.info(w, group);
 function updateCutaway() { return cutaway.update(); }
 
 /* ---- Compass: the ring stands still, the needle turns with the camera; the code lives in compass.js ---- */
-const compass = initCompass({ $, t, camera, controls });
+const compass = initCompass({ $, t, camera, controls, north: () => northOf(layout) });
 
 /* ================= Changes, undo, save: the undo list and the autosave live in persist.js ================= */
 const persist = initPersist({

@@ -16,7 +16,7 @@ import { openingEntities } from './openings.js';
 /** ctx: t, el (the page), lang(), settings(), states(), layout() (the building shown), placed(floor) (its devices with entities),
  *  areaEntities(room), partOf() (the sensors of thermostats, roomReading), isOpen(entity), nameOf(entity), callService(entity, service, data), openRoom(floorIndex, roomId), board (pageboard.js,
  *  #484: the cards in the order an admin chose; keys room:<id>, loose, tip), thermo (thermostatui.js, #495), heat (heatrulesui.js), plan
- *  (heatplanui.js) (#546), diag (heatdiagui.js, 🩺 Protokoll, #579), shows(entity) (in the building shown, #677) */
+ *  (heatplanui.js) (#546), diag (heatdiagui.js, 🩺 Protokoll, #579), sun (sunshadeui.js, ☀ Sonnenschutz), shows(entity) (in the building shown, #677) */
 export function initClimatePage(ctx) {
   const { t, el } = ctx;
   const pending = new Map();                         // entity -> { v, timer }: a target tapped but not sent yet
@@ -123,7 +123,7 @@ export function initClimatePage(ctx) {
     const tools = make('div', 'tpTools');
     if (view === 'rooms') FILTERS.forEach((f) => { const b = btn(`tpChip${f === filter ? ' on' : ''}`, t(`cl.filter.${f}`), () => { filter = f; draw(true); }); b.dataset.filter = f; tools.append(b); });
     else { const r = btn('tpChip', t('cl.view.rooms'), () => show('rooms')); r.dataset.view = 'rooms'; tools.append(r); }
-    [['rules', `📋 ${t('cl.view.rules')}`], ['plan', `📅 ${t('cl.view.plan')}`], ...(ctx.diag ? [['diag', `🩺 ${t('cl.view.diag')}`]] : [])].forEach(([v, text]) => {
+    [['rules', `📋 ${t('cl.view.rules')}`], ['plan', `📅 ${t('cl.view.plan')}`], ...(ctx.sun ? [['sun', `☀ ${t('ss.title')}`]] : []), ...(ctx.diag ? [['diag', `🩺 ${t('cl.view.diag')}`]] : [])].forEach(([v, text]) => {
       const b = btn(`tpChip${view === v ? ' on' : ''}`, text, () => show(v)); b.dataset.view = v; tools.append(b);
     });
     h.append(tools);
@@ -131,7 +131,7 @@ export function initClimatePage(ctx) {
   }
   function show(v) { view = v; drawn = ''; viewDrawn = ''; grid = null; draw(true); el.scrollTop = 0; }
   function drawView(force) {
-    const ui = view === 'plan' ? ctx.plan : view === 'diag' ? ctx.diag : ctx.heat;
+    const ui = view === 'plan' ? ctx.plan : view === 'diag' ? ctx.diag : view === 'sun' ? ctx.sun : ctx.heat;
     if (!force && (ui.busy?.() || el.contains(document.activeElement) && document.activeElement.matches('input'))) return;   // a drag or a field being typed in
     const m = model(), sig = JSON.stringify([view, ui.viewSig(), m.outside, imperial(), t('tab.climate')]);
     if (!force && sig === viewDrawn) return;
@@ -180,7 +180,7 @@ export function initClimatePage(ctx) {
     update: () => draw(false),
     has: () => hasClimate(ctx.states(), placedIds()),
     reset: () => { filter = 'all'; drawn = ''; grid = null; if (!ctx.plan.dirty()) view = 'rooms'; },
-    show,                                           // a view of the page: rooms | rules | plan (#546)
+    show,                                           // a view of the page: rooms | rules | plan (#546) | diag | sun (☀ Sonnenschutz)
     /** every room of the house shown with its entities ({ id, name, floorName, ids }): the sensors in a thermostat's room (#573) */
     sensorRooms: () => rooms().map((r) => ({ id: r.id, name: r.name, floorName: r.floorName, ids: r.ids })),
     /** the rooms of the house shown with their thermostat, for the heating rules and the schedule (#546) */

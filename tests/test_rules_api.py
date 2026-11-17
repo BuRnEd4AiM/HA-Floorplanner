@@ -131,13 +131,14 @@ async def test_what_automations_and_scripts_use_for_every_user(client, monkeypat
 
 
 async def test_rules_go_into_the_backup_and_come_back(client):
-    await client.put("/api/rules", json={"heat": {"night": {"on": True, "temp": 16}}, "flows": FLOWS})
+    await client.put("/api/rules", json={"heat": {"night": {"on": True, "temp": 16}}, "flows": FLOWS, "sun": {"on": True, "pos": 40}})   # ☀ too
     data = await (await client.get("/api/backup?files=0")).json()
     assert data["extras"]["rules"]["heat"]["night"]["temp"] == 16.0 and len(data["extras"]["rules"]["flows"]) == 2
     await client.put("/api/rules", json={"heat": {}, "flows": []})
     assert (await client.post("/api/backup", json=data)).status == 200
     r = await (await client.get("/api/rules")).json()
     assert r["heat"]["night"]["on"] is True and [f["id"] for f in r["flows"]] == ["f_kino", "f_fenster"]
+    assert r["sun"]["on"] is True and r["sun"]["pos"] == 40 and r["sunWindows"] == []         # ☀ Sonnenschutz came back with the backup
 
 
 async def test_special_days_are_kept_cleaned_and_in_the_backup(client, tmp_path):

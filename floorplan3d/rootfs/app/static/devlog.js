@@ -124,6 +124,7 @@ export function whoWords(x, t) {
     if (w.src === 'scene') return `🎨 ${t('log.src.scene')}${n ? ` „${n}“` : ''}`;
     if (w.src === 'page') return `👆 ${n === 'wish' ? t('log.src.wish') : n || t('log.src.page')}`;
     if (w.src === 'garden') return `🌱 ${t('log.src.garden')}`;
+    if (w.src === 'sun') return `☀ ${t('ss.title')}${n ? ` · ${n}` : ''}`;
     if (w.src === 'guard') return `🛡 ${t('log.src.guard')}`;
     return '';
   };

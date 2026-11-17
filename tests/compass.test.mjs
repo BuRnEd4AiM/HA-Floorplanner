@@ -36,4 +36,6 @@ test('side of the house we look from: S, E, N, W and the diagonals', () => {
   assert.equal(C.sideIndex(0, -10), 0);                          // from the north
   assert.equal(C.sideIndex(-10, 0), 6);                          // from the west
   assert.equal(C.sideIndex(10, 10), 3);                          // south-east
+  assert.equal(C.sideIndex(0, 10, 90), 6);                      // a plan drawn turned: its top looks east, its bottom west (☀ 5.15.0)
+  assert.equal(C.sideIndex(0, -10, -90), 6);
 });

@@ -297,3 +297,39 @@ async def test_the_beta_does_nothing_while_the_normal_add_on_runs():
     task.cancel()
     with contextlib.suppress(asyncio.CancelledError):
         await task
+
+
+async def test_the_sun_sends_a_shutter_down_and_an_opened_window_brings_it_up():
+    """☀ Sonnenschutz (sunshade.py, 5.15.0): the loop runs it like the heating rules"""
+    ha = FakeHa()
+    ha.states.update({"sun.sun": {"entity_id": "sun.sun", "state": "above_horizon", "attributes": {"azimuth": 180, "elevation": 40}},
+                      "cover.wz": {"entity_id": "cover.wz", "state": "open", "attributes": {"current_position": 100}}})
+    room = {**ROOM, "shutters": [{"cover": "cover.wz", "bearing": 180.0, "contacts": ["binary_sensor.fenster"]}]}
+
+    @contextlib.asynccontextmanager
+    async def connect():
+        yield ha
+
+    class SunEnv(Env):
+        async def rooms(self):
+            return [room]
+
+        async def call(self, dom, svc, data):
+            self.calls.append((dom, svc, data))
+            if dom == "cover":
+                e = data["entity_id"]
+                ha.states[e] = {**ha.states[e], "attributes": {"current_position": data["position"]}}
+                await ha.set(e, "open")                         # the shutter reports where it is now
+            return True
+
+    rules = rr.Rules({"sun": {"on": True, "out": None, "inside": None}})
+    env = SunEnv(ha)
+    task = asyncio.create_task(rr.run_rules(rules, connect=connect, env=env, check=0.2, idle=0.05))
+    assert await until(lambda: ("cover", "set_cover_position", {"entity_id": "cover.wz", "position": 30}) in env.calls)
+    assert await until(lambda: any(p.get("sun", {}).get("cover.wz", {}).get("down") for p in env.published))
+    assert rules.mem["log"][-1]["src"] == "sun" and rules.mem["log"][-1]["act"] == "down"
+    await ha.set("binary_sensor.fenster", "on")
+    assert await until(lambda: env.calls[-1] == ("cover", "set_cover_position", {"entity_id": "cover.wz", "position": 100}))
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task

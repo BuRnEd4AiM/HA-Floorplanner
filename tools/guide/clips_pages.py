@@ -190,6 +190,35 @@ def _(r):
     r.wait(1500)
 
 
+@clip("sunshade", "pages",
+      {"de": "☀ Sonnenschutz: Rollläden nur in der Sonne", "en": "☀ Sun protection: shutters only in the sun"},
+      {"de": "Nur der Rollladen, auf dessen Fenster die Sonne scheint, fährt runter. Wo Norden ist, stellst du am Kompass ein.",
+       "en": "Only the shutter whose window the sun shines on goes down. Set where north is on the compass."},
+      "Sonnenschutz Rollladen Sonne Fenster Himmelsrichtung Norden Kompass sun protection shutter sun window north compass")
+def _(r):
+    tab(r, "climate")
+    r.say("Unter „Klima“ oben auf „Sonnenschutz“.", "Under “Climate” tap “Sun protection” at the top.")
+    r.click("[data-page=climate] [data-view=sun]")
+    r.wait(1600)
+    r.poster()
+    r.say("Rechts die Fenster mit Rollladen: wohin jedes schaut und ob gerade die Sonne draufscheint.",
+          "On the right the windows with a shutter: which way each looks and whether the sun shines on it now.")
+    r.wait(2200)
+    r.say("Ist dein Haus nicht mit Norden nach oben gezeichnet? Dreh hier den Kompass – das Haus bleibt, wie es ist.",
+          "Is your house not drawn with north up? Turn the compass here – the house stays as it is.")
+    r.click("[data-sun=north] [data-turn='45']")
+    r.wait(1400)
+    r.click("[data-sun=north] [data-turn='-45']")
+    r.wait(1200)
+    r.say("Einschalten – dann fährt nur der Rollladen in der Sonne runter, und wieder hoch, wenn sie weg ist.",
+          "Switch it on – then only the shutter in the sun goes down, and back up when it has gone.")
+    r.click("[data-sun=on]")
+    r.wait(2200)
+    r.say("Wann und wie weit stellst du links ein: Sonnenhöhe, Wärme, Position, Minuten.",
+          "When and how far is set on the left: sun height, warmth, position, minutes.")
+    r.wait(2000)
+
+
 @clip("cameras", "pages",
       {"de": "📷 Kameras ansehen", "en": "📷 Watch the cameras"},
       {"de": "Alle Kameras auf einer Seite, mit Bewegung. Ein Tipp zeigt eine Kamera groß.",

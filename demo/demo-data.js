@@ -769,8 +769,33 @@ function sceneShow(m) {                                 // ▶ Ausprobieren and 
   });
 }
 entities['automation.flurlicht_nachts'].at = nowS() - 17 * 60;
+/* ☀ Sonnenschutz (5.15.0, sunshade.py): the windows with a shutter as the add-on works them out of this plan (roommap.rooms_of), the sun
+ * of the demo's clock (or ?skytime=…), and what the rule does while it is switched on (the shutter in the sun goes down at once) */
+const sunDemo = { on: false, elev: 15, angle: 75, out: 22, inside: 24, pos: 30, back: 20, open: true, clouds: true, skip: [] };
+const sunWindowsDemo = [
+  { cover: 'cover.rollladen_kueche', room: 'main/r2', house: 'main', name: 'Küche', plan: 0, bearing: 0, dir: 'N' },
+  { cover: 'cover.rollladen_schlafzimmer', room: 'main/r4', house: 'main', name: 'Schlafzimmer', plan: 180, bearing: 180, dir: 'S' },
+  { cover: 'cover.rollladen_gaube', room: 'main/p1', house: 'main', name: 'Studio', plan: null, bearing: null, dir: null },
+];
+function sunPosDemo() {
+  const at = skyTimeOf(new URLSearchParams(globalThis.location?.search || '').get('skytime'), new Date()) || new Date();
+  const h = at.getHours() + at.getMinutes() / 60;
+  return { az: Math.round(((h - 12) * 15 + 180 + 360) % 360), elev: Math.round(48 * Math.sin(Math.PI * (h - 7) / 11)) };
+}
+function sunStatusDemo() {
+  if (!sunDemo.on) return {};
+  const sun = sunPosDemo(), out = {};
+  sunWindowsDemo.filter((w) => w.bearing != null && !sunDemo.skip.includes(w.cover)).forEach((w) => {
+    const d = Math.abs((((sun.az - w.bearing) % 360) + 360) % 360), on = sun.elev >= sunDemo.elev && Math.min(d, 360 - d) <= sunDemo.angle;
+    const e = entities[w.cover];
+    if (on && e && (e.position ?? 100) > sunDemo.pos) { e.position = sunDemo.pos; e.state = 'open'; }
+    out[w.cover] = { room: w.room, name: w.name, bearing: w.bearing, dir: w.dir, sun: on, why: on ? 'sun' : 'shade', pos: e?.position ?? null, down: on, hand: false, until: null };
+  });
+  return out;
+}
 function rulesAnswer() {
-  return { heat: rulesDemo.heat, flows: rulesDemo.flows, days: rulesDemo.days, status: rulesStatus(), log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS(), haLink: '' };
+  return { heat: rulesDemo.heat, flows: rulesDemo.flows, days: rulesDemo.days, sun: sunDemo, sunWindows: sunWindowsDemo, sunPos: sunPosDemo(),
+    status: { ...rulesStatus(), sun: sunStatusDemo() }, log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS(), haLink: '' };
 }
 /* 🩺 Protokoll (#579): every room as the add-on sees it (roommap.py) and the journal of today, as the add-on would have written it: the
  * schedule, a turn at the thermostat and back, Home Assistant starting again, the kitchen door (between two rooms: it does not count), the
@@ -1319,6 +1344,7 @@ export function installDemoBackend() {
       if (method === 'PUT') {
         const b = JSON.parse(init.body || '{}');
         if (b.heat) rulesDemo.heat = b.heat;
+        if (b.sun) Object.assign(sunDemo, b.sun);                               // ☀ Sonnenschutz
         if (Array.isArray(b.days)) rulesDemo.days = b.days;                    // 📅 Besondere Tage (the add-on cleans them, specialdays.py)
         if (Array.isArray(b.flows)) return json({ ...rulesAnswer(), flows: (rulesDemo.flows = b.flows), haSync: haSyncDemo() });
       }
