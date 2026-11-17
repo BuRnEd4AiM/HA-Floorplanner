@@ -2,6 +2,11 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.14.1] - 2026-11-17
+### Verbessert
+- **Drehen und Zoomen des Hauses ist leichter fürs Tablet** (#138, der Besitzer, 2026-11-17: „Tablet flüssiger beim Drehen“): in „Live“ werden die Möbel einer Etage zusammen gezeichnet, und jetzt kommen alle Farben einer Art von Oberfläche (matt, glänzend, Metall …) in ein Stück statt ein Stück je Farbe. Das Musterhaus („alles drin“) braucht im ganzen Haus etwa **800 Zeichenaufrufe** statt 1.205 (1.689 beim Bearbeiten); eine einzelne Etage etwa ein Drittel weniger. Auch Geräte mit Home Assistant machen mit: nur was ein Zustand ändert (das Leuchten einer Lampe, ein Fernsehbild, ein Türflügel, ein Rollladen) bleibt einzeln. Es sieht aus wie vorher: jede Farbe, jede Ecke, Solarzellen über ihrem Rahmen.
+- Ein Teil, das danach in „Live“ versteckt, gezeigt oder verschoben wird (eine Person kommt heim, der Strom-Editor), wird sofort wieder einzeln gezeichnet.
+
 ## [5.14.0] - 2026-11-16
 ### Neu
 - **🏗 Das Geländer eines Balkons Seite für Seite** (der Besitzer, 2026-11-16: „ich hätte gerne, dass ich sagen kann, wie weit das Geländer in einer Richtung geht oder ob eine Geländertür dort ist … bei mir geht das Geländer nur an zwei Seiten“): ein Balkon oder eine Dachterrasse hat in den Eigenschaften **Geländer je Seite**: jede Seite mit Geländer bekommt eine Nummer („Seite 1 · 4,00 m“, dieselbe Nummer steht im Grundriss an der Seite) und lässt sich **ausschalten**, **kürzen** („Geländer von … bis“) oder bekommt eine **🚪 Geländertür** (Mitte und Breite, anfangs 90 cm). Im Grundriss ist das Geländer eine helle Linie, eine Tür eine Lücke mit Aufschlag; die Enden ◆ und die Tür ■ lassen sich an der Seite entlang **ziehen**. In 3D ist die Tür ein Flügel im Rahmen wie das Geländer (Stäbe, Glas oder Latten) mit Griff. Eine Ecke mehr oder weniger lässt die Einstellungen an ihrem Platz. Auch im JSON-Import und -Export (`railSides`).
