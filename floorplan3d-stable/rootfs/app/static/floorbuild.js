@@ -63,7 +63,7 @@ export function initFloorBuild(ctx) {
   const gi = () => ctx.groundIdx?.() ?? 0;
   /** how much the things of floor f (index i) go up: a plateau under them (from the ground floor up, never a basement, #713), a room with a
    *  higher floor (levels.js, #566) */
-  const upOf = (f, i) => lifter(f, areasFor(ctx.plotAreas?.() || [], i, gi()), ctx.terrainFor?.(f) || null);   // on a slope the garden things stand on the ground (#629)
+  const upOf = (f, i) => lifter(f, areasFor(ctx.plotAreas?.() || [], i, gi()), ctx.terrainFor?.(f) || null, i > gi());   // on a slope the garden things stand on the ground (#629); upstairs a balcony goes up with the house (5.14.0)
   /** a group in g lifted by h (g itself when nothing is lifted) */
   const liftGroup = (g, h) => { if (!h) return g; const lg = new THREE.Group(); lg.position.y = h; g.add(lg); return lg; };
   /** stacked (housefloors.js): the ceiling floor f stands on, from the top of the walls below up to its floor, in the outline of the floor

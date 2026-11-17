@@ -323,6 +323,12 @@ dialog .presetBox .lockHead { grid-column: 1 / -1; margin-top: 6px; padding-top:
 dialog .presetBox label.lockItem { flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; text-align: left; }
 #tabletRows .tablet .presetBox label.lockItem input { width: auto; flex: none; margin: 0; }
 #tabletRows .tablet .presetBox label.lockItem select[data-tab-variant] { width: auto; max-width: 60%; margin-left: auto; padding: 2px 6px; font-size: 12px; }   /* the version of the page (#507) */
+/* a tablet's own wall tablet values and its switching per kind of device (5.13.0, kioskprefsui.js): two folds across the whole box */
+#tabletRows .presetBox :is(.ksBox, .rtBox) { grid-column: 1 / -1; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; }
+#tabletRows .presetBox :is(.ksBox, .rtBox) > summary { cursor: pointer; font-size: 12px; font-weight: 600; }
+#tabletRows .presetBox .ksGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px 12px; margin-top: 6px; }
+#tabletRows .presetBox .ksGrid > :is(p.sub, .lockHead) { grid-column: 1 / -1; margin: 0; }
+#tabletRows .presetBox .ksGrid :is(select, input) { width: 100%; }
 
 #livePopup .lightctl { margin-top: 10px; }
 #livePopup .lightctl input[type=range] { width: 100%; }
@@ -860,8 +866,34 @@ body.v-2d #status, body.card-nobar #status { bottom: 62px; }
 .vcChip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; background: var(--field); }
 .vcChip button { padding: 0 6px; border: 0; background: none; color: var(--muted); font-size: 15px; line-height: 1; }
 
-/* ---------- night dimming on wall tablets ---------- */
-#nightDim { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .72); }
+/* ---------- wall tablets: the dimmed screen and the screen saver (kiosk.js, kioskscreen.js) ---------- */
+#nightDim { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .7); display: flex; align-items: center; justify-content: center; }
+#saverScreen { position: fixed; inset: 0; z-index: 49; background: #000; display: flex; align-items: center; justify-content: center; }
+#saverScreen.orbit { inset: 0 0 auto 0; background: none; pointer-events: none; }
+#saverCatch { position: fixed; inset: 0; z-index: 48; }
+#nightDim[hidden], #saverScreen[hidden], #saverCatch[hidden], .kClock[hidden] { display: none; }
+/* 🧽 cleaning (5.13.0, tabletextras.js): over everything, every touch swallowed */
+#cleanScreen { position: fixed; inset: 0; z-index: 9999; background: rgba(5, 12, 22, .94); display: grid; place-items: center; touch-action: none; user-select: none; }
+#cleanScreen[hidden] { display: none; }
+.ksClean { text-align: center; color: #e9eef5; }
+.ksCleanIcon { font-size: clamp(72px, 16vw, 160px); line-height: 1.1; }
+.ksCleanText { font-size: clamp(20px, 3.6vw, 36px); margin: .4em 0 .8em; }
+.ksCleanBar { width: min(60vw, 420px); height: 8px; margin: 0 auto; border-radius: 4px; background: rgba(255, 255, 255, .15); overflow: hidden; }
+.ksCleanBar i { display: block; height: 100%; background: #4fd0c8; transition: width 1s linear; }
+.kClock { display: flex; flex-direction: column; align-items: center; gap: .35em; color: #fff; text-align: center; transition: transform 3s ease;
+  font-variant-numeric: tabular-nums; user-select: none; }
+.kClock b { font-size: clamp(64px, 17vw, 230px); font-weight: 200; line-height: 1; letter-spacing: -.02em; }
+.kClock span { font-size: clamp(18px, 3.2vw, 42px); opacity: .85; }
+.kClock small { font-size: clamp(15px, 2.4vw, 30px); opacity: .7; }
+.kClock small:empty { display: none; }
+.kClockDim { opacity: .5; }
+#saverScreen.orbit .kClock { text-shadow: 0 2px 14px rgba(0, 0, 0, .8); }
+#saverScreen.orbit { top: 18%; }
+#saverScreen.orbit .kClock { gap: .2em; }
+#saverScreen.orbit .kClock b { font-size: clamp(34px, 5.5vw, 72px); font-weight: 300; }
+#saverScreen.orbit .kClock span { font-size: clamp(13px, 1.6vw, 20px); }
+#saverScreen.orbit .kClock small { font-size: clamp(12px, 1.4vw, 17px); }
+dialog .stopTools[hidden] { display: none; }
 
 /* colour scale for temperature / humidity / CO2 colouring: vertical, at the left edge */
 #viewLegend { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 4; display: flex; flex-direction: column; gap: 8px;
@@ -3307,3 +3339,19 @@ body.live .v2Nops { display: none; }
 .colorRow .colorBack { flex: 0 0 auto; margin: 0; font-size: 15px; }
 .looksBtn { display: block; width: 100%; margin: 0 0 10px; padding: 6px 8px; font-size: 13px; text-align: left; }
 .roofEd .v2Sec .hd .sum .rfDot { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 50%; vertical-align: -1px; border: 1px solid rgba(0,0,0,.35); }
+
+/* the loading sign while the page starts (5.13.1): the half-built page (buttons without text, no house) stays behind it and takes no touch */
+#bootLoad { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center; background: var(--bg, #0d1117); }
+#bootLoad i { width: 46px; height: 46px; border-radius: 50%; border: 4px solid rgba(127, 127, 127, .3); border-top-color: var(--accent, #3fa9f5); animation: bootSpin .9s linear infinite; }
+@keyframes bootSpin { to { transform: rotate(360deg); } }
+/* 🏗 the railing of a balcony side by side (5.14.0, balconyui.js); the numbers are the same as in the 2D plan (rail2d.js) */
+#railSides { margin: 8px 0 4px; }
+#railSides h5 { margin: 6px 0 2px; font-size: 13px; }
+#railSides .railSide { border: 1px solid rgba(255, 183, 77, .35); border-radius: 8px; padding: 4px 8px 6px; margin: 6px 0; }
+#railSides .railSide.off { border-color: rgba(255, 255, 255, .12); opacity: .75; }
+#railSides .railSideHead { font-weight: 600; }
+#railSides .railNum { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%;
+  background: #ffb74d; color: #1d1408; font-size: 11px; font-weight: 700; }
+#railSides .railSide.off .railNum { background: #7d8796; }
+#railSides .railRange { align-items: center; }
+#railSides .railReset { margin-top: 2px; }

@@ -10,6 +10,7 @@
  *   door joins two floors of different height, steps lie on the lower side (doorSteps; room.steps === false: none).
  * Pure (no three.js, no DOM; unit test: tests/levels.test.mjs). */
 import { pointInPoly } from './rooms.js';
+import polygonClipping from './vendor/polygon-clipping.js';
 
 export const LEVELS = { maxRise: 5, maxRaise: 3, lip: 0.2, stepMax: 0.18, tread: 0.28, ceilingFrom: 1.9, slopeRun: 1.5 };
 export const EDGES = ['wall', 'slope'];
@@ -79,14 +80,49 @@ export function stairLift(from, n, groundIdx, h, H) {
  *  from the raised floor to the top of the basement walls (no gap between them); 0 elsewhere (the floor below goes up with it) */
 export const slabExtra = (i, groundIdx, h) => (i === groundIdx && i > 0 ? h || 0 : 0);
 
+/** is (x, z) in the outline pts or within `tol` m of one of its sides */
+function onPoly(pts, x, z, tol = 0.05) {
+  if (pointInPoly(x, z, pts)) return true;
+  return pts.some((a, k) => {
+    const b = pts[(k + 1) % pts.length], dx = b[0] - a[0], dz = b[1] - a[1], l2 = dx * dx + dz * dz || 1;
+    const u = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / l2));
+    return Math.hypot(x - (a[0] + u * dx), z - (a[1] + u * dz)) < tol;
+  });
+}
+/** the highest plateau a corner or the middle of a side of the outline pts lies on (0: none) */
+export function edgeLift(plateaus, pts) {
+  let h = 0;
+  pts.forEach((a, k) => {
+    const b = pts[(k + 1) % pts.length];
+    h = Math.max(h, groundAt(plateaus, a[0], a[1]), groundAt(plateaus, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2));
+  });
+  return h;
+}
+
 /** how much the things of floor f go up: { any, ground(x, z), room(r) (its floor), device(d), wall(w), at(x, z) (ground + room) };
  *  `areas`: the areas of the plot; `ter`: on a slope (#629, terrain.js) and the ground floor { at(x, z) (the height of the ground),
  *  stands(d) (the device stands on the ground: a garden thing, outside the house) }: such a device goes up or down with the ground (on a
- *  plateau: with the plateau). The house itself never moves with the ground */
-export function lifter(f, areas, ter = null) {
+ *  plateau: with the plateau). The house itself never moves with the ground. `upper`: f lies above the ground floor; there a room that
+ *  reaches out beyond the plateaus (a balcony hanging on the house) goes up with the plateau it touches (edgeLift), and so does what stands
+ *  in it or on its edge (5.14.0, the owner: the balcony stayed 60 cm lower than the rooms on the plateau, „ich glaube das liegt daran, dass
+ *  unten ein Plateau ist“) */
+export function lifter(f, areas, ter = null, upper = false) {
   const pl = plateausOf(areas), rooms = f?.rooms || [], raised = rooms.some((r) => cleanRaise(r.raise));
   const any = pl.length > 0 || raised || !!ter;
-  const ground = (x, z) => (pl.length ? groundAt(pl, x, z) : 0);
+  const base = (x, z) => (pl.length ? groundAt(pl, x, z) : 0);
+  const hung = [];                                                    // [[room, height]]: the rooms of an upper floor off the plateaus that hang on it
+  if (upper && pl.length) rooms.forEach((r) => {
+    if (!okPoly(r) || base(...innerPoint(r.points))) return;
+    const h = edgeLift(pl, r.points);
+    if (h) hung.push([r, h]);
+  });
+  const low = upper ? [] : rooms.filter((r) => r.onGround && okPoly(r));   // a garage on the ground floor stays on the lawn (5.14.0, groundCut)
+  const ground = (x, z) => {
+    if (low.length && low.some((r) => pointInPoly(x, z, r.points))) return 0;
+    const g = base(x, z);
+    if (g || !hung.length) return g;
+    return hung.find(([r]) => onPoly(r.points, x, z))?.[1] || 0;
+  };
   const at = (x, z) => ground(x, z) + (raised ? raiseAt(rooms, x, z) : 0);
   return {
     any,
@@ -184,6 +220,66 @@ export function plateauRing(rings, lip = LEVELS.lip) {
   const x0 = r2(Math.min(...xs) - lip), x1 = r2(Math.max(...xs) + lip), z0 = r2(Math.min(...zs) - lip), z1 = r2(Math.max(...zs) + lip);
   return [[x0, z0], [x1, z0], [x1, z1], [x0, z1]];
 }
+/* ---------- a garage on the lawn beside the house on a plateau (5.14.0) ---------- */
+const ring4 = (pts) => [...pts.map((p) => [+p[0], +p[1]]), [+pts[0][0], +pts[0][1]]];
+const r3 = (v) => Math.round(v * 1000) / 1000;
+const ringArea = (r) => Math.abs(r.reduce((a, p, k) => { const q = r[(k + 1) % r.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
+/** rooms and walls (with their thickness and `grow` m more all round) as polygons of polygon-clipping */
+function massOf(rooms, walls, grow) {
+  const out = rooms.filter(okPoly).map((r) => [ring4(r.points)]);
+  walls.forEach((w) => {
+    const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], L = Math.hypot(dx, dz);
+    if (L < 1e-3) return;
+    const t = (+w.thickness || 0.2) / 2 + grow, nx = (-dz / L) * t, nz = (dx / L) * t, ex = (dx / L) * t, ez = (dz / L) * t;
+    out.push([ring4([[w.a[0] - ex + nx, w.a[1] - ez + nz], [w.b[0] + ex + nx, w.b[1] + ez + nz], [w.b[0] + ex - nx, w.b[1] + ez - nz], [w.a[0] - ex - nx, w.a[1] - ez - nz]])]);
+  });
+  return out;
+}
+/** „🚗 Steht unten auf dem Rasen“ (5.14.0, the owner: „bei Garagen sollte das ja bis zum Boden gehen“): room `room` of the ground floor
+ *  (index gi) gets `onGround` and is cut out of the plateaus it lies on (with its own walls and the plateau's lip round them, not the walls
+ *  it shares with the house), so its floor lies on the lawn; `on` false gives it back to the plateau it touches. Changes the plateaus'
+ *  points; returns how many plateaus changed (-1: the room lies in the middle of a plateau, a hole cannot be cut) */
+export function groundCut(layout, gi, room, on) {
+  const f = layout?.floors?.[gi], areas = layout?.plot?.areas || [];
+  if (!f || !okPoly(room)) return 0;
+  if (on) room.onGround = true; else delete room.onGround;
+  const rest = (f.rooms || []).filter((r) => r !== room && !r.onGround && !r.terrace && okPoly(r));
+  const near = (r, w) => onPoly(r.points, (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, (+w.thickness || 0.2) / 2 + 0.05);
+  const mine = (f.walls || []).filter((w) => near(room, w) && !rest.some((r) => near(r, w)));
+  const theirs = (f.walls || []).filter((w) => rest.some((r) => near(r, w)));
+  let region, house;
+  try {
+    const keep = massOf(rest, theirs, 0.01), own = massOf([room], mine, LEVELS.lip);
+    region = keep.length ? polygonClipping.difference(polygonClipping.union(...own), ...keep) : polygonClipping.union(...own);
+    house = massOf(rest, theirs, LEVELS.lip + 0.01);              // the rest of the house with the plateau's lip round it
+  } catch { return 0; }
+  if (!region.length) return 0;
+  /** what goes with the room: the room itself and the pieces of the plateau beyond the house that touch it (a plateau drawn as a box round
+   *  house and garage leaves no strip in front of the garage) */
+  const cutOf = (plateau) => {
+    try {
+      const pieces = house.length ? polygonClipping.difference(plateau, ...house) : [];
+      const touch = pieces.filter((pc) => polygonClipping.intersection(pc, region).length > 0);
+      return touch.length ? polygonClipping.union(...region, ...touch) : region;
+    } catch { return region; }
+  };
+  let changed = 0;
+  areas.forEach((a) => {
+    if (!(cleanRise(a.rise) > 0) || !okPoly(a)) return;
+    let res;
+    try { res = on ? polygonClipping.difference([ring4(a.points)], ...cutOf([ring4(a.points)])) : polygonClipping.union([ring4(a.points)], ...region); } catch { return; }
+    if (!on && res.length !== 1) return;                         // not next to this plateau: it stays as it is
+    const best = res.map((poly) => ({ poly, area: ringArea(poly[0].slice(0, -1)) })).sort((x, y) => y.area - x.area)[0];
+    if (!best) return;
+    if (best.poly.length > 1) { changed = changed || -1; return; }     // it would leave a hole
+    const pts = best.poly[0].slice(0, -1).map(([x, z]) => [r3(x), r3(z)]);
+    if (Math.abs(ringArea(pts) - ringArea(a.points)) < 1e-3) return;   // nothing to cut here
+    a.points = pts;
+    changed = changed < 0 ? changed : changed + 1;
+  });
+  return changed;
+}
+
 /** where a ray from (x, z) along (ux, uz) leaves the polygon: the distance, or null */
 export function exitDistance(pts, x, z, ux, uz) {
   let best = null;

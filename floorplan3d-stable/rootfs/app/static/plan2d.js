@@ -25,6 +25,9 @@ import { GARAGE_FLAT } from './garage.js';
 import { YARD_FLAT } from './yarddeco.js';
 import { areaAt, nearEdge, edgeList, rectFrom, surfaceColor } from './yard.js';
 import { miterEnds } from './wallmiter.js';
+import { initRail2d } from './rail2d.js';
+import { guideAt, guideLines } from './drawguide.js';
+import { splitSide, dropCorner } from './railsides.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -74,7 +77,7 @@ export function createPlan(ctx) {
   let s = 60, tx = 0, ty = 0;                 // px per metre + offset
   let rot = 0;                                // degrees the plan is turned on the screen (with the 3D view, #212)
   let W = 800, H = 600;
-  let drawPts = [], cursor = null, shift = false;
+  let drawPts = [], cursor = null, shift = false, guideHit = null;   // guideHit: the right angle / parallel the cursor sits on (drawguide.js)
   let opPreview = null;
   let drag = null;                            // active pointer interaction
   let raf = 0, rebuildRaf = 0;
@@ -92,6 +95,7 @@ export function createPlan(ctx) {
   const polyOf = (f, kind) => (kind === 'yard' ? yardList() : kind === 'plot' ? (yardsHere() && plotPoly() ? [plotPoly()] : []) : polyList(f, kind));
   const sx = (x) => x * s + tx, sy = (z) => z * s + ty;
   const wx = (px) => (px - tx) / s, wz = (py) => (py - ty) / s;
+  const rail2d = initRail2d({ sx, sy, s: () => s });              // the railing of balconies, its sides, ends and gates (5.14.0)
   const grid = () => ctx.settings().grid || 0.25;
   const isLive = () => ctx.isLive();
 
@@ -174,6 +178,41 @@ export function createPlan(ctx) {
     const g = grid();
     const l = Math.round(L / g) * g;
     return [from[0] + Math.cos(a) * l, from[1] + Math.sin(a) * l];
+  }
+
+  /** the next point of a wall, room, block, area or floor opening being drawn: on a corner or the grid, with Shift in steps of 45° (walls),
+   *  else onto a right angle or a parallel when it is almost one (5.14.0, drawguide.js; Alt: free) */
+  function drawPoint(tool, x, z, e) {
+    let p = snapPt(x, z, { free: e.altKey });
+    guideHit = null;
+    const last = drawPts[drawPts.length - 1];
+    if (!last || (tool === 'plot' && ctx.plotRect?.())) return p;
+    if (tool === 'wall' && shift) return angleSnap(last, p);
+    if (e.altKey) return p;
+    const f = shown(), onCorner = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...drawPts].some((q) => q[0] === p[0] && q[1] === p[1]);
+    if (onCorner) return p;                                          // a corner it snapped to stays exact
+    const g = guideAt(drawPts.length >= 2 ? drawPts[drawPts.length - 2] : null, last, p, guideLines(f, tool === 'plot' ? yardList() : [], drawPts));
+    if (!g.kind) return p;
+    guideHit = g;
+    return g.p;
+  }
+  /** the marks of the guide: ∟ at the corner, ∥ at both lines, the line it follows lit */
+  function guideSvg() {
+    const g = guideHit;
+    if (!g || !cursor) return '';
+    const col = '#5dff9d', k = 14 / s, [a, b] = g.ref, at = g.at;
+    const u0 = [cursor[0] - at[0], cursor[1] - at[1]], lu = Math.hypot(...u0) || 1, u = [u0[0] / lu, u0[1] / lu];
+    let o = `<line class="guideRef" x1="${sx(a[0]).toFixed(1)}" y1="${sy(a[1]).toFixed(1)}" x2="${sx(b[0]).toFixed(1)}" y2="${sy(b[1]).toFixed(1)}" stroke="${col}" stroke-width="3" stroke-dasharray="2 4" opacity=".9" pointer-events="none"/>`;
+    const label = (x, z, text) => `<text x="${sx(x).toFixed(1)}" y="${sy(z).toFixed(1)}" font-size="13" font-weight="700" fill="${col}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke" text-anchor="middle" pointer-events="none">${text}</text>`;
+    if (g.kind === 'right') {
+      const far = Math.hypot(a[0] - at[0], a[1] - at[1]) > Math.hypot(b[0] - at[0], b[1] - at[1]) ? a : b, v0 = [far[0] - at[0], far[1] - at[1]], lv = Math.hypot(...v0) || 1, v = [v0[0] / lv, v0[1] / lv];
+      const P = (i, j) => `${sx(at[0] + u[0] * k * i + v[0] * k * j).toFixed(1)},${sy(at[1] + u[1] * k * i + v[1] * k * j).toFixed(1)}`;
+      o += `<polyline class="guideRight" points="${P(1, 0)} ${P(1, 1)} ${P(0, 1)}" fill="none" stroke="${col}" stroke-width="2.2" pointer-events="none"/>`;
+      o += label(at[0] - (u[0] + v[0]) * k * 1.4, at[1] - (u[1] + v[1]) * k * 1.4 + 4 / s, '90°');
+    } else {
+      o += `<g class="guidePar">${label((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, '∥')}${label((at[0] + cursor[0]) / 2 - u[1] * k, (at[1] + cursor[1]) / 2 + u[0] * k, '∥')}</g>`;
+    }
+    return o;
   }
 
   /* ---------- picking ---------- */
@@ -361,7 +400,12 @@ export function createPlan(ctx) {
       if (w) { if (near(w.a)) return { type: 'wall-end', wall: w, end: 'a' }; if (near(w.b)) return { type: 'wall-end', wall: w, end: 'b' }; }
     } else if (POLY_KINDS.has(sel.kind)) {
       const r = polyOf(f, sel.kind).find((q) => q.id === sel.id);
-      if (r) { const i = r.points.findIndex(near); if (i >= 0) return { type: 'room-pt', room: r, i }; }
+      const rh = sel.kind === 'room' && r?.terrace ? rail2d.handleAt(r, f, px, py) : null;   // an end of its railing or its gate (5.14.0)
+      if (r) {
+        const i = r.points.findIndex(near);
+        if (i >= 0 && !(rh && rh.d < Math.hypot(sx(r.points[i][0]) - px, sy(r.points[i][1]) - py))) return { type: 'room-pt', room: r, i };
+      }
+      if (rh) return { type: 'rail-end', room: r, k: rh.k, which: rh.which };
     }
     return null;
   }
@@ -670,8 +714,11 @@ export function createPlan(ctx) {
       if (!live && d.entity && s >= 34) o += `<circle cx="${cx + (fo.r || fo.w / 2) * s}" cy="${cy - (fo.r || fo.d / 2) * s}" r="3" fill="${on ? '#5dff9d' : 'rgba(255,255,255,.4)'}"/>`;
     });
 
+    /* the railing of the balconies and roof terraces; the selected one with the numbers of its sides and handles (5.14.0, rail2d.js) */
+    o += rail2d.svg(f, sel?.kind === 'room' && !ctx.isItemLocked?.('room', sel.id) ? sel : null, !live);
+
     /* room labels on top */
-    const up = lifter(f, areasFor(ctx.yards?.() || [], ctx.floorIndex?.() ?? 0, ctx.groundIdx?.() ?? 0));   // a room on a plateau or with a higher floor shows how high it lies (#566), a basement not with the plateau (#713)
+    const up = lifter(f, areasFor(ctx.yards?.() || [], ctx.floorIndex?.() ?? 0, ctx.groundIdx?.() ?? 0), null, (ctx.floorIndex?.() ?? 0) > (ctx.groundIdx?.() ?? 0));   // a room on a plateau or with a higher floor shows how high it lies (#566), a basement not with the plateau (#713)
     f.rooms.forEach((rm) => {
       if (!rm.name) return;
       const c = rm.points.reduce((a, p) => [a[0] + p[0] / rm.points.length, a[1] + p[1] / rm.points.length], [0, 0]);
@@ -754,6 +801,7 @@ export function createPlan(ctx) {
       o += `<polyline points="${pts(pl)}" fill="none" stroke="${C.accent}" stroke-width="2.5" stroke-dasharray="6 4"/>`;
       if ((tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') && drawPts.length >= 2) o += `<polygon points="${pts(pl)}" fill="rgba(35,224,255,.12)" stroke="none"/>`;
       drawPts.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="4" fill="${C.accent}"/>`; });
+      if (!box) o += guideSvg();                                   // ∟ 90° / ∥ (5.14.0)
       if (cursor && !box) {
         const last = drawPts[drawPts.length - 1], L = Math.hypot(cursor[0] - last[0], cursor[1] - last[1]);
         o += `<text x="${sx((cursor[0] + last[0]) / 2)}" y="${sy((cursor[1] + last[1]) / 2) - 8}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.accent}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(ctx.fmtLen(L))}</text>`;
@@ -959,6 +1007,7 @@ export function createPlan(ctx) {
   function startHandleDrag(hd) {
     if (hd.type === 'dev-size') return { type: 'devsize', which: hd.which, d: hd.d, moved: false };
     if (hd.type === 'ring-end') return { type: 'ringend', d: hd.d, i: hd.i, end: hd.end, moved: false };
+    if (hd.type === 'rail-end') return { type: 'railend', room: hd.room, k: hd.k, which: hd.which, moved: false };
     if (hd.type === 'roof-size') return { type: 'roofsize', id: hd.id, which: hd.which, start: hd.start, moved: false };
     if (hd.type === 'roof-step') return { type: 'roofstep', id: hd.id, side: hd.side, i: hd.i, moved: false };
     if (hd.type === 'roof-corner') return { type: 'roofcorner', id: hd.id, side: hd.side, k: hd.k, piece: hd.piece, moved: false };
@@ -1061,6 +1110,13 @@ export function createPlan(ctx) {
         setRange(drag.d, drag.i, drag.end === 0 ? pos : null, drag.end === 1 ? pos : null);
         const sg = drag.d.segs[drag.i];
         ctx.setStatus(`${drag.i + 1}: ${ctx.fmtLen(sg.from)} – ${ctx.fmtLen(sg.to)} (${ctx.fmtLen(sg.to - sg.from)})`);
+        drag.moved = true; scheduleRebuild(); render();
+        return;
+      }
+      if (drag.type === 'railend' && moved) {                           // an end of a balcony's railing or its gate along its side (5.14.0)
+        snapshotOnce();
+        const r = rail2d.drag(drag.room, shown(), drag.k, drag.which, x, z);
+        ctx.setStatus(ctx.t(r.gate ? 'rails.dragGate' : 'rails.drag', { n: r.n, from: ctx.fmtLen(r.from), to: ctx.fmtLen(r.to), len: ctx.fmtLen(r.to - r.from), at: ctx.fmtLen(r.gate?.at || 0) }));
         drag.moved = true; scheduleRebuild(); render();
         return;
       }
@@ -1177,12 +1233,11 @@ export function createPlan(ctx) {
       cursor = snapPt(x, z, { fine: true, ends: false });
       render();
     } else if (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') {
-      let p = snapPt(x, z, { free: e.altKey });
-      if (drawPts.length && tool === 'wall' && shift) p = angleSnap(drawPts[drawPts.length - 1], p);
+      const p = drawPoint(tool, x, z, e);
       cursor = p;
-      if (drawPts.length && tool === 'wall') {
-        const last = drawPts[drawPts.length - 1];
-        ctx.setStatus(`${ctx.t('length')}: ${ctx.fmtLen(Math.hypot(p[0] - last[0], p[1] - last[1]))}`);
+      if (drawPts.length) {
+        const last = drawPts[drawPts.length - 1], hint = guideHit ? ` · ${ctx.t(guideHit.kind === 'right' ? 'guide.right' : 'guide.parallel')}` : '';
+        ctx.setStatus(`${ctx.t('length')}: ${ctx.fmtLen(Math.hypot(p[0] - last[0], p[1] - last[1]))}${hint}`);
       }
       render();
     } else if (tool === 'device') {
@@ -1230,6 +1285,7 @@ export function createPlan(ctx) {
     if (d.type === 'devsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'tpoint') { if (d.moved) ctx.commit(); else ctx.terrainPick?.(d.id); snapDone = false; return; }
     if (d.type === 'ringend') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
+    if (d.type === 'railend') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'stairsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'bgmove' || d.type === 'bgscale') { if (d.moved) { ctx.commit(); ctx.bgChanged(); } snapDone = false; return; }
     if (d.type === 'calib') {
@@ -1274,9 +1330,7 @@ export function createPlan(ctx) {
   function placeWith(tool, x, z, e) {
     const f = floor();
     if (tool === 'wall') {
-      let p = snapPt(x, z, { free: e.altKey });
-      const last = drawPts[drawPts.length - 1];
-      if (last && shift) p = angleSnap(last, p);
+      const p = drawPoint(tool, x, z, e), last = drawPts[drawPts.length - 1];   // with the right angle / parallel the cursor showed (5.14.0)
       if (last && Math.hypot(p[0] - last[0], p[1] - last[1]) < 0.01) { cancel(); return; }
       if (last) {
         ctx.snapshot();
@@ -1298,7 +1352,7 @@ export function createPlan(ctx) {
       const p = snapPt(x, z, { free: e.altKey });
       ctx.terrainClick?.(p[0], p[1]);
     } else if (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') {
-      const p = snapPt(x, z, { free: e.altKey });
+      const p = drawPoint(tool, x, z, e);                          // the first corner again (closing) stays exact: drawPoint keeps corners
       if (tool === 'plot' && ctx.plotRect?.() && drawPts.length === 1) {          // a rectangle: the second click is the opposite corner (#538)
         const r = rectFrom(drawPts[0], p);
         if (r) { drawPts = r; finishRoom(); }
@@ -1348,7 +1402,7 @@ export function createPlan(ctx) {
     }
     cancel();
   }
-  function cancel() { drawPts = []; cursor = null; opPreview = null; ctx.measure?.clear(); ctx.setStatus(''); render(); }
+  function cancel() { drawPts = []; cursor = null; guideHit = null; opPreview = null; ctx.measure?.clear(); ctx.setStatus(''); render(); }
 
   root.addEventListener('dblclick', (e) => {
     if (isLive()) return;
@@ -1377,7 +1431,7 @@ export function createPlan(ctx) {
       const hd = handleAt(px, py);
       if (hd?.type === 'room-pt') {                                  // double click on a corner removes it (a room keeps at least 3)
         if (ctx.lockWhy?.('room', hd.room.id)) { ctx.sayLock(ctx.lockWhy('room', hd.room.id)); return; }
-        if (hd.room.points.length > 3) { ctx.snapshot(); hd.room.points.splice(hd.i, 1); ctx.commit(); }
+        if (hd.room.points.length > 3) { ctx.snapshot(); hd.room.points.splice(hd.i, 1); dropCorner(hd.room, hd.i); ctx.commit(); }   // its railing per side stays (5.14.0)
         return;
       }
       const wallHit = h?.kind === 'wall' ? floor().walls.find((w) => w.id === h.id) : (h?.kind === 'opening' ? null : wallNear(x, z));
@@ -1390,7 +1444,9 @@ export function createPlan(ctx) {
         const ew = ctx.lockWhy?.(edge.kind, edge.poly.id);
         if (ew) { ctx.sayLock(ew); return; }
         ctx.snapshot();
+        const p0 = edge.poly.points[edge.i];
         edge.poly.points.splice(edge.i + 1, 0, [+edge.pt[0].toFixed(3), +edge.pt[1].toFixed(3)]);
+        if (edge.kind === 'room') splitSide(edge.poly, edge.i, Math.hypot(edge.pt[0] - p0[0], edge.pt[1] - p0[1]));   // its railing per side stays where it was (5.14.0)
         ctx.setSelection({ kind: edge.kind, id: edge.poly.id });
         ctx.commit();
       }
@@ -1460,7 +1516,7 @@ export function createPlan(ctx) {
     pickAt, splitWallAt, wallNear,           // for the browser tests
     fit,
     cancel,
-    reset() { drawPts = []; cursor = null; opPreview = null; calibPts = []; calibCur = null; ctx.measure?.clear(); },
+    reset() { drawPts = []; cursor = null; guideHit = null; opPreview = null; calibPts = []; calibCur = null; ctx.measure?.clear(); },
     setBgMode(m) { bgMode = m; calibPts = []; calibCur = null; root.classList.toggle('bgmode', !!m); render(); },
     hasDraft: () => drawPts.length > 0,
     finishRoom,

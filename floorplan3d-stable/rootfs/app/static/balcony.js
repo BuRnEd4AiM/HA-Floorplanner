@@ -11,6 +11,8 @@
 import polygonClipping from './vendor/polygon-clipping.js';
 import { rangeOver } from './terrain.js';
 import { pointInPoly, polyArea } from './rooms.js';
+import { onBridge } from './bridge.js';
+import { railPlan } from './railsides.js';
 
 export const BALCONY = {
   plate: 0.18,      // the plate under a free balcony (m)
@@ -120,29 +122,19 @@ export function atWall(walls, x, z, margin = 0.12) {
   });
 }
 
-/** where the railing of a room runs: the stretches [{ a: [x, z], b: [x, z] }] of its edges where `covered(x, z)` is false (no wall, no
- *  bridge arriving), each longer than 15 cm; the edges are looked at every `step` m */
-export function railRuns(pts, covered, step = 0.2) {
-  const runs = [];
-  for (let i = 0; i < pts.length; i++) {
-    const [ax, az] = pts[i], [bx, bz] = pts[(i + 1) % pts.length], len = Math.hypot(bx - ax, bz - az);
-    if (len < 0.1) continue;
-    const n = Math.max(1, Math.ceil(len / step)), at = (u) => [ax + (bx - ax) * u, az + (bz - az) * u];
-    let run = null;
-    const flush = (end) => {
-      if (run === null) return;
-      const a = at(run), b = at(end);
-      if (Math.hypot(b[0] - a[0], b[1] - a[1]) > 0.15) runs.push({ a, b });
-      run = null;
-    };
-    for (let k = 0; k < n; k++) {
-      const [mx, mz] = at((k + 0.5) / n);
-      if (covered(mx, mz)) flush(k / n); else if (run === null) run = k / n;
-    }
-    flush(1);
-  }
-  return runs;
+/** is the spot (x, z) on the edge of the open room `room` of floor f already closed: a wall (also in a doorway), another open room of the
+ *  floor (#703: a terrace drawn as two rooms) or a bridge arriving (the bridges of this floor and `bridges`: more bridge devices in this
+ *  floor's frame, e.g. the one coming over from the next house); there it gets no railing */
+export function railCover(room, f, bridges = []) {
+  const landing = [...(f?.devices || []).filter((d) => d.type === 'bridge'), ...bridges];
+  const others = (f?.rooms || []).filter((r) => r !== room && r.terrace && r.id !== room.id);
+  return (x, z) => landing.some((d) => onBridge(d, x, z)) || atWall(f?.walls, x, z) || atRoom(others, x, z);
 }
+
+/** where the railing of the outline pts runs: the stretches [{ a: [x, z], b: [x, z], k (the side) }] of its edges where `covered(x, z)` is
+ *  false (no wall, no bridge arriving), each longer than 15 cm; the edges are looked at every `step` m (railsides.js railPlan, without the
+ *  settings per side) */
+export const railRuns = (pts, covered, step = 0.2) => railPlan({ points: pts }, covered, step).runs;
 
 /** the parts of a railing of length `len` along its run: boxes { mat: metal | glass | wood, u0, u1 (along the run), y0, y1 (over the
  *  floor), th (across, centred on the run) } */
@@ -169,6 +161,25 @@ export function railParts(len, style, H = BALCONY.railH) {
     box('metal', 0, len, H - 0.025, H + 0.025, 0.05);
     box('metal', 0, len, H * 0.5 - 0.0175, H * 0.5 + 0.0175, 0.035);
   }
+  return parts;
+}
+
+/** the parts of a gate (Geländertür, 5.14.0) `len` m wide in a railing of this style, like railParts: a post on each side, the leaf a
+ *  little narrower in a frame (top, bottom, two stiles) filled like the railing (bars, a pane, slats) and a handle on its free side */
+export function gateParts(len, style, H = BALCONY.railH) {
+  const parts = [], s = cleanRail(style), mat = s === 'wood' ? 'wood' : 'metal', w = s === 'wood' ? 0.08 : 0.05;
+  const box = (m, u0, u1, y0, y1, th) => parts.push({ mat: m, u0, u1, y0, y1, th });
+  box(mat, -w / 2, w / 2, 0, H, w); box(mat, len - w / 2, len + w / 2, 0, H, w);   // the posts it hangs on and shuts against
+  const l0 = w / 2 + 0.02, l1 = len - w / 2 - 0.02, f = s === 'wood' ? 0.05 : 0.035, y0 = 0.06, y1 = H - 0.04;
+  if (l1 - l0 < 0.1) return parts;
+  box(mat, l0, l1, y1 - f, y1, f); box(mat, l0, l1, y0, y0 + f, f);              // the frame of the leaf
+  box(mat, l0, l0 + f, y0, y1, f); box(mat, l1 - f, l1, y0, y1, f);
+  if (s === 'glass') box('glass', l0 + f, l1 - f, y0 + f, y1 - f, 0.012);
+  else {
+    const gap = s === 'wood' ? 0.12 : 0.11, n = Math.max(1, Math.round((l1 - l0) / gap)), bw = s === 'wood' ? 0.04 : 0.016;
+    for (let k = 1; k < n; k++) { const u = l0 + ((l1 - l0) * k) / n; box(mat, u - bw / 2, u + bw / 2, y0 + f, y1 - f, s === 'wood' ? 0.02 : bw); }
+  }
+  box('metal', l1 - 0.14, l1 - 0.03, H * 0.62, H * 0.62 + 0.025, 0.09);           // the handle, both sides
   return parts;
 }
 

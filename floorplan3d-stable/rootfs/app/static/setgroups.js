@@ -181,10 +181,13 @@ export function initSetGroups(ctx) {
     dlg.classList.toggle('sgSide', side);
     if (side !== was) { if (search.value) run(); else clear(); label(); }
   }
-  /** the night times only matter when dimming goes by the clock */
+  /** the night times only matter when dimming goes by the clock; the rest of the wall tablet's screen saver and dimming only when it is on
+   *  (the speed and the clock over the house only for the turning house) */
   function refresh() {
-    const by = $('#setNightDim')?.value === 'time';
-    ['#setNightFrom', '#setNightTo'].forEach((s) => { const row = $(s)?.closest('.row'); if (row) row.hidden = !by; });
+    const dim = $('#setNightDim')?.value, saver = $('#setSaver')?.value;
+    ['#setNightFrom', '#setNightTo'].forEach((s) => { const row = $(s)?.closest('.row'); if (row) row.hidden = dim !== 'time'; });
+    const on = { saver: !!saver && saver !== 'off', orbit: saver === 'orbit' || saver === 'floors', dim: !!dim && dim !== 'off' };   // the floors turn too (5.13.0)
+    dlg.querySelectorAll('[data-kiosk]').forEach((el) => { el.hidden = !on[el.dataset.kiosk]; });
     label();
   }
   groups().forEach((g) => {

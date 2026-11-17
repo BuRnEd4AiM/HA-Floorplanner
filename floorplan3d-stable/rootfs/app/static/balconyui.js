@@ -1,12 +1,15 @@
 /* 🏗 The balcony / roof terrace fields of a room (#646, before in props.js): the tick "Balkon / Dachterrasse" (an open room: no roof, a
  * railing on every edge without a wall), and when it is set: the railing (metal, glass, wood), the supports down to the ground and a line
  * that says whether the room hangs free (a balcony with a plate under it), partly (#703) or lies on the house or the ground. The rules:
- * balcony.js. */
-import { RAILS, cleanRail } from './balcony.js';
+ * balcony.js. Below them (5.14.0) the railing side by side: each side with a number (the same as in the 2D plan, rail2d.js) can be
+ * switched off, made shorter („von … bis“) or get a gate (Geländertür); the rules: railsides.js. */
+import { RAILS, cleanRail, railCover } from './balcony.js';
+import { listedSides, sideOf, setSide, resetSides, GATE } from './railsides.js';
 
 const OPEN_COLOR = '#a58a63', ROOM_COLOR = '#8a7f70';
 
-/** ui: { t, field, snapshot(), changed(), render(), free(id) (does the room hang free: 'all', 'part' or '', balcony3d.js freeness) } */
+/** ui: { t, field, lenInput(get, set, opts), fmtLen(m), floor() (the floor of the room), snapshot(), changed(), render(), free(id) (does the
+ *  room hang free: 'all', 'part' or '', balcony3d.js freeness) } */
 export function balconyFields(body, it, ui) {
   const { t } = ui;
   const tc = document.createElement('input'); tc.type = 'checkbox'; tc.checked = !!it.terrace; tc.id = 'roomTerrace';
@@ -37,4 +40,51 @@ export function balconyFields(body, it, ui) {
   const hint = document.createElement('p'); hint.className = 'sub'; hint.id = 'balconyHint'; hint.dataset.free = free === 'part' ? 'part' : free ? '1' : '0';
   hint.textContent = t(free === 'part' ? 'balc.part' : free ? 'balc.free' : 'balc.onTop');
   body.append(pl, hint);
+  sideFields(body, it, ui);
+}
+
+/** „Geländer je Seite“ (5.14.0): one block per side that has (or could have) a railing: on or off, from … to, a gate with its place and
+ *  width */
+function sideFields(body, it, ui) {
+  const { t } = ui, f = ui.floor?.();
+  const box = document.createElement('div'); box.className = 'railSides'; box.id = 'railSides';
+  const h = document.createElement('h5'); h.textContent = t('rails.title');
+  const hint = document.createElement('p'); hint.className = 'sub'; hint.textContent = t('rails.hint');
+  box.append(h, hint);
+  const sides = listedSides(it, railCover(it, f));
+  if (!sides.length) { const p = document.createElement('p'); p.className = 'sub'; p.id = 'railSidesNone'; p.textContent = t('rails.none'); box.append(p); }
+  const edit = (fn, again = false) => { ui.snapshot(); fn(); ui.changed(); if (again) ui.render(); };
+  const len = (get, set, id, min = 0) => Object.assign(ui.lenInput(get, set, { min }), { id });
+  sides.forEach(({ k, n, len: L }) => {
+    const s = sideOf(it, k), row = document.createElement('div');
+    row.className = `railSide${s.off ? ' off' : ''}`; row.dataset.side = String(k); row.dataset.n = String(n);
+    const on = document.createElement('input'); on.type = 'checkbox'; on.checked = !s.off; on.id = `railSideOn${k}`;
+    on.addEventListener('change', () => edit(() => setSide(it, k, { off: !on.checked }), true));
+    const lab = document.createElement('label'); lab.className = 'chk railSideHead';
+    const num = document.createElement('span'); num.className = 'railNum'; num.textContent = String(n);
+    lab.append(on, ' ', num, document.createTextNode(` ${t('rails.side', { n, len: ui.fmtLen(L) })}`));
+    row.append(lab);
+    if (!s.off) {
+      const range = document.createElement('div'); range.className = 'splitRow railRange';
+      const dash = document.createElement('span'); dash.textContent = '–';
+      range.append(len(() => sideOf(it, k).from, (v) => setSide(it, k, { from: v }), `railFrom${k}`),
+        dash, len(() => sideOf(it, k).to, (v) => setSide(it, k, { to: v }), `railTo${k}`));
+      row.append(ui.field(t('rails.range'), range));
+      const gc = document.createElement('input'); gc.type = 'checkbox'; gc.checked = !!s.gate; gc.id = `railGate${k}`;
+      gc.addEventListener('change', () => edit(() => setSide(it, k, { gate: gc.checked ? { at: L / 2, w: Math.min(GATE.w, L) } : null }), true));
+      const gl = document.createElement('label'); gl.className = 'chk'; gl.title = t('rails.gateHint'); gl.append(gc, ` ${t('rails.gate')}`);
+      row.append(gl);
+      if (s.gate) {
+        row.append(ui.field(t('rails.gateAt'), len(() => sideOf(it, k).gate?.at ?? L / 2, (v) => setSide(it, k, { gate: { at: v, w: sideOf(it, k).gate?.w ?? GATE.w } }), `railGateAt${k}`)),
+          ui.field(t('rails.gateW'), len(() => sideOf(it, k).gate?.w ?? GATE.w, (v) => setSide(it, k, { gate: { at: sideOf(it, k).gate?.at ?? L / 2, w: v } }), `railGateW${k}`, GATE.min)));
+      }
+    }
+    box.append(row);
+  });
+  if (it.railSides) {
+    const rs = document.createElement('button'); rs.type = 'button'; rs.className = 'railReset'; rs.id = 'railSidesReset'; rs.textContent = t('rails.reset');
+    rs.addEventListener('click', () => edit(() => resetSides(it), true));
+    box.append(rs);
+  }
+  body.append(box);
 }

@@ -6,7 +6,7 @@
 
 /** the drop-downs that become buttons (when their choices are short enough, segItems) */
 export const SEG_IDS = ['setTheme', 'setUnits', 'setGrid', 'setPerf', 'setLabels', 'setBelowMode', 'setHouseFloors', 'setWindowFrames', 'setEarth', 'setSky',
-  'setNightDim', 'setUi', 'setPresenceRule'];
+  'setNightDim', 'setUi', 'setPresenceRule', 'setSaver', 'setSaverSpeed'];
 /** colour samples of some choices: [background] or [background, accent] */
 export const SWATCH = {
   setTheme: { holo: ['#050d1c', '#23e0ff'], dark: ['#0f1419', '#3fa9f5'], light: ['#eef1f4', '#1f8de0'] },

@@ -40,6 +40,7 @@ import devlog as dl
 import heatlog as hlog
 import heatrules as hr
 import specialdays as sdays
+import tablets as tb
 import roomsensors as rsens
 import household as hh
 import controls
@@ -118,10 +119,21 @@ DEFAULT_SETTINGS = {
     "facade": "",              # the finish of the outside of the walls (#448): '' (their colour, as always) or a facade pattern (importer.FACADE_FINISHES)
     "facadeColor": "",         # ... its colour, '' for the pattern's own
     "idleReturn": 0.0,         # wall tablets: minutes without a touch until the start view returns (0 = off)
-    "idleOrbit": False,        # ... and the house then turns slowly (screen saver)
-    "nightDim": "off",         # off | sun | time: dim the live view at night
+    "saver": "off",            # wall tablets, screen saver (static/kiosk.js): off | orbit (the house turns) | clock | black
+    "saverAfter": 5.0,         # ... after these minutes without a touch
+    "saverSpeed": "normal",    # ... how fast the house turns: slow | normal | fast
+    "saverClock": False,       # ... a clock over the turning house
+    "nightDim": "off",         # off | sun | time | always: dim the live view at night (always: whenever nobody touches it)
     "nightFrom": "22:00",
     "nightTo": "06:00",
+    "dimAfter": 1.0,           # ... after these minutes without a touch
+    "dimLevel": 0.7,           # ... how dark: the opacity of the black layer (0.2..0.95)
+    "dimClock": False,         # ... with a clock on the dimmed screen
+    "wakeEntity": "",          # a motion sensor that wakes the screen ('' = none)
+    "keepAwake": False,        # keep the screen on (the browser's wake lock)
+    "reloadAt": "",            # 'HH:MM': load the page again once a day ('' = never)
+    "cleanBtn": True,          # the 🧽 button on tablets: the screen ignores every touch for a while, to wipe it (5.13.0, static/tabletextras.js)
+    "cleanSecs": 30.0,         # ... for so many seconds
     "belowMode": "dim",        # floors below the open one: dim (see-through, belowVisibility) | stacked (clearly visible) | hidden
     "belowLabels": True,       # room names and value labels of the floors below the open one (#249)
     "houseFloors": "normal",   # floors of the whole-house view: normal (as built) | apart (pulled apart) | stacked (like a real house)
@@ -136,6 +148,8 @@ DEFAULT_SETTINGS = {
     "userViews": {},           # Home Assistant user name -> 3d | 2d | split | all (what that user sees in live mode)
     "userPresets": {},         # Home Assistant user name -> its own start values for the look (PRESET_FIELDS, #250)
     "userLocks": {},           # Home Assistant user name -> what that user may not use (LOCKS, static/userlocks.js)
+    "userRights": {},          # Home Assistant user name -> {kind: view | onoff}: what that user may switch per kind of device (tablets.py, 5.13.0)
+    "userKiosk": {},           # Home Assistant user name -> more own wall tablet values and its Fully Kiosk entities (tablets.KIOSK_FIELDS, 5.13.0)
     "startViews": {},          # Home Assistant user name or "*" (everybody) -> saved start view (static/startview.js, #315)
     "userBuildings": {},       # Home Assistant user name -> the building of a plan that user sees (several buildings in one plan, #409)
     "userTabs": {},            # Home Assistant user name -> {"hide": [tab], "start": tab, "variants": {page: version}}: the tab bar of that user
@@ -176,12 +190,15 @@ DEFAULT_SETTINGS = {
     "co2Stops": [{"v": 400, "c": "#2ad0a0"}, {"v": 800, "c": "#ffd84a"}, {"v": 1200, "c": "#ff8a2a"},
                  {"v": 2000, "c": "#ff3a3a"}],
 }
-RANGES = {"idleReturn": (0.0, 240.0), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0), "backupEveryHours": (1.0, 720.0), "backupKeepDays": (1.0, 3650.0), "backupKeepCount": (1.0, 500.0), "timelineKeepDays": (1.0, 31.0)}
+RANGES = {"idleReturn": (0.0, 240.0), "cleanSecs": (10.0, 300.0), "saverAfter": (1.0, 240.0), "dimAfter": (1.0, 240.0), "dimLevel": (0.2, 0.95), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0), "backupEveryHours": (1.0, 720.0), "backupKeepDays": (1.0, 3650.0), "backupKeepCount": (1.0, 500.0), "timelineKeepDays": (1.0, 31.0)}
 VIEWS = ("3d", "2d", "split", "all")
+SAVERS = ("off", "orbit", "floors", "clock", "black")   # the screen savers of a wall tablet (static/kiosk.js; floors: 5.13.0)
+DIM_MODES = ("off", "sun", "time", "always")        # when it dims
 # what a user preset may set and the values allowed (the same list as PRESET_FIELDS in static/viewprefs.js, #250)
 PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWalls": (True, False),
                  "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False),
-                 "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False), "roomLabels": (True, False)}
+                 "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False), "roomLabels": (True, False),
+                 "saver": SAVERS, "nightDim": DIM_MODES, "keepAwake": (True, False)}
 
 # the tabs of the tab bar (the same keys as TABS in static/tabs.js, #479); the house is always there, the others can be hidden per user
 TABS = boards.TABS            # own pages of an admin (#484) are "p_…" (boards.CUSTOM_ID)
@@ -245,6 +262,41 @@ def user_locks(request) -> set:
         return set()
     locks = clean_locks(read_settings(request).get("userLocks", {}))
     return set(next((v for k, v in locks.items() if k.strip().lower() in ids), []))
+
+
+def own_entry(request, key: str, clean) -> dict:
+    """the entry of the user looking in a {user: ...} setting (userRights, userKiosk), cleaned; {} for nobody / standalone"""
+    ids = current_user(request)["ids"]
+    if not ids:
+        return {}
+    return next((v for k, v in clean(read_settings(request).get(key, {})).items() if k.strip().lower() in ids), {})
+
+
+def user_rights(request) -> dict:
+    """what the user looking may switch per kind of device (tablets.py, 5.13.0); {} = everything"""
+    return own_entry(request, "userRights", tb.clean_user_rights)
+
+
+def only_look(request, kind: str) -> bool:
+    """True when the user looking may only look at this kind of device (✋, 5.13.0): the garden, the heating buttons, the routines"""
+    return tb.level_of(user_rights(request), kind) == "view"
+
+
+async def rights_refuse(request, domain: str, service: str, payload: dict):
+    """the answer when the user's rights per kind of device do not allow this call (5.13.0), None when they do. A cover's device class
+    (gate or blind) is only asked when the two kinds have different levels"""
+    rights = user_rights(request)
+    if not rights:
+        return None
+    dc = None
+    if tb.needs_class(rights, domain):
+        try:
+            dc = ((await ha_states_cached(request.app)).get(payload.get("entity_id")) or {}).get("attributes", {}).get("device_class")
+        except HA_DOWN:
+            dc = None
+    if tb.allows(rights, domain, service, payload, dc):
+        return None
+    return web.json_response({"error": "not allowed for this user (rights per kind of device)"}, status=403)
 
 
 def clean_start_view(v):
@@ -438,6 +490,7 @@ async def get_me(request):
     tabs = next((v for k, v in clean_user_tabs(read_settings(request).get("userTabs", {})).items() if k.strip().lower() in user["ids"]), {})
     return web.json_response({"user": user["name"], "canEdit": edit, "admin": await is_admin(request), "room": room, "view": view, "preset": preset, "start": start, "building": building, "tabs": tabs,
                               "locks": [k for k in LOCKS if k in user_locks(request)],
+                              "rights": user_rights(request), "kiosk": own_entry(request, "userKiosk", tb.clean_user_kiosk),   # 5.13.0
                               "adminCheck": (not SUPERVISOR_TOKEN) or HA_LOGIN or _admin_cache["ids"] is not None, "login": HA_LOGIN})
 
 
@@ -679,9 +732,20 @@ async def delete_house(request):
     houses = houses_index(request)
     if len(houses) < 2 or not any(h["id"] == hid for h in houses):
         return web.json_response({"error": "cannot delete"}, status=400)
+    src = house_file(request, hid)
+    try:                                         # a copy stays (5.14.0, the owner: „das sollte niemals aus Versehen passieren“): the last 10
+        if src.is_file():
+            keep = data_dir(request) / "deleted-houses"
+            keep.mkdir(parents=True, exist_ok=True)
+            name = next((h.get("name", "") for h in houses if h["id"] == hid), "")
+            write_json_atomic(keep / f"{time.strftime('%Y%m%d-%H%M%S')}-{hid}.json", {"id": hid, "name": name, "layout": json.loads(src.read_text(encoding="utf-8"))})
+            for old in sorted(keep.glob("*.json"))[:-10]:
+                old.unlink(missing_ok=True)
+    except (OSError, ValueError):
+        pass
     save_houses(request, [h for h in houses if h["id"] != hid])
     try:
-        house_file(request, hid).unlink()
+        src.unlink()
     except OSError:
         pass
     return web.json_response({"ok": True})
@@ -834,6 +898,9 @@ def validate_settings(data: dict) -> dict:
     out = dict(DEFAULT_SETTINGS)
     if "labelMode" not in data and data.get("showLabels") is False:     # settings saved before the three label modes existed
         data = {**data, "labelMode": "none"}
+    if "saver" not in data and data.get("idleOrbit") is True:          # settings saved before 5.12.0: the turning house was a tick
+        idle = data.get("idleReturn")
+        data = {**data, "saver": "orbit", **({} if "saverAfter" in data or not isinstance(idle, (int, float)) or idle <= 0 else {"saverAfter": idle})}
     for key, default in DEFAULT_SETTINGS.items():
         if key not in data:
             continue
@@ -842,6 +909,10 @@ def validate_settings(data: dict) -> dict:
             out[key] = clean_presets(val)
         elif key == "userLocks":
             out[key] = clean_locks(val)
+        elif key == "userRights":
+            out[key] = tb.clean_user_rights(val)
+        elif key == "userKiosk":
+            out[key] = tb.clean_user_kiosk(val)
         elif key == "startViews":
             out[key] = clean_start_views(val)
         elif key == "favorites":
@@ -922,11 +993,19 @@ def validate_settings(data: dict) -> dict:
     if not (out["facade"] and re.fullmatch(r"#[0-9a-fA-F]{6}", out["facadeColor"] or "")):
         out["facadeColor"] = ""
     out["facadeColor"] = out["facadeColor"].lower()
-    if out["nightDim"] not in ("off", "sun", "time"):
+    if out["nightDim"] not in DIM_MODES:
         out["nightDim"] = DEFAULT_SETTINGS["nightDim"]
+    if out["saver"] not in SAVERS:
+        out["saver"] = DEFAULT_SETTINGS["saver"]
+    if out["saverSpeed"] not in ("slow", "normal", "fast"):
+        out["saverSpeed"] = DEFAULT_SETTINGS["saverSpeed"]
     for key in ("nightFrom", "nightTo"):
         if not re.match(r"^([01]\d|2[0-3]):[0-5]\d$", out[key]):
             out[key] = DEFAULT_SETTINGS[key]
+    if out["reloadAt"] and not re.match(r"^([01]\d|2[0-3]):[0-5]\d$", out["reloadAt"]):
+        out["reloadAt"] = ""
+    if out["wakeEntity"] and not re.match(r"^(binary_sensor|input_boolean|switch|person|device_tracker|media_player)\.[a-z0-9_]+$", out["wakeEntity"]):
+        out["wakeEntity"] = ""
     if out["weatherEntity"] and not re.match(r"^weather\.[a-z0-9_]+$", out["weatherEntity"]):
         out["weatherEntity"] = ""
     if out["wasteCalendar"] and not pages.CALENDAR_ID.match(out["wasteCalendar"]):
@@ -987,8 +1066,8 @@ def backup_settings(request) -> None:
 
 
 # ---------- users and tablets in a file of the add-on config folder ----------
-USER_KEYS = ("userRooms", "userViews", "userPresets", "userLocks", "startViews", "userBuildings", "userTabs")   # what users.json in the config folder holds
-NEWER_USER_KEYS = ("startViews", "userBuildings", "userTabs")   # a file written before these existed keeps the stored ones
+USER_KEYS = ("userRooms", "userViews", "userPresets", "userLocks", "startViews", "userBuildings", "userTabs", "userRights", "userKiosk")   # what users.json in the config folder holds
+NEWER_USER_KEYS = ("startViews", "userBuildings", "userTabs", "userRights", "userKiosk")   # a file written before these existed keeps the stored ones
 
 
 def users_file(request) -> Path:
@@ -1575,6 +1654,9 @@ async def call_service(request):
         return web.json_response({"error": err}, status=400)
     if domain == "alarm_control_panel" and "alarm" in user_locks(request):
         return web.json_response({"error": "the alarm panel is locked for this user"}, status=403)
+    refused = await rights_refuse(request, domain, service, payload)   # only on / off or only look for this kind of device (5.13.0)
+    if refused:
+        return refused
     if domain == "automation" and not await can_edit(request):      # an automation on / off (▶ Abläufe, #483): only who may edit
         return forbidden()
     user = current_user(request)["name"]
@@ -1592,6 +1674,36 @@ async def call_service(request):
         cache = request.app[KEY_PAGES]
         for k in [k for k in cache if isinstance(k, tuple) and k and k[0] in ("calendar", "agenda")]:
             cache.pop(k, None)
+    return web.json_response({"ok": ok}, status=200 if ok else 502)
+
+
+async def post_tablet_screen(request):
+    """{"mode": "day" | "night" | "off"}: the wall tablet's page asks its Fully Kiosk app to be bright, dim or dark (5.13.0, tabletextras.js).
+    Only the entities set for this user's tablet (⚙ → 👥 Benutzer & Tablets → 📱 Wandtablet); allowed also when switching is locked (it is
+    the tablet's own screen). The beta does nothing while the normal add-on runs: the page asks by itself, nobody tapped."""
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no supervisor token"}, status=503)
+    try:
+        body = await request.json()
+    except ValueError:
+        body = None
+    mode = body.get("mode") if isinstance(body, dict) else None
+    if mode not in tb.SCREEN_MODES:
+        return web.json_response({"error": "mode: day, night or off"}, status=400)
+    entry = own_entry(request, "userKiosk", tb.clean_user_kiosk)
+    if not (entry.get("fullyBright") or entry.get("fullyScreen")):
+        return web.json_response({"error": "no Fully Kiosk entities for this tablet"}, status=404)
+    if beta_paused(request):
+        return web.json_response({"ok": False, "paused": True})
+    top = 255
+    if entry.get("fullyBright"):
+        try:
+            top = ((await ha_states_cached(request.app)).get(entry["fullyBright"]) or {}).get("attributes", {}).get("max", 255)
+        except HA_DOWN:
+            top = 255
+    ok = True
+    for domain, service, data in tb.fully_calls(entry, mode, top):
+        ok = await ha_call(domain, service, data) and ok
     return web.json_response({"ok": ok}, status=200 if ok else 502)
 
 
@@ -2924,7 +3036,7 @@ async def post_garden_water(request):
     a user locked out of switching."""
     if not SUPERVISOR_TOKEN:
         return web.json_response({"error": "no supervisor token"}, status=503)
-    if "control" in user_locks(request):
+    if "control" in user_locks(request) or only_look(request, "switch"):
         return web.json_response({"error": "switching is locked for this user"}, status=403)
     try:
         body = await request.json()
@@ -3593,7 +3705,7 @@ async def post_rules_room(request):
     key, act = (body.get("room"), body.get("act")) if isinstance(body, dict) else (None, None)
     if not isinstance(key, str) or not hr.ROOM_KEY.match(key) or act not in RULE_ACTS:
         return web.json_response({"error": "room and act (boost | skip | pause | more | resume) expected"}, status=400)
-    if "control" in locks or (act in ("pause", "more", "resume") and "heatPause" in locks):
+    if "control" in locks or (act in ("pause", "more", "resume") and "heatPause" in locks) or only_look(request, "climate"):
         return web.json_response({"error": "locked"}, status=403)
     r = rules_store(request)
     if act == "pause":
@@ -3621,7 +3733,7 @@ async def post_rules_run(request):
     if test or lane["blocks"][0]["k"] != "button" or not flow["on"]:
         if not await can_edit(request):
             return forbidden()
-    elif "control" in user_locks(request):
+    elif "control" in user_locks(request) or only_look(request, "scene"):
         return web.json_response({"error": "locked"}, status=403)
     if flow["ha"] and not test:                         # an automation of Home Assistant (#548): Home Assistant runs it
         e = await ha_auto_entity(request.app, hf.auto_id(flow["id"], lane["id"]))
@@ -4142,7 +4254,7 @@ async def post_ha_restore(request):
 
 async def post_scene_try(request):
     """▶ Ausprobieren: the scene shown at once without saving it (scene.apply); not for a user who may not switch"""
-    if "control" in user_locks(request):
+    if "control" in user_locks(request) or only_look(request, "scene"):
         return web.json_response({"error": "locked"}, status=403)
     try:
         model = sc.clean_model(await request.json())
@@ -4602,6 +4714,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.delete("/api/automations/{id}", delete_automation),
         web.post("/api/ha-restore", post_ha_restore),
         web.post("/api/service", call_service),
+        web.post("/api/tablet/screen", post_tablet_screen),
         web.get("/api/camera/{entity}", get_camera),
         web.get("/api/camera/{entity}/hls", get_camera_hls),
         web.get("/api/hls/{token}/{name:.+}", get_hls),

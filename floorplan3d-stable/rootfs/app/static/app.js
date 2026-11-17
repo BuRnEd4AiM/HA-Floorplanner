@@ -20,6 +20,11 @@ import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
 import { initBadges } from './badges.js';
 import { initKiosk } from './kiosk.js';
+import { initTabletExtras } from './tabletextras.js';
+import { kioskFor } from './kioskprefs.js';
+import { initKioskForm } from './kioskprefsui.js';
+import { rightAllows, rightsCss } from './userrights.js';
+import { HOME } from './tabs.js';
 import { cardOptions, initCardMode } from './cardmode.js';
 import { initPhoneMenu, phoneView } from './phonemenu.js';
 import { initPhoneNav } from './phonenav.js';
@@ -37,7 +42,7 @@ import { floorOpenings as floorOpeningsOf, initBlocks } from './blocks.js';
 import { initPlotUi } from './plotui.js';
 import { buildYards } from './yard3d.js';
 import { buildPlateaus } from './plateau3d.js';
-import { groundAt, plateausOf } from './levels.js';
+import { groundAt, plateausOf, groundCut } from './levels.js';
 import { YARD } from './yarddeco.js';
 import { memoField, standsOn } from './terrain.js';
 import { drapeLine } from './terrain3d.js';
@@ -143,7 +148,7 @@ import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.
 import { initSetControls } from './setcontrols.js';
 import { initSetSections } from './setsections.js';
 import { initGuardUi } from './guardui.js';
-import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding } from './buildings.js';
+import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding, areaShown } from './buildings.js';
 import { cardShows, pageShows } from './buildingents.js';
 import { initBuildingScope } from './buildingscope.js';
 import { initBuildingsUi } from './buildingsui.js';
@@ -213,6 +218,7 @@ let plan = null;                   // 2D blueprint editor
 let layoutMode = '3d';             // '3d' | '2d' | 'split'
 let me = { user: '', canEdit: true, room: null, view: 'all' };
 let locks = new Set();                                    // what this user may not use (userlocks.js, from api/me)
+let rights = {};                                          // what this user may switch per kind of device (userrights.js, from api/me, 5.13.0)
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
 
 const $ = (s) => document.querySelector(s);
@@ -385,6 +391,8 @@ function refreshView() {
   energyUnitsUi?.invalidate();                                     // power per building: the rooms and devices of each may have changed
 }
 const shownLayout = () => view || layout;
+/** the areas of the plot that show with the building shown: a plateau goes with the building on it (5.14.0, buildings.js areaOwner) */
+const shownAreas = () => { const b = buildingsUi?.shown(); return b ? plotUi.areas().filter((a) => areaShown(layout, a, b, owners)) : plotUi.areas(); };
 const shownFloor = () => shownLayout().floors[floorIdx];
 /** a roof is drawn: it belongs to the building shown or to all of them */
 function roofShown(i, R) {
@@ -525,10 +533,10 @@ function build() {
     plotLoop = loop;
     world.add(loop);
   }
-  if ((houseMode || floorIdx >= groundIdx()) && !iso && plotUi.areas().length) {   // the areas of the plot (#538): yard, terrace, drive ... on the ground
-    const hf = terrainHere();                                    // on a slope they lie on the ground, a plateau stays level (#629)
-    buildYards(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, low: perfParam === 'low', clip: earth.cut() ? earth.plane : null, hf });
-    buildPlateaus(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, clip: earth.cut() ? earth.plane : null, hf });   // their walls or banks (#566)
+  if ((houseMode || floorIdx >= groundIdx()) && !iso && shownAreas().length) {   // the areas of the plot (#538): yard, terrace, drive ... on the ground
+    const hf = terrainHere(), shown = shownAreas();              // on a slope they lie on the ground, a plateau stays level (#629); one building: its plateau
+    buildYards(world, shown, { y: withEarth ? -0.014 : -0.034, holo, low: perfParam === 'low', clip: earth.cut() ? earth.plane : null, hf });
+    buildPlateaus(world, shown, { y: withEarth ? -0.014 : -0.034, holo, clip: earth.cut() ? earth.plane : null, hf });   // their walls or banks (#566)
   }
   if (tool === 'plot') plotUi.render();
   const stacked = floorsMode(settings, houseMode) === 'stacked' && !iso;   // like a real house: ceilings between the floors (housefloors.js)
@@ -1006,13 +1014,19 @@ const search = initSearch({
 /* ================= Wall tablet (#61): the code lives in kiosk.js ================= */
 const phoneMenu = initPhoneMenu({ $, onPhone: () => applyViewPolicy() });   // phones: the tool bar folds into a ☰ menu, live only 3D (phonemenu.js, #299, #624)
 initSafeArea();   // the iPhone's home bar strip: not kept clear twice in the Home Assistant app (safearea.js)
+const tabletSettings = () => kioskFor(settings, me.kiosk);   // the settings with this tablet's own values over them (kioskprefs.js, 5.13.0)
+const tabletExtras = initTabletExtras({    // 🧽 cleaning and the brightness of Fully Kiosk (tabletextras.js, 5.13.0)
+  $, t, settings: tabletSettings, isPhone: () => phoneMenu.isPhone(), closePopups: () => { popup.close(); search.close(); },
+});
 const kiosk = initKiosk({
-  $, controls, settings: () => settings, states: () => states, isLive: () => isLive(),
+  $, t, lang: () => currentLanguage(), controls, settings: tabletSettings, states: () => states, isLive: () => isLive(),
+  layout: () => layout, floorIdx: () => floorIdx, onScreen: (x) => tabletExtras.onScreen(x),   // the screen saver "floors", 🧽 and Fully Kiosk (5.13.0)
   closeLivePopup: () => popup.close(), closeRoomPanel: () => roomPanel.close(), closeSearch: () => search.close(),
   tabletRoom: () => tabletRoom, findRoomByName: (n) => findRoomByName(n), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom,
   openRoomPanel: (id) => roomPanel.open(id), groundIdx: () => groundIdx(), fitCamera: () => fitCamera(),
   applyStart: () => cardUi?.start() ?? (me.start ? startView.apply(me.start) : null),             // the card's floor (#13), else a saved start view (#315)
   homeTab: () => tabsUi.home(),                                                                    // the start tab of the tab bar (#479)
+  houseTab: () => { if (tabsUi.covered()) tabsUi.show(HOME); },                                    // the turning house of the screen saver must be seen
 });
 /* ---- Dashboard card (#13): the floor to start with, the room colouring, without room panel or bars, only one room or only its panel; the code lives in cardmode.js ---- */
 const cardUi = card && initCardMode({
@@ -1143,7 +1157,7 @@ buildingsUi = initBuildingsUi({
 });
 initImport({ t, lang: () => currentLanguage(), houseId: () => hs.id(), onImported: (j) => houseLoad.openImported(j) });
 welcomeUi = initWelcome({
-  t, getLayout: () => layout, isEdit: () => !isLive(),
+  t, getLayout: () => layout, isEdit: () => !isLive(), loaded: () => planLoaded,
   draw: () => { $('#viewSplit').click(); setTool('wall'); },
   example: () => houseLoad.openExample(),
   importJson: () => $('#importOpen').click(),
@@ -1266,6 +1280,7 @@ const live = initLiveControls({
   onStates: ON_STATES, setStatus: (x) => setStatus(x), afterService: () => { if (!liveChan.ok()) setTimeout(liveChan.poll, 400); },   // with the live channel the new state arrives by itself
   canEdit: () => me.canEdit, settings: () => settings, saveEffectColors: () => saveEffectColors(), canMoreInfo, openMoreInfo,
   locked: (k) => locks.has(k) || (k === 'control' && !!replayBack),   // security view only shows the past
+  refused: (e, svc, data) => !rightAllows(rights, e.split('.')[0], svc, data, states[e]?.dc),   // only on / off or only look for this kind (5.13.0)
 });
 const popup = initLivePopup({
   $, t, lang: () => currentLanguage(), live, floor: () => floor(), findOpening: (id) => findOpening(id), stateText: (id) => stateText(id), openText: (e) => openText(e), windowText: (o) => openings.windowText(o), cams,
@@ -1677,6 +1692,8 @@ const props = initProps({
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
   roomSources: (r, mode, chosen) => { const f = layout.floors.find((x) => x.rooms.includes(r)) || floor(); return sourceChoices(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode, partOf(), chosen); },   // 🌡 #705
   lang: () => currentLanguage(),
+  plateauHere: () => floorIdx === groundIdx() && plateausOf(layout.plot?.areas).length > 0,   // „🚗 Steht unten auf dem Rasen“ (a garage, 5.14.0)
+  groundCut: (room, on) => groundCut(layout, groundIdx(), room, on),
   balconyFree: (id) => balconies.freeness(floorIdx, id),        // a balcony that hangs free, all of it or a part (#646, #703): its fields say so
   select: (s) => { multiSel.clear(); selection = s; refreshSelection(); },   // the window above / below a door (#694, openingstackui.js)
   previewTilt: (id) => openings.preview(id), allOpenings: () => layout.floors.flatMap((f) => openingWalls(f).flatMap((w) => w.openings || [])),   // "Kippwinkel" (tiltui.js)
@@ -1689,9 +1706,10 @@ function renderProps() { props.render(); }
 
 /* ================= Settings: form, loading, saving and the users dialog live in settings.js (tablet rows and colour scales in settingsui.js);
    applying them to the house and the view stays here ================= */
+const kioskForm = initKioskForm({ $, t, entities: () => entities, states: () => states });   // a tablet's own values and rights in ⚙ → Benutzer & Tablets (kioskprefsui.js, 5.13.0)
 const settingsUi = initSettingsUi({
   $, t, settings: () => settings, defaults: DEFAULT_LOOK, layout: () => layout, houses: () => hs.list(), houseId: () => hs.id(), houseName: () => hs.current()?.name || '', commit: () => commitSettings(),
-  captureView: () => startView.capture(),
+  captureView: () => startView.capture(), kioskForm,
 });
 /* the start view (#315): saved for everybody in the settings, per user in the users dialog; the code lives in startview.js */
 const startView = initStartView({
@@ -1833,15 +1851,19 @@ plan = createPlan({
   roomHeat: (room, f) => (viewMode === 'normal' ? null : roomHeat(room, f)),
   states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, windowText: (o) => openings.windowText(o), fmtLen, t, setStatus, measure: measureTool,
   area: (p) => fmtArea(polyArea(p), imperial()),
-  yards: () => plotUi.areas(), yardShown: () => tool === 'plot' || floorIdx === groundIdx(), plotRect: () => plotUi.rect(),   // the plot and its areas (#538)
+  yards: () => shownAreas(), yardShown: () => tool === 'plot' || floorIdx === groundIdx(), plotRect: () => plotUi.rect(),   // the plot and its areas (#538)
   groundIdx: () => groundIdx(),                                   // a plateau lifts the ground floor and the floors over it, not a basement (#713)
   terrainMode: () => tool === 'plot' && plotUi.mode() === 'terrain', terrainSvg: (o) => plotUi.terrain.svg(o), terrainHit: (x, z, tol) => plotUi.terrain.hit(x, z, tol),   // ⛰ spot heights (#629, terrainui.js)
   terrainMove: (id, x, z) => plotUi.terrain.move(id, x, z), terrainPick: (id) => plotUi.terrain.pick(id), terrainClick: (x, z) => plotUi.terrain.click(x, z),
 });
 
+var planLoaded = false;                                   // the plan came from the add-on: only then an empty house is really empty (the welcome card)
 var booted = false;                                       // init() is through: layout, models and first scene are there (test hook ready())
 async function init() {
   if (params.get('kiosk') || card) document.body.classList.add('kiosk');
+  // everything the start needs is asked for at once, not one after another (5.13.1: a slow tablet waited for six answers in a row)
+  const settingsLoad = loadSettings(), modelsLoad = palettes.loadModels();
+  const layoutLoad = hs.load().then(() => persist.load()).then((l) => ({ l }), () => null);
   try { me = await (await fetch('api/me')).json(); } catch { /* standalone */ }
   const start = startup(me, params);                      // wall tablet, room tablet, read-only, live (appstate.js)
   tabletRoom = start.tabletRoom;
@@ -1849,23 +1871,25 @@ async function init() {
   if (tabletRoom) document.body.classList.add('roomtablet');
   if (start.readonly) document.body.classList.add('readonly');
   if (!me.canEdit && me.adminCheck === false) setStatus(t('me.noAdminCheck'));
-  if (!(await loadSettings())) setStatus(t('set.notLoaded'));
+  if (!(await settingsLoad)) setStatus(t('set.notLoaded'));
   settingsStore.usePreset(card ? { ...me.preset, ...card.look } : me.preset, card ? CARD_FIELDS : undefined);   // this user's / tablet's own start values for the look (#250), and the dashboard card's (#13): never saved
   locks = applyLocks(document, me.locks);                 // and what this user may not use: hidden here, control / cameras refused by the server
+  rights = me.rights || {};                               // ... and what he may switch per kind of device (5.13.0): refused by the server too
+  if (rightsCss(rights)) document.head.append(Object.assign(document.createElement('style'), { id: 'userRights', textContent: rightsCss(rights) }));
   lowWalls = settings.lowWalls;
   await loadLanguage(settings.language);                  // fr, es, it, nl, pl, zh: fetched only when chosen (i18n.js)
   setLanguage(settings.language);
   initLogin(me, t);                                       // without the Supervisor: logged in with Home Assistant (#489)
   full.refresh();                                         // a full screen kept on for this user (#487), in this language
   voiceUi.update();                                       // the 🎤 where this browser can listen and the user may (#509)
-  await hs.load();
-  try { layout = await persist.load(); } catch { setStatus(t('loadFailed')); }
+  const got = await layoutLoad;
+  if (got) { layout = got.l; planLoaded = true; } else setStatus(t('loadFailed'));
   normalizeLayout();
   buildingsUi.start(me.building, (me.locks || []).includes('building'));   // one building of several: this user's / tablet's, maybe kept to it (#409)
   knownRooms = roomIds();
   floorIdx = groundIdx();                                 // start on the ground floor, not in the basement
   hs.renderUi(); neighbors.renderUi();
-  await palettes.loadModels();
+  await modelsLoad;
   applySettings();
   fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); bgUi.render(); renderFloorPanel();
   if (start.live || phoneMenu.isPhone()) setMode('live');
@@ -1929,7 +1953,7 @@ function animate(now = performance.now()) {
   if (layoutMode !== '2d') edges.render(scene, camera, now);  // only the 2D plan shows: the hidden 3D picture is not drawn (#542); edges: #560
   perfHud.frame(now, due, frameStart);
 }
-init();
+init().finally(() => $('#bootLoad')?.remove());         // the loading sign over the half-built page goes (also when the start failed: the status line says why)
 animate();
 
 /* Test hook: only active with ?debug=1, used by the browser tests to find objects on screen. */
@@ -1954,7 +1978,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
+    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), kioskSaver: () => kiosk.saver(), cleaning: () => tabletExtras.cleaning(), kioskWake: () => kiosk.checkWake(), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
     edges: () => edges.info(), edgesCompare: () => edges.compare(scene, camera),   // #560, for tests
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => hs.id(), states: () => states,

@@ -2,7 +2,7 @@
  * plan, the 3D drags, the keys, the measuring tool, deleting) and the note that says why; 🔒 at a room (the new panel: a button in its head
  * with „Was bleibt fest?“; the classic panel: a row in the room) with what it keeps fixed and for which rooms; „🔒 Grundriss fertig“ (the
  * tree of the house, the object list) with „nur Admins dürfen entsperren“, a lock per floor and room in the tree, „🔒 Grundriss gesperrt“
- * in the top bar while it is on; locked rooms hatched in 3D while editing. The rules are in roomlock.js (tested). */
+ * in the top bar (since 5.14.0 always while editing: „🔓 Grundriss offen“ locks it with one tap); locked rooms hatched in 3D while editing. The rules are in roomlock.js (tested). */
 import * as THREE from './vendor/three.module.min.js';
 import { lockInfo, lockedWhy, pointsLockedWhy, lockOf, setRoomLock, planLockOf, setPlanLock, mayUnlockPlan, floorLockState, setFloorLock, LOCK_KEYS } from './roomlock.js';
 
@@ -163,15 +163,24 @@ export function initRoomLock(ctx) {
     return b;
   }
 
-  /* ---- „🔒 Grundriss gesperrt“ in the top bar ---- */
-  const pill = btn('lockPill edit-only', `🔒 ${t('rlock.pill')}`, () => {
-    const lay = ctx.layout();
+  /* ---- „🔒 Grundriss gesperrt“ / „🔓 Grundriss offen“ in the top bar: always there while editing (5.14.0, the owner: „Grundriss sperren
+   * ist so schwer zu finden“; before only while locked): a tap locks the plan, or unlocks it after asking ---- */
+  const pill = btn('lockPill edit-only', '', () => {
+    const lay = ctx.layout(), p = planLockOf(lay);
+    if (!p.on) { setPlan(true, p.admin); return; }
     if (!mayUnlockPlan(lay, isAdmin())) { ctx.setStatus(t('rlock.adminOnly')); return; }
-    if (confirm(t('rlock.pillAsk'))) setPlan(false, planLockOf(lay).admin);
+    if (confirm(t('rlock.pillAsk'))) setPlan(false, p.admin);
   });
-  pill.id = 'planLockPill'; pill.hidden = true; pill.title = t('rlock.pillTip');
+  pill.id = 'planLockPill';
   $('#saveBtn')?.before(pill);
-  function update() { pill.hidden = !planLockOf(ctx.layout()).on; }
+  function update() {
+    const on = planLockOf(ctx.layout()).on;
+    pill.textContent = on ? `🔒 ${t('rlock.pill')}` : `🔓 ${t('rlock.pillOff')}`;
+    pill.title = t(on ? 'rlock.pillTip' : 'rlock.pillOffTip');
+    pill.dataset.lock = on ? 'plan' : 'none';
+    pill.classList.toggle('active', on);
+    pill.setAttribute('aria-pressed', String(on));
+  }
 
   /* ---- locked rooms hatched in 3D while editing ---- */
   let stripes = null;

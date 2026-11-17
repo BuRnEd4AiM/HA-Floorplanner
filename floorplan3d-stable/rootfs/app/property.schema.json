@@ -659,6 +659,23 @@
         "type": "boolean",
         "description": "With terrace: a balcony that hangs free gets supports from its outer corners down to the ground."
        },
+       "railSides": {
+        "type": "array",
+        "maxItems": 200,
+        "description": "With terrace (5.14.0): the railing side by side, one entry per edge of points (edge k runs from points[k] to points[k+1], the last back to the first). null = as usual (a railing where no wall is); {\"off\": true} = no railing on this side; \"from\" / \"to\" (m from the edge's first corner) = the railing only between; \"gate\": {\"at\": m (its middle), \"w\": m (0.5 to 2.5)} = a gate in the railing.",
+        "items": {
+         "anyOf": [
+          {"type": "null"},
+          {"type": "object", "additionalProperties": false, "properties": {
+           "off": {"type": "boolean"},
+           "from": {"type": "number", "minimum": 0},
+           "to": {"type": "number", "minimum": 0},
+           "gate": {"type": "object", "additionalProperties": false, "required": ["at"], "properties": {
+            "at": {"type": "number", "minimum": 0},
+            "w": {"type": "number", "minimum": 0.5, "maximum": 2.5}}}}}
+         ]
+        }
+       },
        "tempFrom": {
         "type": "string",
         "pattern": "^(climate|[a-z_]+\\.[a-z0-9_]+)$",
