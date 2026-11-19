@@ -58,6 +58,33 @@ def _(r):
     r.wait(1800)
 
 
+@clip("power-hogs", "pages",
+      {"de": "🔌 Stromfresser: was das Haus nachts zieht", "en": "🔌 Power hogs: what the house draws at night"},
+      {"de": "Auf der Seite „Energie“: was das Haus zwischen 2 und 5 Uhr zieht, wenn alle schlafen, in Watt und Euro im Jahr, und welche Geräte das sind. "
+             "„⏰ Nachts abschalten …“ legt einen Ablauf an, der ihre Steckdosen um 1 Uhr aus- und um 6 Uhr wieder einschaltet.",
+       "en": "On the page “Energy”: what the house draws between 2 and 5 o'clock while everybody sleeps, in watts and euros a year, and which devices those are. "
+             "“⏰ Switch off at night …” makes a routine that switches their plugs off at 1 o'clock and on again at 6."},
+      "Stromfresser Standby Grundlast nachts Nachtverbrauch Steckdose ausschalten sparen energy power hogs standby base load night plug switch off save")
+def _(r):
+    r.say("Unten „Energie“.", "“Energy” at the bottom.")
+    tab(r, "energy")
+    r.wait(1500)
+    r.say("Die Karte „🔌 Stromfresser“: was das Haus nachts zieht, im Mittel der letzten 14 Nächte, und was das im Jahr kostet.",
+          "The card “🔌 Power hogs”: what the house draws at night, the mean of the last 14 nights, and what that costs in a year.")
+    r.move(".hogCard .hogBig")
+    r.wait(2600)
+    r.poster()
+    r.say("Rot: Geräte im Standby. Orange: was immer laufen muss, wie Kühlschrank und Wärmepumpe.", "Red: devices on standby. Orange: what has to run all the time, like the fridge and the heat pump.")
+    r.move(".hogCard .hogRow:not(.always)")
+    r.wait(2400)
+    r.say("Der Tipp sagt, was das Ausschalten nachts spart. „⏰ Nachts abschalten …“ legt dafür einen Ablauf an.",
+          "The tip says what switching off at night saves. “⏰ Switch off at night …” makes a routine for it.")
+    r.click(".hogCard [data-act=standbyOff]")
+    r.wait(1800)
+    r.say("Um 1 Uhr aus, um 6 Uhr wieder an. Ansehen, ändern, „Speichern“.", "Off at 1 o'clock, on again at 6. Look at it, change it, “Save”.")
+    r.wait(2600)
+
+
 @clip("energy-houses", "pages",
       {"de": "⚡ Strom von mehreren Häusern: eigene Zähler, vergleichen", "en": "⚡ Power of several houses: own meters, compare"},
       {"de": "Jedes Haus bekommt im Strom-Rechner seine eigenen Sensoren, Zähler und den Strompreis. Auf der Seite „Energie“ dann ein Haus, "

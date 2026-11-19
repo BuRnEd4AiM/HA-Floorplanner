@@ -57,6 +57,8 @@ f("renames", "live", "Umbenannt in Home Assistant, umbenannt im Plan", "Renamed 
 # ---------- the pages ----------
 f("today", "pages", "☀ Heute: Uhr, Wetter, Zug, Müll, Termine", "☀ Today: clock, weather, train, bins, appointments", ["today"])
 f("energy", "pages", "⚡ Energie: Verbrauch, Solar, Kosten", "⚡ Energy: usage, solar, costs", ["energy"])
+f("powerhogs", "pages", "🔌 Stromfresser: was das Haus nachts zieht (2–5 Uhr), in Watt und € im Jahr, die Geräte im Standby, ⏰ Nachts abschalten als Ablauf",
+  "🔌 Power hogs: what the house draws at night (2–5 am), in watts and € a year, the devices on standby, ⏰ switch off at night as a routine", ["power-hogs"], since="5.19.0")
 f("energyhouses", "pages", "⚡ Strom mehrerer Häuser: eigene Zähler und Preise je Haus, alle zusammen, ⚖ Vergleichen",
   "⚡ Power of several houses: own meters and prices per house, all together, ⚖ Compare", ["energy-houses"])
 f("climate", "pages", "🌡 Klima: alle Räume und Thermostate", "🌡 Climate: every room and thermostat", ["climate"])

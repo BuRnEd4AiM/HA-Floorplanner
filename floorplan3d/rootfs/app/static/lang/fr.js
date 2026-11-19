@@ -2544,4 +2544,13 @@ export default {
   'vac.learned': 'soirs appris : {n}', 'vac.plain': 'pas encore d’historique : une soirée simple',
   'vac.jitter': 'Marge', 'vac.jitterN': '± {n} minutes',
   'vac.jitterHelp': 'Chaque heure est décalée de cette marge, différemment chaque soir – et chaque soir il prend un autre vrai soir. Ainsi aucun motif n’est visible de l’extérieur.',
+  'hog.title': 'Gouffres à énergie', 'hog.sub': 'Ce que la maison consomme pendant que tout le monde dort (2–5 h, moyenne des {n} dernières nuits)',
+  'hog.none': 'Aucune nuit mesurée : Home Assistant n\'a pas encore de valeurs des compteurs pour 2–5 h.', 'hog.year': '≈ {v} par an',
+  'hog.leg.standby': 'appareils en veille', 'hog.leg.always': 'toujours allumé (frigo, routeur)', 'hog.leg.rest': 'sans compteur propre',
+  'hog.always': 'toujours allumé',
+  'hog.noDevices': 'Ajoutez vos prises qui mesurent la consommation comme appareils dans le tableau d\'énergie de Home Assistant : vous verrez ici qui consomme la nuit.',
+  'hog.noPlugs': 'Ces appareils n\'ont pas d\'interrupteur dans Home Assistant : une prise connectée devant eux évite la veille.',
+  'hog.allGood': 'La nuit, seuls les appareils qui doivent toujours tourner sont allumés.',
+  'hog.tip': 'Éteindre {list} de {from} à {to} ({w}) économise environ {v} par an.', 'hog.tipNoPrice': 'Éteindre {list} de {from} à {to} économise {w}.',
+  'hog.off': 'Éteindre la nuit …', 'hog.flowName': '🔌 Éteindre la nuit',
 };

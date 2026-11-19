@@ -409,6 +409,8 @@ const entities = {
   'select.evcc_garage_mode': { name: 'Wallbox Modus',          state: 'now', ctl: { options: ['off', 'now', 'minpv', 'pv'] } },   // evcc: ☀ = pv
   'valve.rasen':             { name: 'Rasen',                  state: 'closed' },   // 🌱 the garden (4.25, #533): two zones and the soil
   'switch.bewaesserung_beet': { name: 'Bewässerung Beet',      state: 'off' },
+  'switch.steckdose_fernseher': { name: 'Steckdose Fernseher',  state: 'on' },     // 🔌 Stromfresser: the plugs of the energy dashboard's devices
+  'switch.steckdose_buero_pc': { name: 'Steckdose Büro-PC',     state: 'on' },
   'sensor.boden_feuchte':    { name: 'Rasen Bodenfeuchte',     state: '34', unit: '%', dc: 'moisture' },
   'event.haustuer_klingel':  { name: 'Haustür Klingel',        state: new Date(Date.now() - 3 * 3600000).toISOString(), dc: 'doorbell' },   // ... it rings: a new time (?klingel=1)
   'binary_sensor.wohnzimmer_bewegung': { name: 'Bewegung Wohnzimmer', state: 'on' },
@@ -906,6 +908,7 @@ const DEMO_METERS = {
   devices: [{ id: 'sensor.waermepumpe_kwh', name: 'Wärmepumpe' }, { id: 'sensor.waschmaschine_kwh', name: 'Waschmaschine' },
     { id: 'sensor.fernseher_kwh', name: 'Fernseher' }, { id: 'sensor.kuehlschrank_kwh', name: 'Kühlschrank' }, { id: 'sensor.buero_pc_kwh', name: 'Büro (PC)' }],
   price: { buy: 0.32, sell: 0.08 },
+  plugs: { 'sensor.fernseher_kwh': 'switch.steckdose_fernseher', 'sensor.buero_pc_kwh': 'switch.steckdose_buero_pc' },   // 🔌 Stromfresser: the switch of each device's plug
   levels: ['sensor.batterie_ladung'],                         // the charge of the battery in the energy dashboard (stat_soc, #515)
 };
 const wobble = (a, b) => { const x = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453; return x - Math.floor(x); };
@@ -916,8 +919,8 @@ function demoDay(day) {
   let soc = 3;                                                     // kWh in a 10 kWh battery at midnight
   return Array.from({ length: 24 }, (_, h) => {
     const solar = h >= 7 && h <= 18 ? Math.max(0, Math.sin((Math.PI * (h - 7)) / 11)) * 2.6 * season * sunny : 0;
-    const wp = (0.05 + 0.35 * (1 - season)) * (h < 6 || h > 20 ? 0.6 : 1), wm = h === 10 && dn % 3 === 0 ? 0.9 : 0, tv = h >= 19 && h <= 22 ? 0.12 : 0;
-    const fridge = 0.04, pc = h >= 9 && h <= 17 && (day.getDay() % 6) ? 0.09 : 0;
+    const wp = (0.05 + 0.35 * (1 - season)) * (h < 6 || h > 20 ? 0.6 : 1), wm = h === 10 && dn % 3 === 0 ? 0.9 : 0, tv = h >= 19 && h <= 22 ? 0.12 : 0.018;   // 18 W standby at night (🔌 Stromfresser)
+    const fridge = 0.04, pc = h >= 9 && h <= 17 && (day.getDay() % 6) ? 0.09 : 0.022;
     const use = 0.18 + wp + wm + tv + fridge + pc + (h >= 6 && h <= 8 ? 0.35 : 0) + (h >= 17 && h <= 21 ? 0.45 : 0) + 0.1 * wobble(dn, h);
     let surplus = solar - use, batIn = 0, batOut = 0;
     if (surplus > 0) { batIn = Math.min(surplus, 1.2, 10 - soc); soc += batIn; surplus -= batIn; } else { batOut = Math.min(-surplus, 0.8, soc - 1); batOut = Math.max(0, batOut); soc -= batOut; surplus += batOut; }

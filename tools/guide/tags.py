@@ -165,6 +165,11 @@ t("energy",
   "Solaranlage Eigenverbrauch Einspeisung Netz Batteriespeicher Statistik Diagramm Balken Woche Monat Jahr Energie",
   "electricity cost cost price power consumption usage meter kWh kilowatt hours photovoltaic PV solar self-consumption "
   "feed-in grid home battery statistics chart bars week month year energy")
+t("power-hogs",
+  "Stromfresser Standby Bereitschaft Grundlast Nachtverbrauch nachts Stromverbrauch nachts Steckdose ausschalten abschalten sparen Strom sparen "
+  "Kühlschrank Router Fernseher Wer verbraucht nachts Strom Was kostet Standby Zwischenstecker Ablauf",
+  "power hogs standby vampire power phantom load base load night consumption at night plug switch off save energy save money "
+  "fridge router TV who uses power at night what does standby cost smart plug routine")
 t("energy-houses",
   "zweites Haus mehrere Häuser Ferienhaus Einliegerwohnung Mieter Eltern Häuser vergleichen Vergleich nebeneinander "
   "alle zusammen Summe eigene Zähler Strompreis pro Haus Kosten je Haus Verbrauch je Haus welches Haus braucht wie viel",
