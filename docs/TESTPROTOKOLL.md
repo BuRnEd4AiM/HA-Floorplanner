@@ -520,7 +520,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 208. Neu in 5.17.0: 📡 Funk-Karte | 3 | 0 | 2 | 0 | 208.4, 208.5 |
 | 209. Neu in 5.18.0: 🏠 Urlaubs-Licht | 2 | 0 | 3 | 0 | 209.3 bis 209.5 |
 | 210. Neu in 5.19.0: 🔌 Stromfresser | 3 | 0 | 3 | 0 | 210.4 bis 210.6 |
-| **Zusammen** | **1323** | **2** | **120** | **92** | |
+| 211. Neu in 5.20.0: 🌗 Abläufe nach der Helligkeit | 3 | 0 | 3 | 0 | 211.4 bis 211.6 |
+| **Zusammen** | **1326** | **2** | **123** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3193,4 +3194,16 @@ Deine Wahl vom 2026-11-19 (Bild `docs/ideen-5.15`, Bild 6): eine Karte auf der S
 | 210.4 | Dein Haus: ⚡ Energie → „🔌 Stromfresser“ | Die Watt nachts passen ungefähr zu dem, was dein Zähler nachts zeigt; deine Geräte mit Steckdose stehen in der Liste | ❓ |
 | 210.5 | Dein Haus: stimmt „läuft immer“? | Kühlschrank, Router usw. sind orange; ein Gerät, das du nachts ausschalten könntest, ist rot (sonst: welches falsch ist) | ❓ |
 | 210.6 | Dein Haus: „⏰ Nachts abschalten …“, Steckdosen prüfen, „Speichern“ | Nachts um 1 Uhr gehen die Steckdosen aus, um 6 Uhr wieder an | ❓ |
+
+## 211. Neu in 5.20.0: 🌗 Abläufe nach der Helligkeit
+Dein Wunsch vom 2026-11-19: Abläufe sollen sich nach der Helligkeit richten, damit man im Winter die Uhrzeit nicht umstellen muss. Deine Wahl: nach dem Sonnenstand, als „Wenn“, als „Nur wenn“ und als Haken an der Uhrzeit.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 211.1 | Unit-Tests `test_flows.py`, `test_haflows.py`, `tests/rules.test.mjs`; Browser-Test Teil `99_daylight` (neu), dazu `50_rules` | Alles grün | ✅ (2026-11-19, Claude) |
+| 211.2 | Demo: ▶ Abläufe → „＋ Neuer Ablauf“ → links „🌗 Es wird dunkel / hell“ | Rechts „es wird dunkel / es wird hell“ und die Stufen Sonne steht tief, Sonne am Horizont, Dämmerung, fast dunkel | ✅ (2026-11-19, Claude, Demo) |
+| 211.3 | Demo: „Uhrzeit“, 19:00, Haken „An der Helligkeit orientieren“ | Darunter „Heute um diese Zeit, dann immer … nach Sonnenuntergang“, unten in Worten „wandert mit“ | ✅ (2026-11-19, Claude, Demo) |
+| 211.4 | Dein Haus: einen Ablauf „Es wird dunkel: Dämmerung → Rollläden runter“ speichern | Die Rollläden fahren in der Dämmerung runter, ohne dass du eine Uhrzeit einstellst | ❓ |
+| 211.5 | Dein Haus: einen Ablauf mit Uhrzeit und Haken „An der Helligkeit orientieren“ speichern | Er läuft heute zur eingestellten Zeit; in ein paar Wochen etwas früher (Winter) bzw. später (Frühjahr) | ❓ |
+| 211.6 | Dein Haus: „Nur wenn → Dunkel / hell → dunkler als Dämmerung“ beim Licht mit Bewegungsmelder | Das Licht geht erst an, wenn es wirklich dämmrig ist | ❓ |
 

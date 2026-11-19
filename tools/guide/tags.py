@@ -165,6 +165,11 @@ t("energy",
   "Solaranlage Eigenverbrauch Einspeisung Netz Batteriespeicher Statistik Diagramm Balken Woche Monat Jahr Energie",
   "electricity cost cost price power consumption usage meter kWh kilowatt hours photovoltaic PV solar self-consumption "
   "feed-in grid home battery statistics chart bars week month year energy")
+t("flow-daylight",
+  "Helligkeit Dämmerung dunkel hell Sonnenstand Sonne Jahreszeit Winter Sommer Zeitumstellung Uhrzeit anpassen wandert mit Rollladen abends "
+  "Licht abends Wann wird es dunkel Automation nach Helligkeit Abenddämmerung Morgendämmerung",
+  "daylight brightness dusk dawn dark light sun position season winter summer daylight saving adjust time moves shutters evening "
+  "lights in the evening when does it get dark automation by brightness twilight")
 t("power-hogs",
   "Stromfresser Standby Bereitschaft Grundlast Nachtverbrauch nachts Stromverbrauch nachts Steckdose ausschalten abschalten sparen Strom sparen "
   "Kühlschrank Router Fernseher Wer verbraucht nachts Strom Was kostet Standby Zwischenstecker Ablauf",

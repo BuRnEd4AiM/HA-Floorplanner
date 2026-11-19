@@ -72,6 +72,8 @@ f("media", "pages", "🎵 Musik und Fernseher", "🎵 Music and TV", ["media"])
 f("household", "pages", "🧺 Haushalt: Wäsche, Saugroboter, Auto, Garten, Einkauf", "🧺 Household: laundry, vacuum, car, garden, shopping", ["household"])
 f("routines", "pages", "▶ Abläufe: Knöpfe, Szenen, Automationen", "▶ Routines: buttons, scenes, automations", ["routines"])
 f("flow", "pages", "Eigener Ablauf „Wenn … dann …“", "Own routine “When … then …”", ["flow"])
+f("flowdaylight", "pages", "🌗 Abläufe nach der Helligkeit: „Es wird dunkel / hell“, „dunkler als Dämmerung“, Uhrzeit wandert mit der Jahreszeit",
+  "🌗 Routines by daylight: “It gets dark / light”, “darker than dusk”, a time that moves with the season", ["flow-daylight"], since="5.20.0")
 f("specialdays", "pages", "📅 Besondere Tage", "📅 Special days", ["specialdays"])
 f("sceneedit", "pages", "Szenen anlegen und ändern", "Create and change scenes", ["sceneedit"])
 f("family", "pages", "👪 Familie und Pinnwand", "👪 Family and pinboard", ["family"])

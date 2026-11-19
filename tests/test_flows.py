@@ -196,3 +196,52 @@ def test_special_days_make_a_routine_different():
     h.days = []                                                                                      # the days deleted: every day the same
     h.wait(3600 * 24 - 30)
     assert h.wait(30) == [("cover", "open_cover", {"entity_id": "cover.wz"})]
+
+
+def test_brightness_by_the_sun():
+    """🌗 the owner, 2026-11-19: "dass sich das addon an der helligkeit orientiert", summer and winter without changing the time: a trigger
+    when the sun passes a level (dusk …), a condition "darker than", and a time that moves with the season (its distance to sunset)"""
+    flows = [{"id": "f_l", "name": "Dämmerung", "lanes": [{"id": "l1", "blocks": [{"k": "light", "to": "dark", "e": -3}, {"k": "cover", "ents": ["cover.wz"], "do": "close"}]},
+                                                          {"id": "l2", "blocks": [{"k": "light", "to": "bright", "e": 6}, {"k": "cover", "ents": ["cover.wz"], "do": "open"}]}]},
+             {"id": "f_c", "name": "Flur", "lanes": [{"id": "l1", "blocks": [{"k": "state", "ents": ["binary_sensor.bewegung_flur"], "to": "on"},
+                                                                             {"k": "if_sun", "is": "dark", "e": -3}, {"k": "switch", "ents": ["light.flur"], "do": "on"}]}]}]
+    h = House(flows)
+    assert fl.clean_flows([{"id": "f_x", "lanes": [{"blocks": [{"k": "light", "to": "x", "e": 99}]}]}])[0]["lanes"][0]["blocks"][0] == {"k": "light", "to": "dark", "e": 0}
+    assert fl.clean_block({"k": "if_sun", "is": "dark", "e": 5}) == {"k": "if_sun", "is": "dark"}          # an unknown level: the horizon as before
+    h.states.update({"cover.wz": {"state": "open", "attributes": {}}})
+    sun = h.states["sun.sun"]["attributes"]
+    sun["elevation"] = -1.0
+    assert h.wait(60) == []                                                       # the first look: nothing to compare with yet
+    assert h.set("binary_sensor.bewegung_flur", "on") == []                        # below the horizon, but not darker than dusk yet
+    h.set("binary_sensor.bewegung_flur", "off")
+    sun["elevation"] = -3.4
+    assert h.wait(60) == [("cover", "close_cover", {"entity_id": "cover.wz"})]     # it passed dusk
+    sun["elevation"] = -5
+    assert h.wait(60) == []                                                       # once
+    assert h.set("binary_sensor.bewegung_flur", "on") == [("light", "turn_on", {"entity_id": "light.flur"})]
+    sun["elevation"] = 7
+    assert h.wait(60) == [("cover", "open_cover", {"entity_id": "cover.wz"})]      # morning: brighter than the low sun
+    h.states["sun.sun"]["attributes"].pop("elevation")
+    h2 = House(flows)
+    assert h2.set("binary_sensor.bewegung_flur", "on") == []                       # no elevation known: not dark by a level
+
+
+def test_a_time_that_moves_with_the_season():
+    """🌗 19:00 set on a day with sunset at 16:43 (UTC here): every day 2 h 17 min after sunset, also when the sun sets later; the days count"""
+    t = {"k": "time", "at": "19:00", "days": [], "season": True, "anchor": "set", "ref": 16 * 60 + 43}
+    assert fl.clean_block(t) == t and fl.sun_of(fl.clean_block(t)) == ("set", 137)
+    assert fl.clean_block({**t, "ref": 2000}) == {"k": "time", "at": "19:00", "days": []}                     # broken: a plain time
+    h = House([{"id": "f_s", "name": "Abend", "lanes": [{"id": "l1", "blocks": [t, {"k": "cover", "ents": ["cover.wz"], "do": "close"}]}]}],
+              at=datetime.datetime(2026, 6, 22, 19, 0))
+    h.states.update({"cover.wz": {"state": "open", "attributes": {}}})
+    h.states["sun.sun"]["attributes"]["next_setting"] = "2026-06-22T19:30:00+00:00"   # a summer evening: sunset 19:30
+    h.now = datetime.datetime(2026, 6, 22, 19, 0, tzinfo=datetime.timezone.utc).timestamp()
+    assert h.wait(60) == []                                                       # not at 19:00 by the clock
+    h.now = datetime.datetime(2026, 6, 22, 21, 47, tzinfo=datetime.timezone.utc).timestamp()
+    assert h.wait(30) == [("cover", "close_cover", {"entity_id": "cover.wz"})] and h.wait(60) == []
+    h3 = House([{"id": "f_s", "name": "Abend", "lanes": [{"id": "l1", "blocks": [{**t, "days": [2]}, {"k": "cover", "ents": ["cover.wz"], "do": "close"}]}]}],
+               at=datetime.datetime(2026, 6, 22, 21, 47))                         # a Monday: only Wednesdays
+    h3.states.update({"cover.wz": {"state": "open", "attributes": {}}})
+    h3.states["sun.sun"]["attributes"]["next_setting"] = "2026-06-22T19:30:00+00:00"
+    h3.now = datetime.datetime(2026, 6, 22, 21, 47, tzinfo=datetime.timezone.utc).timestamp()
+    assert h3.wait(30) == []

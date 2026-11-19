@@ -172,3 +172,17 @@ def test_special_days_as_a_template():
     assert d["value_template"].startswith("{{ (now().strftime('%Y-%m-%d') in ['2026-01-01', ") and "'2035-12-26'" in d["value_template"]
     assert hf.compile_flow(flow, ctx(days=days, year=2027)) != out                     # another year: other dates (written anew when saved)
     assert ctx()["days"] == [] and ctx()["year"] >= 2026
+
+
+def test_brightness_by_the_sun_in_home_assistant():
+    """🌗 the level trigger and condition are numeric_state of sun.sun's elevation; a time that moves with the season is the sun trigger"""
+    f = fl.clean_flows([{"id": "f_l", "name": "L", "lanes": [
+        {"id": "l1", "blocks": [{"k": "light", "to": "dark", "e": -3}, {"k": "if_sun", "is": "light", "e": 6}, {"k": "run", "ent": "scene.abend"}]},
+        {"id": "l2", "blocks": [{"k": "time", "at": "19:00", "days": [0], "season": True, "anchor": "set", "ref": 1003}, {"k": "run", "ent": "scene.abend"}]},
+        {"id": "l3", "blocks": [{"k": "time", "at": "06:00", "season": True, "anchor": "rise", "ref": 450}, {"k": "run", "ent": "scene.abend"}]}]}])[0]
+    l1, l2, l3 = hf.compile_flow(f, ctx())["autos"]
+    assert l1["triggers"] == [{"trigger": "numeric_state", "entity_id": "sun.sun", "attribute": "elevation", "below": -3}]
+    assert l1["actions"][0] == {"condition": "numeric_state", "entity_id": "sun.sun", "attribute": "elevation", "above": 6}
+    assert l2["triggers"] == [{"trigger": "sun", "event": "sunset", "offset": "+02:17:00"}] and l2["actions"][0] == {"condition": "time", "weekday": ["mon"]}
+    assert l3["triggers"] == [{"trigger": "sun", "event": "sunrise", "offset": "-01:30:00"}]
+

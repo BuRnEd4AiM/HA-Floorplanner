@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-19, Version **5.19.0** (5.14.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-19, Version **5.20.0** (5.14.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,10 +10,10 @@ Stand: 2026-11-19, Version **5.19.0** (5.14.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
+- **2026-11-19, 5.20.0: 🌗 Abläufe nach der Helligkeit (Branch `claude/admiring-wright-gz4ogb`):** sein Wunsch, damit er im Winter keine Uhrzeiten umstellen muss; seine Wahl: nach dem Sonnenstand, als Auslöser „Es wird dunkel / hell“ (Stufen 6° … −6°), als „Nur wenn dunkler als …“ und als Haken an der Uhrzeit (hält den Abstand zum Sonnenuntergang). `flows.py`, `haflows.py`, `rules.js`, `flowedit.js`.
 - **2026-11-19, 5.19.0: 🔌 Stromfresser (Branch `claude/admiring-wright-gz4ogb`):** seine Wahl aus den vier offenen Ideen: Karte auf ⚡ Energie, fest 2–5 Uhr, „⏰ Nachts abschalten“ öffnet einen fertigen Ablauf (01:00 aus, 06:00 an). Mittel der letzten 14 Nächte aus den Statistiken (`standby.js`, `standbycard.js`), die Steckdose je Gerät liefert `api/energy/meters` („plugs“, gleiches Gerät); „läuft immer“ wird am Namen erkannt.
 - **2026-11-17, 5.18.0: 🏠 Urlaubs-Licht (Branch `claude/exciting-edison-r6hv5l`):** seine Wahl: solange der Urlaubs-Alarm scharf ist, Lampen und Rollläden, eingestellt beim Urlaubs-Alarm; dazu „Spielraum“ ± 15 … 90 Min (er wollte bis 300, Claude riet ab). `vacation.py` im Regel-Lauf lernt einmal am Tag aus dem Verlauf (14 Abende), spielt jeden Abend einen anderen echten Abend; nie Garagentor/Tor/Tür (Klasse oder Name); `vacationui.js` im Urlaubs-Alarm.
 - **2026-11-17, 5.17.0: 📡 Funk-Karte (Branch `claude/exciting-edison-r6hv5l`):** Der 🌙 Nachtlicht-Weg wurde nach Bildern weggelassen („brauch ich das überhaupt“), dann seine Wahl Funk-Karte: Knopf „📡 Funk“ bei den Farbansichten, Schilder über den Geräten (`radioui.js`, Sprites mit fester Bildschirmgröße), Karte mit den schwächsten; der Empfangswert je Gerät aus den Registern (`renames.signal_of`, `api/signals`), ausgeschaltete werden genannt.
-- **2026-11-17, 5.16.0: 📸 Alarm mit Bild über den eigenen Telegram-Bot (Branch `claude/exciting-edison-r6hv5l`):** seine nächste Idee aus `docs/ideen-5.15` (Bild 4, 5), seine Wahl: eigener Bot, Grundriss und Kamera. Das Add-on zeichnet die Etage mit Pillow (`alarmpic.py`, Raum rot, Ring am Melder) und schickt sie mit dem Kamerabild des Raums über die Telegram-Bot-API (`tgbot.py`, Schlüssel bleibt im Add-on, „Chat finden“ über getUpdates).
 
 ## Offen
 
@@ -21,6 +21,7 @@ Stand: 2026-11-19, Version **5.19.0** (5.14.0 ist für alle freigegeben). Erst d
 - **5.16.0 Bild bei Alarm:** sein Test mit seinem Bot (Testprotokoll 207.3 bis 207.5).
 - **5.17.0 Funk-Karte:** sein Test (208.4, 208.5), ob seine Zigbee-Werte ausgeschaltet sind.
 - **5.18.0 Urlaubs-Licht:** sein Test (209.3 bis 209.5).
+- **5.20.0 Helligkeit:** sein Test (211.4 bis 211.6).
 - **5.19.0 Stromfresser:** sein Test (210.4 bis 210.6), vor allem ob „läuft immer“ bei seinen Geräten stimmt.
 - **Drei Ideen aus `docs/ideen-5.15` noch zu bauen** (alle von ihm gewählt): 🔧 Wartung, 👥 Gäste-Modus, 📊 Monatsbericht (🌙 Nachtlicht-Weg: von ihm weggelassen, `docs/ideen-5.17`); fragen, welche als Nächstes.
 - **5.14.0:** sein Test mit seinem Haus (Testprotokoll 204.2 bis 204.9), vor allem Balkon „Raum 17“ (204.5) und Garage „Raum 6“ (204.6).

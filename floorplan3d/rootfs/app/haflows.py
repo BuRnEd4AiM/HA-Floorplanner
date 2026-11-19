@@ -127,12 +127,21 @@ def _trigger(trig: dict, ctx, problems: list, lane: str):
         return [{"trigger": "numeric_state", "entity_id": trig["ent"], ("above" if trig["op"] == "above" else "below"): trig["v"]}], []
     if k == "time":
         pre = [{"condition": "time", "weekday": [DAYS[d] for d in trig["days"]]}] if trig["days"] else []
+        if trig.get("season"):                       # 🌗 moves with the season: the sun trigger with the time's distance to it
+            ev, off = fl.sun_of(trig)
+            t = {"trigger": "sun", "event": "sunset" if ev == "set" else "sunrise"}
+            if off:
+                t["offset"] = _offset(off)
+            return [t], pre
         return [{"trigger": "time", "at": f"{trig['at']}:00"}], pre
     if k == "sun":
         t = {"trigger": "sun", "event": "sunset" if trig["ev"] == "set" else "sunrise"}
         if trig["off"]:
             t["offset"] = _offset(trig["off"])
         return [t], []
+    if k == "light":                                 # 🌗 the sun goes below / above a level
+        return [{"trigger": "numeric_state", "entity_id": "sun.sun", "attribute": "elevation",
+                 ("below" if trig["to"] == "dark" else "above"): trig["e"]}], []
     if k == "presence":
         ev = trig["ev"]
         if ev == "all_away":
@@ -196,6 +205,8 @@ def _cond(b: dict, ctx, problems: list, lane: str, i: int) -> list:
         return [{"condition": "numeric_state", "entity_id": ctx["weather"], "attribute": "temperature",
                  ("above" if b["op"] == "above" else "below"): b["v"]}]
     if k == "if_sun":
+        if "e" in b:                                 # 🌗 darker / lighter than a level
+            return [{"condition": "numeric_state", "entity_id": "sun.sun", "attribute": "elevation", ("below" if b["is"] == "dark" else "above"): b["e"]}]
         return [{"condition": "state", "entity_id": "sun.sun", "state": "below_horizon" if b["is"] == "dark" else "above_horizon"}]
     if k == "if_special":                                # 📅 the dates of the next ten years written out (specialdays.ha_template)
         hit = sd.ha_template(ctx.get("days") or [], b["days"], ctx.get("year") or datetime.date.today().year)

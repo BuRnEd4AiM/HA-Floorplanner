@@ -2,6 +2,15 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.20.0] - 2026-11-19
+### Added
+- **🌗 Routines by daylight: nothing to change when summer turns to winter** (the owner, 2026-11-19: "dass das addon merkt wie hell es aktuell ist … das man nicht die uhrzeit ändern muss sondern sich das addon an der helligkeit orientiert"; his choices: by where the sun is, as a trigger, as a condition and as a tick at the time). Everything follows Home Assistant's sun (`sun.sun`), no sensor needed:
+  - **"Wenn → 🌗 Es wird dunkel / hell"**, a new trigger: the routine starts when the sun goes below (or, in the morning, above) a chosen level: **Sonne steht tief** (6°, still light), **Sonne am Horizont** (0°), **Dämmerung** (−3°, about a quarter of an hour after sunset) or **fast dunkel** (−6°). Later in summer, earlier in winter, by itself.
+  - **"Nur wenn → Dunkel / hell"** can now say how dark: "dunkler als „Dämmerung“" and so on (without a level it stays as before: the sun below the horizon).
+  - **A tick at "Uhrzeit": "🌗 An der Helligkeit orientieren (wandert mit der Jahreszeit)"**: the time typed is meant for today and then keeps its distance to sunset (a time before 12:00: to sunrise): "Heute um diese Zeit, dann immer 2 Std 17 Min nach Sonnenuntergang". The days still count.
+- As a Home Assistant automation they become `numeric_state` of the sun's elevation and a `sun` trigger with an offset (haflows.py); the add-on runs them itself the same way (flows.py).
+- Video guide: the clip "🌗 Abläufe nach der Helligkeit".
+
 ## [5.19.0] - 2026-11-19
 ### Added
 - **🔌 Power hogs: what the house draws while everybody sleeps** (the owner's choice 2026-11-19, picture docs/ideen-5.15/06; his choices: a card on the page ⚡ Energie, 2–5 o'clock fixed, "⏰ Nachts abschalten" makes a routine): the page **⚡ Energie** has a new card **"🔌 Stromfresser"**: the house's draw between 2 and 5 o'clock, the mean of the last 14 nights from Home Assistant's long-term statistics (the meters of the page: grid, sun, battery), in watts and **€ a year** (with the page's price); a bar split into **devices on standby** (red), **always on** (orange: fridge, freezer, router, heat pump … recognised by their name) and **no meter of its own** (grey); the devices of the energy dashboard with their watts and € a year, largest first.

@@ -2,6 +2,15 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.20.0] - 2026-11-19
+### Neu
+- **🌗 Abläufe nach der Helligkeit: im Winter nichts mehr umstellen** (der Besitzer, 2026-11-19: „dass das addon merkt wie hell es aktuell ist … das man nicht die uhrzeit ändern muss sondern sich das addon an der helligkeit orientiert“; seine Wahl: nach dem Sonnenstand, als Auslöser, als Bedingung und als Haken an der Uhrzeit). Alles richtet sich nach der Sonne von Home Assistant (`sun.sun`), ohne Sensor:
+  - **„Wenn → 🌗 Es wird dunkel / hell“**, ein neuer Auslöser: der Ablauf startet, wenn die Sonne unter (morgens: über) eine gewählte Stufe kommt: **Sonne steht tief** (6°, noch hell), **Sonne am Horizont** (0°), **Dämmerung** (−3°, etwa eine Viertelstunde nach Sonnenuntergang) oder **fast dunkel** (−6°). Im Sommer später, im Winter früher, von selbst.
+  - **„Nur wenn → Dunkel / hell“** sagt jetzt auch, wie dunkel: „dunkler als „Dämmerung““ usw. (ohne Stufe wie bisher: die Sonne unter dem Horizont).
+  - **Ein Haken bei „Uhrzeit“: „🌗 An der Helligkeit orientieren (wandert mit der Jahreszeit)“**: die eingetippte Zeit gilt für heute und hält dann ihren Abstand zum Sonnenuntergang (eine Zeit vor 12 Uhr: zum Sonnenaufgang): „Heute um diese Zeit, dann immer 2 Std 17 Min nach Sonnenuntergang“. Die Wochentage gelten weiter.
+- Als Automation in Home Assistant werden daraus `numeric_state` der Sonnenhöhe und ein `sun`-Auslöser mit Versatz (haflows.py); das Add-on macht es selbst genauso (flows.py).
+- Video-Anleitung: der Clip „🌗 Abläufe nach der Helligkeit“.
+
 ## [5.19.0] - 2026-11-19
 ### Neu
 - **🔌 Stromfresser: was das Haus zieht, wenn alle schlafen** (Wahl des Besitzers 2026-11-19, Bild docs/ideen-5.15/06; seine Wahl: eine Karte auf der Seite ⚡ Energie, fest 2–5 Uhr, „⏰ Nachts abschalten“ legt einen Ablauf an): die Seite **⚡ Energie** hat eine neue Karte **„🔌 Stromfresser“**: was das Haus zwischen 2 und 5 Uhr zieht, im Mittel der letzten 14 Nächte aus den Langzeit-Statistiken von Home Assistant (die Zähler der Seite: Netz, Sonne, Batterie), in Watt und **€ im Jahr** (mit dem Preis der Seite); ein Balken geteilt in **Geräte im Standby** (rot), **läuft immer** (orange: Kühlschrank, Gefrierschrank, Router, Wärmepumpe … am Namen erkannt) und **ohne eigenen Zähler** (grau); die Geräte des Energie-Dashboards mit ihren Watt und € im Jahr, die größten zuerst.
