@@ -519,7 +519,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 207. Neu in 5.16.0: 📸 Alarm mit Bild über deinen Telegram-Bot | 2 | 0 | 3 | 0 | 207.3 bis 207.5 |
 | 208. Neu in 5.17.0: 📡 Funk-Karte | 3 | 0 | 2 | 0 | 208.4, 208.5 |
 | 209. Neu in 5.18.0: 🏠 Urlaubs-Licht | 2 | 0 | 3 | 0 | 209.3 bis 209.5 |
-| **Zusammen** | **1320** | **2** | **117** | **92** | |
+| 210. Neu in 5.19.0: 🔌 Stromfresser | 3 | 0 | 3 | 0 | 210.4 bis 210.6 |
+| **Zusammen** | **1323** | **2** | **120** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3180,4 +3181,16 @@ Deine Wahl vom 2026-11-17 (Bild `docs/ideen-5.15`, Bild 7): solange der Urlaubs-
 | 209.3 | Dein Haus: Urlaubs-Licht mit deinen Wohnzimmer-, Küchen- und Flurlampen und den Rollläden einschalten, „Speichern“, Einstellungen noch einmal öffnen | Je Lampe „gelernte Abende: …“ und Balken ungefähr zu euren üblichen Zeiten | ❓ |
 | 209.4 | Vor dem Urlaub (oder zum Ausprobieren einen Abend lang): den Urlaubs-Alarm scharf schalten und von draußen schauen | Die Lampen gehen abends wie bei euch an und aus, die Rollläden nach Sonnenuntergang runter, morgens hoch | ❓ |
 | 209.5 | Den Alarm ausschalten, während Lampen des Urlaubs-Lichts an sind | Die Lampen des Urlaubs-Lichts gehen sofort aus, andere bleiben, wie sie sind | ❓ |
+
+## 210. Neu in 5.19.0: 🔌 Stromfresser
+Deine Wahl vom 2026-11-19 (Bild `docs/ideen-5.15`, Bild 6): eine Karte auf der Seite ⚡ Energie, fest 2–5 Uhr, „⏰ Nachts abschalten“ legt einen Ablauf an.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 210.1 | Unit-Tests `tests/standby.test.mjs` (neu), `test_server.py` (Steckdose je Gerät); Browser-Test Teil `98_power_hogs` (neu), dazu `32_today_energy` | Alles grün | ✅ (2026-11-19, Claude) |
+| 210.2 | Demo: unten „⚡ Energie“, Karte „🔌 Stromfresser“ | Etwa 500 W und € im Jahr; Wärmepumpe und Kühlschrank „läuft immer“ (orange), Büro-PC und Fernseher rot; der Tipp nennt Büro-PC und Fernseher | ✅ (2026-11-19, Claude, Demo) |
+| 210.3 | Demo: „⏰ Nachts abschalten …“ | ▶ Abläufe öffnet sich mit „🔌 Nachts abschalten“: 01:00 aus, 06:00 an, die zwei Steckdosen | ✅ (2026-11-19, Claude, Demo) |
+| 210.4 | Dein Haus: ⚡ Energie → „🔌 Stromfresser“ | Die Watt nachts passen ungefähr zu dem, was dein Zähler nachts zeigt; deine Geräte mit Steckdose stehen in der Liste | ❓ |
+| 210.5 | Dein Haus: stimmt „läuft immer“? | Kühlschrank, Router usw. sind orange; ein Gerät, das du nachts ausschalten könntest, ist rot (sonst: welches falsch ist) | ❓ |
+| 210.6 | Dein Haus: „⏰ Nachts abschalten …“, Steckdosen prüfen, „Speichern“ | Nachts um 1 Uhr gehen die Steckdosen aus, um 6 Uhr wieder an | ❓ |
 

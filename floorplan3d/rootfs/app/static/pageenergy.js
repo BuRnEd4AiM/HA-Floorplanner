@@ -10,6 +10,7 @@ import { initEnergyCompare } from './energycompare.js';
 import { cardBatteries, houseBatteries, levelPeriod } from './batterylevels.js';
 import { initBatteryCard } from './batterycard.js';
 import { withBarTips } from './bartip.js';
+import { initStandbyCard } from './standbycard.js';
 
 const OWN = '#cc7a00', GRID = '#488fc2';           // made itself (sun, battery) / from the grid: the colours of "Strom jetzt", checked for colour blindness
 const ALL = '*', CMP = 'cmp';                     // all houses added up / side by side (⚖ Vergleichen, #495)
@@ -17,10 +18,10 @@ const ALL = '*', CMP = 'cmp';                     // all houses added up / side 
 /** ctx: t, el (the page), lang(), layout() (the house shown), houseId(), houses() ([{ id, name }]), units(layout, house, withHouse) (what counts
  *  power in a plan: energyUnits), shownBuilding() (the building chosen at the top: the page shows it; all of them: side by side), changed() (the tab bar again: the page
  *  can have something now or not), board (pageboard.js, #484: keys tiles, chart, battery, top, more; in ⚖ Vergleichen cmp:tiles,
- *  cmp:chart, cmp:now, cmp:cost, battery), states() (the power and the charge of each house now), nameOf(entity) (its name in Home Assistant) */
+ *  cmp:chart, cmp:now, cmp:cost, battery; standby: 🔌 Stromfresser), canEdit(), editFlow(flow) (a ready routine in the editor of ▶ Abläufe), states() (the power and the charge of each house now), nameOf(entity) (its name in Home Assistant) */
 export function initEnergyPage(ctx) {
   const { t, el } = ctx;
-  let ha = null, haErr = false, asking = null, askedAt = 0;   // Home Assistant's energy dashboard: { meters, devices, price, levels }
+  let ha = null, haErr = false, asking = null, askedAt = 0;   // Home Assistant's energy dashboard: { meters, devices, price, levels, plugs }
   let kind = 'day', offset = 0, house = null, drawn = '', run = 0, forced = false;   // forced: a forced drawing overtaken by a newer one stays forced
   let lastShown;                                   // the building shown at the top when the page last looked: another one, the page follows it
   const layouts = new Map();                       // other houses: id -> layout (for their meters)
@@ -29,14 +30,16 @@ export function initEnergyPage(ctx) {
   const btn = (cls, text, on) => { const b = make('button', cls, text); b.type = 'button'; b.addEventListener('click', on); return b; };
   const lang = () => ctx.lang() || 'de';
   const num = (v) => fmtAmount(v, lang());
+  const standby = initStandbyCard({ t, lang, nameOf: (e) => ctx.nameOf?.(e), canEdit: () => ctx.canEdit?.() ?? false, editFlow: (f) => ctx.editFlow?.(f) });   // 🔌 Stromfresser
 
   /** Home Assistant's meters (once; again after a failure when the page opens) */
   function probe(force = false) {
     if (asking || (ha && !force)) return asking;
     askedAt = Date.now();
     asking = fetch('api/energy/meters').then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((x) => { ha = { meters: cleanMeters(x.meters), devices: Array.isArray(x.devices) ? x.devices : [], price: x.price || {}, levels: Array.isArray(x.levels) ? x.levels : [] }; haErr = false; })
-      .catch(() => { ha = { meters: cleanMeters({}), devices: [], price: {}, levels: [] }; haErr = true; })
+      .then((x) => { ha = { meters: cleanMeters(x.meters), devices: Array.isArray(x.devices) ? x.devices : [], price: x.price || {},
+        levels: Array.isArray(x.levels) ? x.levels : [], plugs: x.plugs && typeof x.plugs === 'object' ? x.plugs : {} }; haErr = false; })
+      .catch(() => { ha = { meters: cleanMeters({}), devices: [], price: {}, levels: [], plugs: {} }; haErr = true; })
       .finally(() => { asking = null; ctx.changed(); });
     return asking;
   }
@@ -69,7 +72,7 @@ export function initEnergyPage(ctx) {
         price: priceOf(units[0]?.layout?.energy, ha.price) };
     }
     const u = units.find((x) => x.key === key) || units[0], hm = houseMeters(u?.layout?.energy, ha.meters);
-    return { ...hm, devices: hm.own ? [] : ha.devices, price: priceOf(u?.layout?.energy, ha.price), building: !!u?.bid };
+    return { ...hm, devices: hm.own ? [] : ha.devices, plugs: ha.plugs || {}, price: priceOf(u?.layout?.energy, ha.price), building: !!u?.bid };
   }
   /** the batteries of what is chosen (#515): one house (or building), or every one (all together, ⚖ Vergleichen), each in its colour */
   function batteries(units, key) {
@@ -267,6 +270,7 @@ export function initEnergyPage(ctx) {
       });
       items.push({ key: 'top', el: box, width: 1 });
     }
+    items.push(standby.item(c));                     // 🔌 Stromfresser: what the house draws at night (standbycard.js)
     const more = make('div', 'peTiles');
     [['gas', '🔥'], ['water', '💧']].forEach(([k, icon]) => {
       if (!m[k].length) return;

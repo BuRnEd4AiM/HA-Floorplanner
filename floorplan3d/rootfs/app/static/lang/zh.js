@@ -4028,4 +4028,9 @@ export default {
   'vac.covers': '卷帘', 'vac.calm': '它只控制这些灯，只关闭自己打开的灯。有人回家（警报关闭）时立即停止。', 'vac.running': '正在运行（度假警报已启用）', 'vac.waiting': '度假警报一启用就开始。',
   'vac.noPlan': '保存后会显示今晚的计划（插件会读取 Home Assistant 的历史记录）。', 'vac.tonight': '今晚（计划）', 'vac.learned': '已学习的晚上：{n}', 'vac.plain': '暂无历史：普通的晚上',
   'vac.jitter': '浮动范围', 'vac.jitterN': '± {n} 分钟', 'vac.jitterHelp': '每个时间每晚都会在这个范围内不同地偏移——而且每晚会取一个不同的真实夜晚。这样外人看不出规律。',
+  'hog.title': '耗电大户', 'hog.sub': '全家睡觉时房子的用电（2–5 点，最近 {n} 晚的平均值）', 'hog.none': '尚未测到夜间数据：Home Assistant 还没有 2–5 点的电表数值。', 'hog.year': '≈ 每年 {v}',
+  'hog.leg.standby': '待机设备', 'hog.leg.always': '一直运行（冰箱、路由器）', 'hog.leg.rest': '无单独电表', 'hog.always': '一直运行',
+  'hog.noDevices': '把能测电的插座作为设备加入 Home Assistant 的能源面板，这里就会显示谁在夜里用电。', 'hog.noPlugs': '这些设备在 Home Assistant 里没有开关：前面加一个智能插座就能省掉待机电。',
+  'hog.allGood': '夜里只有必须一直运行的设备在用电。', 'hog.tip': '在 {from} 到 {to} 关掉{list}（{w}）每年约省 {v}。', 'hog.tipNoPrice': '在 {from} 到 {to} 关掉{list}可省 {w}。',
+  'hog.off': '夜间关闭 …', 'hog.flowName': '🔌 夜间关闭',
 };

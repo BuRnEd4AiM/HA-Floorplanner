@@ -2475,4 +2475,13 @@ export default {
   'vac.learned': 'nauczone wieczory: {n}', 'vac.plain': 'brak historii: zwykły wieczór',
   'vac.jitter': 'Margines', 'vac.jitterN': '± {n} minut',
   'vac.jitterHelp': 'Każda godzina przesuwa się o tyle, każdego wieczoru inaczej – i każdego wieczoru bierze inny prawdziwy wieczór. Dzięki temu z zewnątrz nie widać wzoru.',
+  'hog.title': 'Pożeracze prądu', 'hog.sub': 'Ile dom pobiera, gdy wszyscy śpią (2–5, średnia z ostatnich {n} nocy)',
+  'hog.none': 'Nie zmierzono jeszcze żadnej nocy: Home Assistant nie ma jeszcze wartości liczników dla 2–5.', 'hog.year': '≈ {v} rocznie',
+  'hog.leg.standby': 'urządzenia w czuwaniu', 'hog.leg.always': 'zawsze włączone (lodówka, router)', 'hog.leg.rest': 'bez własnego licznika',
+  'hog.always': 'zawsze włączone',
+  'hog.noDevices': 'Dodaj gniazdka z pomiarem jako urządzenia w panelu energii Home Assistant, a tu zobaczysz, kto pobiera prąd w nocy.',
+  'hog.noPlugs': 'Te urządzenia nie mają przełącznika w Home Assistant: inteligentne gniazdko przed nimi oszczędzi czuwanie.',
+  'hog.allGood': 'W nocy działają tylko urządzenia, które muszą działać zawsze.',
+  'hog.tip': 'Wyłączenie: {list} od {from} do {to} ({w}) oszczędza ok. {v} rocznie.',
+  'hog.tipNoPrice': 'Wyłączenie: {list} od {from} do {to} oszczędza {w}.', 'hog.off': 'Wyłączaj w nocy …', 'hog.flowName': '🔌 Wyłącz w nocy',
 };

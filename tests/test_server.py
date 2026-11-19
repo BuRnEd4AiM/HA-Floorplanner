@@ -1231,6 +1231,17 @@ def test_energy_dashboard_sensors_and_their_devices():
     assert server.energy_siblings(prefs, reg) == {"sensor.imp_kwh": ["sensor.a_w"]}
 
 
+def test_energy_plugs_the_switch_on_the_same_device():
+    """🔌 Stromfresser: a device of the energy dashboard gets the switch of its plug (its own part first, #675); none without a switch"""
+    devs = [{"id": "sensor.tv_kwh", "name": "TV"}, {"id": "sensor.pc_kwh", "name": "PC"}, {"id": "sensor.alone", "name": ""}, "junk"]
+    reg = [{"entity_id": "sensor.tv_kwh", "device_id": "plug1"}, {"entity_id": "switch.tv", "device_id": "plug1"},
+           {"entity_id": "sensor.pc_kwh", "device_id": "sock2"}, {"entity_id": "switch.strip_1", "device_id": "sock1"},
+           {"entity_id": "switch.strip_2", "device_id": "sock2"}, {"entity_id": "sensor.alone", "device_id": "meter"}]
+    parts = [{"id": "strip"}, {"id": "sock1", "parent_device_id": "strip"}, {"id": "sock2", "parent_device_id": "strip"}]
+    assert server.energy_plugs(devs, reg, parts) == {"sensor.tv_kwh": "switch.tv", "sensor.pc_kwh": "switch.strip_2"}
+    assert server.energy_plugs([], reg) == {} and server.energy_plugs(None, []) == {}
+
+
 async def test_energy_prefs_needs_home_assistant_and_an_editor(client, monkeypatch, tmp_path):
     assert (await client.get("/api/energy/prefs")).status == 503            # standalone: there is no Home Assistant to ask
     opts = tmp_path / "options.json"

@@ -2480,6 +2480,19 @@ def energy_siblings(prefs, registry: list, devices=None) -> dict:
     return {e: [*sensors(d.own(e), e), *sensors(set(d.whole(e)) - set(d.own(e)), e)] for e in sorted(energy_stat_ids(prefs)) if e in d.device_of}
 
 
+def energy_plugs(devices, registry: list, device_list=None) -> dict:
+    """🔌 Stromfresser: {statistic of a device of the energy dashboard: the switch on the same device} (a smart plug counts its energy and
+    switches); a device without a switch is left out"""
+    d = hadevices.Devices(registry, device_list)
+    out = {}
+    for x in devices or []:
+        sid = x.get("id") if isinstance(x, dict) else None
+        hits = d.near(sid, lambda e: e.startswith("switch.")) if isinstance(sid, str) else []
+        if hits:
+            out[sid] = hits[0]
+    return out
+
+
 async def get_energy_prefs(request):
     """The energy dashboard's settings and, for every sensor in them, the other sensors of its device (editors only). prefs is null
     while the energy dashboard is not set up."""
@@ -2589,13 +2602,22 @@ async def get_energy_meters(request):
         return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
     try:
         async with _HaSocket() as ws:
+            more = []
             try:
-                prefs = await rn.ask(ws, 1, {"type": "energy/get_prefs"}, [])
+                prefs = await rn.ask(ws, 1, {"type": "energy/get_prefs"}, more)
             except LookupError:
                 prefs = None                                     # the energy dashboard is not set up
+            out = pages.energy_meters(prefs)
+            if out["devices"]:                                   # 🔌 Stromfresser: the switch of each device (its plug)
+                try:
+                    registry = await rn.ask(ws, 2, {"type": "config/entity_registry/list"}, more)
+                    devices = await rn.device_list(ws, 3, more)
+                except LookupError:
+                    registry, devices = [], []
+                out["plugs"] = energy_plugs(out["devices"], registry, devices)
     except HA_DOWN as err:
         return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
-    return web.json_response(pages.energy_meters(prefs))
+    return web.json_response(out)
 
 
 async def post_energy_stats(request):

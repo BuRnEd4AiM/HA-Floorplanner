@@ -837,6 +837,7 @@ const energyPage = initEnergyPage({                              // ⚡ Energie 
   houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), changed: () => tabsUi.update(), board, states: () => states,
   units: (l, h, withHouse) => energyUnits(l, h, { withHouse, unnamed: t('bld.unnamed') }), shownBuilding: () => buildingsUi?.shown() ?? null,   // per building (4.70.0)
   nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
+  canEdit: () => me.canEdit, editFlow: (f) => { tabsUi.show('routines'); rulesUi.flowEdit.open(f); },   // 🔌 Stromfresser: ⏰ Nachts abschalten
 });
 /** a tap on a row of "Im Haus" on the page ☀ Heute: to the house and what the row is about (the power: to the page ⚡ Energie) */
 function todayAct(k) {

@@ -2484,4 +2484,13 @@ export default {
   'vac.tonight': 'Vanavond (gepland)', 'vac.learned': 'geleerde avonden: {n}', 'vac.plain': 'nog geen geschiedenis: een eenvoudige avond',
   'vac.jitter': 'Speling', 'vac.jitterN': '± {n} minuten',
   'vac.jitterHelp': 'Elke tijd schuift zo ver op, elke avond anders – en elke avond neemt het een andere echte avond. Zo ontstaat er geen patroon dat je van buiten kunt zien.',
+  'hog.title': 'Stroomvreters', 'hog.sub': 'Wat het huis verbruikt als iedereen slaapt (2–5 uur, gemiddelde van de laatste {n} nachten)',
+  'hog.none': 'Nog geen nacht gemeten: Home Assistant heeft nog geen meterwaarden voor 2–5 uur.', 'hog.year': '≈ {v} per jaar',
+  'hog.leg.standby': 'apparaten op stand-by', 'hog.leg.always': 'altijd aan (koelkast, router)', 'hog.leg.rest': 'zonder eigen meter',
+  'hog.always': 'altijd aan',
+  'hog.noDevices': 'Voeg je stekkers met meting toe als apparaten in het energiedashboard van Home Assistant, dan zie je hier wie \'s nachts stroom trekt.',
+  'hog.noPlugs': 'Deze apparaten hebben geen schakelaar in Home Assistant: een slimme stekker ervoor bespaart de stand-by.',
+  'hog.allGood': '\'s Nachts draaien alleen apparaten die altijd aan moeten staan.',
+  'hog.tip': '{list} van {from} tot {to} uitzetten ({w}) bespaart ongeveer {v} per jaar.',
+  'hog.tipNoPrice': '{list} van {from} tot {to} uitzetten bespaart {w}.', 'hog.off': '\'s Nachts uitzetten …', 'hog.flowName': '🔌 \'s Nachts uit',
 };

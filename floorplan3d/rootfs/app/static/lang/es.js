@@ -2525,4 +2525,13 @@ export default {
   'vac.learned': 'tardes aprendidas: {n}', 'vac.plain': 'aún sin historial: una tarde sencilla',
   'vac.jitter': 'Margen', 'vac.jitterN': '± {n} minutos',
   'vac.jitterHelp': 'Cada hora se desplaza hasta este margen, distinto cada tarde, y cada tarde toma otra tarde real. Así no hay un patrón visible desde fuera.',
+  'hog.title': 'Devoradores de energía', 'hog.sub': 'Lo que consume la casa mientras todos duermen (2–5 h, media de las últimas {n} noches)',
+  'hog.none': 'Aún no se ha medido ninguna noche: Home Assistant no tiene valores de los contadores para las 2–5 h.', 'hog.year': '≈ {v} al año',
+  'hog.leg.standby': 'aparatos en espera', 'hog.leg.always': 'siempre encendido (nevera, router)', 'hog.leg.rest': 'sin contador propio',
+  'hog.always': 'siempre encendido',
+  'hog.noDevices': 'Añade tus enchufes con medición como dispositivos en el panel de energía de Home Assistant y aquí verás quién consume de noche.',
+  'hog.noPlugs': 'Estos aparatos no tienen interruptor en Home Assistant: un enchufe inteligente delante ahorra la espera.',
+  'hog.allGood': 'De noche solo funcionan los aparatos que siempre deben funcionar.',
+  'hog.tip': 'Apagar {list} de {from} a {to} ({w}) ahorra unos {v} al año.', 'hog.tipNoPrice': 'Apagar {list} de {from} a {to} ahorra {w}.',
+  'hog.off': 'Apagar de noche …', 'hog.flowName': '🔌 Apagar de noche',
 };

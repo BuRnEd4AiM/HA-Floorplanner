@@ -2515,4 +2515,13 @@ export default {
   'vac.learned': 'sere imparate: {n}', 'vac.plain': 'ancora nessuna cronologia: una sera semplice',
   'vac.jitter': 'Margine', 'vac.jitterN': '± {n} minuti',
   'vac.jitterHelp': 'Ogni orario si sposta di questo margine, diverso ogni sera – e ogni sera prende un’altra sera vera. Così da fuori non si vede uno schema.',
+  'hog.title': 'Divoratori di energia', 'hog.sub': 'Quanto consuma la casa mentre tutti dormono (2–5, media delle ultime {n} notti)',
+  'hog.none': 'Nessuna notte misurata: Home Assistant non ha ancora valori dei contatori per le 2–5.', 'hog.year': '≈ {v} all\'anno',
+  'hog.leg.standby': 'dispositivi in standby', 'hog.leg.always': 'sempre acceso (frigo, router)', 'hog.leg.rest': 'senza contatore proprio',
+  'hog.always': 'sempre acceso',
+  'hog.noDevices': 'Aggiungi le prese che misurano il consumo come dispositivi nella dashboard energia di Home Assistant: qui vedrai chi consuma di notte.',
+  'hog.noPlugs': 'Questi dispositivi non hanno un interruttore in Home Assistant: una presa smart davanti elimina lo standby.',
+  'hog.allGood': 'Di notte sono accesi solo i dispositivi che devono restare sempre accesi.',
+  'hog.tip': 'Spegnere {list} dalle {from} alle {to} ({w}) fa risparmiare circa {v} all\'anno.',
+  'hog.tipNoPrice': 'Spegnere {list} dalle {from} alle {to} fa risparmiare {w}.', 'hog.off': 'Spegni di notte …', 'hog.flowName': '🔌 Spegni di notte',
 };
