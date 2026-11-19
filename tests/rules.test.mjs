@@ -140,3 +140,19 @@ test('"Nur wenn: besonderer Tag" (📅 specialdays.js) in words: the days by nam
   const lane = { blocks: [{ k: 'time', at: '07:00', days: [] }, { k: 'if_special', is: 'yes', days: ['d_xmas'] }, { k: 'cover', ents: ['cover.wz'], same: false, do: 'pos', v: 50 }] };
   assert.equal(R.laneWords(lane, c), 'fl.w.when 07:00 · fl.w.onlyIf fl.b.special.yes{"days":"Heiligabend"} · fl.w.then cover.wz (50 %)');
 });
+
+test('🌗 brightness: the level trigger and condition in words, a time that moves with the season', () => {
+  assert.deepEqual(R.blockWords({ k: 'light', to: 'dark', e: -3 }, ctx), { icon: '🌆', text: 'fl.b.light.dark{"lvl":"fl.lvl.-3"}', sub: '' });
+  assert.equal(R.blockWords({ k: 'if_sun', is: 'dark', e: 6 }, ctx).text, 'fl.b.ifLight.dark{"lvl":"fl.lvl.6"}');
+  assert.equal(R.blockWords({ k: 'if_sun', is: 'dark' }, ctx).text, 'fl.b.sun.dark');                       // as before
+  assert.deepEqual(R.newBlock('light'), { k: 'light', to: 'dark', e: -3 });
+  assert.ok(R.TRIGGERS.includes('light'));
+  const sun = { sun: { rise: new Date(2026, 10, 20, 7, 45).toISOString(), set: new Date(2026, 10, 19, 16, 43).toISOString() } };
+  assert.deepEqual(R.seasonAnchor('19:00', sun), { anchor: 'set', ref: 16 * 60 + 43 });
+  assert.deepEqual(R.seasonAnchor('06:30', sun), { anchor: 'rise', ref: 7 * 60 + 45 });
+  assert.equal(R.seasonAnchor('19:00', {}), null);
+  const b = { k: 'time', at: '19:00', days: [], season: true, anchor: 'set', ref: 1003 };
+  assert.equal(R.seasonOffset(b), 137); assert.equal(R.seasonOffset({ ...b, season: false }), null);
+  assert.deepEqual(R.blockWords(b, ctx), { icon: '🌗', text: '19:00', sub: 'fl.season.after.set{"d":"fl.hour{\\"n\\":2} fl.min{\\"n\\":17}"}' });
+  assert.equal(R.blockWords({ ...b, at: '06:30', anchor: 'rise', ref: 465 }, ctx).sub, 'fl.season.before.rise{"d":"fl.hour{\\"n\\":1} fl.min{\\"n\\":15}"}');
+});

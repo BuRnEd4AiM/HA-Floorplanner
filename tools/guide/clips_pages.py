@@ -407,6 +407,42 @@ def _(r):
     r.wait(1600)
 
 
+@clip("flow-daylight", "pages",
+      {"de": "🌗 Abläufe nach der Helligkeit: im Winter nichts umstellen", "en": "🌗 Routines by daylight: nothing to change in winter"},
+      {"de": "„Es wird dunkel / hell“ startet einen Ablauf, wenn die Sonne so tief steht wie gewählt (Dämmerung, fast dunkel …). Bei einer Uhrzeit "
+             "sorgt „An der Helligkeit orientieren“ dafür, dass sie mit der Jahreszeit wandert. Auch als „Nur wenn“: dunkler als Dämmerung.",
+       "en": "“It gets dark / light” starts a routine when the sun is as low as chosen (dusk, almost dark …). With a time, “Follow the daylight” "
+             "makes it move with the season. Also as “Only if”: darker than dusk."},
+      "Helligkeit Dämmerung dunkel hell Sonnenstand Jahreszeit Winter Sommer Uhrzeit wandert daylight dusk dark light sun season winter summer time moves")
+def _(r):
+    tab(r, "routines")
+    r.say("Ein neuer Ablauf.", "A new routine.")
+    r.click("[data-page=routines] .bdBtn.primary", text="Neuer|New")
+    r.wait(1300)
+    r.say("„Es wird dunkel / hell“: der Ablauf startet, wenn die Sonne so tief steht wie gewählt.", "“It gets dark / light”: the routine starts when the sun is as low as chosen.")
+    r.click(".feDlg [data-add=light]")
+    r.wait(1300)
+    r.say("Rechts: wie dunkel. Im Sommer kommt die Dämmerung später, im Winter früher – du musst nichts umstellen.",
+          "On the right: how dark. In summer dusk comes later, in winter earlier – you change nothing.")
+    r.click(".feDlg [data-field=e] [data-value='-6']")
+    r.wait(2200)
+    r.poster()
+    r.say("Oder eine feste Uhrzeit, die trotzdem mitwandert:", "Or a time that still moves along:")
+    r.click(".feDlg [data-add=time]")
+    r.wait(1100)
+    r.say("„An der Helligkeit orientieren“ anhaken.", "Tick “Follow the daylight”.")
+    r.click(".feDlg [data-field=season]")
+    r.wait(1300)
+    r.say("Jetzt bleibt sie immer gleich weit vom Sonnenuntergang entfernt.", "Now it always stays the same distance from sunset.")
+    r.move(".feDlg .feSame + .tpSub")
+    r.wait(2400)
+    r.say("Und bei „Nur wenn → Dunkel / hell“ wählst du, wie dunkel es sein muss.", "And with “Only if → Dark / light” you choose how dark it must be.")
+    r.click(".feDlg [data-add=if_sun]")
+    r.wait(1000)
+    r.click(".feDlg [data-field=e] [data-value='-3']")
+    r.wait(2000)
+
+
 @clip("family", "pages",
       {"de": "👪 Familie: wer ist wo, die Pinnwand", "en": "👪 Family: who is where, the pinboard"},
       {"de": "Wer zu Hause ist und in welchem Raum, wer unterwegs ist, und eine Pinnwand für Notizen.",

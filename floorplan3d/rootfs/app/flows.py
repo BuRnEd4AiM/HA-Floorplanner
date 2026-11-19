@@ -24,7 +24,7 @@ HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 MAX_FLOWS, MAX_LANES, MAX_BLOCKS, MAX_ENTS = 40, 4, 12, 20
 OPEN, CLOSED, GONE = {"on", "open", "opening", "tilted"}, {"off", "closed"}, {None, "unavailable", "unknown"}   # tilted: #624
 
-TRIGGERS = ("state", "num", "time", "sun", "presence", "button")
+TRIGGERS = ("state", "num", "time", "sun", "light", "presence", "button")
 CONDS = ("if_time", "if_days", "if_home", "if_state", "if_num", "if_outside", "if_sun", "if_special")
 WAITS = ("hold", "wait")
 ACTIONS = ("switch", "heat", "cover", "run", "notify", "restore")
@@ -32,6 +32,9 @@ SWITCHABLE = ("light", "switch", "fan", "input_boolean", "media_player")
 DOMAINS = {"switch": SWITCHABLE, "heat": ("climate",), "cover": ("cover",), "run": ("scene", "script"),
            "restore": (*SWITCHABLE, "climate", "cover")}
 SAME = {"switch": "light", "heat": "climate", "cover": "cover"}       # "im selben Raum": which devices of the trigger's room
+# 🌗 how bright it is, by where the sun is (sun.sun's elevation in degrees; the owner, 2026-11-19: "dass sich das addon an der helligkeit
+# orientiert", the same in summer and winter without changing the time): low sun but still light, the sun at the horizon, dusk, almost dark
+LEVELS = (6, 0, -3, -6)
 
 
 def _ents(v, domains=None):
@@ -74,9 +77,17 @@ def clean_block(b) -> dict | None:
         ent, v = _ent(b.get("ent")), _num(b.get("v"), -1e6, 1e6)
         return {"k": k, "ent": ent, "op": _pick(b.get("op"), ("above", "below"), "above"), "v": v} if ent and v is not None else None
     if k == "time":
-        return {"k": k, "at": _time(b.get("at"), "07:00"), "days": _days(b.get("days"))}
+        out = {"k": k, "at": _time(b.get("at"), "07:00"), "days": _days(b.get("days"))}
+        ref = b.get("ref")
+        if b.get("season") is True and b.get("anchor") in ("set", "rise") and isinstance(ref, int) and not isinstance(ref, bool) and 0 <= ref < 1440:
+            # 🌗 "wandert mit der Jahreszeit": the time keeps its distance to sunset (sunrise in the morning) of the day it was set (ref:
+            # that sunset in minutes of the day): it runs as the sun trigger with that offset
+            out.update(season=True, anchor=b["anchor"], ref=ref)
+        return out
     if k == "sun":
         return {"k": k, "ev": _pick(b.get("ev"), ("set", "rise"), "set"), "off": int(_num(b.get("off"), -180, 180, 0))}
+    if k == "light":                                     # 🌗 it gets dark / light: the sun passes a level (LEVELS)
+        return {"k": k, "to": _pick(b.get("to"), ("dark", "bright"), "dark"), "e": _pick(b.get("e"), LEVELS, 0)}
     if k == "presence":
         return {"k": k, "ev": _pick(b.get("ev"), ("arrive", "leave", "all_away", "first_home"), "arrive"), "who": _ent(b.get("who"), ("person",))}
     if k == "button":
@@ -96,8 +107,11 @@ def clean_block(b) -> dict | None:
         return {"k": k, "ent": ent, "op": _pick(b.get("op"), ("above", "below"), "above"), "v": v} if ent and v is not None else None
     if k == "if_outside":
         return {"k": k, "op": _pick(b.get("op"), ("above", "below"), "below"), "v": _num(b.get("v"), -50, 60, 15)}
-    if k == "if_sun":
-        return {"k": k, "is": _pick(b.get("is"), ("dark", "light"), "dark")}
+    if k == "if_sun":                                    # e: 🌗 how dark (LEVELS); without it: the sun below the horizon, as before
+        out = {"k": k, "is": _pick(b.get("is"), ("dark", "light"), "dark")}
+        if b.get("e") in LEVELS:
+            out["e"] = b["e"]
+        return out
     if k == "if_special":                                # 📅 today is (not) a special day (specialdays.py); days: which ones, [] any
         return {"k": k, "is": _pick(b.get("is"), ("yes", "no"), "yes"), "days": sd.clean_ids(b.get("days"))}
     if k in WAITS:
@@ -167,7 +181,8 @@ def clean_mem(m) -> dict:
     d = lambda k: m.get(k) if isinstance(m.get(k), dict) else {}   # noqa: E731
     return {"runs": {k: v for k, v in d("runs").items() if isinstance(v, dict)}, "saved": {k: v for k, v in d("saved").items() if isinstance(v, dict)},
             "fired": {k: v for k, v in d("fired").items() if isinstance(v, str)}, "last": {k: v for k, v in d("last").items() if isinstance(v, dict)},
-            "sun": {k: [x for x in v if isinstance(x, str)][-2:] for k, v in d("sun").items() if isinstance(v, list)}}
+            "sun": {k: [x for x in v if isinstance(x, str)][-2:] for k, v in d("sun").items() if isinstance(v, list)},
+            "elev": m.get("elev") if isinstance(m.get("elev"), (int, float)) and not isinstance(m.get("elev"), bool) else None}   # 🌗 the sun's elevation at the last tick
 
 
 # ---------- what the house says ----------
@@ -271,7 +286,13 @@ def check(cond: dict, run: dict, ctx) -> bool:
         v = _float(_state(ctx, cond["ent"])) if k == "if_num" else _float(_attr(ctx, ctx.get("weather"), "temperature")) if ctx.get("weather") else None
         return v is not None and (v > cond["v"] if cond["op"] == "above" else v < cond["v"])
     if k == "if_sun":
-        dark = _state(ctx, "sun.sun") == "below_horizon"
+        if "e" in cond:                                  # 🌗 darker than the level: the sun lower than it
+            el = _float(_attr(ctx, "sun.sun", "elevation"))
+            if el is None:
+                return False
+            dark = el < cond["e"]
+        else:
+            dark = _state(ctx, "sun.sun") == "below_horizon"
         return dark if cond["is"] == "dark" else not dark
     if k == "if_special":
         hit = sd.is_special(ctx.get("days") or [], cond["days"], local.date(), ctx["states"])
@@ -468,6 +489,17 @@ def _sun_times(mem, ctx):
                 del seen[:-2]
 
 
+def sun_of(trig):
+    """(event, offset in minutes) of a trigger that runs by the sun: the sun trigger, and a time that 🌗 moves with the season (its
+    distance to that day's sunset / sunrise); None for any other"""
+    if trig["k"] == "sun":
+        return trig["ev"], trig["off"]
+    if trig["k"] == "time" and trig.get("season"):
+        h, m = map(int, trig["at"].split(":"))
+        return trig["anchor"], h * 60 + m - trig["ref"]
+    return None
+
+
 def _when(iso):
     try:
         return datetime.datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp()
@@ -480,6 +512,9 @@ def tick(flows, mem, ctx):
     mem = clean_mem(mem)
     calls, log, now, local = [], [], ctx["now"], ctx["local"]
     _sun_times(mem, ctx)
+    el, el_before = _float(_attr(ctx, "sun.sun", "elevation")), mem["elev"]
+    if el is not None:
+        mem["elev"] = el
     live = set()
     for f in flows:
         for lane in f["lanes"]:
@@ -494,13 +529,17 @@ def tick(flows, mem, ctx):
                 calls += c
                 log += lg
             mark = None
-            if trig["k"] == "time" and local.strftime("%H:%M") == trig["at"] and (not trig["days"] or local.weekday() in trig["days"]):
+            if trig["k"] == "time" and not trig.get("season") and local.strftime("%H:%M") == trig["at"] and (not trig["days"] or local.weekday() in trig["days"]):
                 mark = local.strftime("%Y-%m-%d ") + trig["at"]
-            if trig["k"] == "sun":
-                for iso in mem["sun"].get(trig["ev"], []):
+            sun = sun_of(trig)
+            if sun and (trig["k"] == "sun" or not trig["days"] or local.weekday() in trig["days"]):
+                for iso in mem["sun"].get(sun[0], []):
                     t = _when(iso)
-                    if t is not None and 0 <= now - (t + trig["off"] * 60) < 600:
+                    if t is not None and 0 <= now - (t + sun[1] * 60) < 600:
                         mark = iso
+            if trig["k"] == "light" and el is not None and el_before is not None and (
+                    el_before > trig["e"] >= el if trig["to"] == "dark" else el_before < trig["e"] <= el):
+                mark = local.strftime("%Y-%m-%d ") + trig["to"]
             if mark and mem["fired"].get(key) != mark:
                 mem["fired"][key] = mark
                 c, lg = start(f, lane, "", None, ctx, mem)

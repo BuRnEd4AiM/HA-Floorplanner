@@ -4033,4 +4033,11 @@ export default {
   'hog.noDevices': '把能测电的插座作为设备加入 Home Assistant 的能源面板，这里就会显示谁在夜里用电。', 'hog.noPlugs': '这些设备在 Home Assistant 里没有开关：前面加一个智能插座就能省掉待机电。',
   'hog.allGood': '夜里只有必须一直运行的设备在用电。', 'hog.tip': '在 {from} 到 {to} 关掉{list}（{w}）每年约省 {v}。', 'hog.tipNoPrice': '在 {from} 到 {to} 关掉{list}可省 {w}。',
   'hog.off': '夜间关闭 …', 'hog.flowName': '🔌 夜间关闭',
+  'fe.p.light': '天变暗 / 变亮', 'fe.kind.light': '亮度', 'fl.b.light.dark': '天变暗：{lvl}', 'fl.b.light.bright': '天变亮：{lvl}', 'fl.lvl.6': '太阳很低', 'fl.lvl.0': '太阳在地平线',
+  'fl.lvl.-3': '黄昏', 'fl.lvl.-6': '几乎全黑', 'fl.b.ifLight.dark': '比“{lvl}”更暗', 'fl.b.ifLight.light': '比“{lvl}”更亮', 'fl.season.after.set': '随季节：日落后 {d}',
+  'fl.season.before.set': '随季节：日落前 {d}', 'fl.season.after.rise': '随季节：日出后 {d}', 'fl.season.before.rise': '随季节：日出前 {d}', 'fe.season': '跟随日光（随季节变化）',
+  'fe.season.now.after.set': '今天在这个时间，之后总是日落后 {d}：冬天更早，夏天更晚。', 'fe.season.now.before.set': '今天在这个时间，之后总是日落前 {d}：冬天更早，夏天更晚。',
+  'fe.season.now.after.rise': '今天在这个时间，之后总是日出后 {d}：冬天更晚，夏天更早。', 'fe.season.now.before.rise': '今天在这个时间，之后总是日出前 {d}：冬天更晚，夏天更早。',
+  'fe.season.help': '勾选后，流程不再固定在这个时间运行，而是始终与日落（12 点前为日出）保持相同间隔。冬天无需改时间。', 'fe.season.noSun': '这需要 Home Assistant 中的太阳（sun.sun）——此处未知。', 'fe.light.dark': '天变暗',
+  'fe.light.bright': '天变亮', 'fe.light.level': '多亮', 'fe.light.help': '跟随太阳位置：夏天更晚，冬天更早，无需任何调整。黄昏大约在日落后一刻钟。', 'fe.light.horizon': '太阳在地平线下 / 上',
 };
