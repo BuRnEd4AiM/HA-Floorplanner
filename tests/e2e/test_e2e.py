@@ -34,6 +34,7 @@ def ha_calls():
 
 def status_open(pg):
     """upright phones fold the values at the top (offline, open, cameras ...) into the 📊 drop-down (phonestatus.js): open it"""
+    phone_house(pg)                                  # 5.22.0: the 📊 drop-down is on the tab "3D-Haus"
     if pg.locator("#phoneStatusBtn").is_visible() and pg.locator("#phoneStatus").is_hidden():
         pg.click("#phoneStatusBtn"); pg.wait_for_timeout(200)
 
