@@ -3415,3 +3415,24 @@ body.live .v2Nops { display: none; }
 .vacTrack { position: relative; height: 14px; border-radius: 4px; background: rgba(127,127,127,.15); }
 .vacTrack i { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: #f2b416; }
 .vacAxis { display: flex; justify-content: space-between; margin-left: calc(38% + 8px); font-size: 11px; color: var(--muted); }
+
+/* 👥 Gäste-Zugang (guestui.js in ⚙, guestview.js on the guest's screen) */
+#guestBox .guQrWrap { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; margin-top: 10px; }
+#guestBox .guQr { background: #fff; border-radius: 10px; padding: 6px; line-height: 0; }
+#guestBox .guQr svg { width: 180px; height: 180px; }
+#guestBox .guQrText { flex: 1 1 220px; min-width: 0; }
+#guestBox .guUrl { display: block; word-break: break-all; font-size: 12px; margin: 6px 0; }
+#guestBox .guState.warn { color: #ffb2aa; }
+body.guestview #navBar, body.guestview #tabBar, body.guestview #floorRail, body.guestview #modeBar, body.guestview #viewMenu, body.guestview #sceneBar,
+body.guestview #viewLegend, body.guestview #phoneNavBtn, body.guestview #welcome { display: none !important; }
+body.guestview #roomPanel { top: 64px !important; bottom: 12px !important; left: 50% !important; right: auto !important; transform: translateX(-50%);
+  width: min(560px, calc(100vw - 24px)) !important; max-width: none !important; max-height: none !important; }
+body.guestview #roomPanel .rpClose, body.guestview #roomPanel [data-act=close] { display: none; }
+.guBar { position: fixed; top: 10px; left: 0; right: 0; margin: 0 auto; width: max-content; z-index: 60; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  justify-content: center; max-width: calc(100vw - 24px); padding: 8px 16px; border-radius: 22px; white-space: nowrap; overflow: hidden; flex-wrap: nowrap; background: var(--panel, #1c2433); border: 1px solid var(--line, #33405a); font-size: 15px; }
+.guBar .guUntil { color: var(--muted, #9aa7bd); }
+@media (max-width: 520px) { .guBar { font-size: 13px; gap: 6px; padding: 7px 12px; } .guBar b { display: none; } }
+.guOver { position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+  padding: 24px; background: var(--bg, #0e131c); }
+.guOver .guOverIcon { font-size: 54px; }
+.guOver p { color: var(--muted, #9aa7bd); max-width: 420px; }

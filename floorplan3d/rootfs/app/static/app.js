@@ -125,6 +125,8 @@ import { initDashboards } from './dashboards.js';
 import { meterPart } from './energymetersui.js';
 import { initTodayPrefs } from './todayprefs.js';
 import { initPresencePrefs } from './presenceprefs.js';
+import { initGuestUi } from './guestui.js';
+import { initGuestView } from './guestview.js';
 import { initDoorbellUi } from './doorbellui.js';
 import { initDoorbellPrefs } from './doorbellprefs.js';
 import { initOutdoorPrefs } from './outdoorprefs.js';
@@ -1304,7 +1306,7 @@ const roomPanel = initRoomPanel({
     tilt: (o) => tiltEntity(o), contactText: (o, e) => openings.contactText(o, e), windowText: (o) => openings.windowText(o) },   // #624
   closeLivePopup: () => popup.close(), leaveFocus: () => { if (focusedRoom) focusRoom(null); },
   off: () => cardUi?.roomPanel() === false,                                  // a dashboard card without the room panel (#13)
-  alone: () => !!cardUi?.panelOnly(),                                        // a dashboard card with nothing but the room panel (#356)
+  alone: () => !!cardUi?.panelOnly() || document.body.classList.contains('guestview'),   // ... or 👥 the guest's screen: the card stays (guestview.js)                                        // a dashboard card with nothing but the room panel (#356)
   num: (v, d) => fmtNum(v, d), co2Limit: () => airLimit(settings.co2Stops),
   heat: {                                                                    // what the heating rules do in the room, in 🌡 Klima of the room card (5.10.0)
     extras: (id, climate) => rulesUi.heat.roomExtras({ id, climate }), line: (id) => rulesUi.line(id),
@@ -1730,6 +1732,7 @@ const startView = initStartView({
 const todayPrefs = initTodayPrefs({ $, t });             // ⚙ → "Reiter unten": the calendars of the page ☀ Heute (#481, todayprefs.js)
 const routinePrefs = initRoutinePrefs({ $, t, entities: () => entities });   // ... and the buttons of ▶ Abläufe (#483, routineprefs.js)
 const mediaPrefs = initMediaPrefs({ $, t, entities: () => entities });       // ... the radio stations, the shopping list and the machines (#490, mediaprefs.js)
+const guestUi = initGuestUi({ $, t, lang: () => currentLanguage(), layout: () => layout, houseId: () => hs.id() });   // 👥 Gäste-Zugang in ⚙ → Benutzer (guestui.js)
 const presencePrefs = initPresencePrefs({ $ });                                // ... who counts as at home (#495, presenceprefs.js)
 const doorbell = initDoorbellUi({ $, t, lang: () => currentLanguage(), settings: () => settings, entities: () => entities, states: () => states, isLive: () => isLive(),   // 🔔 the camera when somebody rings (doorbellui.js)
   locked: (k) => locks.has(k), replaying: () => !!replayBack, callService: (e, svc) => live.callService(e, svc), cams, wake: () => kiosk.touched() });
@@ -1754,7 +1757,7 @@ const settingsStore = initSettings({
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
   doorsUi: initDoorSettings({ $, t }),                 // the colours of the house's doors (#754)
-  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs, outdoorPrefs, initSetControls({ $, t })],   // the last: buttons, sliders, units, "mehr …" (5.8.0)   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
+  parts: [guestUi, favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs, outdoorPrefs, initSetControls({ $, t })],   // the last: buttons, sliders, units, "mehr …" (5.8.0)   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
   ready: (next) => loadLanguage(next.language),       // a newly chosen language: its texts first, then apply (no English in between)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
@@ -1909,6 +1912,7 @@ async function init() {
     if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); roomPanel.open(hit.room.id); }
     updateHouseToggle();
   }
+  initGuestView({ t, lang: () => currentLanguage(), roomPanel, findRoomByName, switchFloor, focusRoom }).start(me);   // 👥 the guest: only their room's card (guestview.js)
   if (cardUi?.start()) updateHouseToggle();               // the dashboard card's floor or whole house (#13)
   else if (await startView.apply(me.start)) {             // a saved start view (#315): the user's own or everybody's
     const hit = tabletRoom && findRoomByName(tabletRoom);

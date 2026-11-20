@@ -53,6 +53,7 @@ import renames as rn
 import roommap as rm
 import sunshade
 import vacation
+import guest as gs
 import alarmpic as apic
 import tgbot
 import scenes as sc
@@ -153,6 +154,7 @@ DEFAULT_SETTINGS = {
     "userPresets": {},         # Home Assistant user name -> its own start values for the look (PRESET_FIELDS, #250)
     "userLocks": {},           # Home Assistant user name -> what that user may not use (LOCKS, static/userlocks.js)
     "userRights": {},          # Home Assistant user name -> {kind: view | onoff}: what that user may switch per kind of device (tablets.py, 5.13.0)
+    "guest": {"on": False, "user": "gast", "room": "", "until": ""},   # 👥 Gäste-Zugang (guest.py, 5.21.0)
     "userKiosk": {},           # Home Assistant user name -> more own wall tablet values and its Fully Kiosk entities (tablets.KIOSK_FIELDS, 5.13.0)
     "startViews": {},          # Home Assistant user name or "*" (everybody) -> saved start view (static/startview.js, #315)
     "userBuildings": {},       # Home Assistant user name -> the building of a plan that user sees (several buildings in one plan, #409)
@@ -259,11 +261,21 @@ def drop_gone_picks(user_tabs: dict, variants: dict) -> dict:
     return out
 
 
+def guest_cfg(request) -> dict:
+    """👥 the guest access (guest.py) when the user looking is its guest user, else {}"""
+    cfg = gs.clean_guest(read_settings(request).get("guest"))
+    return cfg if gs.is_guest(cfg, current_user(request)["ids"]) else {}
+
+
 def user_locks(request) -> set:
-    """The locks of the user looking (by Home Assistant user name or id); none in standalone mode."""
+    """The locks of the user looking (by Home Assistant user name or id); none in standalone mode. 👥 The guest user has every lock but
+    "control" while the guest access runs (they switch their room only, call_service), every lock when it is over."""
     ids = current_user(request)["ids"]
     if not ids:
         return set()
+    g = guest_cfg(request)
+    if g:
+        return set(LOCKS) - {"fullscreen"} - ({"control"} if gs.active(g, time.time()) else set())   # "fullscreen" keeps a screen in full screen: not for a guest's phone
     locks = clean_locks(read_settings(request).get("userLocks", {}))
     return set(next((v for k, v in locks.items() if k.strip().lower() in ids), []))
 
@@ -452,6 +464,8 @@ async def can_edit(request) -> bool:
     """Administrators and users named in `editors` may edit; everybody else gets the read-only live view."""
     if not SUPERVISOR_TOKEN:          # standalone/dev mode: no Home Assistant, no users
         return True
+    if guest_cfg(request):            # 👥 the guest user never edits, even when made an administrator by mistake
+        return False
     ids = current_user(request)["ids"]
     if editors() & ids:
         return True
@@ -492,7 +506,14 @@ async def get_me(request):
     buildings = read_settings(request).get("userBuildings", {})
     building = next((v for k, v in buildings.items() if str(k).strip().lower() in user["ids"]), None) if isinstance(buildings, dict) else None
     tabs = next((v for k, v in clean_user_tabs(read_settings(request).get("userTabs", {})).items() if k.strip().lower() in user["ids"]), {})
-    return web.json_response({"user": user["name"], "canEdit": edit, "admin": await is_admin(request), "room": room, "view": view, "preset": preset, "start": start, "building": building, "tabs": tabs,
+    guest = None
+    g = guest_cfg(request)
+    if g:                                                   # 👥 the guest sees only the card of their room
+        hit = next((r for r in rm.rooms_of([(h["id"], read_json(house_file(request, h["id"]), {})) for h in houses_index(request)])
+                    if r["key"] == g["room"]), None)
+        room = hit["name"] if hit else None
+        guest = {"room": room, "house": hit["house"] if hit else None, "until": g["until"], "active": gs.active(g, time.time()) and hit is not None}
+    return web.json_response({"user": user["name"], "canEdit": edit, "guest": guest, "admin": await is_admin(request), "room": room, "view": view, "preset": preset, "start": start, "building": building, "tabs": tabs,
                               "locks": [k for k in LOCKS if k in user_locks(request)],
                               "rights": user_rights(request), "kiosk": own_entry(request, "userKiosk", tb.clean_user_kiosk),   # 5.13.0
                               "adminCheck": (not SUPERVISOR_TOKEN) or HA_LOGIN or _admin_cache["ids"] is not None, "login": HA_LOGIN})
@@ -917,6 +938,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = tb.clean_user_rights(val)
         elif key == "userKiosk":
             out[key] = tb.clean_user_kiosk(val)
+        elif key == "guest":
+            out[key] = gs.clean_guest(val)
         elif key == "startViews":
             out[key] = clean_start_views(val)
         elif key == "favorites":
@@ -1668,6 +1691,11 @@ async def call_service(request):
     refused = await rights_refuse(request, domain, service, payload)   # only on / off or only look for this kind of device (5.13.0)
     if refused:
         return refused
+    g = guest_cfg(request)
+    if g:                                                  # 👥 the guest: only the devices of their room, only while it runs
+        room = next((r for r in await rules_rooms(request.app) if r["key"] == g["room"]), None)
+        if not gs.active(g, time.time()) or not room or not gs.allowed(payload.get("entity_id"), gs.room_entities(room)):
+            return web.json_response({"error": "guests may switch only the devices of their room"}, status=403)
     if domain == "automation" and not await can_edit(request):      # an automation on / off (▶ Abläufe, #483): only who may edit
         return forbidden()
     user = current_user(request)["name"]

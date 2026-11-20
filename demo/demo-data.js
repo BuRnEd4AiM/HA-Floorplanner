@@ -1190,7 +1190,17 @@ export function installDemoBackend() {
         items: [...shopping.filter((x) => !x.done), ...shopping.filter((x) => x.done)], ok: true });
     }
     if (path.startsWith('api/media/')) return json({ error: 'no picture' }, 404);   // the demo's players have no pictures: the ♪ shows
-    if (path === 'api/me') return json({ user: 'demo', canEdit: true, admin: true, room: null, view: 'all', locks: new URLSearchParams(location.search).has('vollbild') ? ['fullscreen'] : [] });
+    if (path === 'api/me') {
+      const q = new URLSearchParams(location.search), gast = q.get('gast');
+      if (gast) {                                             // 👥 ?gast=1: what the guest "gast" sees (the guest access, 5.21.0); ?gast=aus: when it is over
+        const locks = ['heatPause', 'alarm', 'guard', 'details', 'cameras', 'energy', 'colorModes', 'viewMenu', 'floorGap', 'views', 'houses', 'building', 'search',
+          'voice', 'settings', 'timeline', 'doorbell', ...(gast === 'aus' ? ['control'] : [])];
+        const until = new Date(Date.now() + 2 * 86400000); until.setHours(12, 0, 0, 0);
+        return json({ user: 'gast', canEdit: false, admin: false, room: 'Wohnzimmer', view: '3d', locks,
+          guest: { room: 'Wohnzimmer', house: null, until: until.toISOString(), active: gast !== 'aus' } });
+      }
+      return json({ user: 'demo', canEdit: true, admin: true, room: null, view: 'all', locks: q.has('vollbild') ? ['fullscreen'] : [] });
+    }
     if (path === 'api/fullscreen') {
       if (method === 'PUT') {
         const c = String(JSON.parse(init.body || '{}').code ?? '');

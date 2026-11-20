@@ -521,7 +521,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 209. Neu in 5.18.0: 🏠 Urlaubs-Licht | 2 | 0 | 3 | 0 | 209.3 bis 209.5 |
 | 210. Neu in 5.19.0: 🔌 Stromfresser | 3 | 0 | 3 | 0 | 210.4 bis 210.6 |
 | 211. Neu in 5.20.0: 🌗 Abläufe nach der Helligkeit | 3 | 0 | 3 | 0 | 211.4 bis 211.6 |
-| **Zusammen** | **1326** | **2** | **123** | **92** | |
+| 212. Neu in 5.21.0: 👥 Gäste-Zugang | 4 | 0 | 4 | 0 | 212.5 bis 212.8 |
+| **Zusammen** | **1330** | **2** | **127** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3206,4 +3207,18 @@ Dein Wunsch vom 2026-11-19: Abläufe sollen sich nach der Helligkeit richten, da
 | 211.4 | Dein Haus: einen Ablauf „Es wird dunkel: Dämmerung → Rollläden runter“ speichern | Die Rollläden fahren in der Dämmerung runter, ohne dass du eine Uhrzeit einstellst | ❓ |
 | 211.5 | Dein Haus: einen Ablauf mit Uhrzeit und Haken „An der Helligkeit orientieren“ speichern | Er läuft heute zur eingestellten Zeit; in ein paar Wochen etwas früher (Winter) bzw. später (Frühjahr) | ❓ |
 | 211.6 | Dein Haus: „Nur wenn → Dunkel / hell → dunkler als Dämmerung“ beim Licht mit Bewegungsmelder | Das Licht geht erst an, wenn es wirklich dämmrig ist | ❓ |
+
+## 212. Neu in 5.21.0: 👥 Gäste-Zugang
+Dein Wunsch vom 2026-11-20: ein Benutzer „gast“ in Home Assistant, ein QR-Code, dann sieht der Gast die Karte des vorher gewählten Zimmers und steuert sie. Deine Wahl: einmal als „gast“ anmelden, Licht, Rollladen, Heizung und Musik / TV, mit „bis“-Datum.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 212.1 | Unit-Tests `tests/test_guest.py`, `tests/guestaccess.test.mjs` (neu), `test_server.py` (Gast darf nur sein Zimmer); Browser-Test Teil `100_guest` (neu) | Alles grün | ✅ (2026-11-20, Claude) |
+| 212.2 | Demo: ⚙ → Benutzer & Tablets → ganz unten „👥 Gäste-Zugang“ einschalten, Zimmer wählen, „+3 Tage“ | „Läuft: … bis …“ und ein QR-Code | ✅ (2026-11-20, Claude, Demo) |
+| 212.3 | Demo mit `?gast=1` am Ende der Adresse (am Handy) | Oben „Wohnzimmer bis …“, darunter nur die Karte des Wohnzimmers, kein ✕, keine Leiste unten | ✅ (2026-11-20, Claude, Demo) |
+| 212.4 | Demo mit `?gast=aus` | „Der Gäste-Zugang ist beendet“ | ✅ (2026-11-20, Claude, Demo) |
+| 212.5 | Dein Haus: in Home Assistant den Benutzer „gast“ anlegen (Schritte stehen beim Gäste-Zugang), dann Gäste-Zugang mit deinem Gästezimmer einschalten | „Läuft: Gästezimmer bis …“ | ❓ |
+| 212.6 | Dein Haus: den QR-Code mit einem Handy scannen, als „gast“ anmelden | Nur die Karte des Gästezimmers; Licht, Rollladen, Heizung lassen sich schalten | ❓ |
+| 212.7 | Dein Haus: „🖨 Karte drucken“ mit Passwort | Eine Karte mit QR-Code, Benutzer und Passwort | ❓ |
+| 212.8 | Dein Haus: „Bis“ auf in 5 Minuten stellen und warten | Beim Gast steht danach „Der Gäste-Zugang ist beendet“ | ❓ |
 

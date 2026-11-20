@@ -2,6 +2,15 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.21.0] - 2026-11-20
+### Added
+- **👥 Guest access: guests control their room with their phone** (the owner, 2026-11-20: "es gibt im Home Assistant einen benutzer … gast und mit einem qr code … bekommt man eine karte dann zu gesicht die man steuern kann von dem raum den man vorher ausgewählt hat"; his choices: the guest logs in once as that Home Assistant user, may switch light, shutters, heating and music / TV of the room, until a date): ⚙ → 👥 Benutzer & Tablets → **👥 Gäste-Zugang**: switch it on, the Home Assistant user ("gast"), the room and **"Bis"** (+1 day, +3 days, +1 week); it shows **the QR code of the add-on's address** and **"🖨 Karte drucken"**, a card to put in the guest room with the QR code, the user and the password (typed only for the print, never saved). How to make the user "gast" in Home Assistant is explained in four steps.
+- **What the guest sees:** only the card of their room, full size, with "👥 Willkommen · Gästezimmer · bis So., 23.11., 12:00" at the top; light (with the room's scenes), shutters, heating and music / TV there. No tab bar, no alarm, no cameras, no settings; the card cannot be closed. When the time is up (or the access is switched off) the page says **"Der Gäste-Zugang ist beendet"**.
+- **The add-on enforces it** (`guest.py`): the guest user gets every lock but switching, can never edit, and may switch only the entities of their room (devices inside it, its Home Assistant area, the shutters of its windows) of those kinds; nothing at all once it is over.
+- Demo: `?gast=1` shows what the guest sees, `?gast=aus` the end.
+- The QR code is made by qrcode-generator (MIT, `vendor/qrcode.js`, NOTICE.md).
+- Video guide: the clips "👥 Gäste-Zugang" and "👥 Was der Gast sieht".
+
 ## [5.20.0] - 2026-11-19
 ### Added
 - **🌗 Routines by daylight: nothing to change when summer turns to winter** (the owner, 2026-11-19: "dass das addon merkt wie hell es aktuell ist … das man nicht die uhrzeit ändern muss sondern sich das addon an der helligkeit orientiert"; his choices: by where the sun is, as a trigger, as a condition and as a tick at the time). Everything follows Home Assistant's sun (`sun.sun`), no sensor needed:
