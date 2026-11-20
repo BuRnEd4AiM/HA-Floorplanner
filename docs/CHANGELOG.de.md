@@ -2,6 +2,15 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.21.0] - 2026-11-20
+### Neu
+- **👥 Gäste-Zugang: Gäste steuern ihr Zimmer mit dem Handy** (der Besitzer, 2026-11-20: „es gibt im Home Assistant einen benutzer … gast und mit einem qr code … bekommt man eine karte dann zu gesicht die man steuern kann von dem raum den man vorher ausgewählt hat“; seine Wahl: der Gast meldet sich einmal als dieser Benutzer von Home Assistant an, darf Licht, Rollladen, Heizung und Musik / TV des Zimmers schalten, bis zu einem Datum): ⚙ → 👥 Benutzer & Tablets → **👥 Gäste-Zugang**: einschalten, der Benutzer von Home Assistant („gast“), das Zimmer und **„Bis“** (+1 Tag, +3 Tage, +1 Woche); dazu **der QR-Code der Adresse des Add-ons** und **„🖨 Karte drucken“**, eine Karte fürs Gästezimmer mit QR-Code, Benutzer und Passwort (nur für den Ausdruck eingetippt, nie gespeichert). Wie man den Benutzer „gast“ in Home Assistant anlegt, steht in vier Schritten dabei.
+- **Was der Gast sieht:** nur die Karte seines Zimmers, groß, oben „👥 Willkommen · Gästezimmer · bis So., 23.11., 12:00“; dort Licht (mit den Szenen des Zimmers), Rollladen, Heizung und Musik / TV. Keine Reiter-Leiste, kein Alarm, keine Kameras, keine Einstellungen; die Karte lässt sich nicht schließen. Ist die Zeit um (oder der Zugang aus), steht dort **„Der Gäste-Zugang ist beendet“**.
+- **Das Add-on sorgt selbst dafür** (`guest.py`): der Benutzer „gast“ bekommt alle Sperren außer dem Schalten, darf nie bearbeiten und nur die Geräte seines Zimmers schalten (Geräte darin, sein Bereich in Home Assistant, die Rollläden seiner Fenster) und nur diese Arten; ist es vorbei, gar nichts mehr.
+- Demo: `?gast=1` zeigt, was der Gast sieht, `?gast=aus` das Ende.
+- Den QR-Code macht qrcode-generator (MIT, `vendor/qrcode.js`, NOTICE.md).
+- Video-Anleitung: die Clips „👥 Gäste-Zugang“ und „👥 Was der Gast sieht“.
+
 ## [5.20.0] - 2026-11-19
 ### Neu
 - **🌗 Abläufe nach der Helligkeit: im Winter nichts mehr umstellen** (der Besitzer, 2026-11-19: „dass das addon merkt wie hell es aktuell ist … das man nicht die uhrzeit ändern muss sondern sich das addon an der helligkeit orientiert“; seine Wahl: nach dem Sonnenstand, als Auslöser, als Bedingung und als Haken an der Uhrzeit). Alles richtet sich nach der Sonne von Home Assistant (`sun.sun`), ohne Sensor:

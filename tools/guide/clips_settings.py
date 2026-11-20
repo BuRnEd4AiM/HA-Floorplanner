@@ -351,3 +351,57 @@ def _(r):
     r.wait(1800)
     r.key("Escape")
     r.wait(600)
+
+
+@clip("guest", "settings",
+      {"de": "👥 Gäste-Zugang: Gäste steuern ihr Zimmer mit dem Handy", "en": "👥 Guest access: guests control their room with their phone"},
+      {"de": "⚙ → Benutzer & Tablets → Gäste-Zugang: Zimmer und „bis“ wählen, den QR-Code ausdrucken. Die Gäste melden sich einmal als „gast“ an "
+             "und sehen nur die Karte ihres Zimmers: Licht, Rollladen, Heizung, Musik. Danach ist der Zugang von selbst zu.",
+       "en": "⚙ → Users & tablets → Guest access: choose the room and “until”, print the QR code. Guests log in once as “gast” and see only "
+             "the card of their room: light, shutters, heating, music. Afterwards the access closes by itself."},
+      "Gäste Gast Besuch Gästezimmer QR-Code Zugang Handy Ferienwohnung guest visitors guest room QR code access phone holiday flat",
+      query="mode=edit")
+def _(r):
+    r.click("#settingsBtn")
+    r.wait(900)
+    r.say("In den Einstellungen: „Benutzer & Tablets“, ganz unten „Gäste-Zugang“.", "In the settings: “Users & tablets”, at the very bottom “Guest access”.")
+    r.click("#sgNav button[data-group=users]")
+    r.wait(900)
+    r.move("#guestOn")
+    r.wait(600)
+    r.click("#guestOn")
+    r.wait(900)
+    r.say("Das Zimmer der Gäste …", "The guests' room …")
+    r.click("#guestRoom")
+    r.loc("#guestRoom").select_option(index=3)
+    r.wait(1100)
+    r.say("… und bis wann sie bleiben. Danach ist der Zugang von selbst zu.", "… and until when they stay. Afterwards the access closes by itself.")
+    r.click("#guestBox [data-days='3']")
+    r.wait(1500)
+    r.poster()
+    r.say("Den QR-Code ausdrucken und ins Gästezimmer legen. Mit dem Handy scannen, als „gast“ anmelden – fertig.",
+          "Print the QR code and put it in the guest room. Scan it with the phone, log in as “gast” – done.")
+    r.move("#guestBox .guQr")
+    r.wait(2600)
+    r.say("Wie man den Benutzer „gast“ in Home Assistant anlegt, steht hier.", "How to make the user “gast” in Home Assistant is explained here.")
+    r.click("#guestBox .guHow summary")
+    r.wait(2400)
+
+
+@clip("guest-view", "settings",
+      {"de": "👥 Was der Gast sieht", "en": "👥 What the guest sees"},
+      {"de": "Der Gast sieht nur die Karte seines Zimmers, oben „Willkommen“ und bis wann. Kein Alarm, keine Kameras, keine Einstellungen. Ist die Zeit um, steht dort „Der Gäste-Zugang ist beendet“.",
+       "en": "The guest sees only the card of their room, “Welcome” and until when at the top. No alarm, no cameras, no settings. When the time is up it says “The guest access has ended”."},
+      "Gast Gäste Handy Karte Zimmer steuern Licht Rollladen Heizung Musik guest phone card room control light shutters heating music",
+      device="phone", query="gast=1")
+def _(r):
+    r.say("So sieht es der Gast auf seinem Handy: nur sein Zimmer.", "This is what the guest sees on their phone: only their room.")
+    r.wait(2200)
+    r.poster()
+    r.say("Licht an und aus, heller oder dunkler …", "Light on and off, brighter or darker …")
+    r.click("#roomPanel .rpLight", nth=1)
+    r.wait(1600)
+    r.say("… und Rollladen, Heizung und Musik in den Reitern.", "… and shutters, heating and music in the tabs.")
+    r.click("#roomPanel .rpTab[data-tab=cover]")
+    r.wait(2200)
+

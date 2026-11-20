@@ -170,6 +170,14 @@ t("flow-daylight",
   "Licht abends Wann wird es dunkel Automation nach Helligkeit Abenddämmerung Morgendämmerung",
   "daylight brightness dusk dawn dark light sun position season winter summer daylight saving adjust time moves shutters evening "
   "lights in the evening when does it get dark automation by brightness twilight")
+t("guest",
+  "Gäste Gast Besuch Besucher Gästezimmer QR-Code QR Code Zugang Gästezugang Handy Ferienwohnung Airbnb Übernachtung Benutzer gast "
+  "Wie können Gäste das Licht steuern Gast-WLAN",
+  "guests guest visitors guest room QR code access guest access phone holiday flat Airbnb overnight user gast "
+  "how can guests control the light guest Wi-Fi")
+t("guest-view",
+  "Gast Gäste Handy Karte Zimmer steuern Licht Rollladen Heizung Musik Was sieht der Gast Willkommen Zugang beendet Besuch Gästezimmer",
+  "guest guests phone card room control light shutters heating music what does the guest see welcome access ended visit guest room")
 t("power-hogs",
   "Stromfresser Standby Bereitschaft Grundlast Nachtverbrauch nachts Stromverbrauch nachts Steckdose ausschalten abschalten sparen Strom sparen "
   "Kühlschrank Router Fernseher Wer verbraucht nachts Strom Was kostet Standby Zwischenstecker Ablauf",

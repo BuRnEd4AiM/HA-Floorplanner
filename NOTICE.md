@@ -56,6 +56,7 @@ These keep their own licenses (all of them may be shipped inside a GPL-3.0 progr
 | [three.js](https://threejs.org) | MIT | [floorplan3d/rootfs/app/static/vendor/LICENSE-three.txt](floorplan3d/rootfs/app/static/vendor/LICENSE-three.txt) |
 | [polygon-clipping](https://github.com/mfogel/polygon-clipping) (with splaytree, robust-predicates) | MIT (splaytree MIT, robust-predicates Unlicense) | [floorplan3d/rootfs/app/static/vendor/LICENSE-polygon-clipping.txt](floorplan3d/rootfs/app/static/vendor/LICENSE-polygon-clipping.txt) |
 | [hls.js](https://github.com/video-dev/hls.js) (light build) | Apache License 2.0 | [floorplan3d/rootfs/app/static/vendor/LICENSE-hls.txt](floorplan3d/rootfs/app/static/vendor/LICENSE-hls.txt) |
+| [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (👥 Gäste-Zugang) | MIT | [floorplan3d/rootfs/app/static/vendor/LICENSE-qrcode.txt](floorplan3d/rootfs/app/static/vendor/LICENSE-qrcode.txt) |
 | 3D models: Furniture Kit by [Kenney](https://www.kenney.nl) | CC0 1.0 | [floorplan3d/rootfs/app/library/CREDITS.md](floorplan3d/rootfs/app/library/CREDITS.md) |
 
 A new bundled library must be compatible with GPL-3.0 (for example MIT, BSD, Apache-2.0, LGPL, GPL-3.0; **not** GPL-2.0-only) and gets a row here.

@@ -993,6 +993,41 @@ async def test_rights_per_kind_of_device_reach_that_user_and_are_enforced(client
     assert (await client.post("/api/service", json=dim, headers=other)).status != 403
 
 
+async def test_the_guest_switches_only_their_room_and_only_until_the_end(client, monkeypatch):
+    """👥 5.21.0: the guest user ("gast") gets every lock but switching, cannot edit, sees their room, may switch only its devices, and
+    nothing once the access is over"""
+    import datetime
+    later = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=2)).isoformat(timespec="minutes")
+    s = await (await client.put("/api/settings", json={"guest": {"on": True, "user": "Gast", "room": "h1/r_gast", "until": later, "junk": 1}})).json()
+    assert s["guest"] == {"on": True, "user": "Gast", "room": "h1/r_gast", "until": later}
+    room = {"key": "h1/r_gast", "house": "h1", "name": "Gästezimmer", "entities": ["light.gast", "switch.x"], "shutters": [{"cover": "cover.gast"}]}
+    monkeypatch.setattr(server.rm, "rooms_of", lambda *a, **k: [room])
+
+    async def rooms(app):
+        return [room]
+    monkeypatch.setattr(server, "rules_rooms", rooms)
+    gast, other = {"X-Remote-User-Name": "gast"}, {"X-Remote-User-Name": "someone"}
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "HA_API", "http://127.0.0.1:9")                      # nothing behind it: an allowed call fails later, not with 403
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    me = await (await client.get("/api/me", headers=gast)).json()
+    assert me["guest"] == {"room": "Gästezimmer", "house": "h1", "until": later, "active": True} and me["room"] == "Gästezimmer" and not me["canEdit"]
+    assert "control" not in me["locks"] and {"cameras", "settings", "energy", "alarm"} <= set(me["locks"])
+    assert (await (await client.get("/api/me", headers=other)).json())["guest"] is None
+    on = lambda e: {"domain": e.split(".")[0], "service": "turn_on", "entity_id": e}   # noqa: E731
+    assert (await client.post("/api/service", json=on("light.gast"), headers=gast)).status != 403
+    assert (await client.post("/api/service", json={"domain": "cover", "service": "close_cover", "entity_id": "cover.gast"}, headers=gast)).status != 403
+    assert (await client.post("/api/service", json=on("light.wohnzimmer"), headers=gast)).status == 403      # another room
+    assert (await client.post("/api/service", json=on("switch.x"), headers=gast)).status == 403              # not a kind they may switch
+    assert (await client.post("/api/service", json=on("light.wohnzimmer"), headers=other)).status != 403
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "")
+    await client.put("/api/settings", json={"guest": {"on": True, "user": "gast", "room": "h1/r_gast", "until": "2026-01-01T12:00+00:00"}})
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    me = await (await client.get("/api/me", headers=gast)).json()
+    assert me["guest"]["active"] is False and "control" in me["locks"]                                   # over
+    assert (await client.post("/api/service", json=on("light.gast"), headers=gast)).status == 403
+
+
 async def test_a_tablets_own_values_and_its_fully_kiosk(client, monkeypatch):
     """5.13.0: a tablet's own wall tablet values reach it (api/me); api/tablet/screen sets only its own Fully Kiosk entities"""
     body = {"userKiosk": {"Wand": {"saverAfter": 2, "dimLevel": 0.9, "wakeEntity": "binary_sensor.wand_bewegung", "fullyBright": "number.wand_screen_brightness",

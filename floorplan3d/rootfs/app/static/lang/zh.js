@@ -4040,4 +4040,12 @@ export default {
   'fe.season.now.after.rise': '今天在这个时间，之后总是日出后 {d}：冬天更晚，夏天更早。', 'fe.season.now.before.rise': '今天在这个时间，之后总是日出前 {d}：冬天更晚，夏天更早。',
   'fe.season.help': '勾选后，流程不再固定在这个时间运行，而是始终与日落（12 点前为日出）保持相同间隔。冬天无需改时间。', 'fe.season.noSun': '这需要 Home Assistant 中的太阳（sun.sun）——此处未知。', 'fe.light.dark': '天变暗',
   'fe.light.bright': '天变亮', 'fe.light.level': '多亮', 'fe.light.help': '跟随太阳位置：夏天更晚，冬天更早，无需任何调整。黄昏大约在日落后一刻钟。', 'fe.light.horizon': '太阳在地平线下 / 上',
+  'gu.title': '👥 访客访问', 'gu.help': '访客扫描二维码，以用户“gast”登录一次，之后只看到他们房间的卡片：灯、卷帘、暖气、音乐和电视。别的都看不到——没有警报、摄像头和设置。', 'gu.on': '开启访客访问', 'gu.user': '用户', 'gu.room': '房间',
+  'gu.pickRoom': '– 选择房间 –', 'gu.until': '截止', 'gu.d1': '+1 天', 'gu.d3': '+3 天', 'gu.d7': '+1 周', 'gu.stateOff': '关闭：该用户是普通用户。', 'gu.noRoom': '请选择房间。',
+  'gu.stateOver': '已结束：访客会看到“访客访问已结束”。', 'gu.stateOn': '进行中：{room}，截止 {until}。', 'gu.stateOnOpen': '进行中：{room}，无结束时间——直到你关闭。',
+  'gu.howTitle': '如何在 Home Assistant 中创建用户“gast”', 'gu.how1': 'Home Assistant → 设置 → 人员 → “＋ 添加人员”，名字“Gast”。', 'gu.how2': '打开“允许登录”，用户名“gast”，密码设为可以告诉访客的密码。',
+  'gu.how3': '不要勾选“管理员”。其余由插件处理：访客只能看到自己的房间。', 'gu.how4': '提示：Home Assistant 可以设置“gast”只能在本地网络登录——这样只能在你的 Wi-Fi 中使用。', 'gu.qrTitle': '给访客的二维码',
+  'gu.qrHelp': '用手机相机扫描，以“gast”登录——完成。最好打印出来放在客房里。', 'gu.pass': '密码', 'gu.passHint': '仅用于打印，不会保存', 'gu.print': '打印卡片', 'gu.cardTitle': '欢迎！',
+  'gu.cardRoom': '用手机控制“{room}”的灯、卷帘、暖气和音乐。', 'gu.cardScan': '用手机相机扫描并登录：', 'gu.cardUntil': '有效期至 {until}。', 'gu.welcome': '欢迎', 'gu.barUntil': '至 {until}',
+  'gu.overTitle': '访客访问已结束', 'gu.overText': '感谢来访！如还需要什么，请问你的主人。',
 };
