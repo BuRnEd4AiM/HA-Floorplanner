@@ -208,6 +208,13 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
                                 "result": [{"statistic_id": i, "unit_class": "power" if is_power(i) else "volume" if "wasser" in i or "gas" in i else "energy",
                                             "statistics_unit_of_measurement": "W" if is_power(i) else "m³" if "wasser" in i or "gas" in i else "kWh"}
                                            for i in m.get("statistic_ids") or []]})
+        elif m.get("type") == "history/history_during_period":   # 📊 Monatsbericht (5.26.0): each thermostat heated a third of the month, 1.5° over its wish
+            import datetime as dt
+            a, b = dt.datetime.fromisoformat(m["start_time"]).timestamp(), dt.datetime.fromisoformat(m["end_time"]).timestamp()
+            third = (b - a) / 3
+            await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": {e: [
+                {"s": "heat", "a": {"hvac_action": "heating", "current_temperature": 22.5, "temperature": 21}, "lu": a},
+                {"s": "heat", "a": {"hvac_action": "idle"}, "lu": a + third}] for e in m.get("entity_ids") or []}})
         elif "id" in m:
             await ws.send_json({"id": m["id"], "type": "result", "success": False, "error": {"code": "unknown_command"}})
     SUBS[:] = [x for x in SUBS if x[0] is not ws]

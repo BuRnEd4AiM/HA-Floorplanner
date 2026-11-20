@@ -283,6 +283,35 @@ def _(r):
     r.wait(2000)
 
 
+@clip("month-report", "settings",
+      {"de": "📊 Monatsbericht: Heizung und Strom je Raum", "en": "📊 Monthly report: heating and power per room"},
+      {"de": "⚙ → Warnungen & Alarm → Karte „Monatsbericht“: einmal im Monat kommt eine Nachricht mit Heizung und Strom des Monats davor in Euro, je Raum, "
+             "mit einem Bild vom Grundriss und dem Vergleich zum Vorjahr. „Vorschau“ zeigt den letzten Monat.",
+       "en": "⚙ → Warnings & alarm → card “Monthly report”: once a month a message with last month's heating and power in euros, per room, with a "
+             "picture of the plan and the change to the year before. “Preview” shows last month."},
+      "Monatsbericht Bericht Monat Heizung Strom Kosten Euro Raum Vorjahr month report heating power cost euro room year",
+      query="mode=edit")
+def _(r):
+    r.click("#settingsBtn")
+    r.wait(900)
+    r.say("In den Einstellungen: „Warnungen & Alarm“.", "In the settings: “Warnings & alarm”.")
+    r.click("#sgNav button[data-group=alarm]")
+    r.wait(1400)
+    r.say("Die Karte „Monatsbericht“.", "The card “Monthly report”.")
+    r.click("details.sgCard[data-card=report] > summary")
+    r.wait(1200)
+    r.say("Einschalten, dazu Tag und Uhrzeit: dann kommt er jeden Monat.", "Switch it on, with the day and the hour: then it comes every month.")
+    r.click("#setMrOn")
+    r.wait(1400)
+    r.say("„Vorschau“ zeigt den letzten Monat: Heizung rot, Strom gelb, je Raum.", "“Preview” shows last month: heating red, power yellow, per room.")
+    r.click("#mrPreview")
+    r.wait(1200)
+    r.pg.evaluate("document.getElementById('monthReport').scrollIntoView({block: 'end'})")
+    r.wait(800)
+    r.poster()
+    r.wait(2200)
+
+
 @clip("vacation", "settings",
       {"de": "🏠 Urlaubs-Licht: im Urlaub sieht das Haus bewohnt aus", "en": "🏠 Holiday light: the house looks lived in on holiday"},
       {"de": "Solange der Urlaubs-Alarm scharf ist, gehen Lampen abends wie bei euch an und aus, die Rollläden runter und hoch.",

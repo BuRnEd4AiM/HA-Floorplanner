@@ -527,7 +527,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 215. Neu in 5.23.1: 📱 Raum dreht sich oben, Ausschalten fragt nach | 3 | 0 | 2 | 0 | 215.4, 215.5 |
 | 216. Neu in 5.24.0: 🩺 Haus-Check mit 🔧 Wartung | 2 | 0 | 3 | 0 | 216.3 bis 216.5 |
 | 217. Neu in 5.25.0: 🧭 Erste Schritte und das „⋯“-Menü oben | 2 | 0 | 3 | 0 | 217.3 bis 217.5 |
-| **Zusammen** | **1345** | **2** | **140** | **92** | |
+| 218. Neu in 5.26.0: 📊 Monatsbericht | 2 | 0 | 3 | 0 | 218.3 bis 218.5 |
+| **Zusammen** | **1347** | **2** | **143** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3284,4 +3285,15 @@ Deine Wahl (Bild 2 in `docs/ideen-5.21`, Kopfleiste aus `docs/ideen-5.8` Bild 16
 | 217.3 | Dein Haus, Bearbeiten: oben „⋯“ | Anleitung, Backup und Sicherheit sind dort statt in der Leiste; die Leiste passt in zwei Zeilen | ❓ |
 | 217.4 | Dein Haus: „⋯“ → „🧭 Erste Schritte“ | Stimmt „… von …“ bei den Räumen und die Zahl der Geräte zum Setzen? | ❓ |
 | 217.5 | Dein Haus: „✨ Alle … automatisch setzen“, danach „↶“ | Die Geräte stehen in ihren Räumen; „↶“ nimmt alle auf einmal zurück | ❓ |
+
+## 218. Neu in 5.26.0: 📊 Monatsbericht
+Deine Wahl (Bild 11 in `docs/ideen-5.15`).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 218.1 | Unit-Test `tests/test_monthreport.py` (neu); Browser-Test Teil `104_month_report` (neu) | Alles grün | ✅ (2026-11-20, Claude) |
+| 218.2 | Demo: ⚙ → Warnungen & Alarm → „Monatsbericht“ → „👁 Vorschau“ | Text und Balken je Raum wie im Bild | ✅ (2026-11-20, Claude, Demo) |
+| 218.3 | Dein Haus: „👁 Vorschau“ | Stimmen Heizung und Strom ungefähr mit deiner Rechnung bzw. dem Energie-Dashboard? | ❓ |
+| 218.4 | Dein Haus: „📨 Jetzt senden“ | Die Nachricht kommt an (mit dem eigenen Telegram-Bot auch das Bild) | ❓ |
+| 218.5 | Dein Haus: einschalten, am eingestellten Tag | Die Nachricht kommt von selbst, einmal | ❓ |
 

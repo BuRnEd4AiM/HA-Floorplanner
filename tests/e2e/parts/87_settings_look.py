@@ -63,8 +63,8 @@ check("② the page chosen stays the next time", shown() == ["car"], shown())
 # ③ "Warnungen & Alarm": three cards with their state
 pgS.click("#sgNav [data-group=alarm]"); pgS.wait_for_timeout(800)
 heads = pgS.evaluate("[...document.querySelectorAll('details.sgCard')].map((c) => [c.dataset.card, c.open, c.querySelector('.sgBadge').textContent, c.querySelector('.sgCardSub').textContent])")
-check("③ three cards, shut, each with its state: warnings on, the holiday alarm not ready (no sensor), the message off", [h[0] for h in heads] == ["warn", "guard", "notify"]
-      and not any(h[1] for h in heads) and heads[0][2] == "An" and heads[1][2] == "Nicht bereit" and "noch kein Code" in heads[1][3] and heads[2][2] == "Aus", heads)
+check("③ three cards, shut, each with its state: warnings on, the holiday alarm not ready (no sensor), the message off", [h[0] for h in heads] == ["warn", "guard", "notify", "report"]
+      and not any(h[1] for h in heads) and heads[0][2] == "An" and heads[1][2] == "Nicht bereit" and "noch kein Code" in heads[1][3] and heads[2][2] == "Aus" and heads[3][2] == "Aus", heads)
 pgS.click("details.sgCard[data-card=warn] > summary"); pgS.wait_for_timeout(300)
 pgS.click("#setAlerts"); pgS.wait_for_timeout(900)
 check("③ a card opens with a tap; switching the warnings off says „Aus“ in its head", pgS.is_visible("#setAlertJump") and pgS.inner_text("details.sgCard[data-card=warn] .sgBadge") == "Aus"

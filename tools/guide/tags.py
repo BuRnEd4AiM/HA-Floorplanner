@@ -178,6 +178,11 @@ t("guest",
 t("guest-view",
   "Gast Gäste Handy Karte Zimmer steuern Licht Rollladen Heizung Musik Was sieht der Gast Willkommen Zugang beendet Besuch Gästezimmer",
   "guest guests phone card room control light shutters heating music what does the guest see welcome access ended visit guest room")
+t("month-report",
+  "Monatsbericht Bericht Monat Abrechnung Heizkosten Stromkosten Kosten Euro je Raum Verbrauch Vorjahr Vergleich Nachricht Telegram "
+  "Was hat mich der Monat gekostet Wie viel Strom verbraucht",
+  "monthly report month bill heating cost power cost cost euro per room consumption last year comparison message telegram "
+  "what did the month cost how much power used")
 t("first-steps",
   "Erste Schritte Assistent Einrichtung einrichten Anfang anfangen neu Bereiche verbinden zuordnen Geräte automatisch setzen platzieren "
   "Wie fange ich an Was muss ich zuerst machen Menü drei Punkte Anleitung Backup Sicherheit",

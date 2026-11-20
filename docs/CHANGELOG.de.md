@@ -2,6 +2,12 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.26.0] - 2026-11-20
+### Neu
+- **📊 Monatsbericht** (Wahl des Besitzers, docs/ideen-5.15 Bild 11): einmal im Monat eine Nachricht über den Monat davor, über die eingestellten Wege (📲): Heizung und Strom in Euro, je Raum, der Vergleich mit demselben Monat im Vorjahr und der Raum, der wärmer war als eingestellt („Wohnzimmer war 1,5° wärmer als eingestellt“); mit dem eigenen Telegram-Bot auch ein Bild: der Grundriss mit den Beträgen je Raum und ein Balken je Raum (rot Heizung, gelb Strom).
+  - Die Zahlen kommen aus dem Energie-Dashboard von Home Assistant: Netz- und Gaszähler mit ihren Preisen; der Strom je Raum aus den „einzelnen Geräten“, die im Raum stehen; das Gas wird nach der Heizzeit der Thermostate auf die Räume verteilt. Ohne Preise: kWh und m³.
+  - ⚙ → Warnungen & Alarm → Karte **„Monatsbericht“**: an, Tag im Monat und Uhrzeit, **„👁 Vorschau“** des letzten Monats mit den Balken und **„📨 Jetzt senden“**.
+
 ## [5.25.0] - 2026-11-20
 ### Neu
 - **🧭 Erste Schritte** (Wahl des Besitzers, docs/ideen-5.21 Bild 2): eine Karte im Bearbeiten-Modus, die in vier Schritten vom leeren Plan zum fertigen Haus führt, jeder Schritt am Haus selbst abgelesen (jederzeit unterbrechen, später weitermachen):
