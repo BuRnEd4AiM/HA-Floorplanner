@@ -528,7 +528,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 216. Neu in 5.24.0: 🩺 Haus-Check mit 🔧 Wartung | 2 | 0 | 3 | 0 | 216.3 bis 216.5 |
 | 217. Neu in 5.25.0: 🧭 Erste Schritte und das „⋯“-Menü oben | 2 | 0 | 3 | 0 | 217.3 bis 217.5 |
 | 218. Neu in 5.26.0: 📊 Monatsbericht | 2 | 0 | 5 | 0 | 218.3 bis 218.7 |
-| 219. Neu in 5.27.0: 🎚 Rollläden an Türen (#779) und 🙈 Nicht überwachen (#780) | 3 | 0 | 5 | 0 | 219.4 bis 219.8 |
+| 219. Neu in 5.27.0: 🎚 Rollläden an Türen (#779) und 🔕 Nicht überwachen (#780) | 3 | 0 | 5 | 0 | 219.4 bis 219.8 |
 | **Zusammen** | **1350** | **2** | **150** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
@@ -3300,7 +3300,7 @@ Deine Wahl (Bild 11 in `docs/ideen-5.15`).
 | 218.6 | Dein Handy: Start und Räume (#777) | Nichts lässt sich seitlich verschieben, lange Raumnamen enden mit „…“ | ❓ |
 | 218.7 | Dein Handy: einen Raum öffnen, das Bedienfeld seitlich wischen (#778) | Die Karte bleibt stehen; nur die Zeile mit den Werten wischt | ❓ |
 
-## 219. Neu in 5.27.0: 🎚 Rollläden an Türen (#779) und 🙈 Nicht überwachen (#780)
+## 219. Neu in 5.27.0: 🎚 Rollläden an Türen (#779) und 🔕 Nicht überwachen (#780)
 Zwei Wünsche von FrankBecker aus den Issues.
 
 | Nr. | Was tun | Erwartung | Ergebnis |
@@ -3309,8 +3309,8 @@ Zwei Wünsche von FrankBecker aus den Issues.
 | 219.2 | Demo: Obergeschoss, Live, „Gästezimmer“ antippen, dann die Kugel über der Terrassentür | Karte „Rollladen · Terrassentür“ mit „Alle · 1 · 2“; rechts im Raum „Terrassentür 1“ und „Terrassentür 2“ | ✅ (2026-11-20, Claude, Demo) |
 | 219.3 | Demo: in der Karte „2“, dann „0 %“ | Nur ein Rollladen fährt im 3D-Bild ganz herunter; „Alle“ zeigt „1: Offen · 2: Geschlossen“ | ✅ (2026-11-20, Claude, Demo) |
 | 219.4 | Demo, Bearbeiten: die Terrassentür anklicken | Haken „Vorhang / Rollladen“, „Anzahl Rollläden (Motoren)“ 2, zwei Felder „Rollladen 1“ und „Rollladen 2“ | ❓ |
-| 219.5 | Demo, Bearbeiten: „Etage verwalten“ | Haken „🙈 Etage nicht überwachen (z. B. fremde Wohnung)“ | ❓ |
+| 219.5 | Demo, Bearbeiten: „Etage verwalten“ | Haken „🔕 Etage nicht überwachen (z. B. fremde Wohnung)“ | ❓ |
 | 219.6 | Dein Haus: eine Schiebetür mit zwei Rollläden einrichten | Jeder Rollladen fährt im 3D-Bild für sich, „Rollladen 1“ ist der linke von innen gesehen | ❓ |
-| 219.7 | Dein Haus: „📴 … offline“ öffnen, bei einem Gerät 🙈 | Die Zeile ist weg, unten steht „🙈 1 einzeln nicht überwacht“; im Bearbeiten-Modus hat das Gerät den Haken | ❓ |
-| 219.8 | FrankBecker: Obergeschoss mit „🙈 Ganze Etage … nicht überwachen“ | Die Meldung oben rechts zeigt nur noch seine eigenen Geräte | ❓ |
+| 219.7 | Dein Haus: „📴 … offline“ öffnen, bei einem Gerät 🔕 | Die Zeile ist weg, unten steht „🔕 1 einzeln nicht überwacht“; im Bearbeiten-Modus hat das Gerät den Haken | ❓ |
+| 219.8 | FrankBecker: Obergeschoss mit „🔕 Ganze Etage … nicht überwachen“ | Die Meldung oben rechts zeigt nur noch seine eigenen Geräte | ❓ |
 

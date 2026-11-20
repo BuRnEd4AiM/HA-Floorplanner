@@ -1,4 +1,4 @@
-// Unit tests for nowatch.js and its part in offline.js (#780: "🙈 Nicht überwachen")
+// Unit tests for nowatch.js and its part in offline.js (#780: "🔕 Nicht überwachen")
 // run: rm -rf /tmp/static && cp -r floorplan3d/rootfs/app/static /tmp/static && echo '{"type":"module"}' > /tmp/static/package.json && STATIC_DIR=/tmp/static node --test tests/nowatch.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';

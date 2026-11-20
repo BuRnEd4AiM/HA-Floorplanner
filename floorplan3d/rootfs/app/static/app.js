@@ -833,7 +833,7 @@ const checkPage = initCheckPage({                                // 🩺 Haus-Ch
     updates: Object.entries(states).filter(([e, st]) => e.startsWith('update.') && st?.state === 'on').map(([e]) => ({ id: e, name: entities.find((x) => x.entity_id === e)?.name || e })),
   }),
   reminders: () => settings.maintenance || [], save: (list) => { settings.maintenance = list; settingsStore.save(); }, canEdit: () => me.canEdit,
-  devices: () => shownLayout().floors.flatMap((f) => (f.devices || []).filter((d) => !unwatched(f, d)).map((d) => ({ id: d.id, name: d.name || '', type: d.type, entity: d.entity || '', dc: states[d.entity]?.dc }))),   // 🙈 not the flat of someone else (#780)
+  devices: () => shownLayout().floors.flatMap((f) => (f.devices || []).filter((d) => !unwatched(f, d)).map((d) => ({ id: d.id, name: d.name || '', type: d.type, entity: d.entity || '', dc: states[d.entity]?.dc }))),   // 🔕 not the flat of someone else (#780)
   locate: (id) => { tabsUi.show('house'); setTimeout(() => locateDevice(id), 50); },
 });
 function locateDevice(id) {                                      // fly to a device or window of the plan, as the search does
@@ -1157,7 +1157,7 @@ const offline = initOffline({
   $, t, layout: () => shownLayout(), entities: () => entities, states: () => states, catOf, pointInPoly: (...a) => pointInPoly(...a), currentLanguage: () => currentLanguage(),
   houseMode: () => houseMode, floorIdx: () => floorIdx, switchFloor: (i) => switchFloor(i), isLive: () => isLive(), liveSelect: (h) => liveSelect(h),
   selectLocked: (sel) => { selection = sel; lockedSel = true; refreshSelection(); }, jump: (x) => search.goTo(x),
-  canEdit: () => me.canEdit, leaveOut: (x) => { snapshot(); if (leaveOut(layout, x)) { changed(); renderFloorPanel(); refreshSelection(); } },   // 🙈 Nicht überwachen (nowatch.js, #780)
+  canEdit: () => me.canEdit, leaveOut: (x) => { snapshot(); if (leaveOut(layout, x)) { changed(); renderFloorPanel(); refreshSelection(); } },   // 🔕 Nicht überwachen (nowatch.js, #780)
 });
 
 /* ================= Warnings (#58) and the "Where is ...?" search (#62): the code lives in alertsui.js and search.js ================= */

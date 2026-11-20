@@ -91,7 +91,7 @@ export function initProps(ctx) {
   const mark = (body, key) => { const m = document.createElement('i'); m.className = 'v2mark'; m.dataset.sec = key; m.hidden = true; body.append(m); };
   const roomEntsBox = (body) => { const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts'; body.append(ents); ctx.renderRoomEntities(); };
   const pickFrom = (list) => list.slice(0, 1500);
-  /** what the tick "🙈 Nicht überwachen" needs (nowatchui.js, #780): the floor left out greys it out */
+  /** what the tick "🔕 Nicht überwachen" needs (nowatchui.js, #780): the floor left out greys it out */
   const nwUi = () => ({ t, snapshot: () => ctx.snapshot(), changed: () => { ctx.changed(); ctx.applyStates(); }, floorOff: !!ctx.floor()?.noWatch });
 
   /** a roof on the open roof floor (#255): where it is, and how to move it; its shape stays in the floor panel */

@@ -60,7 +60,7 @@ export function offlineDevices(env) {
 }
 
 /** ctx: $, t, layout(), entities(), states(), catOf, pointInPoly, currentLanguage(), houseMode(), floorIdx(), switchFloor(i), isLive(), liveSelect(h), selectLocked(sel),
- *  jump(target) (optional: fly there like the search, true when done), canEdit() and leaveOut(x | { floor }) (optional, #780: "🙈 Nicht
+ *  jump(target) (optional: fly there like the search, true when done), canEdit() and leaveOut(x | { floor }) (optional, #780: "🔕 Nicht
  *  überwachen" on a row, or for a whole floor: the tick is set and saved) */
 export function initOffline(ctx) {
   const { $, t } = ctx;
@@ -85,7 +85,7 @@ export function initOffline(ctx) {
     return rtf.format(sec, 'second');
   }
   const canLeave = () => !!ctx.leaveOut && ctx.canEdit?.() !== false;
-  /** "🙈 Nicht überwachen" (#780): the tick on x (a row) or on its floor ({ floor }), then the list again */
+  /** "🔕 Nicht überwachen" (#780): the tick on x (a row) or on its floor ({ floor }), then the list again */
   function leave(x) { ctx.leaveOut(x); update(); renderList(); }
   function renderList() {
     const ul = $('#offlineList'), list = devices(), lay = ctx.layout();
@@ -102,7 +102,7 @@ export function initOffline(ctx) {
       b.addEventListener('click', () => { $('#offlineDialog').close(); show(x); });
       li.append(b);
       if (canLeave()) {
-        const nw = document.createElement('button'); nw.type = 'button'; nw.className = 'offLeave'; nw.textContent = '🙈';
+        const nw = document.createElement('button'); nw.type = 'button'; nw.className = 'offLeave'; nw.textContent = '🔕';
         nw.title = t('nw.row'); nw.setAttribute('aria-label', t('nw.row'));
         nw.addEventListener('click', () => leave(x));
         li.classList.add('withLeave'); li.append(nw);
@@ -114,14 +114,14 @@ export function initOffline(ctx) {
     foot.replaceChildren();
     if (canLeave()) floorsToLeaveOut(list, lay).forEach((g) => {     // the flat upstairs that belongs to someone else: the whole floor at once
       const fb = document.createElement('button'); fb.type = 'button'; fb.className = 'offLeaveFloor'; fb.dataset.floor = g.floor;
-      fb.textContent = `🙈 ${t('nw.floorBtn', { name: g.name, n: g.n })}`;
+      fb.textContent = `🔕 ${t('nw.floorBtn', { name: g.name, n: g.n })}`;
       fb.addEventListener('click', () => leave({ floor: g.floor }));
       foot.append(fb);
     });
     const sum = unwatchedSummary(lay);                               // what is left out, so that nobody wonders where it went
     if (sum.floors.length || sum.things) {
       const p = document.createElement('p'); p.className = 'sub'; p.id = 'offlineLeft';
-      p.textContent = `🙈 ${[sum.floors.length ? t('nw.leftFloors', { names: sum.floors.join(', ') }) : '', sum.things ? t('nw.leftThings', { n: sum.things }) : ''].filter(Boolean).join(' · ')} ${t('nw.leftHow')}`;
+      p.textContent = `🔕 ${[sum.floors.length ? t('nw.leftFloors', { names: sum.floors.join(', ') }) : '', sum.things ? t('nw.leftThings', { n: sum.things }) : ''].filter(Boolean).join(' · ')} ${t('nw.leftHow')}`;
       foot.append(p);
     }
   }

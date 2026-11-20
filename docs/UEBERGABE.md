@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-20, Version **5.27.0** (5.14.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-20, Version **5.27.1** (5.14.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,7 +10,7 @@ Stand: 2026-11-20, Version **5.27.0** (5.14.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
-- **2026-11-20, 5.27.0: die zwei Issues von FrankBecker (Branch `claude/serene-pasteur-jb34nb`):** #779 Rollläden an Türen, 1–3 nebeneinander mit eigener Entität (shutters.js `shutterParts`, Karte „Alle · 1 · 2“); #780 „🙈 Nicht überwachen“ für Gerät, Tür/Fenster, Etage, 🙈 in der Offline-Liste (nowatch.js, nowatchui.js). Demo: Terrassentür im OG mit zwei Rollläden.
+- **2026-11-20, 5.27.0: die zwei Issues von FrankBecker (Branch `claude/serene-pasteur-jb34nb`):** #779 Rollläden an Türen, 1–3 nebeneinander mit eigener Entität (shutters.js `shutterParts`, Karte „Alle · 1 · 2“); #780 „🔕 Nicht überwachen“ für Gerät, Tür/Fenster, Etage, 🔕 in der Offline-Liste (nowatch.js, nowatchui.js). Demo: Terrassentür im OG mit zwei Rollläden. 5.27.1: 🔕 statt 🙈 (seine Wahl, der Affe war ihm zu viel).
 - **2026-11-20, 5.26.0: 📊 Monatsbericht (Branch `claude/admiring-wright-gz4ogb`):** monthreport.py (Gas nach Heizzeit verteilt, Strom aus den Geräten des Energie-Dashboards), monthreportui.js; Karte unter Warnungen & Alarm.
 - **2026-11-20, 5.25.0: 🧭 Erste Schritte und „⋯“-Menü oben:** firststeps.js, firststepsui.js, topmore.js; Anleitung, Backup, Sicherheit im Bearbeiten-Modus nur noch im „⋯“.
 - **2026-11-20, 5.24.0: 🩺 Haus-Check mit 🔧 Wartung:** neue Seite `check` (pagecheck.js, housecheck.js, maintenance.py): dringend/bald/Wartung, Vorschläge aus dem Plan, „✓ Erledigt“. Davor 5.23.1: Raum-Seite Variante C (`docs/ideen-5.23`), eckige Karte über die ganze Breite, Rückfrage vor dem Ausschalten.
@@ -24,7 +24,7 @@ Stand: 2026-11-20, Version **5.27.0** (5.14.0 ist für alle freigegeben). Erst d
 - **5.24.0 Haus-Check:** sein Test (216.3 bis 216.5); Nachricht aufs Handy bei fälliger Wartung ist noch nicht gebaut.
 - **5.25.0 Erste Schritte:** sein Test (217.3 bis 217.5).
 - **5.26.0 Monatsbericht:** sein Test (218.3 bis 218.5).
-- **5.27.0 Tür-Rollläden und 🙈 (#779, #780):** sein Test (219.4 bis 219.8); FrankBecker fragen, ob es so passt (Issues zu, mit Kommentar).
+- **5.27.0 Tür-Rollläden und 🔕 (#779, #780):** sein Test (219.4 bis 219.8); FrankBecker fragen, ob es so passt (Issues zu, mit Kommentar).
 - **5.23.0 / 5.23.1 Handy-App 2:** sein Test (214.6, 214.7, 215.4, 215.5) und was ihm an den Bildern 1–44 noch auffällt.
 - **5.22.0 Handy-App:** sein Eindruck am Handy (213.4 bis 213.6).
 - **5.21.0 Gäste-Zugang:** sein Test (212.5 bis 212.8).
