@@ -877,6 +877,7 @@ function appOpenRoom(fi, id) {
   tabsUi.show('house');
   switchFloor(fi); focusRoom(id); roomPanel.open(id);
   if (!roomPanel.full()) roomPanel.show(roomPanel.tab());        // the whole card at once
+  controls.autoRotate = true; controls.autoRotateSpeed = 1.2;     // the owner: the room on top, turning slowly, the controls below
   let back = $('#appBack');
   if (!back) {
     back = Object.assign(document.createElement('button'), { id: 'appBack', type: 'button' });
@@ -890,15 +891,21 @@ function appOpenRoom(fi, id) {
 function appCloseRoomSoft() {
   if (!document.body.classList.contains('appRoom')) return;
   document.body.classList.remove('appRoom');
+  controls.autoRotate = false;
   const back = $('#appBack'); if (back) back.hidden = true;
 }
 function appCloseRoom() {
   if (!document.body.classList.contains('appRoom')) return;
   document.body.classList.remove('appRoom');
+  controls.autoRotate = false;
   const back = $('#appBack'); if (back) back.hidden = true;
   roomPanel.close(); if (focusedRoom) focusRoom(null);
   tabsUi.show(appBack);
 }
+/* the room keeps turning on its page: a touch elsewhere stops the turning (kiosk.js), it starts again 4 s after the last touch of the picture */
+let appTouched = 0;
+canvas.addEventListener('pointerdown', () => { appTouched = Date.now(); });
+setInterval(() => { if (document.body.classList.contains('appRoom') && !controls.autoRotate && Date.now() - appTouched > 4000) { controls.autoRotate = true; wake(); } }, 1000);
 const appUi = initAppUi({
   t, lang: () => currentLanguage(), host: $('#tabPages'), rooms: appRooms, ground: () => groundIdx(), icon: roomIcon, num: (v) => fmtNum(v, 1, 1),
   status: () => {
@@ -928,7 +935,7 @@ const appUi = initAppUi({
     if (k === 'lights') {
       const lit = lightGroups.lit(), name = (e) => entities.find((x) => x.entity_id === e)?.name || e;
       return { title: `💡 ${t('app.lightsOn', { n: lit.length })}`, empty: t('app.allLightsOff'), items: lit.map((e) => ({ icon: '💡', text: name(e), right: '⏻', keep: false, act: () => live.callService(e, 'turn_off') })),
-        foot: lit.length ? { text: t('app.allOff2'), act: () => lit.forEach((e) => live.callService(e, 'turn_off')) } : null };
+        foot: lit.length ? { text: t('app.allOff2'), ask: t('app.offAllAsk', { n: lit.length }), act: () => lit.forEach((e) => live.callService(e, 'turn_off')) } : null };
     }
     if (k === 'open') {
       const list = openings.items();

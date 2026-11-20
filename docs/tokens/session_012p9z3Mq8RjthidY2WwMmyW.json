@@ -1,20 +1,20 @@
 {
  "session": "session_012p9z3Mq8RjthidY2WwMmyW",
  "start": "2026-11-19",
- "updated": "2026-11-20T12:25:31Z",
+ "updated": "2026-11-20T13:20:25Z",
  "branch": "claude/admiring-wright-gz4ogb",
  "source": "counted",
- "input": 800,
- "cache_write": 1006546,
- "cache_read": 167235218,
- "output": 308689,
+ "input": 838,
+ "cache_write": 1034389,
+ "cache_read": 181031058,
+ "output": 324722,
  "models": {
   "claude-opus-5-5": {
-   "input": 800,
-   "cache_write": 1006546,
-   "cache_read": 167235218,
-   "output": 308689,
-   "requests": 397
+   "input": 838,
+   "cache_write": 1034389,
+   "cache_read": 181031058,
+   "output": 324722,
+   "requests": 415
   }
  }
 }

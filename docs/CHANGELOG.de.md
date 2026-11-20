@@ -2,6 +2,11 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.23.1] - 2026-11-20
+### Verbessert
+- **📱 Handy: die Seite eines Raums zeigt oben den Raum, der sich in 3D dreht**, darunter die Bedienung (der Besitzer, 2026-11-20: „dass ich den Raum oben in so einem kleinen eingebetteten Fenster sehe und der dreht sich … unten die Bedienelemente“). Der Raum dreht sich langsam; tippt man ins Bild, dreht man selbst, ein paar Sekunden später dreht er sich weiter.
+- **📱 Handy: einen ganzen Raum ausschalten fragt erst nach** (der Besitzer: „nicht aus versehen das ganze zimmer ausmacht … nochmal bestätigen“): das 💡 auf einer Raum-Kachel und „Alle aus“ in der Liste der Lichter fragen „Alle 3 Lichter in „Wohnzimmer“ ausschalten?“ mit „Ja, ausschalten“ und „Abbrechen“.
+
 ## [5.23.0] - 2026-11-20
 ### Neu
 - **📱 Die Handy-App, der nächste Schritt** (der Besitzer, 2026-11-20, nach 44 Bildern der Handy-App: „ich sehe nirgends wo ich am handy sagen kann welches gebäude ich auswählen kann“; seine Wahl: alles aus docs/ideen-5.22 Bild 45–52):

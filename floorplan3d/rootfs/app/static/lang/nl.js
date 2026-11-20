@@ -2534,4 +2534,7 @@ export default {
   'app.edit': 'Bewerken', 'app.guide': 'Handleiding (video\'s)', 'app.backup': 'Back-up', 'app.timeline': 'Beveiliging (dag afspelen)',
   'app.colors': 'Kleuren in het huis', 'app.view': 'Weergave', 'app.scenes': 'Scènes',
   'app.nothing': 'Niets te tonen.', 'app.allLightsOff': 'Alle lichten zijn uit.',
+  'app.offAsk': 'Alle {n} lichten in „{room}” uitzetten?', 'app.offAllAsk': 'Alle {n} lichten in huis uitzetten?', 'app.offYes': 'Ja, uitzetten',
+  'app.cancel': 'Annuleren',
+  'app.offAsk1': 'Het licht in „{room}” uitzetten?',
 };

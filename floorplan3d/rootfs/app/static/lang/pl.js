@@ -2524,4 +2524,7 @@ export default {
   'app.edit': 'Edytuj', 'app.guide': 'Poradnik (filmy)', 'app.backup': 'Kopia zapasowa', 'app.timeline': 'Bezpieczeństwo (odtwórz dzień)',
   'app.colors': 'Kolory w domu', 'app.view': 'Widok', 'app.scenes': 'Sceny',
   'app.nothing': 'Nic do pokazania.', 'app.allLightsOff': 'Wszystkie światła są wyłączone.',
+  'app.offAsk': 'Wyłączyć wszystkie {n} światła w „{room}”?', 'app.offAllAsk': 'Wyłączyć wszystkie {n} światła w domu?', 'app.offYes': 'Tak, wyłącz',
+  'app.cancel': 'Anuluj',
+  'app.offAsk1': 'Wyłączyć światło w „{room}”?',
 };

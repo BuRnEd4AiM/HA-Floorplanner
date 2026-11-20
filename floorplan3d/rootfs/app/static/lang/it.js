@@ -2564,4 +2564,7 @@ export default {
   'app.edit': 'Modifica', 'app.guide': 'Guida (video)', 'app.backup': 'Backup', 'app.timeline': 'Sicurezza (riproduci un giorno)',
   'app.colors': 'Colori nella casa', 'app.view': 'Vista', 'app.scenes': 'Scene',
   'app.nothing': 'Niente da mostrare.', 'app.allLightsOff': 'Tutte le luci sono spente.',
+  'app.offAsk': 'Spegnere tutte le {n} luci in «{room}»?', 'app.offAllAsk': 'Spegnere tutte le {n} luci della casa?', 'app.offYes': 'Sì, spegni',
+  'app.cancel': 'Annulla',
+  'app.offAsk1': 'Spegnere la luce in «{room}»?',
 };

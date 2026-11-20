@@ -2597,4 +2597,7 @@ export default {
   'app.edit': 'Modifier', 'app.guide': 'Guide (vidéos)', 'app.backup': 'Sauvegarde', 'app.timeline': 'Sécurité (rejouer une journée)',
   'app.colors': 'Couleurs dans la maison', 'app.view': 'Vue', 'app.scenes': 'Scènes',
   'app.nothing': 'Rien à afficher.', 'app.allLightsOff': 'Toutes les lumières sont éteintes.',
+  'app.offAsk': 'Éteindre les {n} lumières de « {room} » ?', 'app.offAllAsk': 'Éteindre les {n} lumières de la maison ?', 'app.offYes': 'Oui, éteindre',
+  'app.cancel': 'Annuler',
+  'app.offAsk1': 'Éteindre la lumière de « {room} » ?',
 };

@@ -524,7 +524,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 212. Neu in 5.21.0: 👥 Gäste-Zugang | 4 | 0 | 4 | 0 | 212.5 bis 212.8 |
 | 213. Neu in 5.22.0: 📱 Das Handy wie eine App | 3 | 0 | 3 | 0 | 213.4 bis 213.6 |
 | 214. Neu in 5.23.0: 📱 Handy-App, der nächste Schritt | 5 | 0 | 2 | 0 | 214.6, 214.7 |
-| **Zusammen** | **1338** | **2** | **132** | **92** | |
+| 215. Neu in 5.23.1: 📱 Raum dreht sich oben, Ausschalten fragt nach | 3 | 0 | 2 | 0 | 215.4, 215.5 |
+| **Zusammen** | **1341** | **2** | **134** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3248,4 +3249,15 @@ Deine Wahl vom 2026-11-20: alles aus `docs/ideen-5.22` Bild 45–52 (Haus/Gebäu
 | 214.5 | Demo am Handy: „Mehr“ → „Einstellungen“ → eine Gruppe → „‹ Einstellungen“ | Liste der Gruppen, die Gruppe als eigene Seite, zurück zur Liste | ✅ (2026-11-20, Claude, Demo) |
 | 214.6 | Dein Handy: oben das Haus antippen und ein anderes Gebäude wählen | Start und Räume zeigen das gewählte Gebäude | ❓ |
 | 214.7 | Dein Handy: „Mehr“ → „Bearbeiten“, dann ☰ → „Live“ | Bearbeiten wie bisher, zurück in die App | ❓ |
+
+## 215. Neu in 5.23.1: 📱 Raum dreht sich oben, Ausschalten fragt nach
+Dein Wunsch vom 2026-11-20 (Foto von „Räume“ am Handy).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 215.1 | Browser-Test Teil `101_phone_app` (erweitert) | Alles grün | ✅ (2026-11-20, Claude) |
+| 215.2 | Demo am Handy: „Räume“ → Wohnzimmer | Oben dreht sich das Wohnzimmer in 3D, darunter die Bedienung | ✅ (2026-11-20, Claude, Demo) |
+| 215.3 | Demo am Handy: auf einer Kachel mit Licht das gelbe 💡 | „Alle … Lichter in „…“ ausschalten?“ mit „Ja, ausschalten“ (rot) und „Abbrechen“ | ✅ (2026-11-20, Claude, Demo) |
+| 215.4 | Dein Handy: einen Raum öffnen, ins Bild tippen und drehen | Du drehst selbst, nach ein paar Sekunden dreht er sich weiter | ❓ |
+| 215.5 | Dein Handy: „Abbrechen“ bei der Rückfrage | Kein Licht geht aus | ❓ |
 
