@@ -1,6 +1,6 @@
 {
  "version": "5.23.1",
- "buildHash": "cd4800afa6414922cce845cf0e08f07805bd997ca35af5cea288f0b0c6b46275",
+ "buildHash": "c3f4fcfa892e65c5ebfb2229a5695a53064a07afad2b09fa37995935c3cbf5f6",
  "files": {
   "alarmnotify.py": "c86dd2def8c62f46efa35e5ea2a6e84ebc241d4399d3f5a84db6203b7baf3c86",
   "alarmpic.py": "24bf0db631070afa1489b955c666ca5f1318b7b870a8989d4a47455927253eeb",
@@ -451,7 +451,7 @@
   "static/standbycard.js": "db370cc628d279c3b8d4ed88e2d5641bb1851f0b4fdfc3c0675f7da3dc58a944",
   "static/startview.js": "da8d6d4ce30c1a3bd866e4f95d0bfa2190f08220178c381c0b5b85b31894a634",
   "static/statusline.js": "f6434a75b8535ab4bfba94eb13e9742cc97899a85ce69a33648d553df93289ad",
-  "static/style.css": "01ef15c23166f88f89d4132d0f79aa24ab4ba559b507874c8396c030671df553",
+  "static/style.css": "1d233ebdb6b769d02daeb999b0180ca1670fea2eefbd6dd8204faf4572a4aeca",
   "static/sunshade.js": "543a662a33f8830865206f00723f41314aabb73126644d498ebda88f401ca8de",
   "static/sunshadeui.js": "8ef42d93804975b5c9f9f205a82384cc458eb32246955042013ac194777d0e54",
   "static/tabedit.js": "ec8ac797d4a32d3f62e0b2bd1c01fe8aa909a28ad49fa9e766978034e03a7012",
