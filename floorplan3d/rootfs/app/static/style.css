@@ -3475,7 +3475,7 @@ body.guestview #roomPanel .rpClose, body.guestview #roomPanel [data-act=close] {
 .apItemIcon { width: 30px; text-align: center; font-size: 20px; }
 body.appRoom #navBar, body.appRoom #floorRail, body.appRoom #modeBar, body.appRoom #viewMenu, body.appRoom #viewLegend, body.appRoom #phoneNavBtn,
 body.appRoom #toolbar { display: none !important; }
-body.appRoom #roomPanel { top: 40vh !important; bottom: calc(var(--stage-b, 0px) + 8px) !important; left: 8px !important; right: 8px !important;
+body.appRoom #roomPanel { top: 48vh !important; z-index: 7 !important; background: color-mix(in srgb, var(--bg, #0d1117) 96%, transparent) !important; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; bottom: calc(var(--stage-b, 0px) + 8px) !important; left: 8px !important; right: 8px !important;
   width: auto !important; max-width: none !important; max-height: none !important; }
 #appBack { position: fixed; top: 10px; left: 10px; z-index: 61; border: 0; border-radius: 14px; padding: 8px 14px; font-size: 16px; font-weight: 600;
   background: var(--panel, #1c2433); color: #4ea1ff; }
@@ -3514,3 +3514,10 @@ body.appMode:not(.pageOpen) #sceneBar { display: none !important; }
 .apSheet .apEmpty { color: var(--muted); margin: 8px 4px; }
 body.appRoom .apFabs { display: none !important; }
 .apItem[data-act=confirmOff] { background: #c9443a; color: #fff; font-weight: 700; } .apItem[data-act=confirmOff] .apItemIcon { color: #fff; }
+/* the room page's picture (docs/ideen-5.23 C): faded out at the bottom, the room's name and values in it */
+#appHero { position: fixed; left: 0; right: 0; top: 0; height: 48vh; z-index: 6; pointer-events: none; }
+#appHero[hidden], body:not(.appRoom) #appHero { display: none; }
+#appHero .fade { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; background: linear-gradient(to bottom, transparent, var(--bg, #0d1117)); }
+#appHero b { position: absolute; left: 20px; bottom: 30px; color: #fff; font-size: 30px; font-weight: 800; text-shadow: 0 2px 10px rgba(0, 0, 0, .7); }
+#appHero small { position: absolute; left: 22px; bottom: 8px; color: #c9d4e3; font-size: 14px; font-weight: 600; text-shadow: 0 1px 6px rgba(0, 0, 0, .7); }
+body.appRoom #roomPanel .rp-head { display: none !important; }

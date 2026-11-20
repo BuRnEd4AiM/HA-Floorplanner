@@ -4,7 +4,7 @@ Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`
 
 ## [5.23.1] - 2026-11-20
 ### Verbessert
-- **📱 Handy: die Seite eines Raums zeigt oben den Raum, der sich in 3D dreht**, darunter die Bedienung (der Besitzer, 2026-11-20: „dass ich den Raum oben in so einem kleinen eingebetteten Fenster sehe und der dreht sich … unten die Bedienelemente“). Der Raum dreht sich langsam; tippt man ins Bild, dreht man selbst, ein paar Sekunden später dreht er sich weiter.
+- **📱 Handy: die Seite eines Raums zeigt oben groß den Raum, der sich in 3D dreht**, unten weich ausgeblendet, mit Namen und Werten des Raums im Bild, darunter die Bedienung (der Besitzer, 2026-11-20: „dass ich den Raum oben in so einem kleinen eingebetteten Fenster sehe und der dreht sich … unten die Bedienelemente“; seine Wahl aus sieben Arten, docs/ideen-5.23: C „groß mit Verlauf“). Der Raum dreht sich langsam; tippt man ins Bild, dreht man selbst, ein paar Sekunden später dreht er sich weiter.
 - **📱 Handy: einen ganzen Raum ausschalten fragt erst nach** (der Besitzer: „nicht aus versehen das ganze zimmer ausmacht … nochmal bestätigen“): das 💡 auf einer Raum-Kachel und „Alle aus“ in der Liste der Lichter fragen „Alle 3 Lichter in „Wohnzimmer“ ausschalten?“ mit „Ja, ausschalten“ und „Abbrechen“.
 
 ## [5.23.0] - 2026-11-20

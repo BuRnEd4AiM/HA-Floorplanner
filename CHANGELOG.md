@@ -4,7 +4,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [5.23.1] - 2026-11-20
 ### Changed
-- **📱 Phone: a room's page shows the room turning in 3D on top** and its controls below (the owner, 2026-11-20: "dass ich den Raum oben in so einem kleinen eingebetteten Fenster sehe und der dreht sich … unten die Bedienelemente"). The room turns slowly; a touch on the picture lets you turn it yourself, a few seconds later it turns on.
+- **📱 Phone: a room's page shows the room big on top, turning in 3D**, faded out at the bottom with the room's name and values in the picture, the controls below (the owner, 2026-11-20: "dass ich den Raum oben in so einem kleinen eingebetteten Fenster sehe und der dreht sich … unten die Bedienelemente"; his choice from seven kinds, docs/ideen-5.23: C "groß mit Verlauf"). The room turns slowly; a touch on the picture lets you turn it yourself, a few seconds later it turns on.
 - **📱 Phone: switching off a whole room asks first** (the owner: "nicht aus versehen das ganze zimmer ausmacht … nochmal bestätigen"): the 💡 on a room tile and "Alle aus" in the list of the lights ask "Alle 3 Lichter in „Wohnzimmer“ ausschalten?" with "Ja, ausschalten" and "Abbrechen".
 
 ## [5.23.0] - 2026-11-20

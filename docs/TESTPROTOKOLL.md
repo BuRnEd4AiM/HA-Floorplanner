@@ -3256,7 +3256,7 @@ Dein Wunsch vom 2026-11-20 (Foto von „Räume“ am Handy).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 215.1 | Browser-Test Teil `101_phone_app` (erweitert) | Alles grün | ✅ (2026-11-20, Claude) |
-| 215.2 | Demo am Handy: „Räume“ → Wohnzimmer | Oben dreht sich das Wohnzimmer in 3D, darunter die Bedienung | ✅ (2026-11-20, Claude, Demo) |
+| 215.2 | Demo am Handy: „Räume“ → Wohnzimmer | Oben groß das drehende Wohnzimmer, unten weich ausgeblendet mit „🛋 Wohnzimmer“ und den Werten, darunter die Bedienung (Variante C) | ✅ (2026-11-20, Claude, Demo) |
 | 215.3 | Demo am Handy: auf einer Kachel mit Licht das gelbe 💡 | „Alle … Lichter in „…“ ausschalten?“ mit „Ja, ausschalten“ (rot) und „Abbrechen“ | ✅ (2026-11-20, Claude, Demo) |
 | 215.4 | Dein Handy: einen Raum öffnen, ins Bild tippen und drehen | Du drehst selbst, nach ein paar Sekunden dreht er sich weiter | ❓ |
 | 215.5 | Dein Handy: „Abbrechen“ bei der Rückfrage | Kein Licht geht aus | ❓ |
