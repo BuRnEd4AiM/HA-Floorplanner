@@ -875,6 +875,7 @@ function appOpenRoom(fi, id) {
   appBack = tabsUi.open() === 'house' ? START : tabsUi.open();
   document.body.classList.add('appRoom');
   tabsUi.show('house');
+  resize();                                                       // the picture is only the top part now (style.css)
   switchFloor(fi); focusRoom(id); roomPanel.open(id);
   camera.position.lerp(controls.target, 0.3); controls.update();  // the room bigger in the picture on top (docs/ideen-5.23 C)
   if (!roomPanel.full()) roomPanel.show(roomPanel.tab());        // the whole card at once
@@ -908,14 +909,14 @@ function appCloseRoomSoft() {
   if (!document.body.classList.contains('appRoom')) return;
   document.body.classList.remove('appRoom');
   if ($('#appHero')) $('#appHero').hidden = true;
-  controls.autoRotate = false;
+  controls.autoRotate = false; resize();
   const back = $('#appBack'); if (back) back.hidden = true;
 }
 function appCloseRoom() {
   if (!document.body.classList.contains('appRoom')) return;
   document.body.classList.remove('appRoom');
   if ($('#appHero')) $('#appHero').hidden = true;
-  controls.autoRotate = false;
+  controls.autoRotate = false; resize();
   const back = $('#appBack'); if (back) back.hidden = true;
   roomPanel.close(); if (focusedRoom) focusRoom(null);
   tabsUi.show(appBack);
