@@ -130,6 +130,7 @@ check("sky: 'Einfarbig' in the settings gives the plain background back", pgS.ev
       and pgS.evaluate("window.__fp.scene.background !== null") and not pgS.is_visible("#skyChips"))
 set_setting("sky", "time")
 pgP = b.new_page(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"})
+pgP.add_init_script("try { localStorage.setItem('fp.phoneUi', 'classic'); } catch (e) {}")   # the classic phone view with its view buttons (the app: 101_phone_app)
 pgP.goto(BASE + "?debug=1&mode=live"); pgP.wait_for_timeout(2000); phone_house(pgP)
 pgP.evaluate("window.__fp.switchFloor(0)"); pgP.wait_for_timeout(800)
 seen = [pgP.is_visible(s) for s in ("#energyCard", "#skyChips", "#roomTiles")]

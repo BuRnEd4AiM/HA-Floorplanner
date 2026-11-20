@@ -622,9 +622,9 @@ t("phone-room",
   "running paused tap room smartphone iPhone Android bottom sheet")
 t("phone-pages",
   "Handy Seiten wechseln wischen Leiste unten Menü Handy Energie Klima Heute App Smartphone Start Räume Kacheln Mehr wie eine App "
-  "klassische Ansicht Startseite Übersicht iPhone Android",
+  "klassische Ansicht Startseite Übersicht iPhone Android Gebäude wählen Haus wechseln Einstellungen Liste runde Knöpfe",
   "phone switch pages swipe bottom bar phone menu energy climate today app smartphone home rooms tiles more like an app "
-  "classic view home screen overview iPhone Android")
+  "classic view home screen overview iPhone Android house building choose settings list round buttons")
 t("phone-edit",
   "am Handy bearbeiten am Handy zeichnen Wand am Handy Smartphone Editor mobil bearbeiten Tablet bearbeiten Menü "
   "Werkzeuge wischen Finger Fenster Kontakt zuordnen",

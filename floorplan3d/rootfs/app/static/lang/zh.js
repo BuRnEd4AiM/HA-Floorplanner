@@ -4053,4 +4053,7 @@ export default {
   'app.disarmed': '警报已关闭', 'app.open': '{n} 个开着', 'app.offline': '{n} 个离线', 'app.low': '{n} 个电量低', 'app.house3d': '查看 3D 房屋', 'app.rooms': '房间', 'app.all': '全部',
   'app.noRooms': '还没有命名的房间——在编辑中绘制并命名。', 'app.nOn': '{n} 开', 'app.off': '关', 'app.allOff': '关闭房间所有灯', 'app.open1': '打开房间', 'app.more': '更多',
   'app.settings': '设置', 'app.classic': '经典视图（和以前一样）', 'app.toApp': '📱 像应用一样的手机视图',
+  'app.houses': '房屋', 'app.buildings': '建筑', 'app.places': '房屋和建筑', 'app.allOff2': '全部关闭', 'app.tools': '工具', 'app.edit': '编辑', 'app.guide': '指南（视频）',
+  'app.backup': '备份', 'app.timeline': '安全（回放一天）', 'app.colors': '房屋颜色', 'app.view': '视图', 'app.scenes': '场景',
+  'app.nothing': '没有内容。', 'app.allLightsOff': '所有灯都已关闭。',
 };

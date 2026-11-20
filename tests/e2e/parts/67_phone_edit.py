@@ -7,6 +7,7 @@ with ☰ without moving the picture, the side panel is a sheet at the bottom wit
 own_pe = []
 pgPE = b.new_page(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"})
 pgPE.on("pageerror", lambda e: own_pe.append("PAGEERROR " + str(e)))
+pgPE.add_init_script("try { localStorage.setItem('fp.phoneUi', 'classic'); } catch (e) {}")   # the classic phone view with ☰ (the app view: 101_phone_app)
 pgPE.goto(BASE + "?debug=1"); pgPE.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgPE.wait_for_timeout(1000); phone_house(pgPE)
 body_pe = lambda c: pgPE.evaluate(f"document.body.classList.contains('{c}')")
 walls_pe = lambda: pgPE.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.length")

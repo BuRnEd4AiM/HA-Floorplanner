@@ -201,7 +201,7 @@ export function initGuardUi(ctx) {
     } catch (err) { saveNote = t('gd.failed', { e: err.message }); }
     renderSettings(); render();
   }
-  $('#settingsBtn')?.addEventListener('click', async () => { saveNote = ''; await poll(); renderSettings(); });
+  $('#settingsBtn')?.addEventListener('click', async () => { saveNote = ''; await Promise.all([poll(), ctx.vacation?.refresh?.()]); renderSettings(); });   // 🏠 tonight's plan as the add-on has it now (it was missing right after saving)
   poll();
   return { poll, info: () => info, screen: () => !scr.hidden };
 }

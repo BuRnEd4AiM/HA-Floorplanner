@@ -2,6 +2,17 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.23.0] - 2026-11-20
+### Added
+- **📱 The phone app, the next step** (the owner, 2026-11-20, after 44 pictures of the phone app: "ich sehe nirgends wo ich am handy sagen kann welches gebäude ich auswählen kann"; his choice: all of docs/ideen-5.22 pictures 45–52):
+  - **House and building at the top of Start and Räume** ("🏠 Demo-Haus · Haupthaus ▾"): a tap opens a list from below with every house and the buildings of the house.
+  - **The chips open their list from below** and you stay on Start: "💡 11 an" the lamps that are on (a tap switches one off, "Alle aus" all), "🪟 3 offen" the open windows and doors, "📴 offline" the devices.
+  - **The 3D house is slim**: no ☰ and no row of view buttons any more; on the right round buttons **🎨 Farben im Haus**, **👁 Ansicht** and **🎬 Szenen**, each a list from below.
+  - **"Mehr" has the tools of ☰**: Haus und Gebäude, Bearbeiten, Anleitung (Videos), Backup, Sicherheit, Einstellungen, Klassische Ansicht.
+  - **The settings like a phone's settings**: the groups as a list with icons; a tap opens a group as a page of its own with "‹ Einstellungen"; the search still finds every setting.
+### Fixed
+- 🏠 Urlaubs-Licht: right after saving, the settings opened again could miss tonight's plan for a moment (the page's copy of the rules was older); they now ask the add-on again when they open.
+
 ## [5.22.0] - 2026-11-20
 ### Added
 - **📱 The phone like an app** (the owner, 2026-11-20: "eine bessere ansicht fürs handy das es nicht so selbstgebaut wirkt … mehr nach einer app aussieht … intuitiver"; his choice: pictures docs/ideen-5.21 8–10 "genau so"): on a phone in the live view the bar at the bottom has **five fixed tabs: Start, Räume, 3D-Haus, Energie, Mehr**.

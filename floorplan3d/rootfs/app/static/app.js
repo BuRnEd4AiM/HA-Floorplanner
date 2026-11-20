@@ -915,6 +915,36 @@ const appUi = initAppUi({
   snapshot: () => { try { renderer.render(scene, camera); return canvas.toDataURL('image/jpeg', 0.7); } catch { return ''; } },
   show: (k) => { appCloseRoom(); tabsUi.show(k); }, tabs: () => tabsUi.tabs(), tabName: (x) => x.name || t(`tab.${x.key}`),
   canSettings: () => !locks.has('settings'), openSettings: () => $('#settingsBtn').click(),
+  // 5.23.0 (docs/ideen-5.22): the house and the building from the selects of the tool bar (they switch as always)
+  places: () => {
+    const opts = (sel) => { const el = $(sel); return el && !el.closest('[hidden]') ? [...el.options].map((o) => ({ id: o.value, name: o.textContent.trim(), on: o.value === el.value })) : []; };
+    const houses = opts('#houseSelect'), bsel = $('#buildingSelect');
+    return { houses: houses.length ? houses : [{ id: hs.id(), name: hs.label(hs.list().find((h) => h.id === hs.id()) || {}), on: true }],
+      buildings: bsel && !bsel.hidden && bsel.options.length > 1 ? opts('#buildingSelect') : [] };
+  },
+  pickHouse: (id) => { const el = $('#houseSelect'); if (el && el.value !== id) { el.value = id; el.dispatchEvent(new Event('change', { bubbles: true })); } },
+  pickBuilding: (id) => { const el = $('#buildingSelect'); if (el && el.value !== id) { el.value = id; el.dispatchEvent(new Event('change', { bubbles: true })); } },
+  chipList: (k) => {
+    if (k === 'lights') {
+      const lit = lightGroups.lit(), name = (e) => entities.find((x) => x.entity_id === e)?.name || e;
+      return { title: `💡 ${t('app.lightsOn', { n: lit.length })}`, empty: t('app.allLightsOff'), items: lit.map((e) => ({ icon: '💡', text: name(e), right: '⏻', keep: false, act: () => live.callService(e, 'turn_off') })),
+        foot: lit.length ? { text: t('app.allOff2'), act: () => lit.forEach((e) => live.callService(e, 'turn_off')) } : null };
+    }
+    if (k === 'open') {
+      const list = openings.items();
+      return { title: `🪟 ${t('app.open', { n: list.length })}`, items: list.map((o) => ({ icon: o.kind === 'door' ? '🚪' : '🪟', text: o.name, right: o.room, act: () => todayAct('open') })) };
+    }
+    if (k === 'offline') {
+      const list = offline.devices().filter((x) => x.reason !== 'unlinked');
+      return { title: `📴 ${t('app.offline', { n: list.length })}`, items: list.map((x) => ({ icon: '📴', text: x.name || x.entity, right: x.room, act: () => todayAct('offline') })) };
+    }
+    return null;
+  },
+  menu: () => [['✏️', 'app.edit', '#modeSwitch [data-mode=edit]'], ['🎬', 'app.guide', '#guideBtn'], ['🗄️', 'app.backup', '#backupBtn'], ['🛡️', 'app.timeline', '#timelineBtn']]
+    .filter(([, , sel]) => { const el = $(sel); return el && !el.hidden && !el.closest('.edit-only') && getComputedStyle(el).display !== 'none' || (el && sel.includes('modeSwitch') && me.canEdit); })
+    .map(([icon, key, sel]) => ({ icon, text: t(key), act: () => $(sel).click(), data: { act: key.replace('app.', 'menu-') } })),
+  houseButtons: () => [{ key: 'colors', icon: '🎨', title: t('app.colors'), source: () => $('#modeBar') }, { key: 'view', icon: '👁', title: t('app.view'), source: () => $('#viewMenu') },
+    ...($('#sceneBar')?.querySelector('button') ? [{ key: 'scenes', icon: '🎬', title: t('app.scenes'), source: () => $('#sceneBar') }] : [])],
   classic: () => { appPref = 'classic'; try { localStorage.setItem(PREF_KEY, 'classic'); } catch { /* not kept */ } toAppBtn.hidden = false; tabsUi.redraw(); tabsUi.show('house'); },
 });
 /** in the classic view on a phone: the way back to the app (in the ☰ menu, phonemenu.js folds #toolbar) */
@@ -932,7 +962,7 @@ const tabsUi = initTabsUi({
     log: { el: $('#tabPages [data-page=log]'), ...logPage },
     ...dash.customPages(), ...appUi.pages() }),
   edit: dash.edit, tabEdit: dash.tabEdit, after: dash.after,      // the scene bar, an open light window (#597)
-  onShow: (tab, was) => { if (tab !== 'house') appCloseRoomSoft(); document.body.classList.toggle('appMode', appOn()); document.body.classList.toggle('pageOpen', tab !== 'house'); if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)
+  onShow: (tab, was) => { if (tab !== 'house') appCloseRoomSoft(); document.body.classList.toggle('appMode', appOn()); document.body.classList.toggle('pageOpen', tab !== 'house'); appUi.houseFabs(appOn() && tab === 'house'); if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)
 });
 
 /* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
@@ -1467,6 +1497,7 @@ function setMode(next) {
   mode = next;
   if (power.isMode() && next === 'live') power.setMode(false);
   document.body.classList.toggle('live', isLive());
+  document.body.classList.toggle('appMode', appOn());              // 📱 the app view only while live (editing has ☰ again)
   document.querySelectorAll('#modeSwitch button').forEach((b) => b.classList.toggle('active', b.dataset.mode === next));
   popup.close(); roomPanel.close(); selection = null; lockedSel = false; plan?.reset();
   if (isLive()) {

@@ -158,6 +158,8 @@ f("phoneroom", "phone", "Am Handy: Raumkarte erst klein mit großen Knöpfen, ho
 f("phonepages", "phone", "Am Handy: die Seiten", "On the phone: the pages", ["phone-pages"])
 f("phoneapp", "phone", "📱 Am Handy wie eine App: unten Start, Räume, 3D-Haus, Energie, Mehr; Räume als Kacheln, ein Raum als eigene Seite, klassische Ansicht wählbar",
   "📱 On the phone like an app: home, rooms, 3D house, energy, more at the bottom; rooms as tiles, a room as a page of its own, classic view to choose", ["phone-pages"], since="5.22.0")
+f("phoneapp2", "phone", "📱 Am Handy: Haus und Gebäude oben auf Start, Chips mit Liste, 3D-Haus mit runden Knöpfen, Einstellungen als Liste, Bearbeiten unter „Mehr“",
+  "📱 On the phone: house and building at the top of home, chips with a list, 3D house with round buttons, settings as a list, edit under “More”", ["phone-pages", "phone-edit"], since="5.23.0")
 
 # ---------- added by a version (since=) ----------
 f("guide", "settings", "🎬 Video-Anleitung im Add-on, für ohne Internet speichern", "🎬 Video guide in the add-on, saved for without internet",

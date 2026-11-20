@@ -2,6 +2,17 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.23.0] - 2026-11-20
+### Neu
+- **📱 Die Handy-App, der nächste Schritt** (der Besitzer, 2026-11-20, nach 44 Bildern der Handy-App: „ich sehe nirgends wo ich am handy sagen kann welches gebäude ich auswählen kann“; seine Wahl: alles aus docs/ideen-5.22 Bild 45–52):
+  - **Haus und Gebäude oben auf Start und Räume** („🏠 Demo-Haus · Haupthaus ▾“): ein Tipp öffnet eine Liste von unten mit allen Häusern und den Gebäuden des Hauses.
+  - **Die Chips öffnen ihre Liste von unten**, man bleibt auf Start: „💡 11 an“ die Lampen, die brennen (ein Tipp macht eine aus, „Alle aus“ alle), „🪟 3 offen“ die offenen Fenster und Türen, „📴 offline“ die Geräte.
+  - **Das 3D-Haus ist schlank**: kein ☰ und keine Reihe mit Ansicht-Knöpfen mehr; rechts runde Knöpfe **🎨 Farben im Haus**, **👁 Ansicht** und **🎬 Szenen**, jeder eine Liste von unten.
+  - **„Mehr“ hat die Werkzeuge von ☰**: Haus und Gebäude, Bearbeiten, Anleitung (Videos), Backup, Sicherheit, Einstellungen, Klassische Ansicht.
+  - **Die Einstellungen wie am Handy**: die Gruppen als Liste mit Symbolen; ein Tipp öffnet eine Gruppe als eigene Seite mit „‹ Einstellungen“; die Suche findet weiter jede Einstellung.
+### Repariert
+- 🏠 Urlaubs-Licht: gleich nach dem Speichern konnte in den wieder geöffneten Einstellungen der Plan für heute Abend kurz fehlen (die Seite hatte die Regeln noch vom Stand davor); sie fragen das Add-on jetzt beim Öffnen neu.
+
 ## [5.22.0] - 2026-11-20
 ### Neu
 - **📱 Das Handy wie eine App** (der Besitzer, 2026-11-20: „eine bessere ansicht fürs handy das es nicht so selbstgebaut wirkt … mehr nach einer app aussieht … intuitiver“; seine Wahl: Bilder docs/ideen-5.21 8–10 „genau so“): am Handy in der Live-Ansicht hat die Leiste unten **fünf feste Reiter: Start, Räume, 3D-Haus, Energie, Mehr**.

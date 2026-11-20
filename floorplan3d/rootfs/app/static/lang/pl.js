@@ -2520,4 +2520,8 @@ export default {
   'app.all': 'Wszystkie', 'app.noRooms': 'Brak nazwanych pokoi – narysuj i nazwij je w edycji.', 'app.nOn': '{n} wł.', 'app.off': 'wył.',
   'app.allOff': 'Wyłącz wszystkie światła w pokoju', 'app.open1': 'Otwórz pokój', 'app.more': 'Więcej', 'app.settings': 'Ustawienia',
   'app.classic': 'Widok klasyczny (jak wcześniej)', 'app.toApp': '📱 Widok telefonu jak aplikacja',
+  'app.houses': 'Domy', 'app.buildings': 'Budynki', 'app.places': 'Dom i budynek', 'app.allOff2': 'Wyłącz wszystko', 'app.tools': 'Narzędzia',
+  'app.edit': 'Edytuj', 'app.guide': 'Poradnik (filmy)', 'app.backup': 'Kopia zapasowa', 'app.timeline': 'Bezpieczeństwo (odtwórz dzień)',
+  'app.colors': 'Kolory w domu', 'app.view': 'Widok', 'app.scenes': 'Sceny',
+  'app.nothing': 'Nic do pokazania.', 'app.allLightsOff': 'Wszystkie światła są wyłączone.',
 };
