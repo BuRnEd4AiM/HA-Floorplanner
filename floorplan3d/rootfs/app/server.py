@@ -54,6 +54,7 @@ import roommap as rm
 import sunshade
 import vacation
 import guest as gs
+import maintenance as mt
 import alarmpic as apic
 import tgbot
 import scenes as sc
@@ -155,6 +156,7 @@ DEFAULT_SETTINGS = {
     "userLocks": {},           # Home Assistant user name -> what that user may not use (LOCKS, static/userlocks.js)
     "userRights": {},          # Home Assistant user name -> {kind: view | onoff}: what that user may switch per kind of device (tablets.py, 5.13.0)
     "guest": {"on": False, "user": "gast", "room": "", "until": ""},   # 👥 Gäste-Zugang (guest.py, 5.21.0)
+    "maintenance": [],         # 🔧 Wartung of the 🩺 Haus-Check (maintenance.py, 5.24.0)
     "userKiosk": {},           # Home Assistant user name -> more own wall tablet values and its Fully Kiosk entities (tablets.KIOSK_FIELDS, 5.13.0)
     "startViews": {},          # Home Assistant user name or "*" (everybody) -> saved start view (static/startview.js, #315)
     "userBuildings": {},       # Home Assistant user name -> the building of a plan that user sees (several buildings in one plan, #409)
@@ -940,6 +942,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = tb.clean_user_kiosk(val)
         elif key == "guest":
             out[key] = gs.clean_guest(val)
+        elif key == "maintenance":
+            out[key] = mt.clean_reminders(val)
         elif key == "startViews":
             out[key] = clean_start_views(val)
         elif key == "favorites":

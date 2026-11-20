@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.24.0] - 2026-11-20
+### Neu
+- **🩺 Haus-Check mit 🔧 Wartung** (Wahl des Besitzers, docs/ideen-5.21 Bild 1, mit der Wartung aus docs/ideen-5.15 Bild 9): eine neue Seite der Reiter-Leiste (auch unter 📱 „Mehr“, mit einem Chip „🩺 n prüfen“ auf Start und einer Zahl am Reiter) mit allem, was einen Blick braucht, an einem Ort:
+  - **Dringend**: leere Batterien (mit %), Geräte offline, fällige Wartung. Ein Tipp auf ein Gerät zeigt es im Haus.
+  - **Bald**: schwacher Funk (📡, wie die Funk-Karte zählt), ein Update von Home Assistant, Wartung in den nächsten zwei Wochen.
+  - **Wartung**: Erinnerungen mit „in 23 Tagen“ und **„✓ Erledigt“**, das die Zeit neu startet; **„Vorschläge für deine Geräte“** aus dem Plan (Rauchmelder einmal im Jahr testen, Filter der Klimaanlage, Bürste des Saugroboters, Flusensieb der Waschmaschine, Heizkörper entlüften, Warmwasserspeicher warten …) mit ＋; **„＋ Erinnerung“** für alles andere (alle 7 … 365 Tage). Gespeichert mit den Einstellungen (`maintenance.py`).
+
 ## [5.23.1] - 2026-11-20
 ### Verbessert
 - **📱 Handy: die Seite eines Raums zeigt oben groß den Raum, der sich in 3D dreht**, unten weich ausgeblendet, mit Namen und Werten des Raums im Bild, darunter die Bedienung über die ganze Breite (der Besitzer, 2026-11-20: „dass ich den Raum oben in so einem kleinen eingebetteten Fenster sehe und der dreht sich … unten die Bedienelemente“; seine Wahl aus sieben Arten, docs/ideen-5.23: C „groß mit Verlauf“). Der Raum dreht sich langsam; tippt man ins Bild, dreht man selbst, ein paar Sekunden später dreht er sich weiter.

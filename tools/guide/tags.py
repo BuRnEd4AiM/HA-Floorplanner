@@ -178,6 +178,11 @@ t("guest",
 t("guest-view",
   "Gast Gäste Handy Karte Zimmer steuern Licht Rollladen Heizung Musik Was sieht der Gast Willkommen Zugang beendet Besuch Gästezimmer",
   "guest guests phone card room control light shutters heating music what does the guest see welcome access ended visit guest room")
+t("house-check",
+  "Haus-Check Wartung Erinnerung Batterie leer offline Rauchmelder testen Filter reinigen Flusensieb Heizkörper entlüften Update Pflege "
+  "Was muss ich am Haus machen Wann Batterie wechseln",
+  "house check maintenance reminder battery empty offline test smoke detector clean filter lint filter bleed radiator update care "
+  "what do I need to do in the house when to change the battery")
 t("power-hogs",
   "Stromfresser Standby Bereitschaft Grundlast Nachtverbrauch nachts Stromverbrauch nachts Steckdose ausschalten abschalten sparen Strom sparen "
   "Kühlschrank Router Fernseher Wer verbraucht nachts Strom Was kostet Standby Zwischenstecker Ablauf",

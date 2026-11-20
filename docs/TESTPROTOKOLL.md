@@ -525,7 +525,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 213. Neu in 5.22.0: 📱 Das Handy wie eine App | 3 | 0 | 3 | 0 | 213.4 bis 213.6 |
 | 214. Neu in 5.23.0: 📱 Handy-App, der nächste Schritt | 5 | 0 | 2 | 0 | 214.6, 214.7 |
 | 215. Neu in 5.23.1: 📱 Raum dreht sich oben, Ausschalten fragt nach | 3 | 0 | 2 | 0 | 215.4, 215.5 |
-| **Zusammen** | **1341** | **2** | **134** | **92** | |
+| 216. Neu in 5.24.0: 🩺 Haus-Check mit 🔧 Wartung | 2 | 0 | 3 | 0 | 216.3 bis 216.5 |
+| **Zusammen** | **1343** | **2** | **137** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3260,4 +3261,15 @@ Dein Wunsch vom 2026-11-20 (Foto von „Räume“ am Handy).
 | 215.3 | Demo am Handy: auf einer Kachel mit Licht das gelbe 💡 | „Alle … Lichter in „…“ ausschalten?“ mit „Ja, ausschalten“ (rot) und „Abbrechen“ | ✅ (2026-11-20, Claude, Demo) |
 | 215.4 | Dein Handy: einen Raum öffnen, ins Bild tippen und drehen | Du drehst selbst, nach ein paar Sekunden dreht er sich weiter | ❓ |
 | 215.5 | Dein Handy: „Abbrechen“ bei der Rückfrage | Kein Licht geht aus | ❓ |
+
+## 216. Neu in 5.24.0: 🩺 Haus-Check mit 🔧 Wartung
+Deine Wahl (Bild 1 in `docs/ideen-5.21`, Wartung aus `docs/ideen-5.15` Bild 9).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 216.1 | Unit-Tests `tests/housecheck.test.mjs`, `tests/test_maintenance.py` (neu); Browser-Test Teil `102_house_check` (neu), dazu `31_tabs`, `101_phone_app` | Alles grün | ✅ (2026-11-20, Claude) |
+| 216.2 | Demo: unten „🩺 Haus-Check“ | Dringend: Batterien Luftfeuchte Keller 8 %, Fenster Küche 12 %; Bald: Funk schwach; Vorschläge für die Geräte | ✅ (2026-11-20, Claude, Demo) |
+| 216.3 | Dein Haus: „🩺 Haus-Check“ | Stimmen leere Batterien, offline und schwacher Funk mit deinem Haus überein? | ❓ |
+| 216.4 | Dein Haus: einen Vorschlag mit ＋ übernehmen, „＋ Erinnerung“ anlegen | Beide stehen unter „Wartung“ mit „in … Tagen“ | ❓ |
+| 216.5 | Dein Haus: wenn eine Erinnerung fällig ist: „✓ Erledigt“ | Sie verschwindet aus „Dringend“ und zählt neu | ❓ |
 

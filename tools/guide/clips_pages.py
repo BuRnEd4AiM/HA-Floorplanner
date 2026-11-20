@@ -443,6 +443,30 @@ def _(r):
     r.wait(2000)
 
 
+@clip("house-check", "pages",
+      {"de": "🩺 Haus-Check: alles, was einen Blick braucht", "en": "🩺 House check: everything that needs a look"},
+      {"de": "Unten „Haus-Check“: dringend (leere Batterien, Geräte offline, fällige Wartung), bald (schwacher Funk, Updates) und die Wartung. "
+             "Vorschläge für deine Geräte (Rauchmelder testen, Filter, Flusensieb …) mit ＋, „✓ Erledigt“ startet die Zeit neu.",
+       "en": "“House check” at the bottom: urgent (empty batteries, devices offline, maintenance due), soon (weak radio, updates) and the "
+             "maintenance. Suggestions for your devices (test the smoke detector, filters, lint …) with ＋, “✓ Done” starts the time anew."},
+      "Haus-Check Wartung Erinnerung Batterie offline Rauchmelder Filter Update Pflege house check maintenance reminder battery offline smoke detector filter update care")
+def _(r):
+    r.say("Unten „Haus-Check“.", "“House check” at the bottom.")
+    tab(r, "check")
+    r.say("Oben, was dringend ist: leere Batterien, Geräte offline, fällige Wartung.", "At the top what is urgent: empty batteries, devices offline, maintenance due.")
+    r.wait(2200)
+    r.poster()
+    r.say("Ein Tipp auf ein Gerät zeigt es im Haus. Darunter, was bald kommt: schwacher Funk, Updates.", "A tap on a device shows it in the house. Below what comes soon: weak radio, updates.")
+    r.move("[data-page=check] .hcSec", nth=1)
+    r.wait(2200)
+    r.say("Vorschläge für deine Geräte: ＋ macht eine Erinnerung daraus.", "Suggestions for your devices: ＋ makes a reminder of it.")
+    r.click("[data-page=check] [data-act=suggest]", nth=0)
+    r.wait(1600)
+    r.say("„✓ Erledigt“ startet die Zeit neu.", "“✓ Done” starts the time anew.")
+    r.move("[data-page=check] [data-act=done]")
+    r.wait(2000)
+
+
 @clip("family", "pages",
       {"de": "👪 Familie: wer ist wo, die Pinnwand", "en": "👪 Family: who is where, the pinboard"},
       {"de": "Wer zu Hause ist und in welchem Raum, wer unterwegs ist, und eine Pinnwand für Notizen.",

@@ -41,7 +41,7 @@ export function byFloor(rooms, ground = 0) {
 }
 
 /** the chips at the top of Start: [{ key, icon, text, tone }]. s: { lightsOn, alarm ('armed' | 'disarmed' | null), offline, low (batteries),
- *  open (windows / doors), temp (outside, °C or null) }; t: the texts */
+ *  open (windows / doors), check (urgent things of the 🩺 Haus-Check), temp (outside, °C or null) }; t: the texts */
 export function statusChips(s, t, num = String) {
   const out = [];
   out.push({ key: 'lights', icon: '💡', text: s.lightsOn ? t('app.lightsOn', { n: s.lightsOn }) : t('app.lightsOff'), tone: s.lightsOn ? 'on' : '' });
@@ -49,6 +49,7 @@ export function statusChips(s, t, num = String) {
   if (s.open) out.push({ key: 'open', icon: '🪟', text: t('app.open', { n: s.open }), tone: 'warn' });
   if (s.offline) out.push({ key: 'offline', icon: '📴', text: t('app.offline', { n: s.offline }), tone: 'warn' });
   if (s.low) out.push({ key: 'low', icon: '🔋', text: t('app.low', { n: s.low }), tone: 'warn' });
+  if (s.check) out.push({ key: 'check', icon: '🩺', text: t('app.check', { n: s.check }), tone: 'warn' });   // 🩺 Haus-Check (5.24.0)
   if (s.temp != null && Number.isFinite(s.temp)) out.push({ key: 'temp', icon: '🌡', text: `${num(s.temp)}°`, tone: '' });
   return out;
 }

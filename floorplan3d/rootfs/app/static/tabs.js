@@ -15,6 +15,7 @@ export const TABS = [
   ['household', '🧺'],
   ['routines', '▶️'],
   ['family', '👨‍👩‍👧'],
+  ['check', '🩺'],               // 🩺 Haus-Check (pagecheck.js, 5.24.0)
   ['log', '📜'],                 // 📜 Protokoll (pagelog.js): only for who may edit
 ];
 export const TAB_KEYS = TABS.map(([k]) => k);

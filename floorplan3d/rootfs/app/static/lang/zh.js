@@ -4058,4 +4058,10 @@ export default {
   'app.nothing': '没有内容。', 'app.allLightsOff': '所有灯都已关闭。',
   'app.offAsk': '关闭“{room}”的全部 {n} 盏灯？', 'app.offAllAsk': '关闭房屋中的全部 {n} 盏灯？', 'app.offYes': '是，关闭', 'app.cancel': '取消',
   'app.offAsk1': '关闭“{room}”的灯？',
+  'tab.check': '房屋检查', 'app.check': '{n} 项待查', 'hc.title': '房屋检查', 'hc.sub': '所有需要关注的事项都在这里。点按设备可在房屋中查看。', 'hc.n.urgent': '{n} 项紧急', 'hc.n.soon': '{n} 项即将',
+  'hc.urgent': '紧急', 'hc.soon': '即将', 'hc.care': '保养', 'hc.allGood': '一切正常 ✓', 'hc.nothing': '未来两周没有事项。', 'hc.noCare': '还没有提醒——下方是针对你设备的建议。',
+  'hc.battery': '{name} · 更换电池', 'hc.offline': '{name} · 离线', 'hc.radio': '{name} · 信号弱', 'hc.update': '{name} · 有更新', 'hc.due': '到期', 'hc.inDays': '{n} 天后',
+  'hc.done': '完成', 'hc.del': '删除提醒', 'hc.delAsk': '删除“{name}”？', 'hc.add': '提醒', 'hc.suggest': '针对你设备的建议', 'hc.every': '每 {n} 天', 'hc.namePh': '例如：清洁油烟机滤网',
+  'hc.save': '保存', 'mt.smoke': '{name}：测试烟雾报警器', 'mt.filter': '{name}：清洁滤网', 'mt.brush': '{name}：清洁刷子', 'mt.bleed': '{name}：暖气片排气', 'mt.lint': '{name}：清洁滤网',
+  'mt.sieve': '{name}：清洁过滤网', 'mt.boiler': '{name}：保养（专业人员）',
 };
