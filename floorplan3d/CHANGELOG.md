@@ -2,6 +2,11 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.23.1] - 2026-11-20
+### Changed
+- **📱 Phone: a room's page shows the room big on top, turning in 3D**, faded out at the bottom with the room's name and values in the picture, the controls below across the whole width (the owner, 2026-11-20: "dass ich den Raum oben in so einem kleinen eingebetteten Fenster sehe und der dreht sich … unten die Bedienelemente"; his choice from seven kinds, docs/ideen-5.23: C "groß mit Verlauf"). The room turns slowly; a touch on the picture lets you turn it yourself, a few seconds later it turns on.
+- **📱 Phone: switching off a whole room asks first** (the owner: "nicht aus versehen das ganze zimmer ausmacht … nochmal bestätigen"): the 💡 on a room tile and "Alle aus" in the list of the lights ask "Alle 3 Lichter in „Wohnzimmer“ ausschalten?" with "Ja, ausschalten" and "Abbrechen".
+
 ## [5.23.0] - 2026-11-20
 ### Added
 - **📱 The phone app, the next step** (the owner, 2026-11-20, after 44 pictures of the phone app: "ich sehe nirgends wo ich am handy sagen kann welches gebäude ich auswählen kann"; his choice: all of docs/ideen-5.22 pictures 45–52):

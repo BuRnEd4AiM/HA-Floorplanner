@@ -875,8 +875,11 @@ function appOpenRoom(fi, id) {
   appBack = tabsUi.open() === 'house' ? START : tabsUi.open();
   document.body.classList.add('appRoom');
   tabsUi.show('house');
+  resize();                                                       // the picture is only the top part now (style.css)
   switchFloor(fi); focusRoom(id); roomPanel.open(id);
+  camera.position.lerp(controls.target, 0.3); controls.update();  // the room bigger in the picture on top (docs/ideen-5.23 C)
   if (!roomPanel.full()) roomPanel.show(roomPanel.tab());        // the whole card at once
+  controls.autoRotate = true; controls.autoRotateSpeed = 1.2;     // the owner: the room on top, turning slowly, the controls below
   let back = $('#appBack');
   if (!back) {
     back = Object.assign(document.createElement('button'), { id: 'appBack', type: 'button' });
@@ -885,20 +888,43 @@ function appOpenRoom(fi, id) {
   }
   back.textContent = `‹ ${t(appBack === ROOMS ? 'app.tab.rooms' : 'app.tab.start')}`;
   back.hidden = false;
+  appHero(fi, id);
 }
+/** the room page's picture (the owner's choice docs/ideen-5.23 C): the room big on top, faded out at the bottom, its name and values in it */
+function appHero(fi, id) {
+  let hero = $('#appHero');
+  if (!hero) { hero = Object.assign(document.createElement('div'), { id: 'appHero' }); document.body.append(hero); }
+  const r = appRooms().find((x) => x.fi === fi && x.id === id);
+  hero.hidden = !r;
+  if (!r) return;
+  const sub = [r.temp == null ? '' : `${fmtNum(r.temp, 1, 1)} °C`, r.lights ? t('app.nOn', { n: r.lights }) : t('app.off'), r.open ? `🪟 ${t('app.open', { n: r.open })}` : ''].filter(Boolean).join(' · ');
+  const b = document.createElement('b'), sm = document.createElement('small');
+  b.textContent = `${roomIcon(r.name)} ${r.name}`; sm.textContent = sub;
+  hero.replaceChildren(Object.assign(document.createElement('i'), { className: 'fade' }), b, sm);
+  hero.dataset.room = `${fi}/${id}`;
+}
+setInterval(() => { const h = $('#appHero'); if (h && !h.hidden && document.body.classList.contains('appRoom')) { const [fi, id] = h.dataset.room.split('/'); appHero(+fi, id); } }, 5000);
 /** another tab while a room page is open: the room page ends without going anywhere */
 function appCloseRoomSoft() {
   if (!document.body.classList.contains('appRoom')) return;
   document.body.classList.remove('appRoom');
+  if ($('#appHero')) $('#appHero').hidden = true;
+  controls.autoRotate = false; resize();
   const back = $('#appBack'); if (back) back.hidden = true;
 }
 function appCloseRoom() {
   if (!document.body.classList.contains('appRoom')) return;
   document.body.classList.remove('appRoom');
+  if ($('#appHero')) $('#appHero').hidden = true;
+  controls.autoRotate = false; resize();
   const back = $('#appBack'); if (back) back.hidden = true;
   roomPanel.close(); if (focusedRoom) focusRoom(null);
   tabsUi.show(appBack);
 }
+/* the room keeps turning on its page: a touch elsewhere stops the turning (kiosk.js), it starts again 4 s after the last touch of the picture */
+let appTouched = 0;
+canvas.addEventListener('pointerdown', () => { appTouched = Date.now(); });
+setInterval(() => { if (document.body.classList.contains('appRoom') && !controls.autoRotate && Date.now() - appTouched > 4000) { controls.autoRotate = true; wake(); } }, 1000);
 const appUi = initAppUi({
   t, lang: () => currentLanguage(), host: $('#tabPages'), rooms: appRooms, ground: () => groundIdx(), icon: roomIcon, num: (v) => fmtNum(v, 1, 1),
   status: () => {
@@ -928,7 +954,7 @@ const appUi = initAppUi({
     if (k === 'lights') {
       const lit = lightGroups.lit(), name = (e) => entities.find((x) => x.entity_id === e)?.name || e;
       return { title: `💡 ${t('app.lightsOn', { n: lit.length })}`, empty: t('app.allLightsOff'), items: lit.map((e) => ({ icon: '💡', text: name(e), right: '⏻', keep: false, act: () => live.callService(e, 'turn_off') })),
-        foot: lit.length ? { text: t('app.allOff2'), act: () => lit.forEach((e) => live.callService(e, 'turn_off')) } : null };
+        foot: lit.length ? { text: t('app.allOff2'), ask: t('app.offAllAsk', { n: lit.length }), act: () => lit.forEach((e) => live.callService(e, 'turn_off')) } : null };
     }
     if (k === 'open') {
       const list = openings.items();

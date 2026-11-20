@@ -48,6 +48,11 @@ export function initAppUi(ctx) {
     document.body.append(sheet);
     return box;
   }
+  /** "really switch off?" (the owner, 2026-11-20: "nicht aus versehen das ganze zimmer ausmacht … nochmal bestätigen") */
+  function confirmOff(title, act) {
+    openSheet('confirm', title, [{ items: [{ icon: '⏻', text: t('app.offYes'), right: '', act, data: { act: 'confirmOff' } },
+      { icon: '', text: t('app.cancel'), right: '', soft: true, act: () => {}, data: { act: 'confirmCancel' } }] }]);
+  }
   /** 🏠 Haus und Gebäude (pictures 45, 46) */
   function placeLabel() {
     const pl = ctx.places?.() || { houses: [], buildings: [] }, h = pl.houses.find((x) => x.on), bd = pl.buildings.find((x) => x.on && x.id);
@@ -70,13 +75,18 @@ export function initAppUi(ctx) {
   function chip(key) {
     const l = ctx.chipList?.(key);
     if (!l) { ctx.act(key); return; }
-    openSheet(`chip-${key}`, l.title, [{ items: l.items.map((x) => ({ ...x, keep: !!x.keep })) }], l.foot, l.items.length ? null : make('p', 'apEmpty', l.empty || t('app.nothing')));
+    const foot = l.foot && { text: l.foot.text, act: () => setTimeout(() => confirmOff(l.foot.ask || l.foot.text, l.foot.act)) };   // "Alle aus" asks first too
+    openSheet(`chip-${key}`, l.title, [{ items: l.items.map((x) => ({ ...x, keep: !!x.keep })) }], foot, l.items.length ? null : make('p', 'apEmpty', l.empty || t('app.nothing')));
   }
 
   function tile(r) {
     const b = make('div', `apRoom${r.lights ? ' lit' : ''}`); b.dataset.room = r.id; b.dataset.floor = String(r.fi);
     b.tabIndex = 0; b.setAttribute('role', 'button');
-    const tg = button('apToggle', r.lights ? '💡' : '⏻', (e) => { e.stopPropagation(); if (r.lights) ctx.lightsOff(r.fi, r.id); else ctx.openRoom(r.fi, r.id); });
+    const tg = button('apToggle', r.lights ? '💡' : '⏻', (e) => {
+      e.stopPropagation();
+      if (!r.lights) { ctx.openRoom(r.fi, r.id); return; }
+      confirmOff(t(r.lights === 1 ? 'app.offAsk1' : 'app.offAsk', { room: r.name, n: r.lights }), () => ctx.lightsOff(r.fi, r.id));   // the owner: not by mistake, ask first
+    });
     tg.title = t(r.lights ? 'app.allOff' : 'app.open1');
     const sub = [r.temp == null ? '' : `${ctx.num(r.temp)}°`, r.lights ? t('app.nOn', { n: r.lights }) : t('app.off'), r.open ? '🪟' : ''].filter(Boolean).join(' · ');
     b.append(make('span', 'apRoomIcon', ctx.icon(r.name)), tg, make('b', '', r.name), make('small', '', sub));

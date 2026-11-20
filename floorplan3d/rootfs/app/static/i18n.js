@@ -1483,6 +1483,9 @@ const DICT = {
     'app.edit': 'Bearbeiten', 'app.guide': 'Anleitung (Videos)', 'app.backup': 'Backup', 'app.timeline': 'Sicherheit (Tag abspielen)',
     'app.colors': 'Farben im Haus', 'app.view': 'Ansicht', 'app.scenes': 'Szenen',
     'app.nothing': 'Nichts zu zeigen.', 'app.allLightsOff': 'Alle Lichter sind aus.',
+    'app.offAsk': 'Alle {n} Lichter in „{room}“ ausschalten?', 'app.offAllAsk': 'Alle {n} Lichter im Haus ausschalten?', 'app.offYes': 'Ja, ausschalten',
+    'app.cancel': 'Abbrechen',
+    'app.offAsk1': 'Das Licht in „{room}“ ausschalten?',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2909,6 +2912,9 @@ const DICT = {
     'app.guide': 'Guide (videos)', 'app.backup': 'Backup', 'app.timeline': 'Security (play back a day)', 'app.colors': 'Colours in the house',
     'app.view': 'View', 'app.scenes': 'Scenes',
     'app.nothing': 'Nothing to show.', 'app.allLightsOff': 'All lights are off.',
+    'app.offAsk': 'Switch off all {n} lights in “{room}”?', 'app.offAllAsk': 'Switch off all {n} lights in the house?', 'app.offYes': 'Yes, switch off',
+    'app.cancel': 'Cancel',
+    'app.offAsk1': 'Switch off the light in “{room}”?',
   },
 };
 

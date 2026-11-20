@@ -2574,4 +2574,6 @@ export default {
   'app.edit': 'Editar', 'app.guide': 'Guía (vídeos)', 'app.backup': 'Copia de seguridad', 'app.timeline': 'Seguridad (reproducir un día)',
   'app.colors': 'Colores en la casa', 'app.view': 'Vista', 'app.scenes': 'Escenas',
   'app.nothing': 'Nada que mostrar.', 'app.allLightsOff': 'Todas las luces están apagadas.',
+  'app.offAsk': '¿Apagar las {n} luces de «{room}»?', 'app.offAllAsk': '¿Apagar las {n} luces de la casa?', 'app.offYes': 'Sí, apagar', 'app.cancel': 'Cancelar',
+  'app.offAsk1': '¿Apagar la luz de «{room}»?',
 };

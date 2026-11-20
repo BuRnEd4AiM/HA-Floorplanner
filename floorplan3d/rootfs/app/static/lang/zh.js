@@ -4056,4 +4056,6 @@ export default {
   'app.houses': '房屋', 'app.buildings': '建筑', 'app.places': '房屋和建筑', 'app.allOff2': '全部关闭', 'app.tools': '工具', 'app.edit': '编辑', 'app.guide': '指南（视频）',
   'app.backup': '备份', 'app.timeline': '安全（回放一天）', 'app.colors': '房屋颜色', 'app.view': '视图', 'app.scenes': '场景',
   'app.nothing': '没有内容。', 'app.allLightsOff': '所有灯都已关闭。',
+  'app.offAsk': '关闭“{room}”的全部 {n} 盏灯？', 'app.offAllAsk': '关闭房屋中的全部 {n} 盏灯？', 'app.offYes': '是，关闭', 'app.cancel': '取消',
+  'app.offAsk1': '关闭“{room}”的灯？',
 };
