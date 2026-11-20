@@ -4,13 +4,13 @@
 
 Stand: 2026-11-20 · 146 Sitzungen
 
-**Insgesamt: 9,98 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 10,00 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 26,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 91,0 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 9,86 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Neu gelesen | 91,1 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 9,88 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 60 | 3,85 Mrd. | 9,0 Mio. |
+| 2026-11 | 60 | 3,87 Mrd. | 9,1 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,7 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-11-19 | [012p9z3M…](https://claude.ai/code/session_012p9z3Mq8RjthidY2WwMmyW) | claude/admiring-wright-gz4ogb | 264,5 Mio. | 400 Tsd. | gezählt |
+| 2026-11-19 | [012p9z3M…](https://claude.ai/code/session_012p9z3Mq8RjthidY2WwMmyW) | claude/admiring-wright-gz4ogb | 278,7 Mio. | 454 Tsd. | gezählt |
 | 2026-11-17 | [012p9z3K…](https://claude.ai/code/session_012p9z3KhCd2q5CLxGQF64AG) | claude/exciting-edison-r6hv5l | 218,3 Mio. | 422 Tsd. | gezählt |
 | 2026-11-16 | [018pwcmy…](https://claude.ai/code/session_018pwcmyVso4aeGpxYBhTccz) | claude/zealous-darwin-8lwy2g | 103,1 Mio. | 245 Tsd. | gezählt |
 | 2026-11-16 | [012p9z3L…](https://claude.ai/code/session_012p9z3LJwSrnoP2mxZCzpuS) | claude/gracious-dirac-bt3gos | 9,9 Mio. | 46 Tsd. | gezählt |
