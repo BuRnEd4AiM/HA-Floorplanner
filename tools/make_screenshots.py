@@ -323,7 +323,7 @@ def shot_security(b):
     """security: a recorded day played back, the time line with its events at the bottom"""
     pg = demo_page(b, sky="19:35", timeline=timeline_day())
     cam(pg, 14, 9, 15, 6, 3)
-    pg.click("#timelineBtn"); pg.wait_for_timeout(800)
+    pg.evaluate("document.getElementById('timelineBtn').click()"); pg.wait_for_timeout(800)   # in the editor it sits in the ⋯ menu (5.25.0)
     pg.click("#tlDays .tlDay"); pg.wait_for_timeout(1200)
     pg.evaluate("""(() => { const s = document.querySelector('#tlBar input[type=range]');
       s.value = String(Math.round((19 * 60 + 35) / 1440 * 1000)); s.dispatchEvent(new Event('input', { bubbles: true })); })()""")
@@ -424,7 +424,7 @@ def shot_welcome(b):
 def shot_backup(b):
     pg = app_page(b, h=1300)                                     # tall, so the dialog shows its list without being scrolled
     pg.evaluate("localStorage.setItem('fp3d.welcome','1')")
-    pg.click("#backupBtn"); pg.wait_for_timeout(800)
+    pg.evaluate("document.getElementById('backupBtn').click()"); pg.wait_for_timeout(800)   # in the editor it sits in the ⋯ menu (5.25.0)
     pg.click("#abNow"); pg.wait_for_timeout(1500); pg.click("#abNow"); pg.wait_for_timeout(1500)
     pg.check("#setAutoBackup"); pg.wait_for_timeout(600)
     pg.click("#abTest"); pg.wait_for_timeout(1000)

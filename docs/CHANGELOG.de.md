@@ -2,6 +2,17 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.25.0] - 2026-11-20
+### Neu
+- **🧭 Erste Schritte** (Wahl des Besitzers, docs/ideen-5.21 Bild 2): eine Karte im Bearbeiten-Modus, die in vier Schritten vom leeren Plan zum fertigen Haus führt, jeder Schritt am Haus selbst abgelesen (jederzeit unterbrechen, später weitermachen):
+  - **1 Grundriss**: Wände zeichnen oder das Beispielhaus nehmen.
+  - **2 Räume mit den Bereichen verbinden**: „8 von 9“; **„🔗 Alle gleichnamigen verbinden“** verbindet jeden Raum, der wie ein Bereich von Home Assistant heißt, in einem Schritt, „Einzeln“ wählt den nächsten Raum ohne Bereich.
+  - **3 Geräte setzen**: **„✨ Alle 46 automatisch setzen“** stellt die Geräte der Bereiche in ihre Räume, auf jeder Etage (ein Schritt zum Rückgängigmachen), „Einzeln“ wählt den nächsten Raum mit Geräten zum Setzen.
+  - **4 Live-Ansicht**: „▶ Live-Ansicht ansehen“ und „⚙ Einstellungen“ für Reiter und Tablets.
+  - Mit einem Balken in Prozent, „⏭ Überspringen“ und „🎬 Video dazu“. Die Willkommens-Karte eines leeren Hauses öffnet sie; solange ein Werkzeug zeichnet, wartet sie klein in der Ecke.
+### Verbessert
+- **Die Kopfleiste im Bearbeiten-Modus ist kürzer** (docs/ideen-5.8 Bild 16): 🎬 Anleitung, 🗄️ Backup und 🛡️ Sicherheit liegen in einem neuen **„⋯“-Menü** mit je einer Zeile, was sie tun, zusammen mit 🧭 Erste Schritte; ein kleines „neu“, bis es einmal geöffnet wurde. In der Live-Ansicht bleiben sie in der Leiste.
+
 ## [5.24.0] - 2026-11-20
 ### Neu
 - **🩺 Haus-Check mit 🔧 Wartung** (Wahl des Besitzers, docs/ideen-5.21 Bild 1, mit der Wartung aus docs/ideen-5.15 Bild 9): eine neue Seite der Reiter-Leiste (auch unter 📱 „Mehr“, mit einem Chip „🩺 n prüfen“ auf Start und einer Zahl am Reiter) mit allem, was einen Blick braucht, an einem Ort:

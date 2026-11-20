@@ -526,7 +526,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 214. Neu in 5.23.0: 📱 Handy-App, der nächste Schritt | 5 | 0 | 2 | 0 | 214.6, 214.7 |
 | 215. Neu in 5.23.1: 📱 Raum dreht sich oben, Ausschalten fragt nach | 3 | 0 | 2 | 0 | 215.4, 215.5 |
 | 216. Neu in 5.24.0: 🩺 Haus-Check mit 🔧 Wartung | 2 | 0 | 3 | 0 | 216.3 bis 216.5 |
-| **Zusammen** | **1343** | **2** | **137** | **92** | |
+| 217. Neu in 5.25.0: 🧭 Erste Schritte und das „⋯“-Menü oben | 2 | 0 | 3 | 0 | 217.3 bis 217.5 |
+| **Zusammen** | **1345** | **2** | **140** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3272,4 +3273,15 @@ Deine Wahl (Bild 1 in `docs/ideen-5.21`, Wartung aus `docs/ideen-5.15` Bild 9).
 | 216.3 | Dein Haus: „🩺 Haus-Check“ | Stimmen leere Batterien, offline und schwacher Funk mit deinem Haus überein? | ❓ |
 | 216.4 | Dein Haus: einen Vorschlag mit ＋ übernehmen, „＋ Erinnerung“ anlegen | Beide stehen unter „Wartung“ mit „in … Tagen“ | ❓ |
 | 216.5 | Dein Haus: wenn eine Erinnerung fällig ist: „✓ Erledigt“ | Sie verschwindet aus „Dringend“ und zählt neu | ❓ |
+
+## 217. Neu in 5.25.0: 🧭 Erste Schritte und das „⋯“-Menü oben
+Deine Wahl (Bild 2 in `docs/ideen-5.21`, Kopfleiste aus `docs/ideen-5.8` Bild 16).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 217.1 | Unit-Test `tests/firststeps.test.mjs` (neu); Browser-Test Teil `103_first_steps` (neu), dazu `base`, `02_tools` | Alles grün | ✅ (2026-11-20, Claude) |
+| 217.2 | Demo, Bearbeiten: oben „⋯“ → „🧭 Erste Schritte“ | Schritt 1 fertig, Schritt 2 „3 von 19“ mit „🔗 Alle 5 gleichnamigen verbinden“ | ✅ (2026-11-20, Claude, Demo) |
+| 217.3 | Dein Haus, Bearbeiten: oben „⋯“ | Anleitung, Backup und Sicherheit sind dort statt in der Leiste; die Leiste passt in zwei Zeilen | ❓ |
+| 217.4 | Dein Haus: „⋯“ → „🧭 Erste Schritte“ | Stimmt „… von …“ bei den Räumen und die Zahl der Geräte zum Setzen? | ❓ |
+| 217.5 | Dein Haus: „✨ Alle … automatisch setzen“, danach „↶“ | Die Geräte stehen in ihren Räumen; „↶“ nimmt alle auf einmal zurück | ❓ |
 

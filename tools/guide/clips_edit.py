@@ -58,6 +58,36 @@ def empty_house(walls=False, rooms=False, sofa=False):
     return prep
 
 
+@clip("first-steps", "edit",
+      {"de": "Erste Schritte: vom leeren Plan zum fertigen Haus", "en": "First steps: from the empty plan to the finished house"},
+      {"de": "Oben „⋯“ → „🧭 Erste Schritte“ (beim leeren Haus öffnet es sich von selbst): vier Schritte, die das Add-on am Haus abliest – "
+             "Grundriss, Räume mit den Bereichen von Home Assistant verbinden, Geräte automatisch setzen, Live-Ansicht. Jederzeit "
+             "unterbrechen. Im „⋯“ liegen auch Anleitung, Backup und Sicherheit.",
+       "en": "At the top “⋯” → “🧭 First steps” (an empty house opens it by itself): four steps the add-on reads from the house – the plan, "
+             "linking the rooms with Home Assistant’s areas, placing the devices automatically, the live view. Stop any time. The “⋯” "
+             "also holds the guide, backup and security."},
+      "Erste Schritte Assistent Einrichtung Anfang Bereiche verbinden Geräte automatisch setzen Menü Backup Anleitung "
+      "first steps wizard setup start areas link devices place automatically menu backup guide",
+      query="mode=edit")
+def _(r):
+    r.say("Oben: „⋯“ – hier liegen jetzt Anleitung, Backup und Sicherheit.", "At the top: “⋯” – the guide, backup and security are here now.")
+    r.click("#topMoreBtn")
+    r.wait(1400)
+    r.say("„🧭 Erste Schritte“ führt in vier Schritten zum fertigen Haus.", "“🧭 First steps” leads to the finished house in four steps.")
+    r.click("#topMore [data-act=first]")
+    r.wait(1200)
+    r.poster()
+    r.say("Räume, die wie ein Bereich von Home Assistant heißen, verbindet ein Klick.", "One click links the rooms called like an area of Home Assistant.")
+    r.click("#firstSteps [data-act=linkAll]")
+    r.wait(1500)
+    r.say("Dann stellt das Add-on die Geräte der Bereiche in ihren Raum.", "Then the add-on puts the areas’ devices into their room.")
+    r.click("#firstSteps [data-act=placeAll]")
+    r.wait(1800)
+    r.say("Zum Schluss: die Live-Ansicht. Unterbrechen geht jederzeit.", "Last: the live view. You can stop any time.")
+    r.move("#firstSteps [data-act=goLive]")
+    r.wait(1600)
+
+
 @clip("walls", "edit",
       {"de": "Wände zeichnen", "en": "Draw walls"},
       {"de": "Im Bearbeiten-Modus „Wand“ wählen und Punkt für Punkt klicken. Ein grünes ∟ 90° zeigt einen rechten Winkel, ∥ eine Parallele zu einer Wand: fast getroffen rückt der Punkt genau darauf (Alt: frei). Doppelklick oder Esc beendet die Wand.",

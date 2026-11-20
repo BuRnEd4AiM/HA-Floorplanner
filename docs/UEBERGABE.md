@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-20, Version **5.24.0** (5.14.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-20, Version **5.25.0** (5.14.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,7 +10,8 @@ Stand: 2026-11-20, Version **5.24.0** (5.14.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
-- **2026-11-20, 5.24.0: 🩺 Haus-Check mit 🔧 Wartung (Branch `claude/admiring-wright-gz4ogb`):** neue Seite `check` (pagecheck.js, housecheck.js, maintenance.py): dringend/bald/Wartung, Vorschläge aus dem Plan, „✓ Erledigt“. Davor 5.23.1: Raum-Seite Variante C (`docs/ideen-5.23`), eckige Karte über die ganze Breite, Rückfrage vor dem Ausschalten.
+- **2026-11-20, 5.25.0: 🧭 Erste Schritte und „⋯“-Menü oben (Branch `claude/admiring-wright-gz4ogb`):** firststeps.js, firststepsui.js, topmore.js; Anleitung, Backup, Sicherheit im Bearbeiten-Modus nur noch im „⋯“.
+- **2026-11-20, 5.24.0: 🩺 Haus-Check mit 🔧 Wartung:** neue Seite `check` (pagecheck.js, housecheck.js, maintenance.py): dringend/bald/Wartung, Vorschläge aus dem Plan, „✓ Erledigt“. Davor 5.23.1: Raum-Seite Variante C (`docs/ideen-5.23`), eckige Karte über die ganze Breite, Rückfrage vor dem Ausschalten.
 - **2026-11-20, 5.23.0: 📱 Handy-App, der nächste Schritt (Branch `claude/admiring-wright-gz4ogb`):** 44 Bilder der Handy-App (`docs/ideen-5.22` 1–44), er fand keine Wahl des Gebäudes; Bilder 45–52, seine Wahl: alles. Haus/Gebäude oben, Chips mit Liste, 3D-Haus mit runden Knöpfen, ☰-Werkzeuge in „Mehr“, Einstellungen als Liste (`appui.js`, `setgroups.js`).
 - **2026-11-20, 5.22.0: 📱 Handy wie eine App (Branch `claude/admiring-wright-gz4ogb`):** sein Wunsch „nicht so selbstgebaut“; Bilder `docs/ideen-5.21` (dazu 5 neue Ideen), seine Wahl Bild 8–10: unten Start, Räume, 3D-Haus, Energie, Mehr (`appshell.js`, `appui.js`, `tabsui.js`), „Klassische Ansicht“ je Handy. Danach gewählt: Haus-Check mit Wartung, Erste Schritte mit Kopfleiste, Monatsbericht.
 - **2026-11-20, 5.21.0: 👥 Gäste-Zugang (Branch `claude/admiring-wright-gz4ogb`):** seine Vorstellung statt Bild 10: ein Benutzer „gast“ in Home Assistant, ein QR-Code, der Gast sieht nur die Karte des gewählten Zimmers; seine Wahl: einmal anmelden, Licht, Rollladen, Heizung, Musik, mit „bis“. `guest.py` (Sperren, nur sein Zimmer), `guestui.js` (⚙ Benutzer, QR, Karte drucken), `guestview.js`; Demo `?gast=1`.
@@ -22,12 +23,13 @@ Stand: 2026-11-20, Version **5.24.0** (5.14.0 ist für alle freigegeben). Erst d
 - **5.17.0 Funk-Karte:** sein Test (208.4, 208.5), ob seine Zigbee-Werte ausgeschaltet sind.
 - **5.18.0 Urlaubs-Licht:** sein Test (209.3 bis 209.5).
 - **5.24.0 Haus-Check:** sein Test (216.3 bis 216.5); Nachricht aufs Handy bei fälliger Wartung ist noch nicht gebaut.
+- **5.25.0 Erste Schritte:** sein Test (217.3 bis 217.5).
 - **5.23.0 / 5.23.1 Handy-App 2:** sein Test (214.6, 214.7, 215.4, 215.5) und was ihm an den Bildern 1–44 noch auffällt.
 - **5.22.0 Handy-App:** sein Eindruck am Handy (213.4 bis 213.6).
 - **5.21.0 Gäste-Zugang:** sein Test (212.5 bis 212.8).
 - **5.20.0 Helligkeit:** sein Test (211.4 bis 211.6).
 - **5.19.0 Stromfresser:** sein Test (210.4 bis 210.6), vor allem ob „läuft immer“ bei seinen Geräten stimmt.
-- **Als Nächstes gewählt (2026-11-20, `docs/ideen-5.21`):** ② 🧭 Erste Schritte mit der kompakteren Kopfleiste, 📊 Monatsbericht wie `docs/ideen-5.15` Bild 11. Aus `docs/ideen-5.15` sonst (👥 Gäste-Modus als Gäste-Zugang gebaut, 5.21.0; Gast-WLAN-QR, Gästezimmer heizt, Flurlicht nachts, Alarm nur außen daraus noch nicht) (🌙 Nachtlicht-Weg: von ihm weggelassen, `docs/ideen-5.17`); fragen, welche als Nächstes.
+- **Als Nächstes gewählt (2026-11-20, `docs/ideen-5.21`):** 📊 Monatsbericht wie `docs/ideen-5.15` Bild 11. Aus `docs/ideen-5.15` sonst (👥 Gäste-Modus als Gäste-Zugang gebaut, 5.21.0; Gast-WLAN-QR, Gästezimmer heizt, Flurlicht nachts, Alarm nur außen daraus noch nicht) (🌙 Nachtlicht-Weg: von ihm weggelassen, `docs/ideen-5.17`); fragen, welche als Nächstes.
 - **5.14.0:** sein Test mit seinem Haus (Testprotokoll 204.2 bis 204.9), vor allem Balkon „Raum 17“ (204.5) und Garage „Raum 6“ (204.6).
 - **Tablet 5.13.1 (#759):** sein Test am echten Wandtablet (Testprotokoll 203.5 bis 203.7); kommt das leere Stockwerk noch, fragen, welcher Bildschirmschoner läuft und was davor getippt wurde.
 - **Wandtablet (5.12.0):** sein Eindruck am echten Tablet (Testprotokoll 201.8 bis 201.11); nicht gebaut: echte Helligkeit über Fully Kiosk oder eine Entität, je Tablet ein eigener Bewegungsmelder.
