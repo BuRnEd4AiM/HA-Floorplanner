@@ -1110,6 +1110,16 @@ export function installDemoBackend() {
     }
     // the pages of the tab bar (#479): the meters of the energy dashboard, their history, the forecast, calendars (all made up, see below)
     if (path === 'api/energy/meters') return json(DEMO_METERS);
+    if (path === 'api/monthreport') {                    // 📊 Monatsbericht (5.26.0): the numbers of docs/ideen-5.15 picture 11
+      const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1);
+      const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const names = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+      const rooms = [{ name: 'Wohnzimmer', heat: 41, power: 22 }, { name: 'Küche', heat: 18, power: 31 }, { name: 'Büro', heat: 12, power: 19 }, { name: 'Bad', heat: 23, power: 4 }, { name: 'Schlafzimmer', heat: 9, power: 3 }];
+      const text = [`📊 Dein Haus im ${names[d.getMonth()]}`, `🔥 Heizung 103 € · ⚡ Strom 79 € · 12 % weniger als ${names[d.getMonth()]} ${d.getFullYear() - 1}`, '',
+        ...rooms.map((r) => `${r.name}: 🔥 ${r.heat} € · ⚡ ${r.power} €`), '', '🌡 Wohnzimmer war 1,5° wärmer als eingestellt'].join('\n');
+      return json({ month, heat: 103, power: 79, heatUnit: '€', powerUnit: '€', change: -12, rooms, warm: { room: 'Wohnzimmer', d: 1.5 }, text });
+    }
+    if (path === 'api/monthreport/send') return json({ ok: false, error: ONLY_ADDON }, 501);
     if (path === 'api/energy/counters') {                // "⤵ Von oben übernehmen" (#501): the demo's counters of its power sensors
       const q = new URL(url, location.href).searchParams, found = {};
       ['from', 'to', 'solar', 'batIn', 'batOut'].forEach((k) => {

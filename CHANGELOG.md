@@ -2,6 +2,15 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.26.0] - 2026-11-20
+### Added
+- **📊 Monatsbericht** (the owner's choice, docs/ideen-5.15 picture 11): once a month a message about the month before, the way the messages are set up (📲): heating and power in euros, per room, the change to the same month a year before and the room that was warmer than set ("Wohnzimmer war 1,5° wärmer als eingestellt"); with the own Telegram bot also a picture: the plan with each room's amounts and a bar per room (red heating, yellow power).
+  - The numbers come from Home Assistant's energy dashboard: the grid meter and the gas meter with their prices; the power per room from its "individual devices" that stand in the room; the gas is split over the rooms by how long their thermostats heated. Without prices: kWh and m³.
+  - ⚙ → Warnungen & Alarm → card **"Monatsbericht"**: on, the day of the month and the hour, **"👁 Vorschau"** of last month with the bars and **"📨 Jetzt senden"**.
+### Fixed
+- **📱 Phone: the start page no longer is wider than the screen** (#777, the owner: "nach links und rechts machen"): a long room name made a column of the room tiles wider than half the screen; now it is cut off with "…".
+- **📱 Phone: a room's controls no longer slide sideways out of the screen** (#778, the owner: "wenn ich falsch swipe … außerhalb von meinem Sichtblickwinkel"): a row a little wider than the card let the whole card be swiped to the side; now only rows like the chips swipe, the card stays put.
+
 ## [5.25.0] - 2026-11-20
 ### Added
 - **🧭 Erste Schritte** (the owner's choice, docs/ideen-5.21 picture 2): a card in the editor that leads from the empty plan to the finished house in four steps, each worked out from the house itself (stop any time, go on later):

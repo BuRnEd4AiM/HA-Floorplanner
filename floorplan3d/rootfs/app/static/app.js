@@ -157,6 +157,7 @@ import { initShortcuts } from './shortcuts.js';
 import { initClipboard } from './clipboard.js';
 import { initEnergySetup } from './energysetup.js';
 import { initNotifyUi } from './notifyui.js';
+import { initMonthReportUi } from './monthreportui.js';
 import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.js';
 import { initSetControls } from './setcontrols.js';
 import { initSetSections } from './setsections.js';
@@ -1968,6 +1969,8 @@ const settingsStore = initSettings({
 });
 const loadSettings = () => settingsStore.load();
 const notifyUi = initNotifyUi({ $, t, entities: () => entities }); // settings: a message on alarm by WhatsApp (#414) and the alarm panels, notifyui.js
+const monthReportUi = initMonthReportUi({ t, settings: () => settings, save: () => settingsStore.save(), canEdit: () => me.canEdit });   // 📊 Monatsbericht (5.26.0)
+$('#settingsBtn').addEventListener('click', () => monthReportUi.render());
 initSetGroups({ $, t });                         // settings in groups that fold open, with a search, setgroups.js
 const guardUi = initGuardUi({ $, t, entities: () => entities, layout: () => layout,   // the holiday alarm: 🛡 button, lock screen, its settings (#456), guardui.js
   vacation: initVacationUi({ t, rules: () => rulesUi.rules, entities: () => entities }) });   // 🏠 Urlaubs-Licht in its settings (vacationui.js)

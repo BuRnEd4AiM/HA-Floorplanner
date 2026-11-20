@@ -19,6 +19,12 @@ check("📱 Start: a greeting, chips (lights), the house in 3D, rooms as tiles",
 pgP.tap("#tabBar [data-tab=rooms]"); pgP.wait_for_timeout(600)
 n_pa = pgP.locator("[data-page=rooms] .apRoom").count()
 check("📱 Räume: every named room by floor", n_pa >= 2 and pgP.locator("[data-page=rooms] .apSec").count() >= 1, n_pa)
+wide_pa = pgP.evaluate("""() => { const t = document.querySelector('[data-page=rooms] .apRoom b'); const was = t.textContent;
+  t.textContent = 'Wohnzimmer Lieselotte bei den Großeltern im Erdgeschoss';
+  const pg = document.querySelector('[data-page=rooms] .appPage') || document.querySelector('[data-page=rooms]');
+  const out = [pg.scrollWidth, pg.clientWidth, document.documentElement.scrollWidth, innerWidth]; t.textContent = was; return out; }""")
+check("📱 5.26.0 (#777): a long room name never makes the page wider than the phone (the owner: „nach links und rechts machen“)",
+      wide_pa[0] <= wide_pa[1] and wide_pa[2] <= wide_pa[3], wide_pa)
 lit_pa = pgP.locator("[data-page=rooms] .apRoom.lit .apToggle")
 if lit_pa.count():
     calls_pa = len(ha_calls())
@@ -35,6 +41,11 @@ check("📱 5.23.1: the room turns in 3D on top, its card below, its name and va
       and any(x and x in pgP.inner_text("#appHero") for x in name_pa[1:3]), (box_pa, pgP.inner_text("#appHero") if pgP.locator("#appHero").count() else ""))
 check("📱 a room as a page of its own: its card, its name in the picture on top (5.23.1), „‹ Räume“, no ✕", pgP.evaluate("document.body.classList.contains('appRoom')") and pgP.is_visible("#roomPanel")
       and any(x and x in pgP.inner_text("#appHero") for x in name_pa[1:3]) and "Räume" in pgP.inner_text("#appBack"), (name_pa, pgP.inner_text("#appBack")))
+side_pa = pgP.evaluate("""async () => { const rp = document.getElementById('roomPanel'); const w0 = [rp.scrollWidth, rp.clientWidth];
+  const x = document.createElement('div'); x.style.width = '900px'; x.style.height = '4px'; rp.append(x);   // a row much too wide
+  rp.scrollLeft = 300; await new Promise((r) => setTimeout(r, 200)); const left = rp.scrollLeft; x.remove(); return [...w0, left, getComputedStyle(rp).overflowX]; }""")
+check("📱 5.26.0 (#778): the room's card is as wide as the phone and never slides sideways, even with a row too wide",
+      side_pa[0] <= side_pa[1] and side_pa[2] == 0 and side_pa[3] == "hidden", side_pa)
 pgP.tap("#appBack"); pgP.wait_for_timeout(700)
 check("📱 ‹ Räume goes back to the rooms", pgP.is_visible("[data-page=rooms]") and not pgP.evaluate("document.body.classList.contains('appRoom')"))
 pgP.tap("#tabBar [data-tab=more]"); pgP.wait_for_timeout(500)

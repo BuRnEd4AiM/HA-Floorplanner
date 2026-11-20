@@ -30,8 +30,8 @@ HITS = "() => [...document.querySelectorAll('#settingsDialog .sgHit')].map((e) =
 check("search: 'alarm' leaves the group 'Warnungen & Alarm' open, the others away (its name fits: no marks all over it)",
       g1["alarm"] == (True, True) and not g1["general"][1] and not g1["outside"][1]
       and pgG.evaluate("() => document.querySelectorAll('details[data-group=alarm] .sgHit').length") == 0, (g1, pgG.evaluate(HITS)))
-check("alarm (5.8.0): three cards with their state in the head, shut (the group's name fits: the search opens none of them)",
-      pgG.locator("details[data-group=alarm] details.sgCard").count() == 3 and pgG.is_visible("details.sgCard[data-card=guard] > summary")
+check("alarm (5.8.0): four cards (📊 Monatsbericht since 5.26.0) with their state in the head, shut (the group's name fits: the search opens none of them)",
+      pgG.locator("details[data-group=alarm] details.sgCard").count() == 4 and pgG.is_visible("details.sgCard[data-card=guard] > summary")
       and not pgG.evaluate("[...document.querySelectorAll('details.sgCard')].some((d) => d.open)") and pgG.inner_text("details.sgCard[data-card=warn] .sgBadge") == "An",
       pgG.inner_text("details[data-group=alarm] .sgBody"))
 pgG.click("details.sgCard[data-card=warn] > summary"); pgG.click("details.sgCard[data-card=notify] > summary"); pgG.wait_for_timeout(300)

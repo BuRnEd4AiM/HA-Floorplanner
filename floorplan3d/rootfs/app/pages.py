@@ -32,7 +32,7 @@ def _stat(v):
 
 def energy_meters(prefs) -> dict:
     """What Home Assistant's energy dashboard counts with, by kind: {"meters": {from, to, solar, batIn, batOut, gas, water: [ids]},
-    "devices": [{"id", "name"}], "price": {"buy", "sell"} (fixed prices per kWh, when it has them), "levels": [the charge sensors of its
+    "devices": [{"id", "name"}], "price": {"buy", "sell", "gas"} (fixed prices per kWh, gas per unit of its meter, when it has them), "levels": [the charge sensors of its
     batteries, stat_soc, #515]}. Both the flat form of the sources (stat_energy_from / stat_energy_to on the grid itself) and the older
     one (flow_from / flow_to) are read."""
     meters = {k: [] for k in METER_KEYS}
@@ -70,6 +70,8 @@ def energy_meters(prefs) -> dict:
                 levels.append(soc)
         elif kind in ("gas", "water"):
             add(kind, src.get("stat_energy_from"))
+            if kind == "gas" and "gas" not in price and _num(src.get("number_energy_price")) is not None:
+                price["gas"] = src["number_energy_price"]          # per unit of the gas meter (📊 Monatsbericht)
     for d in (prefs or {}).get("device_consumption") or []:
         s = _stat(d.get("stat_consumption")) if isinstance(d, dict) else None
         if s and all(x["id"] != s for x in devices):

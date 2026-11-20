@@ -56,6 +56,7 @@ import vacation
 import guest as gs
 import maintenance as mt
 import alarmpic as apic
+import monthreport as mr
 import tgbot
 import scenes as sc
 import trains as tr
@@ -157,6 +158,7 @@ DEFAULT_SETTINGS = {
     "userRights": {},          # Home Assistant user name -> {kind: view | onoff}: what that user may switch per kind of device (tablets.py, 5.13.0)
     "guest": {"on": False, "user": "gast", "room": "", "until": ""},   # 👥 Gäste-Zugang (guest.py, 5.21.0)
     "maintenance": [],         # 🔧 Wartung of the 🩺 Haus-Check (maintenance.py, 5.24.0)
+    "monthReport": {"on": False, "day": 1, "hour": 8},   # 📊 Monatsbericht (monthreport.py, 5.26.0)
     "userKiosk": {},           # Home Assistant user name -> more own wall tablet values and its Fully Kiosk entities (tablets.KIOSK_FIELDS, 5.13.0)
     "startViews": {},          # Home Assistant user name or "*" (everybody) -> saved start view (static/startview.js, #315)
     "userBuildings": {},       # Home Assistant user name -> the building of a plan that user sees (several buildings in one plan, #409)
@@ -944,6 +946,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = gs.clean_guest(val)
         elif key == "maintenance":
             out[key] = mt.clean_reminders(val)
+        elif key == "monthReport":
+            out[key] = mr.clean_cfg(val)
         elif key == "startViews":
             out[key] = clean_start_views(val)
         elif key == "favorites":
@@ -3153,6 +3157,132 @@ async def garden_timer(app):
         task.cancel()
 
 
+# ---------- 📊 Monatsbericht (5.26.0, monthreport.py): heating and power of the month before, per room, as a message ----------
+def month_report_path(request) -> Path:
+    return data_dir(request) / "monthreport.json"            # {last: 'YYYY-MM'}: the month already sent
+
+
+async def month_report_make(request, back: int = 1):
+    """(report, houses) of the month `back` months ago from Home Assistant's statistics and history (monthreport.py says how)"""
+    tz = await ha_time_zone()
+    now = datetime.datetime.now(tz) if tz else datetime.datetime.now().astimezone()
+    key, start, end = mr.month_span(now, back)
+    ly0, ly1 = start.replace(year=start.year - 1), end.replace(year=end.year - 1)
+    houses = [(h["id"], read_json(house_file(request, h["id"]), {})) for h in houses_index(request)]
+    rooms = rm.rooms_of(houses, await rules_areas(request.app))
+    climates = sorted({c for r in rooms for c in r["climates"]})
+    async with _HaSocket() as ws:
+        more = []
+
+        async def ask(i, cmd, empty):
+            try:
+                return await rn.ask(ws, i, cmd, more)
+            except LookupError:                                  # not set up, an older Home Assistant: that part stays empty
+                return empty
+        em = pages.energy_meters(await ask(1, {"type": "energy/get_prefs"}, None))
+        grid, gas, devs = em["meters"]["from"], em["meters"]["gas"], [x["id"] for x in em["devices"]]
+
+        async def stats(i, a, b, ids):
+            if not ids:
+                return {}
+            return await ask(i, {"type": "recorder/statistics_during_period", "start_time": a.isoformat(), "end_time": b.isoformat(),
+                                 "statistic_ids": ids, "period": "month", "types": ["change"], "units": {"energy": "kWh"}}, {})
+        now_s = await stats(2, start, end, list(dict.fromkeys(grid + gas + devs)))
+        ly_s = await stats(3, ly0, ly1, list(dict.fromkeys(grid + gas)))
+        meta = await ask(4, {"type": "recorder/get_statistics_metadata", "statistic_ids": gas}, []) if gas else []
+        registry = await ask(5, {"type": "config/entity_registry/list"}, []) if devs else []
+        devices = await rn.device_list(ws, 6, more) if devs else []
+        hist = await ask(7, {"type": "history/history_during_period", "start_time": start.isoformat(), "end_time": end.isoformat(),
+                             "entity_ids": climates, "minimal_response": False, "no_attributes": False,
+                             "significant_changes_only": False}, {}) if climates and gas else {}
+    end_ts = min(end.timestamp(), time.time())
+    use = {c: mr.climate_use((hist or {}).get(c), end_ts) for c in climates}
+    idx, d, room_kwh = rm.room_index(rooms), hadevices.Devices(registry, devices), {}
+    for sid in devs:
+        v = mr.stat_sum(now_s, [sid])
+        room = idx.get(sid) or next((idx[e] for e in d.whole(sid) if e in idx), None)
+        if v is not None and room:
+            room_kwh[room] = room_kwh.get(room, 0.0) + v
+    unit = next((m.get("statistics_unit_of_measurement") for m in meta or [] if isinstance(m, dict)), None)
+    totals = {"power": mr.stat_sum(now_s, grid), "gas": mr.stat_sum(now_s, gas), "power_ly": mr.stat_sum(ly_s, grid),
+              "gas_ly": mr.stat_sum(ly_s, gas), "gasUnit": unit if unit in ("m³", "kWh") else "m³"}
+    return mr.build(rooms, use, room_kwh, totals, em["price"], key), houses
+
+
+async def get_month_report(request):
+    """📊 the report of last month (?back=1 … 12), for the preview in the settings; kept 10 minutes"""
+    if "energy" in user_locks(request):
+        return web.json_response({"error": "the energy is locked for this user"}, status=403)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
+    back = request.query.get("back", "1")
+    back = int(back) if back.isdigit() and 1 <= int(back) <= 12 else 1
+    hit = pages_cached(request, ("monthreport", back), 600)
+    if hit is not None:
+        return web.json_response(hit)
+    try:
+        rep, _houses = await month_report_make(request, back)
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    lang = notify_lang(request)
+    return web.json_response(pages_keep(request, ("monthreport", back), {**rep, "text": mr.text(rep, lang)}))
+
+
+async def month_report_send(request, preview=False):
+    """make last month's report and send it the way the messages are set up (📲 Benachrichtigung): (ok, error)"""
+    rep, houses = await month_report_make(request)
+    lang = notify_lang(request)
+    pics = []
+    try:
+        pics = [mr.picture(rep, houses, lang)] if rep.get("rooms") else []
+    except Exception:  # noqa: BLE001 - no Pillow, a broken plan: the text alone
+        pics = []
+    return await send_notify(notify_cfg(request), mr.text(rep, lang, preview), pics)
+
+
+async def post_month_report_send(request):
+    """📊 "Jetzt senden": last month's report at once (for who may edit), marked as a preview"""
+    if not can_edit(request):
+        return web.json_response({"error": "read-only"}, status=403)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
+    try:
+        ok, err = await month_report_send(request, preview=True)
+    except HA_DOWN as e:
+        ok, err = False, f"Home Assistant not reachable: {e}"
+    return web.json_response({"ok": ok, "error": err}, status=200 if ok else 502)
+
+
+async def month_reporter(app):
+    """Background task: on the day and hour of the settings the report of the month before, once (only with Home Assistant; nothing while
+    the beta pauses)."""
+    task = None
+    if SUPERVISOR_TOKEN:
+        ctx = _AppCtx(app)
+
+        async def loop():
+            while True:
+                await asyncio.sleep(300)
+                try:
+                    cfg = mr.clean_cfg(validate_settings(read_settings(ctx)).get("monthReport"))
+                    if not cfg["on"] or beta_paused(ctx):
+                        continue
+                    tz = await ha_time_zone()
+                    now = datetime.datetime.now(tz) if tz else datetime.datetime.now().astimezone()
+                    key = mr.due(cfg, now, read_json(month_report_path(ctx), {}).get("last", ""))
+                    if key:
+                        ok, _err = await month_report_send(ctx)
+                        if ok:
+                            write_json_atomic(month_report_path(ctx), {"last": key})
+                except Exception:  # noqa: BLE001 - Home Assistant away or a message that did not go: in five minutes again
+                    pass
+
+        task = asyncio.create_task(loop())
+    yield
+    if task:
+        task.cancel()
+
+
 async def household_teller(app):
     """Background task: 🔔 "Sag mir Bescheid" also while no screen is open (#531), every minute (only with Home Assistant)."""
     task = None
@@ -4793,6 +4923,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.cleanup_ctx.append(alarm_notifier)
     app.cleanup_ctx.append(guard_watcher)
     app.cleanup_ctx.append(household_teller)
+    app.cleanup_ctx.append(month_reporter)
     app.cleanup_ctx.append(garden_timer)
     app.cleanup_ctx.append(rules_runner)
     app.add_routes([
@@ -4845,6 +4976,8 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/signals", get_signals),
         web.get("/api/energy/prefs", get_energy_prefs),
         web.get("/api/energy/meters", get_energy_meters),
+        web.get("/api/monthreport", get_month_report),
+        web.post("/api/monthreport/send", post_month_report_send),
         web.get("/api/energy/counters", get_energy_counters), web.post("/api/energy/counter", make_energy_counter),
         web.post("/api/energy/stats", post_energy_stats),
         web.post("/api/energy/levels", post_energy_levels),
