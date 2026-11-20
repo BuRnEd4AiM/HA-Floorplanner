@@ -2,6 +2,17 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.25.0] - 2026-11-20
+### Added
+- **🧭 Erste Schritte** (the owner's choice, docs/ideen-5.21 picture 2): a card in the editor that leads from the empty plan to the finished house in four steps, each worked out from the house itself (stop any time, go on later):
+  - **1 Grundriss**: draw the walls or take the example house.
+  - **2 Räume mit den Bereichen verbinden**: "8 von 9"; **"🔗 Alle gleichnamigen verbinden"** links every room called like an area of Home Assistant in one step, "Einzeln" selects the next room without an area.
+  - **3 Geräte setzen**: **"✨ Alle 46 automatisch setzen"** puts the areas' devices into their rooms on every floor (one undo step), "Einzeln" selects the next room with devices to place.
+  - **4 Live-Ansicht**: "▶ Live-Ansicht ansehen" and "⚙ Einstellungen" for tabs and tablets.
+  - With a bar in percent, "⏭ Überspringen" and "🎬 Video dazu". The welcome card of an empty house opens it; while a tool draws, it waits small in the corner.
+### Changed
+- **The editor's top bar is shorter** (docs/ideen-5.8 picture 16): 🎬 Anleitung, 🗄️ Backup and 🛡️ Sicherheit are in a new **"⋯" menu** with a line each on what they do, together with 🧭 Erste Schritte; a small "neu" until it was opened once. In the live view they stay in the bar.
+
 ## [5.24.0] - 2026-11-20
 ### Added
 - **🩺 Haus-Check with 🔧 Wartung** (the owner's choice, docs/ideen-5.21 picture 1, with the maintenance of docs/ideen-5.15 picture 9): a new page of the tab bar (also under 📱 "Mehr", with a chip "🩺 n prüfen" on Start and a number on the tab) with everything that needs a look in one place:

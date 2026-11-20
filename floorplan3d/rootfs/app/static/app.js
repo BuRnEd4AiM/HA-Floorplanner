@@ -78,6 +78,10 @@ import { initRoomTiles } from './roomtilesui.js';
 import { initLightGroups } from './lightgroupsui.js';
 import { initFavorites } from './favoritesui.js';
 import { initWelcome } from './welcome.js';
+import { initFirstSteps } from './firststepsui.js';
+import { toPlace, firstUnlinked } from './firststeps.js';
+import { nameMatches } from './roomname.js';
+import { initTopMore } from './topmore.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { planPlacement, classify } from './autoplace.js';
@@ -203,6 +207,7 @@ let layout = { version: 1, floors: [] };
 let floorIdx = 0;
 let returnToTool = null;          // after placing a device the Select tool is active for one click, then this tool comes back
 let welcomeUi = null;           // the welcome card of an empty house (set up further down)
+let firstSteps = null;          // 🧭 Erste Schritte (set up after the welcome card)
 let mode = 'edit';                 // 'edit' | 'live'
 let tool = 'select';
 let uiV2 = null;                   // „Oberfläche 2“ (uiv2ui.js), set further down
@@ -1312,11 +1317,56 @@ buildingsUi = initBuildingsUi({
 initImport({ t, lang: () => currentLanguage(), houseId: () => hs.id(), onImported: (j) => houseLoad.openImported(j) });
 welcomeUi = initWelcome({
   t, getLayout: () => layout, isEdit: () => !isLive(), loaded: () => planLoaded,
-  draw: () => { $('#viewSplit').click(); setTool('wall'); },
-  example: () => houseLoad.openExample(),
-  importJson: () => $('#importOpen').click(),
+  draw: () => { firstSteps?.open(); $('#viewSplit').click(); setTool('wall'); },     // each way in also opens 🧭 Erste Schritte
+  example: () => { firstSteps?.open(); return houseLoad.openExample(); },
+  importJson: () => { firstSteps?.open(); $('#importOpen').click(); },
 });
 welcomeUi.update();
+/* 🧭 Erste Schritte (5.25.0): the four steps from the empty plan to the finished house (firststeps.js, firststepsui.js) and the "⋯" menu
+   of the editor's top bar (topmore.js) */
+const placedEverywhere = () => {
+  const s = new Set();
+  layout.floors.forEach((f) => {
+    entityDevices(f).forEach((d) => { if (d.entity) s.add(d.entity); });
+    openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => linkedEntities(o).forEach((e) => s.add(e))));
+  });
+  return s;
+};
+const stillToPlace = () => toPlace(layout, areas, placedEverywhere(), (id) => !!classify(entityInfo(id)));
+const selectRoomAt = (fi, id) => { if (houseMode || fi !== floorIdx) switchFloor(fi); selection = { kind: 'room', id }; lockedSel = false; refreshSelection(); };
+firstSteps = initFirstSteps({
+  t, host: $('#welcome').parentElement,
+  stats: () => {
+    const rooms = layout.floors.flatMap((f) => f.rooms || []);
+    return { rooms: rooms.length, linked: rooms.filter((r) => r.area).length, areas: areas.length, toLink: nameMatches(areas, layout).length,
+      unplaced: stillToPlace().reduce((n, x) => n + x.ids.length, 0), devices: layout.floors.reduce((n, f) => n + (f.devices || []).length, 0) };
+  },
+  show: () => !isLive() && planLoaded && me.canEdit !== false && $('#welcome').hidden,
+  draw: () => { $('#viewSplit').click(); setTool('wall'); },
+  example: () => houseLoad.openExample(),
+  linkAll: () => {
+    const todo = nameMatches(areas, layout);
+    if (!todo.length) return;
+    snapshot(); todo.forEach(({ room, area }) => { room.area = area.id; }); changed();
+    setStatus(t('fs.linked', { n: todo.length }));
+  },
+  linkOne: () => { const x = firstUnlinked(layout); if (x) selectRoomAt(x.fi, x.room.id); },
+  placeAll: () => {
+    const list = stillToPlace();
+    if (!list.length) return;
+    snapshot();
+    const n = list.reduce((sum, { fi, room, ids }) => sum + autoPlace(room, ids, layout.floors[fi], false).devices.length, 0);
+    changed(); build();
+    setStatus(t('fs.placed', { n }));
+  },
+  placeOne: () => { const x = stillToPlace()[0]; if (x) selectRoomAt(x.fi, x.room.id); },
+  goLive: () => setMode('live'),
+  settings: () => $('#settingsBtn').click(),
+  video: () => $('#guideBtn').click(),
+  busy: () => tool !== 'select',
+});
+initTopMore({ $, t, firstSteps: () => firstSteps.open() });
+setInterval(() => firstSteps.update(), 1500);                       // follows the house: rooms drawn, linked, devices set
 
 function save() { return persist.save(); }
 
@@ -1484,21 +1534,20 @@ async function saveEffectColors() {
 }
 const entityInfo = (id) => entities.find((e) => e.entity_id === id) || { entity_id: id, domain: id.split('.')[0] };
 /** put the given entities into the room where they belong (see autoplace.js); one undo step; returns the plan */
-function autoPlace(room, ids) {
-  const f = floor();
+function autoPlace(room, ids, f = floor(), snap = true) {   // f: the room's floor (🧭 Erste Schritte places on every floor), snap: own undo step
   const existing = f.devices.filter((d) => pointInPoly(d.x, d.z, room.points)).map((d) => ({
     x: d.x, z: d.z, layer: WALL_TYPES.has(d.type) || d.type === 'sensor' ? 'wall' : (d.y || 0) > 1.8 ? 'ceiling' : 'floor',
   }));
   const plan = planPlacement(room, ids.map(entityInfo), { openings: roomOpeningSpans(room, f), existing, wallHeight: settings.wallHeight });
   if (!plan.devices.length && !plan.openings.length) return plan;
-  snapshot();
+  if (snap) snapshot();
   plan.devices.forEach((p) => {
     const d = { id: uid(), type: p.type, x: p.x, z: p.z, y: p.y ?? DEVICE_TYPES[p.type]?.y ?? 0, rot: p.rot || 0, scale: 1, name: entityInfo(p.entity).name || p.entity, entity: p.entity };
     if (p.wall && WALL_TYPES.has(d.type)) snapToWall(d, 0.6, true);       // flat onto the wall face
     f.devices.push(d);
     p.id = d.id;
   });
-  plan.openings.forEach((o) => { const fo = findOpening(o.id); if (fo) fo.opening.entity = o.entity; });
+  plan.openings.forEach((o) => { const fo = openingWalls(f).flatMap((w) => w.openings || []).find((x) => x.id === o.id); if (fo) fo.entity = o.entity; });
   changed();
   return plan;
 }
@@ -1558,6 +1607,8 @@ function setMode(next) {
   applyStates();
   liveBatch.apply();
   welcomeUi?.update();                                              // the welcome card is for the editor only
+  if (isLive()) firstSteps?.sawLive();                              // 🧭 step 4: the live view was seen
+  firstSteps?.update();
   requestAnimationFrame(resize);
 }
 document.querySelectorAll('#modeSwitch button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));

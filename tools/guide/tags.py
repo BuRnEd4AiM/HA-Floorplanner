@@ -178,6 +178,11 @@ t("guest",
 t("guest-view",
   "Gast Gäste Handy Karte Zimmer steuern Licht Rollladen Heizung Musik Was sieht der Gast Willkommen Zugang beendet Besuch Gästezimmer",
   "guest guests phone card room control light shutters heating music what does the guest see welcome access ended visit guest room")
+t("first-steps",
+  "Erste Schritte Assistent Einrichtung einrichten Anfang anfangen neu Bereiche verbinden zuordnen Geräte automatisch setzen platzieren "
+  "Wie fange ich an Was muss ich zuerst machen Menü drei Punkte Anleitung Backup Sicherheit",
+  "first steps wizard setup set up getting started begin new areas link assign devices place automatically onboarding "
+  "how do I start what do I do first menu three dots guide backup security")
 t("house-check",
   "Haus-Check Wartung Erinnerung Batterie leer offline Rauchmelder testen Filter reinigen Flusensieb Heizkörper entlüften Update Pflege "
   "Was muss ich am Haus machen Wann Batterie wechseln",

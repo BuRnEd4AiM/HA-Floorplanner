@@ -83,6 +83,8 @@ f("log", "pages", "📜 Protokoll: wer hat was geschaltet", "📜 Log: who switc
 f("buttons", "pages", "🔘 Eigene Seiten mit Knöpfen", "🔘 Own pages with buttons", ["buttons"])
 
 # ---------- drawing the plan ----------
+f("firststeps", "edit", "🧭 Erste Schritte: in vier Schritten zum fertigen Haus, dazu das „⋯“-Menü oben (Anleitung, Backup, Sicherheit)",
+  "🧭 First steps: four steps to the finished house, plus the “⋯” menu at the top (guide, backup, security)", ["first-steps"], since="5.25.0")
 f("walls", "edit", "Wände zeichnen", "Draw walls", ["walls"])
 f("rooms", "edit", "Räume erkennen und benennen", "Find and name rooms", ["rooms"])
 f("openings", "edit", "Türen und Fenster", "Doors and windows", ["openings"])
