@@ -4,7 +4,8 @@
  * On a wide screen (4.35.0, the owner: "fast über den ganzen Bildschirm … nicht ewig scrollen … professionelle Einstellung") the dialog fills
  * the screen: the groups are a list on the left (#sgNav), the chosen one stands on the right (#sgPane) with its settings as tiles in two or
  * three columns (a row with its hint is one tile, .sgTile); a search shows every group it finds there, one under the other. Phones and narrow
- * windows keep the groups that fold. Matching, the remembered state and the tiles are pure (unit test: tests/setgroups.test.mjs); initSetGroups
+ * windows keep the groups that fold; 📱 phones (5.23.0, the owner's choice docs/ideen-5.22 pictures 47, 48) get the groups as a list like a
+ * phone's settings, a tap opens one group as a page of its own with "‹ Einstellungen". Matching, the remembered state and the tiles are pure (unit test: tests/setgroups.test.mjs); initSetGroups
  * wires them to the dialog. */
 
 const STORE = 'fp3d.setGroups';
@@ -108,7 +109,7 @@ export function initSetGroups(ctx) {
   }
   /** what an item says: its text and the tooltips in it (a hint like "follows the sun" finds the sky) */
   const textOf = (el) => [el.textContent, el.title, ...[...el.querySelectorAll('[title]')].map((x) => x.title)].join(' ');
-  let searching = false, side = false, current = null;
+  let searching = false, side = false, current = null, phone = false, phoneGroup = null;
 
   /* the list on the left and the place on the right; on a narrow screen the list is hidden and the place is just the groups */
   const nav = document.createElement('nav'), pane = document.createElement('div');
@@ -122,10 +123,23 @@ export function initSetGroups(ctx) {
     b.type = 'button'; b.dataset.group = g.dataset.group;
     b.className = [...g.classList].filter((c) => c !== 'setGroup').join(' ');    // admin-only stays admin-only
     b.innerHTML = g.querySelector('summary').innerHTML;
-    b.addEventListener('click', () => { search.value = ''; searching = false; show(b.dataset.group, true); });
+    b.addEventListener('click', () => { search.value = ''; searching = false; if (phone) phoneShow(b.dataset.group); else show(b.dataset.group, true); });
     nav.append(b);
   });
   const navBtns = () => [...nav.children];
+  /* 📱 phones: the list of groups, or one group as a page with "‹ Einstellungen" */
+  const back = document.createElement('button');
+  back.type = 'button'; back.id = 'sgBack'; back.hidden = true; back.textContent = `‹ ${t('settings')}`;
+  dlg.querySelector('.dlgHead')?.prepend(back);
+  function phoneShow(id) {
+    phoneGroup = id;
+    groups().forEach((g) => { g.hidden = g.dataset.group !== id; g.open = g.dataset.group === id; });
+    dlg.classList.toggle('sgPhoneIn', !!id);
+    back.hidden = !id;
+    none.hidden = true;
+    dlg.scrollTop = 0;
+  }
+  back.addEventListener('click', () => { search.value = ''; searching = false; dlg.classList.remove('sgSearching'); phoneShow(null); groups().forEach((g) => { g.hidden = false; g.open = false; }); });
   const shownIds = () => navBtns().filter((b) => getComputedStyle(b).display !== 'none').map((b) => b.dataset.group);
 
   const stored = () => { try { return readOpen(localStorage.getItem(STORE)); } catch { return []; } };
@@ -152,6 +166,7 @@ export function initSetGroups(ctx) {
     dlg.querySelectorAll('.sgHit').forEach((el) => el.classList.remove('sgHit'));
     shutOpened();
     if (side) { show(pickGroup(current ?? storedSide(), shownIds())); return; }
+    if (phone) { dlg.classList.remove('sgSearching'); if (phoneGroup) phoneShow(phoneGroup); else groups().forEach((g) => { g.hidden = false; g.open = false; }); return; }
     const open = new Set(stored());
     groups().forEach((g) => { g.hidden = false; g.open = open.has(g.dataset.group); });
     none.hidden = true;
@@ -179,6 +194,10 @@ export function initSetGroups(ctx) {
     const was = side;
     side = matchMedia(SIDE_QUERY).matches && !document.body.classList.contains('phoneview');
     dlg.classList.toggle('sgSide', side);
+    const wasPhone = phone;
+    phone = !side && document.body.classList.contains('phoneview');
+    dlg.classList.toggle('sgPhone', phone);
+    if (!phone && wasPhone) { phoneGroup = null; dlg.classList.remove('sgPhoneIn'); back.hidden = true; }
     if (side !== was) { if (search.value) run(); else clear(); label(); }
   }
   /** the night times only matter when dimming goes by the clock; the rest of the wall tablet's screen saver and dimming only when it is on
@@ -193,6 +212,7 @@ export function initSetGroups(ctx) {
   groups().forEach((g) => {
     g.addEventListener('toggle', () => {
       if (side && g.open && !searching && current !== g.dataset.group) show(g.dataset.group);   // opened by a link or a test: that group on the right
+      if (phone && g.open && !searching && phoneGroup !== g.dataset.group) phoneShow(g.dataset.group);   // 📱 … as its page
       remember(); label();
     });
     g.querySelector('summary').addEventListener('click', (e) => {    // wide: the head of a group does not fold it; in a search it goes there
@@ -208,7 +228,7 @@ export function initSetGroups(ctx) {
     const next = ids[Math.max(0, Math.min(ids.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1)))];
     if (next) { search.value = ''; searching = false; show(next, true); }
   });
-  dlg.addEventListener('sg-show', (e) => { if (side) { search.value = ''; searching = false; show(e.detail); } });
+  dlg.addEventListener('sg-show', (e) => { if (side) { search.value = ''; searching = false; show(e.detail); } else if (phone) { search.value = ''; searching = false; phoneShow(e.detail); } });
   search.addEventListener('input', run);
   search.addEventListener('change', (e) => e.stopPropagation());                  // not a setting: the dialog saves on every change
   search.addEventListener('keydown', (e) => {
@@ -223,6 +243,7 @@ export function initSetGroups(ctx) {
   dlg.addEventListener('change', refresh);
   $('#settingsBtn')?.addEventListener('click', () => {                            // each time it opens: the groups as left, no search
     groups().forEach((g) => bodies(g).forEach(tile));
+    phoneGroup = null; dlg.classList.remove('sgPhoneIn'); back.hidden = true; back.textContent = `‹ ${t('settings')}`;   // 📱 a phone starts with the list
     layout(); search.value = ''; clear(); refresh();
   });
   matchMedia(SIDE_QUERY).addEventListener?.('change', layout);

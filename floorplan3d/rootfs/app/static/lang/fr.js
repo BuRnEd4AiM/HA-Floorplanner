@@ -2593,4 +2593,8 @@ export default {
   'app.noRooms': 'Pas encore de pièces nommées – dessinez-les et nommez-les en mode édition.', 'app.nOn': '{n} allumée(s)', 'app.off': 'éteint',
   'app.allOff': 'Éteindre toutes les lumières de la pièce', 'app.open1': 'Ouvrir la pièce', 'app.more': 'Plus', 'app.settings': 'Réglages',
   'app.classic': 'Vue classique (comme avant)', 'app.toApp': '📱 Vue téléphone comme une appli',
+  'app.houses': 'Maisons', 'app.buildings': 'Bâtiments', 'app.places': 'Maison et bâtiment', 'app.allOff2': 'Tout éteindre', 'app.tools': 'Outils',
+  'app.edit': 'Modifier', 'app.guide': 'Guide (vidéos)', 'app.backup': 'Sauvegarde', 'app.timeline': 'Sécurité (rejouer une journée)',
+  'app.colors': 'Couleurs dans la maison', 'app.view': 'Vue', 'app.scenes': 'Scènes',
+  'app.nothing': 'Rien à afficher.', 'app.allLightsOff': 'Toutes les lumières sont éteintes.',
 };

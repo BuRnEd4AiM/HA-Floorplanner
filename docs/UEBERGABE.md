@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-20, Version **5.22.0** (5.14.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-20, Version **5.23.0** (5.14.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,10 +10,10 @@ Stand: 2026-11-20, Version **5.22.0** (5.14.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
+- **2026-11-20, 5.23.0: 📱 Handy-App, der nächste Schritt (Branch `claude/admiring-wright-gz4ogb`):** 44 Bilder der Handy-App (`docs/ideen-5.22` 1–44), er fand keine Wahl des Gebäudes; Bilder 45–52, seine Wahl: alles. Haus/Gebäude oben, Chips mit Liste, 3D-Haus mit runden Knöpfen, ☰-Werkzeuge in „Mehr“, Einstellungen als Liste (`appui.js`, `setgroups.js`).
 - **2026-11-20, 5.22.0: 📱 Handy wie eine App (Branch `claude/admiring-wright-gz4ogb`):** sein Wunsch „nicht so selbstgebaut“; Bilder `docs/ideen-5.21` (dazu 5 neue Ideen), seine Wahl Bild 8–10: unten Start, Räume, 3D-Haus, Energie, Mehr (`appshell.js`, `appui.js`, `tabsui.js`), „Klassische Ansicht“ je Handy. Danach gewählt: Haus-Check mit Wartung, Erste Schritte mit Kopfleiste, Monatsbericht.
 - **2026-11-20, 5.21.0: 👥 Gäste-Zugang (Branch `claude/admiring-wright-gz4ogb`):** seine Vorstellung statt Bild 10: ein Benutzer „gast“ in Home Assistant, ein QR-Code, der Gast sieht nur die Karte des gewählten Zimmers; seine Wahl: einmal anmelden, Licht, Rollladen, Heizung, Musik, mit „bis“. `guest.py` (Sperren, nur sein Zimmer), `guestui.js` (⚙ Benutzer, QR, Karte drucken), `guestview.js`; Demo `?gast=1`.
 - **2026-11-19, 5.20.0: 🌗 Abläufe nach der Helligkeit (Branch `claude/admiring-wright-gz4ogb`):** sein Wunsch, damit er im Winter keine Uhrzeiten umstellen muss; seine Wahl: nach dem Sonnenstand, als Auslöser „Es wird dunkel / hell“ (Stufen 6° … −6°), als „Nur wenn dunkler als …“ und als Haken an der Uhrzeit (hält den Abstand zum Sonnenuntergang). `flows.py`, `haflows.py`, `rules.js`, `flowedit.js`.
-- **2026-11-19, 5.19.0: 🔌 Stromfresser (Branch `claude/admiring-wright-gz4ogb`):** seine Wahl aus den vier offenen Ideen: Karte auf ⚡ Energie, fest 2–5 Uhr, „⏰ Nachts abschalten“ öffnet einen fertigen Ablauf (01:00 aus, 06:00 an). Mittel der letzten 14 Nächte aus den Statistiken (`standby.js`, `standbycard.js`), die Steckdose je Gerät liefert `api/energy/meters` („plugs“, gleiches Gerät); „läuft immer“ wird am Namen erkannt.
 
 ## Offen
 
@@ -21,6 +21,7 @@ Stand: 2026-11-20, Version **5.22.0** (5.14.0 ist für alle freigegeben). Erst d
 - **5.16.0 Bild bei Alarm:** sein Test mit seinem Bot (Testprotokoll 207.3 bis 207.5).
 - **5.17.0 Funk-Karte:** sein Test (208.4, 208.5), ob seine Zigbee-Werte ausgeschaltet sind.
 - **5.18.0 Urlaubs-Licht:** sein Test (209.3 bis 209.5).
+- **5.23.0 Handy-App 2:** sein Test (214.6, 214.7) und was ihm an den Bildern 1–44 noch auffällt.
 - **5.22.0 Handy-App:** sein Eindruck am Handy (213.4 bis 213.6).
 - **5.21.0 Gäste-Zugang:** sein Test (212.5 bis 212.8).
 - **5.20.0 Helligkeit:** sein Test (211.4 bis 211.6).

@@ -523,7 +523,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 211. Neu in 5.20.0: 🌗 Abläufe nach der Helligkeit | 3 | 0 | 3 | 0 | 211.4 bis 211.6 |
 | 212. Neu in 5.21.0: 👥 Gäste-Zugang | 4 | 0 | 4 | 0 | 212.5 bis 212.8 |
 | 213. Neu in 5.22.0: 📱 Das Handy wie eine App | 3 | 0 | 3 | 0 | 213.4 bis 213.6 |
-| **Zusammen** | **1333** | **2** | **130** | **92** | |
+| 214. Neu in 5.23.0: 📱 Handy-App, der nächste Schritt | 5 | 0 | 2 | 0 | 214.6, 214.7 |
+| **Zusammen** | **1338** | **2** | **132** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3234,4 +3235,17 @@ Dein Wunsch vom 2026-11-20 („nicht so selbstgebaut … mehr nach einer App“)
 | 213.4 | Dein Handy: die App-Ansicht ein paar Tage benutzen | Fühlt sich wie eine App an; was fehlt oder stört, sagst du mir | ❓ |
 | 213.5 | Dein Handy: auf einer Raum-Kachel den runden 💡-Knopf | Alle Lichter des Raums gehen aus | ❓ |
 | 213.6 | Dein Handy: „Mehr“ → „Klassische Ansicht“, dann ☰ → „📱 Handy-Ansicht wie eine App“ | Erst die alte Leiste, dann wieder die App | ❓ |
+
+## 214. Neu in 5.23.0: 📱 Handy-App, der nächste Schritt
+Deine Wahl vom 2026-11-20: alles aus `docs/ideen-5.22` Bild 45–52 (Haus/Gebäude, Einstellungen, 3D-Haus schlank, Menü in „Mehr“, Chips mit Liste).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 214.1 | Browser-Test Teil `101_phone_app` (erweitert), dazu `67_phone_edit`, `07_tablet`, `87_settings_look`, `25_sky_tiles`, `89_room_card`; Unit-Tests | Alles grün | ✅ (2026-11-20, Claude) |
+| 214.2 | Demo am Handy: oben auf Start „🏠 Demo-Haus ▾“ antippen | Liste von unten mit Demo-Haus und Nachbarhaus | ✅ (2026-11-20, Claude, Demo) |
+| 214.3 | Demo am Handy: „💡 … an“ antippen | Liste der brennenden Lampen von unten, unten „Alle aus“ | ✅ (2026-11-20, Claude, Demo) |
+| 214.4 | Demo am Handy: „3D-Haus“, rechts 🎨 | Kein ☰ oben; Liste Normal, Temp., Feuchte …; ein Tipp färbt das Haus | ✅ (2026-11-20, Claude, Demo) |
+| 214.5 | Demo am Handy: „Mehr“ → „Einstellungen“ → eine Gruppe → „‹ Einstellungen“ | Liste der Gruppen, die Gruppe als eigene Seite, zurück zur Liste | ✅ (2026-11-20, Claude, Demo) |
+| 214.6 | Dein Handy: oben das Haus antippen und ein anderes Gebäude wählen | Start und Räume zeigen das gewählte Gebäude | ❓ |
+| 214.7 | Dein Handy: „Mehr“ → „Bearbeiten“, dann ☰ → „Live“ | Bearbeiten wie bisher, zurück in die App | ❓ |
 

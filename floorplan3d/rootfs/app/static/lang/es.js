@@ -2570,4 +2570,8 @@ export default {
   'app.rooms': 'Habitaciones', 'app.all': 'Todas', 'app.noRooms': 'Aún no hay habitaciones con nombre: dibújalas y nómbralas al editar.',
   'app.nOn': '{n} encendida(s)', 'app.off': 'apagado', 'app.allOff': 'Apagar todas las luces de la habitación', 'app.open1': 'Abrir la habitación',
   'app.more': 'Más', 'app.settings': 'Ajustes', 'app.classic': 'Vista clásica (como antes)', 'app.toApp': '📱 Vista de móvil como una app',
+  'app.houses': 'Casas', 'app.buildings': 'Edificios', 'app.places': 'Casa y edificio', 'app.allOff2': 'Apagar todo', 'app.tools': 'Herramientas',
+  'app.edit': 'Editar', 'app.guide': 'Guía (vídeos)', 'app.backup': 'Copia de seguridad', 'app.timeline': 'Seguridad (reproducir un día)',
+  'app.colors': 'Colores en la casa', 'app.view': 'Vista', 'app.scenes': 'Escenas',
+  'app.nothing': 'Nada que mostrar.', 'app.allLightsOff': 'Todas las luces están apagadas.',
 };

@@ -2530,4 +2530,8 @@ export default {
   'app.noRooms': 'Nog geen kamers met naam – teken en benoem ze bij het bewerken.', 'app.nOn': '{n} aan', 'app.off': 'uit',
   'app.allOff': 'Alle lichten in de kamer uit', 'app.open1': 'Kamer openen', 'app.more': 'Meer', 'app.settings': 'Instellingen',
   'app.classic': 'Klassieke weergave (zoals vroeger)', 'app.toApp': '📱 Telefoonweergave als een app',
+  'app.houses': 'Huizen', 'app.buildings': 'Gebouwen', 'app.places': 'Huis en gebouw', 'app.allOff2': 'Alles uit', 'app.tools': 'Hulpmiddelen',
+  'app.edit': 'Bewerken', 'app.guide': 'Handleiding (video\'s)', 'app.backup': 'Back-up', 'app.timeline': 'Beveiliging (dag afspelen)',
+  'app.colors': 'Kleuren in het huis', 'app.view': 'Weergave', 'app.scenes': 'Scènes',
+  'app.nothing': 'Niets te tonen.', 'app.allLightsOff': 'Alle lichten zijn uit.',
 };

@@ -94,8 +94,8 @@ def _(r):
 
 @clip("phone-pages", "phone",
       {"de": "Am Handy: wie eine App", "en": "On the phone: like an app"},
-      {"de": "Unten fünf Reiter: Start, Räume, 3D-Haus, Energie und Mehr. Start begrüßt dich mit dem Wichtigsten und den Räumen als Kacheln; ein Raum öffnet sich als eigene Seite. Unter „Mehr“ alle anderen Seiten, die Einstellungen und die klassische Ansicht.",
-       "en": "Five tabs at the bottom: home, rooms, 3D house, energy and more. Home greets you with what matters and the rooms as tiles; a room opens as a page of its own. Under “More” every other page, the settings and the classic view."},
+      {"de": "Unten fünf Reiter: Start, Räume, 3D-Haus, Energie und Mehr. Start begrüßt dich mit dem Wichtigsten, oben Haus und Gebäude, die Chips öffnen ihre Liste, darunter die Räume als Kacheln; ein Raum öffnet sich als eigene Seite. Im 3D-Haus runde Knöpfe für Farben, Ansicht und Szenen. Unter „Mehr“ alle anderen Seiten, Bearbeiten, Anleitung, Backup, die Einstellungen als Liste und die klassische Ansicht.",
+       "en": "Five tabs at the bottom: home, rooms, 3D house, energy and more. Home greets you with what matters, the house and building on top, the chips open their list, the rooms as tiles below; a room opens as a page of its own. Round buttons for colours, view and scenes in the 3D house. Under “More” every other page, edit, guide, backup, the settings as a list and the classic view."},
       "Handy App Start Räume Kacheln Seiten Leiste unten Mehr Heute Energie Klima klassische Ansicht phone app home rooms tiles pages bar bottom more today energy climate classic view",
       device="phone", sky="19:40")
 def _(r):
@@ -108,6 +108,17 @@ def _(r):
     r.say("„‹ Start“ geht zurück.", "“‹ Home” goes back.")
     r.click("#appBack")
     r.wait(1000)
+    r.say("Oben das Haus: ein Tipp wählt ein anderes Haus oder Gebäude.", "The house at the top: a tap chooses another house or building.")
+    r.click("[data-page=start] [data-act=appPlace]")
+    r.wait(1800)
+    r.click(".apSheet [data-house]", nth=0)
+    r.wait(1000)
+    r.say("Ein Tipp auf „💡 an“ zeigt die Lampen, die brennen; „Alle aus“ macht sie aus.", "A tap on “💡 on” shows the lamps that are on; “All off” switches them off.")
+    r.click("[data-page=start] [data-chip=lights]")
+    r.wait(2000)
+    r.key("Escape")
+    r.pg.mouse.click(200, 40)
+    r.wait(600)
     r.say("„Räume“ zeigt alle Räume nach Etagen.", "“Rooms” shows every room by floor.")
     r.click("#tabBar [data-tab=rooms]")
     r.wait(1800)
@@ -116,25 +127,35 @@ def _(r):
     r.wait(2000)
     r.click(".apSheet [data-tab=climate]")
     r.wait(1800)
-    r.say("„3D-Haus“ zeigt dein Haus wie gewohnt.", "“3D house” shows your house as always.")
+    r.say("„3D-Haus“ zeigt dein Haus wie gewohnt; rechts die runden Knöpfe für Farben, Ansicht und Szenen.", "“3D house” shows your house as always; the round buttons on the right for colours, view and scenes.")
     r.click("#tabBar [data-tab=house]")
+    r.wait(1500)
+    r.click("[data-fab=colors]")
+    r.wait(1600)
+    r.click(".apSheet .apItem", nth=1)
+    r.wait(1800)
+    r.say("Die Einstellungen sind eine Liste, jede Gruppe eine eigene Seite.", "The settings are a list, every group a page of its own.")
+    r.click("#tabBar [data-tab=more]")
+    r.wait(800)
+    r.click(".apSheet [data-act=appSettings]")
+    r.wait(1500)
+    r.click("#sgNav button", nth=0)
     r.wait(1800)
 
 
 @clip("phone-edit", "phone",
       {"de": "Am Handy bearbeiten", "en": "Edit on the phone"},
-      {"de": "☰ → „Bearbeiten“: oben die Werkzeuge in einer Leiste zum Wischen, „2D“ zeigt den Plan. Mit dem Finger Wände zeichnen, ein Fenster antippen und unten einstellen, auch seinen Kontakt. ☰ → „Live“ geht zurück zum Haus.",
-       "en": "☰ → “Edit”: the tools in a strip at the top to swipe, “2D” shows the plan. Draw walls with the finger, tap a window and set it up below, its contact too. ☰ → “Live” goes back to the house."},
+      {"de": "„Mehr“ → „Bearbeiten“: oben die Werkzeuge in einer Leiste zum Wischen, „2D“ zeigt den Plan. Mit dem Finger Wände zeichnen, ein Fenster antippen und unten einstellen, auch seinen Kontakt. ☰ → „Live“ geht zurück zum Haus.",
+       "en": "“More” → “Edit”: the tools in a strip at the top to swipe, “2D” shows the plan. Draw walls with the finger, tap a window and set it up below, its contact too. ☰ → “Live” goes back to the house."},
       "Handy bearbeiten Bearbeiten-Modus unterwegs Wand zeichnen Finger tippen Fenster Kontakt Sensor Werkzeuge Leiste rückgängig "
       "phone edit edit mode mobile on the go draw wall finger tap window contact sensor tools strip undo",
       device="phone")
 def _(r):
-    house(r)
-    r.say("Auch am Handy kannst du bearbeiten: tippe oben links auf ☰.", "You can edit on the phone too: tap ☰ at the top left.")
-    r.click("#tbMenuBtn")
+    r.say("Auch am Handy kannst du bearbeiten: unten „Mehr“ …", "You can edit on the phone too: “More” at the bottom …")
+    r.click("#tabBar [data-tab=more]")
     r.wait(1000)
-    r.say("Dann auf „Bearbeiten“.", "Then “Edit”.")
-    r.click("#modeSwitch [data-mode=edit]")
+    r.say("… dann „Bearbeiten“.", "… then “Edit”.")
+    r.click(".apSheet [data-act=menu-edit]")
     r.wait(1600)
     r.say("Oben stehen die Werkzeuge in einer Leiste: zur Seite wischen zeigt die anderen.", "The tools are in a strip at the top: swipe sideways for the others.")
     r.js("document.getElementById('tools').scrollTo({ left: 420, behavior: 'smooth' })")

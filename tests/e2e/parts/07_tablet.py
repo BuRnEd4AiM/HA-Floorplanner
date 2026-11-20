@@ -111,7 +111,10 @@ pg17.click("#findBtn"); pg17.wait_for_timeout(300); pg17.fill("#findInput", "rau
 check("search: finds a device by part of its name", "Rauchmelder Küche" in pg17.inner_text("#findList"), pg17.inner_text("#findList"))
 pg17.keyboard.press("Enter"); pg17.wait_for_timeout(800)
 check("search: Enter goes to the first hit and shows it", pg17.locator("#findBox").is_hidden() and pg17.locator("#livePopup").is_visible())
-# phones: the tool bar is folded into the ☰ menu at the top left and opens as a drop-down list
+# phones: the tool bar is folded into the ☰ menu at the top left and opens as a drop-down list (the classic phone view; since 5.22.0
+# a phone starts in the app view, its "Mehr" → "Klassische Ansicht" brings the old one)
+if pg17.locator("#tabBar [data-tab=more]").count():
+    pg17.click("#tabBar [data-tab=more]"); pg17.wait_for_timeout(400); pg17.click(".apSheet [data-act=appClassic]"); pg17.wait_for_timeout(800)
 check("phone menu: tool bar folded, ☰ shown", pg17.locator("#tbMenuBtn").is_visible() and pg17.locator("#toolbar").is_hidden())
 pg17.click("#tbMenuBtn"); pg17.wait_for_timeout(300)
 check("phone menu: ☰ opens the tool bar as a list", pg17.locator("#toolbar").is_visible() and pg17.locator("#fitBtn").is_visible())

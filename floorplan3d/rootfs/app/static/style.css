@@ -3484,3 +3484,31 @@ body.appRoom #roomPanel { top: 54px !important; bottom: calc(var(--stage-b, 0px)
 #toAppBtn { display: none; }
 @media (max-width: 760px) { body.live #toAppBtn:not([hidden]) { display: inline-flex; } }
 body.appMode.pageOpen #toolbar, body.appMode.pageOpen #sceneBar, body.appRoom #sceneBar, body.appRoom #searchBtn { display: none !important; }
+
+/* 📱 the settings on a phone (setgroups.js, 5.23.0, docs/ideen-5.22 pictures 47, 48): the groups as a list, one group as a page */
+#settingsDialog.sgPhone #sgNav { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 12px; }
+#settingsDialog.sgPhone #sgNav button { padding: 12px 12px; margin: 0; background: var(--panel2, rgba(255,255,255,.05)); border-radius: 14px; font-size: 16px; }
+#settingsDialog.sgPhone #sgNav button::after { content: '›'; margin-left: auto; color: var(--muted); font-size: 20px; }
+#settingsDialog.sgPhone #sgNav .sgText small { font-size: 12.5px; white-space: normal; }
+#settingsDialog.sgPhone:not(.sgPhoneIn):not(.sgSearching) details.setGroup { display: none; }
+#settingsDialog.sgPhone.sgPhoneIn #sgNav, #settingsDialog.sgPhone.sgSearching #sgNav, #settingsDialog.sgPhone #sgAll { display: none; }
+#settingsDialog.sgPhone.sgPhoneIn details.setGroup > summary { pointer-events: none; list-style: none; }
+#settingsDialog.sgPhone.sgPhoneIn details.setGroup > summary::-webkit-details-marker { display: none; }
+#sgBack { border: 0; background: none; color: #4ea1ff; font-size: 16px; font-weight: 600; padding: 4px 6px 4px 0; }
+#sgBack[hidden] { display: none; }
+#settingsDialog.sgPhone.sgPhoneIn .dlgHead h2 { display: none; }
+
+/* 📱 5.23.0 (docs/ideen-5.22): house / building on Start, lists from below, the 3D house slim with round buttons */
+.appPage .apPlace { display: inline-flex; align-items: center; gap: 6px; border: 0; background: var(--panel2, #1a212c); color: inherit; border-radius: 14px;
+  padding: 8px 12px; font-size: 15px; font-weight: 600; margin: 0 0 8px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.appPage .apPlace.fixed { background: none; padding-left: 0; color: var(--muted); }
+.apGrp { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .05em; margin: 14px 4px 6px; }
+.apItem.on { outline: 2px solid #4ea1ff; background: #16263d; }
+.apItem i { white-space: nowrap; max-width: 45%; overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
+.apFoot { display: block; width: 100%; margin-top: 12px; padding: 13px; border: 0; border-radius: 14px; background: #4ea1ff; color: #04203f; font-size: 16px; font-weight: 700; }
+.apFabs { position: fixed; right: 12px; bottom: calc(var(--stage-b, 86px) + 70px); z-index: 30; display: flex; flex-direction: column; gap: 10px; }
+.apFabs[hidden] { display: none; }
+.apFab { width: 48px; height: 48px; border-radius: 50%; border: 0; background: rgba(26, 33, 44, .94); color: inherit; font-size: 21px; box-shadow: 0 4px 14px rgba(0, 0, 0, .4); }
+body.appMode #tbMenuBtn, body.appMode:not(.pageOpen) #modeBar, body.appMode:not(.pageOpen) #viewMenuBtn,
+body.appMode:not(.pageOpen) #sceneBar { display: none !important; }
+.apSheet .apEmpty { color: var(--muted); margin: 8px 4px; }

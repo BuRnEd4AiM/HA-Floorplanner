@@ -1479,6 +1479,10 @@ const DICT = {
     'app.noRooms': 'Noch keine Räume mit Namen – im Bearbeiten zeichnen und benennen.', 'app.nOn': '{n} an', 'app.off': 'aus',
     'app.allOff': 'Alle Lichter im Raum aus', 'app.open1': 'Raum öffnen', 'app.more': 'Mehr', 'app.settings': 'Einstellungen',
     'app.classic': 'Klassische Ansicht (wie früher)', 'app.toApp': '📱 Handy-Ansicht wie eine App',
+    'app.houses': 'Häuser', 'app.buildings': 'Gebäude', 'app.places': 'Haus und Gebäude', 'app.allOff2': 'Alle aus', 'app.tools': 'Werkzeuge',
+    'app.edit': 'Bearbeiten', 'app.guide': 'Anleitung (Videos)', 'app.backup': 'Backup', 'app.timeline': 'Sicherheit (Tag abspielen)',
+    'app.colors': 'Farben im Haus', 'app.view': 'Ansicht', 'app.scenes': 'Szenen',
+    'app.nothing': 'Nichts zu zeigen.', 'app.allLightsOff': 'Alle Lichter sind aus.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2901,6 +2905,10 @@ const DICT = {
     'app.noRooms': 'No named rooms yet – draw and name them while editing.', 'app.nOn': '{n} on', 'app.off': 'off', 'app.allOff': 'All lights in the room off',
     'app.open1': 'Open the room', 'app.more': 'More', 'app.settings': 'Settings', 'app.classic': 'Classic view (as before)',
     'app.toApp': '📱 Phone view like an app',
+    'app.houses': 'Houses', 'app.buildings': 'Buildings', 'app.places': 'House and building', 'app.allOff2': 'All off', 'app.tools': 'Tools', 'app.edit': 'Edit',
+    'app.guide': 'Guide (videos)', 'app.backup': 'Backup', 'app.timeline': 'Security (play back a day)', 'app.colors': 'Colours in the house',
+    'app.view': 'View', 'app.scenes': 'Scenes',
+    'app.nothing': 'Nothing to show.', 'app.allLightsOff': 'All lights are off.',
   },
 };
 

@@ -54,6 +54,8 @@ export function initVacationUi(ctx) {
   }
 
   return {
+    /** the rules again from the add-on (the plan is made after saving, the page's copy may be older) */
+    refresh: () => ctx.rules()?.load?.(),
     /** the elements of the part; pickGroup and checkRow are the holiday alarm's own (guardui.js) */
     part(pickGroup, checkRow) {
       const c = cfg();

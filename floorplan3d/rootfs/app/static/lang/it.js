@@ -2560,4 +2560,8 @@ export default {
   'app.noRooms': 'Nessuna stanza con nome – disegnale e nominale in modifica.', 'app.nOn': '{n} accese', 'app.off': 'spento',
   'app.allOff': 'Spegni tutte le luci della stanza', 'app.open1': 'Apri la stanza', 'app.more': 'Altro', 'app.settings': 'Impostazioni',
   'app.classic': 'Vista classica (come prima)', 'app.toApp': '📱 Vista telefono come un\'app',
+  'app.houses': 'Case', 'app.buildings': 'Edifici', 'app.places': 'Casa ed edificio', 'app.allOff2': 'Spegni tutto', 'app.tools': 'Strumenti',
+  'app.edit': 'Modifica', 'app.guide': 'Guida (video)', 'app.backup': 'Backup', 'app.timeline': 'Sicurezza (riproduci un giorno)',
+  'app.colors': 'Colori nella casa', 'app.view': 'Vista', 'app.scenes': 'Scene',
+  'app.nothing': 'Niente da mostrare.', 'app.allLightsOff': 'Tutte le luci sono spente.',
 };
