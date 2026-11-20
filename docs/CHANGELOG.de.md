@@ -2,6 +2,10 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.27.1] - 2026-11-20
+### Verbessert
+- **„Nicht überwachen“ hat das Zeichen 🔕 statt 🙈** (der Besitzer: „der affen emogi ist zu viel“): der Knopf neben jeder Zeile der Offline-Liste, „🔕 Ganze Etage … nicht überwachen“, die Zeile unter der Liste, die Haken bei Gerät, Tür / Fenster und Etage und der Abschnitt in „✨ Neu“.
+
 ## [5.27.0] - 2026-11-20
 ### Neu
 - **🎚 Rollläden an Türen, auch zwei oder drei nebeneinander** (#779, FrankBecker: „Wie normale Fenster gibt es zu Schiebetüren häufig auch Rollläden (oft mehr als ein Motor/Steuerung wegen der Breite)“): eine Tür (Schiebetür, Glastür, Doppeltür oder einfache Tür) hat jetzt wie ein Fenster den Haken **„Vorhang / Rollladen“** mit eigener Cover-Entität; der Kontakt bleibt der Sensor der Tür. Garagentor, Durchgang ohne Blatt und Öffnung haben keinen.

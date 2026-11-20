@@ -2,6 +2,10 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.27.1] - 2026-11-20
+### Changed
+- **"Nicht überwachen" has the sign 🔕 instead of 🙈** (the owner: "der affen emogi ist zu viel"): the button beside each row of the offline list, "🔕 Ganze Etage … nicht überwachen", the line under the list, the ticks of a device, a door / window and a floor, and the section in "✨ Neu".
+
 ## [5.27.0] - 2026-11-20
 ### Added
 - **🎚 Roller shutters for doors, also two or three side by side** (#779, FrankBecker: "Wie normale Fenster gibt es zu Schiebetüren häufig auch Rollläden (oft mehr als ein Motor/Steuerung wegen der Breite)"): a door (sliding, glass, double or single) now has the tick **"Vorhang / Rollladen"** like a window, with its own cover entity; the contact stays the door's sensor. A garage door, an opening without a leaf and a bare gap have none.

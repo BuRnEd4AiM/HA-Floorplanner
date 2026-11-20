@@ -1,4 +1,4 @@
-/* "🙈 Nicht überwachen" (#780): a device, a door / window or a whole floor that is only drawn (the flat upstairs that belongs to someone else,
+/* "🔕 Nicht überwachen" (#780): a device, a door / window or a whole floor that is only drawn (the flat upstairs that belongs to someone else,
  * a lamp that will never be smart) is left out of the watching: it is never "offline" or "no entity" (the 📴 pill, its list, the signs in 3D,
  * the device overview, the house check, the Today page all come from offline.js). Its own tick: d.noWatch / o.noWatch; the floor's: f.noWatch.
  * Pure (no three.js, no DOM; unit test: tests/nowatch.test.mjs). */
@@ -21,7 +21,7 @@ export function thingOf(f, kind, id) {
   }
   return null;
 }
-/** "🙈" in the list of offline devices: x = a row ({ floor, kind, id }) leaves that device / door / window out, { floor } alone the whole floor;
+/** "🔕" in the list of offline devices: x = a row ({ floor, kind, id }) leaves that device / door / window out, { floor } alone the whole floor;
  *  layout: the whole plan (a building's view, buildings.js viewOf, keeps the floors' places but copies them: the tick goes onto the real one).
  *  true when something was left out */
 export function leaveOut(layout, x) {

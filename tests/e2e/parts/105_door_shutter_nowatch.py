@@ -2,8 +2,8 @@
 #779 „Rollläden für Schiebetüren“: a door (sliding, glass, double, single) can have a roller shutter like a window, and a roller shutter can be
 two or three side by side, each with its own motor („Anzahl Rollläden“, one entity each). In 3D each part follows its own cover; the card has
 „Alle · 1 · 2“. A garage door has no such tick.
-#780 „Geräte als nicht relevant markierbar“: „🙈 Nicht überwachen“ on a device, a door / window and a whole floor (the flat upstairs that
-belongs to someone else): never offline. In the list of offline devices a 🙈 beside each row and a button for a whole floor. In the new
+#780 „Geräte als nicht relevant markierbar“: „🔕 Nicht überwachen“ on a device, a door / window and a whole floor (the flat upstairs that
+belongs to someone else): never offline. In the list of offline devices a 🔕 beside each row and a button for a whole floor. In the new
 panel („✨ Neu“) the fields are in their sections and the search finds them.
 """
 saved_dn = api_admin("api/layout")              # put back at the end
@@ -80,12 +80,12 @@ cd2_dn = json.load(urllib.request.urlopen(HA + "/_calldata"))[n_calls:]
 check("#779: „2“ and 50 %: only the second one moves", ["set_cover_position", "cover.dn_r", 50] in cd2_dn and not any(c[1] == "cover.dn_l" for c in cd2_dn if len(c) > 1), cd2_dn)
 pgD.keyboard.press("Escape"); pgD.wait_for_timeout(300)
 
-# ---- #780: 🙈 in the list of offline devices
+# ---- #780: 🔕 in the list of offline devices
 check("#780: at first the lamps without an entity or gone are offline, also those of the floor „Fremde Wohnung“",
       off_ids() == ["dn_l1", "dn_l2", "dn_o1", "dn_o2"], off_ids())
 pgD.evaluate("document.querySelector('#offlinePill').click()"); pgD.wait_for_timeout(600)
 fbtn = pgD.locator("#offlineFoot .offLeaveFloor", has_text="Fremde Wohnung")
-check("#780: every row has a 🙈 button, and the floor „Fremde Wohnung“ one of its own",
+check("#780: every row has a 🔕 button, and the floor „Fremde Wohnung“ one of its own",
       pgD.locator("#offlineList li.withLeave .offLeave").count() == pgD.locator("#offlineList li").count() > 0 and fbtn.count() == 1,
       pgD.inner_text("#offlineDialog"))
 if fbtn.count():
@@ -96,21 +96,21 @@ check("#780: the floor button leaves the whole floor out: stored, its lamps gone
 row = pgD.locator("#offlineList li", has_text="Lampe DN")
 if row.count():
     row.first.locator(".offLeave").click(); pgD.wait_for_timeout(700)
-check("#780: 🙈 on a row leaves only that lamp out", dev_dn(0, "dn_l1").get("noWatch") is True and off_ids() == ["dn_l2"]
+check("#780: 🔕 on a row leaves only that lamp out", dev_dn(0, "dn_l1").get("noWatch") is True and off_ids() == ["dn_l2"]
       and "1 einzeln" in pgD.inner_text("#offlineLeft"), (off_ids(), pgD.inner_text("#offlineFoot")))
 pgD.evaluate("document.querySelector('#offlineDialog').close()")
 
 pgD.click("#modeSwitch button[data-mode=edit]"); pgD.wait_for_timeout(900)
 pgD.evaluate("window.__fp.switchFloor(0)"); pgD.wait_for_timeout(500)
 pgD.evaluate("window.__fp.select('device', 'dn_l1')"); pgD.wait_for_timeout(400)
-check("#780: the lamp's properties show the tick „🙈 Nicht überwachen“ set", pgD.locator("#devNoWatch").is_checked(), pgD.inner_text("#propsBody")[-300:])
+check("#780: the lamp's properties show the tick „🔕 Nicht überwachen“ set", pgD.locator("#devNoWatch").is_checked(), pgD.inner_text("#propsBody")[-300:])
 pgD.locator("#devNoWatch").uncheck(); pgD.wait_for_timeout(600)
 check("#780: untick: watched again, offline again", "noWatch" not in dev_dn(0, "dn_l1") and "dn_l1" in off_ids(), off_ids())
 pgD.evaluate("window.__fp.select('opening', 'dn_door')"); pgD.wait_for_timeout(400)
 check("#780: a door has the tick too", pgD.locator("#openNoWatch").count() == 1 and not pgD.locator("#openNoWatch").is_checked())
 pgD.evaluate(f"window.__fp.switchFloor({fi_og})"); pgD.wait_for_timeout(600)
 pgD.evaluate("document.querySelector('#floorPanel').open = true"); pgD.wait_for_timeout(300)
-check("#780: „Etage verwalten“ shows „🙈 Etage nicht überwachen“ set", pgD.locator("#floorNoWatch").is_checked())
+check("#780: „Etage verwalten“ shows „🔕 Etage nicht überwachen“ set", pgD.locator("#floorNoWatch").is_checked())
 pgD.evaluate("window.__fp.select('device', 'dn_o1')"); pgD.wait_for_timeout(400)
 check("#780: on that floor the tick of a lamp is set and greyed out, a line says why", pgD.locator("#devNoWatch").is_checked() and pgD.locator("#devNoWatch").is_disabled()
       and "ganze Etage" in pgD.inner_text("#devNoWatchHint"), pgD.inner_text("#propsBody")[-300:])
@@ -123,7 +123,7 @@ pgD.goto(BASE + "?debug=1&mode=edit&ui=2"); pgD.wait_for_function("window.__fp &
 pgD.evaluate("window.__fp.switchFloor(0)"); pgD.wait_for_timeout(600)
 pgD.click("#v2Tree .n.floor.on"); pgD.wait_for_selector("#v2Floor", timeout=5000); pgD.wait_for_timeout(300)
 wsec = pgD.locator("#v2Floor .v2Sec[data-sec=watch]")
-check("#780 / ✨ Neu: the floor card has a section 🙈 „Überwachen“ with the floor's tick", wsec.count() == 1 and wsec.locator("#floorNoWatch").count() == 1,
+check("#780 / ✨ Neu: the floor card has a section 🔕 „Überwachen“ with the floor's tick", wsec.count() == 1 and wsec.locator("#floorNoWatch").count() == 1,
       pgD.inner_text("#v2Floor")[:400])
 pgD.evaluate("window.__fp.select('opening', 'dn_door')"); pgD.wait_for_timeout(600)
 sec_dn = pgD.locator("#propsBody .v2Sec[data-sec=shutter]")
@@ -133,7 +133,7 @@ check("#779 / ✨ Neu: a door has the section 🎚 with „Anzahl Rollläden“ 
 pgD.fill("#v2Search", "Anzahl Rollläden"); pgD.wait_for_timeout(500)
 check("#779 / ✨ Neu: „🔍 Einstellung suchen“ finds „Anzahl Rollläden“", pgD.is_visible("#shutterParts") and "Treffer" in pgD.inner_text("#v2SearchRes"), pgD.inner_text("#v2SearchRes"))
 pgD.fill("#v2Search", "überwachen"); pgD.wait_for_timeout(500)
-check("#780 / ✨ Neu: the search finds „🙈 Nicht überwachen“ of the door", pgD.is_visible("#openNoWatch") and "Treffer" in pgD.inner_text("#v2SearchRes"), pgD.inner_text("#v2SearchRes"))
+check("#780 / ✨ Neu: the search finds „🔕 Nicht überwachen“ of the door", pgD.is_visible("#openNoWatch") and "Treffer" in pgD.inner_text("#v2SearchRes"), pgD.inner_text("#v2SearchRes"))
 pgD.fill("#v2Search", ""); pgD.wait_for_timeout(200)
 pgD.evaluate("window.__fp.select('device', 'dn_l2')"); pgD.wait_for_timeout(600)
 check("#780 / ✨ Neu: a device has it in its open section 🔗 (with the entity)", pgD.locator("#propsBody .v2Sec[data-sec=entity] #devNoWatch").is_visible())
