@@ -106,3 +106,19 @@ def test_the_windows_of_roof_windows_and_dormers_count_for_their_room():
     (studio,) = rm.rooms_of([("h", lay)])
     assert studio["windows"] == ["binary_sensor.gaube", "binary_sensor.dachfenster"]   # not one outside the room, a dormer without its window, a flat roof
     assert set(rm.roof_windows(lay["floors"])) == {"og"} and rm.roof_windows(None) == {}
+
+
+def test_shutter_covers_of_windows_and_doors_every_part():
+    # #779: a sliding door's roller shutters count for the room (☀ Sonnenschutz, 👥 guests), every part
+    assert rm.shutter_covers({"type": "window", "shutter": True, "shutterEntity": "cover.w"}) == ["cover.w"]
+    assert rm.shutter_covers({"type": "window", "shutterEntity": "cover.w"}) == [], "no tick: no cover"
+    door = {"type": "door", "style": "sliding", "shutter": True, "shutterParts": 2, "shutterEntity": "cover.l", "shutterMore": ["cover.r", "cover.x"]}
+    assert rm.shutter_covers(door) == ["cover.l", "cover.r"], "only as many as it has parts"
+    assert rm.shutter_covers({**door, "shutterStyle": "split"}) == ["cover.l"], "a cloth curtain has one part"
+    assert rm.shutter_covers({**door, "style": "garage"}) == []
+    assert rm.shutter_covers({**door, "shutterEntity": "switch.no"}) == ["cover.r"], "only covers"
+    lay = {"floors": [{"walls": [{"a": [0, 0], "b": [6, 0], "openings": [{**door, "pos": 3, "width": 2.4, "entity": "binary_sensor.tuer"}]}],
+                       "rooms": [{"id": "r", "name": "Wohnen", "points": [[0, 0], [6, 0], [6, 4], [0, 4]]}], "devices": []}]}
+    room = rm.rooms_of([("h", lay)], {})[0]
+    assert [x["cover"] for x in room["shutters"]] == ["cover.l", "cover.r"]
+    assert all(x["contacts"] == ["binary_sensor.tuer"] for x in room["shutters"]), "the door's contact lifts it to air"

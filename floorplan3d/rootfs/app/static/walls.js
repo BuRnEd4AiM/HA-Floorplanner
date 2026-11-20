@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three.module.min.js';
 import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
-import { hasShutter, curtainStyle, curtainSide, shutterSlats, curtainDepth, curtainHangDepth, SHUTTER_UP, SHUTTER_SPEED, CURTAIN_GATHER, CURTAIN_SPEED } from './shutters.js';
+import { hasShutter, curtainStyle, curtainSide, shutterSlats, curtainDepth, curtainHangDepth, shutterParts, partSpan, SHUTTER_UP, SHUTTER_SPEED, CURTAIN_GATHER, CURTAIN_SPEED } from './shutters.js';
 import { mergeParts } from './meshmerge.js';
 import { windowPanes, paneHinge, glassBands } from './windowpanes.js';
 import { tiltAngle } from './windowtilt.js';
@@ -84,23 +84,23 @@ function prismMesh(p, depth, material) {
 /** the roller shutter of a window (#331): a curtain of slats that hangs under the lintel between the glass and the face of the wall on
  *  side `hangSide` (local z, the facade by default), in a rail on either side. Its pivot is scaled in height by openings.js as far as
  *  the cover is closed (shutters.js: curtainScale); it starts rolled up. Returns the pivot. */
-function addShutter(g, x0, x1, yB, yT, t, ft, mat, hangSide) {
+function addShutter(g, x0, x1, yB, yT, t, ft, mat, hangSide, ft1 = ft) {   // ft / ft1: what is kept clear at x0 / x1 (a part in the middle: a rail only)
   const z = hangSide * curtainDepth(t), ch = yT - yB, { n, sh } = shutterSlats(ch);
   const slats = [];
   for (let k = 0; k < n; k++) {
-    const b = new THREE.BoxGeometry(x1 - x0 - 2 * ft, sh - 0.008, 0.012);
+    const b = new THREE.BoxGeometry(x1 - x0 - ft - ft1, sh - 0.008, 0.012);
     b.translate(0, -(k + 0.5) * sh, 0);
     slats.push(b);
   }
   const pivot = new THREE.Group();
-  pivot.position.set(0, yT, z);
+  pivot.position.set((x0 + ft + x1 - ft1) / 2, yT, z);
   const curtain = new THREE.Mesh(mergeGeometries(slats), mat);
   curtain.userData.shutter = true;
   pivot.add(curtain);
   pivot.scale.y = SHUTTER_UP;
   pivot.userData = { axis: 'y', prop: 'scale', base: 0, target: SHUTTER_UP, fresh: true, speed: SHUTTER_SPEED };   // speed: it moves evenly, like a motor
   g.add(pivot);
-  [x0 + ft, x1 - ft].forEach((x) => { const r = boxMesh(x - 0.012, x + 0.012, yB, yT, 0.03, mat); r.position.z = z; g.add(r); });   // the rails
+  [x0 + ft, x1 - ft1].forEach((x) => { const r = boxMesh(x - 0.012, x + 0.012, yB, yT, 0.03, mat); r.position.z = z; g.add(r); });   // the rails
   return pivot;
 }
 
@@ -223,7 +223,7 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null,
     pivot.userData.max = 1.15;
   } else {
     if (o.sill > 0) g.add(boxMesh(x0, x1, s, s + ft, fd, mats.frame));
-    const shade = curtainStyle(o), panes = windowPanes(o), bands = glassBands(o, ft);
+    const panes = windowPanes(o), bands = glassBands(o, ft);
     const yA = s + bands.sash[0], ih = bands.sash[1] - bands.sash[0];   // the panes that open: above the fixed glass below, under the one above (#679)
     /** the sash of a pane that opens (sash.js): its bars and handle as one mesh in the frame's material, so it is tinted with the frame */
     const sash = (x0, x1, y0, y1, hingeAt) => {
@@ -292,9 +292,22 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null,
     }
     if (st !== 'fixed') { pivot = pvs[0]; g.userData.panePivots = pvs; g.userData.tiltPivots = tilts; }
     if (o.sill > 0.2) g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge
+  }
+  // the cover of a window, since 5.27.0 also of a door (#779): a roller shutter, or two / three side by side with a motor each (shutterParts),
+  // or a cloth curtain
+  const shade = curtainStyle(o);
+  if (shade) {
     const hangSide = curtainSide(o) === 'out' ? side : -side;   // the room side by default (cloth curtain), the facade for a roller shutter
-    if (shade === 'roller' && shutterMat) g.userData.shutter = addShutter(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, shutterMat, hangSide);
-    else if (shade && curtainMat) g.userData.shutter = addCurtain(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, curtainMat, side, hangSide, shade);
+    const yB = o.sill > 0 ? s + ft : s, yT = s + h - ft, parts = shutterParts(o);
+    if (shade === 'roller' && shutterMat && parts > 1) {
+      g.userData.shutter = Array.from({ length: parts }, (_, i) => {
+        const k = side > 0 ? parts - 1 - i : i;          // part 1 is the left one seen from inside the room (as a cloth curtain's left, addCurtain)
+        const [u0, u1] = partSpan(k, parts), xa = x0 + (x1 - x0) * u0, xb = x0 + (x1 - x0) * u1;
+        return addShutter(g, xa, xb, yB, yT, t, k === 0 ? ft : 0.015, shutterMat, hangSide, k === parts - 1 ? ft : 0.015);
+      });
+      g.userData.shutterParts = parts;                   // openings.js: part i follows the i-th entity
+    } else if (shade === 'roller' && shutterMat) g.userData.shutter = addShutter(g, x0, x1, yB, yT, t, ft, shutterMat, hangSide);
+    else if (shade !== 'roller' && curtainMat) g.userData.shutter = addCurtain(g, x0, x1, yB, yT, t, ft, curtainMat, side, hangSide, shade);
   }
   // invisible, slightly padded hit box: doors and windows stay easy to select even with a lamp or sensor in front of them
   const proxy = new THREE.Mesh(new THREE.BoxGeometry(w, h, t + 0.1), new THREE.MeshBasicMaterial({ visible: false }));

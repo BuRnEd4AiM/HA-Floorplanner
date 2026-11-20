@@ -249,17 +249,58 @@ def test_window_roller_shutter_is_imported_and_exported():
     f = square_flat(rooms=room, openings=[
         {"preset": "window", "at": [1.5, 0], "shutter": True, "shutterEntity": "cover.rollladen_kueche"},
         {"preset": "window", "at": [4.5, 0], "shutterEntity": "cover.nur_entitaet"},
-        {"preset": "door", "at": [3, 3], "shutter": True}])
+        {"preset": "doorGarage", "at": [3, 3], "shutter": True}])
     layout, _, rep, summary = importer.build_layout(f)
     assert not rep.errors and summary["openings"] == 3
     ops = [o for w in layout["floors"][0]["walls"] for o in w["openings"]]
     wins = sorted((o for o in ops if o["type"] == "window"), key=lambda o: o["shutterEntity"])
     assert [(o["shutter"], o["shutterEntity"]) for o in wins] == [(True, "cover.nur_entitaet"), (True, "cover.rollladen_kueche")]
     door = next(o for o in ops if o["type"] == "door")
-    assert "shutter" not in door and any("only windows" in w["message"] for w in rep.warnings)
+    assert "shutter" not in door and any("only windows" in w["message"] for w in rep.warnings), "a garage door rolls up itself: no cover"
     again, _, rep2, _ = importer.build_layout(importer.layout_to_property(layout, "x"))
     ops2 = [o for w in again["floors"][0]["walls"] for o in w["openings"] if o["type"] == "window"]
     assert sorted(o["shutterEntity"] for o in ops2) == ["cover.nur_entitaet", "cover.rollladen_kueche"] and not rep2.errors
+
+
+def test_sliding_door_with_two_roller_shutters_is_imported_and_exported():
+    # #779 (FrankBecker): a wide sliding door with a roller shutter on each half, each with its own motor
+    room = [{"points": [[0, 0], [6, 0], [6, 3], [0, 3]]}]
+    f = square_flat(rooms=room, openings=[
+        {"preset": "doorSlide", "at": [3, 0], "width": 2.8, "shutterEntities": ["cover.terrasse_links", "cover.terrasse_rechts"]},
+        {"preset": "door", "at": [3, 3], "shutterEntity": "cover.haustuer"},
+        {"preset": "window", "at": [1, 0], "width": 0.8, "shutterEntity": "cover.a", "shutterParts": 3},
+        {"preset": "window", "at": [5, 0], "width": 0.8, "shutterEntity": "cover.b", "shutterParts": 7, "shutterStyle": "left"}])
+    layout, _, rep, _ = importer.build_layout(f)
+    assert not rep.errors
+    ops = {o.get("shutterEntity"): o for w in layout["floors"][0]["walls"] for o in w["openings"]}
+    slide = ops["cover.terrasse_links"]
+    assert (slide["type"], slide["style"], slide["shutter"], slide["shutterParts"], slide["shutterMore"]) == ("door", "sliding", True, 2, ["cover.terrasse_rechts"])
+    assert ops["cover.haustuer"]["shutter"] is True and "shutterParts" not in ops["cover.haustuer"], "a plain door can have one too"
+    assert ops["cover.a"]["shutterParts"] == 3 and "shutterMore" not in ops["cover.a"], "three parts, the other two without an entity yet"
+    assert "shutterParts" not in ops["cover.b"] and ops["cover.b"]["shutterStyle"] == "left", "a cloth curtain has one part"
+    assert any(w["path"].endswith(".shutterParts") for w in rep.warnings)
+    again, _, rep2, _ = importer.build_layout(importer.layout_to_property(layout, "x"))
+    ops2 = {o.get("shutterEntity"): o for w in again["floors"][0]["walls"] for o in w["openings"]}
+    assert ops2["cover.terrasse_links"]["shutterMore"] == ["cover.terrasse_rechts"] and ops2["cover.terrasse_links"]["shutterParts"] == 2 and not rep2.errors
+
+
+def test_not_watched_floor_device_and_window_are_imported_and_exported():
+    # #780 (FrankBecker): a two-family house, the flat upstairs belongs to someone else: drawn, never offline
+    room = [{"points": [[0, 0], [6, 0], [6, 3], [0, 3]]}]
+    f = {"schemaVersion": 1, "building": {"floors": [
+        {"name": "EG", "kind": "floor", "rooms": room, "devices": [{"type": "light", "x": 1, "z": 1, "noWatch": True}, {"type": "light", "x": 2, "z": 1}],
+         "openings": [{"preset": "window", "at": [3, 0], "entity": "binary_sensor.x", "noWatch": True}]},
+        {"name": "OG", "kind": "floor", "noWatch": True, "rooms": room, "devices": [{"type": "light", "x": 1, "z": 1}]}]}}
+    layout, _, rep, _ = importer.build_layout(f)
+    assert not rep.errors
+    eg, og = layout["floors"]
+    assert og.get("noWatch") is True and "noWatch" not in eg
+    assert [d.get("noWatch") for d in eg["devices"]] == [True, None]
+    assert next(o for w in eg["walls"] for o in w["openings"]).get("noWatch") is True
+    again, _, rep2, _ = importer.build_layout(importer.layout_to_property(layout, "x"))
+    eg2, og2 = again["floors"]
+    assert og2.get("noWatch") is True and [d.get("noWatch") for d in eg2["devices"]] == [True, None] and not rep2.errors
+    assert next(o for w in eg2["walls"] for o in w["openings"]).get("noWatch") is True
 
 
 def test_window_curtains_panes_and_per_pane_hinges_are_imported_and_exported():
@@ -401,7 +442,7 @@ def test_fixed_glass_below_and_above_is_imported_and_exported():
 def test_schema_describes_covers_and_per_pane_hinges():
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     props = next(d["properties"] for d in schema["$defs"].values() if "paneEntities" in d.get("properties", {}))
-    assert {"shutter", "shutterEntity", "rainWarn", "shutterStyle", "curtainSide", "panes", "hinge", "paneHinges", "openOutward"} <= set(props)
+    assert {"shutter", "shutterEntity", "rainWarn", "shutterStyle", "curtainSide", "panes", "hinge", "paneHinges", "openOutward", "shutterParts", "shutterEntities", "noWatch"} <= set(props)
     assert "fixed" in props["paneHinges"]["items"]["enum"] and props["panes"]["maximum"] == importer.MAX_PANES
 
 

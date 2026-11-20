@@ -10,7 +10,7 @@ import { fmtArea } from './i18n.js';
 import { openingWalls } from './dormerwin.js';
 import { ACTIONS } from './livecontrols.js';
 import { initHeatPanel, splitHeatParts } from './heatpanel.js';
-import { shutterEntity, floorShutters, shutterText } from './shutters.js';
+import { shutterEntities, shutterSlots, floorShutters, shutterText } from './shutters.js';
 import { contactRows } from './windowpanes.js';
 import { coverControls } from './rpcover.js';
 import { readingFrom, sourceOf } from './roomsource.js';
@@ -46,8 +46,10 @@ export function roomOpeningSpans(room, f) {
 /** the covers of the windows of a room (#331) as rows of the room panel ({ entity, name, opening }), each entity once (seen: the entities
  *  listed already); name: the window's name, else Home Assistant's name of the cover, else `fallback` */
 export function roomShutters(room, f, seen, nameOf, fallback) {
-  return roomOpenings(room, f).map((o) => ({ entity: shutterEntity(o), name: o.name || nameOf(shutterEntity(o)) || fallback, opening: o }))
-    .filter((d) => d.entity && !seen.has(d.entity) && seen.add(d.entity));
+  return roomOpenings(room, f).flatMap((o) => {                    // several roller shutters side by side (#779): a row each, "Name 1", "Name 2"
+    const ents = shutterEntities(o);
+    return ents.map((e) => ({ entity: e, name: (o.name || nameOf(e) || fallback) + (ents.length > 1 && (o.name || !nameOf(e)) ? ` ${shutterSlots(o).indexOf(e) + 1}` : ''), opening: o }));
+  }).filter((d) => d.entity && !seen.has(d.entity) && seen.add(d.entity));
 }
 /** how many sensor rows a window shows in the room panel: one per pane when it has per-pane sensors (also the panes the custom count
  *  added), else the main contact only */

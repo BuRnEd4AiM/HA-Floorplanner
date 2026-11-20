@@ -56,6 +56,27 @@ def opening_entities(o) -> list:
     return out
 
 
+SHUTTER_DOOR_STYLES = ("single", "glass", "double", "sliding")   # doors that can have a roller shutter (#779, static/shutters.js)
+
+
+def shutter_covers(o) -> list:
+    """the cover entities of a window's or door's roller shutter(s) (static/shutters.js shutterEntities): o.shutterEntity and, for two or
+    three side by side (#779), o.shutterMore; only cover.* entities, each once"""
+    if not o.get("shutter"):
+        return []
+    if o.get("type") != "window" and not (o.get("type") == "door" and (o.get("style") or "single") in SHUTTER_DOOR_STYLES):
+        return []
+    roller = o.get("shutterStyle") in (None, "roller")
+    n = o.get("shutterParts") if roller and isinstance(o.get("shutterParts"), int) and not isinstance(o.get("shutterParts"), bool) else 1
+    n = max(1, min(3, n))
+    more = o.get("shutterMore") if isinstance(o.get("shutterMore"), list) else []
+    out = []
+    for e in [o.get("shutterEntity"), *more[:n - 1]]:
+        if isinstance(e, str) and e.startswith("cover.") and e not in out:
+            out.append(e)
+    return out
+
+
 def roof_windows(floors) -> dict:
     """{floor id: [(x, z, window)]}: the windows of the dormers and the roof windows (#643) of every roof floor, by the floor they belong to.
     They are no walls of the plan: the editor keeps where each lies (o.at: its middle in the plan, o.floor: the id of its floor, dormerwin.js)."""
@@ -165,12 +186,12 @@ def rooms_of(houses, area_entities=None) -> list:
                     if r["id"] not in near[id(o)]:
                         continue
                     sensors = opening_entities(o)
-                    if o.get("type") == "window":
-                        windows += [e for e in sensors if e not in windows]
-                        cover = o.get("shutterEntity") if o.get("shutter") else None
-                        if isinstance(cover, str) and cover.startswith("cover.") and cover not in [x["cover"] for x in shutters]:
+                    for cover in shutter_covers(o):              # its roller shutter(s): of a window, of a sliding door too, every part (#779)
+                        if cover not in [x["cover"] for x in shutters]:
                             plan = _bearing(_x, _z, _s, o, indoor)
                             shutters.append({"cover": cover, "plan": plan, "bearing": None if plan is None else round((plan + north) % 360, 1), "contacts": sensors})
+                    if o.get("type") == "window":
+                        windows += [e for e in sensors if e not in windows]
                     elif o.get("type") == "door":
                         doors += [e for e in sensors if e not in doors]
                         if len(near[id(o)]) == 1 or out_side[id(o)]:

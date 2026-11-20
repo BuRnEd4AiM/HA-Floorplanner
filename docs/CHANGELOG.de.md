@@ -2,6 +2,18 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.27.0] - 2026-11-20
+### Neu
+- **🎚 Rollläden an Türen, auch zwei oder drei nebeneinander** (#779, FrankBecker: „Wie normale Fenster gibt es zu Schiebetüren häufig auch Rollläden (oft mehr als ein Motor/Steuerung wegen der Breite)“): eine Tür (Schiebetür, Glastür, Doppeltür oder einfache Tür) hat jetzt wie ein Fenster den Haken **„Vorhang / Rollladen“** mit eigener Cover-Entität; der Kontakt bleibt der Sensor der Tür. Garagentor, Durchgang ohne Blatt und Öffnung haben keinen.
+  - **„Anzahl Rollläden (Motoren)“** 1 bis 3: eine breite Schiebetür bekommt zwei oder drei Rollläden nebeneinander, jeder mit eigener Entität („Rollladen 1“ ist der linke von innen gesehen, „Rollladen 2“). Fenster können das auch.
+  - Im 3D-Bild fährt jeder Teil für sich so weit herunter, wie sein Cover geschlossen ist; das Schild darüber sagt „↕ 100 % · 30 %“, wenn sie verschieden stehen. Im 2D-Plan trennt ein kurzer Strich die Teile.
+  - Seine Karte in der Live-Ansicht hat oben **„Alle · 1 · 2“**: „Alle“ fährt alle, eine Zahl nur diesen einen. Das Raum-Fenster zeigt jeden Teil als eigene Zeile; die Suche findet die Tür über jedes Cover.
+  - ☀ Sonnenschutz und 👥 der Gäste-Zugang nehmen die Rollläden einer Tür mit (eine offene Tür bleibt oben, wie ein Fenster). Der JSON-Import kennt sie: `"shutterEntities": ["cover.links", "cover.rechts"]` oder `"shutterParts": 2`.
+- **🙈 Nicht überwachen** (#780, FrankBecker: „nur das EG gehört mir … wäre es schön diese Geräte … als nicht relevant … zu definieren um die Fehlermeldung oben rechts … weg zu bekommen“): was nur gezeichnet ist, gilt nie mehr als offline oder „ohne Entität“: nicht in der 📴-Anzeige und ihrer Liste, nicht als Zeichen im 3D-Bild, nicht in der Geräte-Übersicht, im 🩺 Haus-Check (dort auch keine Wartungs-Vorschläge dafür) und unter ☀ Heute.
+  - Ein Haken **„🙈 Nicht überwachen (nur gezeichnet)“** in den Eigenschaften eines Geräts und einer Tür / eines Fensters, und **„🙈 Etage nicht überwachen (z. B. fremde Wohnung)“** unter „Etage verwalten“ für eine ganze Etage (die Wohnung oben im Zweifamilienhaus).
+  - Schneller direkt in der Liste der Offline-Geräte: ein **🙈** neben jeder Zeile und **„🙈 Ganze Etage „OG“ nicht überwachen (5)“** für eine Etage mit mehreren; eine Zeile unter der Liste sagt, was nicht überwacht wird und wie man es zurücknimmt.
+  - Der JSON-Import kennt es: `"noWatch": true` an einer Etage, einem Gerät oder einer Tür / einem Fenster.
+
 ## [5.26.0] - 2026-11-20
 ### Neu
 - **📊 Monatsbericht** (Wahl des Besitzers, docs/ideen-5.15 Bild 11): einmal im Monat eine Nachricht über den Monat davor, über die eingestellten Wege (📲): Heizung und Strom in Euro, je Raum, der Vergleich mit demselben Monat im Vorjahr und der Raum, der wärmer war als eingestellt („Wohnzimmer war 1,5° wärmer als eingestellt“); mit dem eigenen Telegram-Bot auch ein Bild: der Grundriss mit den Beträgen je Raum und ein Balken je Raum (rot Heizung, gelb Strom).

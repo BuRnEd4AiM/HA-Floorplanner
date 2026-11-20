@@ -14,6 +14,7 @@ import { initSkylightUi } from './skylightui.js';
 import { storeyHeight, setStoreyHeight, STOREY_MIN } from './housefloors.js';
 import { roofLook, setRoofLook, ROOF_RED, ROOF_COLORS, COVER_KEYS } from './rooflook.js';
 import { colorFields } from './colorrow.js';
+import { noWatchField } from './nowatchui.js';
 
 export const ROOF_DEFAULT = { type: 'gable', pitch: 35, overhang: 0.4 };
 /** an empty floor of a kind (a roof floor gets the default roof) */
@@ -256,6 +257,8 @@ export function initFloorPanel(ctx) {
     sh.id = 'storeyHeight';
     box.append(field(t('floor.storeyH'), sh));
     const shelp = document.createElement('p'); shelp.className = 'sub'; shelp.id = 'storeyHelp'; shelp.textContent = t('floor.storeyHelp'); box.append(shelp);
+    const nw = noWatchField({ t, snapshot: () => ctx.snapshot(), changed: () => { ctx.build(); ctx.scheduleSave(); ctx.refreshSelection?.(); } }, box, f, 'floor');   // the flat upstairs of someone else (#780)
+    nw.id = 'floorNoWatchRow';
     if (f.kind === 'basement' && ctx.openTerrain) {                // a basement half out of the ground (#691): one spot height of the plot lowers the lawn
       const hb = document.createElement('p'); hb.className = 'sub'; hb.id = 'halfBasementHelp'; hb.textContent = t('floor.halfBasement');
       box.append(hb, rowBtn('halfBasementGo', t('floor.halfBasementGo'), () => ctx.openTerrain()));

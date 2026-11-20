@@ -2,6 +2,18 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.27.0] - 2026-11-20
+### Added
+- **🎚 Roller shutters for doors, also two or three side by side** (#779, FrankBecker: "Wie normale Fenster gibt es zu Schiebetüren häufig auch Rollläden (oft mehr als ein Motor/Steuerung wegen der Breite)"): a door (sliding, glass, double or single) now has the tick **"Vorhang / Rollladen"** like a window, with its own cover entity; the contact stays the door's sensor. A garage door, an opening without a leaf and a bare gap have none.
+  - **"Anzahl Rollläden (Motoren)"** 1 to 3: a wide sliding door gets two or three roller shutters side by side, each with its own entity ("Rollladen 1" is the left one seen from inside, "Rollladen 2"). Windows can have it too.
+  - In 3D each part comes down by itself as far as its own cover is closed; the label over it says "↕ 100 % · 30 %" when they differ. In the 2D plan a short line divides the parts.
+  - Its card in the live view has **"Alle · 1 · 2"** on top: "Alle" moves all of them, a number only that one. The room panel lists each part as a row of its own; the search finds the door by each cover.
+  - ☀ Sonnenschutz and 👥 the guest access take a door's roller shutters too (a door that is open is left up, as a window). The JSON import knows them: `"shutterEntities": ["cover.links", "cover.rechts"]` or `"shutterParts": 2`.
+- **🙈 Nicht überwachen** (#780, FrankBecker: "nur das EG gehört mir … wäre es schön diese Geräte … als nicht relevant … zu definieren um die Fehlermeldung oben rechts … weg zu bekommen"): what is only drawn never counts as offline or "no entity" any more: not in the 📴 pill and its list, not as the sign in 3D, not in the device overview, the 🩺 Haus-Check (also no maintenance suggestions for it) or ☀ Heute.
+  - A tick **"🙈 Nicht überwachen (nur gezeichnet)"** in the properties of a device and of a door / window, and **"🙈 Etage nicht überwachen (z. B. fremde Wohnung)"** in "Etage verwalten" for a whole floor (the flat upstairs of a two-family house).
+  - Quicker, right in the list of offline devices: a **🙈** beside each row, and **"🙈 Ganze Etage „OG" nicht überwachen (5)"** for a floor with several; a line under the list says what is not watched and how to undo it.
+  - The JSON import knows it: `"noWatch": true` on a floor, a device or a door / window.
+
 ## [5.26.0] - 2026-11-20
 ### Added
 - **📊 Monatsbericht** (the owner's choice, docs/ideen-5.15 picture 11): once a month a message about the month before, the way the messages are set up (📲): heating and power in euros, per room, the change to the same month a year before and the room that was warmer than set ("Wohnzimmer war 1,5° wärmer als eingestellt"); with the own Telegram bot also a picture: the plan with each room's amounts and a bar per room (red heating, yellow power).

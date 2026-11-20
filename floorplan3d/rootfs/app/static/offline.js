@@ -2,7 +2,8 @@
  * in one list that is always one tap away. The decisions are pure functions (tested); the pill and the dialog are drawn by initOffline. */
 import { ringEntities } from './ledring.js';
 import { openingWalls } from './dormerwin.js';
-import { shutterEntity } from './shutters.js';
+import { shutterEntities } from './shutters.js';
+import { unwatched, floorsToLeaveOut, unwatchedSummary } from './nowatch.js';
 
 const SMART_CATS = new Set(['lighting', 'smart']);   // devices that belong to an entity (furniture, garden and pictures do not)
 const NOT_SMART = new Set(['tv_led', 'radiator', 'boiler']);   // a radiator or a hot-water tank is often just drawn, without an entity
@@ -18,7 +19,8 @@ export function offlineReason(states, id) {
 }
 /**
  * [{ entity, reason, since, floor, kind, id, name, room }] of every placed lamp or smart device without an entity (reason 'unlinked') and every placed device,
- * LED ring section, TV backlight, door / window contact and window roller shutter that is offline.
+ * LED ring section, TV backlight, door / window contact and roller shutter (also of a door, each part, #779) that is offline. What is not watched
+ * (its own tick or its floor's, nowatch.js, #780) is never listed.
  * `env`: { layout, entities, states, t, catOf(type), pointInPoly(x, z, pts) }
  */
 export function offlineDevices(env) {
@@ -34,7 +36,9 @@ export function offlineDevices(env) {
     out.push({ entity, reason, since: states[entity]?.since || null, floor, kind, id, name, room: room?.name || '' });
   };
   layout.floors.forEach((f, fi) => {
+    if (unwatched(f)) return;                          // the flat upstairs that belongs to someone else (#780)
     f.devices.forEach((d) => {
+      if (unwatched(f, d)) return;
       const name = d.name || entities.find((e) => e.entity_id === d.entity)?.name || t(`dev.${d.type}`);
       const smart = SMART_CATS.has(env.catOf(d.type)) && !NOT_SMART.has(d.type);
       if (smart && !d.entity && !(d.type === 'ledring' && ringEntities(d).length)) {   // a lamp or sensor without its Home Assistant entity
@@ -47,15 +51,17 @@ export function offlineDevices(env) {
       if (d.type === 'ledring') ringEntities(d).forEach((e) => add(e, fi, 'device', d.id, name, d.x, d.z, f));
     });
     openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
+      if (unwatched(f, o)) return;
       add(o.entity, fi, 'opening', o.id, o.name || t(`prop.${o.type}`), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f);
-      add(shutterEntity(o), fi, 'opening', o.id, o.name || t('curtain.title'), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f);   // its cover (#331)
+      shutterEntities(o).forEach((e) => add(e, fi, 'opening', o.id, o.name || t('curtain.title'), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f));   // its cover(s) (#331, #779)
     }));
   });
   return out.sort((a, b) => a.floor - b.floor || a.room.localeCompare(b.room) || a.name.localeCompare(b.name));
 }
 
 /** ctx: $, t, layout(), entities(), states(), catOf, pointInPoly, currentLanguage(), houseMode(), floorIdx(), switchFloor(i), isLive(), liveSelect(h), selectLocked(sel),
- *  jump(target) (optional: fly there like the search, true when done) */
+ *  jump(target) (optional: fly there like the search, true when done), canEdit() and leaveOut(x | { floor }) (optional, #780: "🙈 Nicht
+ *  überwachen" on a row, or for a whole floor: the tick is set and saved) */
 export function initOffline(ctx) {
   const { $, t } = ctx;
   const env = () => ({ layout: ctx.layout(), entities: ctx.entities(), states: ctx.states(), t, catOf: ctx.catOf, pointInPoly: ctx.pointInPoly });
@@ -78,8 +84,11 @@ export function initOffline(ctx) {
     for (const [u, n] of [['day', 86400], ['hour', 3600], ['minute', 60]]) if (Math.abs(sec) >= n) return rtf.format(Math.round(sec / n), u);
     return rtf.format(sec, 'second');
   }
+  const canLeave = () => !!ctx.leaveOut && ctx.canEdit?.() !== false;
+  /** "🙈 Nicht überwachen" (#780): the tick on x (a row) or on its floor ({ floor }), then the list again */
+  function leave(x) { ctx.leaveOut(x); update(); renderList(); }
   function renderList() {
-    const ul = $('#offlineList'), list = devices();
+    const ul = $('#offlineList'), list = devices(), lay = ctx.layout();
     ul.replaceChildren();
     $('#offlineNone').hidden = !!list.length;
     list.forEach((x) => {
@@ -88,11 +97,33 @@ export function initOffline(ctx) {
       const name = document.createElement('strong'); name.textContent = x.name;
       const why = document.createElement('span'); why.className = `offWhy ${x.reason}`; why.textContent = t(`off.${x.reason}`);
       const meta = document.createElement('small');
-      meta.textContent = [ctx.layout().floors[x.floor]?.name, x.room, x.entity, x.since ? t('off.since', { t: sinceText(x.since) }) : ''].filter(Boolean).join(' · ');
+      meta.textContent = [lay.floors[x.floor]?.name, x.room, x.entity, x.since ? t('off.since', { t: sinceText(x.since) }) : ''].filter(Boolean).join(' · ');
       b.append(name, why, meta);
       b.addEventListener('click', () => { $('#offlineDialog').close(); show(x); });
-      li.append(b); ul.append(li);
+      li.append(b);
+      if (canLeave()) {
+        const nw = document.createElement('button'); nw.type = 'button'; nw.className = 'offLeave'; nw.textContent = '🙈';
+        nw.title = t('nw.row'); nw.setAttribute('aria-label', t('nw.row'));
+        nw.addEventListener('click', () => leave(x));
+        li.classList.add('withLeave'); li.append(nw);
+      }
+      ul.append(li);
     });
+    const foot = $('#offlineFoot');
+    if (!foot) return;
+    foot.replaceChildren();
+    if (canLeave()) floorsToLeaveOut(list, lay).forEach((g) => {     // the flat upstairs that belongs to someone else: the whole floor at once
+      const fb = document.createElement('button'); fb.type = 'button'; fb.className = 'offLeaveFloor'; fb.dataset.floor = g.floor;
+      fb.textContent = `🙈 ${t('nw.floorBtn', { name: g.name, n: g.n })}`;
+      fb.addEventListener('click', () => leave({ floor: g.floor }));
+      foot.append(fb);
+    });
+    const sum = unwatchedSummary(lay);                               // what is left out, so that nobody wonders where it went
+    if (sum.floors.length || sum.things) {
+      const p = document.createElement('p'); p.className = 'sub'; p.id = 'offlineLeft';
+      p.textContent = `🙈 ${[sum.floors.length ? t('nw.leftFloors', { names: sum.floors.join(', ') }) : '', sum.things ? t('nw.leftThings', { n: sum.things }) : ''].filter(Boolean).join(' · ')} ${t('nw.leftHow')}`;
+      foot.append(p);
+    }
   }
   /** go to the floor of an offline device and point it out */
   function show(x) {

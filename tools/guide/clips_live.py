@@ -68,6 +68,56 @@ def _(r):
     r.wait(1500)
 
 
+def flat_upstairs(r):
+    """prep: two lamps upstairs that are linked to nothing (the flat of someone else, #780): „📴 2 offline“"""
+    r.pg.evaluate("""() => { const fp = window.__fp, fi = fp.layout.floors.findIndex((f) => f.walls.some((w) => (w.openings || []).some((o) => o.id === 'u7')));
+      const f = fp.layout.floors[fi];
+      f.devices.push({ id: 'guideNw1', type: 'light', x: 2, z: 2, y: 2.4, rot: 0, scale: 1, name: 'Lampe Mieter' },
+                     { id: 'guideNw2', type: 'light', x: 8, z: 5.5, y: 2.4, rot: 0, scale: 1, name: 'Lampe Mieter Bad' });
+      fp.rebuild(); fp.applyStates(); }""")
+    r.pg.wait_for_timeout(900)
+
+
+@clip("no-watch", "live",
+      {"de": "🙈 Nicht überwachen: die fremde Wohnung ist nie offline", "en": "🙈 Don’t watch: someone else’s flat is never offline"},
+      {"de": "Lampen und Geräte, die nur gezeichnet sind (z. B. die Wohnung oben, die dir nicht gehört), zählen nicht mehr als offline: 🙈 neben einer "
+             "Zeile der Offline-Liste oder „Ganze Etage nicht überwachen“. Zurück: der Haken „🙈 Nicht überwachen“ beim Gerät, bei Tür und Fenster "
+             "oder unter „Etage verwalten“.",
+       "en": "Lamps and devices that are only drawn (e.g. the flat upstairs that isn’t yours) no longer count as offline: 🙈 beside a row of the "
+             "offline list or “Don’t watch the whole floor”. To undo: the tick “🙈 Don’t watch” of the device, the door or window, or under "
+             "“Manage floor”."},
+      "nicht überwachen offline ignorieren nicht relevant fremde Wohnung Mieter Zweifamilienhaus Einliegerwohnung nur gezeichnet Fehlermeldung "
+      "don't watch ignore offline not relevant someone else's flat tenant two-family house only drawn error",
+      sky="11:00", prep=flat_upstairs)
+def _(r):
+    r.say("Oben steht „📴 2 offline“: zwei Lampen der Wohnung oben, die dir nicht gehört.", "At the top: “📴 2 offline”: two lamps of the flat upstairs that isn’t yours.")
+    r.move("#offlinePill")
+    r.wait(1500)
+    r.click("#offlinePill")
+    r.wait(1100)
+    r.say("Neben jeder Zeile ein 🙈: dieses Gerät nicht mehr überwachen.", "A 🙈 beside each row: stop watching this device.")
+    r.move("#offlineList .offLeave", nth=0)
+    r.wait(1800)
+    r.say("Darunter die ganze Etage auf einmal.", "Below it the whole floor at once.")
+    r.click("#offlineFoot .offLeaveFloor")
+    r.wait(1600)
+    r.poster()
+    r.say("Alles online. Die Zeile darunter sagt, was nicht überwacht wird.", "All online. The line below says what is not watched.")
+    r.move("#offlineLeft")
+    r.wait(2400)
+    r.click("#offlineDialog .dlgClose")
+    r.wait(700)
+    r.say("Zurück geht es beim Bearbeiten: „Etage verwalten“ → „🙈 Etage nicht überwachen“; jedes Gerät, jede Tür und jedes Fenster hat den Haken auch.",
+          "To undo, in edit mode: “Manage floor” → “🙈 Don’t watch this floor”; every device, door and window has the tick too.")
+    r.click("#modeSwitch [data-mode=edit]")
+    r.wait(1200)
+    r.js("""(() => { const fp = window.__fp; fp.switchFloor(fp.layout.floors.findIndex((f) => f.noWatch));
+      const d = document.querySelector('#floorPanel'); if (d) { d.open = true; d.scrollIntoView({ block: 'start' }); } })()""")
+    r.wait(900)
+    r.move("#floorNoWatch")
+    r.wait(2600)
+
+
 @clip("shutter", "live",
       {"de": "Rollladen auf und zu", "en": "Open and close a shutter"},
       {"de": "Die Kugel des Rollladens antippen: Öffnen, Schließen, Stopp. Im 3D-Bild fährt er mit. Rechts in der Leiste des Raums: "

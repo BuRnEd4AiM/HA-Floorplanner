@@ -773,3 +773,14 @@ t("room-lock",
   "Grundriss offen Knopf oben wo kann ich den Grundriss sperren",
   "lock a room fix a room pin room wall moved by accident stop moving lock the floor plan floor plan finished padlock protect walls "
   "lock a device pin device admin only hide stripes show locked unlock freeze layout floor plan open button at the top where do I lock the plan")
+t("door-shutter",
+  "Terrassentür Schiebetür Hebeschiebetür Balkontür Fenstertür Tür mit Rollladen zwei Motoren breite Tür doppelt "
+  "nebeneinander links rechts getrennt einzeln fahren alle zusammen Somfy Shelly Homematic Rademacher Gurtwickler Türrollladen",
+  "patio door sliding door lift and slide balcony door French door door with shutter two motors wide door double "
+  "side by side left right separately one by one all together Somfy Shelly Homematic Rademacher belt winder door shutter")
+t("no-watch",
+  "nicht überwachen ignorieren ausblenden nicht relevant offline weg Fehlermeldung oben rechts fremde Wohnung Mieter Vermieter "
+  "Zweifamilienhaus Mehrfamilienhaus Einliegerwohnung Nachbar Obergeschoss gehört mir nicht nur gezeichnet keine Entität Lampe ohne Entität "
+  "wie bekomme ich offline weg",
+  "don't watch ignore hide not relevant offline go away error top right someone else's flat tenant landlord two-family house "
+  "apartment building granny flat neighbour upstairs not mine only drawn no entity lamp without entity how do I get rid of offline")

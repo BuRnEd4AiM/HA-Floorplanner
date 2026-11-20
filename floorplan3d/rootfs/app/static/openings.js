@@ -2,7 +2,7 @@
  * opening leaf in 3D (shut: a green frame, so you see which ones have a sensor; a sensor that does not report: an amber frame, #375), the
  * pill "n open" with its list, and the animation of the leaves. The decisions are pure functions (tested). */
 import { openingWalls } from './dormerwin.js';
-import { shutterEntity, shutterClosed, curtainStyle, curtainTarget, shutterLabel, curtainStep } from './shutters.js';
+import { shutterEntity, shutterEntities, shutterSlots, shutterClosed, curtainStyle, curtainTarget, shutterLabel, shutterLabelAll, curtainStep } from './shutters.js';
 import { tiltEntity, saysTilted, tiltPanes, contactWord, windowWord, paneWord, TILT_HEX } from './windowtilt.js';
 
 export const OPEN_HEX = 0xff4a3d;
@@ -103,15 +103,19 @@ export function initOpenings(ctx) {
    *  says how far it is open, its ball is lit while the cover is open; fi: the floor of the window */
   function applyShutter(o, obj, fi) {
     const e = shutterEntity(o), st = e ? ctx.states()[e] : null;
-    const curtains = curtainsOf(obj), target = curtainTarget(curtainStyle(o), shutterClosed(st));
-    curtains.forEach((sh) => {
+    const curtains = curtainsOf(obj), style = curtainStyle(o);
+    // several roller shutters side by side (#779): part i follows the entity of part i (one without its own entity: the first one's)
+    const slots = obj?.userData.shutterParts > 1 ? shutterSlots(o) : null;
+    curtains.forEach((sh, i) => {
+      const own = slots ? ctx.states()[slots[i] || e] : st, target = curtainTarget(style, shutterClosed(own));
       sh.userData.target = target;
       if (sh.userData.fresh) { sh.scale[sh.userData.axis] = target; sh.userData.fresh = false; }
     });
     if (!e) return;
+    const ents = shutterEntities(o), sts = ents.map((x) => ctx.states()[x]);
     const sp = ctx.labelSprites?.get(o.id);
-    if (sp) { sp.visible = ctx.labelsOn?.() ?? true; sp.userData.setText(shutterLabel(st, t, o)); }
-    ctx.tapBalls?.update(o.id, ctx.onStates.has(st?.state), null, !!ctx.isLive?.(), fi <= (ctx.floorIdx?.() ?? Infinity));
+    if (sp) { sp.visible = ctx.labelsOn?.() ?? true; sp.userData.setText(ents.length > 1 ? shutterLabelAll(sts, t, o) : shutterLabel(st, t, o)); }
+    ctx.tapBalls?.update(o.id, sts.some((x) => ctx.onStates.has(x?.state)), null, !!ctx.isLive?.(), fi <= (ctx.floorIdx?.() ?? Infinity));
   }
   /** window id → timer: after its tilt angle changed (tiltui.js) the window leans in for a moment, also when it is shut, so you see the angle */
   const previews = new Map();
