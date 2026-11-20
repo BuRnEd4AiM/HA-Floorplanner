@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.24.0] - 2026-11-20
+### Added
+- **🩺 Haus-Check with 🔧 Wartung** (the owner's choice, docs/ideen-5.21 picture 1, with the maintenance of docs/ideen-5.15 picture 9): a new page of the tab bar (also under 📱 "Mehr", with a chip "🩺 n prüfen" on Start and a number on the tab) with everything that needs a look in one place:
+  - **Dringend**: empty batteries (with %), devices offline, maintenance that is due. A tap on a device shows it in the house.
+  - **Bald**: weak radio (📡, as the radio map counts it), an update of Home Assistant, maintenance in the next two weeks.
+  - **Wartung**: reminders with "in 23 Tagen" and **"✓ Erledigt"**, which starts the time anew; **"Vorschläge für deine Geräte"** from the plan (test the smoke detector once a year, clean the air conditioner's filter, the robot vacuum's brush, the washer's lint filter, bleed the radiators, service the boiler …) with ＋; **"＋ Erinnerung"** for anything else (every 7 … 365 days). Kept with the settings (`maintenance.py`).
+
 ## [5.23.1] - 2026-11-20
 ### Changed
 - **📱 Phone: a room's page shows the room big on top, turning in 3D**, faded out at the bottom with the room's name and values in the picture, the controls below across the whole width (the owner, 2026-11-20: "dass ich den Raum oben in so einem kleinen eingebetteten Fenster sehe und der dreht sich … unten die Bedienelemente"; his choice from seven kinds, docs/ideen-5.23: C "groß mit Verlauf"). The room turns slowly; a touch on the picture lets you turn it yourself, a few seconds later it turns on.

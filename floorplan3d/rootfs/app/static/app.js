@@ -128,6 +128,8 @@ import { initPresencePrefs } from './presenceprefs.js';
 import { initGuestUi } from './guestui.js';
 import { initGuestView } from './guestview.js';
 import { initAppUi } from './appui.js';
+import { initCheckPage } from './pagecheck.js';
+import { radioRows } from './radiomap.js';
 import { appMode, PREF_KEY, START, ROOMS } from './appshell.js';
 import { alarmPanel, weatherEntity } from './today.js';
 import { roomIcon } from './roomgroups.js';
@@ -815,6 +817,22 @@ const routinesPage = initRoutinesPage({                          // ▶ Abläufe
   groups: rulesUi.groups, areaOf: () => areaOf,                   // by room (#590)
 });
 const roomOf = (e) => placeOf(layout, e)?.room || areas.find((a) => a.id === areaOf[e])?.name || '';   // the room of a device: in the plan, else its area
+const checkPage = initCheckPage({                                // 🩺 Haus-Check with 🔧 Wartung (pagecheck.js, housecheck.js, 5.24.0)
+  t, el: $('#tabPages [data-page=check]'),
+  data: () => ({
+    batteries: deviceList.rows().flatMap((f) => f.rooms.flatMap((r) => r.items)).filter((x) => x.battery?.low).map((x) => ({ id: x.id, name: x.name, level: x.battery.level })),
+    offline: offline.devices().filter((x) => x.reason !== 'unlinked').map((x) => ({ id: x.id, name: x.name || x.entity, room: x.room })),
+    radio: radioRows(shownLayout(), states, signals?.of || {}, (f) => openingWalls(f).flatMap((w) => w.openings || [])),
+    updates: Object.entries(states).filter(([e, st]) => e.startsWith('update.') && st?.state === 'on').map(([e]) => ({ id: e, name: entities.find((x) => x.entity_id === e)?.name || e })),
+  }),
+  reminders: () => settings.maintenance || [], save: (list) => { settings.maintenance = list; settingsStore.save(); }, canEdit: () => me.canEdit,
+  devices: () => shownLayout().floors.flatMap((f) => (f.devices || []).map((d) => ({ id: d.id, name: d.name || '', type: d.type, entity: d.entity || '', dc: states[d.entity]?.dc }))),
+  locate: (id) => { tabsUi.show('house'); setTimeout(() => locateDevice(id), 50); },
+});
+function locateDevice(id) {                                      // fly to a device or window of the plan, as the search does
+  const fl = shownLayout().floors, fi = fl.findIndex((x) => (x.devices || []).some((d) => d.id === id) || openingWalls(x).some((w) => (w.openings || []).some((o) => o.id === id)));
+  if (fi >= 0) search.goTo({ kind: (fl[fi].devices || []).some((d) => d.id === id) ? 'device' : 'opening', id, floor: fi });
+}
 const logPage = initLogPage({                                    // 📜 Protokoll (pagelog.js, devlog.js): who switched what, for who may edit
   t, el: $('#tabPages [data-page=log]'), states: () => states, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, roomOf,
   rooms: () => [...new Set(shownLayout().floors.flatMap((f) => (f.rooms || []).map((r) => r.name).filter(Boolean)))],
@@ -930,9 +948,9 @@ const appUi = initAppUi({
   status: () => {
     const al = alarmPanel(states), w = weatherEntity(settings, states), tw = states[w]?.wx?.t;
     return { lightsOn: lightGroups.count(), alarm: al ? (al.state === 'disarmed' ? 'disarmed' : 'armed') : null, open: openings.items().length,
-      offline: offline.devices().filter((x) => x.reason !== 'unlinked').length, low: deviceList.low(), temp: Number.isFinite(tw) ? tw : null };
+      offline: offline.devices().filter((x) => x.reason !== 'unlinked').length, low: deviceList.low(), check: tabsUi.has('check') ? checkPage.badge() : 0, temp: Number.isFinite(tw) ? tw : null };
   },
-  act: (k) => (k === 'alarm' || k === 'temp' ? tabsUi.show(k === 'temp' && tabsUi.has('today') ? 'today' : 'house') : todayAct(k)),
+  act: (k) => (k === 'check' ? tabsUi.show('check') : k === 'alarm' || k === 'temp' ? tabsUi.show(k === 'temp' && tabsUi.has('today') ? 'today' : 'house') : todayAct(k)),
   openRoom: appOpenRoom,
   lightsOff: (fi, id) => {
     const f = shownLayout().floors[fi], r = f?.rooms.find((x) => x.id === id);
@@ -985,7 +1003,7 @@ const tabsUi = initTabsUi({
     climate: { el: $('#tabPages [data-page=climate]'), ...climatePage }, cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage },
     media: { el: $('#tabPages [data-page=media]'), ...mediaPage }, household: { el: $('#tabPages [data-page=household]'), ...householdPage },
     routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage },
-    log: { el: $('#tabPages [data-page=log]'), ...logPage },
+    log: { el: $('#tabPages [data-page=log]'), ...logPage }, check: { el: $('#tabPages [data-page=check]'), ...checkPage },
     ...dash.customPages(), ...appUi.pages() }),
   edit: dash.edit, tabEdit: dash.tabEdit, after: dash.after,      // the scene bar, an open light window (#597)
   onShow: (tab, was) => { if (tab !== 'house') appCloseRoomSoft(); document.body.classList.toggle('appMode', appOn()); document.body.classList.toggle('pageOpen', tab !== 'house'); appUi.houseFabs(appOn() && tab === 'house'); if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)

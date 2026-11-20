@@ -3522,3 +3522,20 @@ body.appRoom .apFabs { display: none !important; }
 #appHero small { position: absolute; left: 22px; bottom: 8px; color: #c9d4e3; font-size: 14px; font-weight: 600; text-shadow: 0 1px 6px rgba(0, 0, 0, .7); }
 body.appRoom #roomPanel .rp-head { display: none !important; }
 body.appRoom #view { height: 48vh !important; }   /* the 3D picture only above the card (no picture behind it) */
+/* 🩺 Haus-Check (pagecheck.js, 5.24.0) */
+[data-page=check] { padding: 16px; }
+[data-page=check] .hcHead h2 { margin: 0 0 4px; font-size: 26px; }
+[data-page=check] .hcChips { display: flex; gap: 8px; margin: 10px 0 4px; }
+[data-page=check] .hcChip { padding: 6px 12px; border-radius: 999px; font-weight: 600; font-size: 13px; background: rgba(255, 255, 255, .08); }
+[data-page=check] .hcChip.urgent { background: rgba(230, 70, 60, .25); color: #ffb2aa; } [data-page=check] .hcChip.soon { background: rgba(240, 190, 40, .25); color: #ffe08a; }
+[data-page=check] .hcSec, [data-page=check] .hcAdd { margin-top: 14px; max-width: 760px; }
+[data-page=check] .hcRow { display: flex; align-items: center; gap: 10px; padding: 10px 10px; margin: 6px 0; border-radius: 12px; background: rgba(255, 255, 255, .05); }
+[data-page=check] .hcRow.tap { cursor: pointer; }
+[data-page=check] .hcRow.battery, [data-page=check] .hcRow.offline { background: rgba(230, 70, 60, .14); }
+[data-page=check] .hcRow.radio, [data-page=check] .hcRow.update { background: rgba(240, 160, 40, .12); }
+[data-page=check] .hcIcon { width: 26px; text-align: center; font-size: 18px; }
+[data-page=check] .hcText { flex: 1; min-width: 0; }
+[data-page=check] .hcRight { color: var(--muted); font-size: 13px; white-space: nowrap; }
+[data-page=check] .hcDone { border: 0; border-radius: 10px; padding: 6px 10px; background: #2f9e5b; color: #fff; font-weight: 700; }
+[data-page=check] .hcDel { border: 0; background: none; color: var(--muted); font-size: 16px; padding: 4px; }
+[data-page=check] .hcAdd input, [data-page=check] .hcAdd select { display: block; width: 100%; margin: 6px 0; }

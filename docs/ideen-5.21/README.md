@@ -17,4 +17,4 @@ Wartung und Monatsbericht haben schon Bilder: `docs/ideen-5.15` Bild 9 und 11; d
 | ⑥ 📱 Handy wie eine App | `06`, `07` heute; `08`–`10` neu | Unten Start, Räume, 3D-Haus, Energie, Mehr; Start mit Gruß, Chips, Hausbild, Raum-Kacheln; ein Raum als eigene Seite. |
 
 Seine Wahl (2026-11-20): ⑥ „genau so, als Nächstes“ (gebaut in 5.22.0: `appshell.js`, `appui.js`), danach ① Haus-Check mit Wartung,
-② Erste Schritte (mit der Kopfleiste) und 📊 Monatsbericht wie im Bild. ③ ④ ⑤ nicht gewählt.
+② Erste Schritte (mit der Kopfleiste) und 📊 Monatsbericht wie im Bild. ③ ④ ⑤ nicht gewählt. ① gebaut in 5.24.0 (`housecheck.js`, `pagecheck.js`, `maintenance.py`).
