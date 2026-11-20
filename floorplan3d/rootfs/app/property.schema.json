@@ -620,6 +620,10 @@
      ],
      "default": "floor"
     },
+    "noWatch": {
+     "type": "boolean",
+     "description": "Nothing on this floor is watched: its devices, doors and windows are never reported offline (e.g. the flat upstairs of a two-family house that belongs to someone else)"
+    },
     "footprint": {
      "$ref": "#/$defs/polygon"
     },
@@ -917,11 +921,29 @@
     },
     "shutter": {
      "type": "boolean",
-     "description": "The window has a cover (windows only)"
+     "description": "The window or door has a cover: every window, and a door of style single, glass, double or sliding (e.g. a sliding door to the terrace)"
     },
     "shutterEntity": {
      "type": "string",
-     "description": "Cover entity of the window's curtain or roller shutter, e.g. cover.rollladen_wohnzimmer (implies shutter: true)"
+     "description": "Cover entity of the window's / door's curtain or roller shutter, e.g. cover.rollladen_wohnzimmer (implies shutter: true)"
+    },
+    "shutterParts": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 3,
+     "description": "Roller shutters only: how many roller shutters side by side, each with its own motor (a wide sliding door often has two). Default 1"
+    },
+    "shutterEntities": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "maxItems": 3,
+     "description": "The cover entity of every roller shutter side by side, from left to right seen from inside the room, e.g. [\"cover.terrasse_links\", \"cover.terrasse_rechts\"] (implies shutter: true and shutterParts)"
+    },
+    "noWatch": {
+     "type": "boolean",
+     "description": "Only drawn: its entities are never reported offline (e.g. in a flat that belongs to someone else)"
     },
     "shutterStyle": {
      "enum": [
@@ -937,7 +959,7 @@
       "in",
       "out"
      ],
-     "description": "Windows only: which side of the window the cover hangs on ('in' = room side, the default for a cloth curtain, 'out' = facade, the default for a roller shutter)"
+     "description": "Which side of the window / door the cover hangs on ('in' = room side, the default for a cloth curtain, 'out' = facade, the default for a roller shutter)"
     },
     "openOutward": {
      "type": "boolean",
@@ -1320,6 +1342,10 @@
     "hideModel": {
      "type": "boolean",
      "description": "Invisible in live mode, the light keeps shining."
+    },
+    "noWatch": {
+     "type": "boolean",
+     "description": "Only drawn: never reported offline or as 'no entity' (e.g. a lamp in a flat that belongs to someone else)."
     },
     "lightColor": {
      "type": "string",

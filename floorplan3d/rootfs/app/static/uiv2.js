@@ -25,7 +25,7 @@ export const panelKind = (kind, it) => (kind === 'opening' ? (it?.type === 'wind
  *  before the first mark stay on top, a section without fields is left out. 'kind' is drawn by uiv2ui.js (the kinds of window). */
 export const SECTIONS = {
   window: [['kind', '🧩', false], ['size', '📐', true], ['panes', '🪟', true], ['fixed', '▭', false], ['contact', '🔗', false], ['shutter', '🎚', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],
-  door: [['size', '📐', true], ['style', '🚪', false], ['contact', '🔗', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],   // look: its colours (#754)
+  door: [['size', '📐', true], ['style', '🚪', false], ['contact', '🔗', false], ['shutter', '🎚', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],   // look: its colours (#754); shutter: a sliding door's (#779)
   device: [['entity', '🔗', true], ['special', '⚙️', true], ['place', '📍', false], ['dsize', '📏', false], ['tilt', '↻', false], ['look', '🎨', false], ['inroom', '📟', false]],
   wall: [['wsize', '📐', true], ['split', '✂️', false], ['finish', '🎨', false]],
   stair: [['form', '📐', true], ['corner', '↪️', true], ['steps', '🪜', true], ['look', '🎨', false], ['place', '📍', false]],   // 5.7.0 (the owner, 2026-11-11); look: covering, rail (#753)
@@ -215,7 +215,12 @@ export function summary(pk, key, it, h = {}) {
       if (!it.entity && !extra) return ['v2.sum.noContact', {}];
       return [it.tiltEntity ? 'v2.sum.contactTilt' : 'v2.sum.contact', { e: it.entity ? ent(it.entity) : `${extra} ×` }];
     }
-    if (key === 'shutter') return it.shutter || it.shutterEntity ? (it.shutterEntity ? ['v2.sum.is', { x: ent(it.shutterEntity) }] : ['v2.sum.yes', {}]) : ['v2.sum.noneM', {}];
+    if (key === 'shutter') {
+      if (!it.shutter && !it.shutterEntity) return ['v2.sum.noneM', {}];
+      const n = it.shutterStyle && it.shutterStyle !== 'roller' ? 1 : Math.max(1, Math.min(3, Math.round(+it.shutterParts || 1)));
+      if (n > 1) return ['v2.sum.shutters', { n }];                 // two or three side by side (#779)
+      return it.shutterEntity ? ['v2.sum.is', { x: ent(it.shutterEntity) }] : ['v2.sum.yes', {}];
+    }
     if (key === 'style') return [`st.${it.style || 'single'}`, {}];
     if (key === 'more') return pk === 'window' && it.style !== 'fixed' ? ['v2.sum.tiltDeg', { d: tiltDeg(it) }] : null;
     if (key === 'look') return it.look && (it.look.leaf || it.look.frame) ? ['v2.sum.ownColors', {}] : ['v2.sum.houseColors', {}];   // #754

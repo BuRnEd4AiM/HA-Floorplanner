@@ -5,7 +5,10 @@
  * cloth curtain is scaled sideways to the side(s) where it gathers (walls.js builds them, openings.js moves them), and a label over the
  * window says how far it is open; in the live mode a tap ball on top of the window opens its card (shuttercard.js: a tall slider, up, stop,
  * down, quick positions; only the cover, not the window's contact, #335) and the room panel lists it under "Covers". The rules are pure
- * functions here (no three.js, no DOM; unit test: tests/shutters.test.mjs). */
+ * functions here (no three.js, no DOM; unit test: tests/shutters.test.mjs).
+ * Since 5.27.0 (#779) a door can have a cover too (a sliding door to the terrace: SHUTTER_DOOR_STYLES), and a roller shutter can be two or
+ * three side by side, each with a motor of its own (o.shutterParts, the entities o.shutterEntity and o.shutterMore[]): in 3D each part comes
+ * down by itself, its card picks "Alle" or one part. */
 import { openingWalls } from './dormerwin.js';
 import { pointInPoly } from './rooms.js';
 
@@ -13,10 +16,47 @@ export const SHUTTER_UP = 0.05;            // what is left of the curtain when i
 export const CURTAIN_GATHER = 0.12;        // what is left of a cloth curtain when it is pulled aside, share of its width
 export const SHUTTER_STYLES = ['roller', 'left', 'right', 'split'];
 
-/** does opening o have a cover (windows only) */
-export const hasShutter = (o) => o?.type === 'window' && !!o.shutter;
+/** the doors that can have a cover too (#779: a sliding door to the terrace, a glass door, French doors); an opening without a leaf, a bare
+ *  gap and a garage door (it rolls up itself) cannot */
+export const SHUTTER_DOOR_STYLES = ['single', 'glass', 'double', 'sliding'];
+/** can opening o get a cover: every window, and a door of SHUTTER_DOOR_STYLES */
+export const canHaveShutter = (o) => o?.type === 'window' || (o?.type === 'door' && SHUTTER_DOOR_STYLES.includes(o.style || 'single'));
+/** does opening o have a cover */
+export const hasShutter = (o) => canHaveShutter(o) && !!o.shutter;
 /** how the cover of o opens: 'roller' (up/down, also the default of older windows), 'left', 'right' or 'split'; null without one */
 export const curtainStyle = (o) => (hasShutter(o) ? (SHUTTER_STYLES.includes(o.shutterStyle) ? o.shutterStyle : 'roller') : null);
+/** a wide sliding door often has two or three roller shutters side by side, each with its own motor (#779): at most this many */
+export const MAX_SHUTTER_PARTS = 3;
+/** how many roller shutters o has side by side, each with an entity of its own (o.shutterParts; only a roller shutter: a cloth curtain
+ *  already has 'split' for two panels); 0 without a cover */
+export function shutterParts(o) {
+  if (!hasShutter(o)) return 0;
+  if (curtainStyle(o) !== 'roller') return 1;
+  const n = Math.round(+o.shutterParts || 1);
+  return Math.max(1, Math.min(MAX_SHUTTER_PARTS, n));
+}
+/** the entity of every part of o's cover in order (part 1 is the left one seen from inside the room), '' where none is chosen yet: part 1
+ *  is o.shutterEntity (as before), the others o.shutterMore[0], [1] */
+export function shutterSlots(o) {
+  const n = shutterParts(o), more = Array.isArray(o?.shutterMore) ? o.shutterMore : [];
+  return Array.from({ length: n }, (_, i) => {
+    const e = i === 0 ? o.shutterEntity : more[i - 1];
+    return typeof e === 'string' ? e : '';
+  });
+}
+/** the chosen entities of o's cover, each once */
+export const shutterEntities = (o) => [...new Set(shutterSlots(o).filter(Boolean))];
+/** the share of the width of o that part i of n covers: [from, to], 0 = the start of the opening along the wall, 1 = its end */
+export const partSpan = (i, n) => [i / Math.max(1, n), (i + 1) / Math.max(1, n)];
+/** how many parts of o's cover: 1 (the default, not stored) to MAX_SHUTTER_PARTS; the entities of parts that are gone go with them */
+export function setShutterParts(o, n) {
+  if (!hasShutter(o)) return o;
+  n = Math.max(1, Math.min(MAX_SHUTTER_PARTS, Math.round(+n || 1)));
+  if (n > 1) o.shutterParts = n; else delete o.shutterParts;
+  const more = (Array.isArray(o.shutterMore) ? o.shutterMore : []).slice(0, n - 1);
+  if (more.some(Boolean)) o.shutterMore = more; else delete o.shutterMore;
+  return o;
+}
 /** which side of the window the cover hangs on: 'in' (room side, the default for a cloth curtain) or 'out' (facade, the default for a
  *  roller shutter), unless the window sets it (o.curtainSide: 'in' / 'out') */
 export function curtainSide(o) {
@@ -24,29 +64,34 @@ export function curtainSide(o) {
   if (own === 'in' || own === 'out') return own;
   return curtainStyle(o) === 'roller' ? 'out' : 'in';
 }
-/** the style of a cover: 'roller' is the default and is not stored (older layouts stay as they are) */
+/** the style of a cover: 'roller' is the default and is not stored (older layouts stay as they are); a cloth curtain has one part */
 export function setShutterStyle(o, s) {
   if (!hasShutter(o)) return o;
-  if (s && s !== 'roller' && SHUTTER_STYLES.includes(s)) o.shutterStyle = s; else delete o.shutterStyle;
+  if (s && s !== 'roller' && SHUTTER_STYLES.includes(s)) { o.shutterStyle = s; delete o.shutterParts; delete o.shutterMore; } else delete o.shutterStyle;
   return o;
 }
-/** the cover entity of o's shutter, '' when there is none */
-export const shutterEntity = (o) => (hasShutter(o) && typeof o.shutterEntity === 'string' ? o.shutterEntity : '');
+/** the cover entity of o's shutter (the first one chosen of its parts), '' when there is none */
+export const shutterEntity = (o) => shutterEntities(o)[0] || '';
 /** every entity linked to door / window o: its contact sensors (as openingEntities in openings.js, which imports this file) and its
- *  shutter, each once */
-export const linkedEntities = (o) => [...new Set([o.entity, ...(o.paneEntities || []), shutterEntity(o)].filter(Boolean))];
-/** the shutter entities of the doors / windows of floor f (also of the dormer windows that belong to it) */
-export const floorShutters = (f) => openingWalls(f).flatMap((w) => (w.openings || []).map(shutterEntity)).filter(Boolean);
+ *  shutter(s), each once */
+export const linkedEntities = (o) => [...new Set([o.entity, ...(o.paneEntities || []), ...shutterEntities(o)].filter(Boolean))];
+/** the shutter entities of the doors / windows of floor f (also of the dormer windows that belong to it), every part */
+export const floorShutters = (f) => openingWalls(f).flatMap((w) => (w.openings || []).flatMap(shutterEntities));
 
-/** the tick in the properties: on gives window o a shutter, off takes it away together with its entity */
+/** the tick in the properties: on gives window / door o a shutter, off takes it away together with its entities and parts */
 export function setShutter(o, on) {
-  if (on && o.type === 'window') o.shutter = true;
-  else { delete o.shutter; delete o.shutterEntity; delete o.shutterStyle; }
+  if (on && canHaveShutter(o)) o.shutter = true;
+  else { delete o.shutter; delete o.shutterEntity; delete o.shutterStyle; delete o.shutterParts; delete o.shutterMore; }
   return o;
 }
-/** the entity picker of the shutter: '' removes the entity */
-export function setShutterEntity(o, e) {
-  if (e) o.shutterEntity = e; else delete o.shutterEntity;
+/** the entity picker of the shutter (part i, 0 = the first): '' removes the entity */
+export function setShutterEntity(o, e, i = 0) {
+  if (!i) { if (e) o.shutterEntity = e; else delete o.shutterEntity; return o; }
+  const more = Array.isArray(o.shutterMore) ? o.shutterMore.slice() : [];
+  while (more.length < i) more.push('');
+  more[i - 1] = e || '';
+  while (more.length && !more[more.length - 1]) more.pop();
+  if (more.length) o.shutterMore = more; else delete o.shutterMore;
   return o;
 }
 /** the entities offered for a shutter: Home Assistant's covers, every entity when there is none */
@@ -79,6 +124,22 @@ export function shutterText(st, t, o) {
 export const shutterIcon = (o) => { const s = curtainStyle(o); return s === 'left' ? '←' : s === 'right' ? '→' : s === 'split' ? '⇔' : '↕'; };
 /** the label over a window with a cover in 3D, like the value label of a device: "↕ 60 % open", "← 60 % open" */
 export const shutterLabel = (st, t, o) => `${shutterIcon(o)} ${shutterText(st, t, o)}`;
+/** the words of a cover with several parts (sts: the state of each part's entity, in order): one word when they all say the same,
+ *  else each, "1: Offen · 2: 40 % offen" (#779) */
+export function shutterTextAll(sts, t, o) {
+  const words = (sts || []).map((st) => shutterText(st, t, o));
+  if (!words.length) return '—';
+  if (words.every((w) => w === words[0])) return words[0];
+  return words.map((w, i) => `${i + 1}: ${w}`).join(' · ');
+}
+/** the label of a cover with several parts over the door in 3D (a label of a fixed width: short): "↕ Offen" when they agree, else each
+ *  one's position in the order along the wall, "↕ 100 % · 35 %" (a word where a cover reports no position) */
+export function shutterLabelAll(sts, t, o) {
+  const words = (sts || []).map((st) => shutterText(st, t, o));
+  if (!words.length || words.every((w) => w === words[0])) return `${shutterIcon(o)} ${words[0] ?? '—'}`;
+  const short = (st, w) => (typeof st?.position === 'number' && Number.isFinite(st.position) && !['unavailable', 'unknown'].includes(st.state) ? `${Math.round(st.position)} %` : w);
+  return `${shutterIcon(o)} ${sts.map((st, i) => short(st, words[i])).join(' · ')}`;
+}
 /** the ball of a shutter sits on top of its window, where the shutter rolls up (#335), never under it: its middle this far over the
  *  window's top (the ball's radius, BALL.r = 0.3 in tapballs.js, and a small gap) */
 export const SHUTTER_BALL_LIFT = 0.34;

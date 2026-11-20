@@ -542,6 +542,66 @@ def _(r):
     r.wait(3200)
 
 
+def door_floor(r):
+    """prep: the upper floor of the demo house in edit mode, in 3D, seen from the roof terrace onto its sliding door (two roller shutters, #779)"""
+    r.pg.evaluate("""() => { const fp = window.__fp, fi = fp.layout.floors.findIndex((f) => f.walls.some((w) => (w.openings || []).some((o) => o.id === 'u7')));
+      fp.switchFloor(fi); }""")
+    r.pg.click("#view3d")
+    r.pg.wait_for_timeout(900)
+    r.pg.evaluate("() => { const fp = window.__fp; fp.camAt(16, fp.elev(fp.floorIdx()) + 3.2, 3.6, 10, 2); }")
+    r.pg.wait_for_timeout(900)
+
+
+@clip("door-shutter", "edit",
+      {"de": "Rollläden an der Schiebetür, auch zwei nebeneinander", "en": "Roller shutters on a sliding door, also two side by side"},
+      {"de": "Eine Tür anklicken: „Vorhang / Rollladen“ gibt es jetzt auch bei Türen. „Anzahl Rollläden (Motoren)“: eine breite Schiebetür hat oft zwei "
+             "nebeneinander, jeder mit eigener Entität. Im 3D-Bild fährt jeder für sich; die Karte hat oben „Alle · 1 · 2“.",
+       "en": "Click a door: “Curtain / roller shutter” is there for doors too now. “Number of roller shutters (motors)”: a wide sliding door often has "
+             "two side by side, each with its own entity. In 3D each one moves by itself; its card has “All · 1 · 2” on top."},
+      "Schiebetür Terrassentür Tür zwei Motoren nebeneinander links rechts Alle sliding door patio door two motors side by side left right all",
+      query="mode=edit", prep=door_floor)
+def _(r):
+    r.say("Klicke die Schiebetür zur Terrasse an.", "Click the sliding door to the terrace.")
+    p = r.js("window.__fp.openingCenter('u7')")
+    r.click(p["x"], p["y"])
+    r.wait(1200)
+    r.say("„Vorhang / Rollladen“ gibt es jetzt auch bei Türen.", "“Curtain / roller shutter” is there for doors too now.")
+    r.move("#openShutter")
+    r.wait(1600)
+    r.say("„Anzahl Rollläden (Motoren)“: 2, für zwei Rollläden nebeneinander.", "“Number of roller shutters (motors)”: 2, for two side by side.")
+    r.move("#shutterParts")
+    r.wait(1600)
+    r.say("Jeder bekommt seine eigene Entität aus Home Assistant: „Rollladen 1“, „Rollladen 2“.",
+          "Each one gets its own entity from Home Assistant: “Roller shutter 1”, “Roller shutter 2”.")
+    r.move("#propsBody [data-part='2']")
+    r.wait(2000)
+    r.say("In der Live-Ansicht fährt jeder für sich: links offen, rechts halb unten.", "In the live view each one moves by itself: open on the left, half down on the right.")
+    r.click("#modeSwitch [data-mode=live]")
+    r.wait(1400)
+    rid = r.js("""(() => { const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()]; const inside = (x, z, pts) => { let c = false;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, zi] = pts[i], [xj, zj] = pts[j];
+        if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; };
+      return (f.rooms.find((q) => inside(9.6, 2, q.points)) || {}).id; })()""")
+    r.click(f"#roomLabels [data-room={rid}]")                         # the room behind the door: its balls show (#430)
+    r.wait(1800)
+    r.js("(() => { const fp = window.__fp; fp.camAt(14.2, fp.elev(fp.floorIdx()) + 1.9, 2.4, 0, 1.8); })()")
+    r.wait(1600)
+    r.say("Die Kugel über der Tür antippen: oben „Alle · 1 · 2“.", "Tap the ball over the door: “All · 1 · 2” on top.")
+    r.click(*r.ball("u7"))
+    r.wait(1200)
+    r.poster()
+    r.say("„2“ und „0 %“: nur der rechte fährt ganz herunter.", "“2” and “0 %”: only the right one goes all the way down.")
+    r.click("#livePopup #shutterParts button[data-part='2']")
+    r.wait(700)
+    r.click("#livePopup .shutterPresets button", nth=0)
+    r.wait(2800)
+    r.say("„Alle“ und „100 %“: beide fahren zusammen hoch.", "“All” and “100 %”: both go up together.")
+    r.click("#livePopup #shutterParts button[data-part='0']")
+    r.wait(700)
+    r.click("#livePopup .shutterPresets button", nth=4)
+    r.wait(2800)
+
+
 @clip("ui-v2", "edit",
       {"de": "Die neue Leiste (Oberfläche 2)", "en": "The new panel (Oberfläche 2)"},
       {"de": "Oben „✨ Neu“ schaltet die neue Bearbeiten-Leiste ein (gilt für dieses Gerät, „Klassisch“ holt die alte zurück): dieselben Einstellungen, aufgeräumt in Abschnitte zum Auf- und Zuklappen, jede mit einer Zeile, was eingestellt ist. Das Fenster ist halb offen gezeichnet: einen Flügel antippen und wählen, wie er aufgeht. Fensterarten als Bilder, ein Raum mit Reitern und Böden als kleine Bilder.",

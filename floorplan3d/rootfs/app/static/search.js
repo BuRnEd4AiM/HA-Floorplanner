@@ -5,7 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { matchScore } from './alerts.js';
 import { wallLength } from './walls.js';
 import { openingWalls } from './dormerwin.js';
-import { shutterEntity } from './shutters.js';
+import { shutterEntities } from './shutters.js';
 
 /** where a device or a door / window is, for the jump (#215): { x, y (height over its floor), z }, null when it is not found */
 export function targetPoint(floors, tg) {
@@ -43,8 +43,9 @@ export function initSearch(ctx) {
       });
       openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
         const name = o.name || (o.entity && ctx.entities().find((e) => e.entity_id === o.entity)?.name) || '';
-        const se = shutterEntity(o), shName = se && ctx.entities().find((e) => e.entity_id === se)?.name;   // found by its roller shutter too (#331)
-        const sc = Math.max(matchScore(name, q), matchScore(o.entity, q) * 0.8, matchScore(shName, q) * 0.9, matchScore(se, q) * 0.8);
+        const ses = shutterEntities(o), names = ses.map((se) => ctx.entities().find((e) => e.entity_id === se)?.name);   // found by its roller shutter(s) too (#331, #779)
+        const shName = names.find(Boolean);
+        const sc = Math.max(matchScore(name, q), matchScore(o.entity, q) * 0.8, ...names.map((n) => matchScore(n, q) * 0.9), ...ses.map((se) => matchScore(se, q) * 0.8));
         if (!sc) return;
         const L = wallLength(w) || 1, x = w.a[0] + ((w.b[0] - w.a[0]) / L) * o.pos, z = w.a[1] + ((w.b[1] - w.a[1]) / L) * o.pos;
         out.push({ sc, kind: 'opening', id: o.id, floor: fi, label: name || shName || t(`prop.${o.type}`), sub: f.name, x, y: (o.sill || 0) + (o.height || 1) / 2, z });

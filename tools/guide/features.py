@@ -231,3 +231,7 @@ f("alarmcards", "settings", "„Warnungen & Alarm“ in drei Karten mit Zustand 
 f("phonefloors", "phone", "Am Handy: ein Knopf für Etage und Zimmer, der Alarm als 🛡", "On the phone: one button for the floor and the room, the alarm as 🛡", ["phone-floors"], since="5.8.0")
 f("looks", "edit", "Farben: Dach (jede Farbe, Dachziegel, Biberschwanz, Schiefer, Blech), Treppe (Belag wie ein Raum, Setzstufen, Geländer der Wendeltreppe), Türblatt, Zarge und Fensterrahmen je Tür und für das ganze Haus",
   "Colours: roof (any colour, roof tiles, beaver tails, slate, metal), stairs (covering like a room, risers, the spiral stair's rail), door leaf, frame and window frames per door and for the whole house", ["house-looks"], since="5.11.0")
+f("doorshutter", "edit", "🎚 Rollläden an Türen (Schiebetür, Terrassentür), auch zwei oder drei nebeneinander mit eigenem Motor; die Karte mit „Alle · 1 · 2“",
+  "🎚 Roller shutters on doors (sliding door, patio door), also two or three side by side with a motor each; the card with “All · 1 · 2”", ["door-shutter"], since="5.27.0")
+f("nowatch", "live", "🙈 Nicht überwachen: Geräte, Türen, Fenster oder eine ganze Etage nur gezeichnet (fremde Wohnung), nie offline",
+  "🙈 Don’t watch: devices, doors, windows or a whole floor only drawn (someone else’s flat), never offline", ["no-watch"], since="5.27.0")

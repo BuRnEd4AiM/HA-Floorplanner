@@ -14,17 +14,19 @@ const { skipInLive, chooseHit } = await import(`${dir}/pickrules.js`);
 const G = await import(`${dir}/rooms.js`);
 const near = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
 
-test('only windows have a roller shutter, its entity only while the tick is set', () => {
+test('windows and doors with a leaf have a roller shutter (#779: a sliding door), its entity only while the tick is set', () => {
   assert.ok(S.hasShutter({ type: 'window', shutter: true }));
   assert.ok(!S.hasShutter({ type: 'window' }));
-  assert.ok(!S.hasShutter({ type: 'door', shutter: true }));
+  assert.ok(S.hasShutter({ type: 'door', shutter: true }), 'a door (single by default) can have one since 5.27.0');
+  assert.ok(S.hasShutter({ type: 'door', style: 'sliding', shutter: true }));
+  for (const style of ['garage', 'open', 'gap']) assert.ok(!S.hasShutter({ type: 'door', style, shutter: true }), style);
   assert.ok(!S.hasShutter(null));
   assert.equal(S.shutterEntity({ type: 'window', shutter: true, shutterEntity: 'cover.a' }), 'cover.a');
   assert.equal(S.shutterEntity({ type: 'window', shutterEntity: 'cover.a' }), '', 'no tick: no shutter');
   assert.equal(S.shutterEntity({ type: 'window', shutter: true }), '');
 });
 
-test('the tick: on gives a window a shutter, off takes it away with its entity; doors never get one', () => {
+test('the tick: on gives a window a shutter, off takes it away with its entity; a garage door never gets one', () => {
   const o = { type: 'window' };
   S.setShutter(o, true);
   assert.equal(o.shutter, true);
@@ -35,8 +37,63 @@ test('the tick: on gives a window a shutter, off takes it away with its entity; 
   S.setShutterEntity(o, 'cover.kueche');
   S.setShutter(o, false);
   assert.deepEqual(o, { type: 'window' });
-  const d = S.setShutter({ type: 'door' }, true);
+  const d = S.setShutter({ type: 'door', style: 'garage' }, true);
   assert.ok(!('shutter' in d));
+  assert.equal(S.setShutter({ type: 'door', style: 'sliding' }, true).shutter, true, 'a sliding door gets one (#779)');
+});
+
+test('two or three roller shutters side by side, each with its own entity (#779)', () => {
+  const o = { type: 'door', style: 'sliding', shutter: true, shutterEntity: 'cover.links' };
+  assert.equal(S.shutterParts(o), 1);
+  assert.deepEqual(S.shutterSlots(o), ['cover.links']);
+  S.setShutterParts(o, 2);
+  assert.equal(o.shutterParts, 2);
+  assert.deepEqual(S.shutterSlots(o), ['cover.links', ''], 'the second part has no entity yet');
+  S.setShutterEntity(o, 'cover.rechts', 1);
+  assert.deepEqual(o.shutterMore, ['cover.rechts']);
+  assert.deepEqual(S.shutterEntities(o), ['cover.links', 'cover.rechts']);
+  assert.deepEqual(S.linkedEntities({ ...o, entity: 'binary_sensor.tuer' }), ['binary_sensor.tuer', 'cover.links', 'cover.rechts']);
+  assert.deepEqual(S.floorShutters({ walls: [{ openings: [o, { type: 'window', shutter: true, shutterEntity: 'cover.w' }] }] }), ['cover.links', 'cover.rechts', 'cover.w']);
+  S.setShutterEntity(o, '', 0);                                      // the first one gone: shutterEntity is the first one chosen
+  assert.equal(S.shutterEntity(o), 'cover.rechts');
+  S.setShutterEntity(o, 'cover.links', 0);
+  S.setShutterParts(o, 9);
+  assert.equal(S.shutterParts(o), 3, 'at most three');
+  S.setShutterEntity(o, 'cover.mitte', 2);
+  assert.deepEqual(o.shutterMore, ['cover.rechts', 'cover.mitte']);
+  S.setShutterParts(o, 2);
+  assert.deepEqual(o.shutterMore, ['cover.rechts'], 'the third part goes with its entity');
+  S.setShutterEntity(o, '', 1);
+  assert.ok(!('shutterMore' in o), 'no entity left in the other parts: nothing stored');
+  S.setShutterParts(o, 1);
+  assert.ok(!('shutterParts' in o), 'one part is the default and is not stored');
+  S.setShutterParts(o, 2); S.setShutterEntity(o, 'cover.rechts', 1);
+  S.setShutterStyle(o, 'split');                                     // a cloth curtain: one part (split is its two panels)
+  assert.equal(S.shutterParts(o), 1);
+  assert.ok(!('shutterParts' in o) && !('shutterMore' in o));
+  S.setShutterStyle(o, 'roller'); S.setShutterParts(o, 2); S.setShutterEntity(o, 'cover.rechts', 1);
+  S.setShutter(o, false);
+  assert.deepEqual(o, { type: 'door', style: 'sliding' }, 'no cover: no parts and no entities left');
+  assert.deepEqual(S.partSpan(0, 2), [0, 0.5]);
+  assert.deepEqual(S.partSpan(2, 3), [2 / 3, 1]);
+});
+
+test('the words of a cover with several parts: one when they agree, else each with its number (#779)', () => {
+  const t = (k, v) => (k === 'shutter.partly' ? `${v.n} % open` : k === 'state.open' ? 'Open' : k === 'state.closed' ? 'Closed' : k);
+  const o = { type: 'door', style: 'sliding', shutter: true, shutterParts: 2 };
+  assert.equal(S.shutterTextAll([{ state: 'open', position: 100 }, { state: 'open', position: 100 }], t, o), 'Open');
+  assert.equal(S.shutterTextAll([{ state: 'open', position: 100 }, { state: 'open', position: 40 }], t, o), '1: Open · 2: 40 % open');
+  assert.equal(S.shutterLabelAll([{ state: 'closed', position: 0 }, { state: 'closed', position: 0 }], t, o), '↕ Closed');
+  assert.equal(S.shutterLabelAll([{ state: 'open', position: 100 }, { state: 'open', position: 35 }], t, o), '↕ 100 % · 35 %', 'the 3D label stays short');
+  assert.equal(S.shutterLabelAll([{ state: 'open' }, { state: 'closed' }], t, o), '↕ Open · Closed', 'no position: the word');
+  assert.equal(S.shutterTextAll([], t, o), '—');
+});
+
+test('the room panel lists every part of a door\'s roller shutters as a row of its own (#779)', () => {
+  const room = { points: [[0, 0], [4, 0], [4, 4], [0, 4]] };
+  const f = { walls: [{ a: [0, 0], b: [4, 0], thickness: 0.2, openings: [{ id: 'd', type: 'door', style: 'sliding', pos: 2, width: 2.4, name: 'Terrasse', shutter: true, shutterParts: 2, shutterEntity: 'cover.l', shutterMore: ['cover.r'] }] }] };
+  const rows = roomShutters(room, f, new Set(), () => '', 'Vorhang');
+  assert.deepEqual(rows.map((r) => [r.entity, r.name]), [['cover.l', 'Terrasse 1'], ['cover.r', 'Terrasse 2']]);
 });
 
 test('linked entities: contacts and the shutter, each once; the shutter is no contact (an open shutter is no open window)', () => {
@@ -264,7 +321,8 @@ test('live mode: a window takes no tap, the ball of its shutter does, and it cou
 
 test('a cover opens as a roller shutter (default) or as a cloth curtain to the left, right or both sides', () => {
   assert.equal(S.curtainStyle({ type: 'window' }), null);
-  assert.equal(S.curtainStyle({ type: 'door', shutter: true }), null);
+  assert.equal(S.curtainStyle({ type: 'door', style: 'garage', shutter: true }), null);
+  assert.equal(S.curtainStyle({ type: 'door', style: 'sliding', shutter: true }), 'roller', 'a sliding door\'s roller shutter (#779)');
   assert.equal(S.curtainStyle({ type: 'window', shutter: true }), 'roller');
   assert.equal(S.curtainStyle({ type: 'window', shutter: true, shutterStyle: 'left' }), 'left');
   assert.equal(S.curtainStyle({ type: 'window', shutter: true, shutterStyle: 'nowhere' }), 'roller', 'an unknown style is a roller shutter');
@@ -366,6 +424,30 @@ test('3D: a split cloth has two pivots, a fixed pane gets no pivot data, a rolle
   const rollerIn = open(wall({ id: 'ri', type: 'window', style: 'single', pos: 2, width: 1, height: 1.2, sill: 0.9,
     shutter: true, shutterEntity: 'cover.r', shutterStyle: 'roller', curtainSide: 'in' }));
   assert.ok(rollerIn.userData.shutter.position.z < 0, 'curtainSide in: the roller shutter hangs in the room');
+});
+
+test('3D: a sliding door with two roller shutters has two pivots side by side; with one, one (#779)', async () => {
+  const THREE = await import(`${dir}/vendor/three.module.min.js`);
+  const mat = (c, ghost, extra) => new THREE.MeshStandardMaterial({ color: c, ...extra });
+  const wall = (opening) => WA.buildWall({ a: [0, 0], b: [5, 0], thickness: 0.24, height: 2.6, openings: [opening] },
+    { material: mat('#ffffff'), makeMat: mat, shutterSide: () => 1, windowFrame: '#ffffff' });
+  const open = (g) => g.children.find((c) => c.userData?.kind === 'opening');
+  const two = open(wall({ id: 'd2', type: 'door', style: 'sliding', pos: 2.5, width: 2.4, height: 2.1, sill: 0,
+    shutter: true, shutterParts: 2, shutterEntity: 'cover.l', shutterMore: ['cover.r'] }));
+  assert.equal(two.userData.shutter.length, 2, 'two roller shutters');
+  assert.equal(two.userData.shutterParts, 2);
+  assert.ok(two.userData.shutter[0].position.x > 0 && two.userData.shutter[1].position.x < 0, 'one on each half; part 1 the left one seen from inside (outside at +1: the room at -1)');
+  const wallIn = (opening) => WA.buildWall({ a: [0, 0], b: [5, 0], thickness: 0.24, height: 2.6, openings: [opening] },
+    { material: mat('#ffffff'), makeMat: mat, shutterSide: () => -1, windowFrame: '#ffffff' });
+  const other = open(wallIn({ id: 'd3', type: 'door', style: 'sliding', pos: 2.5, width: 2.4, height: 2.1, sill: 0, shutter: true, shutterParts: 2, shutterEntity: 'cover.l' }));
+  assert.ok(other.userData.shutter[0].position.x < 0, 'the room on the other side: part 1 on the other end of the wall');
+  assert.ok(two.userData.shutter.every((p) => p.userData.axis === 'y' && p.position.z > 0), 'roller shutters hang outside');
+  assert.ok(two.userData.pivot, 'the sliding panel still slides');
+  const one = open(wall({ id: 'd1', type: 'door', style: 'sliding', pos: 2.5, width: 2.4, height: 2.1, sill: 0, shutter: true, shutterEntity: 'cover.l' }));
+  assert.ok(!Array.isArray(one.userData.shutter) && one.userData.shutter.userData.axis === 'y');
+  near(one.userData.shutter.position.x, 0);
+  const garage = open(wall({ id: 'g', type: 'door', style: 'garage', pos: 2.5, width: 2.4, height: 2.1, sill: 0, shutter: true, shutterEntity: 'cover.g' }));
+  assert.ok(!garage.userData.shutter, 'a garage door rolls up itself: no roller shutter');
 });
 
 test('3D: every hinge opens inward, on both wall orientations', async () => {

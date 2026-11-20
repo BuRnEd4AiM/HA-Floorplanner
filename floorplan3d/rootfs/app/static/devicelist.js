@@ -10,7 +10,7 @@ import { ringEntities } from './ledring.js';
 import { openingWalls } from './dormerwin.js';
 import { openingEntities, openingPoint, isOpenState } from './openings.js';
 import { windowWord } from './windowtilt.js';
-import { shutterEntity, shutterLabel } from './shutters.js';
+import { shutterEntity, shutterEntities, shutterLabel, shutterLabelAll } from './shutters.js';
 import { ballIcon, SWITCH_ICON } from './tapballs.js';
 
 /** a battery at or under this level (%) is low */
@@ -87,8 +87,9 @@ export function deviceRows(env) {
       const [x, z] = openingPoint(w, o), vals = [], open = ents.some((e) => isOpenState(states[e], env.onStates));
       const tilted = open && windowWord(o, ents, (e) => isOpenState(states[e], env.onStates), (e) => states[e]) === 'tilted';   // #624
       if (ents.length) vals.push(open ? t(tilted ? 'state.tilted' : 'state.open') : ents.some((e) => states[e]) ? t('state.closed') : '—');
-      if (sh) vals.push(shutterLabel(states[sh], t, o));
-      const bat = [...ents, sh].filter(Boolean).map((e) => batteryInfo(e, states, batteryOf)).filter(Boolean)
+      const shs = shutterEntities(o);                              // several roller shutters side by side (#779): all of them in one word
+      if (sh) vals.push(shs.length > 1 ? shutterLabelAll(shs.map((e) => states[e]), t, o) : shutterLabel(states[sh], t, o));
+      const bat = [...ents, ...shs].filter(Boolean).map((e) => batteryInfo(e, states, batteryOf)).filter(Boolean)
         .sort((p, q) => Number(q.low) - Number(p.low) || (p.level ?? 101) - (q.level ?? 101))[0] || null;   // the emptiest of its sensors
       add(roomAt(f, x, z, env, true), { kind: 'opening', id: o.id, floor: fi, name: o.name || t(`prop.${o.type}`), entity: ents[0] || sh, type: o.type,
         icon: o.type === 'door' ? (o.style === 'garage' ? '🚗' : '🚪') : '🪟', value: vals.join(' · '), battery: bat, off: off.get(o.id) || null, on: open,

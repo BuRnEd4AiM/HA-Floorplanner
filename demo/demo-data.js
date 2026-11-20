@@ -187,7 +187,7 @@ const layout = {
     ],
     walls: [
       W('u1', [0, 0], [10, 0], 0.24, [Win('u5', 2.5), Win('u6', 7.5, { style: 'double', width: 1.8, height: 2.1, sill: 0, name: 'Balkontür' })]),
-      W('u2', [10, 0], [10, 7], 0.24, [D('u7', 2, { width: 1.8, height: 2.1, style: 'sliding', name: 'Terrassentür' }), Win('u15', 5.5)]),
+      W('u2', [10, 0], [10, 7], 0.24, [D('u7', 2, { width: 1.8, height: 2.1, style: 'sliding', name: 'Terrassentür', shutter: true, shutterParts: 2, shutterEntity: 'cover.terrasse_links', shutterMore: ['cover.terrasse_rechts'] }), Win('u15', 5.5)]),   // #779: a sliding door with two roller shutters
       W('u12', [10, 7], [0, 7], 0.24, [Win('u16', 1.75), Win('u17', 4.75, { width: 0.9 }), Win('u18', 8, { width: 0.8, height: 0.9, sill: 1.2 })]),
       W('u4', [0, 7], [0, 0], 0.24, [Win('u10', 5)]),
       W('u3', [10, 4], [0, 4], 0.12, [D('u8', 4.2), D('u9', 5.5)]),
@@ -351,6 +351,8 @@ const entities = {
   'light.flur_decke':        { name: 'Flur Deckenlicht',       state: 'on', dim: false },
   'light.terrasse':          { name: 'Terrasse',               state: 'unavailable' },
   'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
+  'cover.terrasse_links':    { name: 'Rollladen Terrasse links',  state: 'open', position: 100 },   // #779: the two roller shutters of the sliding door
+  'cover.terrasse_rechts':   { name: 'Rollladen Terrasse rechts', state: 'open', position: 35 },
   'switch.flur':             { name: 'Flur Schalter',          state: 'off' },
   'media_player.tv':         { name: 'Fernseher',              state: 'playing', app: 'Netflix', ctl: { vol: 25, muted: false, title: 'Die Serie – Folge 3', sources: ['HDMI 1', 'HDMI 2', 'Netflix', 'YouTube'], source: 'Netflix' } },
   'media_player.sonos_wz':   { name: 'Lautsprecher Wohnzimmer', state: 'playing', ctl: { vol: 35, muted: false, title: 'Sommerregen', artist: 'Die Demo-Band', sources: ['Radio', 'Spotify', 'Line-in'], source: 'Spotify', sf: SPEAKER } },

@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3Pj5bUvq8iLe6YqwmN",
+ "start": "2026-11-20",
+ "updated": "2026-11-20T21:39:24Z",
+ "branch": "claude/serene-pasteur-jb34nb",
+ "source": "counted",
+ "input": 387,
+ "cache_write": 414939,
+ "cache_read": 56996755,
+ "output": 153948,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 387,
+   "cache_write": 414939,
+   "cache_read": 56996755,
+   "output": 153948,
+   "requests": 190
+  }
+ }
+}
