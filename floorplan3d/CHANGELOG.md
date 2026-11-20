@@ -2,6 +2,16 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.22.0] - 2026-11-20
+### Added
+- **📱 The phone like an app** (the owner, 2026-11-20: "eine bessere ansicht fürs handy das es nicht so selbstgebaut wirkt … mehr nach einer app aussieht … intuitiver"; his choice: pictures docs/ideen-5.21 8–10 "genau so"): on a phone in the live view the bar at the bottom has **five fixed tabs: Start, Räume, 3D-Haus, Energie, Mehr**.
+  - **Start**: the date and a greeting by the time of day, chips with what is going on (lights on, alarm, open windows, devices offline, empty batteries, the temperature outside; a tap opens the list behind it), a picture of the house ("🧊 Haus in 3D ansehen") and the rooms as tiles (lights on first; the round button turns a room's lights off).
+  - **Räume**: every named room by floor as tiles with temperature and lights.
+  - **A room as a page of its own**: a tile opens the room's card full size with "‹ Räume" / "‹ Start" back.
+  - **3D-Haus**: the house as before (☰, floor button, scene bar). **Mehr**: every other page (Heute, Klima, Kameras …, own pages), ⚙ Einstellungen and **"Klassische Ansicht (wie früher)"**, kept per phone; in the classic view ☰ has "📱 Handy-Ansicht wie eine App" to come back.
+- Tablets, the dashboard card, a room tablet and a guest's screen keep their view.
+- Video guide: the clip "Am Handy: wie eine App" (was "Am Handy: die Seiten"); the other phone clips start with "3D-Haus".
+
 ## [5.21.0] - 2026-11-20
 ### Added
 - **👥 Guest access: guests control their room with their phone** (the owner, 2026-11-20: "es gibt im Home Assistant einen benutzer … gast und mit einem qr code … bekommt man eine karte dann zu gesicht die man steuern kann von dem raum den man vorher ausgewählt hat"; his choices: the guest logs in once as that Home Assistant user, may switch light, shutters, heating and music / TV of the room, until a date): ⚙ → 👥 Benutzer & Tablets → **👥 Gäste-Zugang**: switch it on, the Home Assistant user ("gast"), the room and **"Bis"** (+1 day, +3 days, +1 week); it shows **the QR code of the add-on's address** and **"🖨 Karte drucken"**, a card to put in the guest room with the QR code, the user and the password (typed only for the print, never saved). How to make the user "gast" in Home Assistant is explained in four steps.

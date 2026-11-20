@@ -130,7 +130,7 @@ check("sky: 'Einfarbig' in the settings gives the plain background back", pgS.ev
       and pgS.evaluate("window.__fp.scene.background !== null") and not pgS.is_visible("#skyChips"))
 set_setting("sky", "time")
 pgP = b.new_page(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"})
-pgP.goto(BASE + "?debug=1&mode=live"); pgP.wait_for_timeout(2000)
+pgP.goto(BASE + "?debug=1&mode=live"); pgP.wait_for_timeout(2000); phone_house(pgP)
 pgP.evaluate("window.__fp.switchFloor(0)"); pgP.wait_for_timeout(800)
 seen = [pgP.is_visible(s) for s in ("#energyCard", "#skyChips", "#roomTiles")]
 check("phone: no energy card before 'Strom' is pressed, no sky chips (no room for them), the room tiles are there", seen == [False, False, True], seen)

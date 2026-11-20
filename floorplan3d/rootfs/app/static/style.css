@@ -3436,3 +3436,51 @@ body.guestview #roomPanel .rpClose, body.guestview #roomPanel [data-act=close] {
   padding: 24px; background: var(--bg, #0e131c); }
 .guOver .guOverIcon { font-size: 54px; }
 .guOver p { color: var(--muted, #9aa7bd); max-width: 420px; }
+
+/* 📱 the phone as an app (appshell.js / appui.js, 5.22.0, docs/ideen-5.21 pictures 8–10) */
+.appPage { padding: 14px 16px 24px; }
+.appPage .apDate { color: var(--muted); font-size: 14px; }
+.appPage .apHello, .appPage .apTitle { font-size: 30px; margin: 4px 0 2px; letter-spacing: -.02em; }
+.appPage .apChips { display: flex; gap: 8px; margin: 14px -16px 4px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
+.appPage .apChips::-webkit-scrollbar { display: none; }
+.appPage .apChip { flex: none; padding: 9px 13px; border-radius: 14px; background: var(--panel2, #1a212c); border: 0; color: inherit; font-size: 14px; font-weight: 600; }
+.appPage .apChip.on { background: #3a2f12; color: #ffd36b; } .appPage .apChip.warn { background: #3a1d1a; color: #ffaa9e; } .appPage .apChip.ok { background: #14301f; color: #8ff0b4; }
+.appPage .apHouse { display: block; width: 100%; height: 160px; margin-top: 14px; border: 0; padding: 0; border-radius: 22px; overflow: hidden; position: relative;
+  background: radial-gradient(circle at 50% 40%, #2a3a55, #141a24); color: inherit; }
+.appPage .apHouse img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.appPage .apHouseLab { position: absolute; left: 12px; bottom: 10px; background: rgba(13, 17, 23, .78); padding: 6px 11px; border-radius: 12px; font-size: 14px; font-weight: 600; }
+.appPage .apSec { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 2px 10px; }
+.appPage .apSec b { font-size: 19px; }
+.appPage .apLink { background: none; border: 0; color: #4ea1ff; font-size: 15px; padding: 4px; }
+.appPage .apGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.appPage .apRoom { background: var(--panel2, #1a212c); border-radius: 20px; padding: 14px; min-height: 108px; position: relative; cursor: pointer; display: flex; flex-direction: column; }
+.appPage .apRoom.lit { background: linear-gradient(150deg, rgba(255, 196, 70, .22), var(--panel2, #1a212c) 70%); }
+.appPage .apRoomIcon { font-size: 26px; }
+.appPage .apRoom b { font-size: 16px; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 4px; }
+.appPage .apRoom small { color: var(--muted); font-size: 13px; }
+.appPage .apToggle { position: absolute; right: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .1); color: inherit; font-size: 16px; }
+.appPage .apRoom.lit .apToggle { background: #ffcf4a; color: #2a1c00; }
+.appPage .apEmpty { color: var(--muted); grid-column: 1 / -1; }
+#tabBar.appBar { justify-content: space-around; }
+#tabBar.appBar button { flex: 1 1 0; min-width: 0; }
+.apSheetBack { position: fixed; inset: 0; z-index: 80; background: rgba(0, 0, 0, .45); display: flex; align-items: flex-end; }
+.apSheet { width: 100%; max-height: 80vh; overflow: auto; background: var(--panel, #151b24); border-radius: 24px 24px 0 0; padding: 10px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, .5); }
+.apSheet h2 { margin: 4px 4px 10px; font-size: 22px; }
+.apGrab { width: 40px; height: 5px; border-radius: 3px; background: #3a4556; margin: 0 auto 8px; }
+.apList { display: flex; flex-direction: column; gap: 6px; }
+.apItem { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 12px; border: 0; border-radius: 14px; background: var(--panel2, #1a212c); color: inherit; font-size: 16px; text-align: left; }
+.apItem span:nth-child(2) { flex: 1; } .apItem i { font-style: normal; color: var(--muted); font-size: 20px; }
+.apItem.soft { background: transparent; color: var(--muted); }
+.apItemIcon { width: 30px; text-align: center; font-size: 20px; }
+body.appRoom #navBar, body.appRoom #floorRail, body.appRoom #modeBar, body.appRoom #viewMenu, body.appRoom #viewLegend, body.appRoom #phoneNavBtn,
+body.appRoom #toolbar { display: none !important; }
+body.appRoom #roomPanel { top: 54px !important; bottom: calc(var(--stage-b, 0px) + 8px) !important; left: 8px !important; right: 8px !important;
+  width: auto !important; max-width: none !important; max-height: none !important; }
+#appBack { position: fixed; top: 10px; left: 10px; z-index: 61; border: 0; border-radius: 14px; padding: 8px 14px; font-size: 16px; font-weight: 600;
+  background: var(--panel, #1c2433); color: #4ea1ff; }
+#appBack[hidden] { display: none; }
+
+#toAppBtn { display: none; }
+@media (max-width: 760px) { body.live #toAppBtn:not([hidden]) { display: inline-flex; } }
+body.appMode.pageOpen #toolbar, body.appMode.pageOpen #sceneBar, body.appRoom #sceneBar, body.appRoom #searchBtn { display: none !important; }

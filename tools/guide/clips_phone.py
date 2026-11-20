@@ -2,6 +2,14 @@
 from recorder import clip
 
 
+def house(r, say=True):
+    """since 5.22.0 a phone starts on Start (the app view): the house is the tab 3D-Haus"""
+    if say:
+        r.say("Unten „3D-Haus“ zeigt dein Haus.", "“3D house” at the bottom shows your house.")
+    r.click("#tabBar [data-tab=house]")
+    r.wait(1200)
+
+
 @clip("phone-house", "phone",
       {"de": "Am Handy: Haus, Räume und Licht", "en": "On the phone: house, rooms and light"},
       {"de": "Am Handy passt sich alles an: Räume antippen, Licht schalten, mit zwei Fingern drehen und zoomen.",
@@ -9,6 +17,7 @@ from recorder import clip
       "Handy Smartphone iPhone Android unterwegs Touch Finger App phone smartphone mobile touch finger",
       device="phone", sky="18:40")
 def _(r):
+    house(r)
     r.say("Am Handy siehst du dein Haus wie am großen Bildschirm.", "On the phone you see your house as on a big screen.")
     r.wait(1500)
     r.say("Tippe auf einen Raum.", "Tap a room.")
@@ -33,6 +42,7 @@ def _(r):
       "Handy Raumkarte Raum antippen klein hochziehen Griff Knöpfe Licht Szenen Rollo Heizung Heizplan phone room card tap small pull up grip buttons light scenes blinds heating schedule",
       device="phone", sky="21:30")
 def _(r):
+    house(r)
     r.say("Tippe auf einen Raum: seine Karte kommt erst klein, das Haus bleibt zu sehen.", "Tap a room: its card first comes small and the house stays in sight.")
     r.click("#roomLabels [data-room=r1]")
     r.wait(2000)
@@ -64,6 +74,7 @@ def _(r):
       "Handy Etage Stockwerk Zimmer Raum wählen Keller Obergeschoss phone floor storey room choose basement",
       device="phone", sky="13:00")
 def _(r):
+    house(r)
     r.say("Oben links steht die Etage, mit grünem Punkt, wenn jemand da ist.", "Top left is the floor, with a green dot when someone is there.")
     r.move("#phoneNavBtn")
     r.wait(1500)
@@ -82,23 +93,30 @@ def _(r):
 
 
 @clip("phone-pages", "phone",
-      {"de": "Am Handy: die Seiten", "en": "On the phone: the pages"},
-      {"de": "Unten wechselst du die Seiten: Heute, Energie, Klima und alle anderen, zum Wischen gemacht.",
-       "en": "Switch the pages at the bottom: today, energy, climate and all the others, made for swiping."},
-      "Handy Seiten Leiste unten wischen Heute Energie Klima phone pages bar bottom swipe today energy climate",
-      device="phone")
+      {"de": "Am Handy: wie eine App", "en": "On the phone: like an app"},
+      {"de": "Unten fünf Reiter: Start, Räume, 3D-Haus, Energie und Mehr. Start begrüßt dich mit dem Wichtigsten und den Räumen als Kacheln; ein Raum öffnet sich als eigene Seite. Unter „Mehr“ alle anderen Seiten, die Einstellungen und die klassische Ansicht.",
+       "en": "Five tabs at the bottom: home, rooms, 3D house, energy and more. Home greets you with what matters and the rooms as tiles; a room opens as a page of its own. Under “More” every other page, the settings and the classic view."},
+      "Handy App Start Räume Kacheln Seiten Leiste unten Mehr Heute Energie Klima klassische Ansicht phone app home rooms tiles pages bar bottom more today energy climate classic view",
+      device="phone", sky="19:40")
 def _(r):
-    r.say("Unten stehen die Seiten.", "The pages are at the bottom.")
-    r.click("#tabBar [data-tab=today]")
-    r.wait(1800)
+    r.say("Am Handy beginnt alles mit „Start“: oben das Wichtigste, darunter deine Räume.", "On the phone everything starts with “Home”: what matters on top, your rooms below.")
+    r.wait(2200)
     r.poster()
-    r.say("„Energie“ zeigt Verbrauch und Solarstrom.", "“Energy” shows usage and solar power.")
-    r.click("#tabBar [data-tab=energy]")
+    r.say("Ein Raum antippen: er öffnet sich als eigene Seite.", "Tap a room: it opens as a page of its own.")
+    r.click("[data-page=start] .apRoom", nth=0)
+    r.wait(2200)
+    r.say("„‹ Start“ geht zurück.", "“‹ Home” goes back.")
+    r.click("#appBack")
+    r.wait(1000)
+    r.say("„Räume“ zeigt alle Räume nach Etagen.", "“Rooms” shows every room by floor.")
+    r.click("#tabBar [data-tab=rooms]")
     r.wait(1800)
-    r.say("„Klima“ alle Räume mit Temperatur.", "“Climate” every room with its temperature.")
-    r.click("#tabBar [data-tab=climate]")
+    r.say("Unter „Mehr“ alle anderen Seiten und die Einstellungen.", "Under “More” every other page and the settings.")
+    r.click("#tabBar [data-tab=more]")
     r.wait(2000)
-    r.say("„Haus“ bringt dich zurück zum 3D-Bild.", "“House” brings you back to the 3D view.")
+    r.click(".apSheet [data-tab=climate]")
+    r.wait(1800)
+    r.say("„3D-Haus“ zeigt dein Haus wie gewohnt.", "“3D house” shows your house as always.")
     r.click("#tabBar [data-tab=house]")
     r.wait(1800)
 
@@ -111,6 +129,7 @@ def _(r):
       "phone edit edit mode mobile on the go draw wall finger tap window contact sensor tools strip undo",
       device="phone")
 def _(r):
+    house(r)
     r.say("Auch am Handy kannst du bearbeiten: tippe oben links auf ☰.", "You can edit on the phone too: tap ☰ at the top left.")
     r.click("#tbMenuBtn")
     r.wait(1000)

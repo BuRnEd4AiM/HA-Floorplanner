@@ -1472,6 +1472,13 @@ const DICT = {
     'gu.cardScan': 'Mit der Handy-Kamera scannen und anmelden mit:', 'gu.cardUntil': 'Gilt bis {until}.', 'gu.welcome': 'Willkommen',
     'gu.barUntil': 'bis {until}', 'gu.overTitle': 'Der Gäste-Zugang ist beendet',
     'gu.overText': 'Danke für deinen Besuch! Wenn du noch etwas brauchst, frag einfach deine Gastgeber.',
+    'app.tab.start': 'Start', 'app.tab.rooms': 'Räume', 'app.tab.house': '3D-Haus', 'app.tab.energy': 'Energie', 'app.tab.more': 'Mehr',
+    'app.hello.morning': 'Guten Morgen', 'app.hello.day': 'Hallo', 'app.hello.evening': 'Guten Abend', 'app.hello.night': 'Gute Nacht', 'app.lightsOn': '{n} an',
+    'app.lightsOff': 'Licht aus', 'app.armed': 'Alarm an', 'app.disarmed': 'Alarm aus', 'app.open': '{n} offen', 'app.offline': '{n} offline',
+    'app.low': '{n} Batterie leer', 'app.house3d': 'Haus in 3D ansehen', 'app.rooms': 'Räume', 'app.all': 'Alle',
+    'app.noRooms': 'Noch keine Räume mit Namen – im Bearbeiten zeichnen und benennen.', 'app.nOn': '{n} an', 'app.off': 'aus',
+    'app.allOff': 'Alle Lichter im Raum aus', 'app.open1': 'Raum öffnen', 'app.more': 'Mehr', 'app.settings': 'Einstellungen',
+    'app.classic': 'Klassische Ansicht (wie früher)', 'app.toApp': '📱 Handy-Ansicht wie eine App',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2887,6 +2894,13 @@ const DICT = {
     'gu.cardRoom': 'Control light, shutters, heating and music in “{room}” with your phone.', 'gu.cardScan': 'Scan with the phone\'s camera and log in with:',
     'gu.cardUntil': 'Valid until {until}.', 'gu.welcome': 'Welcome', 'gu.barUntil': 'until {until}', 'gu.overTitle': 'The guest access has ended',
     'gu.overText': 'Thank you for your visit! If you need anything else, just ask your hosts.',
+    'app.tab.start': 'Home', 'app.tab.rooms': 'Rooms', 'app.tab.house': '3D house', 'app.tab.energy': 'Energy', 'app.tab.more': 'More',
+    'app.hello.morning': 'Good morning', 'app.hello.day': 'Hello', 'app.hello.evening': 'Good evening', 'app.hello.night': 'Good night',
+    'app.lightsOn': '{n} on', 'app.lightsOff': 'Lights off', 'app.armed': 'Alarm on', 'app.disarmed': 'Alarm off', 'app.open': '{n} open',
+    'app.offline': '{n} offline', 'app.low': '{n} battery low', 'app.house3d': 'See the house in 3D', 'app.rooms': 'Rooms', 'app.all': 'All',
+    'app.noRooms': 'No named rooms yet – draw and name them while editing.', 'app.nOn': '{n} on', 'app.off': 'off', 'app.allOff': 'All lights in the room off',
+    'app.open1': 'Open the room', 'app.more': 'More', 'app.settings': 'Settings', 'app.classic': 'Classic view (as before)',
+    'app.toApp': '📱 Phone view like an app',
   },
 };
 

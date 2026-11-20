@@ -57,6 +57,12 @@ def view_menu(pg):
     if not pg.locator("#viewMenu").is_visible():
         pg.click("#viewMenuBtn")
 
+def phone_house(pg):
+    """5.22.0: a phone starts on the app page Start (appshell.js); a check of the house first taps the tab 3D-Haus"""
+    if pg.locator("#tabBar [data-tab=start]").count() and not pg.locator("#tabBar [data-tab=house].active").count():
+        pg.click("#tabBar [data-tab=house]")
+        pg.wait_for_timeout(800)
+
 errors, results = [], []
 def check(name, cond, extra=""):
     results.append((name, bool(cond)))
@@ -125,7 +131,7 @@ if __name__ == "__main__":
         pg_.goto, pg_.reload = ready(pg_.goto), ready(pg_.reload)
         return pg_
     b.new_page = new_page
-    ns = dict(S=S, BASE=BASE, HA=HA, api=api, api_admin=api_admin, set_setting=set_setting, ha_calls=ha_calls, status_open=status_open, view_menu=view_menu, open_setting=open_setting, open_users=open_users,
+    ns = dict(S=S, BASE=BASE, HA=HA, api=api, api_admin=api_admin, set_setting=set_setting, ha_calls=ha_calls, status_open=status_open, view_menu=view_menu, phone_house=phone_house, open_setting=open_setting, open_users=open_users,
               check=check, errors=errors, results=results, json=json, os=os, sys=sys, time=time, urllib=urllib, Path=Path, p=p, b=b)
     if not run("base", PARTS_DIR / "base.py", ns):
         print("\nthe test house could not be built: the parts are not run")

@@ -2563,4 +2563,11 @@ export default {
   'gu.cardRoom': 'Controla con el móvil la luz, persianas, calefacción y música de «{room}».', 'gu.cardScan': 'Escanea con la cámara e inicia sesión con:',
   'gu.cardUntil': 'Válido hasta {until}.', 'gu.welcome': 'Bienvenidos', 'gu.barUntil': 'hasta {until}', 'gu.overTitle': 'El acceso de invitados ha terminado',
   'gu.overText': '¡Gracias por tu visita! Si necesitas algo más, pregunta a tus anfitriones.',
+  'app.tab.start': 'Inicio', 'app.tab.rooms': 'Habitaciones', 'app.tab.house': 'Casa 3D', 'app.tab.energy': 'Energía', 'app.tab.more': 'Más',
+  'app.hello.morning': 'Buenos días', 'app.hello.day': 'Hola', 'app.hello.evening': 'Buenas tardes', 'app.hello.night': 'Buenas noches',
+  'app.lightsOn': '{n} encendidas', 'app.lightsOff': 'Luces apagadas', 'app.armed': 'Alarma activada', 'app.disarmed': 'Alarma desactivada',
+  'app.open': '{n} abierto(s)', 'app.offline': '{n} sin conexión', 'app.low': '{n} batería baja', 'app.house3d': 'Ver la casa en 3D',
+  'app.rooms': 'Habitaciones', 'app.all': 'Todas', 'app.noRooms': 'Aún no hay habitaciones con nombre: dibújalas y nómbralas al editar.',
+  'app.nOn': '{n} encendida(s)', 'app.off': 'apagado', 'app.allOff': 'Apagar todas las luces de la habitación', 'app.open1': 'Abrir la habitación',
+  'app.more': 'Más', 'app.settings': 'Ajustes', 'app.classic': 'Vista clásica (como antes)', 'app.toApp': '📱 Vista de móvil como una app',
 };

@@ -127,6 +127,10 @@ import { initTodayPrefs } from './todayprefs.js';
 import { initPresencePrefs } from './presenceprefs.js';
 import { initGuestUi } from './guestui.js';
 import { initGuestView } from './guestview.js';
+import { initAppUi } from './appui.js';
+import { appMode, PREF_KEY, START, ROOMS } from './appshell.js';
+import { alarmPanel, weatherEntity } from './today.js';
+import { roomIcon } from './roomgroups.js';
 import { initDoorbellUi } from './doorbellui.js';
 import { initDoorbellPrefs } from './doorbellprefs.js';
 import { initOutdoorPrefs } from './outdoorprefs.js';
@@ -855,16 +859,80 @@ function todayAct(k) {
   });
 }
 const full = initFullscreen({ $, t, locks: () => locks, changed: () => tabsUi.redraw() });   // ⛶, kept on for a user with the lock (#487)
+/* 📱 the phone as an app (5.22.0, appshell.js / appui.js): Start, Räume, 3D-Haus, Energie, Mehr; a room as a page of its own */
+let appPref = 'app';
+try { appPref = localStorage.getItem(PREF_KEY) || 'app'; } catch { /* storage may be blocked */ }
+const appOn = () => appMode({ phone: phoneMenu.isPhone(), live: isLive(), card: !!card, guest: document.body.classList.contains('guestview'), roomTablet: !!tabletRoom, pref: appPref });
+let appBack = START;                                              // where "‹ Zurück" of a room page goes
+function appRooms() {
+  const l = shownLayout();
+  return l.floors.flatMap((f, fi) => (floorShown(fi) ? (f.rooms || []) : []).filter((r) => r.name && !r.terrace).map((r) => {
+    const s = roomSummary(r, f, { placed: entityDevices(f), areaEntities: areaEntitiesOf(r), states, isOn: isLit, isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), partOf: partOf() });
+    return { fi, floor: f.name, id: r.id, name: r.name, temp: s.temp, lights: s.lights, open: s.open, occupied: !!s.occupied };
+  }));
+}
+function appOpenRoom(fi, id) {
+  appBack = tabsUi.open() === 'house' ? START : tabsUi.open();
+  document.body.classList.add('appRoom');
+  tabsUi.show('house');
+  switchFloor(fi); focusRoom(id); roomPanel.open(id);
+  if (!roomPanel.full()) roomPanel.show(roomPanel.tab());        // the whole card at once
+  let back = $('#appBack');
+  if (!back) {
+    back = Object.assign(document.createElement('button'), { id: 'appBack', type: 'button' });
+    back.addEventListener('click', appCloseRoom);
+    document.body.append(back);
+  }
+  back.textContent = `‹ ${t(appBack === ROOMS ? 'app.tab.rooms' : 'app.tab.start')}`;
+  back.hidden = false;
+}
+/** another tab while a room page is open: the room page ends without going anywhere */
+function appCloseRoomSoft() {
+  if (!document.body.classList.contains('appRoom')) return;
+  document.body.classList.remove('appRoom');
+  const back = $('#appBack'); if (back) back.hidden = true;
+}
+function appCloseRoom() {
+  if (!document.body.classList.contains('appRoom')) return;
+  document.body.classList.remove('appRoom');
+  const back = $('#appBack'); if (back) back.hidden = true;
+  roomPanel.close(); if (focusedRoom) focusRoom(null);
+  tabsUi.show(appBack);
+}
+const appUi = initAppUi({
+  t, lang: () => currentLanguage(), host: $('#tabPages'), rooms: appRooms, ground: () => groundIdx(), icon: roomIcon, num: (v) => fmtNum(v, 1, 1),
+  status: () => {
+    const al = alarmPanel(states), w = weatherEntity(settings, states), tw = states[w]?.wx?.t;
+    return { lightsOn: lightGroups.count(), alarm: al ? (al.state === 'disarmed' ? 'disarmed' : 'armed') : null, open: openings.items().length,
+      offline: offline.devices().filter((x) => x.reason !== 'unlinked').length, low: deviceList.low(), temp: Number.isFinite(tw) ? tw : null };
+  },
+  act: (k) => (k === 'alarm' || k === 'temp' ? tabsUi.show(k === 'temp' && tabsUi.has('today') ? 'today' : 'house') : todayAct(k)),
+  openRoom: appOpenRoom,
+  lightsOff: (fi, id) => {
+    const f = shownLayout().floors[fi], r = f?.rooms.find((x) => x.id === id);
+    if (r) [...roomEntityIds(r, entityDevices(f), areaEntitiesOf(r))].filter((e) => e.startsWith('light.') && isLit(e)).forEach((e) => live.callService(e, 'turn_off'));
+  },
+  snapshot: () => { try { renderer.render(scene, camera); return canvas.toDataURL('image/jpeg', 0.7); } catch { return ''; } },
+  show: (k) => { appCloseRoom(); tabsUi.show(k); }, tabs: () => tabsUi.tabs(), tabName: (x) => x.name || t(`tab.${x.key}`),
+  canSettings: () => !locks.has('settings'), openSettings: () => $('#settingsBtn').click(),
+  classic: () => { appPref = 'classic'; try { localStorage.setItem(PREF_KEY, 'classic'); } catch { /* not kept */ } toAppBtn.hidden = false; tabsUi.redraw(); tabsUi.show('house'); },
+});
+/** in the classic view on a phone: the way back to the app (in the ☰ menu, phonemenu.js folds #toolbar) */
+const toAppBtn = Object.assign(document.createElement('button'), { type: 'button', id: 'toAppBtn', className: 'phoneOnly', hidden: appPref !== 'classic' });
+toAppBtn.dataset.i18n = 'app.toApp';
+toAppBtn.addEventListener('click', () => { appPref = 'app'; try { localStorage.removeItem(PREF_KEY); } catch { /* not kept */ } toAppBtn.hidden = true; tabsUi.redraw(); tabsUi.home(); });
+$('#toolbar').append(toAppBtn);
 const tabsUi = initTabsUi({
+  app: { on: appOn, more: () => appUi.openMore() },
   $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => dash.variants.me(me), full,   // "Ansehen als" (#507)
   pages: () => ({ today: { el: $('#tabPages [data-page=today]'), ...todayPage }, energy: { el: $('#tabPages [data-page=energy]'), ...energyPage },
     climate: { el: $('#tabPages [data-page=climate]'), ...climatePage }, cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage },
     media: { el: $('#tabPages [data-page=media]'), ...mediaPage }, household: { el: $('#tabPages [data-page=household]'), ...householdPage },
     routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage },
     log: { el: $('#tabPages [data-page=log]'), ...logPage },
-    ...dash.customPages() }),
+    ...dash.customPages(), ...appUi.pages() }),
   edit: dash.edit, tabEdit: dash.tabEdit, after: dash.after,      // the scene bar, an open light window (#597)
-  onShow: (tab, was) => { if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)
+  onShow: (tab, was) => { if (tab !== 'house') appCloseRoomSoft(); document.body.classList.toggle('appMode', appOn()); document.body.classList.toggle('pageOpen', tab !== 'house'); if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)
 });
 
 /* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
@@ -1306,7 +1374,7 @@ const roomPanel = initRoomPanel({
     tilt: (o) => tiltEntity(o), contactText: (o, e) => openings.contactText(o, e), windowText: (o) => openings.windowText(o) },   // #624
   closeLivePopup: () => popup.close(), leaveFocus: () => { if (focusedRoom) focusRoom(null); },
   off: () => cardUi?.roomPanel() === false,                                  // a dashboard card without the room panel (#13)
-  alone: () => !!cardUi?.panelOnly() || document.body.classList.contains('guestview'),   // ... or 👥 the guest's screen: the card stays (guestview.js)                                        // a dashboard card with nothing but the room panel (#356)
+  alone: () => !!cardUi?.panelOnly() || document.body.classList.contains('guestview') || document.body.classList.contains('appRoom'),   // ... or 👥 the guest's screen: the card stays (guestview.js)                                        // a dashboard card with nothing but the room panel (#356)
   num: (v, d) => fmtNum(v, d), co2Limit: () => airLimit(settings.co2Stops),
   heat: {                                                                    // what the heating rules do in the room, in 🌡 Klima of the room card (5.10.0)
     extras: (id, climate) => rulesUi.heat.roomExtras({ id, climate }), line: (id) => rulesUi.line(id),

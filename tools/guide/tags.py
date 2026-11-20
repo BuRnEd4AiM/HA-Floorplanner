@@ -621,8 +621,10 @@ t("phone-room",
   "phone room card small big pull up pull down grip swipe buttons quick buttons light scene blinds heating schedule "
   "running paused tap room smartphone iPhone Android bottom sheet")
 t("phone-pages",
-  "Handy Seiten wechseln wischen Leiste unten Menü Handy Energie Klima Heute App Smartphone",
-  "phone switch pages swipe bottom bar phone menu energy climate today app smartphone")
+  "Handy Seiten wechseln wischen Leiste unten Menü Handy Energie Klima Heute App Smartphone Start Räume Kacheln Mehr wie eine App "
+  "klassische Ansicht Startseite Übersicht iPhone Android",
+  "phone switch pages swipe bottom bar phone menu energy climate today app smartphone home rooms tiles more like an app "
+  "classic view home screen overview iPhone Android")
 t("phone-edit",
   "am Handy bearbeiten am Handy zeichnen Wand am Handy Smartphone Editor mobil bearbeiten Tablet bearbeiten Menü "
   "Werkzeuge wischen Finger Fenster Kontakt zuordnen",

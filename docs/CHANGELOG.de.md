@@ -2,6 +2,16 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.22.0] - 2026-11-20
+### Neu
+- **📱 Das Handy wie eine App** (der Besitzer, 2026-11-20: „eine bessere ansicht fürs handy das es nicht so selbstgebaut wirkt … mehr nach einer app aussieht … intuitiver“; seine Wahl: Bilder docs/ideen-5.21 8–10 „genau so“): am Handy in der Live-Ansicht hat die Leiste unten **fünf feste Reiter: Start, Räume, 3D-Haus, Energie, Mehr**.
+  - **Start**: das Datum und ein Gruß nach der Tageszeit, Chips mit dem, was los ist (Lichter an, Alarm, offene Fenster, Geräte offline, leere Batterien, die Temperatur draußen; ein Tipp öffnet die Liste dahinter), ein Bild vom Haus („🧊 Haus in 3D ansehen“) und die Räume als Kacheln (Lichter an zuerst; der runde Knopf macht die Lichter eines Raums aus).
+  - **Räume**: alle Räume mit Namen nach Etagen als Kacheln mit Temperatur und Licht.
+  - **Ein Raum als eigene Seite**: eine Kachel öffnet die Karte des Raums groß, mit „‹ Räume“ / „‹ Start“ zurück.
+  - **3D-Haus**: das Haus wie bisher (☰, Etagen-Knopf, Szenen-Leiste). **Mehr**: alle anderen Seiten (Heute, Klima, Kameras …, eigene Seiten), ⚙ Einstellungen und **„Klassische Ansicht (wie früher)“**, je Handy gemerkt; in der klassischen Ansicht hat ☰ „📱 Handy-Ansicht wie eine App“ für den Weg zurück.
+- Tablets, die Dashboard-Karte, ein Raum-Tablet und der Bildschirm eines Gastes bleiben, wie sie sind.
+- Video-Anleitung: der Clip „Am Handy: wie eine App“ (vorher „Am Handy: die Seiten“); die anderen Handy-Clips beginnen mit „3D-Haus“.
+
 ## [5.21.0] - 2026-11-20
 ### Neu
 - **👥 Gäste-Zugang: Gäste steuern ihr Zimmer mit dem Handy** (der Besitzer, 2026-11-20: „es gibt im Home Assistant einen benutzer … gast und mit einem qr code … bekommt man eine karte dann zu gesicht die man steuern kann von dem raum den man vorher ausgewählt hat“; seine Wahl: der Gast meldet sich einmal als dieser Benutzer von Home Assistant an, darf Licht, Rollladen, Heizung und Musik / TV des Zimmers schalten, bis zu einem Datum): ⚙ → 👥 Benutzer & Tablets → **👥 Gäste-Zugang**: einschalten, der Benutzer von Home Assistant („gast“), das Zimmer und **„Bis“** (+1 Tag, +3 Tage, +1 Woche); dazu **der QR-Code der Adresse des Add-ons** und **„🖨 Karte drucken“**, eine Karte fürs Gästezimmer mit QR-Code, Benutzer und Passwort (nur für den Ausdruck eingetippt, nie gespeichert). Wie man den Benutzer „gast“ in Home Assistant anlegt, steht in vier Schritten dabei.
