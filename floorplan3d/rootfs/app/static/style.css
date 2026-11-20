@@ -3452,11 +3452,12 @@ body.guestview #roomPanel .rpClose, body.guestview #roomPanel [data-act=close] {
 .appPage .apSec { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 2px 10px; }
 .appPage .apSec b { font-size: 19px; }
 .appPage .apLink { background: none; border: 0; color: #4ea1ff; font-size: 15px; padding: 4px; }
-.appPage .apGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.appPage .apRoom { background: var(--panel2, #1a212c); border-radius: 20px; padding: 14px; min-height: 108px; position: relative; cursor: pointer; display: flex; flex-direction: column; }
+.appPage { overflow-x: clip; }   /* never wider than the phone (5.26.0, #777: a long room name pushed the page sideways) */
+.appPage .apGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.appPage .apRoom { min-width: 0; background: var(--panel2, #1a212c); border-radius: 20px; padding: 14px; min-height: 108px; position: relative; cursor: pointer; display: flex; flex-direction: column; }
 .appPage .apRoom.lit { background: linear-gradient(150deg, rgba(255, 196, 70, .22), var(--panel2, #1a212c) 70%); }
 .appPage .apRoomIcon { font-size: 26px; }
-.appPage .apRoom b { font-size: 16px; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 4px; }
+.appPage .apRoom b { font-size: 16px; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 4px; min-width: 0; }
 .appPage .apRoom small { color: var(--muted); font-size: 13px; }
 .appPage .apToggle { position: absolute; right: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .1); color: inherit; font-size: 16px; }
 .appPage .apRoom.lit .apToggle { background: #ffcf4a; color: #2a1c00; }

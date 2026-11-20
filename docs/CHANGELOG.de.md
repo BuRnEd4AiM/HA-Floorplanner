@@ -7,6 +7,8 @@ Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`
 - **📊 Monatsbericht** (Wahl des Besitzers, docs/ideen-5.15 Bild 11): einmal im Monat eine Nachricht über den Monat davor, über die eingestellten Wege (📲): Heizung und Strom in Euro, je Raum, der Vergleich mit demselben Monat im Vorjahr und der Raum, der wärmer war als eingestellt („Wohnzimmer war 1,5° wärmer als eingestellt“); mit dem eigenen Telegram-Bot auch ein Bild: der Grundriss mit den Beträgen je Raum und ein Balken je Raum (rot Heizung, gelb Strom).
   - Die Zahlen kommen aus dem Energie-Dashboard von Home Assistant: Netz- und Gaszähler mit ihren Preisen; der Strom je Raum aus den „einzelnen Geräten“, die im Raum stehen; das Gas wird nach der Heizzeit der Thermostate auf die Räume verteilt. Ohne Preise: kWh und m³.
   - ⚙ → Warnungen & Alarm → Karte **„Monatsbericht“**: an, Tag im Monat und Uhrzeit, **„👁 Vorschau“** des letzten Monats mit den Balken und **„📨 Jetzt senden“**.
+### Repariert
+- **📱 Handy: die Startseite ist nicht mehr breiter als der Bildschirm** (#777, der Besitzer: „nach links und rechts machen“): ein langer Raumname machte eine Spalte der Raum-Kacheln breiter als den halben Bildschirm; jetzt wird er mit „…“ abgeschnitten.
 
 ## [5.25.0] - 2026-11-20
 ### Neu

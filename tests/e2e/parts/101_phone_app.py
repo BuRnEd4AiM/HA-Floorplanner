@@ -19,6 +19,12 @@ check("📱 Start: a greeting, chips (lights), the house in 3D, rooms as tiles",
 pgP.tap("#tabBar [data-tab=rooms]"); pgP.wait_for_timeout(600)
 n_pa = pgP.locator("[data-page=rooms] .apRoom").count()
 check("📱 Räume: every named room by floor", n_pa >= 2 and pgP.locator("[data-page=rooms] .apSec").count() >= 1, n_pa)
+wide_pa = pgP.evaluate("""() => { const t = document.querySelector('[data-page=rooms] .apRoom b'); const was = t.textContent;
+  t.textContent = 'Wohnzimmer Lieselotte bei den Großeltern im Erdgeschoss';
+  const pg = document.querySelector('[data-page=rooms] .appPage') || document.querySelector('[data-page=rooms]');
+  const out = [pg.scrollWidth, pg.clientWidth, document.documentElement.scrollWidth, innerWidth]; t.textContent = was; return out; }""")
+check("📱 5.26.0 (#777): a long room name never makes the page wider than the phone (the owner: „nach links und rechts machen“)",
+      wide_pa[0] <= wide_pa[1] and wide_pa[2] <= wide_pa[3], wide_pa)
 lit_pa = pgP.locator("[data-page=rooms] .apRoom.lit .apToggle")
 if lit_pa.count():
     calls_pa = len(ha_calls())
