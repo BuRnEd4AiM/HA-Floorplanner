@@ -2523,4 +2523,11 @@ export default {
   'gu.cardRoom': 'Bedien licht, rolluik, verwarming en muziek in „{room}” met je telefoon.', 'gu.cardScan': 'Scan met de camera en log in met:',
   'gu.cardUntil': 'Geldig tot {until}.', 'gu.welcome': 'Welkom', 'gu.barUntil': 'tot {until}', 'gu.overTitle': 'De gasttoegang is beëindigd',
   'gu.overText': 'Bedankt voor je bezoek! Heb je nog iets nodig, vraag het je gastheer of gastvrouw.',
+  'app.tab.start': 'Start', 'app.tab.rooms': 'Kamers', 'app.tab.house': '3D-huis', 'app.tab.energy': 'Energie', 'app.tab.more': 'Meer',
+  'app.hello.morning': 'Goedemorgen', 'app.hello.day': 'Hallo', 'app.hello.evening': 'Goedenavond', 'app.hello.night': 'Goedenacht', 'app.lightsOn': '{n} aan',
+  'app.lightsOff': 'Licht uit', 'app.armed': 'Alarm aan', 'app.disarmed': 'Alarm uit', 'app.open': '{n} open', 'app.offline': '{n} offline',
+  'app.low': '{n} batterij leeg', 'app.house3d': 'Huis in 3D bekijken', 'app.rooms': 'Kamers', 'app.all': 'Alle',
+  'app.noRooms': 'Nog geen kamers met naam – teken en benoem ze bij het bewerken.', 'app.nOn': '{n} aan', 'app.off': 'uit',
+  'app.allOff': 'Alle lichten in de kamer uit', 'app.open1': 'Kamer openen', 'app.more': 'Meer', 'app.settings': 'Instellingen',
+  'app.classic': 'Klassieke weergave (zoals vroeger)', 'app.toApp': '📱 Telefoonweergave als een app',
 };

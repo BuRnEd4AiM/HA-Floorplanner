@@ -183,7 +183,7 @@ pgT.close()
 
 # --- phones: the labels too (#444), smaller
 pgP2 = b.new_page(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"})
-pgP2.goto(BASE + "?debug=1&mode=live"); pgP2.wait_for_timeout(2000)
+pgP2.goto(BASE + "?debug=1&mode=live"); pgP2.wait_for_timeout(2000); phone_house(pgP2)
 pgP2.evaluate("window.__fp.switchFloor(0)"); pgP2.wait_for_timeout(800)
 ph = pgP2.evaluate("""() => { const e = document.querySelector('#roomLabels [data-room=lk_room]'); return e && { size: getComputedStyle(e).fontSize, mini: e.classList.contains('mini') }; }""")
 check("room labels (#444): on a phone too, smaller; the name on the floor steps aside",

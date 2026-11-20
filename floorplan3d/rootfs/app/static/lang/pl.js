@@ -2513,4 +2513,11 @@ export default {
   'gu.cardRoom': 'Sterujesz telefonem światłem, roletami, ogrzewaniem i muzyką w „{room}”.', 'gu.cardScan': 'Zeskanuj aparatem i zaloguj się:',
   'gu.cardUntil': 'Ważne do {until}.', 'gu.welcome': 'Witamy', 'gu.barUntil': 'do {until}', 'gu.overTitle': 'Dostęp dla gości zakończony',
   'gu.overText': 'Dziękujemy za wizytę! Jeśli czegoś potrzebujesz, zapytaj gospodarzy.',
+  'app.tab.start': 'Start', 'app.tab.rooms': 'Pokoje', 'app.tab.house': 'Dom 3D', 'app.tab.energy': 'Energia', 'app.tab.more': 'Więcej',
+  'app.hello.morning': 'Dzień dobry', 'app.hello.day': 'Cześć', 'app.hello.evening': 'Dobry wieczór', 'app.hello.night': 'Dobranoc',
+  'app.lightsOn': '{n} włączone', 'app.lightsOff': 'Światła wyłączone', 'app.armed': 'Alarm włączony', 'app.disarmed': 'Alarm wyłączony',
+  'app.open': '{n} otwarte', 'app.offline': '{n} offline', 'app.low': '{n} słaba bateria', 'app.house3d': 'Zobacz dom w 3D', 'app.rooms': 'Pokoje',
+  'app.all': 'Wszystkie', 'app.noRooms': 'Brak nazwanych pokoi – narysuj i nazwij je w edycji.', 'app.nOn': '{n} wł.', 'app.off': 'wył.',
+  'app.allOff': 'Wyłącz wszystkie światła w pokoju', 'app.open1': 'Otwórz pokój', 'app.more': 'Więcej', 'app.settings': 'Ustawienia',
+  'app.classic': 'Widok klasyczny (jak wcześniej)', 'app.toApp': '📱 Widok telefonu jak aplikacja',
 };

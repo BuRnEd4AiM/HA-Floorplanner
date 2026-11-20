@@ -2586,4 +2586,11 @@ export default {
   'gu.cardScan': 'Scannez avec l\'appareil photo et connectez-vous avec :', 'gu.cardUntil': 'Valable jusqu\'au {until}.', 'gu.welcome': 'Bienvenue',
   'gu.barUntil': 'jusqu\'au {until}', 'gu.overTitle': 'L\'accès invités est terminé',
   'gu.overText': 'Merci de votre visite ! Pour toute autre chose, demandez à vos hôtes.',
+  'app.tab.start': 'Accueil', 'app.tab.rooms': 'Pièces', 'app.tab.house': 'Maison 3D', 'app.tab.energy': 'Énergie', 'app.tab.more': 'Plus',
+  'app.hello.morning': 'Bonjour', 'app.hello.day': 'Bonjour', 'app.hello.evening': 'Bonsoir', 'app.hello.night': 'Bonne nuit', 'app.lightsOn': '{n} allumées',
+  'app.lightsOff': 'Lumières éteintes', 'app.armed': 'Alarme activée', 'app.disarmed': 'Alarme désactivée', 'app.open': '{n} ouvert(s)',
+  'app.offline': '{n} hors ligne', 'app.low': '{n} pile faible', 'app.house3d': 'Voir la maison en 3D', 'app.rooms': 'Pièces', 'app.all': 'Toutes',
+  'app.noRooms': 'Pas encore de pièces nommées – dessinez-les et nommez-les en mode édition.', 'app.nOn': '{n} allumée(s)', 'app.off': 'éteint',
+  'app.allOff': 'Éteindre toutes les lumières de la pièce', 'app.open1': 'Ouvrir la pièce', 'app.more': 'Plus', 'app.settings': 'Réglages',
+  'app.classic': 'Vue classique (comme avant)', 'app.toApp': '📱 Vue téléphone comme une appli',
 };

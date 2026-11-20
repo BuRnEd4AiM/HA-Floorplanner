@@ -2553,4 +2553,11 @@ export default {
   'gu.cardRoom': 'Controlla con il telefono luce, tapparelle, riscaldamento e musica di «{room}».', 'gu.cardScan': 'Scansiona con la fotocamera e accedi con:',
   'gu.cardUntil': 'Valido fino al {until}.', 'gu.welcome': 'Benvenuti', 'gu.barUntil': 'fino al {until}', 'gu.overTitle': 'L\'accesso ospiti è terminato',
   'gu.overText': 'Grazie della visita! Se ti serve altro, chiedi ai tuoi ospiti.',
+  'app.tab.start': 'Home', 'app.tab.rooms': 'Stanze', 'app.tab.house': 'Casa 3D', 'app.tab.energy': 'Energia', 'app.tab.more': 'Altro',
+  'app.hello.morning': 'Buongiorno', 'app.hello.day': 'Ciao', 'app.hello.evening': 'Buonasera', 'app.hello.night': 'Buonanotte', 'app.lightsOn': '{n} accese',
+  'app.lightsOff': 'Luci spente', 'app.armed': 'Allarme attivo', 'app.disarmed': 'Allarme spento', 'app.open': '{n} aperti', 'app.offline': '{n} offline',
+  'app.low': '{n} batteria scarica', 'app.house3d': 'Vedi la casa in 3D', 'app.rooms': 'Stanze', 'app.all': 'Tutte',
+  'app.noRooms': 'Nessuna stanza con nome – disegnale e nominale in modifica.', 'app.nOn': '{n} accese', 'app.off': 'spento',
+  'app.allOff': 'Spegni tutte le luci della stanza', 'app.open1': 'Apri la stanza', 'app.more': 'Altro', 'app.settings': 'Impostazioni',
+  'app.classic': 'Vista classica (come prima)', 'app.toApp': '📱 Vista telefono come un\'app',
 };

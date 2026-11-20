@@ -522,7 +522,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 210. Neu in 5.19.0: 🔌 Stromfresser | 3 | 0 | 3 | 0 | 210.4 bis 210.6 |
 | 211. Neu in 5.20.0: 🌗 Abläufe nach der Helligkeit | 3 | 0 | 3 | 0 | 211.4 bis 211.6 |
 | 212. Neu in 5.21.0: 👥 Gäste-Zugang | 4 | 0 | 4 | 0 | 212.5 bis 212.8 |
-| **Zusammen** | **1330** | **2** | **127** | **92** | |
+| 213. Neu in 5.22.0: 📱 Das Handy wie eine App | 3 | 0 | 3 | 0 | 213.4 bis 213.6 |
+| **Zusammen** | **1333** | **2** | **130** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3221,4 +3222,16 @@ Dein Wunsch vom 2026-11-20: ein Benutzer „gast“ in Home Assistant, ein QR-Co
 | 212.6 | Dein Haus: den QR-Code mit einem Handy scannen, als „gast“ anmelden | Nur die Karte des Gästezimmers; Licht, Rollladen, Heizung lassen sich schalten | ❓ |
 | 212.7 | Dein Haus: „🖨 Karte drucken“ mit Passwort | Eine Karte mit QR-Code, Benutzer und Passwort | ❓ |
 | 212.8 | Dein Haus: „Bis“ auf in 5 Minuten stellen und warten | Beim Gast steht danach „Der Gäste-Zugang ist beendet“ | ❓ |
+
+## 213. Neu in 5.22.0: 📱 Das Handy wie eine App
+Dein Wunsch vom 2026-11-20 („nicht so selbstgebaut … mehr nach einer App“), deine Wahl: Bilder `docs/ideen-5.21` 8–10 „genau so“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 213.1 | Unit-Test `tests/appshell.test.mjs` (neu); Browser-Test Teil `101_phone_app` (neu), dazu die Handy-Teile `67_phone_edit`, `89_room_card`, `25_sky_tiles`, `26_look`, `29_guard`, `31_tabs`, `87_settings_look`, `100_guest` | Alles grün | ✅ (2026-11-20, Claude) |
+| 213.2 | Demo am Handy öffnen | Unten Start, Räume, 3D-Haus, Energie, Mehr; „Start“ mit Gruß, Chips, Hausbild und Raum-Kacheln | ✅ (2026-11-20, Claude, Demo) |
+| 213.3 | Demo am Handy: „Räume“, eine Kachel antippen, „‹ Räume“ | Die Karte des Raums groß als eigene Seite, zurück zu den Räumen | ✅ (2026-11-20, Claude, Demo) |
+| 213.4 | Dein Handy: die App-Ansicht ein paar Tage benutzen | Fühlt sich wie eine App an; was fehlt oder stört, sagst du mir | ❓ |
+| 213.5 | Dein Handy: auf einer Raum-Kachel den runden 💡-Knopf | Alle Lichter des Raums gehen aus | ❓ |
+| 213.6 | Dein Handy: „Mehr“ → „Klassische Ansicht“, dann ☰ → „📱 Handy-Ansicht wie eine App“ | Erst die alte Leiste, dann wieder die App | ❓ |
 

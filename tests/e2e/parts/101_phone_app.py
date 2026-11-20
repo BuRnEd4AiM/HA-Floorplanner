@@ -1,0 +1,47 @@
+"""5.22.0 📱 the phone as an app (the owner, 2026-11-20: "dass es nicht so selbstgebaut wirkt … mehr nach einer app aussieht"; his choice:
+docs/ideen-5.21 pictures 8–10 "genau so"): a phone in the live view gets the bar Start, Räume, 3D-Haus, Energie (when there), Mehr; Start
+greets with chips, the picture of the house and room tiles; Räume all rooms by floor; a room opens as a page of its own with "‹ Zurück";
+Mehr lists the other pages and "Klassische Ansicht", which brings the old bar back (and ☰ the way to the app again). The rules: appshell.test.mjs.
+"""
+st_pa = api("api/settings")
+set_setting("language", "de")
+pgP = b.new_page(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"})
+own_pa = []
+pgP.on("pageerror", lambda e: own_pa.append("PAGEERROR " + str(e)))
+pgP.goto(BASE + "?debug=1"); pgP.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgP.wait_for_timeout(1500)
+bar_pa = pgP.evaluate("[...document.querySelectorAll('#tabBar [data-tab]')].map((b) => b.dataset.tab)")
+check("📱 a phone: the bar Start, Räume, 3D-Haus, …, Mehr; it starts on Start", bar_pa[:3] == ["start", "rooms", "house"] and bar_pa[-1] == "more"
+      and pgP.is_visible("[data-page=start]") and pgP.locator("#tabBar [data-tab=start].active").count() == 1, bar_pa)
+start_pa = pgP.inner_text("[data-page=start]")
+check("📱 Start: a greeting, chips (lights), the house in 3D, rooms as tiles", any(w in start_pa for w in ("Guten", "Hallo", "Gute Nacht"))
+      and pgP.locator("[data-page=start] [data-chip=lights]").count() == 1 and pgP.locator("[data-page=start] .apHouse").count() == 1
+      and pgP.locator("[data-page=start] .apRoom").count() >= 1, start_pa[:300])
+pgP.tap("#tabBar [data-tab=rooms]"); pgP.wait_for_timeout(600)
+n_pa = pgP.locator("[data-page=rooms] .apRoom").count()
+check("📱 Räume: every named room by floor", n_pa >= 2 and pgP.locator("[data-page=rooms] .apSec").count() >= 1, n_pa)
+name_pa = pgP.inner_text("[data-page=rooms] .apRoom >> nth=0").split("\n")
+pgP.tap("[data-page=rooms] .apRoom >> nth=0"); pgP.wait_for_timeout(1500)
+check("📱 a room as a page of its own: its card, „‹ Räume“, no ✕", pgP.evaluate("document.body.classList.contains('appRoom')") and pgP.is_visible("#roomPanel")
+      and any(x and x in pgP.inner_text("#roomPanel") for x in name_pa[1:3]) and "Räume" in pgP.inner_text("#appBack"), (name_pa, pgP.inner_text("#appBack")))
+pgP.tap("#appBack"); pgP.wait_for_timeout(700)
+check("📱 ‹ Räume goes back to the rooms", pgP.is_visible("[data-page=rooms]") and not pgP.evaluate("document.body.classList.contains('appRoom')"))
+pgP.tap("#tabBar [data-tab=more]"); pgP.wait_for_timeout(500)
+more_pa = pgP.evaluate("[...document.querySelectorAll('.apSheet [data-tab]')].map((b) => b.dataset.tab)")
+check("📱 Mehr: the other pages, Einstellungen, Klassische Ansicht", "today" in more_pa and "house" not in more_pa and "start" not in more_pa
+      and pgP.locator(".apSheet [data-act=appSettings]").count() == 1 and pgP.locator(".apSheet [data-act=appClassic]").count() == 1, more_pa)
+pgP.tap(".apSheet [data-tab=today]"); pgP.wait_for_timeout(800)
+check("📱 a page from Mehr opens, „Mehr“ lights up", pgP.is_visible("[data-page=today]") and pgP.locator("#tabBar [data-tab=more].active").count() == 1)
+pgP.tap("#tabBar [data-tab=more]"); pgP.wait_for_timeout(400)
+pgP.tap(".apSheet [data-act=appClassic]"); pgP.wait_for_timeout(800)
+bar2_pa = pgP.evaluate("[...document.querySelectorAll('#tabBar [data-tab]')].map((b) => b.dataset.tab)")
+check("📱 Klassische Ansicht: the old bar with the house first, kept on this phone", bar2_pa[0] == "house" and "start" not in bar2_pa
+      and pgP.evaluate("localStorage.getItem('fp.phoneUi')") == "classic", bar2_pa)
+pgP.reload(); pgP.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgP.wait_for_timeout(1200)
+check("📱 after a reload still classic; ☰ has „Handy-Ansicht wie eine App“", "start" not in pgP.evaluate("[...document.querySelectorAll('#tabBar [data-tab]')].map((b) => b.dataset.tab)")
+      and pgP.locator("#toAppBtn:not([hidden])").count() == 1)
+pgP.evaluate("document.getElementById('toAppBtn').click()"); pgP.wait_for_timeout(800)
+check("📱 … which brings the app back", pgP.evaluate("[...document.querySelectorAll('#tabBar [data-tab]')].map((b) => b.dataset.tab)")[:2] == ["start", "rooms"])
+check("📱 no errors on the page", not own_pa, own_pa)
+pgP.evaluate("localStorage.removeItem('fp.phoneUi')")
+pgP.close()
+set_setting("language", st_pa["language"])

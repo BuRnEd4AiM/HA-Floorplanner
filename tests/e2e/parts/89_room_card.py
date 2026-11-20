@@ -33,6 +33,7 @@ def open_cd(**ctx):
     pg = b.new_page(extra_http_headers={"X-Remote-User-Name": "admin"}, **ctx)
     pg.on("pageerror", lambda e: own_cd.append("PAGEERROR " + str(e)))
     pg.goto(BASE + "?debug=1&mode=live"); pg.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pg.wait_for_timeout(1500)
+    phone_house(pg)
     pg.evaluate("window.__fp.switchFloor(0)"); pg.wait_for_timeout(600)
     pg.evaluate("window.__fp.openRoomPanel('cd_room')"); pg.wait_for_timeout(1200)
     return pg

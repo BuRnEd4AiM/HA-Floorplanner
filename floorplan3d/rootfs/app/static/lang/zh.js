@@ -4048,4 +4048,9 @@ export default {
   'gu.qrHelp': '用手机相机扫描，以“gast”登录——完成。最好打印出来放在客房里。', 'gu.pass': '密码', 'gu.passHint': '仅用于打印，不会保存', 'gu.print': '打印卡片', 'gu.cardTitle': '欢迎！',
   'gu.cardRoom': '用手机控制“{room}”的灯、卷帘、暖气和音乐。', 'gu.cardScan': '用手机相机扫描并登录：', 'gu.cardUntil': '有效期至 {until}。', 'gu.welcome': '欢迎', 'gu.barUntil': '至 {until}',
   'gu.overTitle': '访客访问已结束', 'gu.overText': '感谢来访！如还需要什么，请问你的主人。',
+  'app.tab.start': '首页', 'app.tab.rooms': '房间', 'app.tab.house': '3D 房屋', 'app.tab.energy': '能源', 'app.tab.more': '更多', 'app.hello.morning': '早上好',
+  'app.hello.day': '你好', 'app.hello.evening': '晚上好', 'app.hello.night': '晚安', 'app.lightsOn': '{n} 盏开着', 'app.lightsOff': '灯已关', 'app.armed': '警报已开启',
+  'app.disarmed': '警报已关闭', 'app.open': '{n} 个开着', 'app.offline': '{n} 个离线', 'app.low': '{n} 个电量低', 'app.house3d': '查看 3D 房屋', 'app.rooms': '房间', 'app.all': '全部',
+  'app.noRooms': '还没有命名的房间——在编辑中绘制并命名。', 'app.nOn': '{n} 开', 'app.off': '关', 'app.allOff': '关闭房间所有灯', 'app.open1': '打开房间', 'app.more': '更多',
+  'app.settings': '设置', 'app.classic': '经典视图（和以前一样）', 'app.toApp': '📱 像应用一样的手机视图',
 };
