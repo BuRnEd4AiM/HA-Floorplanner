@@ -74,6 +74,7 @@ export function initRoomPanel(ctx) {
   const openCtl = new Set();               // lights whose colour / effect / scene controls are unfolded
   const heatBox = $('#heatPanel'), heatHome = heatBox.parentNode;
   const box0 = $('#roomPanel');
+  box0?.addEventListener('scroll', () => { if (box0.scrollLeft) box0.scrollLeft = 0; }, { passive: true });   // the card never slides sideways (#778)
   const shownTab = () => tabGroup(tab || '');
   const heat = initHeatPanel({ box: heatBox, t, states: () => ctx.states(), callService: (...a) => live.callService(...a), open: () => !!forId && shownTab() === 'climate',
     stateText: (id) => ctx.stateText(id), isOn: (id) => ctx.onStates.has(ctx.states()[id]?.state), details: (id) => live.detailsButton(id, false, t('cam.openHa')),

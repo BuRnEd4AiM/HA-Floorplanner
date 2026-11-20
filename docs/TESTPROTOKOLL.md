@@ -527,8 +527,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 215. Neu in 5.23.1: 📱 Raum dreht sich oben, Ausschalten fragt nach | 3 | 0 | 2 | 0 | 215.4, 215.5 |
 | 216. Neu in 5.24.0: 🩺 Haus-Check mit 🔧 Wartung | 2 | 0 | 3 | 0 | 216.3 bis 216.5 |
 | 217. Neu in 5.25.0: 🧭 Erste Schritte und das „⋯“-Menü oben | 2 | 0 | 3 | 0 | 217.3 bis 217.5 |
-| 218. Neu in 5.26.0: 📊 Monatsbericht | 2 | 0 | 4 | 0 | 218.3 bis 218.6 |
-| **Zusammen** | **1347** | **2** | **144** | **92** | |
+| 218. Neu in 5.26.0: 📊 Monatsbericht | 2 | 0 | 5 | 0 | 218.3 bis 218.7 |
+| **Zusammen** | **1347** | **2** | **145** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3297,4 +3297,5 @@ Deine Wahl (Bild 11 in `docs/ideen-5.15`).
 | 218.4 | Dein Haus: „📨 Jetzt senden“ | Die Nachricht kommt an (mit dem eigenen Telegram-Bot auch das Bild) | ❓ |
 | 218.5 | Dein Haus: einschalten, am eingestellten Tag | Die Nachricht kommt von selbst, einmal | ❓ |
 | 218.6 | Dein Handy: Start und Räume (#777) | Nichts lässt sich seitlich verschieben, lange Raumnamen enden mit „…“ | ❓ |
+| 218.7 | Dein Handy: einen Raum öffnen, das Bedienfeld seitlich wischen (#778) | Die Karte bleibt stehen; nur die Zeile mit den Werten wischt | ❓ |
 

@@ -3366,6 +3366,7 @@ body.live .v2Nops { display: none; }
     -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
   #roomPanel .rpChips::-webkit-scrollbar { display: none; }
   body #roomPanel.rpFull { max-height: calc(100% - 64px); }
+  #roomPanel { overflow-x: hidden; overscroll-behavior-x: none; }   /* a row a little too wide never lets the whole card be swiped sideways (#778): rows like the chips swipe on their own */
   #roomPanel { transition: transform .12s; }
 }
 /* one colour to choose (colorrow.js): roof #752, stairs #753, doors and windows #754 */
@@ -3476,7 +3477,8 @@ body.guestview #roomPanel .rpClose, body.guestview #roomPanel [data-act=close] {
 .apItemIcon { width: 30px; text-align: center; font-size: 20px; }
 body.appRoom #navBar, body.appRoom #floorRail, body.appRoom #modeBar, body.appRoom #viewMenu, body.appRoom #viewLegend, body.appRoom #phoneNavBtn,
 body.appRoom #toolbar { display: none !important; }
-body.appRoom #roomPanel { top: 48vh !important; z-index: 7 !important; background: var(--bg, #0d1117) !important; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; bottom: var(--stage-b, 0px) !important; left: 0 !important; right: 0 !important; padding-left: 12px !important; padding-right: 12px !important;
+body.appRoom #roomPanel .rpChips { margin-right: -12px; padding-right: 12px; }
+body.appRoom #roomPanel { overflow-x: hidden !important; top: 48vh !important; z-index: 7 !important; background: var(--bg, #0d1117) !important; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; bottom: var(--stage-b, 0px) !important; left: 0 !important; right: 0 !important; padding-left: 12px !important; padding-right: 12px !important;
   width: auto !important; max-width: none !important; max-height: none !important; }
 #appBack { position: fixed; top: 10px; left: 10px; z-index: 61; border: 0; border-radius: 14px; padding: 8px 14px; font-size: 16px; font-weight: 600;
   background: var(--panel, #1c2433); color: #4ea1ff; }

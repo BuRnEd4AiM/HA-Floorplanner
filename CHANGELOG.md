@@ -9,6 +9,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
   - ⚙ → Warnungen & Alarm → card **"Monatsbericht"**: on, the day of the month and the hour, **"👁 Vorschau"** of last month with the bars and **"📨 Jetzt senden"**.
 ### Fixed
 - **📱 Phone: the start page no longer is wider than the screen** (#777, the owner: "nach links und rechts machen"): a long room name made a column of the room tiles wider than half the screen; now it is cut off with "…".
+- **📱 Phone: a room's controls no longer slide sideways out of the screen** (#778, the owner: "wenn ich falsch swipe … außerhalb von meinem Sichtblickwinkel"): a row a little wider than the card let the whole card be swiped to the side; now only rows like the chips swipe, the card stays put.
 
 ## [5.25.0] - 2026-11-20
 ### Added

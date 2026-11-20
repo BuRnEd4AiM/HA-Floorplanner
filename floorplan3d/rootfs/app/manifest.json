@@ -1,6 +1,6 @@
 {
  "version": "5.26.0",
- "buildHash": "a56ec3739163afe0a06c16f8f6e207db3e6faad179a5da7594c104e5c0503389",
+ "buildHash": "aa23f3ff817bd1afe45a53a48cd0f4150a1425041df47c813dad2cebf4702ab5",
  "files": {
   "alarmnotify.py": "c86dd2def8c62f46efa35e5ea2a6e84ebc241d4399d3f5a84db6203b7baf3c86",
   "alarmpic.py": "24bf0db631070afa1489b955c666ca5f1318b7b870a8989d4a47455927253eeb",
@@ -407,7 +407,7 @@
   "static/roomlockui.js": "bcbfeadb817ba5ed0ce51a5b02c0105fbca51a8e08a41bd1a15b03204a7b7b89",
   "static/roomname.js": "6ca8c6c7a019ab9fd1d3ad85e666958c43bb72cb749a4c294aed10d763461af2",
   "static/roomnameui.js": "0c9177b5bb1fed8f8931a220c622ffa5889250321d8501e7ae48f3bd23252918",
-  "static/roompanel.js": "77ae295324384405844c36d71dc4a6ac3b3aa9162635bf7143faf4649076ca3b",
+  "static/roompanel.js": "2348e6404cce675140aef21309d6a4667ae515d7c08f3dd3bdfa1d8ae1b5b234",
   "static/rooms.js": "b3c65f81043bce516d51f6e0d975e3f0a424bdde953c29212e49f898c89eab17",
   "static/roomsensors.js": "6292f54babe27e593c52b6255f7e629b1b869eb66ad0fded5778872fb01db7e7",
   "static/roomsensorsui.js": "2450c4d6ae88912fef04a5d58f2acc0ad5c165c96cb23d2794ea4dad860e83c7",
@@ -458,7 +458,7 @@
   "static/standbycard.js": "db370cc628d279c3b8d4ed88e2d5641bb1851f0b4fdfc3c0675f7da3dc58a944",
   "static/startview.js": "da8d6d4ce30c1a3bd866e4f95d0bfa2190f08220178c381c0b5b85b31894a634",
   "static/statusline.js": "f6434a75b8535ab4bfba94eb13e9742cc97899a85ce69a33648d553df93289ad",
-  "static/style.css": "ef1bc08995ac3ac83a4feb7bc92ade5bcd5901e9b045f6a61c04a1ccf4ee31c3",
+  "static/style.css": "a949bef19a18647f032a23715e8ddd6b22690ede7c97a484b6fc19edc3e6839c",
   "static/sunshade.js": "543a662a33f8830865206f00723f41314aabb73126644d498ebda88f401ca8de",
   "static/sunshadeui.js": "8ef42d93804975b5c9f9f205a82384cc458eb32246955042013ac194777d0e54",
   "static/tabedit.js": "ec8ac797d4a32d3f62e0b2bd1c01fe8aa909a28ad49fa9e766978034e03a7012",

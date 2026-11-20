@@ -9,6 +9,7 @@ Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`
   - ⚙ → Warnungen & Alarm → Karte **„Monatsbericht“**: an, Tag im Monat und Uhrzeit, **„👁 Vorschau“** des letzten Monats mit den Balken und **„📨 Jetzt senden“**.
 ### Repariert
 - **📱 Handy: die Startseite ist nicht mehr breiter als der Bildschirm** (#777, der Besitzer: „nach links und rechts machen“): ein langer Raumname machte eine Spalte der Raum-Kacheln breiter als den halben Bildschirm; jetzt wird er mit „…“ abgeschnitten.
+- **📱 Handy: das Bedienfeld eines Raums lässt sich nicht mehr seitlich aus dem Bild wischen** (#778, der Besitzer: „wenn ich falsch swipe … außerhalb von meinem Sichtblickwinkel“): eine Zeile, die etwas breiter war als die Karte, ließ die ganze Karte zur Seite wischen; jetzt wischen nur Zeilen wie die Werte-Chips, die Karte bleibt stehen.
 
 ## [5.25.0] - 2026-11-20
 ### Neu
