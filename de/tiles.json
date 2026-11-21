@@ -1,0 +1,30 @@
+{
+ "id": "tiles",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten stehen Kacheln für deine Favoriten und Räume.",
+   "en": "Tiles for your favourites and rooms are at the bottom."
+  },
+  {
+   "t": 4.26,
+   "de": "Ein Tipp auf eine Lampe schaltet sie.",
+   "en": "Tap a lamp to switch it."
+  },
+  {
+   "t": 8.77,
+   "de": "Ein Tipp auf einen Raum öffnet ihn.",
+   "en": "Tap a room to open it."
+  },
+  {
+   "t": 14.7,
+   "de": "Mit ☆ auf einer Geräte-Karte wird etwas zum Favoriten.",
+   "en": "☆ on a device card makes something a favourite."
+  }
+ ],
+ "duration": 17.25,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

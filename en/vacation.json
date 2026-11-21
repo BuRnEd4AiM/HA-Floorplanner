@@ -1,0 +1,30 @@
+{
+ "id": "vacation",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 8.75,
+   "de": "Beim Urlaubs-Alarm, ganz unten: „Urlaubs-Licht“.",
+   "en": "In the holiday alarm, at the bottom: “Holiday light”."
+  },
+  {
+   "t": 11.62,
+   "de": "Einschalten und die Lampen und Rollläden ankreuzen. Ein Garagentor ist nie dabei.",
+   "en": "Switch it on and tick the lamps and shutters. A garage door is never among them."
+  },
+  {
+   "t": 16.36,
+   "de": "Das Add-on lernt aus euren letzten 14 Abenden und spielt jeden Abend einen davon ab – jedes Mal etwas anders.",
+   "en": "The add-on learns from your last 14 evenings and plays one of them every evening – a little different each time."
+  },
+  {
+   "t": 18.76,
+   "de": "Kommt jemand heim und schaltet den Alarm aus, hört es sofort auf.",
+   "en": "When somebody comes home and switches the alarm off, it stops at once."
+  }
+ ],
+ "duration": 21.77,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

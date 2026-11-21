@@ -1,0 +1,40 @@
+{
+ "id": "cars",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Im Haushalt steht das erste Auto: Ladestand, Laden, Reichweite.",
+   "en": "Household shows the first car: charge, charging, range."
+  },
+  {
+   "t": 7.83,
+   "de": "Ein zweites Auto kommt über ⚙ → „Reiter unten“.",
+   "en": "A second car comes through ⚙ → “Tabs at the bottom”."
+  },
+  {
+   "t": 12.49,
+   "de": "Oben ein Knopf je Seite: „Auto“.",
+   "en": "A button per page at the top: “Car”."
+  },
+  {
+   "t": 15.7,
+   "de": "„＋ Weiteres Auto“ …",
+   "en": "“＋ Another car” …"
+  },
+  {
+   "t": 18.22,
+   "de": "… dort seinen Ladestand und einen Namen wählen.",
+   "en": "… there choose its charge and a name."
+  },
+  {
+   "t": 24.8,
+   "de": "Jetzt hat jedes Auto im Haushalt seine eigene Karte.",
+   "en": "Now every car has a card of its own on Household."
+  }
+ ],
+ "duration": 31.61,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

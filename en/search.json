@@ -1,0 +1,25 @@
+{
+ "id": "search",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe auf die Lupe.",
+   "en": "Tap the magnifier."
+  },
+  {
+   "t": 5.22,
+   "de": "Schreib, was du suchst, zum Beispiel „Stehlampe“.",
+   "en": "Type what you are looking for, for example “floor lamp”."
+  },
+  {
+   "t": 8.76,
+   "de": "Ein Tipp auf einen Treffer zeigt das Gerät im Haus.",
+   "en": "Tap a result to see the device in the house."
+  }
+ ],
+ "duration": 15.27,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

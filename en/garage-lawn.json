@@ -1,0 +1,25 @@
+{
+ "id": "garage-lawn",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Das Plateau liegt hier auch unter der Garage: sie steht 60 cm hoch auf einem Klotz.",
+   "en": "Here the plateau lies under the garage too: it stands 60 cm up on a block."
+  },
+  {
+   "t": 6.37,
+   "de": "Bei der Garage unter „Höhe des Bodens“: „🚗 Steht unten auf dem Rasen“.",
+   "en": "At the garage under “Height of the floor”: “🚗 Stands down on the lawn”."
+  },
+  {
+   "t": 17.16,
+   "de": "Jetzt endet das Plateau am Haus, die Garage liegt unten auf dem Rasen. Der Haken aus gibt sie dem Plateau zurück.",
+   "en": "Now the plateau ends at the house, the garage lies down on the lawn. The tick off gives it back to the plateau."
+  }
+ ],
+ "duration": 21.12,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

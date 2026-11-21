@@ -1,0 +1,35 @@
+{
+ "id": "house-looks",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Die Etage „Dach“ öffnen und aufs Dach klicken.",
+   "en": "Open the floor “Roof” and click the roof."
+  },
+  {
+   "t": 7.69,
+   "de": "„Farbe & Deckung“: zum Beispiel Dunkelgrau …",
+   "en": "“Colour & cover”: for example dark grey …"
+  },
+  {
+   "t": 27.0,
+   "de": "… mit Dachziegeln. Die Gauben werden etwas dunkler.",
+   "en": "… with roof tiles. The dormers get a little darker."
+  },
+  {
+   "t": 38.88,
+   "de": "Eine Treppe: Parkett, Fliesen oder Stein wie bei einem Raum, die Setzstufen in eigener Farbe.",
+   "en": "A stair: parquet, tiles or stone as for a room, the risers in their own colour."
+  },
+  {
+   "t": 66.78,
+   "de": "Eine Tür: Türblatt und Zarge. Für alle Türen auf einmal: ⚙ Einstellungen → Haus außen.",
+   "en": "A door: its leaf and frame. For every door at once: ⚙ Settings → Outside."
+  }
+ ],
+ "duration": 76.84,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

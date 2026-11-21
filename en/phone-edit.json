@@ -1,0 +1,55 @@
+{
+ "id": "phone-edit",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Auch am Handy kannst du bearbeiten: unten „Mehr“ …",
+   "en": "You can edit on the phone too: “More” at the bottom …"
+  },
+  {
+   "t": 2.64,
+   "de": "… dann „Bearbeiten“.",
+   "en": "… then “Edit”."
+  },
+  {
+   "t": 5.41,
+   "de": "Oben stehen die Werkzeuge in einer Leiste: zur Seite wischen zeigt die anderen.",
+   "en": "The tools are in a strip at the top: swipe sideways for the others."
+  },
+  {
+   "t": 8.83,
+   "de": "„2D“ zeigt den Plan zum Zeichnen.",
+   "en": "“2D” shows the plan for drawing."
+  },
+  {
+   "t": 11.69,
+   "de": "„Wand“ und Punkt für Punkt tippen; zweimal tippen beendet die Wand.",
+   "en": "“Wall” and tap point by point; a double tap ends the wall."
+  },
+  {
+   "t": 18.24,
+   "de": "↶ nimmt sie wieder weg.",
+   "en": "↶ takes them away again."
+  },
+  {
+   "t": 21.6,
+   "de": "„Auswählen“ und ein Fenster antippen: unten stehen seine Einstellungen.",
+   "en": "“Select” and tap a window: its settings are below."
+  },
+  {
+   "t": 25.41,
+   "de": "Weiter unten der Kontakt aus Home Assistant, für jeden Flügel einer.",
+   "en": "Further down the contact from Home Assistant, one for every pane."
+  },
+  {
+   "t": 27.84,
+   "de": "Fertig? ☰ und „Live“ bringen dich zurück zum Haus.",
+   "en": "Done? ☰ and “Live” take you back to the house."
+  }
+ ],
+ "duration": 33.74,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

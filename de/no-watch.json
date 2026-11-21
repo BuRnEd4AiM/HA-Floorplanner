@@ -1,0 +1,40 @@
+{
+ "id": "no-watch",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben steht „📴 2 offline“: zwei Lampen der Wohnung oben, die dir nicht gehört.",
+   "en": "At the top: “📴 2 offline”: two lamps of the flat upstairs that isn’t yours."
+  },
+  {
+   "t": 9.42,
+   "de": "Neben jeder Zeile ein 🔕: dieses Gerät nicht mehr überwachen.",
+   "en": "A 🔕 beside each row: stop watching this device."
+  },
+  {
+   "t": 14.15,
+   "de": "Darunter die ganze Etage auf einmal.",
+   "en": "Below it the whole floor at once."
+  },
+  {
+   "t": 19.11,
+   "de": "Alles online. Die Zeile darunter sagt, was nicht überwacht wird.",
+   "en": "All online. The line below says what is not watched."
+  },
+  {
+   "t": 28.47,
+   "de": "Beim Bearbeiten zeigt ein 🔕, was nicht überwacht wird: hier am Knopf der Etage, bei einem Gerät grau darüber.",
+   "en": "In edit mode a 🔕 shows what is not watched: here on the floor's button, on a device grey above it."
+  },
+  {
+   "t": 38.94,
+   "de": "Zurück: „Etage verwalten“ → „🔕 Etage nicht überwachen“; jedes Gerät, jede Tür und jedes Fenster hat den Haken auch.",
+   "en": "To undo: “Manage floor” → “🔕 Don’t watch this floor”; every device, door and window has the tick too."
+  }
+ ],
+ "duration": 48.37,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

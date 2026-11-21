@@ -1,0 +1,35 @@
+{
+ "id": "alarm",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe oben auf „Alarm aus“.",
+   "en": "Tap “Alarm off” at the top."
+  },
+  {
+   "t": 4.72,
+   "de": "Gib deinen Code ein (in der Demo 1234).",
+   "en": "Enter your code (1234 in the demo)."
+  },
+  {
+   "t": 21.3,
+   "de": "„Scharf schalten“: jetzt hast du Zeit, das Haus zu verlassen.",
+   "en": "“Arm”: now you have time to leave the house."
+  },
+  {
+   "t": 28.98,
+   "de": "Später öffnet jemand die Bürotür …",
+   "en": "Later someone opens the office door …"
+  },
+  {
+   "t": 35.54,
+   "de": "… die Zeit bis zum Alarm läuft. Mit dem Code ist alles wieder aus.",
+   "en": "… the time to the alarm runs. The code turns everything off again."
+  }
+ ],
+ "duration": 66.12,
+ "version": "5.27.1",
+ "date": "2026-11-20",
+ "slow": 2.0
+}

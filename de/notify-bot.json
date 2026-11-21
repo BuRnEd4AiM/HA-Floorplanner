@@ -1,0 +1,30 @@
+{
+ "id": "notify-bot",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 15.2,
+   "de": "„Wohin?“: Telegram – eigener Bot, mit Bild.",
+   "en": "“Where to?”: Telegram – own bot, with a picture."
+  },
+  {
+   "t": 17.14,
+   "de": "Die Anleitung: bei BotFather einen Bot anlegen und seinen Schlüssel hier einfügen.",
+   "en": "The steps: make a bot with BotFather and paste its key here."
+  },
+  {
+   "t": 22.75,
+   "de": "Dem Bot „Hallo“ schreiben, dann „Chat finden“ – fertig.",
+   "en": "Write “Hello” to the bot, then “Find chat” – done."
+  },
+  {
+   "t": 25.41,
+   "de": "Bei Alarm kommt der Grundriss mit dem Raum in Rot, und das Bild der Kamera dort.",
+   "en": "On an alarm the floor plan comes with the room in red, and the picture of the camera there."
+  }
+ ],
+ "duration": 28.62,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

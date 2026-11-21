@@ -1,0 +1,35 @@
+{
+ "id": "arrange",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 6.48,
+   "de": "Unten rechts: „Bearbeiten“.",
+   "en": "Bottom right: “Edit”."
+  },
+  {
+   "t": 9.11,
+   "de": "👁 blendet eine Karte aus.",
+   "en": "👁 hides a card."
+  },
+  {
+   "t": 11.7,
+   "de": "Sie steht dann oben unter „Ausgeblendet“; ein Tipp holt sie zurück.",
+   "en": "It is listed under “Hidden” at the top; a tap brings it back."
+  },
+  {
+   "t": 14.32,
+   "de": "„Frei anordnen“: jede Karte liegt, wohin du sie ziehst.",
+   "en": "“Arrange freely”: every card goes where you drag it."
+  },
+  {
+   "t": 17.27,
+   "de": "„Fertig“ speichert die Seite.",
+   "en": "“Done” saves the page."
+  }
+ ],
+ "duration": 21.05,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

@@ -1,0 +1,50 @@
+{
+ "id": "room",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe auf den Namen eines Raums.",
+   "en": "Tap the name of a room."
+  },
+  {
+   "t": 6.22,
+   "de": "Die Kamera fährt hin, rechts öffnet sich die Karte des Raums.",
+   "en": "The camera flies there and the room's card opens on the right."
+  },
+  {
+   "t": 7.42,
+   "de": "Oben stehen seine Werte: Temperatur, Luftfeuchte, CO₂, Strom und offene Fenster.",
+   "en": "On top its values: temperature, humidity, CO₂, power and open windows."
+  },
+  {
+   "t": 10.41,
+   "de": "Darunter die Reiter: Licht, Rollo, Klima, Geräte, Fenster. Es ist immer nur einer offen.",
+   "en": "Below them the tabs: light, blinds, climate, devices, windows. Only one is open at a time."
+  },
+  {
+   "t": 12.99,
+   "de": "„Alle aus“ schaltet alle Lampen des Raums auf einmal.",
+   "en": "“All off” switches all lamps of the room at once."
+  },
+  {
+   "t": 15.19,
+   "de": "Über eine Lampe wischen macht sie heller oder dunkler, ein Tipp schaltet sie.",
+   "en": "Swiping over a lamp makes it brighter or darker, a tap switches it."
+  },
+  {
+   "t": 19.3,
+   "de": "„Klima“ zeigt die Heizung und was der Heizplan gerade macht.",
+   "en": "“Climate” shows the heating and what the heating plan does right now."
+  },
+  {
+   "t": 22.99,
+   "de": "Mit ✕ ist der Raum wieder zu.",
+   "en": "✕ closes the room again."
+  }
+ ],
+ "duration": 27.46,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

@@ -1,0 +1,35 @@
+{
+ "id": "sunshade",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 4.85,
+   "de": "Unter „Klima“ oben auf „Sonnenschutz“.",
+   "en": "Under “Climate” tap “Sun protection” at the top."
+  },
+  {
+   "t": 8.07,
+   "de": "Rechts die Fenster mit Rollladen: wohin jedes schaut und ob gerade die Sonne draufscheint.",
+   "en": "On the right the windows with a shutter: which way each looks and whether the sun shines on it now."
+  },
+  {
+   "t": 10.27,
+   "de": "Ist dein Haus nicht mit Norden nach oben gezeichnet? Dreh hier den Kompass – das Haus bleibt, wie es ist.",
+   "en": "Is your house not drawn with north up? Turn the compass here – the house stays as it is."
+  },
+  {
+   "t": 14.94,
+   "de": "Einschalten – dann fährt nur der Rollladen in der Sonne runter, und wieder hoch, wenn sie weg ist.",
+   "en": "Switch it on – then only the shutter in the sun goes down, and back up when it has gone."
+  },
+  {
+   "t": 18.74,
+   "de": "Wann und wie weit stellst du links ein: Sonnenhöhe, Wärme, Position, Minuten.",
+   "en": "When and how far is set on the left: sun height, warmth, position, minutes."
+  }
+ ],
+ "duration": 21.65,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

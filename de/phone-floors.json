@@ -1,0 +1,35 @@
+{
+ "id": "phone-floors",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten „3D-Haus“ zeigt dein Haus.",
+   "en": "“3D house” at the bottom shows your house."
+  },
+  {
+   "t": 2.74,
+   "de": "Oben links steht die Etage, mit grünem Punkt, wenn jemand da ist.",
+   "en": "Top left is the floor, with a green dot when someone is there."
+  },
+  {
+   "t": 5.37,
+   "de": "Ein Tipp: oben die Etagen, darunter die Zimmer.",
+   "en": "One tap: the floors at the top, the rooms below."
+  },
+  {
+   "t": 7.77,
+   "de": "Tippe auf ein Zimmer: es öffnet sich, der Knopf nennt es.",
+   "en": "Tap a room: it opens, the button names it."
+  },
+  {
+   "t": 10.89,
+   "de": "Eine andere Etage: wieder oben antippen.",
+   "en": "Another floor: tap the top again."
+  }
+ ],
+ "duration": 16.64,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

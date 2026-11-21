@@ -1,0 +1,50 @@
+{
+ "id": "door-shutter",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Klicke die Schiebetür zur Terrasse an.",
+   "en": "Click the sliding door to the terrace."
+  },
+  {
+   "t": 3.87,
+   "de": "„Vorhang / Rollladen“ gibt es jetzt auch bei Türen.",
+   "en": "“Curtain / roller shutter” is there for doors too now."
+  },
+  {
+   "t": 12.2,
+   "de": "„Anzahl Rollläden (Motoren)“: 2, für zwei Rollläden nebeneinander.",
+   "en": "“Number of roller shutters (motors)”: 2, for two side by side."
+  },
+  {
+   "t": 19.93,
+   "de": "Jeder bekommt seine eigene Entität aus Home Assistant: „Rollladen 1“, „Rollladen 2“.",
+   "en": "Each one gets its own entity from Home Assistant: “Roller shutter 1”, “Roller shutter 2”."
+  },
+  {
+   "t": 28.04,
+   "de": "In der Live-Ansicht fährt jeder für sich: links offen, rechts halb unten.",
+   "en": "In the live view each one moves by itself: open on the left, half down on the right."
+  },
+  {
+   "t": 47.85,
+   "de": "Die Kugel über der Tür antippen: oben „Alle · 1 · 2“.",
+   "en": "Tap the ball over the door: “All · 1 · 2” on top."
+  },
+  {
+   "t": 50.14,
+   "de": "„2“ und „0 %“: nur der rechte fährt ganz herunter.",
+   "en": "“2” and “0 %”: only the right one goes all the way down."
+  },
+  {
+   "t": 58.18,
+   "de": "„Alle“ und „100 %“: beide fahren zusammen hoch.",
+   "en": "“All” and “100 %”: both go up together."
+  }
+ ],
+ "duration": 67.48,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

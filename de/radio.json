@@ -1,0 +1,40 @@
+{
+ "id": "radio",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten bei den Ansichten: „📡 Funk“.",
+   "en": "At the bottom with the views: “📡 Radio”."
+  },
+  {
+   "t": 4.77,
+   "de": "Über jedem Gerät steht, wie gut es seinen Sender hört: grün gut, gelb mittel, rot schwach.",
+   "en": "Over every device: how well it hears its sender – green good, yellow middle, red weak."
+  },
+  {
+   "t": 6.97,
+   "de": "Rechts die schwächsten. Ein Tipp zeigt das Gerät im Haus.",
+   "en": "On the right the weakest ones. A tap shows the device in the house."
+  },
+  {
+   "t": 12.11,
+   "de": "Ein Gerät mit Strom in der Nähe der roten verstärkt das Zigbee-Netz.",
+   "en": "A mains-powered device near the red ones strengthens the Zigbee network."
+  },
+  {
+   "t": 14.11,
+   "de": "Fehlen Geräte? Oben: Home Assistant hat ihren Empfangswert ausgeschaltet. Ein Tipp schaltet alle ein.",
+   "en": "Devices missing? At the top: Home Assistant switched their reception value off. One tap switches them all on."
+  },
+  {
+   "t": 31.7,
+   "de": "Nach etwa einer Minute sind ihre Werte da.",
+   "en": "Their values come after about a minute."
+  }
+ ],
+ "duration": 44.4,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

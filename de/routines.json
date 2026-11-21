@@ -1,0 +1,30 @@
+{
+ "id": "routines",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe unten auf „Abläufe“.",
+   "en": "Tap “Routines” at the bottom."
+  },
+  {
+   "t": 5.39,
+   "de": "„Ich gehe“ prüft Fenster, Türen und Licht, bevor du gehst.",
+   "en": "“I am leaving” checks windows, doors and lights before you go."
+  },
+  {
+   "t": 9.92,
+   "de": "„Nach Räumen“ sortiert alles nach dem Raum.",
+   "en": "“By room” sorts everything by room."
+  },
+  {
+   "t": 13.03,
+   "de": "Ein Tipp auf einen Raum klappt ihn auf.",
+   "en": "Tap a room to open it."
+  }
+ ],
+ "duration": 17.31,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

@@ -1,0 +1,45 @@
+{
+ "id": "flow",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 4.89,
+   "de": "Unter „Abläufe“: „＋ Neuer Ablauf“.",
+   "en": "Under “Routines”: “＋ New routine”."
+  },
+  {
+   "t": 7.87,
+   "de": "Links stehen die Bausteine. Zuerst: wann soll es passieren?",
+   "en": "The blocks are on the left. First: when should it happen?"
+  },
+  {
+   "t": 10.36,
+   "de": "Rechts stellst du den Baustein ein.",
+   "en": "You set the block up on the right."
+  },
+  {
+   "t": 11.86,
+   "de": "Dann: was soll passieren? Zum Beispiel den Rollladen fahren.",
+   "en": "Then: what should happen? For example move the shutter."
+  },
+  {
+   "t": 14.25,
+   "de": "Rechts wählst du, welcher Rollladen.",
+   "en": "On the right you choose which shutter."
+  },
+  {
+   "t": 17.07,
+   "de": "Unten steht in Worten, was der Ablauf tut.",
+   "en": "Below it says in words what the routine does."
+  },
+  {
+   "t": 19.27,
+   "de": "„Jetzt ausprobieren“ testet ihn, „Speichern“ macht ihn fertig.",
+   "en": "“Try now” tests it, “Save” finishes it."
+  }
+ ],
+ "duration": 22.74,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

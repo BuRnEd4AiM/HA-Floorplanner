@@ -1,0 +1,35 @@
+{
+ "id": "first-steps",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben: „⋯“ – hier liegen jetzt Anleitung, Backup und Sicherheit.",
+   "en": "At the top: “⋯” – the guide, backup and security are here now."
+  },
+  {
+   "t": 5.81,
+   "de": "„🧭 Erste Schritte“ führt in vier Schritten zum fertigen Haus.",
+   "en": "“🧭 First steps” leads to the finished house in four steps."
+  },
+  {
+   "t": 10.41,
+   "de": "Räume, die wie ein Bereich von Home Assistant heißen, verbindet ein Klick.",
+   "en": "One click links the rooms called like an area of Home Assistant."
+  },
+  {
+   "t": 15.7,
+   "de": "Dann stellt das Add-on die Geräte der Bereiche in ihren Raum.",
+   "en": "Then the add-on puts the areas’ devices into their room."
+  },
+  {
+   "t": 21.14,
+   "de": "Zum Schluss: die Live-Ansicht. Unterbrechen geht jederzeit.",
+   "en": "Last: the live view. You can stop any time."
+  }
+ ],
+ "duration": 26.78,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

@@ -1,0 +1,25 @@
+{
+ "id": "family",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe unten auf „Familie“.",
+   "en": "Tap “Family” at the bottom."
+  },
+  {
+   "t": 5.4,
+   "de": "Jede Person: zu Hause oder unterwegs, und woher das Add-on es weiß.",
+   "en": "Every person: home or away, and how the add-on knows."
+  },
+  {
+   "t": 7.4,
+   "de": "Auf die Pinnwand kommt eine Notiz für alle.",
+   "en": "A note for everyone goes on the pinboard."
+  }
+ ],
+ "duration": 17.75,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}

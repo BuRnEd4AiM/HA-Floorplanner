@@ -1,0 +1,35 @@
+{
+ "id": "phone-house",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten „3D-Haus“ zeigt dein Haus.",
+   "en": "“3D house” at the bottom shows your house."
+  },
+  {
+   "t": 2.69,
+   "de": "Am Handy siehst du dein Haus wie am großen Bildschirm.",
+   "en": "On the phone you see your house as on a big screen."
+  },
+  {
+   "t": 4.19,
+   "de": "Tippe auf einen Raum.",
+   "en": "Tap a room."
+  },
+  {
+   "t": 7.25,
+   "de": "Tippe auf eine Lampe: ihre Karte öffnet sich.",
+   "en": "Tap a lamp: its card opens."
+  },
+  {
+   "t": 9.71,
+   "de": "„Aus“ und „An“ wie am PC.",
+   "en": "“Off” and “On” as on a computer."
+  }
+ ],
+ "duration": 15.26,
+ "version": "5.27.1",
+ "date": "2026-11-20",
+ "slow": 2.0
+}

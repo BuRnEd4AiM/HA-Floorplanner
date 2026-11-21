@@ -1,0 +1,45 @@
+{
+ "id": "tablet-saver",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 10.93,
+   "de": "Der Bildschirmschoner: das Haus dreht sich, die Etagen nacheinander, eine große Uhr oder schwarz.",
+   "en": "The screen saver: the house turns, the floors in turn, a big clock or black."
+  },
+  {
+   "t": 16.03,
+   "de": "„Starten nach“: so viele Minuten ohne Berührung.",
+   "en": "“Start after”: this many minutes without a touch."
+  },
+  {
+   "t": 20.73,
+   "de": "Ausprobieren: „Bildschirmschoner jetzt zeigen“.",
+   "en": "Try it: “Show the screen saver now”."
+  },
+  {
+   "t": 25.84,
+   "de": "Uhrzeit, Datum und Wetter. Sie rückt jede Minute ein Stück, damit sich nichts einbrennt.",
+   "en": "Time, date and the weather. It moves a little every minute so nothing burns in."
+  },
+  {
+   "t": 28.45,
+   "de": "Eine Berührung weckt den Bildschirm.",
+   "en": "A touch wakes the screen."
+  },
+  {
+   "t": 36.25,
+   "de": "Abdunkeln: nach Sonnenstand, nach Uhrzeit oder immer, wenn niemand tippt.",
+   "en": "Dimming: by the sun, by the clock or always when nobody touches it."
+  },
+  {
+   "t": 41.3,
+   "de": "Wie dunkel, und auf Wunsch mit Uhr.",
+   "en": "How dark, and with a clock if you like."
+  }
+ ],
+ "duration": 62.35,
+ "version": "5.28.2",
+ "date": "2026-11-21",
+ "slow": 2.0
+}
