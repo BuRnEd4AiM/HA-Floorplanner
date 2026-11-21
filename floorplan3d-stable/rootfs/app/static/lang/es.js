@@ -2509,9 +2509,9 @@ export default {
   'an.bot.plan': '📸 Enviar el plano con la habitación en rojo', 'an.bot.camera': '📷 Enviar la imagen de una cámara de la habitación',
   'an.ready.bottoken': 'Aún falta la clave del bot.', 'an.ready.botchat': 'Aún falta un chat: escribe «Hola» al bot y luego «Buscar chat».',
   'rd.btn': '📡 Radio', 'rd.btnTip': 'Lo bien que cada aparato oye su emisor (Zigbee, WiFi …)', 'rd.title': 'Recepción en la casa',
-  'rd.sub': 'Zigbee, WiFi y más: lo bien que cada aparato oye su emisor. Verde bien, amarillo medio, rojo débil.', 'rd.close': 'Cerrar', 'rd.q.good': 'bien',
+  'rd.sub': 'Zigbee, Matter, WiFi y más: lo bien que cada aparato oye su emisor. Verde bien, amarillo medio, rojo débil.', 'rd.close': 'Cerrar', 'rd.q.good': 'bien',
   'rd.q.mid': 'medio', 'rd.q.bad': 'débil', 'rd.weakest': 'Los más débiles (toca para verlo en la casa)',
-  'rd.tipBad': 'Un aparato Zigbee con corriente (enchufe, lámpara) cerca de los rojos refuerza la red. En WiFi ayuda un repetidor u otro sitio.',
+  'rd.tipBad': 'Un aparato Zigbee o Thread con corriente (enchufe, lámpara) cerca de los rojos refuerza la red. En WiFi ayuda un repetidor u otro sitio.',
   'rd.tipGood': 'Todo bien: ningún aparato con recepción débil.',
   'rd.none': 'Home Assistant aún no conoce ningún valor de recepción para los aparatos del plano.',
   'rd.off': '{n} valores de recepción están desactivados en Home Assistant',
@@ -2608,4 +2608,5 @@ export default {
   'rd.onAdmin': 'Un administrador puede activarlos aquí con un toque.',
   'rd.onDone': 'Activados: {n}. Los valores aparecen en un minuto aproximadamente.',
   'rd.onSome': '{n} no funcionaron (actívalos a mano en Home Assistant).', 'rd.onFail': 'No se pudieron activar: {err}',
+  'rd.matterOld': 'Los dispositivos Matter por Thread solo aparecen con el nuevo servidor Matter: actualiza el «Matter Server» en Home Assistant.',
 };

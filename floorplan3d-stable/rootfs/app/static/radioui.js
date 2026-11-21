@@ -1,6 +1,7 @@
 /* 📡 Funk-Karte on the page (5.17.0, docs/ideen-5.15 picture 3): the button "📡 Funk" beside the colour views shows over every device and
  * window contact of the building shown how well it hears its sender, as a small coloured sign (green good, yellow middle, red weak, with
- * the value), and a card with the counts, the weakest ones (a tap shows it in the house) and a tip; when Home Assistant has switched the
+ * the value; a Matter device from Home Assistant's Matter map, 5.28.3), and a card with the counts, the weakest ones (a tap shows it in
+ * the house) and a tip; when Home Assistant has switched the
  * signal entities off (Zigbee2MQTT and ZHA ship them off), the card says how to switch them on. The rules are in radiomap.js (tested);
  * the signs are three.js sprites in the floor group of their thing, like the offline signs (offlinemarks.js). */
 import * as THREE from './vendor/three.module.min.js';
@@ -23,7 +24,7 @@ export function initRadioUi(ctx) {
   $('#sideStack')?.append(card);
 
   function make(row) {
-    const canvas = document.createElement('canvas'), text = `📶 ${row.text}`, g = canvas.getContext('2d');
+    const canvas = document.createElement('canvas'), text = `📶 ${row.text || t(`rd.q.${row.q}`)}`, g = canvas.getContext('2d');
     g.font = 'bold 44px system-ui, sans-serif';
     const w = Math.ceil(g.measureText(text).width) + 44;
     canvas.width = w; canvas.height = 72;
@@ -64,7 +65,7 @@ export function initRadioUi(ctx) {
     m.sprite.position.set(v.x, box.max.y + 0.08, v.z);
     return true;
   }
-  const rows = () => radioRows(ctx.layout(), ctx.states(), ctx.signals().of, ctx.openings);
+  const rows = () => radioRows(ctx.layout(), ctx.states(), ctx.signals().of, ctx.openings, ctx.signals().links);   // + Matter (5.28.3)
 
   function drawCard(list) {
     const c = counts(list), off = ctx.signals().off || [];
@@ -96,13 +97,15 @@ export function initRadioUi(ctx) {
         out.push(el('div', 'rcH', t('rd.weakest')));
         weak.forEach((r) => {
           const b = el('button', `rcRow rc-${r.q}`); b.type = 'button'; b.dataset.id = r.id;
-          b.append(el('span', '', r.name), el('small', '', r.floorName), el('b', '', r.text));
+          b.append(el('span', '', r.name), el('small', '', [r.floorName, r.via === 'matter' ? `Matter${r.net === 'thread' ? ' · Thread' : r.net === 'wifi' ? ' · WLAN' : ''}` : ''].filter(Boolean).join(' · ')),
+            el('b', '', r.text || t(`rd.q.${r.q}`)));
           b.addEventListener('click', () => ctx.locate?.(r.id));
           out.push(b);
         });
       }
       out.push(el('p', 'rcTip', `💡 ${t(c.bad ? 'rd.tipBad' : 'rd.tipGood')}`));
     } else out.push(el('p', 'rcTip', t('rd.none')));
+    if (ctx.signals().matter === 'old') out.push(el('p', 'rcTip rcMatterOld', `ℹ ${t('rd.matterOld')}`));   // Matter over Thread needs the new Matter server (5.28.3)
     if (off.length) {
       const d = el('details', 'rcOff'); d.dataset.off = off.length;
       d.append(el('summary', '', t('rd.off', { n: off.length })), el('p', '', t('rd.offHow')));
@@ -114,7 +117,7 @@ export function initRadioUi(ctx) {
 
   /** show the signs and the card again (after a change of the states, a new building, a rebuilt house) */
   function update() {
-    if (btn) btn.hidden = !(Object.keys(ctx.signals().of || {}).length || (ctx.signals().off || []).length);
+    if (btn) btn.hidden = !(Object.keys(ctx.signals().of || {}).length || (ctx.signals().off || []).length || Object.keys(ctx.signals().links || {}).length);
     if (!on) { if (marks.size) { [...marks.keys()].forEach(drop); ctx.wake?.(); } card.hidden = true; return; }
     const list = rows(), want = new Map(list.map((r) => [r.id, r]));
     marks.forEach((m, id) => { const r = want.get(id); if (!r || ctx.registry.get(id) !== m.obj || m.key !== r.text + r.q) drop(id); });
@@ -125,7 +128,7 @@ export function initRadioUi(ctx) {
       if (!m) { m = { sprite: make(r), key: r.text + r.q, obj }; marks.set(r.id, m); }
       m.sprite.visible = place(m, r.kind) && obj.visible !== false && (ctx.floorShown?.(r.floor) ?? true);
     });
-    const s = JSON.stringify([list.map((r) => [r.id, r.text, r.q]), ctx.signals().off?.length, offInPlan(ctx.layout(), ctx.signals().of, ctx.signals().offOf, ctx.openings), onMsg, busy, t('rd.title')]);
+    const s = JSON.stringify([list.map((r) => [r.id, r.text, r.q]), ctx.signals().off?.length, offInPlan(ctx.layout(), ctx.signals().of, ctx.signals().offOf, ctx.openings), onMsg, busy, ctx.signals().matter, t('rd.title')]);
     if (s !== sig || card.hidden) { sig = s; drawCard(list); }
     card.hidden = false;
     ctx.wake?.();
@@ -148,6 +151,7 @@ export function initRadioUi(ctx) {
     btn?.setAttribute('aria-pressed', String(on));
     sig = '';
     update();
+    if (on) ctx.reload?.().then(() => { sig = ''; update(); });   // the signals again: the Matter map may be newer (5.28.3)
   }
   btn?.addEventListener('click', () => toggle());
   return { update, toggle, on: () => on, clear: () => [...marks.keys()].forEach(drop), shown: (id) => !!marks.get(id)?.sprite.visible,

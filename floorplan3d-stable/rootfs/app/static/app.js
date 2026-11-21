@@ -226,7 +226,7 @@ let entities = [];
 let areas = [];                      // Home Assistant areas: [{id, name, entities[]}]
 let areaOf = {};                     // entity_id -> area id
 let batteryOf = {};                  // entity_id -> the battery entity of its device (#376, the device overview)
-let signals = { of: {}, off: [], offOf: {} };   // 📡 the radio signal entity of each entity's device, the ones switched off (radioui.js, 5.17.0)
+let signals = { of: {}, off: [], offOf: {}, links: {}, matter: '' };   // 📡 the radio signal entity of each entity's device, the ones switched off (radioui.js, 5.17.0)
 let offReasons = new Map();          // device / opening id -> why it is offline (offline.js), for the device overview
 const fxRgb = (name) => fxRgbOf(name, settings.effectColors);            // the colour of a light effect (entitystate.js)
 let states = {};                   // entity_id -> { state, unit }
@@ -830,7 +830,7 @@ const checkPage = initCheckPage({                                // 🩺 Haus-Ch
   data: () => ({
     batteries: deviceList.rows().flatMap((f) => f.rooms.flatMap((r) => r.items)).filter((x) => x.battery?.low).map((x) => ({ id: x.id, name: x.name, level: x.battery.level })),
     offline: offline.devices().filter((x) => x.reason !== 'unlinked').map((x) => ({ id: x.id, name: x.name || x.entity, room: x.room })),
-    radio: radioRows(shownLayout(), states, signals?.of || {}, (f) => openingWalls(f).flatMap((w) => w.openings || [])),
+    radio: radioRows(shownLayout(), states, signals?.of || {}, (f) => openingWalls(f).flatMap((w) => w.openings || []), signals?.links || {}),
     updates: Object.entries(states).filter(([e, st]) => e.startsWith('update.') && st?.state === 'on').map(([e]) => ({ id: e, name: entities.find((x) => x.entity_id === e)?.name || e })),
   }),
   reminders: () => settings.maintenance || [], save: (list) => { settings.maintenance = list; settingsStore.save(); }, canEdit: () => me.canEdit,

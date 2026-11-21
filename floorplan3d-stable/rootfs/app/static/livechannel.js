@@ -41,14 +41,15 @@ export async function fetchBatteries() {
 }
 
 /** 📡 { of: { entity: the radio signal entity of its device }, off: [signal entities switched off in Home Assistant], offOf: { entity: the
- *  switched-off signal entity of its device } (5.28.2) } (5.17.0, api/signals) */
+ *  switched-off signal entity of its device } (5.28.2), links: { entity: the Matter link of its device }, matter: 'ok' | 'old' | 'none' | ''
+ *  (5.28.3) } (5.17.0, api/signals) */
 export async function fetchSignals() {
   const map = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
   try {
     const r = await fetch('api/signals');
     const m = r.ok ? await r.json() : {};
-    return { of: map(m?.of), off: Array.isArray(m?.off) ? m.off : [], offOf: map(m?.offOf) };
-  } catch { return { of: {}, off: [], offOf: {} }; }
+    return { of: map(m?.of), off: Array.isArray(m?.off) ? m.off : [], offOf: map(m?.offOf), links: map(m?.links), matter: typeof m?.matter === 'string' ? m.matter : '' };
+  } catch { return { of: {}, off: [], offOf: {}, links: {}, matter: '' }; }
 }
 
 /** 📡 "Alle einschalten" (5.28.2): the add-on switches these signal entities on in Home Assistant: { on: [...], failed: [...] } or { error } */

@@ -2528,9 +2528,9 @@ export default {
   'an.bot.chats': 'À qui ?', 'an.bot.plan': '📸 Joindre le plan avec la pièce en rouge', 'an.bot.camera': '📷 Joindre l’image d’une caméra de la pièce',
   'an.ready.bottoken': 'Il manque encore la clé du bot.', 'an.ready.botchat': 'Il manque encore un chat : écrivez « Bonjour » au bot, puis « Trouver le chat ».',
   'rd.btn': '📡 Radio', 'rd.btnTip': 'La qualité de réception de chaque appareil (Zigbee, WiFi …)', 'rd.title': 'Réception dans la maison',
-  'rd.sub': 'Zigbee, WiFi et plus : la qualité de réception de chaque appareil. Vert bon, jaune moyen, rouge faible.', 'rd.close': 'Fermer', 'rd.q.good': 'bon',
+  'rd.sub': 'Zigbee, Matter, WiFi et plus : la qualité de réception de chaque appareil. Vert bon, jaune moyen, rouge faible.', 'rd.close': 'Fermer', 'rd.q.good': 'bon',
   'rd.q.mid': 'moyen', 'rd.q.bad': 'faible', 'rd.weakest': 'Les plus faibles (touchez pour le voir dans la maison)',
-  'rd.tipBad': 'Un appareil Zigbee sur secteur (prise, lampe) près des rouges renforce le réseau. En WiFi, un répéteur ou un autre emplacement aide.',
+  'rd.tipBad': 'Un appareil Zigbee ou Thread sur secteur (prise, lampe) près des rouges renforce le réseau. En WiFi, un répéteur ou un autre emplacement aide.',
   'rd.tipGood': 'Tout va bien : aucun appareil avec une réception faible.',
   'rd.none': 'Home Assistant ne connaît encore aucune valeur de réception pour les appareils du plan.',
   'rd.off': '{n} valeurs de réception sont désactivées dans Home Assistant',
@@ -2632,4 +2632,5 @@ export default {
   'rd.onAdmin': 'Un administrateur peut les activer ici d’un seul geste.',
   'rd.onDone': 'Activées : {n}. Les valeurs apparaissent dans environ une minute.',
   'rd.onSome': '{n} n’ont pas fonctionné (à activer à la main dans Home Assistant).', 'rd.onFail': 'Activation impossible : {err}',
+  'rd.matterOld': 'Les appareils Matter via Thread n’apparaissent qu’avec le nouveau serveur Matter : mettre à jour le « Matter Server » dans Home Assistant.',
 };

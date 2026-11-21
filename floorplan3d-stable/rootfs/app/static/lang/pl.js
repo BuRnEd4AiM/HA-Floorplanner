@@ -2460,9 +2460,9 @@ export default {
   'an.bot.plan': '📸 Dołącz rzut z pokojem na czerwono', 'an.bot.camera': '📷 Dołącz obraz kamery w pokoju', 'an.ready.bottoken': 'Brakuje jeszcze klucza bota.',
   'an.ready.botchat': 'Brakuje jeszcze czatu: napisz „Cześć” do bota, potem „Znajdź czat”.',
   'rd.btn': '📡 Zasięg', 'rd.btnTip': 'Jak dobrze każde urządzenie słyszy nadajnik (Zigbee, WiFi …)', 'rd.title': 'Zasięg w domu',
-  'rd.sub': 'Zigbee, WiFi i inne: jak dobrze urządzenie słyszy nadajnik. Zielony dobrze, żółty średnio, czerwony słabo.', 'rd.close': 'Zamknij',
+  'rd.sub': 'Zigbee, Matter, WiFi i inne: jak dobrze urządzenie słyszy nadajnik. Zielony dobrze, żółty średnio, czerwony słabo.', 'rd.close': 'Zamknij',
   'rd.q.good': 'dobrze', 'rd.q.mid': 'średnio', 'rd.q.bad': 'słabo', 'rd.weakest': 'Najsłabsze (dotknij, by zobaczyć w domu)',
-  'rd.tipBad': 'Urządzenie Zigbee zasilane z sieci (gniazdko, lampa) blisko czerwonych wzmacnia sieć. Dla WiFi pomaga wzmacniacz lub inne miejsce.',
+  'rd.tipBad': 'Urządzenie Zigbee lub Thread zasilane z sieci (gniazdko, lampa) blisko czerwonych wzmacnia sieć. Dla WiFi pomaga wzmacniacz lub inne miejsce.',
   'rd.tipGood': 'Wszystko w porządku: żadne urządzenie nie ma słabego zasięgu.',
   'rd.none': 'Home Assistant nie zna jeszcze wartości zasięgu dla urządzeń na rzucie.', 'rd.off': '{n} wartości zasięgu jest wyłączonych w Home Assistant',
   'rd.offHow': 'Zigbee2MQTT i ZHA dostarczają je wyłączone. Włączanie: Home Assistant → Ustawienia → Urządzenia i usługi → Encje, szukaj „linkquality” lub „rssi”, otwórz encję → ⚙ → włącz „Włączona”. Po około minucie pojawią się tutaj.',
@@ -2557,4 +2557,5 @@ export default {
   'rd.onNote': 'Włącza je w Home Assistant. Wartości pojawią się po około minucie; Home Assistant zapisuje wtedy też ich historię.',
   'rd.onAdmin': 'Administrator może je tu włączyć jednym dotknięciem.', 'rd.onDone': 'Włączono: {n}. Wartości pojawią się za około minutę.',
   'rd.onSome': '{n} się nie udało (włącz je ręcznie w Home Assistant).', 'rd.onFail': 'Nie udało się włączyć: {err}',
+  'rd.matterOld': 'Urządzenia Matter przez Thread pojawią się dopiero z nowym serwerem Matter: zaktualizuj „Matter Server” w Home Assistant.',
 };
