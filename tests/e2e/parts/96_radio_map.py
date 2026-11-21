@@ -18,7 +18,12 @@ post_rm("/_extra", {
     "binary_sensor.rm_fenster": {"state": "off", "attributes": {"friendly_name": "Funkfenster", "device_class": "window"}, "device": "rm_dev2"},
     "sensor.rm_fenster_wifi_signal": {"state": "-58", "attributes": {"friendly_name": "Funkfenster WiFi", "unit_of_measurement": "dBm",
                                                                       "device_class": "signal_strength"}, "device": "rm_dev2"},
-    "switch.rm_dose": {"state": "on", "attributes": {"friendly_name": "Funkdose"}, "device": "rm_dev3"}})
+    "switch.rm_dose": {"state": "on", "attributes": {"friendly_name": "Funkdose"}, "device": "rm_dev3"},
+    "light.rm_matter": {"state": "on", "attributes": {"friendly_name": "Matterlampe"}, "device": "rm_dev4"}})
+post_rm("/_topology", {"collected_at": 1, "nodes": [      # 5.28.3: a Matter lamp over Thread, far from its border router (no signal entity)
+    {"id": "n9", "kind": "matter", "network_type": "thread", "node_id": 9, "available": True, "ha_device_id": "rm_dev4"},
+    {"id": "br", "kind": "border_router", "network_type": "thread"}],
+    "connections": [{"source": "n9", "target": "br", "network": "thread", "strength": "weak", "source_to_target": {"strength": "weak", "lqi": 1, "rssi": -88}}]})
 post_rm("/_regoff", {"sensor.rm_dose_linkquality": {"state": "77", "attributes": {"friendly_name": "Funkdose Linkquality", "unit_of_measurement": "lqi"},
                                                     "device": "rm_dev3"}})   # 5.28.2: switched off, like Zigbee2MQTT ships it
 post_rm("/_regevent", {})                      # the add-on reads the registry again: which signal belongs to which device
@@ -30,11 +35,13 @@ f_rm.setdefault("walls", []).append({"id": "rm_wall", "a": [150, 94], "b": [154,
                                                    "entity": "binary_sensor.rm_fenster"}]})
 f_rm.setdefault("devices", []).append({"id": "rm_lamp", "type": "lamp", "x": 151, "z": 91, "y": 0, "rot": 0, "scale": 1, "name": "Funklampe", "entity": "light.rm_lampe"})
 f_rm["devices"].append({"id": "rm_plug", "type": "switch", "x": 153, "z": 91, "y": 0.3, "rot": 0, "scale": 1, "name": "Funkdose", "entity": "switch.rm_dose"})
+f_rm["devices"].append({"id": "rm_mlamp", "type": "lamp", "x": 151, "z": 93, "y": 0, "rot": 0, "scale": 1, "name": "Matterlampe", "entity": "light.rm_matter"})
 urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(lay_rm).encode(), method="PUT",
                                               headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
 for _ in range(60):
     sg = api("api/signals")
-    if sg["of"].get("light.rm_lampe") and sg["of"].get("binary_sensor.rm_fenster") and sg.get("offOf", {}).get("switch.rm_dose"):
+    if sg["of"].get("light.rm_lampe") and sg["of"].get("binary_sensor.rm_fenster") and sg.get("offOf", {}).get("switch.rm_dose") \
+            and sg.get("links", {}).get("light.rm_matter"):
         break
     time.sleep(0.25)
 check("📡 the add-on knows the signal entity of each device (Zigbee linkquality, WiFi dBm)",
@@ -49,8 +56,8 @@ check("📡 the button „📡 Funk“ is there (signals known), the card is not
       and pgRM.is_hidden("#radioCard"))
 pgRM.click("#radioBtn"); pgRM.wait_for_timeout(1200)
 card_rm = pgRM.inner_text("#radioCard")
-check("📡 the card: „Empfang im Haus“ with the counts, the lamp with LQI 35 as the weakest",
-      "Empfang im Haus" in card_rm and pgRM.locator("#radioCard .rcChip[data-q=bad]").count() == 1 and "schwach 1" in card_rm
+check("📡 the card: „Empfang im Haus“ with the counts, the lamp with LQI 35 among the weakest (with the Matter lamp, 5.28.3)",
+      "Empfang im Haus" in card_rm and pgRM.locator("#radioCard .rcChip[data-q=bad]").count() == 1 and "schwach 2" in card_rm
       and pgRM.locator("#radioCard .rcRow[data-id=rm_lamp]").count() == 1 and "LQI 35" in pgRM.inner_text("#radioCard .rcRow[data-id=rm_lamp]"), card_rm[:300])
 check("📡 the signs in the house: the lamp red (weak), the window contact green (good)",
       pgRM.evaluate("window.__fp.radioMark('rm_lamp')") == "bad" and pgRM.evaluate("window.__fp.radioMark('rm_win')") == "good",
@@ -63,6 +70,14 @@ for _ in range(40):
         break
     pgRM.wait_for_timeout(250)
 check("📡 a new value of Home Assistant: the sign turns green at once", ok_rm, pgRM.evaluate("window.__fp.radioMark('rm_lamp')"))
+
+# ---- 5.28.3 (the owner: „das ist nur per Zigbee. Ich habe aber auch Matter“): Home Assistant's Matter map
+check("📡 5.28.3: the add-on reads the Matter map: the Thread lamp's link (weak, -88 dBm)", sg.get("matter") == "ok"
+      and (sg.get("links") or {}).get("light.rm_matter", {}).get("q") == "bad" and sg["links"]["light.rm_matter"].get("rssi") == -88, sg)
+mrow = pgRM.locator("#radioCard .rcRow[data-id=rm_mlamp]")
+check("📡 5.28.3: the Matter lamp is among the weakest, „Matter · Thread“, -88 dBm, its sign red",
+      mrow.count() == 1 and "Matter · Thread" in mrow.inner_text() and "-88 dBm" in mrow.inner_text()
+      and pgRM.evaluate("window.__fp.radioMark('rm_mlamp')") == "bad", mrow.inner_text() if mrow.count() else pgRM.inner_text("#radioCard")[:400])
 
 # ---- 5.28.2 (the owner: „nur ein paar dort erkannt … ich kann nicht für alle das aktivieren“): „📡 Alle einschalten“
 check("📡 5.28.2: the add-on knows the switched-off signal of the plug's device", sg.get("offOf", {}).get("switch.rm_dose") == "sensor.rm_dose_linkquality"
@@ -100,5 +115,6 @@ urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dum
                                               headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
 post_rm("/_extra", {})
 post_rm("/_regoff", {})
+post_rm("/_topology", None)
 post_rm("/_regevent", {})
 set_setting("language", lang_rm)

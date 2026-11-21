@@ -532,7 +532,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 220. Neu in 5.28.0: 📱 Start: das Haus dreht sich | 3 | 0 | 3 | 0 | 220.4 bis 220.6 |
 | 221. Neu in 5.28.1: 🔕 Beim Bearbeiten sieht man, was nicht überwacht wird | 4 | 0 | 1 | 0 | 221.5 |
 | 222. Neu in 5.28.2: 📡 Funk-Karte „Alle einschalten“ | 3 | 0 | 2 | 0 | 222.4, 222.5 |
-| **Zusammen** | **1360** | **2** | **156** | **92** | |
+| 223. Neu in 5.28.3: 📡 Funk-Karte mit Matter | 2 | 0 | 3 | 0 | 223.3 bis 223.5 |
+| **Zusammen** | **1362** | **2** | **159** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3353,4 +3354,16 @@ Dein Wunsch vom 2026-11-21: „nur ein paar dort erkannt … ich kann nicht für
 | 222.3 | Demo: auf „📡 Alle 3 einschalten“ tippen | „✓ Eingeschaltet: 3 …“; der Kasten mit dem Knopf ist weg, z. B. „Licht Hobbyraum · Keller · LQI 44“ steht bei den schwächsten | ✅ (2026-11-21, Claude, Demo) |
 | 222.4 | Dein Haus: „📡 Funk“, dann „📡 Alle … einschalten“ | Nach etwa einer Minute haben deine Zigbee-Geräte ein Schild mit ihrem Wert | ❓ |
 | 222.5 | Dein Haus: Home Assistant → Einstellungen → Entitäten, nach „linkquality“ suchen | Die Empfangswerte der Geräte im Plan sind jetzt aktiviert | ❓ |
+
+
+## 223. Neu in 5.28.3: 📡 Funk-Karte mit Matter
+Dein Wunsch vom 2026-11-21: „das ist nur per Zigbee. Ich habe aber auch Matter“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 223.1 | Tests `tests/test_matterlinks.py` (neu), `tests/test_renames.py`, `tests/radiomap.test.mjs`; Browser-Test Teil `96_radio_map` (erweitert, mit einer nachgebauten Matter-Karte) | Alles grün | ✅ (2026-11-21, Claude) |
+| 223.2 | Demo: Live, Obergeschoss, unten „📡 Funk“ | Über „Temperatur Kinderzimmer“ ein gelbes Schild (−74 dBm); bei den schwächsten „Temperatur Studio · Dachgeschoss · Matter · Thread · −89 dBm“ | ✅ (2026-11-21, Claude, Demo) |
+| 223.3 | Dein Haus (Home Assistant 2026.11, neuer Matter-Server): „📡 Funk“ | Deine Matter-Geräte über Thread haben ein Schild; in der Karte steht bei ihnen „Matter · Thread“ | ❓ |
+| 223.4 | Dein Haus: ein Matter-Gerät über WLAN, „📡 Alle … einschalten“ | Nach etwa einer Minute hat es ein Schild mit dBm | ❓ |
+| 223.5 | Dein Haus, nur falls in der Karte „ℹ … den „Matter Server“ aktualisieren“ steht | Nach dem Update des Matter Servers erscheinen die Thread-Geräte | ❓ |
 

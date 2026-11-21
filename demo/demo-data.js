@@ -776,8 +776,12 @@ function sceneShow(m) {                                 // ▶ Ausprobieren and 
 entities['automation.flurlicht_nachts'].at = nowS() - 17 * 60;
 /* 📡 Funk-Karte (5.17.0): the radio signal of some devices, as Home Assistant's registries would give them (renames.signal_of): Zigbee
  * lights and contacts with their linkquality (LQI), two WiFi devices in dBm; the bath is far from the router (weak), one is switched off */
+// 📡 three of the plan switched off, like Zigbee2MQTT ships them (5.28.2)
 const signalDemo = { of: {}, off: ['sensor.keller_linkquality', 'sensor.keller_feuchte_linkquality', 'sensor.kueche_temp_linkquality', 'sensor.rauchmelder_flur_linkquality'],
-  offOf: { 'light.keller': 'sensor.keller_linkquality', 'sensor.keller_feuchte': 'sensor.keller_feuchte_linkquality', 'sensor.kueche_temp': 'sensor.kueche_temp_linkquality' } };   // 📡 three of the plan switched off, like Zigbee2MQTT ships them (5.28.2)
+  offOf: { 'light.keller': 'sensor.keller_linkquality', 'sensor.keller_feuchte': 'sensor.keller_feuchte_linkquality', 'sensor.kueche_temp': 'sensor.kueche_temp_linkquality' },
+  matter: 'ok', links: {   // 📡 Matter (5.28.3): two sensors upstairs over Thread, from Home Assistant's Matter map (no entity for their reception)
+    'sensor.kinder_temp': { q: 'mid', strength: 'medium', network: 'thread', rssi: -74, lqi: 2 },
+    'sensor.studio_temp': { q: 'bad', strength: 'weak', network: 'thread', rssi: -89, lqi: 1 } } };
 /** 📡 "Alle einschalten" (5.28.2) in the demo: the add-on would ask Home Assistant; here they report at once */
 function signalsOnDemo(list) {
   const on = (Array.isArray(list) ? list : []).filter((sig) => signalDemo.off.includes(sig));

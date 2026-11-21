@@ -2469,9 +2469,9 @@ export default {
   'an.bot.plan': '📸 Plattegrond met de kamer in rood meesturen', 'an.bot.camera': '📷 Beeld van een camera in de kamer meesturen',
   'an.ready.bottoken': 'De sleutel van de bot ontbreekt nog.', 'an.ready.botchat': 'Er ontbreekt nog een chat: schrijf „Hallo” aan de bot, dan „Chat zoeken”.',
   'rd.btn': '📡 Radio', 'rd.btnTip': 'Hoe goed elk apparaat zijn zender hoort (Zigbee, wifi …)', 'rd.title': 'Ontvangst in huis',
-  'rd.sub': 'Zigbee, wifi en meer: hoe goed elk apparaat zijn zender hoort. Groen goed, geel middel, rood zwak.', 'rd.close': 'Sluiten', 'rd.q.good': 'goed',
+  'rd.sub': 'Zigbee, Matter, wifi en meer: hoe goed elk apparaat zijn zender hoort. Groen goed, geel middel, rood zwak.', 'rd.close': 'Sluiten', 'rd.q.good': 'goed',
   'rd.q.mid': 'middel', 'rd.q.bad': 'zwak', 'rd.weakest': 'Het zwakst (tik om het in huis te zien)',
-  'rd.tipBad': 'Een Zigbee-apparaat op netstroom (stekker, lamp) bij de rode versterkt het netwerk. Bij wifi helpt een repeater of een andere plek.',
+  'rd.tipBad': 'Een Zigbee- of Thread-apparaat op netstroom (stekker, lamp) bij de rode versterkt het netwerk. Bij wifi helpt een repeater of een andere plek.',
   'rd.tipGood': 'Alles in orde: geen apparaat met zwakke ontvangst.',
   'rd.none': 'Home Assistant kent nog geen ontvangstwaarde voor de apparaten in de plattegrond.', 'rd.off': '{n} ontvangstwaarden staan uit in Home Assistant',
   'rd.offHow': 'Zigbee2MQTT en ZHA leveren ze uitgeschakeld. Aanzetten: Home Assistant → Instellingen → Apparaten en diensten → Entiteiten, zoek „linkquality” of „rssi”, open de entiteit → ⚙ → „Ingeschakeld” aan. Na ongeveer een minuut verschijnen ze hier.',
@@ -2568,4 +2568,5 @@ export default {
   'rd.onNote': 'Schakelt ze in Home Assistant in. De waarden komen na ongeveer een minuut; Home Assistant bewaart dan ook hun geschiedenis.',
   'rd.onAdmin': 'Een beheerder kan ze hier met één tik inschakelen.', 'rd.onDone': 'Ingeschakeld: {n}. De waarden verschijnen over ongeveer een minuut.',
   'rd.onSome': '{n} lukten niet (handmatig in Home Assistant inschakelen).', 'rd.onFail': 'Inschakelen lukte niet: {err}',
+  'rd.matterOld': 'Matter-apparaten via Thread verschijnen pas met de nieuwe Matter-server: werk de „Matter Server” in Home Assistant bij.',
 };

@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.28.3] - 2026-11-21
+### Verbessert
+- **📡 Funk-Karte mit Matter** (der Besitzer: „das ist nur per Zigbee. Ich habe aber auch Matter“):
+  - **Matter über Thread** hat in Home Assistant gar keinen Sensor für den Empfang. Das Add-on liest jetzt die **Matter-Netzwerkkarte** von Home Assistant (neu in 2026.11, braucht den neuen Matter-Server) und zeigt jedes Matter-Gerät im Plan mit seiner besten Verbindung: grün, gelb oder rot, mit dBm (oder LQI); in der Karte „Matter · Thread“. Gefragt wird höchstens alle 5 Minuten und wieder, wenn ein Gerät dazukommt.
+  - **Matter über WLAN** hat den Sensor „Wi-Fi RSSI“, ausgeschaltet wie bei Zigbee: „📡 Alle einschalten“ schaltet ihn mit ein. Empfangswerte werden jetzt auch daran erkannt, wie ihre Integration sie nennt, ein umbenannter zählt also weiter.
+  - Ist der Matter-Server für die Karte zu alt, sagt die Karte, dass man den „Matter Server“ aktualisieren soll. Der Tipp für schwache Geräte nennt jetzt auch Thread.
+
 ## [5.28.2] - 2026-11-21
 ### Verbessert
 - **📡 Funk-Karte: „Alle einschalten“** (der Besitzer: „nur ein paar dort erkannt … ich kann nicht für alle das aktivieren“): Zigbee2MQTT (und ZHA) legen den Empfangswert jedes Geräts („linkquality“) an, schalten ihn in Home Assistant aber aus; die Funk-Karte kannte darum nur die wenigen, die man von Hand einzeln eingeschaltet hatte.

@@ -22,18 +22,31 @@ export function signalOf(st, eid = '') {
 /** the order of the qualities, worst first */
 export const RANK = { bad: 0, mid: 1, good: 2 };
 
+/** 📡 Matter (5.28.3): what the link of a Matter device says (the add-on's matterlinks.py: { q, strength, network, rssi, lqi } from Home
+ *  Assistant's Matter map): like signalOf, the quality as the Matter server rates it; text empty when it gave no number (the card shows
+ *  the word of the quality then); null without a quality */
+export function linkOf(l) {
+  if (!l || !(l.q in RANK)) return null;
+  const rssi = Number.isFinite(l.rssi) ? l.rssi : null, lqi = Number.isFinite(l.lqi) ? l.lqi : null;
+  const unit = rssi !== null ? 'dBm' : lqi !== null ? 'lqi' : '';
+  return { v: rssi ?? lqi ?? RANK[l.q], unit, q: l.q, text: rssi !== null ? `${Math.round(rssi)} dBm` : lqi !== null ? `LQI ${Math.round(lqi)}` : '',
+    via: 'matter', net: l.network || '' };
+}
+
 /** every device and window / door contact of the plan with a signal: [{ id, kind ('device' | 'opening'), floor, name, entity, sig, ...signalOf }],
- *  the weakest first. layout: the building shown; of: { entity: its signal entity }; openings(f): the openings of floor f with their walls */
-export function radioRows(layout, states, of, openings = (f) => (f.walls || []).flatMap((w) => w.openings || [])) {
+ *  the weakest first. layout: the building shown; of: { entity: its signal entity }; openings(f): the openings of floor f with their walls;
+ *  links: { entity: the Matter link of its device } (5.28.3: a Matter device over Thread has no signal entity; used when there is no value
+ *  of a signal entity) */
+export function radioRows(layout, states, of, openings = (f) => (f.walls || []).flatMap((w) => w.openings || []), links = {}) {
   const rows = [], seen = new Set();
   (layout?.floors || []).forEach((f, fi) => {
     const take = (id, kind, name, entity) => {
+      if (seen.has(`${id}`)) return;
       const sig = of?.[entity];
-      if (!sig || seen.has(`${id}`)) return;
-      const s = signalOf(states?.[sig], sig);
+      const s = (sig && signalOf(states?.[sig], sig)) || linkOf(links?.[entity]);
       if (!s) return;
       seen.add(`${id}`);
-      rows.push({ id, kind, floor: fi, floorName: f.name || '', name: name || entity, entity, sig, ...s });
+      rows.push({ id, kind, floor: fi, floorName: f.name || '', name: name || entity, entity, sig: s.via === 'matter' ? 'matter' : sig, ...s });
     };
     (f.devices || []).forEach((d) => { if (d.entity) take(d.id, 'device', d.name, d.entity); });
     openings(f).forEach((o) => { if (o.entity) take(o.id, 'opening', o.name, o.entity); });

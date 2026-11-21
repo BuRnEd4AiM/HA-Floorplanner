@@ -50,6 +50,7 @@ import importer
 import manifest as mf
 import pages
 import renames as rn
+import matterlinks  # 📡 Matter in the Funk-Karte (5.28.3)
 import roommap as rm
 import sunshade
 import vacation
@@ -1675,12 +1676,49 @@ async def get_batteries(request):
     return web.json_response(request.app[KEY_RENAMES].get("battery") or {})
 
 
+MATTER_EVERY = 300          # 📡 the Matter map is asked at most every 5 minutes
+
+
+async def matter_links(app) -> dict:
+    """📡 Matter in the Funk-Karte (5.28.3, matterlinks.py): {"state": "ok" | "old" | "none" | "", "links": {entity: its device's link}},
+    asked from Home Assistant at most every MATTER_EVERY s; a page asking waits up to 4 s for a new answer, else it gets the last one"""
+    m = app[KEY_RENAMES].setdefault("matter", {"at": float("-inf"), "state": "", "links": {}, "task": None})
+    if not SUPERVISOR_TOKEN:
+        return m
+    if time.monotonic() - m["at"] >= MATTER_EVERY and not (m["task"] and not m["task"].done()):
+        m["task"] = asyncio.create_task(matter_fetch(m))
+    if m["task"] and not m["task"].done():
+        try:
+            await asyncio.wait_for(asyncio.shield(m["task"]), 4)
+        except asyncio.TimeoutError:
+            pass
+    return m
+
+
+async def matter_fetch(m: dict) -> None:
+    """ask Home Assistant for the Matter map (matter/network_topology) and the devices of its entities; on a failure the last answer stays"""
+    state, links = m["state"], m["links"]
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as sess:
+            async with sess.ws_connect(ha_ws_url()) as ws:
+                await asyncio.wait_for(ws.receive_json(), 10)                                  # auth_required
+                await ws.send_json({"type": "auth", "access_token": SUPERVISOR_TOKEN})
+                if (await asyncio.wait_for(ws.receive_json(), 10)).get("type") == "auth_ok":
+                    state, links = await matterlinks.fetch(ws, 1)
+    except (aiohttp.ClientError, asyncio.TimeoutError, ConnectionError, OSError, LookupError) as err:
+        log.warning("📡 Could not read the Matter map of Home Assistant (%s)", err)
+    m.update(at=time.monotonic(), state=state, links=links)
+
+
 async def get_signals(request):
     """📡 Funk-Karte (5.17.0): {"of": {entity: the radio signal entity of its device}, "off": [signal entities switched off in Home Assistant],
-    "offOf": {entity: the switched-off signal entity of its device}} from Home Assistant's registries (renames.signal_of). Empty without Home
-    Assistant or before the registry was read."""
+    "offOf": {entity: the switched-off signal entity of its device}, "links": {entity: the Matter link of its device}, "matter": "ok" | "old"
+    | "none" | ""} from Home Assistant's registries (renames.signal_of) and its Matter map (5.28.3). Empty without Home Assistant or before
+    the registry was read."""
     w = request.app[KEY_RENAMES]
-    return web.json_response({"of": w.get("signal") or {}, "off": w.get("signalOff") or [], "offOf": w.get("signalOffOf") or {}})
+    m = await matter_links(request.app)
+    return web.json_response({"of": w.get("signal") or {}, "off": w.get("signalOff") or [], "offOf": w.get("signalOffOf") or {},
+                              "links": m["links"], "matter": m["state"]})
 
 
 async def post_signals_on(request):
@@ -2492,6 +2530,8 @@ async def rename_watcher(app):
                                     signalOff=list(state.get("signalOff") or []),   # 📡 signal entities switched off in Home Assistant
                                     signalOffOf=dict(state.get("signalOffOf") or {}),   # 📡 the switched-off signal of each entity's device (5.28.2)
                                     plat=dict(state.get("plat") or {}))         # the integration of each thermostat (🌡 Raumfühler, #573)
+            if "matter" in app[KEY_RENAMES]:                 # 📡 the registry changed (a new device): ask the Matter map again (5.28.3)
+                app[KEY_RENAMES]["matter"]["at"] = float("-inf")
 
         def load():
             state = read_json(path, {})
