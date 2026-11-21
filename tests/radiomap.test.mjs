@@ -31,3 +31,15 @@ test('the list of the plan: devices and window contacts with a signal, the weake
   assert.deepEqual(R.counts(rows), { good: 1, mid: 1, bad: 2 });
   assert.deepEqual(R.radioRows(null, states, of), []);
 });
+test('offInPlan: the switched-off signals of the plan\'s devices and contacts without a signal, each once (📡 Alle einschalten, 5.28.2)', () => {
+  const layout = { floors: [
+    { devices: [{ id: 'a', entity: 'light.a' }, { id: 'b', entity: 'sensor.b_temp' }, { id: 'c', entity: 'light.c' }, { id: 'n' }],
+      walls: [{ openings: [{ id: 'w', entity: 'binary_sensor.w' }] }] },
+    { devices: [{ id: 'b2', entity: 'sensor.b_hum' }] }] };
+  const of = { 'light.c': 'sensor.c_linkquality' };
+  const offOf = { 'light.a': 'sensor.a_linkquality', 'sensor.b_temp': 'sensor.b_linkquality', 'sensor.b_hum': 'sensor.b_linkquality',
+    'binary_sensor.w': 'sensor.w_lqi', 'light.c': 'sensor.c_old', 'light.elsewhere': 'sensor.x_linkquality' };
+  assert.deepEqual(R.offInPlan(layout, of, offOf), ['sensor.a_linkquality', 'sensor.b_linkquality', 'sensor.w_lqi']);
+  assert.deepEqual(R.offInPlan(layout, of, {}), []);
+  assert.deepEqual(R.offInPlan(null, of, offOf), []);
+});

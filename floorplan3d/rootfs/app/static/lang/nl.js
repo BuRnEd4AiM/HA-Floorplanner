@@ -2563,4 +2563,9 @@ export default {
   'shutter.all': 'Alle', 'shutter.allHint': 'Alle rolluiken samen', 'shutter.part': 'Rolluik {n}', 'v2.sum.shutters': '{n} rolluiken',
   'prop.shutterPartsOrder': 'Rolluik 1 is het linker, gezien vanuit de kamer.',
   'nw.floorOff': 'Deze verdieping wordt niet bewaakt (alleen getekend). Terugzetten: „Verdieping beheren” → het vinkje „🔕 Verdieping niet bewaken” weghalen.',
+  'rd.onPlan': 'Uitgeschakeld in Home Assistant: de ontvangstwaarde van apparaten in het plan ({n}).', 'rd.onAll': 'Alle {n} inschakelen',
+  'rd.onBusy': 'Wordt ingeschakeld …',
+  'rd.onNote': 'Schakelt ze in Home Assistant in. De waarden komen na ongeveer een minuut; Home Assistant bewaart dan ook hun geschiedenis.',
+  'rd.onAdmin': 'Een beheerder kan ze hier met één tik inschakelen.', 'rd.onDone': 'Ingeschakeld: {n}. De waarden verschijnen over ongeveer een minuut.',
+  'rd.onSome': '{n} lukten niet (handmatig in Home Assistant inschakelen).', 'rd.onFail': 'Inschakelen lukte niet: {err}',
 };

@@ -24,6 +24,8 @@ VOICE = {"assist": True, "text": "Welche Fenster sind offen", "heard": []}   # #
 HIST = {}          # #490: the history of some entities (a machine's power): {entity: [[iso time, state]]}, POST /_hist; others get the hourly numbers
 RELATED = {"related": {}, "configs": {}}   # #546: Home Assistant's search "related" ({entity: {"automation": [...], "script": [...]}}) and the configs of automations and scripts, POST /_related
 SCENES = {}        # #549: scenes written through Home Assistant's scene editor API (/config/scene/config/<id>), each also an entity in EXTRA; POST /_scenes adds one "made in Home Assistant"
+REG_OFF = {}       # 📡 5.28.2: entities in the registry that Home Assistant switched off (no state): POST /_regoff {entity: {device, state, attributes}}; config/entity_registry/update with disabled_by None moves one into EXTRA (it reports then)
+REG_UPDATES = []   # 📡 the entities switched on through config/entity_registry/update, GET /_regupdates
 AUTOS = {}         # #548: automations written through Home Assistant's editor API (/config/automation/config/<id>), each also an entity in EXTRA
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
@@ -190,7 +192,20 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
                                 "result": [{"entity_id": e, "platform": "mock", "unique_id": u, "device_id": DEVICES.get(u)} for e, u in REGISTRY.items()]
                                 + [{"entity_id": e, "platform": "mock", "unique_id": "energy_" + e, "device_id": d} for e, d in ENERGY["registry"].items()]
                                 + [{"entity_id": e, "platform": v.get("platform", "mock"), "unique_id": "extra_" + e, "device_id": v.get("device"), "config_entry_id": v.get("entry")}
-                                   for e, v in EXTRA.items() if "platform" in v or "device" in v or "entry" in v]})
+                                   for e, v in EXTRA.items() if "platform" in v or "device" in v or "entry" in v]
+                                + [{"entity_id": e, "platform": "mqtt", "unique_id": "off_" + e, "device_id": v.get("device"), "disabled_by": "integration"} for e, v in REG_OFF.items()]})
+        elif m.get("type") == "config/entity_registry/update":  # 📡 5.28.2: "Alle einschalten": switched on, it reports its value
+            e = m.get("entity_id")
+            ok = e in REG_OFF and "disabled_by" in m and m["disabled_by"] is None
+            await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": {"entity_entry": {"entity_id": e}, "reload_delay": 30} if ok else None,
+                                **({} if ok else {"error": {"code": "not_found"}})})
+            if ok:
+                REG_UPDATES.append(e)
+                EXTRA[e] = REG_OFF.pop(e)
+                for w, sid in list(REG_SUBS):
+                    try: await w.send_json({"id": sid, "type": "event", "event": {"event_type": "entity_registry_updated", "data": {"action": "update", "entity_id": e}}})
+                    except Exception: REG_SUBS.remove((w, sid))
+                await push(e)
         elif m.get("type") == "config/device_registry/list":    # the parts of a device (Home Assistant 2026.11, #675)
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": PARTS})
         elif m.get("type") == "energy/get_prefs":               # the energy dashboard (#407): "not_found" while it is not set up
@@ -349,6 +364,10 @@ async def set_energy(r):          # test helper (#407): the energy dashboard's s
 async def set_extra(r):           # test helper (#406): more entities with their attributes; {} takes them away
     EXTRA.clear(); EXTRA.update(await r.json())
     return web.json_response({"ok": True})
+async def reg_off(r):             # test helper (📡 5.28.2): entities Home Assistant switched off; {} takes them away
+    REG_OFF.clear(); REG_OFF.update(await r.json()); REG_UPDATES.clear()
+    return web.json_response({"ok": True})
+async def reg_updates(r): return web.json_response(REG_UPDATES)
 async def reg_event(r):           # test helper (#573): the entity registry changed (new entities of a device): the add-on looks again
     for ws, sid in list(REG_SUBS):
         try: await ws.send_json({"id": sid, "type": "event", "event": {"event_type": "entity_registry_updated", "data": {"action": "create", "entity_id": "x.y"}}})
@@ -455,7 +474,7 @@ async def set_areas(r):          # test helper (#590)
     AREAS[:] = (await r.json()) or AREAS_DEFAULT
     return web.json_response({"ok": True})
 app = web.Application()
-app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.post("/_regevent", reg_event), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified), web.post("/_voice", set_voice),
+app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.post("/_regevent", reg_event), web.post("/_regoff", reg_off), web.get("/_regupdates", reg_updates), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified), web.post("/_voice", set_voice),
                 web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group), web.post("/_tg/bot{token}/{method}", tg_bot),
                 web.get("/websocket", websocket), web.post("/template", template), web.post("/_areas", set_areas), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),

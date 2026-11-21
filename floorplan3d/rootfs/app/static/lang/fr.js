@@ -2627,4 +2627,9 @@ export default {
   'shutter.all': 'Tous', 'shutter.allHint': 'Tous les volets ensemble', 'shutter.part': 'Volet {n}', 'v2.sum.shutters': '{n} volets',
   'prop.shutterPartsOrder': 'Le volet 1 est celui de gauche, vu depuis la pièce.',
   'nw.floorOff': 'Cet étage n’est pas surveillé (seulement dessiné). Pour annuler : « Gérer l’étage » → décocher « 🔕 Ne pas surveiller cet étage ».',
+  'rd.onPlan': 'Désactivée dans Home Assistant : la valeur de réception d’appareils du plan ({n}).', 'rd.onAll': 'Activer les {n}', 'rd.onBusy': 'Activation …',
+  'rd.onNote': 'Les active dans Home Assistant. Les valeurs arrivent après environ une minute ; Home Assistant garde alors aussi leur historique.',
+  'rd.onAdmin': 'Un administrateur peut les activer ici d’un seul geste.',
+  'rd.onDone': 'Activées : {n}. Les valeurs apparaissent dans environ une minute.',
+  'rd.onSome': '{n} n’ont pas fonctionné (à activer à la main dans Home Assistant).', 'rd.onFail': 'Activation impossible : {err}',
 };

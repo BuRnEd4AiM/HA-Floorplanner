@@ -155,7 +155,8 @@ def look(state: dict, entries: list, states: list, now: float, devices=None) -> 
     new_state = {"known": known, "names": {k: v for k, v in names.items() if k in current},
                  "history": remember(state.get("history") or {}, renames, now), "current": sorted(current), "side": side_entities(entries),
                  "parts": climate_parts(entries, devices), "battery": battery_of(entries, states, devices),
-                 "signal": signal_of(entries, states, devices), "signalOff": signals_off(entries),
+                 "signal": (sig := signal_of(entries, states, devices)), "signalOff": signals_off(entries),
+                 "signalOffOf": signal_off_of(entries, devices, sig),
                  "plat": climate_platforms(entries)}
     return renames, changes, new_state
 
@@ -220,11 +221,14 @@ def signal_of(entries: list, states: list, devices=None) -> dict:
     device_class signal_strength). The signal entities themselves are keys too (they point to themselves). Like battery_of: a device
     split into parts takes the one of its own part first. With several the one in dBm, else the first by name."""
     attrs = {s.get("entity_id"): (s.get("attributes") or {}) for s in states if isinstance(s, dict)}
+    switched_on = {e["entity_id"] for e in entries if isinstance(e.get("entity_id"), str) and not e.get("disabled_by")}
 
     def is_signal(i):
         a = attrs.get(i)
-        if a is None or not i.startswith("sensor."):
+        if not i.startswith("sensor."):
             return False
+        if a is None:                  # no state yet: just switched on ("📡 Alle einschalten"), its value comes a little later
+            return i in switched_on and _looks_signal(i)
         return a.get("device_class") == "signal_strength" or str(a.get("unit_of_measurement") or "").lower() == "lqi" or _looks_signal(i)
     d = hadevices.Devices(entries, devices)
     out = {}
@@ -237,8 +241,36 @@ def signal_of(entries: list, states: list, devices=None) -> dict:
 
 def signals_off(entries: list) -> list:
     """📡 the signal entities that Home Assistant has switched off (Zigbee2MQTT, ZHA and others ship them off): the card says how to switch
-    them on. Sorted, at most 50."""
-    return sorted(e["entity_id"] for e in entries if isinstance(e.get("entity_id"), str) and e.get("disabled_by") and _looks_signal(e["entity_id"]))[:50]
+    them on. Sorted, at most 500."""
+    return sorted(e["entity_id"] for e in entries if isinstance(e.get("entity_id"), str) and e.get("disabled_by") and _looks_signal(e["entity_id"]))[:500]
+
+
+def signal_off_of(entries: list, devices=None, have=()) -> dict:
+    """📡 {entity id: the switched-off signal entity of its device} for every entity of a device that has no signal it reports (not in
+    `have`, signal_of) but one Home Assistant switched off: the card offers "📡 Alle einschalten" for the devices of the plan (5.28.2)."""
+    off = set(signals_off(entries))
+    d = hadevices.Devices(entries, devices)
+    out = {}
+    for eid in d.device_of:
+        if eid in have or eid in off:
+            continue
+        hits = d.near(eid, lambda i: i in off)
+        if hits:
+            out[eid] = hits[0]
+    return out
+
+
+async def switch_on(ws, ids: list, first_id: int) -> tuple[list, list]:
+    """📡 switch entities on in Home Assistant's entity registry (config/entity_registry/update, disabled_by None), one after the other on the
+    websocket ws (already authenticated); (switched on, failed)"""
+    done, failed, more = [], [], []
+    for n, eid in enumerate(ids):
+        try:
+            await ask(ws, first_id + n, {"type": "config/entity_registry/update", "entity_id": eid, "disabled_by": None}, more)
+            done.append(eid)
+        except (LookupError, ConnectionError, asyncio.TimeoutError):
+            failed.append(eid)
+    return done, failed
 
 
 def is_registry_event(data: dict) -> bool:

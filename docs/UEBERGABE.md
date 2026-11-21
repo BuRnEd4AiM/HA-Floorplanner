@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-21, Version **5.28.1** (5.28.0 ist für alle freigegeben, am 2026-11-21). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-21, Version **5.28.2** (5.28.0 ist für alle freigegeben, am 2026-11-21). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,10 +10,10 @@ Stand: 2026-11-21, Version **5.28.1** (5.28.0 ist für alle freigegeben, am 2026
 
 ## Zuletzt
 
+- **2026-11-21, 5.28.2: 📡 Funk-Karte „Alle einschalten“ (Branch `claude/bold-heisenberg-y046ye`):** seine Linkqualität fehlte bei den meisten (Zigbee2MQTT schaltet sie aus); der Knopf schaltet die der Geräte im Plan in Home Assistant ein (`POST api/signals/on`, renames.py `signal_off_of`, `switch_on`).
 - **2026-11-21, 5.28.1: 🔕 beim Bearbeiten sichtbar (Branch `claude/bold-heisenberg-y046ye`):** seine Frage, wie man „nicht überwachen“ zurücknimmt; jetzt zeigt der Bearbeiten-Modus ein graues 🔕 über dem Gerät, im 2D-Plan und am Etagen-Knopf, live bleibt alles wie vorher (nowatch.js `noWatchMarks`, offlinemarks.js).
 - **2026-11-21, 5.28.0: 📱 Start, das Haus dreht sich (Branch `claude/awesome-ramanujan-wttjce`):** sein Foto der Startseite (nur ein Zimmer zu sehen); jetzt dreht sich dort das ganze gewählte Gebäude, ein Tipp öffnet 3D-Haus und dreht weiter bis zur ersten Berührung (housespin.js, housespinui.js). Vorher 5.27.1 für alle freigegeben.
 - **2026-11-20, 5.27.0: die zwei Issues von FrankBecker (Branch `claude/serene-pasteur-jb34nb`):** #779 Rollläden an Türen, 1–3 nebeneinander mit eigener Entität (shutters.js `shutterParts`, Karte „Alle · 1 · 2“); #780 „🔕 Nicht überwachen“ für Gerät, Tür/Fenster, Etage, 🔕 in der Offline-Liste (nowatch.js, nowatchui.js). Demo: Terrassentür im OG mit zwei Rollläden. 5.27.1: 🔕 statt 🙈 (seine Wahl, der Affe war ihm zu viel).
-- **2026-11-20, 5.26.0: 📊 Monatsbericht (Branch `claude/admiring-wright-gz4ogb`):** monthreport.py (Gas nach Heizzeit verteilt, Strom aus den Geräten des Energie-Dashboards), monthreportui.js; Karte unter Warnungen & Alarm.
 
 ## Offen
 
@@ -26,6 +26,7 @@ Stand: 2026-11-21, Version **5.28.1** (5.28.0 ist für alle freigegeben, am 2026
 - **5.26.0 Monatsbericht:** sein Test (218.3 bis 218.5).
 - **5.28.0 Haus dreht sich auf Start:** sein Test am Handy (220.4 bis 220.6).
 - **5.28.1 🔕 beim Bearbeiten:** sein Test mit seinem Haus (221.5).
+- **5.28.2 Funk „Alle einschalten“:** sein Test mit seinem Haus (222.4, 222.5).
 - **5.27.0 Tür-Rollläden und 🔕 (#779, #780):** sein Test (219.4 bis 219.8); FrankBecker fragen, ob es so passt (Issues zu, mit Kommentar).
 - **5.23.0 / 5.23.1 Handy-App 2:** sein Test (214.6, 214.7, 215.4, 215.5) und was ihm an den Bildern 1–44 noch auffällt.
 - **5.22.0 Handy-App:** sein Eindruck am Handy (213.4 bis 213.6).

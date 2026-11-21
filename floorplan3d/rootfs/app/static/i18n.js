@@ -1511,6 +1511,11 @@ const DICT = {
     'shutter.all': 'Alle', 'shutter.allHint': 'Alle Rollläden zusammen', 'shutter.part': 'Rollladen {n}', 'v2.sum.shutters': '{n} Rollläden',
     'prop.shutterPartsOrder': 'Rollladen 1 ist der linke, vom Raum aus gesehen.',
     'nw.floorOff': 'Diese Etage wird nicht überwacht (nur gezeichnet). Zurück: „Etage verwalten“ → den Haken „🔕 Etage nicht überwachen“ entfernen.',
+    'rd.onPlan': 'Ausgeschaltet in Home Assistant: der Empfangswert von Geräten im Plan ({n}).', 'rd.onAll': 'Alle {n} einschalten',
+    'rd.onBusy': 'Wird eingeschaltet …',
+    'rd.onNote': 'Schaltet sie in Home Assistant ein. Die Werte kommen nach etwa einer Minute; Home Assistant speichert dann auch ihren Verlauf.',
+    'rd.onAdmin': 'Ein Admin kann sie hier mit einem Tipp einschalten.', 'rd.onDone': 'Eingeschaltet: {n}. Die Werte erscheinen in etwa einer Minute.',
+    'rd.onSome': '{n} gingen nicht (in Home Assistant von Hand einschalten).', 'rd.onFail': 'Einschalten ging nicht: {err}',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2965,6 +2970,11 @@ const DICT = {
     'shutter.all': 'All', 'shutter.allHint': 'All roller shutters together', 'shutter.part': 'Roller shutter {n}', 'v2.sum.shutters': '{n} roller shutters',
     'prop.shutterPartsOrder': 'Roller shutter 1 is the left one, seen from the room.',
     'nw.floorOff': 'This floor is not watched (only drawn). To undo: “Manage floor” → untick “🔕 Don’t watch this floor”.',
+    'rd.onPlan': 'Switched off in Home Assistant: the reception value of devices in the plan ({n}).', 'rd.onAll': 'Switch all {n} on',
+    'rd.onBusy': 'Switching on …',
+    'rd.onNote': 'Switches them on in Home Assistant. The values come after about a minute; Home Assistant then also keeps their history.',
+    'rd.onAdmin': 'An admin can switch them on here with one tap.', 'rd.onDone': 'Switched on: {n}. The values show in about a minute.',
+    'rd.onSome': '{n} did not work (switch them on by hand in Home Assistant).', 'rd.onFail': 'Could not switch them on: {err}',
   },
 };
 

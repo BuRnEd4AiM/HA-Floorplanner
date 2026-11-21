@@ -2,6 +2,7 @@
 
 Aus `docs/UEBERGABE.md` hierher verschoben, damit die Übergabe kurz bleibt (Wunsch des Besitzers, 2026-10-26). Die neuesten oben.
 
+- **2026-11-20, 5.26.0: 📊 Monatsbericht (Branch `claude/admiring-wright-gz4ogb`):** monthreport.py (Gas nach Heizzeit verteilt, Strom aus den Geräten des Energie-Dashboards), monthreportui.js; Karte unter Warnungen & Alarm.
 - **2026-11-20, 5.25.0: 🧭 Erste Schritte und „⋯“-Menü oben:** firststeps.js, firststepsui.js, topmore.js; Anleitung, Backup, Sicherheit im Bearbeiten-Modus nur noch im „⋯“.
 - **2026-11-20, 5.24.0: 🩺 Haus-Check mit 🔧 Wartung:** neue Seite `check` (pagecheck.js, housecheck.js, maintenance.py): dringend/bald/Wartung, Vorschläge aus dem Plan, „✓ Erledigt“. Davor 5.23.1: Raum-Seite Variante C (`docs/ideen-5.23`), eckige Karte über die ganze Breite, Rückfrage vor dem Ausschalten.
 - **2026-11-20, 5.23.0: 📱 Handy-App, der nächste Schritt (Branch `claude/admiring-wright-gz4ogb`):** 44 Bilder der Handy-App (`docs/ideen-5.22` 1–44), er fand keine Wahl des Gebäudes; Bilder 45–52, seine Wahl: alles. Haus/Gebäude oben, Chips mit Liste, 3D-Haus mit runden Knöpfen, ☰-Werkzeuge in „Mehr“, Einstellungen als Liste (`appui.js`, `setgroups.js`).

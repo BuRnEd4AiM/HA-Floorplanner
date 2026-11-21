@@ -17,7 +17,10 @@ post_rm("/_extra", {
     "sensor.rm_lampe_linkquality": {"state": "35", "attributes": {"friendly_name": "Funklampe Linkquality", "unit_of_measurement": "lqi"}, "device": "rm_dev1"},
     "binary_sensor.rm_fenster": {"state": "off", "attributes": {"friendly_name": "Funkfenster", "device_class": "window"}, "device": "rm_dev2"},
     "sensor.rm_fenster_wifi_signal": {"state": "-58", "attributes": {"friendly_name": "Funkfenster WiFi", "unit_of_measurement": "dBm",
-                                                                      "device_class": "signal_strength"}, "device": "rm_dev2"}})
+                                                                      "device_class": "signal_strength"}, "device": "rm_dev2"},
+    "switch.rm_dose": {"state": "on", "attributes": {"friendly_name": "Funkdose"}, "device": "rm_dev3"}})
+post_rm("/_regoff", {"sensor.rm_dose_linkquality": {"state": "77", "attributes": {"friendly_name": "Funkdose Linkquality", "unit_of_measurement": "lqi"},
+                                                    "device": "rm_dev3"}})   # 5.28.2: switched off, like Zigbee2MQTT ships it
 post_rm("/_regevent", {})                      # the add-on reads the registry again: which signal belongs to which device
 lay_rm = json.loads(json.dumps(saved_rm))
 f_rm = lay_rm["floors"][0]
@@ -26,11 +29,12 @@ f_rm.setdefault("walls", []).append({"id": "rm_wall", "a": [150, 94], "b": [154,
                                      "openings": [{"id": "rm_win", "type": "window", "pos": 2, "width": 1.2, "height": 1.2, "sill": 0.9, "name": "Funkfenster",
                                                    "entity": "binary_sensor.rm_fenster"}]})
 f_rm.setdefault("devices", []).append({"id": "rm_lamp", "type": "lamp", "x": 151, "z": 91, "y": 0, "rot": 0, "scale": 1, "name": "Funklampe", "entity": "light.rm_lampe"})
+f_rm["devices"].append({"id": "rm_plug", "type": "switch", "x": 153, "z": 91, "y": 0.3, "rot": 0, "scale": 1, "name": "Funkdose", "entity": "switch.rm_dose"})
 urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(lay_rm).encode(), method="PUT",
                                               headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
 for _ in range(60):
     sg = api("api/signals")
-    if sg["of"].get("light.rm_lampe") and sg["of"].get("binary_sensor.rm_fenster"):
+    if sg["of"].get("light.rm_lampe") and sg["of"].get("binary_sensor.rm_fenster") and sg.get("offOf", {}).get("switch.rm_dose"):
         break
     time.sleep(0.25)
 check("📡 the add-on knows the signal entity of each device (Zigbee linkquality, WiFi dBm)",
@@ -59,6 +63,34 @@ for _ in range(40):
         break
     pgRM.wait_for_timeout(250)
 check("📡 a new value of Home Assistant: the sign turns green at once", ok_rm, pgRM.evaluate("window.__fp.radioMark('rm_lamp')"))
+
+# ---- 5.28.2 (the owner: „nur ein paar dort erkannt … ich kann nicht für alle das aktivieren“): „📡 Alle einschalten“
+check("📡 5.28.2: the add-on knows the switched-off signal of the plug's device", sg.get("offOf", {}).get("switch.rm_dose") == "sensor.rm_dose_linkquality"
+      and "sensor.rm_dose_linkquality" in sg.get("off", []), sg)
+on_box = pgRM.locator("#radioCard .rcOn")
+check("📡 5.28.2: at the top of the card „Ausgeschaltet in Home Assistant … (1)“ and the button „📡 Alle 1 einschalten“",
+      on_box.count() == 1 and "(1)" in on_box.inner_text() and pgRM.locator("#radioCard .rcOnBtn").inner_text() == "📡 Alle 1 einschalten"
+      and pgRM.evaluate("window.__fp.radioMark('rm_plug')") is None, on_box.inner_text() if on_box.count() else pgRM.inner_text("#radioCard")[:300])
+if pgRM.locator("#radioCard .rcOnBtn").count():
+    pgRM.click("#radioCard .rcOnBtn")
+ups = []
+for _ in range(40):
+    ups = json.load(urllib.request.urlopen(HA + "/_regupdates"))
+    if ups:
+        break
+    pgRM.wait_for_timeout(250)
+check("📡 5.28.2: the add-on switches it on in Home Assistant (config/entity_registry/update), only that one", ups == ["sensor.rm_dose_linkquality"], ups)
+pgRM.wait_for_timeout(500)
+check("📡 5.28.2: the card says „✓ Eingeschaltet: 1 …“", "Eingeschaltet: 1" in (pgRM.inner_text("#radioCard .rcOnMsg") if pgRM.locator("#radioCard .rcOnMsg").count() else ""),
+      pgRM.inner_text("#radioCard")[:400])
+mark_plug = None
+for _ in range(60):                             # the card asks for the signals again after 5 s
+    mark_plug = pgRM.evaluate("window.__fp.radioMark('rm_plug')")
+    if mark_plug:
+        break
+    pgRM.wait_for_timeout(250)
+check("📡 5.28.2: its value comes: the plug has its sign (LQI 77, yellow), the box with the button is gone",
+      mark_plug == "mid" and pgRM.locator("#radioCard .rcOn").count() == 0, [mark_plug, pgRM.inner_text("#radioCard")[:300]])
 pgRM.click("#radioCard .rcClose"); pgRM.wait_for_timeout(500)
 check("📡 ✕ closes the card and the signs go", pgRM.is_hidden("#radioCard") and pgRM.evaluate("window.__fp.radioMark('rm_lamp')") is None
       and pgRM.get_attribute("#radioBtn", "aria-pressed") == "false")
@@ -67,5 +99,6 @@ pgRM.close()
 urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(saved_rm).encode(), method="PUT",
                                               headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
 post_rm("/_extra", {})
+post_rm("/_regoff", {})
 post_rm("/_regevent", {})
 set_setting("language", lang_rm)

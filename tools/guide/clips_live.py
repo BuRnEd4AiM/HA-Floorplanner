@@ -249,8 +249,10 @@ def _(r):
 
 @clip("radio", "live",
       {"de": "📡 Funk: wie gut jedes Gerät seinen Sender hört", "en": "📡 Radio: how well every device hears its sender"},
-      {"de": "Unten „📡 Funk“: über jedem Gerät der Empfang in Grün, Gelb oder Rot, dazu die schwächsten Geräte und ein Tipp.",
-       "en": "“📡 Radio” at the bottom: over every device its reception in green, yellow or red, the weakest ones and a tip."},
+      {"de": "Unten „📡 Funk“: über jedem Gerät der Empfang in Grün, Gelb oder Rot, dazu die schwächsten Geräte und ein Tipp. Hat Home "
+             "Assistant den Empfangswert von Geräten im Plan ausgeschaltet (Zigbee2MQTT macht das), schaltet „📡 Alle einschalten“ sie mit einem Tipp ein.",
+       "en": "“📡 Radio” at the bottom: over every device its reception in green, yellow or red, the weakest ones and a tip. When Home Assistant "
+             "switched off the reception value of devices in the plan (Zigbee2MQTT does), “📡 Switch all on” switches them on with one tap."},
       "Funk Empfang Zigbee WLAN Signal schwach offline Verstärker radio reception Zigbee WiFi signal weak offline repeater")
 def _(r):
     r.say("Unten bei den Ansichten: „📡 Funk“.", "At the bottom with the views: “📡 Radio”.")
@@ -265,6 +267,15 @@ def _(r):
     r.wait(2400)
     r.say("Ein Gerät mit Strom in der Nähe der roten verstärkt das Zigbee-Netz.", "A mains-powered device near the red ones strengthens the Zigbee network.")
     r.wait(2000)
+    r.say("Fehlen Geräte? Oben: Home Assistant hat ihren Empfangswert ausgeschaltet. Ein Tipp schaltet alle ein.",
+          "Devices missing? At the top: Home Assistant switched their reception value off. One tap switches them all on.")
+    r.move("#radioCard .rcOnBtn")
+    r.wait(1800)
+    r.click("#radioCard .rcOnBtn")
+    r.wait(2600)
+    r.say("Nach etwa einer Minute sind ihre Werte da.", "Their values come after about a minute.")
+    r.move("#radioCard .rcRow", nth=2)
+    r.wait(2200)
 
 
 @clip("open", "live",

@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.28.2] - 2026-11-21
+### Verbessert
+- **📡 Funk-Karte: „Alle einschalten“** (der Besitzer: „nur ein paar dort erkannt … ich kann nicht für alle das aktivieren“): Zigbee2MQTT (und ZHA) legen den Empfangswert jedes Geräts („linkquality“) an, schalten ihn in Home Assistant aber aus; die Funk-Karte kannte darum nur die wenigen, die man von Hand einzeln eingeschaltet hatte.
+  - Oben in der Karte: „Ausgeschaltet in Home Assistant: der Empfangswert von Geräten im Plan (n)“ und ein Knopf **„📡 Alle n einschalten“**: das Add-on schaltet genau diese in Home Assistant ein (die der Geräte und Fensterkontakte im Plan, die keinen Empfangswert haben). Ihre Werte kommen etwa eine Minute später; die Karte schaut von selbst wieder nach.
+  - Nur für die, die bearbeiten dürfen; die anderen lesen, dass ein Admin es kann. Home Assistant speichert dann auch ihren Verlauf.
+  - Das Add-on kennt einen gerade eingeschalteten Empfangswert sofort (schon bevor sein erster Wert kommt).
+
 ## [5.28.1] - 2026-11-21
 ### Verbessert
 - **🔕 Beim Bearbeiten sieht man, was nicht überwacht wird** (der Besitzer: „im Bearbeitungsmodus … angezeigt … dass es nicht überwacht wird und im Live-Modus … so wie man es hat“): ein Gerät, eine Tür oder ein Fenster mit dem Haken „🔕 Nicht überwachen“ hatte kein Zeichen und war schwer wiederzufinden (in der Offline-Liste steht es ja nicht mehr). Jetzt, nur beim Bearbeiten:
