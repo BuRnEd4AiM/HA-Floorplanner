@@ -94,14 +94,21 @@ def _(r):
 
 @clip("phone-pages", "phone",
       {"de": "Am Handy: wie eine App", "en": "On the phone: like an app"},
-      {"de": "Unten fünf Reiter: Start, Räume, 3D-Haus, Energie und Mehr. Start begrüßt dich mit dem Wichtigsten, oben Haus und Gebäude, die Chips öffnen ihre Liste, darunter die Räume als Kacheln; ein Raum öffnet sich als eigene Seite. Im 3D-Haus runde Knöpfe für Farben, Ansicht und Szenen. Unter „Mehr“ alle anderen Seiten, Bearbeiten, Anleitung, Backup, die Einstellungen als Liste und die klassische Ansicht.",
-       "en": "Five tabs at the bottom: home, rooms, 3D house, energy and more. Home greets you with what matters, the house and building on top, the chips open their list, the rooms as tiles below; a room opens as a page of its own. Round buttons for colours, view and scenes in the 3D house. Under “More” every other page, edit, guide, backup, the settings as a list and the classic view."},
+      {"de": "Unten fünf Reiter: Start, Räume, 3D-Haus, Energie und Mehr. Start begrüßt dich mit dem Wichtigsten, oben Haus und Gebäude, die Chips öffnen ihre Liste, in der Mitte dreht sich das ganze Gebäude (ein Tipp öffnet es in 3D), darunter die Räume als Kacheln; ein Raum öffnet sich als eigene Seite. Im 3D-Haus runde Knöpfe für Farben, Ansicht und Szenen. Unter „Mehr“ alle anderen Seiten, Bearbeiten, Anleitung, Backup, die Einstellungen als Liste und die klassische Ansicht.",
+       "en": "Five tabs at the bottom: home, rooms, 3D house, energy and more. Home greets you with what matters, the house and building on top, the chips open their list, the whole building turning in the middle (a tap opens it in 3D), the rooms as tiles below; a room opens as a page of its own. Round buttons for colours, view and scenes in the 3D house. Under “More” every other page, edit, guide, backup, the settings as a list and the classic view."},
       "Handy App Start Räume Kacheln Seiten Leiste unten Mehr Heute Energie Klima klassische Ansicht phone app home rooms tiles pages bar bottom more today energy climate classic view",
       device="phone", sky="19:40")
 def _(r):
     r.say("Am Handy beginnt alles mit „Start“: oben das Wichtigste, darunter deine Räume.", "On the phone everything starts with “Home”: what matters on top, your rooms below.")
     r.wait(2200)
     r.poster()
+    r.say("In der Mitte dreht sich dein ganzes Haus, live mit den Lampen, die an sind.", "In the middle your whole house turns, live with the lamps that are on.")
+    r.wait(2600)
+    r.say("Ein Tipp darauf öffnet es in 3D, von derselben Seite.", "A tap on it opens it in 3D, from the same side.")
+    r.click("[data-page=start] [data-act=appHouse]")
+    r.wait(2400)
+    r.click("#tabBar [data-tab=start]")
+    r.wait(1000)
     r.say("Ein Raum antippen: er öffnet sich als eigene Seite.", "Tap a room: it opens as a page of its own.")
     r.click("[data-page=start] .apRoom", nth=0)
     r.wait(2200)

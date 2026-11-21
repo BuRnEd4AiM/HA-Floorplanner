@@ -2,6 +2,12 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.28.0] - 2026-11-21
+### Changed
+- **📱 Start: the house turns** (the owner: "dass man dort das Haus sich drehen sieht … das Gebäude, wo ausgewählt ist, in der Vollansicht"): the picture on the Start page was a still photo of whatever the 3D view showed last, often a single room. Now it shows the **whole building chosen** above ("🏠 Haus · Gebäude"), all floors and the roof, **slowly turning** (one turn in 40 s), live: lights that are on glow, the sky is the one of the hour and the weather.
+  - A tap on it opens **3D-Haus** with the whole house from the same side, still turning until the first touch.
+  - It is drawn only while the Start page is open and the picture can be seen (scrolled away: it waits), by the 3D view's own renderer, so the house is not kept twice in memory. The card is a little taller (210 px).
+
 ## [5.27.1] - 2026-11-20
 ### Changed
 - **"Nicht überwachen" has the sign 🔕 instead of 🙈** (the owner: "der affen emogi ist zu viel"): the button beside each row of the offline list, "🔕 Ganze Etage … nicht überwachen", the line under the list, the ticks of a device, a door / window and a floor, and the section in "✨ Neu".

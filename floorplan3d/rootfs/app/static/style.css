@@ -3451,9 +3451,9 @@ body.guestview #roomPanel .rpClose, body.guestview #roomPanel [data-act=close] {
 .appPage .apChips::-webkit-scrollbar { display: none; }
 .appPage .apChip { flex: none; padding: 9px 13px; border-radius: 14px; background: var(--panel2, #1a212c); border: 0; color: inherit; font-size: 14px; font-weight: 600; }
 .appPage .apChip.on { background: #3a2f12; color: #ffd36b; } .appPage .apChip.warn { background: #3a1d1a; color: #ffaa9e; } .appPage .apChip.ok { background: #14301f; color: #8ff0b4; }
-.appPage .apHouse { display: block; width: 100%; height: 160px; margin-top: 14px; border: 0; padding: 0; border-radius: 22px; overflow: hidden; position: relative;
+.appPage .apHouse { display: block; width: 100%; height: 210px; margin-top: 14px; border: 0; padding: 0; border-radius: 22px; overflow: hidden; position: relative;
   background: radial-gradient(circle at 50% 40%, #2a3a55, #141a24); color: inherit; }
-.appPage .apHouse img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.appPage .apHouse img, .appPage .apHouse .apSpin { width: 100%; height: 100%; object-fit: cover; display: block; }   /* .apSpin: the turning house (housespinui.js) */
 .appPage .apHouseLab { position: absolute; left: 12px; bottom: 10px; background: rgba(13, 17, 23, .78); padding: 6px 11px; border-radius: 12px; font-size: 14px; font-weight: 600; }
 .appPage .apSec { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 2px 10px; }
 .appPage .apSec b { font-size: 19px; }

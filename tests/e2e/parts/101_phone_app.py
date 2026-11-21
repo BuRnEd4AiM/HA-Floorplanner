@@ -16,6 +16,20 @@ start_pa = pgP.inner_text("[data-page=start]")
 check("📱 Start: a greeting, chips (lights), the house in 3D, rooms as tiles", any(w in start_pa for w in ("Guten", "Hallo", "Gute Nacht"))
       and pgP.locator("[data-page=start] [data-chip=lights]").count() == 1 and pgP.locator("[data-page=start] .apHouse").count() == 1
       and pgP.locator("[data-page=start] .apRoom").count() >= 1, start_pa[:300])
+# 5.28.0 🏠 the picture on Start: the whole building shown, turning (housespin.js, housespinui.js; the owner 2026-11-21: „dass man dort das Haus
+# sich drehen sieht … das Gebäude, wo ausgewählt ist, in der Vollansicht“)
+SPIN_JS = """() => { const c = document.querySelector('[data-page=start] .apHouse canvas.apSpin'); if (!c || !c.width) return null;
+  const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0, sum = 0;
+  for (let i = 0; i < d.length; i += 4 * 61) { if (d[i + 3] > 0) n++; sum = (sum * 31 + d[i] + d[i + 1] * 7 + d[i + 2] * 13) % 1000000007; }
+  return [c.width, c.height, n, sum, document.body.classList.contains('house')]; }"""
+spin1_pa = pgP.evaluate(SPIN_JS); pgP.wait_for_timeout(1200); spin2_pa = pgP.evaluate(SPIN_JS)
+check("📱 5.28.0: Start shows the house as a picture that is drawn, the whole house („Ganzes Haus“), turning",
+      spin1_pa and spin2_pa and spin1_pa[2] > 50 and spin2_pa[4] and spin1_pa[3] != spin2_pa[3], (spin1_pa, spin2_pa))
+pgP.tap("[data-page=start] [data-act=appHouse]"); pgP.wait_for_timeout(1000)
+check("📱 5.28.0: a tap on the picture opens 3D-Haus with the whole house, still turning", pgP.locator("#tabBar [data-tab=house].active").count() == 1
+      and pgP.evaluate("document.body.classList.contains('house')") and pgP.evaluate("window.__fp.autoRotate()"))
+pgP.tap("#view", position={"x": 195, "y": 200}); pgP.wait_for_timeout(400)
+check("📱 5.28.0: … the first touch stops the turning", not pgP.evaluate("window.__fp.autoRotate()"))
 pgP.tap("#tabBar [data-tab=rooms]"); pgP.wait_for_timeout(600)
 n_pa = pgP.locator("[data-page=rooms] .apRoom").count()
 check("📱 Räume: every named room by floor", n_pa >= 2 and pgP.locator("[data-page=rooms] .apSec").count() >= 1, n_pa)
