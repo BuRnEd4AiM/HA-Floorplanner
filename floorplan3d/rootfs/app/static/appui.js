@@ -6,7 +6,8 @@ import { START, ROOMS, MORE, HOUSE, greeting, roomTiles, byFloor, statusChips, m
 /**
  * ctx: t, lang(), host (#tabPages), rooms() ([{ fi, floor, id, name, temp, lights, open, occupied }] of the house shown), ground(),
  * icon(name) (a room's emoji), status() ({ lightsOn, alarm, offline, low, open, temp }), act(key) (a chip: the light list, the open windows …),
- * openRoom(fi, id) (the room as a page: its card), lightsOff(fi, id), snapshot() (a picture of the 3D house, data URL or ''),
+ * openRoom(fi, id) (the room as a page: its card), lightsOff(fi, id), spin() (the canvas of the turning house, housespinui.js),
+ * openHouse() (the 3D view from the picture),
  * show(tab), tabs() ([{ key, icon, name }] of the screen), tabName(key), canSettings(), openSettings(), classic() (back to the classic view),
  * num(v) (one decimal in the screen's language);
  * 5.23.0 (docs/ideen-5.22 pictures 45–52): places() ({ houses: [{ id, name, on }], buildings: [{ id, name, on }] }), pickHouse(id),
@@ -20,7 +21,7 @@ export function initAppUi(ctx) {
   const button = (cls, text, on) => { const b = make('button', cls, text); b.type = 'button'; b.addEventListener('click', on); return b; };
   const page = (key) => { const s = make('section', 'tabPage appPage'); s.dataset.page = key; s.hidden = true; ctx.host.append(s); return s; };
   const startEl = page(START), roomsEl = page(ROOMS);
-  let picture = '', pictureAt = 0, drawnStart = '', drawnRooms = '';
+  let drawnStart = '', drawnRooms = '';
 
   /* ---- a list that comes from below (Mehr, Haus und Gebäude, a chip's list, the 3D house's buttons) ---- */
   let sheet = null;
@@ -99,7 +100,6 @@ export function initAppUi(ctx) {
   function renderStart(force = false) {
     const now = new Date(), rooms = roomTiles(ctx.rooms(), 6), chips = statusChips(ctx.status(), t, ctx.num);
     const sig = JSON.stringify([rooms, chips, greeting(now.getHours()), now.getDate(), t('app.rooms'), placeLabel()]);
-    if (Date.now() - pictureAt > 60000 || !picture) { picture = ctx.snapshot() || picture; pictureAt = Date.now(); }
     if (!force && sig === drawnStart && startEl.childElementCount) return;
     drawnStart = sig;
     let date;
@@ -108,8 +108,9 @@ export function initAppUi(ctx) {
     head.append(make('div', 'apDate', date), make('h1', 'apHello', `${t(`app.hello.${greeting(now.getHours())}`)} 👋`));
     const chipRow = make('div', 'apChips');
     chips.forEach((c) => { const b = button(`apChip ${c.tone}`, `${c.icon} ${c.text}`, () => chip(c.key)); b.dataset.chip = c.key; chipRow.append(b); });
-    const house = button('apHouse', '', () => ctx.show(HOUSE)); house.dataset.act = 'appHouse';
-    if (picture) { const img = make('img'); img.src = picture; img.alt = ''; house.append(img); }
+    const house = button('apHouse', '', () => (ctx.openHouse ? ctx.openHouse() : ctx.show(HOUSE))); house.dataset.act = 'appHouse';
+    const spin = ctx.spin?.();                                     // the whole building shown, turning (housespinui.js, 5.28.0)
+    if (spin) house.append(spin);
     house.append(make('span', 'apHouseLab', `🧊 ${t('app.house3d')} ›`));
     const sec = make('div', 'apSec'); sec.append(make('b', '', t('app.rooms')), button('apLink', t('app.all'), () => ctx.show(ROOMS)));
     const grid = make('div', 'apGrid'); rooms.forEach((r) => grid.append(tile(r)));

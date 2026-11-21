@@ -2,6 +2,12 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.28.0] - 2026-11-21
+### Verbessert
+- **📱 Start: das Haus dreht sich** (der Besitzer: „dass man dort das Haus sich drehen sieht … das Gebäude, wo ausgewählt ist, in der Vollansicht“): das Bild auf der Startseite war ein festes Foto von dem, was die 3D-Ansicht zuletzt zeigte, oft nur ein Zimmer. Jetzt zeigt es **das ganze Gebäude, das oben gewählt ist** („🏠 Haus · Gebäude“), mit allen Stockwerken und dem Dach, **langsam drehend** (eine Runde in 40 s) und live: Lampen, die an sind, leuchten, der Himmel ist der von Uhrzeit und Wetter.
+  - Ein Tipp darauf öffnet **3D-Haus** mit dem ganzen Haus von derselben Seite, es dreht sich weiter bis zur ersten Berührung.
+  - Gezeichnet wird nur, solange die Startseite offen ist und das Bild zu sehen ist (weggescrollt: es wartet), mit dem Zeichner der 3D-Ansicht selbst, das Haus liegt also nicht doppelt im Speicher. Die Karte ist etwas höher (210 px).
+
 ## [5.27.1] - 2026-11-20
 ### Verbessert
 - **„Nicht überwachen“ hat das Zeichen 🔕 statt 🙈** (der Besitzer: „der affen emogi ist zu viel“): der Knopf neben jeder Zeile der Offline-Liste, „🔕 Ganze Etage … nicht überwachen“, die Zeile unter der Liste, die Haken bei Gerät, Tür / Fenster und Etage und der Abschnitt in „✨ Neu“.

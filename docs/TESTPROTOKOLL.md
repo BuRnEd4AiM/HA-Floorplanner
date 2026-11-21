@@ -529,7 +529,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 217. Neu in 5.25.0: 🧭 Erste Schritte und das „⋯“-Menü oben | 2 | 0 | 3 | 0 | 217.3 bis 217.5 |
 | 218. Neu in 5.26.0: 📊 Monatsbericht | 2 | 0 | 5 | 0 | 218.3 bis 218.7 |
 | 219. Neu in 5.27.0: 🎚 Rollläden an Türen (#779) und 🔕 Nicht überwachen (#780) | 3 | 0 | 5 | 0 | 219.4 bis 219.8 |
-| **Zusammen** | **1350** | **2** | **150** | **92** | |
+| 220. Neu in 5.28.0: 📱 Start: das Haus dreht sich | 3 | 0 | 3 | 0 | 220.4 bis 220.6 |
+| **Zusammen** | **1353** | **2** | **153** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3314,3 +3315,15 @@ Zwei Wünsche von FrankBecker aus den Issues.
 | 219.7 | Dein Haus: „📴 … offline“ öffnen, bei einem Gerät 🔕 | Die Zeile ist weg, unten steht „🔕 1 einzeln nicht überwacht“; im Bearbeiten-Modus hat das Gerät den Haken | ❓ |
 | 219.8 | FrankBecker: Obergeschoss mit „🔕 Ganze Etage … nicht überwachen“ | Die Meldung oben rechts zeigt nur noch seine eigenen Geräte | ❓ |
 
+
+## 220. Neu in 5.28.0: 📱 Start: das Haus dreht sich
+Dein Wunsch vom 2026-11-21 (Foto der Startseite am Handy: „dass man dort das Haus sich drehen sieht … das Gebäude, wo ausgewählt ist, in der Vollansicht“).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 220.1 | Unit-Test `tests/housespin.test.mjs` (neu); Browser-Test Teil `101_phone_app` (erweitert) | Alles grün | ✅ (2026-11-21, Claude) |
+| 220.2 | Demo am Handy: Start | In der Mitte das ganze Demo-Haus mit Dach, es dreht sich langsam (eine Runde in 40 Sekunden), darüber der Himmel | ✅ (2026-11-21, Claude, Demo) |
+| 220.3 | Demo am Handy: auf das drehende Haus tippen | „3D-Haus“ öffnet sich mit dem ganzen Haus („Ganzes Haus“), es dreht sich weiter; ein Tipp ins Bild hält es an | ✅ (2026-11-21, Claude, Demo) |
+| 220.4 | Dein Handy: Start | Dein ganzes Gebäude dreht sich, nicht nur ein Zimmer; Lampen, die an sind, leuchten | ❓ |
+| 220.5 | Dein Handy: oben ein anderes Gebäude wählen („🏠 … ▾“) | Jetzt dreht sich das andere Gebäude | ❓ |
+| 220.6 | Dein Handy: auf das Haus tippen | Das ganze Gebäude in 3D, es dreht sich weiter, bis du ins Bild tippst | ❓ |

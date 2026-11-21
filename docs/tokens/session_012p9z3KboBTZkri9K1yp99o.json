@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3KboBTZkri9K1yp99o",
+ "start": "2026-11-21",
+ "updated": "2026-11-21T11:29:57Z",
+ "branch": "claude/awesome-ramanujan-wttjce",
+ "source": "counted",
+ "input": 185,
+ "cache_write": 227320,
+ "cache_read": 17423187,
+ "output": 69207,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 185,
+   "cache_write": 227320,
+   "cache_read": 17423187,
+   "output": 69207,
+   "requests": 97
+  }
+ }
+}

@@ -133,6 +133,7 @@ import { initPresencePrefs } from './presenceprefs.js';
 import { initGuestUi } from './guestui.js';
 import { initGuestView } from './guestview.js';
 import { initAppUi } from './appui.js';
+import { initHouseSpin } from './housespinui.js';
 import { initCheckPage } from './pagecheck.js';
 import { radioRows } from './radiomap.js';
 import { appMode, PREF_KEY, START, ROOMS } from './appshell.js';
@@ -950,6 +951,21 @@ function appCloseRoom() {
 let appTouched = 0;
 canvas.addEventListener('pointerdown', () => { appTouched = Date.now(); });
 setInterval(() => { if (document.body.classList.contains('appRoom') && !controls.autoRotate && Date.now() - appTouched > 4000) { controls.autoRotate = true; wake(); } }, 1000);
+/* 🏠 the Start page's picture: the whole building shown, turning (housespinui.js, 5.28.0); drawn instead of the hidden 3D view */
+const spinning = () => booted && appOn() && tabsUi.open() === START;
+let spinIn = false;                                               // the 3D view opened from the picture: it turns on until the first touch
+const houseSpin = initHouseSpin({
+  renderer, scene, canvas, fov: camera.fov,
+  ready: () => { if (!houseMode) { setHouseMode(true); applyHouseStates(); } },   // the whole house, as "3D-Haus" then shows it too
+  house: () => ({ ...houseBounds(), y0: elev(groundIdx()), y1: elev(layout.floors.length - 1) + floorH() }),
+  prepare: (cam) => {                                             // the walls in front sink for this camera (cutaway.js), doors move
+    const keep = camera.position.clone();
+    camera.position.copy(cam.position); updateCutaway(); camera.position.copy(keep);
+    animateOpenings(); liveBatch.check();
+    if (shadowDirty) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
+  },
+});
+canvas.addEventListener('pointerdown', () => { if (spinIn) { spinIn = false; controls.autoRotate = false; } });
 const appUi = initAppUi({
   t, lang: () => currentLanguage(), host: $('#tabPages'), rooms: appRooms, ground: () => groundIdx(), icon: roomIcon, num: (v) => fmtNum(v, 1, 1),
   status: () => {
@@ -963,7 +979,8 @@ const appUi = initAppUi({
     const f = shownLayout().floors[fi], r = f?.rooms.find((x) => x.id === id);
     if (r) [...roomEntityIds(r, entityDevices(f), areaEntitiesOf(r))].filter((e) => e.startsWith('light.') && isLit(e)).forEach((e) => live.callService(e, 'turn_off'));
   },
-  snapshot: () => { try { renderer.render(scene, camera); return canvas.toDataURL('image/jpeg', 0.7); } catch { return ''; } },
+  spin: () => houseSpin.el,
+  openHouse: () => { appCloseRoom(); tabsUi.show('house'); if (houseMode) spinIn = houseSpin.handOff(camera, controls); },
   show: (k) => { appCloseRoom(); tabsUi.show(k); }, tabs: () => tabsUi.tabs(), tabName: (x) => x.name || t(`tab.${x.key}`),
   canSettings: () => !locks.has('settings'), openSettings: () => $('#settingsBtn').click(),
   // 5.23.0 (docs/ideen-5.22): the house and the building from the selects of the tool bar (they switch as always)
@@ -1013,7 +1030,7 @@ const tabsUi = initTabsUi({
     log: { el: $('#tabPages [data-page=log]'), ...logPage }, check: { el: $('#tabPages [data-page=check]'), ...checkPage },
     ...dash.customPages(), ...appUi.pages() }),
   edit: dash.edit, tabEdit: dash.tabEdit, after: dash.after,      // the scene bar, an open light window (#597)
-  onShow: (tab, was) => { if (tab !== 'house') appCloseRoomSoft(); document.body.classList.toggle('appMode', appOn()); document.body.classList.toggle('pageOpen', tab !== 'house'); appUi.houseFabs(appOn() && tab === 'house'); if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)
+  onShow: (tab, was) => { if (tab !== 'house') appCloseRoomSoft(); if (tab !== 'house' && spinIn) { spinIn = false; controls.autoRotate = false; } if (spinning()) applyStates(); document.body.classList.toggle('appMode', appOn()); document.body.classList.toggle('pageOpen', tab !== 'house'); appUi.houseFabs(appOn() && tab === 'house'); if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)
 });
 
 /* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
@@ -1047,7 +1064,7 @@ function applyStates() {
   const own = !placedMemo;
   if (own) placedMemo = new Map();
   try {
-    if (tabsUi.covered()) { alertsUi.update(); deviceList.update(); tabsUi.update(); }
+    if (tabsUi.covered() && !spinning()) { alertsUi.update(); deviceList.update(); tabsUi.update(); }   // 🏠 the turning house on Start shows the states
     else applyHouseStates();
   } finally { if (own) placedMemo = null; }
 }
@@ -2139,7 +2156,8 @@ const edges = initSmoothEdges({ $, renderer, mode: EDGES, target: () => controls
 const perfHud = initPerfHud({ $, renderer, low: LOW, param: params.get('fps'), lang: currentLanguage, onChange: wake, edges: edges.info });   // FPS and more, chosen in the View menu (perfhud.js)
 function animate(now = performance.now()) {
   requestAnimationFrame(animate);
-  if (document.hidden || cardUi?.panelOnly() || tabsUi.covered()) return;   // screen off / tab in background / a card with only the room panel / a page of the tab bar: draw nothing
+  if (document.hidden || cardUi?.panelOnly()) return;             // screen off / tab in background / a card with only the room panel: draw nothing
+  if (tabsUi.covered()) { if (spinning()) houseSpin.frame(now); return; }   // a page of the tab bar: nothing, on 📱 Start the turning house
   const due = frameDue(now, lastActive, lastFrame, LOW, lastMove);   // nothing happens or a weak tablet: a few frames a second are enough (frameloop.js)
   if (!due.draw) return;
   if (due.throttled) lastFrame = now;
