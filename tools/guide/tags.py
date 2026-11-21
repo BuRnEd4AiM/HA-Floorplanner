@@ -226,9 +226,10 @@ t("sunshade",
 t("radio",
   "Funk Funkkarte Empfang Signal Signalstärke Zigbee Zigbee2MQTT ZHA WLAN WiFi Linkqualität LQI RSSI dBm Reichweite Verstärker Repeater "
   "Router offline nicht erreichbar Warum ist mein Gerät offline schwacher Empfang linkquality aktivieren einschalten deaktiviert "
-  "ausgeschaltet alle auf einmal nur ein paar erkannt fehlt kein Wert",
+  "ausgeschaltet alle auf einmal nur ein paar erkannt fehlt kein Wert Matter Thread Border Router Netzwerkkarte Eve Nanoleaf",
   "radio radio map reception signal signal strength Zigbee Zigbee2MQTT ZHA WiFi link quality LQI RSSI dBm range repeater router "
-  "offline unavailable why is my device offline weak reception linkquality enable switch on disabled all at once only a few missing no value")
+  "offline unavailable why is my device offline weak reception linkquality enable switch on disabled all at once only a few missing no value "
+  "Matter Thread border router network map Eve Nanoleaf")
 t("cameras",
   "Kamera Überwachungskamera Kamerabild Livebild Video Stream Bewegung Bewegungsmelder Garten Einfahrt Haustür "
   "Reolink Unifi Frigate Vollbild groß",

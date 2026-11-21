@@ -4020,8 +4020,8 @@ export default {
   'an.bot.find': '查找聊天', 'an.bot.finding': '正在询问 Telegram …', 'an.bot.found': '机器人 {bot}：找到 {n} 个聊天。勾选接收者后保存。',
   'an.bot.noChat': '已找到机器人 {bot}，但还没有聊天：在 Telegram 中给它发“你好”，再点一次“查找聊天”。', 'an.bot.chats': '发给谁？', 'an.bot.plan': '📸 附带房间标红的平面图',
   'an.bot.camera': '📷 附带房间内摄像头的画面', 'an.ready.bottoken': '还缺少机器人密钥。', 'an.ready.botchat': '还缺少聊天：给机器人发“你好”，然后点“查找聊天”。',
-  'rd.btn': '📡 信号', 'rd.btnTip': '每个设备的信号强弱（Zigbee、WiFi …）', 'rd.title': '家中信号', 'rd.sub': 'Zigbee、WiFi 等：每个设备的信号强弱。绿色好，黄色一般，红色弱。', 'rd.close': '关闭',
-  'rd.q.good': '好', 'rd.q.mid': '一般', 'rd.q.bad': '弱', 'rd.weakest': '最弱的（点击在房屋中查看）', 'rd.tipBad': '在红色设备附近放一个插电的 Zigbee 设备（插座、灯）可增强网络。WiFi 可用中继器或换个位置。',
+  'rd.btn': '📡 信号', 'rd.btnTip': '每个设备的信号强弱（Zigbee、WiFi …）', 'rd.title': '家中信号', 'rd.sub': 'Zigbee、Matter、WiFi 等：每个设备的信号强弱。绿色好，黄色一般，红色弱。', 'rd.close': '关闭',
+  'rd.q.good': '好', 'rd.q.mid': '一般', 'rd.q.bad': '弱', 'rd.weakest': '最弱的（点击在房屋中查看）', 'rd.tipBad': '在红色设备附近放一个插电的 Zigbee 或 Thread 设备（插座、灯）可增强网络。WiFi 可用中继器或换个位置。',
   'rd.tipGood': '一切正常：没有信号弱的设备。', 'rd.none': 'Home Assistant 尚不知道平面图中设备的信号值。', 'rd.off': '{n} 个信号值在 Home Assistant 中已关闭',
   'rd.offHow': 'Zigbee2MQTT 和 ZHA 默认关闭它们。开启：Home Assistant → 设置 → 设备与服务 → 实体，搜索“linkquality”或“rssi”，打开实体 → ⚙ → 打开“已启用”。约一分钟后会显示在这里。',
   'vac.title': '度假灯光', 'vac.help': '度假警报启用时，灯会在晚上像你们在家时一样开关——从最近 14 个晚上学习，每晚略有不同。卷帘在日落后放下，早上升起。', 'vac.on': '开启度假灯光（仅在度假警报启用时运行）', 'vac.lights': '灯',
@@ -4078,4 +4078,5 @@ export default {
   'rd.onPlan': '平面图中有 {n} 个设备的信号值在 Home Assistant 中被停用。', 'rd.onAll': '全部启用（{n}）', 'rd.onBusy': '正在启用…',
   'rd.onNote': '在 Home Assistant 中启用它们。约一分钟后出现数值；Home Assistant 也会保存它们的历史记录。', 'rd.onAdmin': '管理员可以在这里一键启用它们。', 'rd.onDone': '已启用 {n} 个信号值。约一分钟后显示。',
   'rd.onSome': '{n} 个未成功（请在 Home Assistant 中手动启用）。', 'rd.onFail': '启用失败：{err}',
+  'rd.matterOld': '通过 Thread 的 Matter 设备需要新版 Matter 服务器才会显示：请在 Home Assistant 中更新“Matter Server”。',
 };

@@ -211,8 +211,19 @@ def battery_of(entries: list, states: list, devices=None) -> dict:
 SIGNAL_ENDS = ("_linkquality", "_link_quality", "_lqi", "_rssi", "_wifi_signal", "_wifi_strength", "_signal_strength", "_signal_level", "_signal")
 
 
+# what the integrations call a signal entity in their registry entry (translation_key): also found when it was renamed (5.28.3); Matter's
+# "Wi-Fi RSSI" is "wifi_rssi"
+SIGNAL_KEYS = frozenset({"wifi_rssi", "rssi", "lqi", "linkquality", "link_quality", "signal_strength", "wifi_signal", "wifi_signal_strength"})
+
+
 def _looks_signal(eid: str) -> bool:
     return eid.startswith("sensor.") and eid.endswith(SIGNAL_ENDS)
+
+
+def _signal_entry(e) -> bool:
+    """a registry entry of a signal entity: by its name, or by what its integration calls it (translation_key)"""
+    eid = e.get("entity_id") if isinstance(e, dict) else None
+    return isinstance(eid, str) and eid.startswith("sensor.") and (_looks_signal(eid) or e.get("translation_key") in SIGNAL_KEYS)
 
 
 def signal_of(entries: list, states: list, devices=None) -> dict:
@@ -221,15 +232,15 @@ def signal_of(entries: list, states: list, devices=None) -> dict:
     device_class signal_strength). The signal entities themselves are keys too (they point to themselves). Like battery_of: a device
     split into parts takes the one of its own part first. With several the one in dBm, else the first by name."""
     attrs = {s.get("entity_id"): (s.get("attributes") or {}) for s in states if isinstance(s, dict)}
-    switched_on = {e["entity_id"] for e in entries if isinstance(e.get("entity_id"), str) and not e.get("disabled_by")}
+    signals = {e["entity_id"] for e in entries if isinstance(e, dict) and not e.get("disabled_by") and _signal_entry(e)}   # switched on, by name or translation_key
 
     def is_signal(i):
         a = attrs.get(i)
         if not i.startswith("sensor."):
             return False
         if a is None:                  # no state yet: just switched on ("📡 Alle einschalten"), its value comes a little later
-            return i in switched_on and _looks_signal(i)
-        return a.get("device_class") == "signal_strength" or str(a.get("unit_of_measurement") or "").lower() == "lqi" or _looks_signal(i)
+            return i in signals
+        return a.get("device_class") == "signal_strength" or str(a.get("unit_of_measurement") or "").lower() == "lqi" or _looks_signal(i) or i in signals
     d = hadevices.Devices(entries, devices)
     out = {}
     for eid in d.device_of:
@@ -241,8 +252,8 @@ def signal_of(entries: list, states: list, devices=None) -> dict:
 
 def signals_off(entries: list) -> list:
     """📡 the signal entities that Home Assistant has switched off (Zigbee2MQTT, ZHA and others ship them off): the card says how to switch
-    them on. Sorted, at most 500."""
-    return sorted(e["entity_id"] for e in entries if isinstance(e.get("entity_id"), str) and e.get("disabled_by") and _looks_signal(e["entity_id"]))[:500]
+    them on (Matter's "Wi-Fi RSSI" too, 5.28.3). Sorted, at most 500."""
+    return sorted(e["entity_id"] for e in entries if isinstance(e, dict) and e.get("disabled_by") and _signal_entry(e))[:500]
 
 
 def signal_off_of(entries: list, devices=None, have=()) -> dict:

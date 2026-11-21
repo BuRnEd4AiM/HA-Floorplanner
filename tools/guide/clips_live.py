@@ -249,9 +249,9 @@ def _(r):
 
 @clip("radio", "live",
       {"de": "📡 Funk: wie gut jedes Gerät seinen Sender hört", "en": "📡 Radio: how well every device hears its sender"},
-      {"de": "Unten „📡 Funk“: über jedem Gerät der Empfang in Grün, Gelb oder Rot, dazu die schwächsten Geräte und ein Tipp. Hat Home "
+      {"de": "Unten „📡 Funk“: über jedem Gerät der Empfang in Grün, Gelb oder Rot (Zigbee, WLAN und Matter, auch über Thread), dazu die schwächsten Geräte und ein Tipp. Hat Home "
              "Assistant den Empfangswert von Geräten im Plan ausgeschaltet (Zigbee2MQTT macht das), schaltet „📡 Alle einschalten“ sie mit einem Tipp ein.",
-       "en": "“📡 Radio” at the bottom: over every device its reception in green, yellow or red, the weakest ones and a tip. When Home Assistant "
+       "en": "“📡 Radio” at the bottom: over every device its reception in green, yellow or red (Zigbee, WiFi and Matter, also over Thread), the weakest ones and a tip. When Home Assistant "
              "switched off the reception value of devices in the plan (Zigbee2MQTT does), “📡 Switch all on” switches them on with one tap."},
       "Funk Empfang Zigbee WLAN Signal schwach offline Verstärker radio reception Zigbee WiFi signal weak offline repeater")
 def _(r):

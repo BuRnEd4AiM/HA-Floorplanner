@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.28.3] - 2026-11-21
+### Changed
+- **📡 Funk-Karte with Matter** (the owner: "das ist nur per Zigbee. Ich habe aber auch Matter"):
+  - **Matter over Thread** has no sensor for its reception in Home Assistant at all. The add-on now reads Home Assistant's **Matter network map** (new in 2026.11, it needs the new Matter server) and shows each Matter device of the plan with its best connection: green, yellow or red, with dBm (or LQI); in the card "Matter · Thread". Asked at most every 5 minutes, and again when a device is added.
+  - **Matter over Wi-Fi** has the sensor "Wi-Fi RSSI", switched off like Zigbee's: "📡 Alle einschalten" switches it on too. Reception values are now also found by what their integration calls them, so a renamed one still counts.
+  - Is the Matter server too old for the map, the card says to update the "Matter Server". The tip for weak devices names Thread too.
+
 ## [5.28.2] - 2026-11-21
 ### Changed
 - **📡 Funk-Karte: "Alle einschalten"** (the owner: "nur ein paar dort erkannt … ich kann nicht für alle das aktivieren"): Zigbee2MQTT (and ZHA) create the reception value of every device ("linkquality") but switch it off in Home Assistant, so the radio map knew only the few switched on by hand, one by one.

@@ -2,6 +2,7 @@
 
 Aus `docs/UEBERGABE.md` hierher verschoben, damit die Übergabe kurz bleibt (Wunsch des Besitzers, 2026-10-26). Die neuesten oben.
 
+- **2026-11-21, 5.28.0: 📱 Start, das Haus dreht sich (Branch `claude/awesome-ramanujan-wttjce`):** sein Foto der Startseite (nur ein Zimmer zu sehen); jetzt dreht sich dort das ganze gewählte Gebäude, ein Tipp öffnet 3D-Haus und dreht weiter bis zur ersten Berührung (housespin.js, housespinui.js). Vorher 5.27.1 für alle freigegeben.
 - **2026-11-20, 5.26.0: 📊 Monatsbericht (Branch `claude/admiring-wright-gz4ogb`):** monthreport.py (Gas nach Heizzeit verteilt, Strom aus den Geräten des Energie-Dashboards), monthreportui.js; Karte unter Warnungen & Alarm.
 - **2026-11-20, 5.25.0: 🧭 Erste Schritte und „⋯“-Menü oben:** firststeps.js, firststepsui.js, topmore.js; Anleitung, Backup, Sicherheit im Bearbeiten-Modus nur noch im „⋯“.
 - **2026-11-20, 5.24.0: 🩺 Haus-Check mit 🔧 Wartung:** neue Seite `check` (pagecheck.js, housecheck.js, maintenance.py): dringend/bald/Wartung, Vorschläge aus dem Plan, „✓ Erledigt“. Davor 5.23.1: Raum-Seite Variante C (`docs/ideen-5.23`), eckige Karte über die ganze Breite, Rückfrage vor dem Ausschalten.
