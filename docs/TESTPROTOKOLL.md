@@ -530,7 +530,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 218. Neu in 5.26.0: 📊 Monatsbericht | 2 | 0 | 5 | 0 | 218.3 bis 218.7 |
 | 219. Neu in 5.27.0: 🎚 Rollläden an Türen (#779) und 🔕 Nicht überwachen (#780) | 3 | 0 | 5 | 0 | 219.4 bis 219.8 |
 | 220. Neu in 5.28.0: 📱 Start: das Haus dreht sich | 3 | 0 | 3 | 0 | 220.4 bis 220.6 |
-| **Zusammen** | **1353** | **2** | **153** | **92** | |
+| 221. Neu in 5.28.1: 🔕 Beim Bearbeiten sieht man, was nicht überwacht wird | 4 | 0 | 1 | 0 | 221.5 |
+| **Zusammen** | **1357** | **2** | **154** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3327,3 +3328,16 @@ Dein Wunsch vom 2026-11-21 (Foto der Startseite am Handy: „dass man dort das H
 | 220.4 | Dein Handy: Start | Dein ganzes Gebäude dreht sich, nicht nur ein Zimmer; Lampen, die an sind, leuchten | ❓ |
 | 220.5 | Dein Handy: oben ein anderes Gebäude wählen („🏠 … ▾“) | Jetzt dreht sich das andere Gebäude | ❓ |
 | 220.6 | Dein Handy: auf das Haus tippen | Das ganze Gebäude in 3D, es dreht sich weiter, bis du ins Bild tippst | ❓ |
+
+
+## 221. Neu in 5.28.1: 🔕 Beim Bearbeiten sieht man, was nicht überwacht wird
+Dein Wunsch vom 2026-11-21: „im Bearbeitungsmodus … angezeigt … dass es nicht überwacht wird und im Live-Modus … so wie man es hat“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 221.1 | Unit-Tests `tests/nowatch.test.mjs`, `tests/offlinemarks.test.mjs`, `tests/phonenav.test.mjs`; Browser-Test Teil `105_door_shutter_nowatch` (erweitert) | Alles grün | ✅ (2026-11-21, Claude) |
+| 221.2 | Demo, Bearbeiten: die Stehlampe im Wohnzimmer anklicken, Haken „🔕 Nicht überwachen“ setzen | Über der Stehlampe ein graues 🔕-Zeichen im 3D-Bild, im 2D-Plan ein kleines 🔕 an ihrer Ecke | ✅ (2026-11-21, Claude) |
+| 221.3 | Demo: danach auf „Live“ | Kein 🔕 über der Stehlampe, alles wie vorher | ✅ (2026-11-21, Claude, Demo) |
+| 221.4 | Demo, Bearbeiten: „Etage verwalten“ → Haken „🔕 Etage nicht überwachen“ | Links am Etagen-Knopf steht „🔕“ vor dem Namen; live nicht | ✅ (2026-11-21, Claude) |
+| 221.5 | Dein Haus, Bearbeiten: das Gerät suchen, das du in der Offline-Liste mit 🔕 weggenommen hast | Du findest es am grauen 🔕; anklicken, Haken weg: das 🔕 ist weg, es wird wieder überwacht | ❓ |
+

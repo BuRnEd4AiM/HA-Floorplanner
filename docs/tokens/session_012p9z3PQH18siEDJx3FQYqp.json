@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3PQH18siEDJx3FQYqp",
+ "start": "2026-11-21",
+ "updated": "2026-11-21T13:07:09Z",
+ "branch": "claude/bold-heisenberg-y046ye",
+ "source": "counted",
+ "input": 153,
+ "cache_write": 179827,
+ "cache_read": 13209399,
+ "output": 48915,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 153,
+   "cache_write": 179827,
+   "cache_read": 13209399,
+   "output": 48915,
+   "requests": 78
+  }
+ }
+}

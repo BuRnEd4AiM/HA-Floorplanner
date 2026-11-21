@@ -2540,7 +2540,7 @@ export default {
   'mt.bleed': '{name}: odpowietrz grzejnik', 'mt.lint': '{name}: wyczyść filtr', 'mt.sieve': '{name}: wyczyść sitko',
   'mt.boiler': '{name}: przegląd (fachowiec)',
   'nw.row': 'Nie monitoruj (tylko narysowane)', 'nw.floorBtn': 'Nie monitoruj całego piętra „{name}” ({n})', 'nw.leftFloors': 'Niemonitorowane: {names}',
-  'nw.leftThings': '{n} pojedynczo niemonitorowanych', 'nw.leftHow': '(Cofnięcie: w trybie edycji odznacz „🔕 Nie monitoruj”.)',
+  'nw.leftThings': '{n} pojedynczo niemonitorowanych', 'nw.leftHow': '(W trybie edycji 🔕 pokazuje, co nie jest monitorowane. Cofnięcie: kliknij to i odznacz „🔕 Nie monitoruj”.)',
   'nw.thing': 'Nie monitoruj (tylko narysowane)', 'nw.floor': 'Nie monitoruj piętra (np. cudze mieszkanie)',
   'nw.deviceHint': 'Dla urządzenia, które jest tylko narysowane i nigdy nie dostanie encji (np. w cudzym mieszkaniu): nigdy nie jest „offline” ani „bez encji”.',
   'nw.openingHint': 'Dla drzwi lub okna, które są tylko narysowane (np. w cudzym mieszkaniu): ich kontakt i roleta nigdy nie są „offline”.',
@@ -2552,4 +2552,5 @@ export default {
   'prop.shutterHintDoor': 'Drzwi mają roletę lub zasłonę (np. drzwi przesuwne na taras). Poniżej wybierasz jej encję z Home Assistant (cover). Kontakt powyżej pozostaje czujnikiem drzwi.',
   'shutter.all': 'Wszystkie', 'shutter.allHint': 'Wszystkie rolety razem', 'shutter.part': 'Roleta {n}', 'v2.sum.shutters': '{n} rolety',
   'prop.shutterPartsOrder': 'Roleta 1 to lewa, patrząc z pokoju.',
+  'nw.floorOff': 'To piętro nie jest monitorowane (tylko narysowane). Cofnięcie: „Zarządzaj piętrami” → odznacz „🔕 Nie monitoruj piętra”.',
 };

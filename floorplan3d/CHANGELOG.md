@@ -2,6 +2,14 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.28.1] - 2026-11-21
+### Changed
+- **🔕 In edit mode you see what is not watched** (the owner: "im Bearbeitungsmodus … angezeigt … dass es nicht überwacht wird und im Live-Modus … so wie man es hat"): a device, door or window with the tick "🔕 Nicht überwachen" had no sign at all and was hard to find again (it is not in the offline list any more). Now, only while editing:
+  - in 3D a **grey 🔕 sign** sits over it, where the red offline sign would be;
+  - in the 2D plan a small **🔕** sits at its corner (a door / window: beside it);
+  - a whole floor left out has **"🔕" before its name** on its floor button (side bar, the floor buttons, the phone's list), with a line how to undo it; its things get no sign each.
+  - The **live view stays as it was**: there what is not watched simply shows no offline sign. The line under the offline list now says where to find it: "Im Bearbeiten-Modus zeigt ein 🔕, was nicht überwacht wird".
+
 ## [5.28.0] - 2026-11-21
 ### Changed
 - **📱 Start: the house turns** (the owner: "dass man dort das Haus sich drehen sieht … das Gebäude, wo ausgewählt ist, in der Vollansicht"): the picture on the Start page was a still photo of whatever the 3D view showed last, often a single room. Now it shows the **whole building chosen** above ("🏠 Haus · Gebäude"), all floors and the roof, **slowly turning** (one turn in 40 s), live: lights that are on glow, the sky is the one of the hour and the weather.

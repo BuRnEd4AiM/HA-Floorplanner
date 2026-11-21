@@ -35,3 +35,8 @@ test('one button for floor and room (5.8.0): it names the room open, the rooms h
   assert.equal(P.phoneFloorModel(floors, 1, false, lb2).roomsHead, 'Zimmer · Erdgeschoss');
   assert.equal(P.phoneFloorModel(floors, 1, true, lb2).roomsHead, 'Zimmer · Ganzes Haus');
 });
+test('the list names a floor as nameOf says (🔕 before a floor left out of the watching, in the editor, #780)', () => {
+  const m = P.phoneFloorModel(floors, 0, false, lb, undefined, null, (f) => (f.name === 'Obergeschoss' ? `🔕 ${f.name}` : f.name));
+  assert.deepEqual(m.items.filter((i) => i.kind === 'floor').map((i) => i.label), ['Keller', 'Erdgeschoss', '🔕 Obergeschoss']);
+  assert.equal(P.phoneFloorModel(floors, 2, false, lb, undefined, null, undefined).items[2].label, 'Obergeschoss');
+});

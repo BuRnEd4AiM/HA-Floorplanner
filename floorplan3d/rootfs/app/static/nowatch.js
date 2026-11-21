@@ -12,6 +12,22 @@ export function setNoWatch(x, on) {
   if (on) x.noWatch = true; else delete x.noWatch;
   return x;
 }
+/** the editor's 🔕 sign over x: its own tick on a floor that is watched (a floor left out as a whole says it on its floor button instead,
+ *  not with a sign on each of its things) */
+export const markedNoWatch = (f, x) => !f?.noWatch && !!x?.noWatch;
+/** the 🔕 signs of the editor (in 3D, offlinemarks.js): Map id -> { kind, reason: 'nowatch', floor } for every device and door / window
+ *  with its own tick; the live view shows none (there what is left out simply has no offline sign) */
+export function noWatchMarks(layout) {
+  const out = new Map();
+  (layout?.floors || []).forEach((f, floor) => {
+    if (f.noWatch) return;
+    (f.devices || []).forEach((d) => { if (markedNoWatch(f, d)) out.set(d.id, { kind: 'device', reason: 'nowatch', floor }); });
+    openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => { if (markedNoWatch(f, o)) out.set(o.id, { kind: 'opening', reason: 'nowatch', floor }); }));
+  });
+  return out;
+}
+/** the name of floor f on its button (the floor rail, the pills, the phone's list): with 🔕 in the editor when the whole floor is left out */
+export const floorButtonName = (f, editing) => `${editing && f?.noWatch ? '🔕 ' : ''}${f?.name || ''}`;
 /** the device or door / window `id` of floor f (kind 'device' | 'opening'), null when there is none */
 export function thingOf(f, kind, id) {
   if (!f) return null;

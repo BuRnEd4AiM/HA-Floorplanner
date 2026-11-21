@@ -77,3 +77,29 @@ test('unwatchedSummary: the floors left out by name, the things left out on the 
   l.floors[0].devices[0].noWatch = true; l.floors[0].walls[0].openings[0].noWatch = true;
   assert.deepEqual(N.unwatchedSummary(l), { floors: ['OG'], things: 2 });
 });
+test('markedNoWatch: the editor\'s 🔕 sign for a thing with its own tick, not for every thing of a floor left out', () => {
+  assert.equal(N.markedNoWatch({}, { noWatch: true }), true);
+  assert.equal(N.markedNoWatch({}, {}), false);
+  assert.equal(N.markedNoWatch({ noWatch: true }, { noWatch: true }), false);   // the floor button says it
+  assert.equal(N.markedNoWatch({ noWatch: true }, {}), false);
+  assert.equal(N.markedNoWatch(null, { noWatch: true }), true);
+});
+test('noWatchMarks: a 🔕 sign for every device and door / window left out on its own, with its floor; none on a floor left out', () => {
+  const l = house();
+  assert.equal(N.noWatchMarks(l).size, 0);
+  l.floors[0].devices[1].noWatch = true; l.floors[0].walls[0].openings[0].noWatch = true;
+  l.floors[1].devices[0].noWatch = true;
+  l.floors[1].dormerWalls = [{ openings: [{ id: 'dw', noWatch: true }] }];   // a dormer window too
+  assert.deepEqual([...N.noWatchMarks(l)], [
+    ['l2', { kind: 'device', reason: 'nowatch', floor: 0 }], ['w1', { kind: 'opening', reason: 'nowatch', floor: 0 }],
+    ['o1', { kind: 'device', reason: 'nowatch', floor: 1 }], ['dw', { kind: 'opening', reason: 'nowatch', floor: 1 }]]);
+  l.floors[1].noWatch = true;                                       // upstairs as a whole: its floor button has 🔕, no sign on each thing
+  assert.deepEqual([...N.noWatchMarks(l).keys()], ['l2', 'w1']);
+  assert.equal(N.noWatchMarks(null).size, 0);
+});
+test('floorButtonName: 🔕 before a floor left out, only in the editor', () => {
+  assert.equal(N.floorButtonName({ name: 'OG', noWatch: true }, true), '🔕 OG');
+  assert.equal(N.floorButtonName({ name: 'OG', noWatch: true }, false), 'OG');
+  assert.equal(N.floorButtonName({ name: 'EG' }, true), 'EG');
+  assert.equal(N.floorButtonName(null, true), '');
+});

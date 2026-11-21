@@ -783,6 +783,7 @@ t("door-shutter",
 t("no-watch",
   "nicht überwachen ignorieren ausblenden nicht relevant offline weg Fehlermeldung oben rechts fremde Wohnung Mieter Vermieter "
   "Zweifamilienhaus Mehrfamilienhaus Einliegerwohnung Nachbar Obergeschoss gehört mir nicht nur gezeichnet keine Entität Lampe ohne Entität "
-  "wie bekomme ich offline weg Glocke durchgestrichen stumm",
+  "wie bekomme ich offline weg Glocke durchgestrichen stumm wieder überwachen rückgängig wo finde ich Bearbeiten-Modus Zeichen graues Symbol",
   "don't watch ignore hide not relevant offline go away error top right someone else's flat tenant landlord two-family house "
-  "apartment building granny flat neighbour upstairs not mine only drawn no entity lamp without entity how do I get rid of offline bell crossed out muted")
+  "apartment building granny flat neighbour upstairs not mine only drawn no entity lamp without entity how do I get rid of offline bell crossed out muted "
+  "watch again undo where do I find edit mode sign grey icon")

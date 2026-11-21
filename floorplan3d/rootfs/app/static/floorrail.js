@@ -69,7 +69,8 @@ export function drawThumb(cv, f, rb, opts) {
   });
 }
 
-/** ctx: $, t, layout(), floorIdx(), houseMode(), isHolo(), settings(), roofBox(i), switchFloor(i), setHouseMode(on) */
+/** ctx: $, t, layout(), floorIdx(), houseMode(), isHolo(), settings(), roofBox(i), switchFloor(i), setHouseMode(on), floorName(f) (optional: the name
+ *  on its button, nowatch.js floorButtonName) */
 /** the height of one floor picture so that n of them fit into `room` pixels: null when they fit as they are (`full` high each), never lower
  *  than 44 px (then the rail scrolls) */
 export function thumbHeight(room, n, full) {
@@ -108,7 +109,8 @@ export function initFloorRail(ctx) {
     }
     for (let i = layout.floors.length - 1; i >= 0; i--) {   // top floor first, like the building
       if (!(ctx.floorShown?.(i) ?? true)) continue;          // nothing of the building shown on this floor (#409)
-      const b = mk('floorThumb' + (i === floorIdx && !houseMode ? ' active' : ''), layout.floors[i].name, () => ctx.switchFloor(i));
+      const fl = layout.floors[i], label = ctx.floorName?.(fl) ?? fl.name;   // 🔕 before a floor left out of the watching, in the editor (#780)
+      const b = mk('floorThumb' + (i === floorIdx && !houseMode ? ' active' : ''), label, () => ctx.switchFloor(i), label !== fl.name ? t('nw.floorOff') : '');
       b.dataset.floor = i;
       const cv = document.createElement('canvas'); cv.width = 240; cv.height = 130;
       b.prepend(cv);

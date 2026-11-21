@@ -1,6 +1,7 @@
 /* Offline in 3D (#375): a small ball with a crossed-out lightning bolt over every device, door or window that the offline list names
  * (offline.js: its Home Assistant entity is unavailable, unknown or gone: red; a smart device that is linked to nothing: amber). In the
- * live mode a device with a tap ball shows the sign on its ball instead (tapballs.js), so nothing covers it twice. Which marks there are
+ * live mode a device with a tap ball shows the sign on its ball instead (tapballs.js), so nothing covers it twice. In the editor a grey 🔕
+ * sign sits the same way over what is left out of the watching (reason 'nowatch', nowatch.js noWatchMarks, #780). Which marks there are
  * and where a mark sits over what it belongs to are pure (unit test: tests/offlinemarks.test.mjs); the marks are three.js sprites in the
  * floor group of their thing, placed anew with every state update. */
 import * as THREE from './vendor/three.module.min.js';
@@ -8,8 +9,8 @@ import * as THREE from './vendor/three.module.min.js';
 /** size (radius, m) of a mark and the gap between it and what it sits on; PILL_HALF: half the height of a value pill (labels.js) */
 export const MARK = { r: 0.16, gap: 0.04 };
 export const PILL_HALF = 0.13;
-/** rim and slash colour by why it is offline */
-export const MARK_COLOR = { unlinked: '#ffb020', offline: '#ff4f45' };
+/** rim and slash colour by why it is offline; grey: left out of the watching (🔕, only in the editor) */
+export const MARK_COLOR = { unlinked: '#ffb020', offline: '#ff4f45', nowatch: '#a3adb8' };
 
 /** one mark per thing of the offline list ([{ kind, id, reason }]): Map id -> { kind, reason }, reason 'offline' or 'unlinked'
  *  (a thing with one entity offline and another one missing is offline) */
@@ -31,13 +32,20 @@ export const markCenterY = (below = 0) => 0.5 - (below + MARK.r + MARK.gap) / (2
  *  not it hangs under its place instead (anchor 1 - markCenterY), so it stays inside the room */
 export const markFits = (y, below, ceiling) => y + below + MARK.gap + 2 * MARK.r <= ceiling + 1e-9;
 
-/** draw the sign on a canvas (2D context g, size s): a dark grey ball with a coloured rim, a lightning bolt, crossed out */
+/** draw the sign on a canvas (2D context g, size s): a dark grey ball with a coloured rim, a lightning bolt, crossed out; 'nowatch': the
+ *  crossed-out bell 🔕 in a grey rim */
 export function drawOffline(g, s, reason = 'offline') {
   const c = MARK_COLOR[reason] || MARK_COLOR.offline;
   g.clearRect(0, 0, s, s);
   g.beginPath(); g.arc(s / 2, s / 2, s / 2 - 6, 0, Math.PI * 2);
   g.fillStyle = '#3d434c'; g.fill();
   g.lineWidth = 7; g.strokeStyle = c; g.stroke();
+  if (reason === 'nowatch') {
+    g.font = `${Math.round(s * 0.52)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#e6ebf0';
+    g.fillText('🔕', s / 2, s / 2 + s * 0.03);
+    return;
+  }
   g.font = `${Math.round(s * 0.5)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
   g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#ffd23f';
   g.fillText('⚡', s / 2, s / 2 + s * 0.03);

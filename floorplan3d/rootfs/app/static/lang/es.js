@@ -2589,7 +2589,7 @@ export default {
   'mt.filter': '{name}: limpiar el filtro', 'mt.brush': '{name}: limpiar el cepillo', 'mt.bleed': '{name}: purgar el radiador',
   'mt.lint': '{name}: limpiar el filtro de pelusas', 'mt.sieve': '{name}: limpiar el filtro', 'mt.boiler': '{name}: revisión (profesional)',
   'nw.row': 'No vigilar (solo dibujado)', 'nw.floorBtn': 'No vigilar toda la planta «{name}» ({n})', 'nw.leftFloors': 'No vigilado: {names}',
-  'nw.leftThings': '{n} sin vigilar uno a uno', 'nw.leftHow': '(Para deshacer: en modo edición, quita la marca «🔕 No vigilar».)',
+  'nw.leftThings': '{n} sin vigilar uno a uno', 'nw.leftHow': '(En modo edición un 🔕 muestra lo que no se vigila. Para deshacer: haz clic en ello y quita la marca «🔕 No vigilar».)',
   'nw.thing': 'No vigilar (solo dibujado)', 'nw.floor': 'No vigilar esta planta (p. ej. vivienda ajena)',
   'nw.deviceHint': 'Para un dispositivo solo dibujado que nunca tendrá entidad (p. ej. en una vivienda que no es tuya): nunca cuenta como «sin conexión» ni «sin entidad».',
   'nw.openingHint': 'Para una puerta o ventana solo dibujada (p. ej. en una vivienda que no es tuya): su contacto y su persiana nunca cuentan como «sin conexión».',
@@ -2601,4 +2601,5 @@ export default {
   'prop.shutterHintDoor': 'La puerta tiene una persiana o cortina (p. ej. la puerta corredera de la terraza). Debajo eliges su entidad de Home Assistant (un cover). El contacto de arriba sigue siendo el sensor de la puerta.',
   'shutter.all': 'Todas', 'shutter.allHint': 'Todas las persianas a la vez', 'shutter.part': 'Persiana {n}', 'v2.sum.shutters': '{n} persianas',
   'prop.shutterPartsOrder': 'La persiana 1 es la de la izquierda, vista desde la habitación.',
+  'nw.floorOff': 'Esta planta no se vigila (solo dibujada). Para deshacer: «Gestionar planta» → quita la marca «🔕 No vigilar esta planta».',
 };

@@ -81,11 +81,13 @@ def flat_upstairs(r):
 @clip("no-watch", "live",
       {"de": "🔕 Nicht überwachen: die fremde Wohnung ist nie offline", "en": "🔕 Don’t watch: someone else’s flat is never offline"},
       {"de": "Lampen und Geräte, die nur gezeichnet sind (z. B. die Wohnung oben, die dir nicht gehört), zählen nicht mehr als offline: 🔕 neben einer "
-             "Zeile der Offline-Liste oder „Ganze Etage nicht überwachen“. Zurück: der Haken „🔕 Nicht überwachen“ beim Gerät, bei Tür und Fenster "
-             "oder unter „Etage verwalten“.",
+             "Zeile der Offline-Liste oder „Ganze Etage nicht überwachen“. Beim Bearbeiten zeigt ein graues 🔕 über dem Gerät, im 2D-Plan "
+             "und am Etagen-Knopf, was nicht überwacht wird; live bleibt alles wie gewohnt. Zurück: der Haken „🔕 Nicht überwachen“ beim Gerät, "
+             "bei Tür und Fenster oder unter „Etage verwalten“.",
        "en": "Lamps and devices that are only drawn (e.g. the flat upstairs that isn’t yours) no longer count as offline: 🔕 beside a row of the "
-             "offline list or “Don’t watch the whole floor”. To undo: the tick “🔕 Don’t watch” of the device, the door or window, or under "
-             "“Manage floor”."},
+             "offline list or “Don’t watch the whole floor”. In edit mode a grey 🔕 over the device, in the 2D plan and on the floor button "
+             "shows what is not watched; the live view stays as it is. To undo: the tick “🔕 Don’t watch” of the device, the door or window, "
+             "or under “Manage floor”."},
       "nicht überwachen offline ignorieren nicht relevant fremde Wohnung Mieter Zweifamilienhaus Einliegerwohnung nur gezeichnet Fehlermeldung "
       "don't watch ignore offline not relevant someone else's flat tenant two-family house only drawn error",
       sky="11:00", prep=flat_upstairs)
@@ -107,10 +109,14 @@ def _(r):
     r.wait(2400)
     r.click("#offlineDialog .dlgClose")
     r.wait(700)
-    r.say("Zurück geht es beim Bearbeiten: „Etage verwalten“ → „🔕 Etage nicht überwachen“; jedes Gerät, jede Tür und jedes Fenster hat den Haken auch.",
-          "To undo, in edit mode: “Manage floor” → “🔕 Don’t watch this floor”; every device, door and window has the tick too.")
+    r.say("Beim Bearbeiten zeigt ein 🔕, was nicht überwacht wird: hier am Knopf der Etage, bei einem Gerät grau darüber.",
+          "In edit mode a 🔕 shows what is not watched: here on the floor's button, on a device grey above it.")
     r.click("#modeSwitch [data-mode=edit]")
     r.wait(1200)
+    r.move("#floorRail .floorThumb", text="🔕")
+    r.wait(2200)
+    r.say("Zurück: „Etage verwalten“ → „🔕 Etage nicht überwachen“; jedes Gerät, jede Tür und jedes Fenster hat den Haken auch.",
+          "To undo: “Manage floor” → “🔕 Don’t watch this floor”; every device, door and window has the tick too.")
     r.js("""(() => { const fp = window.__fp; fp.switchFloor(fp.layout.floors.findIndex((f) => f.noWatch));
       const d = document.querySelector('#floorPanel'); if (d) { d.open = true; d.scrollIntoView({ block: 'start' }); } })()""")
     r.wait(900)

@@ -18,7 +18,7 @@ import { energyUnits } from './energyunits.js';
 import { initEnergyUnitsUi } from './energyunitsui.js';
 import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
-import { leaveOut, unwatched } from './nowatch.js';
+import { leaveOut, unwatched, noWatchMarks, floorButtonName } from './nowatch.js';
 import { initBadges } from './badges.js';
 import { initKiosk } from './kiosk.js';
 import { initTabletExtras } from './tabletextras.js';
@@ -1131,7 +1131,8 @@ function applyHouseStates() {
     });
   });
   tapBalls.settle();                      // tap balls that would cover each other move apart (#244)
-  offMarks.update(offIds, new Map(offList.map((x) => [x.id, x.floor])));   // the offline sign over what has no ball showing it (offlinemarks.js)
+  const nwMarks = isLive() ? new Map() : noWatchMarks(shownLayout());   // 🔕 in the editor: what is left out of the watching (nowatch.js, #780)
+  offMarks.update(new Map([...offIds, ...nwMarks]), new Map([...offList.map((x) => [x.id, x.floor]), ...[...nwMarks].map(([id, m]) => [id, m.floor])]));   // the offline sign over what has no ball showing it (offlinemarks.js)
   radio.update();                         // 📡 the signal signs while „Funk“ is on (radioui.js)
   buildNav();                             // room pills show a dot while somebody is in the room
   {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
@@ -1702,12 +1703,13 @@ const nav = initNav({
   $, t, layout: () => shownLayout(), floorShown: (i) => floorShown(i), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom, settings: () => settings, tabletRoom: () => tabletRoom,
   isOn: (e) => ON_STATES.has(states[e]?.state), pointInPoly, switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on), focusRoom: (id) => focusRoom(id),
   get roomPanel() { return roomPanel; }, toggleMenu: (m, b, o) => toggleMenu(m, b, o), floorRail: () => floorRail, renderPlanFloorsChip: () => renderPlanFloorsChip(),
-  phoneNav: () => phoneNav,
+  phoneNav: () => phoneNav, floorName: (f) => floorButtonName(f, !isLive()),   // 🔕 on a floor left out of the watching, in the editor (#780)
 });
 /* ---- Phones: the floors as a drop-down next to ☰ and the room button; the code lives in phonenav.js ---- */
 const phoneNav = initPhoneNav({
   $, t, layout: () => layout, floorShown: (i) => floorShown(i), floorIdx: () => floorIdx, houseMode: () => houseMode,
   switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on), closeOthers: () => dropdowns.forEach(([m, b]) => toggleMenu(m, b, false)),
+  floorName: (f) => floorButtonName(f, !isLive()),
 });
 /* ---- Phones held upright: power, water / gas, offline, open and cameras fold into one drop-down; the code lives in phonestatus.js ---- */
 initPhoneStatus({ $, closeOthers: () => { dropdowns.forEach(([m, b]) => toggleMenu(m, b, false)); phoneNav.close(); } });
@@ -1718,7 +1720,7 @@ const findRoomByName = (name) => findRoomIn(layout.floors, name);
 /* ================= Floor rail: side bar with a thumbnail per floor; the code lives in floorrail.js ================= */
 const floorRail = initFloorRail({
   $, t, layout: () => shownLayout(), floorShown: (i) => floorShown(i), floorIdx: () => floorIdx, houseMode: () => houseMode, isHolo: () => isHolo(), settings: () => settings,
-  roofBox: (i) => roofBox(i), switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on),
+  roofBox: (i) => roofBox(i), switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on), floorName: (f) => floorButtonName(f, !isLive()),
 });
 
 function fillFloorSelect() { buildNav(true); }
