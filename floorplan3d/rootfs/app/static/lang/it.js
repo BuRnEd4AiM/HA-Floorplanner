@@ -2580,7 +2580,7 @@ export default {
   'mt.filter': '{name}: pulisci il filtro', 'mt.brush': '{name}: pulisci la spazzola', 'mt.bleed': '{name}: sfiata il termosifone',
   'mt.lint': '{name}: pulisci il filtro', 'mt.sieve': '{name}: pulisci il filtro', 'mt.boiler': '{name}: manutenzione (tecnico)',
   'nw.row': 'Non sorvegliare (solo disegnato)', 'nw.floorBtn': 'Non sorvegliare tutto il piano «{name}» ({n})', 'nw.leftFloors': 'Non sorvegliato: {names}',
-  'nw.leftThings': '{n} non sorvegliati singolarmente', 'nw.leftHow': '(Per annullare: in modalità modifica togli la spunta «🔕 Non sorvegliare».)',
+  'nw.leftThings': '{n} non sorvegliati singolarmente', 'nw.leftHow': '(In modalità modifica un 🔕 mostra cosa non è sorvegliato. Per annullare: cliccalo e togli la spunta «🔕 Non sorvegliare».)',
   'nw.thing': 'Non sorvegliare (solo disegnato)', 'nw.floor': 'Non sorvegliare questo piano (es. appartamento altrui)',
   'nw.deviceHint': 'Per un dispositivo solo disegnato che non avrà mai un’entità (es. in un appartamento non tuo): non risulta mai «offline» né «senza entità».',
   'nw.openingHint': 'Per una porta o finestra solo disegnata (es. in un appartamento non tuo): contatto e tapparella non risultano mai «offline».',
@@ -2592,4 +2592,5 @@ export default {
   'prop.shutterHintDoor': 'La porta ha una tapparella o una tenda (es. la portafinestra scorrevole sulla terrazza). Sotto scegli la sua entità di Home Assistant (un cover). Il contatto sopra resta il sensore della porta.',
   'shutter.all': 'Tutte', 'shutter.allHint': 'Tutte le tapparelle insieme', 'shutter.part': 'Tapparella {n}', 'v2.sum.shutters': '{n} tapparelle',
   'prop.shutterPartsOrder': 'La tapparella 1 è quella a sinistra, vista dalla stanza.',
+  'nw.floorOff': 'Questo piano non è sorvegliato (solo disegnato). Per annullare: «Gestisci piano» → togli la spunta «🔕 Non sorvegliare questo piano».',
 };

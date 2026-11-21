@@ -2550,7 +2550,7 @@ export default {
   'mt.bleed': '{name}: radiator ontluchten', 'mt.lint': '{name}: pluizenfilter reinigen', 'mt.sieve': '{name}: zeef reinigen',
   'mt.boiler': '{name}: onderhoud (vakman)',
   'nw.row': 'Niet bewaken (alleen getekend)', 'nw.floorBtn': 'Hele verdieping „{name}” niet bewaken ({n})', 'nw.leftFloors': 'Niet bewaakt: {names}',
-  'nw.leftThings': '{n} los niet bewaakt', 'nw.leftHow': '(Terugzetten: in de bewerkmodus het vinkje „🔕 Niet bewaken” weghalen.)',
+  'nw.leftThings': '{n} los niet bewaakt', 'nw.leftHow': '(In de bewerkmodus toont een 🔕 wat niet bewaakt wordt. Terugzetten: erop klikken en het vinkje „🔕 Niet bewaken” weghalen.)',
   'nw.thing': 'Niet bewaken (alleen getekend)', 'nw.floor': 'Verdieping niet bewaken (bijv. andermans woning)',
   'nw.deviceHint': 'Voor een apparaat dat alleen getekend is en nooit een entiteit krijgt (bijv. in een woning die niet van jou is): het telt nooit als „offline” of „zonder entiteit”.',
   'nw.openingHint': 'Voor een deur of raam dat alleen getekend is (bijv. in een woning die niet van jou is): contact en rolluik tellen nooit als „offline”.',
@@ -2562,4 +2562,5 @@ export default {
   'prop.shutterHintDoor': 'De deur heeft een rolluik of gordijn (bijv. de schuifdeur naar het terras). Daaronder kies je de entiteit uit Home Assistant (een cover). Het contact erboven blijft de sensor van de deur.',
   'shutter.all': 'Alle', 'shutter.allHint': 'Alle rolluiken samen', 'shutter.part': 'Rolluik {n}', 'v2.sum.shutters': '{n} rolluiken',
   'prop.shutterPartsOrder': 'Rolluik 1 is het linker, gezien vanuit de kamer.',
+  'nw.floorOff': 'Deze verdieping wordt niet bewaakt (alleen getekend). Terugzetten: „Verdieping beheren” → het vinkje „🔕 Verdieping niet bewaken” weghalen.',
 };

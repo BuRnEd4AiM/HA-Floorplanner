@@ -5,15 +5,17 @@
  * (narrow or very low screens only). phoneFloorModel is pure and tested in tests/phonenav.test.mjs. */
 
 /** what the floor button says and what its list holds. lb: { house, rooms }; shown(fi): the floor has something of the building shown (#409);
- *  room: the room open now (its name) or null. label: the room, else the floor or the whole house; roomsHead: the heading over the rooms */
-export function phoneFloorModel(floors, floorIdx, houseMode, lb, shown = () => true, room = null) {
-  const items = floors.map((f, fi) => ({ kind: 'floor', fi, label: f.name, active: !houseMode && fi === floorIdx })).filter((it) => shown(it.fi));
+ *  room: the room open now (its name) or null. label: the room, else the floor or the whole house; roomsHead: the heading over the rooms;
+ *  nameOf(f): a floor's name in the list (🔕 before a floor left out of the watching, in the editor: nowatch.js floorButtonName, #780) */
+export function phoneFloorModel(floors, floorIdx, houseMode, lb, shown = () => true, room = null, nameOf = (f) => f.name) {
+  const items = floors.map((f, fi) => ({ kind: 'floor', fi, label: nameOf(f), active: !houseMode && fi === floorIdx })).filter((it) => shown(it.fi));
   if (floors.length > 1 || floors.some((f) => f.devices.length)) items.push({ kind: 'house', label: lb.house, active: houseMode });
   const where = houseMode ? lb.house : floors[floorIdx]?.name || '';
   return { label: room || where, items, roomsHead: [lb.rooms, where].filter(Boolean).join(' · ') };
 }
 
-/** ctx: $, t, layout(), floorIdx(), houseMode(), switchFloor(i), setHouseMode(on), closeOthers() (the other drop-downs), floorShown(i) (#409) */
+/** ctx: $, t, layout(), floorIdx(), houseMode(), switchFloor(i), setHouseMode(on), closeOthers() (the other drop-downs), floorShown(i) (#409),
+ *  floorName(f) (optional, #780) */
 export function initPhoneNav(ctx) {
   const { $, t } = ctx;
   const btn = document.createElement('button'), menu = document.createElement('div');
@@ -31,7 +33,7 @@ export function initPhoneNav(ctx) {
   function build() {
     const rb = $('#roomMenuBtn'), rooms = [...($('#roomMenu')?.children || [])];
     const room = rb?.classList.contains('active') ? rb.textContent : null;    // nav.js: the button names the room open now
-    const m = phoneFloorModel(ctx.layout().floors, ctx.floorIdx(), ctx.houseMode(), { house: t('nav.house'), rooms: t('nav.rooms') }, (i) => ctx.floorShown?.(i) ?? true, room);
+    const m = phoneFloorModel(ctx.layout().floors, ctx.floorIdx(), ctx.houseMode(), { house: t('nav.house'), rooms: t('nav.rooms') }, (i) => ctx.floorShown?.(i) ?? true, room, ctx.floorName);
     btn.textContent = `${m.label} ▾`;
     btn.classList.toggle('occupied', !!rb?.classList.contains('occupied'));   // the green dot: someone is in a room here
     const floors = el('div', 'pnFloors');

@@ -2,6 +2,14 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.28.1] - 2026-11-21
+### Verbessert
+- **🔕 Beim Bearbeiten sieht man, was nicht überwacht wird** (der Besitzer: „im Bearbeitungsmodus … angezeigt … dass es nicht überwacht wird und im Live-Modus … so wie man es hat“): ein Gerät, eine Tür oder ein Fenster mit dem Haken „🔕 Nicht überwachen“ hatte kein Zeichen und war schwer wiederzufinden (in der Offline-Liste steht es ja nicht mehr). Jetzt, nur beim Bearbeiten:
+  - im 3D-Bild sitzt ein **graues 🔕-Zeichen** darüber, dort wo sonst das rote Offline-Zeichen wäre;
+  - im 2D-Plan sitzt ein kleines **🔕** an seiner Ecke (bei Tür und Fenster daneben);
+  - eine ganze nicht überwachte Etage hat **„🔕“ vor ihrem Namen** am Etagen-Knopf (Seitenleiste, Etagen-Knöpfe, die Liste am Handy), mit einer Zeile, wie man es zurücknimmt; ihre Sachen bekommen kein Zeichen einzeln.
+  - Die **Live-Ansicht bleibt, wie sie war**: dort hat, was nicht überwacht wird, einfach kein Offline-Zeichen. Die Zeile unter der Offline-Liste sagt jetzt, wo man es findet: „Im Bearbeiten-Modus zeigt ein 🔕, was nicht überwacht wird“.
+
 ## [5.28.0] - 2026-11-21
 ### Verbessert
 - **📱 Start: das Haus dreht sich** (der Besitzer: „dass man dort das Haus sich drehen sieht … das Gebäude, wo ausgewählt ist, in der Vollansicht“): das Bild auf der Startseite war ein festes Foto von dem, was die 3D-Ansicht zuletzt zeigte, oft nur ein Zimmer. Jetzt zeigt es **das ganze Gebäude, das oben gewählt ist** („🏠 Haus · Gebäude“), mit allen Stockwerken und dem Dach, **langsam drehend** (eine Runde in 40 s) und live: Lampen, die an sind, leuchten, der Himmel ist der von Uhrzeit und Wetter.

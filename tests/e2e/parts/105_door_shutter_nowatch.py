@@ -99,13 +99,28 @@ if row.count():
 check("#780: 🔕 on a row leaves only that lamp out", dev_dn(0, "dn_l1").get("noWatch") is True and off_ids() == ["dn_l2"]
       and "1 einzeln" in pgD.inner_text("#offlineLeft"), (off_ids(), pgD.inner_text("#offlineFoot")))
 pgD.evaluate("document.querySelector('#offlineDialog').close()")
+# 5.28.1 (the owner: „im Bearbeitungsmodus … angezeigt … dass es nicht überwacht wird und im Live-Modus … so wie man es hat“)
+rail_og = lambda: pgD.evaluate(f"document.querySelector('#floorRail .floorThumb[data-floor=\"{fi_og}\"] span')?.textContent || ''")
+mark_l1 = lambda: pgD.evaluate("window.__fp.offMark('dn_l1')")
+check("🔕 live: no sign over the lamp left out, the floor left out has no 🔕 on its button (live stays as it was)",
+      mark_l1() is None and rail_og() == "Fremde Wohnung", (mark_l1(), rail_og()))
 
 pgD.click("#modeSwitch button[data-mode=edit]"); pgD.wait_for_timeout(900)
 pgD.evaluate("window.__fp.switchFloor(0)"); pgD.wait_for_timeout(500)
+check("🔕 editor: a grey 🔕 sign over the lamp left out in 3D, none over the lamp that is watched (its offline sign stays)",
+      mark_l1() == "nowatch" and pgD.evaluate("window.__fp.offMark('dn_l2')") == "offline", (mark_l1(), pgD.evaluate("window.__fp.offMark('dn_l2')")))
+check("🔕 editor: the floor left out has 🔕 before its name on its button, with a line how to undo it",
+      rail_og() == "🔕 Fremde Wohnung" and "Etage verwalten" in (pgD.get_attribute(f"#floorRail .floorThumb[data-floor='{fi_og}']", "title") or ""), rail_og())
+pgD.click("#view2d"); pgD.wait_for_timeout(700)
+check("🔕 editor, 2D plan: a small 🔕 at the lamp left out, not at the one that is watched",
+      pgD.locator("#plan2d .noWatch2d[data-id='dn_l1']").count() == 1 and pgD.locator("#plan2d .noWatch2d[data-id='dn_l2']").count() == 0,
+      pgD.locator("#plan2d .noWatch2d").count())
+pgD.click("#view3d"); pgD.wait_for_timeout(500)
 pgD.evaluate("window.__fp.select('device', 'dn_l1')"); pgD.wait_for_timeout(400)
 check("#780: the lamp's properties show the tick „🔕 Nicht überwachen“ set", pgD.locator("#devNoWatch").is_checked(), pgD.inner_text("#propsBody")[-300:])
 pgD.locator("#devNoWatch").uncheck(); pgD.wait_for_timeout(600)
 check("#780: untick: watched again, offline again", "noWatch" not in dev_dn(0, "dn_l1") and "dn_l1" in off_ids(), off_ids())
+check("🔕 editor: untick: the 🔕 sign is gone, the offline sign is back", mark_l1() == "unlinked", mark_l1())
 pgD.evaluate("window.__fp.select('opening', 'dn_door')"); pgD.wait_for_timeout(400)
 check("#780: a door has the tick too", pgD.locator("#openNoWatch").count() == 1 and not pgD.locator("#openNoWatch").is_checked())
 pgD.evaluate(f"window.__fp.switchFloor({fi_og})"); pgD.wait_for_timeout(600)
@@ -117,6 +132,7 @@ check("#780: on that floor the tick of a lamp is set and greyed out, a line says
 pgD.locator("#floorNoWatch").uncheck(); pgD.wait_for_timeout(600)
 check("#780: the floor's tick off: its lamps are offline again", pgD.evaluate(f"window.__fp.layout.floors[{fi_og}].noWatch") is None
       and {"dn_o1", "dn_o2"} <= set(off_ids()), off_ids())
+check("🔕 editor: the floor's tick off: no 🔕 on its button any more", rail_og() == "Fremde Wohnung", rail_og())
 
 # ---- ✨ Neu (the owner, 2026-11-10: „bitte vergiss nicht die Ansicht in der v2“)
 pgD.goto(BASE + "?debug=1&mode=edit&ui=2"); pgD.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgD.wait_for_timeout(1000)

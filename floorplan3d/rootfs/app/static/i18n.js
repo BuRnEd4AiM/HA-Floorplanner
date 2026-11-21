@@ -1498,7 +1498,7 @@ const DICT = {
     'mt.filter': '{name}: Filter reinigen', 'mt.brush': '{name}: Bürste reinigen', 'mt.bleed': '{name}: Heizkörper entlüften',
     'mt.lint': '{name}: Flusensieb reinigen', 'mt.sieve': '{name}: Sieb reinigen', 'mt.boiler': '{name}: Wartung (Fachmann)',
     'nw.row': 'Nicht überwachen (nur gezeichnet)', 'nw.floorBtn': 'Ganze Etage „{name}“ nicht überwachen ({n})', 'nw.leftFloors': 'Nicht überwacht: {names}',
-    'nw.leftThings': '{n} einzeln nicht überwacht', 'nw.leftHow': '(Zurück: im Bearbeiten-Modus den Haken „🔕 Nicht überwachen“ wieder entfernen.)',
+    'nw.leftThings': '{n} einzeln nicht überwacht', 'nw.leftHow': '(Im Bearbeiten-Modus zeigt ein 🔕, was nicht überwacht wird. Zurück: anklicken und den Haken „🔕 Nicht überwachen“ wieder entfernen.)',
     'nw.thing': 'Nicht überwachen (nur gezeichnet)', 'nw.floor': 'Etage nicht überwachen (z. B. fremde Wohnung)',
     'nw.deviceHint': 'Für ein Gerät, das nur gezeichnet ist und nie eine Entität bekommt (z. B. in einer Wohnung, die dir nicht gehört): es gilt nie als offline oder „ohne Entität“.',
     'nw.openingHint': 'Für eine Tür oder ein Fenster, das nur gezeichnet ist (z. B. in einer Wohnung, die dir nicht gehört): Kontakt und Rollladen gelten nie als offline.',
@@ -1510,6 +1510,7 @@ const DICT = {
     'prop.shutterHintDoor': 'Die Tür hat einen Rollladen oder Vorhang (z. B. die Schiebetür zur Terrasse). Darunter wählst du seine Entität aus Home Assistant (ein Cover). Der Kontakt oben bleibt der Sensor der Tür.',
     'shutter.all': 'Alle', 'shutter.allHint': 'Alle Rollläden zusammen', 'shutter.part': 'Rollladen {n}', 'v2.sum.shutters': '{n} Rollläden',
     'prop.shutterPartsOrder': 'Rollladen 1 ist der linke, vom Raum aus gesehen.',
+    'nw.floorOff': 'Diese Etage wird nicht überwacht (nur gezeichnet). Zurück: „Etage verwalten“ → den Haken „🔕 Etage nicht überwachen“ entfernen.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2951,7 +2952,7 @@ const DICT = {
     'mt.filter': '{name}: clean the filter', 'mt.brush': '{name}: clean the brush', 'mt.bleed': '{name}: bleed the radiator',
     'mt.lint': '{name}: clean the lint filter', 'mt.sieve': '{name}: clean the sieve', 'mt.boiler': '{name}: service (professional)',
     'nw.row': 'Don’t watch (only drawn)', 'nw.floorBtn': 'Don’t watch the whole floor “{name}” ({n})', 'nw.leftFloors': 'Not watched: {names}',
-    'nw.leftThings': '{n} not watched one by one', 'nw.leftHow': '(To undo: in edit mode untick “🔕 Don’t watch”.)', 'nw.thing': 'Don’t watch (only drawn)',
+    'nw.leftThings': '{n} not watched one by one', 'nw.leftHow': '(In edit mode a 🔕 shows what is not watched. To undo: click it and untick “🔕 Don’t watch”.)', 'nw.thing': 'Don’t watch (only drawn)',
     'nw.floor': 'Don’t watch this floor (e.g. someone else’s flat)',
     'nw.deviceHint': 'For a device that is only drawn and will never get an entity (e.g. in a flat that isn’t yours): it is never “offline” or “no entity”.',
     'nw.openingHint': 'For a door or window that is only drawn (e.g. in a flat that isn’t yours): its contact and roller shutter are never “offline”.',
@@ -2963,6 +2964,7 @@ const DICT = {
     'prop.shutterHintDoor': 'The door has a roller shutter or curtain (e.g. the sliding door to the terrace). Below, pick its Home Assistant entity (a cover). The contact above stays the door’s sensor.',
     'shutter.all': 'All', 'shutter.allHint': 'All roller shutters together', 'shutter.part': 'Roller shutter {n}', 'v2.sum.shutters': '{n} roller shutters',
     'prop.shutterPartsOrder': 'Roller shutter 1 is the left one, seen from the room.',
+    'nw.floorOff': 'This floor is not watched (only drawn). To undo: “Manage floor” → untick “🔕 Don’t watch this floor”.',
   },
 };
 

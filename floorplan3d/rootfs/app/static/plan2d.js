@@ -28,6 +28,7 @@ import { miterEnds } from './wallmiter.js';
 import { initRail2d } from './rail2d.js';
 import { guideAt, guideLines } from './drawguide.js';
 import { splitSide, dropCorner } from './railsides.js';
+import { markedNoWatch } from './nowatch.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -65,6 +66,8 @@ const DEFAULT_FOOT = { w: 0.8, d: 0.8 };
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 export function createPlan(ctx) {
+  /** 🔕 left out of the watching (#780): a small grey ball with the crossed-out bell over a device or a door / window, only in the editor */
+  const noWatchBadge = (x, y, id) => `<g class="noWatch2d" data-id="${esc(id)}" pointer-events="none"><circle cx="${(+x).toFixed(1)}" cy="${(+y).toFixed(1)}" r="8" fill="#2a3038" stroke="#a3adb8" stroke-width="1.5"/><text x="${(+x).toFixed(1)}" y="${(+y + 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="10">🔕</text></g>`;
   const root = document.createElement('div');
   root.id = 'plan2d';
   root.hidden = true;
@@ -630,6 +633,7 @@ export function createPlan(ctx) {
           const p = P(0, -t - 0.35 - (up ? 0.3 : 0)), word = ctx.windowText ? ctx.windowText(op) : ctx.openText(op.entity), alert = word !== ctx.t('state.closed') && word !== '—';
           o += `<text x="${p[0]}" y="${p[1]}" fill="${open || alert ? C.warn : C.text}" font-size="10" text-anchor="middle">${esc(word)}</text>`;
         }
+        if (!live && markedNoWatch(f, op)) { const p = P(0, -t - 0.35 - (up ? 0.3 : 0)); o += noWatchBadge(p[0], p[1], op.id); }   // 🔕 left out of the watching (#780)
         if (up) o += '</g>';
       });
     });
@@ -720,6 +724,15 @@ export function createPlan(ctx) {
         o += `<text x="${cx}" y="${cy + Math.min(off, 40)}" text-anchor="middle" font-size="10" fill="${C.text}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(label)}</text>`;
       }
       if (!live && d.entity && s >= 34) o += `<circle cx="${cx + (fo.r || fo.w / 2) * s}" cy="${cy - (fo.r || fo.d / 2) * s}" r="3" fill="${on ? '#5dff9d' : 'rgba(255,255,255,.4)'}"/>`;
+    });
+
+    /* 🔕 in the editor: what is left out of the watching (#780), at the top left corner of the device (the dot of its entity is top right);
+     * a floor left out as a whole says it on its floor button instead (nowatch.js) */
+    if (!live) f.devices.forEach((d) => {
+      if (!markedNoWatch(f, d) || (ctx.powerMode?.() && !ctx.isPowerType(d.type))) return;
+      let x = sx(d.x), y = sy(d.z);
+      if (d.type !== 'ledring' && d.type !== 'kitchenrun') { const fo = footOf(d); x -= (fo.r || fo.w / 2) * s; y -= (fo.r || fo.d / 2) * s; }
+      o += noWatchBadge(x, y, d.id);
     });
 
     /* the railing of the balconies and roof terraces; the selected one with the numbers of its sides and handles (5.14.0, rail2d.js) */

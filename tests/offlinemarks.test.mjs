@@ -61,6 +61,14 @@ test('the sign: a lightning bolt crossed out, red when offline, amber when linke
   assert.ok(red.g.calls.filter((c) => c[0] === 'stroke').length >= 2);          // the rim and the slash
 });
 
+test('the editor\'s sign for what is left out of the watching (#780): the crossed-out bell in a grey rim, no lightning bolt', () => {
+  const grey = fakeCanvas();
+  M.drawOffline(grey.g, 128, 'nowatch');
+  assert.ok(grey.g.calls.some((c) => c[0] === 'fillText' && c[1] === '🔕'));
+  assert.ok(!grey.g.calls.some((c) => c[0] === 'fillText' && c[1] === '⚡'));
+  assert.ok(grey.g.calls.some((c) => c[0] === '=strokeStyle' && c[1] === M.MARK_COLOR.nowatch));
+});
+
 /** a floor group with a device (a 1 m cube standing on the floor at x 2) and a wall with a door 2 m high in its middle */
 function scene() {
   const floor = new THREE.Group(); floor.position.y = 3;
