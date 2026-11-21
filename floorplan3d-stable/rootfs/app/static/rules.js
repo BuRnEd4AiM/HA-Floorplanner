@@ -8,7 +8,9 @@ import { idsText, isSpecial, nextOf, shortDate } from './specialdays.js';
 export const LEVELS = ['night', 'eco', 'comfort'];
 export const LEVEL_ICON = { night: '💤', eco: '🌙', comfort: '☀️' };
 export const LEVEL_COLOR = { night: '#2e5f8f', eco: '#3fa9f5', comfort: '#ff8c32' };
-export const TRIGGERS = ['state', 'num', 'time', 'sun', 'presence', 'button'];
+export const TRIGGERS = ['state', 'num', 'time', 'sun', 'light', 'presence', 'button'];
+/** 🌗 how bright it is, by the sun's elevation (flows.py LIGHT_LEVELS): low sun but still light, at the horizon, dusk, almost dark */
+export const LIGHT_LEVELS = [6, 0, -3, -6];
 export const CONDS = ['if_time', 'if_days', 'if_home', 'if_state', 'if_num', 'if_outside', 'if_sun', 'if_special'];
 export const WAITS = ['hold', 'wait'];
 export const ACTIONS = ['switch', 'heat', 'cover', 'run', 'notify', 'restore'];
@@ -100,7 +102,13 @@ export function blockWords(b, ctx) {
   switch (b.k) {
     case 'state': return { icon: entIcon(b.ents[0], ctx.states), text: t(`fl.b.state.${b.to}`, { name: nm(b.ents) }), sub: b.ents.length > 1 ? b.ents.map(one).slice(1, 4).join(', ') : '' };
     case 'num': return { icon: '🌡', text: t(`fl.b.num.${b.op}`, { name: one(b.ent), v: b.v }), sub: '' };
-    case 'time': return { icon: '🕐', text: b.at, sub: daysText(b.days, ctx.lang, t) };
+    case 'time': {
+      const sub = daysText(b.days, ctx.lang, t), off = seasonOffset(b);
+      if (off == null) return { icon: '🕐', text: b.at, sub };
+      const rel = t(`fl.season.${off >= 0 ? 'after' : 'before'}.${b.anchor}`, { d: duration(Math.abs(off) * 60, t) });
+      return { icon: '🌗', text: b.at, sub: sub === t('fl.everyDay') ? rel : `${sub} · ${rel}` };
+    }
+    case 'light': return { icon: b.to === 'dark' ? '🌆' : '🌄', text: t(`fl.b.light.${b.to}`, { lvl: t(`fl.lvl.${b.e}`) }), sub: '' };
     case 'sun': return { icon: b.ev === 'set' ? '🌇' : '🌅', text: t(`fl.b.sun.${b.ev}`), sub: b.off ? t(b.off > 0 ? 'fl.after' : 'fl.before', { d: duration(Math.abs(b.off) * 60, t) }) : '' };
     case 'presence': return { icon: b.ev === 'all_away' ? '🚶' : b.ev === 'first_home' ? '🏠' : '👤', text: t(`fl.b.presence.${b.ev}`, { who: b.who ? one(b.who) : t('fl.somebody') }), sub: '' };
     case 'button': return { icon: '🔘', text: t('fl.b.button'), sub: '' };
@@ -110,7 +118,7 @@ export function blockWords(b, ctx) {
     case 'if_state': return { icon: entIcon(b.ent, ctx.states), text: t('fl.b.ifState', { name: one(b.ent), is: t(`fl.is.${b.is}`) === `fl.is.${b.is}` ? b.is : t(`fl.is.${b.is}`) }), sub: '' };
     case 'if_num': return { icon: '🌡', text: t(`fl.b.num.${b.op}`, { name: one(b.ent), v: b.v }), sub: '' };
     case 'if_outside': return { icon: '🌡', text: t(`fl.b.outside.${b.op}`, { v: deg(b.v) }), sub: '' };
-    case 'if_sun': return { icon: b.is === 'dark' ? '🌙' : '☀️', text: t(`fl.b.sun.${b.is}`), sub: '' };
+    case 'if_sun': return { icon: b.is === 'dark' ? '🌙' : '☀️', text: LIGHT_LEVELS.includes(b.e) ? t(`fl.b.ifLight.${b.is}`, { lvl: t(`fl.lvl.${b.e}`) }) : t(`fl.b.sun.${b.is}`), sub: '' };
     case 'if_special': return specialWords(b, ctx);
     case 'hold': return { icon: '⏱', text: t('fl.b.hold'), sub: duration(b.s, t) };
     case 'wait': return { icon: '⏱', text: t('fl.b.wait'), sub: duration(b.s, t) };
@@ -273,10 +281,27 @@ export function blockReady(b) {
 }
 export const flowReady = (f) => (f.lanes || []).length > 0 && f.lanes.every((l) => l.blocks.length > 0 && TRIGGERS.includes(l.blocks[0].k) && l.blocks.every(blockReady));
 
+/** 🌗 a time that moves with the season: minutes after (minus: before) that day's sunset / sunrise, null for a plain time */
+export function seasonOffset(b) {
+  if (!b?.season || !['set', 'rise'].includes(b.anchor) || !Number.isInteger(b.ref) || !/^\d{2}:\d{2}$/.test(b.at || '')) return null;
+  const [h, m] = b.at.split(':').map(Number);
+  return h * 60 + m - b.ref;
+}
+/** 🌗 ticking "an der Helligkeit orientieren" (or changing the time while it is ticked): the time as typed is meant for today, so it keeps
+ *  its distance to today's sunset (a time from 12:00) or sunrise (before 12:00). sun: the page's state of sun.sun (.sun: { rise, set } as ISO
+ *  times, the next ones; one that is tomorrow's counts by its time of day). -> { anchor, ref } or null when the sun's times are unknown */
+export function seasonAnchor(at, sun) {
+  if (!/^\d{2}:\d{2}$/.test(at || '')) return null;
+  const anchor = Number(at.slice(0, 2)) >= 12 ? 'set' : 'rise', iso = sun?.sun?.[anchor];
+  const d = iso ? new Date(iso) : null;
+  if (!d || Number.isNaN(+d)) return null;
+  return { anchor, ref: d.getHours() * 60 + d.getMinutes() };
+}
+
 /** a new block of kind k with sensible values */
 export function newBlock(k) {
   const d = {
-    state: { ents: [], to: 'open' }, num: { ent: '', op: 'above', v: 25 }, time: { at: '07:00', days: [] }, sun: { ev: 'set', off: 0 },
+    state: { ents: [], to: 'open' }, num: { ent: '', op: 'above', v: 25 }, time: { at: '07:00', days: [] }, sun: { ev: 'set', off: 0 }, light: { to: 'dark', e: -3 },
     presence: { ev: 'arrive', who: '' }, button: {}, if_time: { from: '22:00', to: '06:00' }, if_days: { days: [0, 1, 2, 3, 4] },
     if_home: { who: '' }, if_state: { ent: '', is: 'on' }, if_num: { ent: '', op: 'above', v: 25 }, if_outside: { op: 'below', v: 15 },
     if_sun: { is: 'dark' }, if_special: { is: 'yes', days: [] }, hold: { s: 120 }, wait: { s: 60 }, switch: { ents: [], same: false, do: 'on' }, heat: { ents: [], same: true, do: 'off' },

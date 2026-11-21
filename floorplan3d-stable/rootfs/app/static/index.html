@@ -71,7 +71,7 @@
     <div id="stage">
       <canvas id="view"></canvas>
       <div id="wxFall" hidden><i></i></div>
-      <div id="tabPages" hidden><section class="tabPage" data-page="today" hidden></section><section class="tabPage" data-page="energy" hidden></section><section class="tabPage" data-page="climate" hidden></section><section class="tabPage" data-page="cameras" hidden></section><section class="tabPage" data-page="media" hidden></section><section class="tabPage" data-page="household" hidden></section><section class="tabPage" data-page="routines" hidden></section><section class="tabPage" data-page="family" hidden></section><section class="tabPage" data-page="log" hidden></section></div>
+      <div id="tabPages" hidden><section class="tabPage" data-page="today" hidden></section><section class="tabPage" data-page="energy" hidden></section><section class="tabPage" data-page="climate" hidden></section><section class="tabPage" data-page="cameras" hidden></section><section class="tabPage" data-page="media" hidden></section><section class="tabPage" data-page="household" hidden></section><section class="tabPage" data-page="routines" hidden></section><section class="tabPage" data-page="family" hidden></section><section class="tabPage" data-page="check" hidden></section><section class="tabPage" data-page="log" hidden></section></div>
       <div id="welcome" hidden>
         <button id="welClose" type="button" class="dlgClose" aria-label="Close" data-i18n-title="close">✕</button>
         <h2 data-i18n="wel.title"></h2>
@@ -119,7 +119,7 @@
       </div>
       <button id="navLeft" class="navArrow" type="button" hidden aria-label="‹">‹</button>
       <button id="navRight" class="navArrow" type="button" hidden aria-label="›">›</button>
-      <div id="modeBar"><button class="pill active" data-vm="normal" data-i18n="vm.normal"></button><button class="pill" data-vm="temp" data-i18n="vm.temp"></button><button class="pill" data-vm="humid" data-i18n="vm.humid"></button><button class="pill" data-vm="co2" data-i18n="vm.co2"></button><button id="powerBtn" class="pill" type="button" hidden data-i18n="vm.power" data-i18n-title="vm.powerTip"></button><button id="viewMenuBtn" class="pill" type="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.view" data-i18n-title="nav.viewTip"></button></div>
+      <div id="modeBar"><button class="pill active" data-vm="normal" data-i18n="vm.normal"></button><button class="pill" data-vm="temp" data-i18n="vm.temp"></button><button class="pill" data-vm="humid" data-i18n="vm.humid"></button><button class="pill" data-vm="co2" data-i18n="vm.co2"></button><button id="powerBtn" class="pill" type="button" hidden data-i18n="vm.power" data-i18n-title="vm.powerTip"></button><button id="radioBtn" class="pill" type="button" hidden aria-pressed="false" data-i18n="rd.btn" data-i18n-title="rd.btnTip"></button><button id="viewMenuBtn" class="pill" type="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.view" data-i18n-title="nav.viewTip"></button></div>
       <div id="planFloorsChip">
         <button id="planFloorsBtn" class="pill" type="button" data-i18n-title="nav.planFloorsTip"></button>
         <button id="planRotateBtn" class="pill" type="button" data-i18n="plan.rotate" data-i18n-title="plan.rotateTip"></button>
@@ -356,6 +356,7 @@
     <p class="sub" data-i18n="off.hint"></p>
     <p id="offlineNone" data-i18n="off.none" hidden></p>
     <ul id="offlineList"></ul>
+    <div id="offlineFoot"></div>
   </form>
 </dialog>
 
@@ -631,6 +632,10 @@
             <p id="alarmNotifyOff" class="sub" data-i18n="sg.alarm.notifyOff" hidden></p>
           </div>
         </details>
+        <details class="sgCard" data-card="report">
+          <summary><span class="sgCardIcon">📊</span><span class="sgCardText"><b data-i18n="mr.title"></b><small class="sgCardSub" data-i18n="mr.sub"></small></span><span class="sgBadge"></span></summary>
+          <div class="sgSub"><div id="monthReport"></div></div>
+        </details>
       </div>
     </details>
 
@@ -772,6 +777,8 @@ kiosk: true</pre>
         <p class="hint" data-i18n="users.fileHelp"></p>
         <div class="stopTools"><button type="button" id="usersSave" data-i18n="users.saveBtn" data-i18n-title="users.saveTip"></button> <button type="button" id="usersSync" data-i18n="users.syncBtn" data-i18n-title="users.syncTip"></button></div>
         <p class="sub" id="usersFileStatus"></p>
+        <h4 data-i18n="gu.title"></h4>
+        <div id="guestBox"></div>
       </div>
     </details>
 

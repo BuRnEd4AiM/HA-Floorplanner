@@ -777,6 +777,11 @@ details.sgGuide[open] > :last-child { margin-bottom: 10px; }
 #offlineList, #openList { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 #offlineList button, #openList button { width: 100%; text-align: left; display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 12px; }
 #offlineList small, #openList small { grid-column: 1 / -1; color: var(--muted); overflow-wrap: anywhere; }
+#offlineList li.withLeave { display: flex; gap: 6px; align-items: stretch; }   /* 🔕 Nicht überwachen beside each row (#780) */
+#offlineList li.withLeave > button:first-child { flex: 1; min-width: 0; }
+#offlineList button.offLeave { width: 44px; flex: none; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 18px; }
+#offlineFoot { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+#offlineFoot .offLeaveFloor { text-align: left; }
 .offWhy { font-size: 12px; padding: 1px 8px; border-radius: 999px; background: #b3261e; color: #fff; align-self: center; }
 .offWhy.unknown { background: #8a6d1a; }
 .offWhy.missing { background: #555f6b; }
@@ -1775,6 +1780,20 @@ button.tpChip:disabled { opacity: .35; }
 .peTopName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .peTopBar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
 .peTopBar i { display: block; height: 100%; background: var(--muted); border-radius: 4px; }
+/* 🔌 Stromfresser (standbycard.js): red = standby, orange = always on (fridge, router), grey = no device of its own */
+.hogCard .hogBig { font-size: 30px; font-weight: 800; margin: 6px 0 4px; }
+.hogCard .hogYear { font-size: 15px; font-weight: 600; color: #e0665c; margin-left: 8px; }
+.hogCard .hogBar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--line); margin: 6px 0 4px; }
+.hogCard .hogBar i { display: block; height: 100%; }
+.hogCard .hog_standby { background: #c9443a; } .hogCard .hog_always { background: #e0832b; } .hogCard .hog_rest { background: #5d6f8a; }
+.hogCard .hogLegend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.hogCard .hogLegend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+.hogCard .hogRow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); }
+.hogCard .hogRow b { color: #e0665c; white-space: nowrap; }
+.hogCard .hogRow.always b { color: #e0832b; }
+.hogCard .hogName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hogCard .hogTag { font-size: 11px; color: var(--muted); }
+.hogCard .hogTip { margin: 10px 0 8px; }
 /* ⚖ Vergleichen: every house side by side (#495, energycompare.js) */
 .pcRow { display: grid; grid-template-columns: minmax(90px, auto) minmax(40px, 1fr) auto; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); }
 .pcRow:first-of-type { border-top: 0; }
@@ -2508,6 +2527,25 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .hdLog .roLogRow.other span { color: #b48cff; }
 .hrNote { margin: 0; } .hrSaved { margin: 0; color: #5fd37a; font-weight: 700; }
 .hrGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 14px; align-items: start; }
+/* ☀ Sonnenschutz (sunshadeui.js): the settings beside a wider list of the windows */
+.ssView .hrGrid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
+.ssView .ssWins { grid-column: span 2; }
+@media (max-width: 760px) { .ssView .ssWins { grid-column: auto; } }
+.ssH { margin: 8px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.ssWin > span:first-child { display: flex; flex-direction: column; color: inherit; }
+.ssWin > span:first-child small { font-size: 12px; }
+.ssChip, .ssWin > span.ssChip { white-space: nowrap; pointer-events: none; flex: none; }
+.ssNorth > .ssTurn { flex: none; }
+.ssNorth { gap: 12px; }
+.ssOther { color: #e0a040; } .ssCalm { margin: 0; font-size: 12.5px; }
+.ssNorth > span:nth-child(2) { display: flex; flex-direction: column; color: inherit; }
+.ssRose { width: 46px; height: 46px; flex: none; }
+.ssRose .ring { fill: none; stroke: var(--muted); stroke-width: 1.5; } .ssRose .n { fill: #e5484d; } .ssRose .s { fill: var(--muted); }
+.ssRose text { font-size: 8px; text-anchor: middle; fill: var(--muted); } .ssRose .nl { fill: #fff; font-weight: 700; font-size: 7px; }
+.ssTurn button { width: auto; min-width: 40px; padding: 0 6px; font-size: 13px; }
+
+.ssChip.ss-sun { background: rgba(255, 196, 60, .22); color: #f0b324; } .ssChip.ss-down { background: rgba(47, 125, 216, .22); }
+.ssChip.ss-hand, .ssChip.ss-nopos, .ssChip.ss-none { background: rgba(224, 131, 43, .22); }
 .hrCard { display: flex; flex-direction: column; gap: 10px; }
 .hrCard.off { opacity: .75; }
 .hrHead { display: flex; align-items: flex-start; gap: 12px; }
@@ -3333,6 +3371,7 @@ body.live .v2Nops { display: none; }
     -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
   #roomPanel .rpChips::-webkit-scrollbar { display: none; }
   body #roomPanel.rpFull { max-height: calc(100% - 64px); }
+  #roomPanel { overflow-x: hidden; overscroll-behavior-x: none; }   /* a row a little too wide never lets the whole card be swiped sideways (#778): rows like the chips swipe on their own */
   #roomPanel { transition: transform .12s; }
 }
 /* one colour to choose (colorrow.js): roof #752, stairs #753, doors and windows #754 */
@@ -3355,3 +3394,207 @@ body.live .v2Nops { display: none; }
 #railSides .railSide.off .railNum { background: #7d8796; }
 #railSides .railRange { align-items: center; }
 #railSides .railReset { margin-top: 2px; }
+
+/* 📡 Funk-Karte (radioui.js, 5.17.0) */
+#radioBtn.active { background: #2f7dd8; color: #fff; }
+#radioCard { width: min(340px, calc(100vw - 24px)); max-height: max(200px, calc(100vh - 560px)); overflow: auto; padding: 12px 14px; border-radius: 16px; text-align: left; font-size: 13.5px; }
+#radioCard .rcHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 16px; }
+#radioCard .rcClose { background: none; border: 0; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px 6px; }
+#radioCard .rcSub, #radioCard .rcTip { color: var(--muted); margin: 4px 0 8px; font-size: 12.5px; }
+#radioCard .rcChips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+#radioCard .rcChip { padding: 2px 9px; border-radius: 999px; font-size: 12.5px; background: rgba(255,255,255,.08); }
+#radioCard .rc-good { color: #57d18b; } #radioCard .rc-mid { color: #f0c13c; } #radioCard .rc-bad { color: #ff8a80; }
+#radioCard .rcH { margin: 8px 0 4px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+#radioCard .rcRow { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; width: 100%; text-align: left; gap: 0 8px; padding: 6px 9px;
+  margin: 3px 0; border-radius: 9px; border: 0; background: rgba(255,255,255,.06); color: inherit; font: inherit; cursor: pointer; }
+#radioCard .rcRow small { grid-column: 1; color: var(--muted); font-size: 11.5px; } #radioCard .rcRow b { grid-row: 1 / span 2; grid-column: 2; align-self: center; }
+#radioCard .rcRow.rc-bad { background: rgba(230, 70, 60, .16); } #radioCard .rcRow.rc-mid { background: rgba(240, 190, 40, .12); }
+#radioCard .rcOff { margin-top: 6px; font-size: 12.5px; } #radioCard .rcOff summary { cursor: pointer; color: #f0c13c; }
+#radioCard .rcOff ul { margin: 4px 0 0; padding-left: 18px; color: var(--muted); font-size: 12px; word-break: break-all; }
+
+/* 🏠 Urlaubs-Licht in the holiday alarm's settings (vacationui.js, 5.18.0) */
+.vacTitle { margin-top: 16px; }
+.vacPlan { margin: 6px 0 10px; }
+.vacH { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 8px 0 4px; }
+.vacRow { display: grid; grid-template-columns: minmax(110px, 38%) 1fr; gap: 8px; align-items: center; margin: 4px 0; }
+.vacName { display: flex; flex-direction: column; font-size: 13px; } .vacName small { color: var(--muted); font-size: 11px; }
+.vacTrack { position: relative; height: 14px; border-radius: 4px; background: rgba(127,127,127,.15); }
+.vacTrack i { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: #f2b416; }
+.vacAxis { display: flex; justify-content: space-between; margin-left: calc(38% + 8px); font-size: 11px; color: var(--muted); }
+
+/* 👥 Gäste-Zugang (guestui.js in ⚙, guestview.js on the guest's screen) */
+#guestBox .guQrWrap { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; margin-top: 10px; }
+#guestBox .guQr { background: #fff; border-radius: 10px; padding: 6px; line-height: 0; }
+#guestBox .guQr svg { width: 180px; height: 180px; }
+#guestBox .guQrText { flex: 1 1 220px; min-width: 0; }
+#guestBox .guUrl { display: block; word-break: break-all; font-size: 12px; margin: 6px 0; }
+#guestBox .guState.warn { color: #ffb2aa; }
+body.guestview #navBar, body.guestview #tabBar, body.guestview #floorRail, body.guestview #modeBar, body.guestview #viewMenu, body.guestview #sceneBar,
+body.guestview #viewLegend, body.guestview #phoneNavBtn, body.guestview #welcome { display: none !important; }
+body.guestview #roomPanel { top: 64px !important; bottom: 12px !important; left: 50% !important; right: auto !important; transform: translateX(-50%);
+  width: min(560px, calc(100vw - 24px)) !important; max-width: none !important; max-height: none !important; }
+body.guestview #roomPanel .rpClose, body.guestview #roomPanel [data-act=close] { display: none; }
+.guBar { position: fixed; top: 10px; left: 0; right: 0; margin: 0 auto; width: max-content; z-index: 60; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  justify-content: center; max-width: calc(100vw - 24px); padding: 8px 16px; border-radius: 22px; white-space: nowrap; overflow: hidden; flex-wrap: nowrap; background: var(--panel, #1c2433); border: 1px solid var(--line, #33405a); font-size: 15px; }
+.guBar .guUntil { color: var(--muted, #9aa7bd); }
+@media (max-width: 520px) { .guBar { font-size: 13px; gap: 6px; padding: 7px 12px; } .guBar b { display: none; } }
+.guOver { position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+  padding: 24px; background: var(--bg, #0e131c); }
+.guOver .guOverIcon { font-size: 54px; }
+.guOver p { color: var(--muted, #9aa7bd); max-width: 420px; }
+
+/* 📱 the phone as an app (appshell.js / appui.js, 5.22.0, docs/ideen-5.21 pictures 8–10) */
+.appPage { padding: 14px 16px 24px; }
+.appPage .apDate { color: var(--muted); font-size: 14px; }
+.appPage .apHello, .appPage .apTitle { font-size: 30px; margin: 4px 0 2px; letter-spacing: -.02em; }
+.appPage .apChips { display: flex; gap: 8px; margin: 14px -16px 4px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
+.appPage .apChips::-webkit-scrollbar { display: none; }
+.appPage .apChip { flex: none; padding: 9px 13px; border-radius: 14px; background: var(--panel2, #1a212c); border: 0; color: inherit; font-size: 14px; font-weight: 600; }
+.appPage .apChip.on { background: #3a2f12; color: #ffd36b; } .appPage .apChip.warn { background: #3a1d1a; color: #ffaa9e; } .appPage .apChip.ok { background: #14301f; color: #8ff0b4; }
+.appPage .apHouse { display: block; width: 100%; height: 160px; margin-top: 14px; border: 0; padding: 0; border-radius: 22px; overflow: hidden; position: relative;
+  background: radial-gradient(circle at 50% 40%, #2a3a55, #141a24); color: inherit; }
+.appPage .apHouse img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.appPage .apHouseLab { position: absolute; left: 12px; bottom: 10px; background: rgba(13, 17, 23, .78); padding: 6px 11px; border-radius: 12px; font-size: 14px; font-weight: 600; }
+.appPage .apSec { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 2px 10px; }
+.appPage .apSec b { font-size: 19px; }
+.appPage .apLink { background: none; border: 0; color: #4ea1ff; font-size: 15px; padding: 4px; }
+.appPage { overflow-x: clip; }   /* never wider than the phone (5.26.0, #777: a long room name pushed the page sideways) */
+.appPage .apGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.appPage .apRoom { min-width: 0; background: var(--panel2, #1a212c); border-radius: 20px; padding: 14px; min-height: 108px; position: relative; cursor: pointer; display: flex; flex-direction: column; }
+.appPage .apRoom.lit { background: linear-gradient(150deg, rgba(255, 196, 70, .22), var(--panel2, #1a212c) 70%); }
+.appPage .apRoomIcon { font-size: 26px; }
+.appPage .apRoom b { font-size: 16px; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 4px; min-width: 0; }
+.appPage .apRoom small { color: var(--muted); font-size: 13px; }
+.appPage .apToggle { position: absolute; right: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .1); color: inherit; font-size: 16px; }
+.appPage .apRoom.lit .apToggle { background: #ffcf4a; color: #2a1c00; }
+.appPage .apEmpty { color: var(--muted); grid-column: 1 / -1; }
+#tabBar.appBar { justify-content: space-around; }
+#tabBar.appBar button { flex: 1 1 0; min-width: 0; }
+.apSheetBack { position: fixed; inset: 0; z-index: 80; background: rgba(0, 0, 0, .45); display: flex; align-items: flex-end; }
+.apSheet { width: 100%; max-height: 80vh; overflow: auto; background: var(--panel, #151b24); border-radius: 24px 24px 0 0; padding: 10px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, .5); }
+.apSheet h2 { margin: 4px 4px 10px; font-size: 22px; }
+.apGrab { width: 40px; height: 5px; border-radius: 3px; background: #3a4556; margin: 0 auto 8px; }
+.apList { display: flex; flex-direction: column; gap: 6px; }
+.apItem { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 12px; border: 0; border-radius: 14px; background: var(--panel2, #1a212c); color: inherit; font-size: 16px; text-align: left; }
+.apItem span:nth-child(2) { flex: 1; } .apItem i { font-style: normal; color: var(--muted); font-size: 20px; }
+.apItem.soft { background: transparent; color: var(--muted); }
+.apItemIcon { width: 30px; text-align: center; font-size: 20px; }
+body.appRoom #navBar, body.appRoom #floorRail, body.appRoom #modeBar, body.appRoom #viewMenu, body.appRoom #viewLegend, body.appRoom #phoneNavBtn,
+body.appRoom #toolbar { display: none !important; }
+body.appRoom #roomPanel .rpChips { margin-right: -12px; padding-right: 12px; }
+body.appRoom #roomPanel { overflow-x: hidden !important; top: 48vh !important; z-index: 7 !important; background: var(--bg, #0d1117) !important; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; bottom: var(--stage-b, 0px) !important; left: 0 !important; right: 0 !important; padding-left: 12px !important; padding-right: 12px !important;
+  width: auto !important; max-width: none !important; max-height: none !important; }
+#appBack { position: fixed; top: 10px; left: 10px; z-index: 61; border: 0; border-radius: 14px; padding: 8px 14px; font-size: 16px; font-weight: 600;
+  background: var(--panel, #1c2433); color: #4ea1ff; }
+#appBack[hidden] { display: none; }
+
+#toAppBtn { display: none; }
+@media (max-width: 760px) { body.live #toAppBtn:not([hidden]) { display: inline-flex; } }
+body.appMode.pageOpen #toolbar, body.appMode.pageOpen #sceneBar, body.appRoom #sceneBar, body.appRoom #searchBtn { display: none !important; }
+
+/* 📱 the settings on a phone (setgroups.js, 5.23.0, docs/ideen-5.22 pictures 47, 48): the groups as a list, one group as a page */
+#settingsDialog.sgPhone #sgNav { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 12px; }
+#settingsDialog.sgPhone #sgNav button { padding: 12px 12px; margin: 0; background: var(--panel2, rgba(255,255,255,.05)); border-radius: 14px; font-size: 16px; }
+#settingsDialog.sgPhone #sgNav button::after { content: '›'; margin-left: auto; color: var(--muted); font-size: 20px; }
+#settingsDialog.sgPhone #sgNav .sgText small { font-size: 12.5px; white-space: normal; }
+#settingsDialog.sgPhone:not(.sgPhoneIn):not(.sgSearching) details.setGroup { display: none; }
+#settingsDialog.sgPhone.sgPhoneIn #sgNav, #settingsDialog.sgPhone.sgSearching #sgNav, #settingsDialog.sgPhone #sgAll { display: none; }
+#settingsDialog.sgPhone.sgPhoneIn details.setGroup > summary { pointer-events: none; list-style: none; }
+#settingsDialog.sgPhone.sgPhoneIn details.setGroup > summary::-webkit-details-marker { display: none; }
+#sgBack { border: 0; background: none; color: #4ea1ff; font-size: 16px; font-weight: 600; padding: 4px 6px 4px 0; }
+#sgBack[hidden] { display: none; }
+#settingsDialog.sgPhone.sgPhoneIn .dlgHead h2 { display: none; }
+
+/* 📱 5.23.0 (docs/ideen-5.22): house / building on Start, lists from below, the 3D house slim with round buttons */
+.appPage .apPlace { display: inline-flex; align-items: center; gap: 6px; border: 0; background: var(--panel2, #1a212c); color: inherit; border-radius: 14px;
+  padding: 8px 12px; font-size: 15px; font-weight: 600; margin: 0 0 8px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.appPage .apPlace.fixed { background: none; padding-left: 0; color: var(--muted); }
+.apGrp { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .05em; margin: 14px 4px 6px; }
+.apItem.on { outline: 2px solid #4ea1ff; background: #16263d; }
+.apItem i { white-space: nowrap; max-width: 45%; overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
+.apFoot { display: block; width: 100%; margin-top: 12px; padding: 13px; border: 0; border-radius: 14px; background: #4ea1ff; color: #04203f; font-size: 16px; font-weight: 700; }
+.apFabs { position: fixed; right: 12px; bottom: calc(var(--stage-b, 86px) + 70px); z-index: 30; display: flex; flex-direction: column; gap: 10px; }
+.apFabs[hidden] { display: none; }
+.apFab { width: 48px; height: 48px; border-radius: 50%; border: 0; background: rgba(26, 33, 44, .94); color: inherit; font-size: 21px; box-shadow: 0 4px 14px rgba(0, 0, 0, .4); }
+body.appMode #tbMenuBtn, body.appMode:not(.pageOpen) #modeBar, body.appMode:not(.pageOpen) #viewMenuBtn,
+body.appMode:not(.pageOpen) #sceneBar { display: none !important; }
+.apSheet .apEmpty { color: var(--muted); margin: 8px 4px; }
+body.appRoom .apFabs { display: none !important; }
+.apItem[data-act=confirmOff] { background: #c9443a; color: #fff; font-weight: 700; } .apItem[data-act=confirmOff] .apItemIcon { color: #fff; }
+/* the room page's picture (docs/ideen-5.23 C): faded out at the bottom, the room's name and values in it */
+#appHero { position: fixed; left: 0; right: 0; top: 0; height: 48vh; z-index: 6; pointer-events: none; }
+#appHero[hidden], body:not(.appRoom) #appHero { display: none; }
+#appHero .fade { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; background: linear-gradient(to bottom, transparent, var(--bg, #0d1117)); }
+#appHero b { position: absolute; left: 20px; bottom: 30px; color: #fff; font-size: 30px; font-weight: 800; text-shadow: 0 2px 10px rgba(0, 0, 0, .7); }
+#appHero small { position: absolute; left: 22px; bottom: 8px; color: #c9d4e3; font-size: 14px; font-weight: 600; text-shadow: 0 1px 6px rgba(0, 0, 0, .7); }
+body.appRoom #roomPanel .rp-head { display: none !important; }
+body.appRoom #view { height: 48vh !important; }   /* the 3D picture only above the card (no picture behind it) */
+/* 🩺 Haus-Check (pagecheck.js, 5.24.0) */
+[data-page=check] { padding: 16px; }
+[data-page=check] .hcHead h2 { margin: 0 0 4px; font-size: 26px; }
+[data-page=check] .hcChips { display: flex; gap: 8px; margin: 10px 0 4px; }
+[data-page=check] .hcChip { padding: 6px 12px; border-radius: 999px; font-weight: 600; font-size: 13px; background: rgba(255, 255, 255, .08); }
+[data-page=check] .hcChip.urgent { background: rgba(230, 70, 60, .25); color: #ffb2aa; } [data-page=check] .hcChip.soon { background: rgba(240, 190, 40, .25); color: #ffe08a; }
+[data-page=check] .hcSec, [data-page=check] .hcAdd { margin-top: 14px; max-width: 760px; }
+[data-page=check] .hcRow { display: flex; align-items: center; gap: 10px; padding: 10px 10px; margin: 6px 0; border-radius: 12px; background: rgba(255, 255, 255, .05); }
+[data-page=check] .hcRow.tap { cursor: pointer; }
+[data-page=check] .hcRow.battery, [data-page=check] .hcRow.offline { background: rgba(230, 70, 60, .14); }
+[data-page=check] .hcRow.radio, [data-page=check] .hcRow.update { background: rgba(240, 160, 40, .12); }
+[data-page=check] .hcIcon { width: 26px; text-align: center; font-size: 18px; }
+[data-page=check] .hcText { flex: 1; min-width: 0; }
+[data-page=check] .hcRight { color: var(--muted); font-size: 13px; white-space: nowrap; }
+[data-page=check] .hcDone { border: 0; border-radius: 10px; padding: 6px 10px; background: #2f9e5b; color: #fff; font-weight: 700; }
+[data-page=check] .hcDel { border: 0; background: none; color: var(--muted); font-size: 16px; padding: 4px; }
+[data-page=check] .hcAdd input, [data-page=check] .hcAdd select { display: block; width: 100%; margin: 6px 0; }
+
+/* ⋯ menu of the editor's top bar (5.25.0, topmore.js, docs/ideen-5.8 picture 16): Anleitung, Backup and Sicherheit live in it while editing */
+body:not(.live) #guideBtn, body:not(.live) #backupBtn, body:not(.live) #timelineBtn { display: none; }
+#topMoreWrap { position: relative; display: inline-flex; }
+body.live #topMoreWrap { display: none; }
+#topMoreBtn { font-size: 18px; letter-spacing: 1px; }
+.tmNew { position: absolute; top: -8px; right: -6px; padding: 0 6px; border-radius: 8px; background: #8b5cf6; color: #fff; font-size: 10px; font-weight: 700; line-height: 16px; pointer-events: none; }
+.tmNew[hidden] { display: none; }
+#topMore { position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; display: flex; flex-direction: column; gap: 2px; width: 300px; padding: 6px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.45); }
+#topMore[hidden] { display: none; }
+#topMore .tmRow { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 9px 12px; text-align: left; background: transparent; border: 0; border-radius: 8px; }
+#topMore .tmRow:hover, #topMore .tmRow:focus-visible { background: rgba(127,127,127,.15); }
+#topMore .tmRow b { font-size: 14px; font-weight: 600; }
+#topMore .tmRow .sub { font-size: 12px; color: var(--muted); }
+
+/* 🧭 Erste Schritte (5.25.0, firststepsui.js, docs/ideen-5.21 picture 2) */
+#firstSteps { position: absolute; left: 50%; top: 64px; transform: translateX(-50%); z-index: 7; width: min(520px, calc(100% - 32px)); max-height: calc(100% - 140px); overflow-y: auto;
+  padding: 16px 18px 12px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 12px 40px rgba(0,0,0,.45); }
+#firstSteps[hidden] { display: none; }
+#firstSteps .fsHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 18px; }
+#firstSteps .fsHead .dlgClose { position: static; }
+#firstSteps .tpSub { margin: 4px 0 10px; color: var(--muted); font-size: 13px; }
+#firstSteps .fsStep { margin: 6px 0; padding: 9px 11px; border-radius: 9px; background: rgba(127,127,127,.08); }
+#firstSteps .fsStep.done { background: rgba(34,197,94,.12); }
+#firstSteps .fsStep.now { background: rgba(245,158,11,.14); border: 1px solid rgba(245,158,11,.35); }
+#firstSteps .fsStep.later { opacity: .75; }
+#firstSteps .fsTop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+#firstSteps .fsStep.now .fsName { font-weight: 700; }
+#firstSteps .fsRight { white-space: nowrap; font-weight: 600; font-size: 13px; }
+#firstSteps .fsDetail p { margin: 6px 0 8px; font-size: 13px; color: var(--muted); }
+#firstSteps .fsDetail .bdBtn { margin: 0 6px 4px 0; }
+#firstSteps .fsBar { height: 6px; margin: 12px 0 6px; border-radius: 3px; background: rgba(127,127,127,.25); overflow: hidden; }
+#firstSteps .fsBar i { display: block; height: 100%; background: #22c55e; border-radius: 3px; transition: width .4s; }
+#firstSteps .fsFoot { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+#firstSteps .fsFoot .linkBtn { display: inline-block; margin: 0; font-size: 13px; }
+body.phoneview #firstSteps { top: 8px; max-height: calc(100% - 16px); }
+body.guestview #firstSteps, body.kiosk #firstSteps, body.kiosk #topMoreWrap { display: none !important; }
+#firstSteps.mini { left: auto; right: 16px; transform: none; width: 280px; padding: 10px 12px 8px; }
+#firstSteps.mini .fsHead { font-size: 15px; }
+
+/* 📊 Monatsbericht in the settings (5.26.0, monthreportui.js) */
+#monthReport .mrBtns { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+#monthReport .mrText { white-space: pre-wrap; font: inherit; font-size: 13px; margin: 8px 0; padding: 10px 12px; border-radius: 10px; background: rgba(127,127,127,.1); }
+#monthReport .mrRow { display: grid; grid-template-columns: 9em 1fr 4.5em; align-items: center; gap: 8px; margin: 5px 0; font-size: 13px; }
+#monthReport .mrName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#monthReport .mrBar { display: flex; height: 12px; border-radius: 6px; background: rgba(127,127,127,.2); overflow: hidden; }
+#monthReport .mrHeat, #monthReport .mrDot.heat { background: #e2573c; }
+#monthReport .mrPower, #monthReport .mrDot.power { background: #f0b21e; }
+#monthReport .mrSum { text-align: right; }
+#monthReport .mrDot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle; }

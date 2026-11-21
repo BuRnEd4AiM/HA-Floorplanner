@@ -4,12 +4,15 @@
  * in the order an admin chose, with his own pages; ✎ (editors, on a page) starts the page's edit mode (pageboard.js), in the bar's own
  * edit mode (tabedit.js) the tabs are dragged and "＋ Seite" makes a new page. */
 import { HOME, shownTabs, barShown, startTab, keepTab, barTabs } from './tabs.js';
+import { START, ROOMS, MORE, barItems, activeItem } from './appshell.js';
+
+const APP_ICON = { [START]: '🏠', [ROOMS]: '🚪', [HOME]: '🧊', energy: '⚡', [MORE]: '☰' };
 
 /** ctx: $, t, settings(), isLive(), card (true in the dashboard card without its option "tabs"), me() ({ tabs: { hide, start }, locks }),
  *  pages() ({ <tab>: { el, render(), update(), has(), reset(), badge() (optional: a number on the tab) } }, own pages too),
  *  onShow(tab) (close what lies over the house, wake the drawing), edit ({ can() (editors), editing() (the page in the edit mode),
  *  toggle(tab) }), tabEdit ({ on(), newPage() }), full (fullscreenui.js: { can(), isFull(), state(), click() }), after(tab, shown) (the
- *  scene bar over the bar follows the tab, #597) */
+ *  scene bar over the bar follows the tab, #597), app ({ on(), more() }: 📱 the phone as an app, appshell.js / appui.js, 5.22.0) */
 export function initTabsUi(ctx) {
   const { $, t } = ctx;
   const bar = $('#tabBar'), host = $('#tabPages');
@@ -18,7 +21,27 @@ export function initTabsUi(ctx) {
   const order = () => barTabs(ctx.settings().customTabs, ctx.settings().tabOrder);
   const nameOf = (x) => x.name || t(`tab.${x.key}`);
 
+  const appOn = () => !!ctx.app?.on();
+  /** 📱 the app's bar: Start, Räume, 3D-Haus, Energie, Mehr (appshell.js) */
+  function drawApp() {
+    const sig = JSON.stringify(['app', tabs, shown, t('app.tab.start')]);
+    if (sig === drawn) { mark(); return; }
+    drawn = sig;
+    bar.hidden = !shown;
+    document.body.classList.toggle('hasTabs', shown);
+    bar.classList.add('appBar');
+    bar.replaceChildren(...barItems(tabs).map((k) => {
+      const b = document.createElement('button'); b.type = 'button'; b.dataset.tab = k;
+      const i = document.createElement('span'); i.className = 'ti'; i.textContent = APP_ICON[k];
+      b.append(i, document.createTextNode(t(`app.tab.${k}`)));
+      b.addEventListener('click', () => (k === MORE ? ctx.app.more() : show(k)));
+      return b;
+    }));
+    mark();
+  }
   function draw() {
+    if (appOn()) { drawApp(); return; }
+    bar.classList.remove('appBar');
     const all = order().filter((x) => tabs.includes(x.key)), editor = !!ctx.edit?.can(), moving = !!ctx.tabEdit?.on();
     const full = ctx.full, fs = full?.can() ? [full.isFull(), full.state()] : null, ps = pages();
     const badges = all.map((x) => ps[x.key]?.badge?.() || 0);         // a number on a tab: machines done on 🧺 Haushalt (#490)
@@ -59,7 +82,8 @@ export function initTabsUi(ctx) {
     mark();
   }
   const mark = () => {
-    bar.querySelectorAll('[data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === open));
+    const lit = appOn() ? activeItem(open, tabs) : open;            // 📱 a page under "Mehr" lights up "Mehr"
+    bar.querySelectorAll('[data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === lit));
     const e = bar.querySelector('.tbEdit');
     if (e) { e.hidden = open === HOME; e.classList.toggle('active', ctx.edit.editing() === open); }
   };
@@ -89,6 +113,7 @@ export function initTabsUi(ctx) {
     const me = ctx.me() || {}, ps = pages();
     tabs = shownTabs({ has: Object.fromEntries(Object.entries(ps).map(([k, p]) => [k, p.has()])), hide: me.tabs?.hide || [], locks: me.locks || [],
       keys: order().map((x) => x.key) });
+    if (appOn()) tabs = [START, ROOMS, ...tabs];                  // 📱 the app's own pages
     shown = barShown({ live: ctx.isLive(), card: ctx.card, on: ctx.settings().tabBar, tabs });
     draw();
     const next = keepTab(open, tabs, shown);
@@ -99,7 +124,7 @@ export function initTabsUi(ctx) {
   return {
     update, show,
     redraw: () => { drawn = ''; update(); },                     // the bar again (own pages, their order, the edit modes)
-    home: () => show(startTab(ctx.me()?.tabs?.start, tabs)),      // the start tab of this user / tablet (start, back when idle)
+    home: () => show(appOn() && !ctx.me()?.tabs?.start ? START : startTab(ctx.me()?.tabs?.start, tabs)),   // the start tab of this user / tablet (start, back when idle); 📱 Start
     covered: () => open !== HOME,
     has: (k) => shown && tabs.includes(k),                        // the bar is there with this tab (the camera pill opens its page)
     open: () => open,

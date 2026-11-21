@@ -1,4 +1,5 @@
-/* Compass (3D view): the ring with N / E / S / W stands still (north is up), only the needle turns to where the camera looks.
+/* Compass (3D view): the ring with N / E / S / W stands still (north is up), only the needle turns to where the camera looks (a plan
+ * drawn turned says where north is, layout.north: then the needle shows the real direction).
  * The angle keeps counting beyond 360 degrees (see unwrap), otherwise the needle would spin all the way back at the jump from 359 to 0. */
 
 /** the angle that means the same direction as `next` (modulo 360) but lies closest to `prev`: continuous, may grow beyond +-360 */
@@ -8,18 +9,19 @@ export function unwrap(prev, next) {
 }
 /** degrees clockwise from north the camera looks to; dx, dz = camera minus target (x to the east, z to the south) */
 export const headingOf = (dx, dz) => (Math.atan2(-dx, dz) * 180) / Math.PI;
-/** index 0..7 (N, NE, E, SE, S, SW, W, NW) of the side of the house we look from */
-export const sideIndex = (dx, dz) => Math.round((((Math.atan2(dx, -dz) * 180) / Math.PI + 360) % 360) / 45) % 8;
+/** index 0..7 (N, NE, E, SE, S, SW, W, NW) of the side of the house we look from; north: which way the top of the plan looks (layout.north) */
+export const sideIndex = (dx, dz, north = 0) => Math.round(((((Math.atan2(dx, -dz) * 180) / Math.PI + north) % 360 + 360) % 360) / 45) % 8;
 
-/** ctx: $, t, camera, controls */
+/** ctx: $, t, camera, controls, north() (which way the top of the plan looks, layout.north: the needle and the side turn with it, ☀ 5.15.0) */
 export function initCompass(ctx) {
   const { $, t } = ctx;
   let shown = '', angle = 0;               // what the compass shows right now (it is only redrawn when something changed) and the continuous needle angle
   function update() {
     const dx = ctx.camera.position.x - ctx.controls.target.x, dz = ctx.camera.position.z - ctx.controls.target.z;
     if (Math.hypot(dx, dz) < 1e-6) return;
-    const next = unwrap(angle, headingOf(dx, dz));
-    const text = t('compass.from', { d: t('compass.dirs').split(',')[sideIndex(dx, dz)] });
+    const n = ctx.north?.() || 0;
+    const next = unwrap(angle, headingOf(dx, dz) + n);
+    const text = t('compass.from', { d: t('compass.dirs').split(',')[sideIndex(dx, dz, n)] });
     const key = `${Math.round(next)}|${text}`;
     if (key === shown) return;
     shown = key; angle = next;

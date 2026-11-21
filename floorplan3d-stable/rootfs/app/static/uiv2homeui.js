@@ -159,7 +159,8 @@ export function initUiV2Home(ctx) {
     const pick = (sel) => { const x = fb.querySelector(sel); return x ? x.closest('#floorBody > *') : null; };
     const name = kids[0], kind = pick('#floorKind'), order = pick('#floorUp'), adds = pick('#addBasement'), storey = pick('#storeyHeight'), help = pick('#storeyHelp');
     const half = [pick('#halfBasementHelp'), pick('#halfBasementGo')].filter(Boolean);   // a basement half out of the ground (#691): under the height
-    const taken = new Set([name, kind, order, adds, storey, help, ...half]);
+    const watchEls = [pick('#floorNoWatch'), pick('#floorNoWatchHint')].filter(Boolean);   // 🔕 Nicht überwachen (#780): a section of its own
+    const taken = new Set([name, kind, order, adds, storey, help, ...half, ...watchEls]);
     const rest = kids.filter((k) => !taken.has(k));
     const card = el('section', 'v2FloorCard'); card.id = 'v2Floor';
     const head = el('div', 'v2Head');
@@ -193,6 +194,7 @@ export function initUiV2Home(ctx) {
       hd.addEventListener('click', () => { bd.hidden = !bd.hidden; sec.classList.toggle('open', !bd.hidden); hd.lastChild.textContent = bd.hidden ? '▾' : '▴'; });
       sec.append(hd, bd); card.append(sec);
     };
+    fold('watch', '🔕', t('nw.head'), watchEls, !!f.noWatch);
     if (f.kind === 'roof' && ctx.roofEdit) {                     // the new roof editor (5.1.0, roofeditui.js) instead of the long list
       const host = el('div', 'v2RoofHost'); host.id = 'v2Roof'; card.append(host);
       ctx.roofEdit.render(host, { fi, head: false });

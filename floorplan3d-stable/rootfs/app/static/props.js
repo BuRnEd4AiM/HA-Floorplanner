@@ -11,7 +11,7 @@ import { initClosetUi } from './closetui.js';
 import { MOUNTS, MAX_FIELD } from './solarroof.js';
 import { BRIDGE, bridgeSize } from './bridge.js';
 import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
-import { hasShutter, setShutter, setShutterEntity, setShutterStyle, curtainStyle, curtainSide, shutterChoices, SHUTTER_STYLES } from './shutters.js';
+import { hasShutter, canHaveShutter, setShutter, setShutterEntity, setShutterStyle, curtainStyle, curtainSide, shutterChoices, shutterParts, setShutterParts, shutterSlots, SHUTTER_STYLES, MAX_SHUTTER_PARTS } from './shutters.js';
 import { wantsLightColor } from './lamplight.js';
 import { finishChoices, finishOf, variantChoices, variantOf, variantLabel, variantHint } from './scandi.js';
 import { zoneKeys, setZone, fitZones } from './ledzones.js';
@@ -27,6 +27,7 @@ import { roomNameFields } from './roomnameui.js';
 import { trySpan } from './openingstack.js';
 import { stackFields } from './openingstackui.js';
 import { roomSourceFields } from './roomsourceui.js';
+import { noWatchField } from './nowatchui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -90,6 +91,8 @@ export function initProps(ctx) {
   const mark = (body, key) => { const m = document.createElement('i'); m.className = 'v2mark'; m.dataset.sec = key; m.hidden = true; body.append(m); };
   const roomEntsBox = (body) => { const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts'; body.append(ents); ctx.renderRoomEntities(); };
   const pickFrom = (list) => list.slice(0, 1500);
+  /** what the tick "🔕 Nicht überwachen" needs (nowatchui.js, #780): the floor left out greys it out */
+  const nwUi = () => ({ t, snapshot: () => ctx.snapshot(), changed: () => { ctx.changed(); ctx.applyStates(); }, floorOff: !!ctx.floor()?.noWatch });
 
   /** a roof on the open roof floor (#255): where it is, and how to move it; its shape stays in the floor panel */
   function roofCard(body, box, r) {
@@ -252,7 +255,11 @@ export function initProps(ctx) {
       const ssel = document.createElement('select'); ssel.id = 'openStyle';
       DOOR_STYLES.forEach((v) => ssel.add(new Option(t(`st.${v}`), v)));
       ssel.value = it.style || 'single';
-      ssel.addEventListener('change', () => { ctx.snapshot(); it.style = ssel.value; ctx.changed(); });
+      ssel.addEventListener('change', () => {
+        ctx.snapshot(); it.style = ssel.value;
+        if (!canHaveShutter(it)) setShutter(it, false);          // a garage door or a bare opening has no roller shutter (#779)
+        ctx.changed(); render();
+      });
       body.append(field(t('prop.style'), ssel));
     }
     if (it.type === 'window' && (it.style || 'double') !== 'fixed') {
@@ -327,6 +334,7 @@ export function initProps(ctx) {
         windows: () => ctx.allOpenings(), setStatus: (x) => ctx.setStatus(x) }, body, it);
     }
     if (it.type === 'window') { mark(body, 'contact'); rainProps(body, it); mark(body, 'shutter'); shutterProps(body, it, entities, room); }
+    else if (canHaveShutter(it)) { mark(body, 'shutter'); shutterProps(body, it, entities, room); }   // a sliding door to the terrace (#779)
     mark(body, 'contact');   // right under the contact: the rain warning (#419), the roller shutter (#331)
     const count = paneCount(it);
     if (count) {
@@ -352,6 +360,7 @@ export function initProps(ctx) {
       body.append(field(t('prop.inv'), ci));
       mark(body, 'contact'); if (it.entity || (it.paneEntities || []).some(Boolean)) heatProps(body, it);
     }
+    mark(body, 'contact'); noWatchField(nwUi(), body, it, 'opening');   // only drawn, never offline (#780)
     mark(body, 'look'); looksUi.openingFields(body, it, wall);      // the colours of its leaf and frame (#754)
   }
 
@@ -375,12 +384,12 @@ export function initProps(ctx) {
     body.append(lb);
   }
 
-  /** the roller shutter of a window, also of a dormer window (#331): the tick, then its own cover entity (the contact above stays the
-   *  window's sensor) */
+  /** the roller shutter of a window, also of a dormer window (#331), and of a door (#779): the tick, then its own cover entity (the contact
+   *  above stays the window's sensor); a roller shutter can be two or three side by side, each with its own entity (#779) */
   function shutterProps(body, it, entities, room) {
     const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = hasShutter(it); cb.id = 'openShutter';
     cb.addEventListener('change', () => { ctx.snapshot(); setShutter(it, cb.checked); ctx.changed(); render(); });
-    const lb = document.createElement('label'); lb.className = 'chk'; lb.title = t('prop.shutterHint'); lb.append(cb, document.createTextNode(' ' + t('prop.shutter')));
+    const lb = document.createElement('label'); lb.className = 'chk'; lb.title = t(it.type === 'door' ? 'prop.shutterHintDoor' : 'prop.shutterHint'); lb.append(cb, document.createTextNode(' ' + t('prop.shutter')));
     body.append(lb);
     if (!hasShutter(it)) return;
     const ssel = document.createElement('select'); ssel.id = 'curtainStyle';
@@ -397,7 +406,21 @@ export function initProps(ctx) {
       ctx.changed();
     });
     body.append(field(t('prop.curtainSide'), side));
-    body.append(pickerField(t('prop.shutterEntity'), ctx.entityPicker(pickFrom(shutterChoices(entities)), room, it.shutterEntity || '', (v) => { ctx.snapshot(); setShutterEntity(it, v); ctx.changed(); })));
+    if (curtainStyle(it) === 'roller') {                       // two or three roller shutters side by side, each with its own motor (#779)
+      const pn = document.createElement('input'); pn.type = 'number'; pn.id = 'shutterParts'; pn.min = '1'; pn.max = String(MAX_SHUTTER_PARTS); pn.step = '1';
+      pn.value = String(shutterParts(it));
+      pn.addEventListener('change', () => { ctx.snapshot(); setShutterParts(it, pn.value); ctx.changed(); render(); });
+      const pf = field(t('prop.shutterParts'), pn); pf.title = t('prop.shutterPartsHint');
+      body.append(pf);
+    }
+    const slots = shutterSlots(it), many = slots.length > 1;
+    slots.forEach((cur, i) => {
+      const pick = pickerField(many ? t('prop.shutterEntityN', { n: i + 1 }) : t('prop.shutterEntity'),
+        ctx.entityPicker(pickFrom(shutterChoices(entities)), room, cur, (v) => { ctx.snapshot(); setShutterEntity(it, v, i); ctx.changed(); }));
+      if (many) pick.dataset.part = String(i + 1);
+      body.append(pick);
+    });
+    if (many) { const hp = document.createElement('p'); hp.className = 'sub'; hp.id = 'shutterPartsHint'; hp.textContent = `${t('prop.shutterPartsHint')} ${t('prop.shutterPartsOrder')}`; body.append(hp); }
   }
 
   function deviceProps(body, it) {
@@ -494,6 +517,7 @@ export function initProps(ctx) {
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
     renderEntState();
+    noWatchField(nwUi(), body, it, 'device');                    // only drawn, never offline (#780)
   }
 
   /** the LED zones of a piece (ledzones.js: a mirror's light behind it and in front ...): an entity for each, empty: the zone follows the

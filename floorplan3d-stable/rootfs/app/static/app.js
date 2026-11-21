@@ -18,6 +18,7 @@ import { energyUnits } from './energyunits.js';
 import { initEnergyUnitsUi } from './energyunitsui.js';
 import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
+import { leaveOut, unwatched } from './nowatch.js';
 import { initBadges } from './badges.js';
 import { initKiosk } from './kiosk.js';
 import { initTabletExtras } from './tabletextras.js';
@@ -78,6 +79,10 @@ import { initRoomTiles } from './roomtilesui.js';
 import { initLightGroups } from './lightgroupsui.js';
 import { initFavorites } from './favoritesui.js';
 import { initWelcome } from './welcome.js';
+import { initFirstSteps } from './firststepsui.js';
+import { toPlace, firstUnlinked } from './firststeps.js';
+import { nameMatches } from './roomname.js';
+import { initTopMore } from './topmore.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { planPlacement, classify } from './autoplace.js';
@@ -125,6 +130,14 @@ import { initDashboards } from './dashboards.js';
 import { meterPart } from './energymetersui.js';
 import { initTodayPrefs } from './todayprefs.js';
 import { initPresencePrefs } from './presenceprefs.js';
+import { initGuestUi } from './guestui.js';
+import { initGuestView } from './guestview.js';
+import { initAppUi } from './appui.js';
+import { initCheckPage } from './pagecheck.js';
+import { radioRows } from './radiomap.js';
+import { appMode, PREF_KEY, START, ROOMS } from './appshell.js';
+import { alarmPanel, weatherEntity } from './today.js';
+import { roomIcon } from './roomgroups.js';
 import { initDoorbellUi } from './doorbellui.js';
 import { initDoorbellPrefs } from './doorbellprefs.js';
 import { initOutdoorPrefs } from './outdoorprefs.js';
@@ -132,7 +145,8 @@ import { initVoiceUi } from './voiceui.js';
 import { initVoicePrefs } from './voiceprefs.js';
 import { initVoiceCheck } from './voicecheck.js';
 import { initTapBalls } from './tapballs.js';
-import { initLiveChannel, fetchAreas, fetchBatteries } from './livechannel.js';
+import { initLiveChannel, fetchAreas, fetchBatteries, fetchSignals } from './livechannel.js';
+import { initRadioUi } from './radioui.js';
 import { initDeviceList } from './devicelist.js';
 import { initTimeline } from './timelineui.js';
 import { replayEntities } from './timeline.js';
@@ -144,17 +158,20 @@ import { initShortcuts } from './shortcuts.js';
 import { initClipboard } from './clipboard.js';
 import { initEnergySetup } from './energysetup.js';
 import { initNotifyUi } from './notifyui.js';
+import { initMonthReportUi } from './monthreportui.js';
 import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.js';
 import { initSetControls } from './setcontrols.js';
 import { initSetSections } from './setsections.js';
 import { initGuardUi } from './guardui.js';
+import { initVacationUi } from './vacationui.js';
 import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding, areaShown } from './buildings.js';
 import { cardShows, pageShows } from './buildingents.js';
 import { initBuildingScope } from './buildingscope.js';
 import { initBuildingsUi } from './buildingsui.js';
 import { initPicking } from './picking.js';
 import { batchModels, unbatch } from './meshmerge.js';
-import { staticDevice } from './pickrules.js';
+import { initLiveBatch } from './livebatch.js';
+import { northOf } from './sunshade.js';
 import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
 import { frameDue, shadowDue, dampingFor, MAX_STEP } from './frameloop.js';
@@ -192,6 +209,7 @@ let layout = { version: 1, floors: [] };
 let floorIdx = 0;
 let returnToTool = null;          // after placing a device the Select tool is active for one click, then this tool comes back
 let welcomeUi = null;           // the welcome card of an empty house (set up further down)
+let firstSteps = null;          // 🧭 Erste Schritte (set up after the welcome card)
 let mode = 'edit';                 // 'edit' | 'live'
 let tool = 'select';
 let uiV2 = null;                   // „Oberfläche 2“ (uiv2ui.js), set further down
@@ -207,6 +225,7 @@ let entities = [];
 let areas = [];                      // Home Assistant areas: [{id, name, entities[]}]
 let areaOf = {};                     // entity_id -> area id
 let batteryOf = {};                  // entity_id -> the battery entity of its device (#376, the device overview)
+let signals = { of: {}, off: [] };   // 📡 the radio signal entity of each entity's device, the ones switched off (radioui.js, 5.17.0)
 let offReasons = new Map();          // device / opening id -> why it is offline (offline.js), for the device overview
 const fxRgb = (name) => fxRgbOf(name, settings.effectColors);            // the colour of a light effect (entitystate.js)
 let states = {};                   // entity_id -> { state, unit }
@@ -362,11 +381,7 @@ const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundId
 const sky = initSky({ $, t, canvas, params, settings: () => settings, states: () => states, isLive: () => isLive(), isHolo: () => isHolo(),   // sky and weather (#418, #419), skyui.js
   low: () => perfParam === 'low', earthTint: (c) => earth.setTint(c) });
 let plotLoop = null;                  // the plot outline: a drawing aid, only in edit mode
-let statics = [], batched = [];       // furniture linked to nothing, per floor, drawn together in the live mode (#138, batchModels)
-function batchStatics() {             // live: batched, editor: every piece on its own again (it can be moved)
-  batched.forEach(unbatch);
-  batched = isLive() ? statics.map(({ g, models }) => batchModels(g, models)).filter(Boolean) : [];
-}
+const liveBatch = initLiveBatch({ isLive: () => isLive(), batch: batchModels, unbatch });   // the models of a floor drawn together in the live mode (#138, livebatch.js)
 /** the grid is a drawing aid (never in live mode, under any ground only while drawing, on the level of the floor shown); the earth cut follows the camera */
 function updateEarthCut() {
   if (grid) {
@@ -504,9 +519,9 @@ function build() {
   wake();
   refreshView();
   plan?.render();
-  batched.forEach(unbatch); batched = []; statics = [];   // the parts back in the scene: clearGroup frees them
+  liveBatch.reset();                    // the parts back in the scene: clearGroup frees them
   clearGroup(world);
-  registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); offMarks.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0; roomLabels.clear();
+  registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); offMarks.clear(); radio.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0; roomLabels.clear();
   syncDormerWindows(layout.floors, roofList, elev, uid);   // dormer windows are real windows on the floor they belong to (dormerwin.js)
   const holo = isHolo();
   const iso = isolatedRoom();
@@ -571,7 +586,7 @@ function build() {
     floorBuild.walls(g, f, i, { ...part, edge: edgeMaterial, roofClip: roofsUi.wallClip(i) });   // under the roof the walls follow the slope (#260)
 
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
-    if (!ghost && !holo) statics.push({ g, models: f.devices.filter(staticDevice).map((d) => registry.get(d.id)).filter(Boolean) });
+    if (!ghost && !holo) liveBatch.add(g, f.devices.map((d) => registry.get(d.id)).filter(Boolean));
     floorBuild.inside(g, part);
     if (!ghost && !houseMode && i === floorIdx) roomLocks?.draw3d(g, f, iso);   // locked rooms hatched while editing; a room on its own: only its own (roomlockui.js)
   });
@@ -585,8 +600,8 @@ function build() {
       registry.get(d.id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { m.clippingPlanes = [earth.plane]; m.needsUpdate = true; }); });
     }));
   }
-  batchStatics();
   applyStates();
+  liveBatch.apply();                    // after the states: who is not at home is hidden by now
   refreshSelection();
   buildNav();
   floorRail.schedule();
@@ -671,6 +686,7 @@ const rulesUi = initRulesUi({                                    // the add-on's
   layout: () => shownLayout(), details: (e) => live.detailsButton(e, true), tabs: () => tabsUi, climate: () => climatePage, routines: () => routinesPage,
   redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); }, partOf, areas: () => areas, areaOf: () => areaOf,   // ▶ Abläufe by room (#590)
   shows: inBuilding,                                             // only the routines, automations and scenes of the building shown (#677)
+  north: () => northOf(layout), setNorth: (v) => { snapshot(); layout.north = v; changed(false); },   // ☀ where north is (sunshade.js), no new drawing
 });
 const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
   settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf,
@@ -798,7 +814,7 @@ const climatePage = initClimatePage({                            // 🌡 Klima (
   t, el: $('#tabPages [data-page=climate]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => shownLayout(),
   placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf, isOpen: (e) => isOpen(e), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
   callService: (e, svc, data) => live.callService(e, svc, data), openRoom: openRoomAt, board, thermo: dash.thermo, shows: inBuilding,   // the thermostat as a circle (#495)
-  heat: rulesUi.heat, plan: rulesUi.plan, diag: rulesUi.diag,     // 📋 Heiz-Regeln, 📅 Heizplan (#546), 🩺 Protokoll (#579)
+  heat: rulesUi.heat, plan: rulesUi.plan, diag: rulesUi.diag, sun: rulesUi.sun,   // 📋 Heiz-Regeln, 📅 Heizplan (#546), 🩺 Protokoll (#579), ☀ Sonnenschutz
 });
 const routinesPage = initRoutinesPage({                          // ▶ Abläufe (pageroutines.js, routines.js, #483)
   t, el: $('#tabPages [data-page=routines]'), states: () => states, settings: () => settings, canEdit: () => me.canEdit,
@@ -808,6 +824,22 @@ const routinesPage = initRoutinesPage({                          // ▶ Abläufe
   groups: rulesUi.groups, areaOf: () => areaOf,                   // by room (#590)
 });
 const roomOf = (e) => placeOf(layout, e)?.room || areas.find((a) => a.id === areaOf[e])?.name || '';   // the room of a device: in the plan, else its area
+const checkPage = initCheckPage({                                // 🩺 Haus-Check with 🔧 Wartung (pagecheck.js, housecheck.js, 5.24.0)
+  t, el: $('#tabPages [data-page=check]'),
+  data: () => ({
+    batteries: deviceList.rows().flatMap((f) => f.rooms.flatMap((r) => r.items)).filter((x) => x.battery?.low).map((x) => ({ id: x.id, name: x.name, level: x.battery.level })),
+    offline: offline.devices().filter((x) => x.reason !== 'unlinked').map((x) => ({ id: x.id, name: x.name || x.entity, room: x.room })),
+    radio: radioRows(shownLayout(), states, signals?.of || {}, (f) => openingWalls(f).flatMap((w) => w.openings || [])),
+    updates: Object.entries(states).filter(([e, st]) => e.startsWith('update.') && st?.state === 'on').map(([e]) => ({ id: e, name: entities.find((x) => x.entity_id === e)?.name || e })),
+  }),
+  reminders: () => settings.maintenance || [], save: (list) => { settings.maintenance = list; settingsStore.save(); }, canEdit: () => me.canEdit,
+  devices: () => shownLayout().floors.flatMap((f) => (f.devices || []).filter((d) => !unwatched(f, d)).map((d) => ({ id: d.id, name: d.name || '', type: d.type, entity: d.entity || '', dc: states[d.entity]?.dc }))),   // 🔕 not the flat of someone else (#780)
+  locate: (id) => { tabsUi.show('house'); setTimeout(() => locateDevice(id), 50); },
+});
+function locateDevice(id) {                                      // fly to a device or window of the plan, as the search does
+  const fl = shownLayout().floors, fi = fl.findIndex((x) => (x.devices || []).some((d) => d.id === id) || openingWalls(x).some((w) => (w.openings || []).some((o) => o.id === id)));
+  if (fi >= 0) search.goTo({ kind: (fl[fi].devices || []).some((d) => d.id === id) ? 'device' : 'opening', id, floor: fi });
+}
 const logPage = initLogPage({                                    // 📜 Protokoll (pagelog.js, devlog.js): who switched what, for who may edit
   t, el: $('#tabPages [data-page=log]'), states: () => states, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, roomOf,
   rooms: () => [...new Set(shownLayout().floors.flatMap((f) => (f.rooms || []).map((r) => r.name).filter(Boolean)))],
@@ -836,6 +868,7 @@ const energyPage = initEnergyPage({                              // ⚡ Energie 
   houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), changed: () => tabsUi.update(), board, states: () => states,
   units: (l, h, withHouse) => energyUnits(l, h, { withHouse, unnamed: t('bld.unnamed') }), shownBuilding: () => buildingsUi?.shown() ?? null,   // per building (4.70.0)
   nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
+  canEdit: () => me.canEdit, editFlow: (f) => { tabsUi.show('routines'); rulesUi.flowEdit.open(f); },   // 🔌 Stromfresser: ⏰ Nachts abschalten
 });
 /** a tap on a row of "Im Haus" on the page ☀ Heute: to the house and what the row is about (the power: to the page ⚡ Energie) */
 function todayAct(k) {
@@ -851,16 +884,136 @@ function todayAct(k) {
   });
 }
 const full = initFullscreen({ $, t, locks: () => locks, changed: () => tabsUi.redraw() });   // ⛶, kept on for a user with the lock (#487)
+/* 📱 the phone as an app (5.22.0, appshell.js / appui.js): Start, Räume, 3D-Haus, Energie, Mehr; a room as a page of its own */
+let appPref = 'app';
+try { appPref = localStorage.getItem(PREF_KEY) || 'app'; } catch { /* storage may be blocked */ }
+const appOn = () => appMode({ phone: phoneMenu.isPhone(), live: isLive(), card: !!card, guest: document.body.classList.contains('guestview'), roomTablet: !!tabletRoom, pref: appPref });
+let appBack = START;                                              // where "‹ Zurück" of a room page goes
+function appRooms() {
+  const l = shownLayout();
+  return l.floors.flatMap((f, fi) => (floorShown(fi) ? (f.rooms || []) : []).filter((r) => r.name && !r.terrace).map((r) => {
+    const s = roomSummary(r, f, { placed: entityDevices(f), areaEntities: areaEntitiesOf(r), states, isOn: isLit, isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), partOf: partOf() });
+    return { fi, floor: f.name, id: r.id, name: r.name, temp: s.temp, lights: s.lights, open: s.open, occupied: !!s.occupied };
+  }));
+}
+function appOpenRoom(fi, id) {
+  appBack = tabsUi.open() === 'house' ? START : tabsUi.open();
+  document.body.classList.add('appRoom');
+  tabsUi.show('house');
+  resize();                                                       // the picture is only the top part now (style.css)
+  switchFloor(fi); focusRoom(id); roomPanel.open(id);
+  camera.position.lerp(controls.target, 0.3); controls.update();  // the room bigger in the picture on top (docs/ideen-5.23 C)
+  if (!roomPanel.full()) roomPanel.show(roomPanel.tab());        // the whole card at once
+  controls.autoRotate = true; controls.autoRotateSpeed = 1.2;     // the owner: the room on top, turning slowly, the controls below
+  let back = $('#appBack');
+  if (!back) {
+    back = Object.assign(document.createElement('button'), { id: 'appBack', type: 'button' });
+    back.addEventListener('click', appCloseRoom);
+    document.body.append(back);
+  }
+  back.textContent = `‹ ${t(appBack === ROOMS ? 'app.tab.rooms' : 'app.tab.start')}`;
+  back.hidden = false;
+  appHero(fi, id);
+}
+/** the room page's picture (the owner's choice docs/ideen-5.23 C): the room big on top, faded out at the bottom, its name and values in it */
+function appHero(fi, id) {
+  let hero = $('#appHero');
+  if (!hero) { hero = Object.assign(document.createElement('div'), { id: 'appHero' }); document.body.append(hero); }
+  const r = appRooms().find((x) => x.fi === fi && x.id === id);
+  hero.hidden = !r;
+  if (!r) return;
+  const sub = [r.temp == null ? '' : `${fmtNum(r.temp, 1, 1)} °C`, r.lights ? t('app.nOn', { n: r.lights }) : t('app.off'), r.open ? `🪟 ${t('app.open', { n: r.open })}` : ''].filter(Boolean).join(' · ');
+  const b = document.createElement('b'), sm = document.createElement('small');
+  b.textContent = `${roomIcon(r.name)} ${r.name}`; sm.textContent = sub;
+  hero.replaceChildren(Object.assign(document.createElement('i'), { className: 'fade' }), b, sm);
+  hero.dataset.room = `${fi}/${id}`;
+}
+setInterval(() => { const h = $('#appHero'); if (h && !h.hidden && document.body.classList.contains('appRoom')) { const [fi, id] = h.dataset.room.split('/'); appHero(+fi, id); } }, 5000);
+/** another tab while a room page is open: the room page ends without going anywhere */
+function appCloseRoomSoft() {
+  if (!document.body.classList.contains('appRoom')) return;
+  document.body.classList.remove('appRoom');
+  if ($('#appHero')) $('#appHero').hidden = true;
+  controls.autoRotate = false; resize();
+  const back = $('#appBack'); if (back) back.hidden = true;
+}
+function appCloseRoom() {
+  if (!document.body.classList.contains('appRoom')) return;
+  document.body.classList.remove('appRoom');
+  if ($('#appHero')) $('#appHero').hidden = true;
+  controls.autoRotate = false; resize();
+  const back = $('#appBack'); if (back) back.hidden = true;
+  roomPanel.close(); if (focusedRoom) focusRoom(null);
+  tabsUi.show(appBack);
+}
+/* the room keeps turning on its page: a touch elsewhere stops the turning (kiosk.js), it starts again 4 s after the last touch of the picture */
+let appTouched = 0;
+canvas.addEventListener('pointerdown', () => { appTouched = Date.now(); });
+setInterval(() => { if (document.body.classList.contains('appRoom') && !controls.autoRotate && Date.now() - appTouched > 4000) { controls.autoRotate = true; wake(); } }, 1000);
+const appUi = initAppUi({
+  t, lang: () => currentLanguage(), host: $('#tabPages'), rooms: appRooms, ground: () => groundIdx(), icon: roomIcon, num: (v) => fmtNum(v, 1, 1),
+  status: () => {
+    const al = alarmPanel(states), w = weatherEntity(settings, states), tw = states[w]?.wx?.t;
+    return { lightsOn: lightGroups.count(), alarm: al ? (al.state === 'disarmed' ? 'disarmed' : 'armed') : null, open: openings.items().length,
+      offline: offline.devices().filter((x) => x.reason !== 'unlinked').length, low: deviceList.low(), check: tabsUi.has('check') ? checkPage.badge() : 0, temp: Number.isFinite(tw) ? tw : null };
+  },
+  act: (k) => (k === 'check' ? tabsUi.show('check') : k === 'alarm' || k === 'temp' ? tabsUi.show(k === 'temp' && tabsUi.has('today') ? 'today' : 'house') : todayAct(k)),
+  openRoom: appOpenRoom,
+  lightsOff: (fi, id) => {
+    const f = shownLayout().floors[fi], r = f?.rooms.find((x) => x.id === id);
+    if (r) [...roomEntityIds(r, entityDevices(f), areaEntitiesOf(r))].filter((e) => e.startsWith('light.') && isLit(e)).forEach((e) => live.callService(e, 'turn_off'));
+  },
+  snapshot: () => { try { renderer.render(scene, camera); return canvas.toDataURL('image/jpeg', 0.7); } catch { return ''; } },
+  show: (k) => { appCloseRoom(); tabsUi.show(k); }, tabs: () => tabsUi.tabs(), tabName: (x) => x.name || t(`tab.${x.key}`),
+  canSettings: () => !locks.has('settings'), openSettings: () => $('#settingsBtn').click(),
+  // 5.23.0 (docs/ideen-5.22): the house and the building from the selects of the tool bar (they switch as always)
+  places: () => {
+    const opts = (sel) => { const el = $(sel); return el && !el.closest('[hidden]') ? [...el.options].map((o) => ({ id: o.value, name: o.textContent.trim(), on: o.value === el.value })) : []; };
+    const houses = opts('#houseSelect'), bsel = $('#buildingSelect');
+    return { houses: houses.length ? houses : [{ id: hs.id(), name: hs.label(hs.list().find((h) => h.id === hs.id()) || {}), on: true }],
+      buildings: bsel && !bsel.hidden && bsel.options.length > 1 ? opts('#buildingSelect') : [] };
+  },
+  pickHouse: (id) => { const el = $('#houseSelect'); if (el && el.value !== id) { el.value = id; el.dispatchEvent(new Event('change', { bubbles: true })); } },
+  pickBuilding: (id) => { const el = $('#buildingSelect'); if (el && el.value !== id) { el.value = id; el.dispatchEvent(new Event('change', { bubbles: true })); } },
+  chipList: (k) => {
+    if (k === 'lights') {
+      const lit = lightGroups.lit(), name = (e) => entities.find((x) => x.entity_id === e)?.name || e;
+      return { title: `💡 ${t('app.lightsOn', { n: lit.length })}`, empty: t('app.allLightsOff'), items: lit.map((e) => ({ icon: '💡', text: name(e), right: '⏻', keep: false, act: () => live.callService(e, 'turn_off') })),
+        foot: lit.length ? { text: t('app.allOff2'), ask: t('app.offAllAsk', { n: lit.length }), act: () => lit.forEach((e) => live.callService(e, 'turn_off')) } : null };
+    }
+    if (k === 'open') {
+      const list = openings.items();
+      return { title: `🪟 ${t('app.open', { n: list.length })}`, items: list.map((o) => ({ icon: o.kind === 'door' ? '🚪' : '🪟', text: o.name, right: o.room, act: () => todayAct('open') })) };
+    }
+    if (k === 'offline') {
+      const list = offline.devices().filter((x) => x.reason !== 'unlinked');
+      return { title: `📴 ${t('app.offline', { n: list.length })}`, items: list.map((x) => ({ icon: '📴', text: x.name || x.entity, right: x.room, act: () => todayAct('offline') })) };
+    }
+    return null;
+  },
+  menu: () => [['✏️', 'app.edit', '#modeSwitch [data-mode=edit]'], ['🎬', 'app.guide', '#guideBtn'], ['🗄️', 'app.backup', '#backupBtn'], ['🛡️', 'app.timeline', '#timelineBtn']]
+    .filter(([, , sel]) => { const el = $(sel); return el && !el.hidden && !el.closest('.edit-only') && getComputedStyle(el).display !== 'none' || (el && sel.includes('modeSwitch') && me.canEdit); })
+    .map(([icon, key, sel]) => ({ icon, text: t(key), act: () => $(sel).click(), data: { act: key.replace('app.', 'menu-') } })),
+  houseButtons: () => [{ key: 'colors', icon: '🎨', title: t('app.colors'), source: () => $('#modeBar') }, { key: 'view', icon: '👁', title: t('app.view'), source: () => $('#viewMenu') },
+    ...($('#sceneBar')?.querySelector('button') ? [{ key: 'scenes', icon: '🎬', title: t('app.scenes'), source: () => $('#sceneBar') }] : [])],
+  classic: () => { appPref = 'classic'; try { localStorage.setItem(PREF_KEY, 'classic'); } catch { /* not kept */ } toAppBtn.hidden = false; tabsUi.redraw(); tabsUi.show('house'); },
+});
+/** in the classic view on a phone: the way back to the app (in the ☰ menu, phonemenu.js folds #toolbar) */
+const toAppBtn = Object.assign(document.createElement('button'), { type: 'button', id: 'toAppBtn', className: 'phoneOnly', hidden: appPref !== 'classic' });
+toAppBtn.dataset.i18n = 'app.toApp';
+toAppBtn.addEventListener('click', () => { appPref = 'app'; try { localStorage.removeItem(PREF_KEY); } catch { /* not kept */ } toAppBtn.hidden = true; tabsUi.redraw(); tabsUi.home(); });
+$('#toolbar').append(toAppBtn);
 const tabsUi = initTabsUi({
+  app: { on: appOn, more: () => appUi.openMore() },
   $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => dash.variants.me(me), full,   // "Ansehen als" (#507)
   pages: () => ({ today: { el: $('#tabPages [data-page=today]'), ...todayPage }, energy: { el: $('#tabPages [data-page=energy]'), ...energyPage },
     climate: { el: $('#tabPages [data-page=climate]'), ...climatePage }, cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage },
     media: { el: $('#tabPages [data-page=media]'), ...mediaPage }, household: { el: $('#tabPages [data-page=household]'), ...householdPage },
     routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage },
-    log: { el: $('#tabPages [data-page=log]'), ...logPage },
-    ...dash.customPages() }),
+    log: { el: $('#tabPages [data-page=log]'), ...logPage }, check: { el: $('#tabPages [data-page=check]'), ...checkPage },
+    ...dash.customPages(), ...appUi.pages() }),
   edit: dash.edit, tabEdit: dash.tabEdit, after: dash.after,      // the scene bar, an open light window (#597)
-  onShow: (tab, was) => { if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)
+  onShow: (tab, was) => { if (tab !== 'house') appCloseRoomSoft(); document.body.classList.toggle('appMode', appOn()); document.body.classList.toggle('pageOpen', tab !== 'house'); appUi.houseFabs(appOn() && tab === 'house'); if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)
 });
 
 /* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
@@ -962,6 +1115,7 @@ function applyHouseStates() {
   });
   tapBalls.settle();                      // tap balls that would cover each other move apart (#244)
   offMarks.update(offIds, new Map(offList.map((x) => [x.id, x.floor])));   // the offline sign over what has no ball showing it (offlinemarks.js)
+  radio.update();                         // 📡 the signal signs while „Funk“ is on (radioui.js)
   buildNav();                             // room pills show a dot while somebody is in the room
   {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
     const holo = isHolo();
@@ -992,10 +1146,18 @@ const deviceList = initDeviceList({
 });
 /* ---- Offline devices: the code lives in offline.js, their signs in 3D in offlinemarks.js (#375) ---- */
 const offMarks = initOfflineMarks({ registry, labelSprites, ballShown: (id) => tapBalls.shown(id), floorShown: (fi) => houseMode || fi === floorIdx });
+const radio = initRadioUi({ $, t, registry, layout: () => shownLayout(), states: () => states, signals: () => signals,   // 📡 Funk-Karte (radioui.js)
+  openings: (f) => openingWalls(f).flatMap((w) => w.openings || []), floorShown: (fi) => houseMode || fi === floorIdx, wake: () => wake(),
+  locate: (id) => {                                              // a tap on a row of the card: fly to it, as the search does
+    const fl = shownLayout().floors, fi = fl.findIndex((x) => (x.devices || []).some((d) => d.id === id));
+    if (fi >= 0) search.goTo({ kind: 'device', id, floor: fi });
+    else search.goTo({ kind: 'opening', id, floor: fl.findIndex((x) => openingWalls(x).some((w) => (w.openings || []).some((o) => o.id === id))) });
+  } });
 const offline = initOffline({
   $, t, layout: () => shownLayout(), entities: () => entities, states: () => states, catOf, pointInPoly: (...a) => pointInPoly(...a), currentLanguage: () => currentLanguage(),
   houseMode: () => houseMode, floorIdx: () => floorIdx, switchFloor: (i) => switchFloor(i), isLive: () => isLive(), liveSelect: (h) => liveSelect(h),
   selectLocked: (sel) => { selection = sel; lockedSel = true; refreshSelection(); }, jump: (x) => search.goTo(x),
+  canEdit: () => me.canEdit, leaveOut: (x) => { snapshot(); if (leaveOut(layout, x)) { changed(); renderFloorPanel(); refreshSelection(); } },   // 🔕 Nicht überwachen (nowatch.js, #780)
 });
 
 /* ================= Warnings (#58) and the "Where is ...?" search (#62): the code lives in alertsui.js and search.js ================= */
@@ -1075,7 +1237,7 @@ const wallCutawayInfo = (w, group) => cutaway.info(w, group);
 function updateCutaway() { return cutaway.update(); }
 
 /* ---- Compass: the ring stands still, the needle turns with the camera; the code lives in compass.js ---- */
-const compass = initCompass({ $, t, camera, controls });
+const compass = initCompass({ $, t, camera, controls, north: () => northOf(layout) });
 
 /* ================= Changes, undo, save: the undo list and the autosave live in persist.js ================= */
 const persist = initPersist({
@@ -1158,11 +1320,56 @@ buildingsUi = initBuildingsUi({
 initImport({ t, lang: () => currentLanguage(), houseId: () => hs.id(), onImported: (j) => houseLoad.openImported(j) });
 welcomeUi = initWelcome({
   t, getLayout: () => layout, isEdit: () => !isLive(), loaded: () => planLoaded,
-  draw: () => { $('#viewSplit').click(); setTool('wall'); },
-  example: () => houseLoad.openExample(),
-  importJson: () => $('#importOpen').click(),
+  draw: () => { firstSteps?.open(); $('#viewSplit').click(); setTool('wall'); },     // each way in also opens 🧭 Erste Schritte
+  example: () => { firstSteps?.open(); return houseLoad.openExample(); },
+  importJson: () => { firstSteps?.open(); $('#importOpen').click(); },
 });
 welcomeUi.update();
+/* 🧭 Erste Schritte (5.25.0): the four steps from the empty plan to the finished house (firststeps.js, firststepsui.js) and the "⋯" menu
+   of the editor's top bar (topmore.js) */
+const placedEverywhere = () => {
+  const s = new Set();
+  layout.floors.forEach((f) => {
+    entityDevices(f).forEach((d) => { if (d.entity) s.add(d.entity); });
+    openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => linkedEntities(o).forEach((e) => s.add(e))));
+  });
+  return s;
+};
+const stillToPlace = () => toPlace(layout, areas, placedEverywhere(), (id) => !!classify(entityInfo(id)));
+const selectRoomAt = (fi, id) => { if (houseMode || fi !== floorIdx) switchFloor(fi); selection = { kind: 'room', id }; lockedSel = false; refreshSelection(); };
+firstSteps = initFirstSteps({
+  t, host: $('#welcome').parentElement,
+  stats: () => {
+    const rooms = layout.floors.flatMap((f) => f.rooms || []);
+    return { rooms: rooms.length, linked: rooms.filter((r) => r.area).length, areas: areas.length, toLink: nameMatches(areas, layout).length,
+      unplaced: stillToPlace().reduce((n, x) => n + x.ids.length, 0), devices: layout.floors.reduce((n, f) => n + (f.devices || []).length, 0) };
+  },
+  show: () => !isLive() && planLoaded && me.canEdit !== false && $('#welcome').hidden,
+  draw: () => { $('#viewSplit').click(); setTool('wall'); },
+  example: () => houseLoad.openExample(),
+  linkAll: () => {
+    const todo = nameMatches(areas, layout);
+    if (!todo.length) return;
+    snapshot(); todo.forEach(({ room, area }) => { room.area = area.id; }); changed();
+    setStatus(t('fs.linked', { n: todo.length }));
+  },
+  linkOne: () => { const x = firstUnlinked(layout); if (x) selectRoomAt(x.fi, x.room.id); },
+  placeAll: () => {
+    const list = stillToPlace();
+    if (!list.length) return;
+    snapshot();
+    const n = list.reduce((sum, { fi, room, ids }) => sum + autoPlace(room, ids, layout.floors[fi], false).devices.length, 0);
+    changed(); build();
+    setStatus(t('fs.placed', { n }));
+  },
+  placeOne: () => { const x = stillToPlace()[0]; if (x) selectRoomAt(x.fi, x.room.id); },
+  goLive: () => setMode('live'),
+  settings: () => $('#settingsBtn').click(),
+  video: () => $('#guideBtn').click(),
+  busy: () => tool !== 'select',
+});
+initTopMore({ $, t, firstSteps: () => firstSteps.open() });
+setInterval(() => firstSteps.update(), 1500);                       // follows the house: rooms drawn, linked, devices set
 
 function save() { return persist.save(); }
 
@@ -1294,7 +1501,7 @@ const roomPanel = initRoomPanel({
     tilt: (o) => tiltEntity(o), contactText: (o, e) => openings.contactText(o, e), windowText: (o) => openings.windowText(o) },   // #624
   closeLivePopup: () => popup.close(), leaveFocus: () => { if (focusedRoom) focusRoom(null); },
   off: () => cardUi?.roomPanel() === false,                                  // a dashboard card without the room panel (#13)
-  alone: () => !!cardUi?.panelOnly(),                                        // a dashboard card with nothing but the room panel (#356)
+  alone: () => !!cardUi?.panelOnly() || document.body.classList.contains('guestview') || document.body.classList.contains('appRoom'),   // ... or 👥 the guest's screen: the card stays (guestview.js)                                        // a dashboard card with nothing but the room panel (#356)
   num: (v, d) => fmtNum(v, d), co2Limit: () => airLimit(settings.co2Stops),
   heat: {                                                                    // what the heating rules do in the room, in 🌡 Klima of the room card (5.10.0)
     extras: (id, climate) => rulesUi.heat.roomExtras({ id, climate }), line: (id) => rulesUi.line(id),
@@ -1330,21 +1537,20 @@ async function saveEffectColors() {
 }
 const entityInfo = (id) => entities.find((e) => e.entity_id === id) || { entity_id: id, domain: id.split('.')[0] };
 /** put the given entities into the room where they belong (see autoplace.js); one undo step; returns the plan */
-function autoPlace(room, ids) {
-  const f = floor();
+function autoPlace(room, ids, f = floor(), snap = true) {   // f: the room's floor (🧭 Erste Schritte places on every floor), snap: own undo step
   const existing = f.devices.filter((d) => pointInPoly(d.x, d.z, room.points)).map((d) => ({
     x: d.x, z: d.z, layer: WALL_TYPES.has(d.type) || d.type === 'sensor' ? 'wall' : (d.y || 0) > 1.8 ? 'ceiling' : 'floor',
   }));
   const plan = planPlacement(room, ids.map(entityInfo), { openings: roomOpeningSpans(room, f), existing, wallHeight: settings.wallHeight });
   if (!plan.devices.length && !plan.openings.length) return plan;
-  snapshot();
+  if (snap) snapshot();
   plan.devices.forEach((p) => {
     const d = { id: uid(), type: p.type, x: p.x, z: p.z, y: p.y ?? DEVICE_TYPES[p.type]?.y ?? 0, rot: p.rot || 0, scale: 1, name: entityInfo(p.entity).name || p.entity, entity: p.entity };
     if (p.wall && WALL_TYPES.has(d.type)) snapToWall(d, 0.6, true);       // flat onto the wall face
     f.devices.push(d);
     p.id = d.id;
   });
-  plan.openings.forEach((o) => { const fo = findOpening(o.id); if (fo) fo.opening.entity = o.entity; });
+  plan.openings.forEach((o) => { const fo = openingWalls(f).flatMap((w) => w.openings || []).find((x) => x.id === o.id); if (fo) fo.entity = o.entity; });
   changed();
   return plan;
 }
@@ -1387,6 +1593,7 @@ function setMode(next) {
   mode = next;
   if (power.isMode() && next === 'live') power.setMode(false);
   document.body.classList.toggle('live', isLive());
+  document.body.classList.toggle('appMode', appOn());              // 📱 the app view only while live (editing has ☰ again)
   document.querySelectorAll('#modeSwitch button').forEach((b) => b.classList.toggle('active', b.dataset.mode === next));
   popup.close(); roomPanel.close(); selection = null; lockedSel = false; plan?.reset();
   if (isLive()) {
@@ -1399,10 +1606,12 @@ function setMode(next) {
   stairTool.showUpper(scene, !isLive());                              // stairs over several floors: whole height only in the editor (#246)
   if (plotLoop) plotLoop.visible = !isLive();
   roomLocks?.showHatch(!isLive()); roomLocks?.closePop();
-  batchStatics();
   applyViewPolicy();
   applyStates();
+  liveBatch.apply();
   welcomeUi?.update();                                              // the welcome card is for the editor only
+  if (isLive()) firstSteps?.sawLive();                              // 🧭 step 4: the live view was seen
+  firstSteps?.update();
   requestAnimationFrame(resize);
 }
 document.querySelectorAll('#modeSwitch button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
@@ -1563,7 +1772,7 @@ const floorPanel = initFloorPanel({
   $, t, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, setFloorIdx: (i) => { floorIdx = i; }, fields: { field, inp, lenInput },
   snapshot: () => snapshot(), build: () => build(), fitCamera: () => fitCamera(), buildNav: (force) => buildNav(force), renderObjList: () => renderObjList(),
   scheduleSave: () => scheduleSave(), switchFloor: (i) => switchFloor(i), clearSelection: () => { selection = null; }, roofBox: (i) => roofBox(i),
-  autoRoofBox: (i) => autoRoofBox(i), groundIdx: () => groundIdx(), uid: () => uid(),
+  autoRoofBox: (i) => autoRoofBox(i), groundIdx: () => groundIdx(), uid: () => uid(), refreshSelection: () => refreshSelection(),
   openTerrain: () => { switchFloor(groundIdx()); setTool('plot'); plotUi.setMode('terrain'); $('#plotPalette')?.scrollIntoView({ block: 'start' }); },   // a basement half out of the ground (#691)
   dormerOntoWall: (d) => { const x = dormerWindows(layout.floors, roofList, elev).find((q) => q.d === d); return x ? eaveOntoWall(layout.floors[x.fi].walls, x.n, x.win) : null; },
 });
@@ -1720,6 +1929,7 @@ const startView = initStartView({
 const todayPrefs = initTodayPrefs({ $, t });             // ⚙ → "Reiter unten": the calendars of the page ☀ Heute (#481, todayprefs.js)
 const routinePrefs = initRoutinePrefs({ $, t, entities: () => entities });   // ... and the buttons of ▶ Abläufe (#483, routineprefs.js)
 const mediaPrefs = initMediaPrefs({ $, t, entities: () => entities });       // ... the radio stations, the shopping list and the machines (#490, mediaprefs.js)
+const guestUi = initGuestUi({ $, t, lang: () => currentLanguage(), layout: () => layout, houseId: () => hs.id() });   // 👥 Gäste-Zugang in ⚙ → Benutzer (guestui.js)
 const presencePrefs = initPresencePrefs({ $ });                                // ... who counts as at home (#495, presenceprefs.js)
 const doorbell = initDoorbellUi({ $, t, lang: () => currentLanguage(), settings: () => settings, entities: () => entities, states: () => states, isLive: () => isLive(),   // 🔔 the camera when somebody rings (doorbellui.js)
   locked: (k) => locks.has(k), replaying: () => !!replayBack, callService: (e, svc) => live.callService(e, svc), cams, wake: () => kiosk.touched() });
@@ -1744,7 +1954,7 @@ const settingsStore = initSettings({
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
   doorsUi: initDoorSettings({ $, t }),                 // the colours of the house's doors (#754)
-  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs, outdoorPrefs, initSetControls({ $, t })],   // the last: buttons, sliders, units, "mehr …" (5.8.0)   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
+  parts: [guestUi, favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs, outdoorPrefs, initSetControls({ $, t })],   // the last: buttons, sliders, units, "mehr …" (5.8.0)   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
   ready: (next) => loadLanguage(next.language),       // a newly chosen language: its texts first, then apply (no English in between)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
@@ -1761,8 +1971,11 @@ const settingsStore = initSettings({
 });
 const loadSettings = () => settingsStore.load();
 const notifyUi = initNotifyUi({ $, t, entities: () => entities }); // settings: a message on alarm by WhatsApp (#414) and the alarm panels, notifyui.js
+const monthReportUi = initMonthReportUi({ t, settings: () => settings, save: () => settingsStore.save(), canEdit: () => me.canEdit });   // 📊 Monatsbericht (5.26.0)
+$('#settingsBtn').addEventListener('click', () => monthReportUi.render());
 initSetGroups({ $, t });                         // settings in groups that fold open, with a search, setgroups.js
-const guardUi = initGuardUi({ $, t, entities: () => entities, layout: () => layout });   // the holiday alarm: 🛡 button, lock screen, its settings (#456), guardui.js
+const guardUi = initGuardUi({ $, t, entities: () => entities, layout: () => layout,   // the holiday alarm: 🛡 button, lock screen, its settings (#456), guardui.js
+  vacation: initVacationUi({ t, rules: () => rulesUi.rules, entities: () => entities }) });   // 🏠 Urlaubs-Licht in its settings (vacationui.js)
 initSetSections({ $, t, guard: () => guardUi.info?.(), notify: () => notifyUi.cfg?.() });   // "Reiter unten" by page, "Warnungen & Alarm" as cards (5.8.0)
 const commitSettings = () => settingsStore.commit();
 onLanguageLoaded(() => { if (booted) applySettings(); });   // a language that came later (i18n.js): every text again
@@ -1790,7 +2003,7 @@ initVersion({ t, active: () => !isLive() && !!settings.updateCheck, auto: () => 
 initGuide({ $, t, lang: () => currentLanguage() });                 // 🎬 video guide in the top bar (guideui.js, only for editors)
 
 /* ================= Data loading ================= */
-async function loadAreas() { let a; [a, batteryOf] = await Promise.all([fetchAreas(), fetchBatteries()]); ({ areas, areaOf } = a); buildingScope.load(); }   // Home Assistant's areas and which entity is in which (livechannel.js)
+async function loadAreas() { let a; [a, batteryOf, signals] = await Promise.all([fetchAreas(), fetchBatteries(), fetchSignals()]); ({ areas, areaOf } = a); buildingScope.load(); radio.update(); }   // Home Assistant's areas and which entity is in which (livechannel.js)
 
 function toState(e) { return toStateOf(e, settings.effectColors); }       // what is kept of an entity (entitystate.js)
 
@@ -1898,6 +2111,7 @@ async function init() {
     if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); roomPanel.open(hit.room.id); }
     updateHouseToggle();
   }
+  initGuestView({ t, lang: () => currentLanguage(), roomPanel, findRoomByName, switchFloor, focusRoom }).start(me);   // 👥 the guest: only their room's card (guestview.js)
   if (cardUi?.start()) updateHouseToggle();               // the dashboard card's floor or whole house (#13)
   else if (await startView.apply(me.start)) {             // a saved start view (#315): the user's own or everybody's
     const hit = tabletRoom && findRoomByName(tabletRoom);
@@ -1950,6 +2164,7 @@ function animate(now = performance.now()) {
   if (shadowDue(shadowDirty, now, lastShadow, { sinking, sank: wallsSank, lastMove })) {   // shadows only when something changed (#253)
     renderer.shadowMap.needsUpdate = true; shadowDirty = wallsSank = false; lastShadow = now;
   }
+  liveBatch.check();                                             // a model hidden, shown or moved since the merge is drawn by itself again (#138)
   if (layoutMode !== '2d') edges.render(scene, camera, now);  // only the 2D plan shows: the hidden 3D picture is not drawn (#542); edges: #560
   perfHud.frame(now, due, frameStart);
 }
@@ -1980,10 +2195,10 @@ if (params.get('debug')) {
     },
     get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), kioskSaver: () => kiosk.saver(), cleaning: () => tabletExtras.cleaning(), kioskWake: () => kiosk.checkWake(), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
     edges: () => edges.info(), edgesCompare: () => edges.compare(scene, camera),   // #560, for tests
-    renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
+    renderer, scene, frame: () => { const t0 = performance.now(); liveBatch.check(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => hs.id(), states: () => states,
     bellOpen: () => doorbell.isOpen(), bells: () => doorbell.bells(), bellTest: () => doorbell.test(), bellClose: () => doorbell.close(),   // 🔔, for tests
-    batchedParts: () => batched.reduce((n, b) => n + b.parts.length, 0), unbatchAll: () => { batched.forEach(unbatch); batched = []; },   // #138, for tests
+    batchedParts: () => liveBatch.parts(), batchedMeshes: () => liveBatch.meshes(), batchRestless: (id) => liveBatch.restless(registry.get(id)), unbatchAll: () => liveBatch.undo(), rebatch: () => liveBatch.apply(),   // #138, for tests
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)
       const v = cams.coneCenter(id);
       if (!v) return null;
@@ -2023,6 +2238,7 @@ if (params.get('debug')) {
     },
     openLook: (id) => registry.get(id)?.userData.look ?? null,                                                 // 'open', 'tilted', 'closed' …
     shutterScale: (id) => { const sh = registry.get(id)?.userData.shutter; const p = Array.isArray(sh) ? sh[0] : sh; return p?.userData.target ?? null; },   // how far a window's cover closes (#331)
+    shutterScales: (id) => [].concat(registry.get(id)?.userData.shutter || []).map((p) => +p.userData.target.toFixed(4)),   // every part of a door's / window's roller shutters (#779), for tests
     liveOk: () => liveChan.ok(),
     underFloors: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh) ok = o.renderOrder < 0 && [].concat(o.material).every((m) => !m.depthWrite); }); return ok; },
     bounds: () => floorBounds(), roofBox: (i) => roofBox(i),
@@ -2063,6 +2279,7 @@ if (params.get('debug')) {
     ballIcon: (id) => tapBalls.icon(id),
     ballOff: (id) => tapBalls.off(id),                               // the offline sign on a tap ball: 'offline' | 'unlinked' | null (#375)
     offMark: (id) => (offMarks.shown(id) ? offMarks.reason(id) : null),   // the offline sign over a thing without a ball (#375)
+    radioMark: (id) => (radio.shown(id) ? radio.quality(id) : null),   // 📡 the signal sign over a thing (radioui.js, 5.17.0)
     openingLook: (id) => registry.get(id)?.userData.look ?? null,    // a door / window: open (red), closed (green frame), offline (amber), #375                             // the icon of a tap ball ('switch': the drawn light switch, #366)
     roomLights: (id) => {                                            // the lamps lighting a room now: reach (m) and colour (0..1), #367
       const rm = roomMeshes.get(id), U = (isHolo() ? rm?.mesh : rm?.glow)?.material.uniforms;

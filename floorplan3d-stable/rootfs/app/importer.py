@@ -44,6 +44,8 @@ WINDOW_HINGES = {"bottom", "top", "left", "right"}
 PANE_HINGES = WINDOW_HINGES | {"fixed"}
 PANE_COUNTS = {"single": 1, "double": 2, "triple": 3, "fixed": 1}
 SHUTTER_STYLES = {"roller", "left", "right", "split"}
+SHUTTER_DOOR_STYLES = {"single", "glass", "double", "sliding"}   # doors that can have a roller shutter too (#779, static/shutters.js)
+MAX_SHUTTER_PARTS = 3
 MAX_PANES = 8
 FIXED_MIN, SASH_MIN = 0.2, 0.3      # fixed glass below / above the panes (#679): FIXED_MIN and SASH_MIN in static/windowpanes.js
 ROOF_TYPES = {"gable", "hip", "flat", "shed"}                  # shed: Pultdach (#628)
@@ -113,7 +115,7 @@ def clean_faces(v):
 # optional device fields that are copied when they have the right type
 DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range", "len", "rise", "armSwing", "armReach", "armTilt", "h", "land")
 DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img", "batPower")
-DEVICE_FLAGS = ("mirror", "locked", "hideModel", "batInvert", "noRail")
+DEVICE_FLAGS = ("mirror", "locked", "hideModel", "batInvert", "noRail", "noWatch")   # noWatch: only drawn, never offline (#780)
 CABLE_ROUTES = ("floor", "through", "air")
 ROOM_MAX_RAISE = 3                                                # LEVELS.maxRaise in static/levels.js (#566)
 PLATEAU_MAX_RISE = 5                                              # LEVELS.maxRise
@@ -382,30 +384,52 @@ def _opening_from(rep: Report, path: str, spec: dict):
         elif round(float(spec["tiltDeg"])) != 14:
             o["tiltDeg"] = int(round(float(spec["tiltDeg"])))
     shutter_entity = spec.get("shutterEntity") if isinstance(spec.get("shutterEntity"), str) else ""
-    cover = spec.get("shutter") is True or bool(shutter_entity)
-    if cover:                                                     # cover of a window (#331), with its own entity
-        if o["type"] != "window":
-            rep.warn(f"{path}.shutter", "only windows have a cover, ignored")
+    listed = [x[:120] if isinstance(x, str) else "" for x in spec["shutterEntities"][:MAX_SHUTTER_PARTS]] if isinstance(spec.get("shutterEntities"), list) else []
+    if listed and not shutter_entity:                             # "shutterEntities": every part's cover at once (#779)
+        shutter_entity = listed[0]
+    cover = spec.get("shutter") is True or bool(shutter_entity) or any(listed)
+    can = o["type"] == "window" or (o["type"] == "door" and o.get("style", "single") in SHUTTER_DOOR_STYLES)   # a sliding door too (#779)
+    if cover:                                                     # cover of a window (#331) or door (#779), with its own entity
+        if not can:
+            rep.warn(f"{path}.shutter", "only windows and doors with a leaf (single, glass, double, sliding) have a cover, ignored")
+            cover = False
         else:
             o["shutter"] = True
             if shutter_entity:
                 o["shutterEntity"] = shutter_entity[:120]
+    if cover and ("shutterParts" in spec or len(listed) > 1 or isinstance(spec.get("shutterMore"), list)):   # two or three side by side (#779)
+        more = listed[1:] if len(listed) > 1 else [x[:120] if isinstance(x, str) else "" for x in (spec.get("shutterMore") or [])[:MAX_SHUTTER_PARTS - 1]]
+        n = spec.get("shutterParts", 1 + len(more))
+        if not isinstance(n, int) or isinstance(n, bool) or not 1 <= n <= MAX_SHUTTER_PARTS:
+            rep.warn(f"{path}.shutterParts", f"shutterParts must be 1 to {MAX_SHUTTER_PARTS}, using {min(MAX_SHUTTER_PARTS, 1 + len(more))}")
+            n = min(MAX_SHUTTER_PARTS, 1 + len(more))
+        if n > 1:
+            o["shutterParts"] = n
+        more = more[:n - 1]
+        while more and not more[-1]:
+            more.pop()
+        if more:
+            o["shutterMore"] = more
+    if spec.get("noWatch") is True:                               # only drawn, never offline (#780)
+        o["noWatch"] = True
     if "shutterStyle" in spec:
         style = spec["shutterStyle"]
-        if o["type"] != "window":
-            rep.warn(f"{path}.shutterStyle", "only windows have a curtain type, ignored")
+        if not can:
+            rep.warn(f"{path}.shutterStyle", "only windows and doors with a leaf have a curtain type, ignored")
         elif not cover:
             rep.warn(f"{path}.shutterStyle", "a curtain type needs a cover (shutter / shutterEntity), ignored")
         elif not isinstance(style, str) or style not in SHUTTER_STYLES:
             rep.warn(f"{path}.shutterStyle", f"unknown curtain type '{style}', using 'roller'")
-        elif style != "roller":                                   # roller is the default and is not stored
+        elif style != "roller":                                   # roller is the default and is not stored; a cloth curtain has one part
             o["shutterStyle"] = style
+            o.pop("shutterParts", None)
+            o.pop("shutterMore", None)
     if "curtainSide" in spec or "curtainOutside" in spec:
         wanted = spec.get("curtainSide")
         legacy = spec.get("curtainOutside")
         default_side = "out" if o.get("shutterStyle") == "roller" else "in"   # roller shutters facade, cloth curtains room side
-        if o["type"] != "window":
-            rep.warn(f"{path}.curtainSide", "only windows have a curtain position, ignored")
+        if not can:
+            rep.warn(f"{path}.curtainSide", "only windows and doors with a leaf have a curtain position, ignored")
         elif not cover:
             rep.warn(f"{path}.curtainSide", "a curtain position needs a cover (shutter / shutterEntity), ignored")
         elif wanted is not None and (not isinstance(wanted, str) or wanted not in ("in", "out")):
@@ -918,6 +942,8 @@ def build_layout(data):
             continue
         name = str(f.get("name") or {"floor": f"Etage {fi + 1}", "basement": "Keller", "roof": "Dach"}[kind])[:60]
         out = {"id": ids("f"), "name": name, "kind": kind, "walls": [], "rooms": [], "devices": [], "blocks": [], "stairs": [], "holes": []}
+        if f.get("noWatch") is True:                    # the flat upstairs of someone else: its things are never offline (#780)
+            out["noWatch"] = True
         input_ids[fi] = out["id"]
         if kind == "roof":                              # the roof, and what stands up here: solar panels on the roof, a loft's rooms and things
             out["roof"] = _roof(rep, f"{fp}.roof", f.get("roof", {}))
@@ -1415,7 +1441,7 @@ def layout_to_property(layout, name="Haus"):
     index_of = {f.get("id"): i for i, f in enumerate(layout.get("floors", []))}      # a further roof names its floor by id, the format by index
     for f in layout.get("floors", []):
         kind = f.get("kind") if f.get("kind") in FLOOR_KINDS else "floor"
-        item = {"name": f.get("name", ""), "kind": kind}
+        item = {"name": f.get("name", ""), "kind": kind, **({"noWatch": True} if f.get("noWatch") is True else {})}
         if kind == "roof":
             item["roof"] = dict(f.get("roof") or {"type": "gable", "pitch": 35, "overhang": 0.4})
             if item["roof"].get("parts"):
@@ -1430,7 +1456,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "fixedBelow", "fixedAbove", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "rainWarn", "heat", "look") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "fixedBelow", "fixedAbove", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "shutterParts", "shutterMore", "noWatch", "rainWarn", "heat", "look") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []

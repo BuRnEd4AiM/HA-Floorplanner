@@ -9,11 +9,12 @@
  * top bar (saved, cannot be done there, changed in Home Assistant: overwrite?). "🎉 Besonderer Tag" (the owner, 2026-11-01: "an Heiligabend
  * soll zum Beispiel der Rollladen nicht ganz hochfahren"): a condition on the special days of the window "📅 Besondere Tage"
  * (specialdaysui.js); at a trigger "An besonderen Tagen anders" makes a lane two: as it was on all other days, a copy on those days. */
-import { blockWords, laneWords, laneLayout, newBlock, newId, flowReady, blockReady, groupOf, TRIGGERS, duration, hhmm, autoId, syncWords, haEditUrl } from './rules.js';
+import { blockWords, laneWords, laneLayout, newBlock, newId, flowReady, blockReady, groupOf, TRIGGERS, duration, hhmm, autoId, syncWords, haEditUrl, LIGHT_LEVELS, seasonAnchor, seasonOffset } from './rules.js';
 import { splitLane, dayName, dayIcon, which } from './specialdays.js';
+import { sunNow as skySun } from './sky.js';
 
 const PALETTE = [
-  ['when', [['state', { to: 'open' }, '🪟', 'fe.p.open'], ['state', { to: 'on' }, '🏃', 'fe.p.on'], ['time', null, '🕐', 'fe.p.time'], ['sun', null, '🌇', 'fe.p.sun'],
+  ['when', [['state', { to: 'open' }, '🪟', 'fe.p.open'], ['state', { to: 'on' }, '🏃', 'fe.p.on'], ['time', null, '🕐', 'fe.p.time'], ['sun', null, '🌇', 'fe.p.sun'], ['light', null, '🌗', 'fe.p.light'],
     ['presence', null, '👤', 'fe.p.presence'], ['num', null, '🌡', 'fe.p.num'], ['button', null, '🔘', 'fe.p.button']]],
   ['and', [['if_time', null, '🕐', 'fe.p.ifTime'], ['if_days', null, '📅', 'fe.p.ifDays'], ['if_home', null, '🏠', 'fe.p.ifHome'], ['if_outside', null, '🌡', 'fe.p.ifOutside'],
     ['if_sun', null, '🌙', 'fe.p.ifSun'], ['if_special', null, '🎉', 'fe.p.ifSpecial'], ['if_state', null, '💡', 'fe.p.ifState'], ['if_num', null, '📈', 'fe.p.ifNum']]],
@@ -198,9 +199,32 @@ export function initFlowEdit(ctx) {
         f.push(field(t('fe.op'), chips([['above', t('fl.op.above')], ['below', t('fl.op.below')]], b.op, (v) => set((x) => { x.op = v; }), 'op')));
         f.push(field(t('fe.value'), number(b.v, (v) => set((x) => { x.v = v; }), { step: 0.5, data: 'v' })));
         break;
-      case 'time':
-        f.push(field(t('fe.at'), time(b.at, (v) => set((x) => { x.at = v; }), 'at')), field(t('fe.days'), days(b.days, (v) => set((x) => { x.days = v; }))));
+      case 'time': {
+        /* 🌗 "an der Helligkeit orientieren" (the owner, 2026-11-19): the time keeps its distance to today's sunset / sunrise, so it moves
+           with the season; what is typed is meant for today */
+        const sunNow = () => {                      // sun.sun of Home Assistant, without it worked out from the clock (the demo)
+          const x = skySun(ctx.states(), new Date()), iso = (d) => (d ? d.toISOString() : null);
+          return { sun: { rise: iso(x.rise), set: iso(x.set) } };
+        };
+        const anchorAt = (x) => { const a = seasonAnchor(x.at, sunNow()); if (a) Object.assign(x, a); else { delete x.season; delete x.anchor; delete x.ref; } };
+        f.push(field(t('fe.at'), time(b.at, (v) => set((x) => { x.at = v; if (x.season) anchorAt(x); }), 'at')), field(t('fe.days'), days(b.days, (v) => set((x) => { x.days = v; }))));
+        const lab = make('label', 'feSame'); const cb = make('input'); cb.type = 'checkbox'; cb.checked = !!b.season; cb.dataset.field = 'season';
+        const known = !!seasonAnchor(b.at, sunNow());
+        cb.disabled = !known && !b.season;
+        cb.addEventListener('change', () => set((x) => { if (cb.checked) { x.season = true; anchorAt(x); } else { delete x.season; delete x.anchor; delete x.ref; } }));
+        lab.append(cb, make('span', '', `🌗 ${t('fe.season')}`));
+        f.push(lab);
+        const off = seasonOffset(b);
+        f.push(make('p', 'tpSub', off != null ? t(`fe.season.now.${off >= 0 ? 'after' : 'before'}.${b.anchor}`, { d: duration(Math.abs(off) * 60, t) })
+          : known ? t('fe.season.help') : t('fe.season.noSun')));
         break;
+      }
+      case 'light': {
+        const lv = LIGHT_LEVELS.map((e) => [e, t(`fl.lvl.${e}`)]);
+        f.push(field(t('fe.when'), chips([['dark', t('fe.light.dark')], ['bright', t('fe.light.bright')]], b.to, (v) => set((x) => { x.to = v; }), 'to')));
+        f.push(field(t('fe.light.level'), chips(lv, b.e, (v) => set((x) => { x.e = v; }), 'e')), make('p', 'tpSub', t('fe.light.help')));
+        break;
+      }
       case 'sun':
         f.push(field(t('fe.sun'), chips([['set', t('fl.b.sun.set')], ['rise', t('fl.b.sun.rise')]], b.ev, (v) => set((x) => { x.ev = v; }), 'ev')));
         f.push(field(t('fe.offset'), number(b.off, (v) => set((x) => { x.off = Math.round(v); }), { step: 5, min: -180, max: 180, data: 'off' })));
@@ -227,7 +251,11 @@ export function initFlowEdit(ctx) {
         f.push(field(t('fe.op'), chips([['below', t('fl.op.colder')], ['above', t('fl.op.warmer')]], b.op, (v) => set((x) => { x.op = v; }), 'op')));
         f.push(field(t('fe.value'), number(b.v, (v) => set((x) => { x.v = v; }), { step: 1, min: -50, max: 60, data: 'v' })));
         break;
-      case 'if_sun': f.push(field(t('fe.is'), chips([['dark', t('fl.b.sun.dark')], ['light', t('fl.b.sun.light')]], b.is, (v) => set((x) => { x.is = v; }), 'is'))); break;
+      case 'if_sun':
+        f.push(field(t('fe.is'), chips([['dark', t('fl.b.sun.dark')], ['light', t('fl.b.sun.light')]], b.is, (v) => set((x) => { x.is = v; }), 'is')));
+        f.push(field(t('fe.light.level'), chips([['', t('fe.light.horizon')], ...LIGHT_LEVELS.map((e) => [e, t(`fl.lvl.${e}`)])], LIGHT_LEVELS.includes(b.e) ? b.e : '',
+          (v) => set((x) => { if (v === '') delete x.e; else x.e = v; }), 'e')));
+        break;
       case 'if_special': {                          // 🎉 today is (not) one of the special days (📅 Besondere Tage)
         f.push(field(t('fe.special.when'), chips([['yes', t('fe.special.yes')], ['no', t('fe.special.no')]], b.is, (v) => set((x) => { x.is = v; }), 'is')));
         if (specials().length) f.push(field(t('fe.special.days'), dayChips(b.days, (v) => set((x) => { x.days = v; }))));

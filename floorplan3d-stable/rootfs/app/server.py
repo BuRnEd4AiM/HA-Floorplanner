@@ -51,6 +51,13 @@ import manifest as mf
 import pages
 import renames as rn
 import roommap as rm
+import sunshade
+import vacation
+import guest as gs
+import maintenance as mt
+import alarmpic as apic
+import monthreport as mr
+import tgbot
 import scenes as sc
 import trains as tr
 import rulesrun as rr
@@ -149,6 +156,9 @@ DEFAULT_SETTINGS = {
     "userPresets": {},         # Home Assistant user name -> its own start values for the look (PRESET_FIELDS, #250)
     "userLocks": {},           # Home Assistant user name -> what that user may not use (LOCKS, static/userlocks.js)
     "userRights": {},          # Home Assistant user name -> {kind: view | onoff}: what that user may switch per kind of device (tablets.py, 5.13.0)
+    "guest": {"on": False, "user": "gast", "room": "", "until": ""},   # 👥 Gäste-Zugang (guest.py, 5.21.0)
+    "maintenance": [],         # 🔧 Wartung of the 🩺 Haus-Check (maintenance.py, 5.24.0)
+    "monthReport": {"on": False, "day": 1, "hour": 8},   # 📊 Monatsbericht (monthreport.py, 5.26.0)
     "userKiosk": {},           # Home Assistant user name -> more own wall tablet values and its Fully Kiosk entities (tablets.KIOSK_FIELDS, 5.13.0)
     "startViews": {},          # Home Assistant user name or "*" (everybody) -> saved start view (static/startview.js, #315)
     "userBuildings": {},       # Home Assistant user name -> the building of a plan that user sees (several buildings in one plan, #409)
@@ -255,11 +265,21 @@ def drop_gone_picks(user_tabs: dict, variants: dict) -> dict:
     return out
 
 
+def guest_cfg(request) -> dict:
+    """👥 the guest access (guest.py) when the user looking is its guest user, else {}"""
+    cfg = gs.clean_guest(read_settings(request).get("guest"))
+    return cfg if gs.is_guest(cfg, current_user(request)["ids"]) else {}
+
+
 def user_locks(request) -> set:
-    """The locks of the user looking (by Home Assistant user name or id); none in standalone mode."""
+    """The locks of the user looking (by Home Assistant user name or id); none in standalone mode. 👥 The guest user has every lock but
+    "control" while the guest access runs (they switch their room only, call_service), every lock when it is over."""
     ids = current_user(request)["ids"]
     if not ids:
         return set()
+    g = guest_cfg(request)
+    if g:
+        return set(LOCKS) - {"fullscreen"} - ({"control"} if gs.active(g, time.time()) else set())   # "fullscreen" keeps a screen in full screen: not for a guest's phone
     locks = clean_locks(read_settings(request).get("userLocks", {}))
     return set(next((v for k, v in locks.items() if k.strip().lower() in ids), []))
 
@@ -448,6 +468,8 @@ async def can_edit(request) -> bool:
     """Administrators and users named in `editors` may edit; everybody else gets the read-only live view."""
     if not SUPERVISOR_TOKEN:          # standalone/dev mode: no Home Assistant, no users
         return True
+    if guest_cfg(request):            # 👥 the guest user never edits, even when made an administrator by mistake
+        return False
     ids = current_user(request)["ids"]
     if editors() & ids:
         return True
@@ -488,7 +510,14 @@ async def get_me(request):
     buildings = read_settings(request).get("userBuildings", {})
     building = next((v for k, v in buildings.items() if str(k).strip().lower() in user["ids"]), None) if isinstance(buildings, dict) else None
     tabs = next((v for k, v in clean_user_tabs(read_settings(request).get("userTabs", {})).items() if k.strip().lower() in user["ids"]), {})
-    return web.json_response({"user": user["name"], "canEdit": edit, "admin": await is_admin(request), "room": room, "view": view, "preset": preset, "start": start, "building": building, "tabs": tabs,
+    guest = None
+    g = guest_cfg(request)
+    if g:                                                   # 👥 the guest sees only the card of their room
+        hit = next((r for r in rm.rooms_of([(h["id"], read_json(house_file(request, h["id"]), {})) for h in houses_index(request)])
+                    if r["key"] == g["room"]), None)
+        room = hit["name"] if hit else None
+        guest = {"room": room, "house": hit["house"] if hit else None, "until": g["until"], "active": gs.active(g, time.time()) and hit is not None}
+    return web.json_response({"user": user["name"], "canEdit": edit, "guest": guest, "admin": await is_admin(request), "room": room, "view": view, "preset": preset, "start": start, "building": building, "tabs": tabs,
                               "locks": [k for k in LOCKS if k in user_locks(request)],
                               "rights": user_rights(request), "kiosk": own_entry(request, "userKiosk", tb.clean_user_kiosk),   # 5.13.0
                               "adminCheck": (not SUPERVISOR_TOKEN) or HA_LOGIN or _admin_cache["ids"] is not None, "login": HA_LOGIN})
@@ -913,6 +942,12 @@ def validate_settings(data: dict) -> dict:
             out[key] = tb.clean_user_rights(val)
         elif key == "userKiosk":
             out[key] = tb.clean_user_kiosk(val)
+        elif key == "guest":
+            out[key] = gs.clean_guest(val)
+        elif key == "maintenance":
+            out[key] = mt.clean_reminders(val)
+        elif key == "monthReport":
+            out[key] = mr.clean_cfg(val)
         elif key == "startViews":
             out[key] = clean_start_views(val)
         elif key == "favorites":
@@ -1640,6 +1675,13 @@ async def get_batteries(request):
     return web.json_response(request.app[KEY_RENAMES].get("battery") or {})
 
 
+async def get_signals(request):
+    """📡 Funk-Karte (5.17.0): {"of": {entity: the radio signal entity of its device}, "off": [signal entities switched off in Home Assistant]}
+    from Home Assistant's registries (renames.signal_of). Empty without Home Assistant or before the registry was read."""
+    w = request.app[KEY_RENAMES]
+    return web.json_response({"of": w.get("signal") or {}, "off": w.get("signalOff") or []})
+
+
 async def call_service(request):
     if not SUPERVISOR_TOKEN:
         return web.json_response({"error": "no supervisor token"}, status=503)
@@ -1657,6 +1699,11 @@ async def call_service(request):
     refused = await rights_refuse(request, domain, service, payload)   # only on / off or only look for this kind of device (5.13.0)
     if refused:
         return refused
+    g = guest_cfg(request)
+    if g:                                                  # 👥 the guest: only the devices of their room, only while it runs
+        room = next((r for r in await rules_rooms(request.app) if r["key"] == g["room"]), None)
+        if not gs.active(g, time.time()) or not room or not gs.allowed(payload.get("entity_id"), gs.room_entities(room)):
+            return web.json_response({"error": "guests may switch only the devices of their room"}, status=403)
     if domain == "automation" and not await can_edit(request):      # an automation on / off (▶ Abläufe, #483): only who may edit
         return forbidden()
     user = current_user(request)["name"]
@@ -1907,7 +1954,8 @@ def backup_extras(request, secrets: bool = False) -> dict:
             "fullscreen": {"code": gd.stored_code(full.get("code") if isinstance(full, dict) else None)},
             "notify": {k: v for k, v in an.clean(n, n).items() if secrets or k not in an.SECRETS},
             "rules": {"heat": hr.clean_rules(rules.get("heat")), "flows": fl.clean_flows(rules.get("flows")),   # heating rules, routines (#546)
-                      "days": sdays.clean_days(rules.get("days"))}}                                        # 📅 Besondere Tage
+                      "days": sdays.clean_days(rules.get("days")), "sun": sunshade.clean_sun(rules.get("sun")),   # 📅 Besondere Tage, ☀ Sonnenschutz
+                      "vac": vacation.clean_vac(rules.get("vac"))}}                                            # 🏠 Urlaubs-Licht
 
 
 def apply_extras(request, extras) -> list:
@@ -1940,7 +1988,8 @@ def apply_extras(request, extras) -> list:
         done.append("notify")
     if isinstance(extras.get("rules"), dict):
         cfg = {"heat": hr.clean_rules(extras["rules"].get("heat")), "flows": fl.clean_flows(extras["rules"].get("flows")),
-               "days": sdays.clean_days(extras["rules"].get("days"))}
+               "days": sdays.clean_days(extras["rules"].get("days")), "sun": sunshade.clean_sun(extras["rules"].get("sun")),   # ☀ Sonnenschutz
+               "vac": vacation.clean_vac(extras["rules"].get("vac"))}                                                        # 🏠 Urlaubs-Licht
         write_json_atomic(rules_path(request), cfg)
         store = app_state(request).get(KEY_RULES)
         if store is not None and "rules" in store:
@@ -2405,6 +2454,8 @@ async def rename_watcher(app):
                                     side=set(state.get("side") or ()),      # kept off the area lists (#368)
                                     parts=dict(state.get("parts") or {}),   # the entities of a thermostat's device (#370)
                                     battery=dict(state.get("battery") or {}),   # the battery entity of each entity's device (#376)
+                                    signal=dict(state.get("signal") or {}),     # 📡 the radio signal entity of each entity's device (5.17.0)
+                                    signalOff=list(state.get("signalOff") or []),   # 📡 signal entities switched off in Home Assistant
                                     plat=dict(state.get("plat") or {}))         # the integration of each thermostat (🌡 Raumfühler, #573)
 
         def load():
@@ -2463,6 +2514,19 @@ def energy_siblings(prefs, registry: list, devices=None) -> dict:
     def sensors(ids, e):
         return sorted(x for x in ids if x != e and x.startswith("sensor."))
     return {e: [*sensors(d.own(e), e), *sensors(set(d.whole(e)) - set(d.own(e)), e)] for e in sorted(energy_stat_ids(prefs)) if e in d.device_of}
+
+
+def energy_plugs(devices, registry: list, device_list=None) -> dict:
+    """🔌 Stromfresser: {statistic of a device of the energy dashboard: the switch on the same device} (a smart plug counts its energy and
+    switches); a device without a switch is left out"""
+    d = hadevices.Devices(registry, device_list)
+    out = {}
+    for x in devices or []:
+        sid = x.get("id") if isinstance(x, dict) else None
+        hits = d.near(sid, lambda e: e.startswith("switch.")) if isinstance(sid, str) else []
+        if hits:
+            out[sid] = hits[0]
+    return out
 
 
 async def get_energy_prefs(request):
@@ -2574,13 +2638,22 @@ async def get_energy_meters(request):
         return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
     try:
         async with _HaSocket() as ws:
+            more = []
             try:
-                prefs = await rn.ask(ws, 1, {"type": "energy/get_prefs"}, [])
+                prefs = await rn.ask(ws, 1, {"type": "energy/get_prefs"}, more)
             except LookupError:
                 prefs = None                                     # the energy dashboard is not set up
+            out = pages.energy_meters(prefs)
+            if out["devices"]:                                   # 🔌 Stromfresser: the switch of each device (its plug)
+                try:
+                    registry = await rn.ask(ws, 2, {"type": "config/entity_registry/list"}, more)
+                    devices = await rn.device_list(ws, 3, more)
+                except LookupError:
+                    registry, devices = [], []
+                out["plugs"] = energy_plugs(out["devices"], registry, devices)
     except HA_DOWN as err:
         return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
-    return web.json_response(pages.energy_meters(prefs))
+    return web.json_response(out)
 
 
 async def post_energy_stats(request):
@@ -3084,6 +3157,132 @@ async def garden_timer(app):
         task.cancel()
 
 
+# ---------- 📊 Monatsbericht (5.26.0, monthreport.py): heating and power of the month before, per room, as a message ----------
+def month_report_path(request) -> Path:
+    return data_dir(request) / "monthreport.json"            # {last: 'YYYY-MM'}: the month already sent
+
+
+async def month_report_make(request, back: int = 1):
+    """(report, houses) of the month `back` months ago from Home Assistant's statistics and history (monthreport.py says how)"""
+    tz = await ha_time_zone()
+    now = datetime.datetime.now(tz) if tz else datetime.datetime.now().astimezone()
+    key, start, end = mr.month_span(now, back)
+    ly0, ly1 = start.replace(year=start.year - 1), end.replace(year=end.year - 1)
+    houses = [(h["id"], read_json(house_file(request, h["id"]), {})) for h in houses_index(request)]
+    rooms = rm.rooms_of(houses, await rules_areas(request.app))
+    climates = sorted({c for r in rooms for c in r["climates"]})
+    async with _HaSocket() as ws:
+        more = []
+
+        async def ask(i, cmd, empty):
+            try:
+                return await rn.ask(ws, i, cmd, more)
+            except LookupError:                                  # not set up, an older Home Assistant: that part stays empty
+                return empty
+        em = pages.energy_meters(await ask(1, {"type": "energy/get_prefs"}, None))
+        grid, gas, devs = em["meters"]["from"], em["meters"]["gas"], [x["id"] for x in em["devices"]]
+
+        async def stats(i, a, b, ids):
+            if not ids:
+                return {}
+            return await ask(i, {"type": "recorder/statistics_during_period", "start_time": a.isoformat(), "end_time": b.isoformat(),
+                                 "statistic_ids": ids, "period": "month", "types": ["change"], "units": {"energy": "kWh"}}, {})
+        now_s = await stats(2, start, end, list(dict.fromkeys(grid + gas + devs)))
+        ly_s = await stats(3, ly0, ly1, list(dict.fromkeys(grid + gas)))
+        meta = await ask(4, {"type": "recorder/get_statistics_metadata", "statistic_ids": gas}, []) if gas else []
+        registry = await ask(5, {"type": "config/entity_registry/list"}, []) if devs else []
+        devices = await rn.device_list(ws, 6, more) if devs else []
+        hist = await ask(7, {"type": "history/history_during_period", "start_time": start.isoformat(), "end_time": end.isoformat(),
+                             "entity_ids": climates, "minimal_response": False, "no_attributes": False,
+                             "significant_changes_only": False}, {}) if climates and gas else {}
+    end_ts = min(end.timestamp(), time.time())
+    use = {c: mr.climate_use((hist or {}).get(c), end_ts) for c in climates}
+    idx, d, room_kwh = rm.room_index(rooms), hadevices.Devices(registry, devices), {}
+    for sid in devs:
+        v = mr.stat_sum(now_s, [sid])
+        room = idx.get(sid) or next((idx[e] for e in d.whole(sid) if e in idx), None)
+        if v is not None and room:
+            room_kwh[room] = room_kwh.get(room, 0.0) + v
+    unit = next((m.get("statistics_unit_of_measurement") for m in meta or [] if isinstance(m, dict)), None)
+    totals = {"power": mr.stat_sum(now_s, grid), "gas": mr.stat_sum(now_s, gas), "power_ly": mr.stat_sum(ly_s, grid),
+              "gas_ly": mr.stat_sum(ly_s, gas), "gasUnit": unit if unit in ("m³", "kWh") else "m³"}
+    return mr.build(rooms, use, room_kwh, totals, em["price"], key), houses
+
+
+async def get_month_report(request):
+    """📊 the report of last month (?back=1 … 12), for the preview in the settings; kept 10 minutes"""
+    if "energy" in user_locks(request):
+        return web.json_response({"error": "the energy is locked for this user"}, status=403)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
+    back = request.query.get("back", "1")
+    back = int(back) if back.isdigit() and 1 <= int(back) <= 12 else 1
+    hit = pages_cached(request, ("monthreport", back), 600)
+    if hit is not None:
+        return web.json_response(hit)
+    try:
+        rep, _houses = await month_report_make(request, back)
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    lang = notify_lang(request)
+    return web.json_response(pages_keep(request, ("monthreport", back), {**rep, "text": mr.text(rep, lang)}))
+
+
+async def month_report_send(request, preview=False):
+    """make last month's report and send it the way the messages are set up (📲 Benachrichtigung): (ok, error)"""
+    rep, houses = await month_report_make(request)
+    lang = notify_lang(request)
+    pics = []
+    try:
+        pics = [mr.picture(rep, houses, lang)] if rep.get("rooms") else []
+    except Exception:  # noqa: BLE001 - no Pillow, a broken plan: the text alone
+        pics = []
+    return await send_notify(notify_cfg(request), mr.text(rep, lang, preview), pics)
+
+
+async def post_month_report_send(request):
+    """📊 "Jetzt senden": last month's report at once (for who may edit), marked as a preview"""
+    if not can_edit(request):
+        return web.json_response({"error": "read-only"}, status=403)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
+    try:
+        ok, err = await month_report_send(request, preview=True)
+    except HA_DOWN as e:
+        ok, err = False, f"Home Assistant not reachable: {e}"
+    return web.json_response({"ok": ok, "error": err}, status=200 if ok else 502)
+
+
+async def month_reporter(app):
+    """Background task: on the day and hour of the settings the report of the month before, once (only with Home Assistant; nothing while
+    the beta pauses)."""
+    task = None
+    if SUPERVISOR_TOKEN:
+        ctx = _AppCtx(app)
+
+        async def loop():
+            while True:
+                await asyncio.sleep(300)
+                try:
+                    cfg = mr.clean_cfg(validate_settings(read_settings(ctx)).get("monthReport"))
+                    if not cfg["on"] or beta_paused(ctx):
+                        continue
+                    tz = await ha_time_zone()
+                    now = datetime.datetime.now(tz) if tz else datetime.datetime.now().astimezone()
+                    key = mr.due(cfg, now, read_json(month_report_path(ctx), {}).get("last", ""))
+                    if key:
+                        ok, _err = await month_report_send(ctx)
+                        if ok:
+                            write_json_atomic(month_report_path(ctx), {"last": key})
+                except Exception:  # noqa: BLE001 - Home Assistant away or a message that did not go: in five minutes again
+                    pass
+
+        task = asyncio.create_task(loop())
+    yield
+    if task:
+        task.cancel()
+
+
 async def household_teller(app):
     """Background task: 🔔 "Sag mir Bescheid" also while no screen is open (#531), every minute (only with Home Assistant)."""
     task = None
@@ -3212,6 +3411,7 @@ async def post_todo(request):
 CALLMEBOT_URL = os.environ.get("CALLMEBOT_URL", "https://api.callmebot.com/whatsapp.php")
 DBF_URL = os.environ.get("DBF_URL", tr.DBF)          # 🚆 the departures of Deutsche Bahn for the card "Zug" (#550; the browser test's stand-in)
 CALLMEBOT_TG = os.environ.get("CALLMEBOT_TG", "https://api.callmebot.com")   # Telegram: text.php (users), telegram/group.php (a group, #456)
+TELEGRAM_API = os.environ.get("TELEGRAM_API", "https://api.telegram.org")   # 📸 the add-on's own Telegram bot (tgbot.py; the browser test's stand-in)
 KEY_NOTIFY = web.AppKey("notify", dict)         # {"cfg": the settings of the messages, "lang": Home Assistant's language}
 
 
@@ -3241,12 +3441,17 @@ def notify_lang(request) -> str:
     return ha if ha in an.TEXTS else "en"
 
 
-async def send_notify(cfg: dict, message: str):
-    """one message the way the settings say (WhatsApp or Telegram through CallMeBot, or notify services of Home Assistant): (ok, error
-    text); with several services it is sent to each, an error names the ones that failed"""
+async def send_notify(cfg: dict, message: str, pics=()):
+    """one message the way the settings say (WhatsApp or Telegram through CallMeBot, notify services of Home Assistant, or the add-on's own
+    Telegram bot with pictures, 5.16.0): (ok, error text); with several services it is sent to each, an error names the ones that failed"""
     why = an.ready({**cfg, "on": True})
     if why:
         return False, f"not set up: {why}"
+    if cfg["via"] == "tgbot":
+        try:
+            return await tgbot.send(TELEGRAM_API, cfg["bottoken"], cfg["botChats"], message, list(pics))
+        except Exception as err:  # noqa: BLE001 - no network, a timeout ...: said, never raised
+            return False, str(err) or type(err).__name__
     try:
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=20)) as s:
             if cfg["via"] == "ha":
@@ -3316,12 +3521,71 @@ async def put_notify(request):
     return web.json_response({**an.public(cfg), "ready": an.ready(cfg)})
 
 
+async def alarm_pics(request, cfg: dict, places: list, alarm: dict | None, lang: str) -> list:
+    """📸 the pictures of an alarm for the bot (5.16.0): the floor from above with the room in red (alarmpic.plan_png) and the picture of a
+    camera in the room (Home Assistant's camera_proxy); none for "back to normal", nothing that fails stops the message"""
+    if cfg.get("via") != "tgbot" or not alarm or alarm.get("ev") == "clear":
+        return []
+    out = []
+    place = apic.place_of(places, alarm.get("eid"))
+    if cfg.get("plan") and place:
+        try:
+            title = " · ".join(x for x in (place["house"] if len(places) > 1 else "", place["floor"].get("name"),
+                                            (place["room"] or {}).get("name"), alarm.get("name")) if x)
+            out.append(await asyncio.to_thread(apic.plan_png, place, alarm.get("kind", "alarm"), lang, title))
+        except Exception as err:  # noqa: BLE001 - no picture then, the text still goes
+            log.info("alarm picture: %s", err)
+    if cfg.get("camera") and place and SUPERVISOR_TOKEN:
+        for cam in apic.cameras_near(place)[:1]:
+            try:
+                async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+                    async with s.get(f"{HA_API}/camera_proxy/{cam}", headers=ha_headers()) as r:
+                        body = await r.read()
+                        if r.status == 200 and body[:2] in (b"\xff\xd8", b"\x89P") and len(body) < 9_000_000:
+                            out.append(body)
+            except Exception as err:  # noqa: BLE001 - the plan and the text still go
+                log.info("alarm camera %s: %s", cam, err)
+    return out
+
+
 async def test_notify(request):
-    """send a test message the way it is set up now"""
+    """send a test message the way it is set up now (the bot: with a picture of the first room of the house shown, as an alarm would)"""
     if not await can_edit(request):
         return forbidden()
-    ok, err = await send_notify(notify_cfg(request), an.test_text(notify_lang(request)))
-    return web.json_response({"ok": ok, "error": err}, status=200 if ok else 502)
+    cfg, lang = notify_cfg(request), notify_lang(request)
+    pics = []
+    if cfg.get("via") == "tgbot" and cfg.get("plan"):
+        places = notify_places(request, {})
+        sample = next(((h, f, r) for h, lay in places for f in (lay or {}).get("floors") or [] for r in f.get("rooms") or []
+                       if isinstance(r, dict) and len(r.get("points") or []) >= 3), None)
+        if sample:
+            h, f, r = sample
+            pts = r["points"]
+            place = {"house": h, "floor": f, "room": r, "x": sum(float(p[0]) for p in pts) / len(pts), "z": sum(float(p[1]) for p in pts) / len(pts)}
+            try:
+                pics.append(await asyncio.to_thread(apic.plan_png, place, "test", lang, " · ".join(x for x in (f.get("name"), r.get("name")) if x)))
+            except Exception as err:  # noqa: BLE001 - the text still goes
+                log.info("test picture: %s", err)
+    ok, err = await send_notify(cfg, an.test_text(lang), pics)
+    return web.json_response({"ok": ok, "error": err, "pics": len(pics)}, status=200 if ok else 502)
+
+
+async def find_tg_chats(request):
+    """📸 the chats that wrote to the bot (editors): the key given in the body ("bottoken", not saved here) or the saved one"""
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        body = {}
+    token = tgbot.check_token((body or {}).get("bottoken")) or notify_cfg(request).get("bottoken", "")
+    if not token:
+        return web.json_response({"error": "bottoken"}, status=400)
+    try:
+        found, err = await tgbot.find_chats(TELEGRAM_API, token)
+    except Exception as e:  # noqa: BLE001 - no network: said
+        found, err = None, str(e) or type(e).__name__
+    return web.json_response(found if found else {"error": err}, status=200 if found else 502)
 
 
 def notify_places(request, cache: dict) -> list:
@@ -3337,6 +3601,13 @@ def notify_places(request, cache: dict) -> list:
             cache[p] = (key, read_json(p, {}))
         out.append((h.get("name") or "", cache[p][1]))
     return out
+
+
+async def send_alarm(ctx, cache: dict, message: str, alarm: dict | None = None):
+    """an alarm message: the text, with the bot also the pictures (📸 5.16.0)"""
+    cfg = notify_cfg(ctx)
+    pics = await alarm_pics(ctx, cfg, await asyncio.to_thread(notify_places, ctx, cache), alarm, notify_lang(ctx)) if cfg.get("via") == "tgbot" else []
+    return await send_notify(cfg, message, pics)
 
 
 async def alarm_notifier(app):
@@ -3357,7 +3628,7 @@ async def alarm_notifier(app):
                 pass
             # the beta while the normal add-on runs: as if the messages were off (the normal one sends them, channel.py)
             await an.run_watch(connect=_HaSocket, config=lambda: {**notify_cfg(ctx), "on": False} if beta_paused(ctx) else notify_cfg(ctx),
-                               send=lambda msg: send_notify(notify_cfg(ctx), msg),
+                               send=lambda msg, alarm=None: send_alarm(ctx, cache, msg, alarm),
                                places=lambda: notify_places(ctx, cache), lang=lambda: notify_lang(ctx),
                                clock=lambda: datetime.datetime.now(tz).strftime("%d.%m. %H:%M"))
 
@@ -3632,9 +3903,28 @@ async def sensor_caps(app) -> dict:
             "cal": rsens.caps(states, rsens.parts_of(ren.get("parts")))}
 
 
+def sun_windows(request, r: rr.Rules) -> list:
+    """☀ the windows with a roller shutter and the way each looks (sunshade.py), for the card on the page"""
+    rooms = r.rooms if r.connected and r.rooms is not None else rm.rooms_of([(h["id"], read_json(house_file(request, h["id"]), {})) for h in houses_index(request)])
+    return [{"cover": sh["cover"], "room": x["key"], "house": x["house"], "name": x["name"], "bearing": sh["bearing"], "plan": sh["plan"],
+             "dir": sunshade.compass(sh["bearing"]) if sh["bearing"] is not None else None} for x in rooms for sh in x.get("shutters") or []]
+
+
+async def sun_now(request, r: rr.Rules) -> dict | None:
+    """☀ where the sun is now ({az, elev} of sun.sun), for the card: the page's states keep only its elevation (the sky)"""
+    if r.connected:
+        return sunshade.sun_of(r.states)
+    if not SUPERVISOR_TOKEN:
+        return None
+    try:
+        return sunshade.sun_of(await asyncio.wait_for(ha_states_cached(app_state(request)), 5))
+    except Exception:  # noqa: BLE001 - Home Assistant not reachable: the card says it does not know
+        return None
+
+
 async def rules_answer(request, r: rr.Rules) -> dict:
     status = r.status if r.connected or not SUPERVISOR_TOKEN else {**r.status, **await sensor_caps(app_state(request))}
-    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "days": r.cfg.get("days", []), "status": status, "log": r.mem["log"][-100:], "running": r.connected,
+    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "days": r.cfg.get("days", []), "sun": r.cfg["sun"], "vac": r.cfg["vac"], "sunWindows": sun_windows(request, r), "sunPos": await sun_now(request, r), "status": status, "log": r.mem["log"][-100:], "running": r.connected,
             "active": r.active(), "ha": bool(SUPERVISOR_TOKEN), "canEdit": await can_edit(request), "now": round(time.time()),
             "haLink": hl.browser_ha(HA_URL, HA_PUBLIC_URL, request.host) if HA_URL else ""}   # where the browser opens Home Assistant (#548)
 
@@ -3680,6 +3970,10 @@ async def put_rules(request):
         if not isinstance(body["flows"], list):
             return web.json_response({"error": "flows: a list expected"}, status=400)
         r.cfg["flows"] = fl.clean_flows(body["flows"])
+    if "vac" in body:                                    # 🏠 Urlaubs-Licht (vacation.py)
+        r.cfg["vac"] = vacation.clean_vac(body["vac"])
+    if "sun" in body:                                    # ☀ Sonnenschutz (sunshade.py)
+        r.cfg["sun"] = sunshade.clean_sun(body["sun"])
     if "days" in body:                                   # 📅 Besondere Tage (specialdays.py) for "Nur wenn: besonderer Tag"
         if not isinstance(body["days"], list):
             return web.json_response({"error": "days: a list expected"}, status=400)
@@ -3806,6 +4100,21 @@ async def rules_runner(app):
 
             def local(self):
                 return datetime.datetime.now(app[KEY_RULES].get("tz")).replace(tzinfo=None)
+
+            async def history(self, entities, days):
+                """🏠 Urlaubs-Licht: when each lamp was on in the evenings of the last days (vacation.on_spans); None when not answered"""
+                tz = app[KEY_RULES].get("tz") or datetime.datetime.now().astimezone().tzinfo
+                now = datetime.datetime.now(datetime.timezone.utc)
+                try:
+                    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as s:
+                        async with s.get(f"{HA_API}/history/period/{(now - datetime.timedelta(days=days)).isoformat()}", headers=ha_headers(),
+                                         params={"filter_entity_id": ",".join(entities), "minimal_response": "", "no_attributes": ""}) as r:
+                            if r.status != 200:
+                                return None
+                            return vacation.on_spans(await r.json(), tz, now)
+                except Exception as err:  # noqa: BLE001 - no history: the plain evening, asked again tomorrow
+                    log.info("vacation history: %s", err)
+                    return None
 
             err = None
 
@@ -4614,6 +4923,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.cleanup_ctx.append(alarm_notifier)
     app.cleanup_ctx.append(guard_watcher)
     app.cleanup_ctx.append(household_teller)
+    app.cleanup_ctx.append(month_reporter)
     app.cleanup_ctx.append(garden_timer)
     app.cleanup_ctx.append(rules_runner)
     app.add_routes([
@@ -4663,8 +4973,11 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/live", live_ws),
         web.get("/api/areas", get_areas),
         web.get("/api/batteries", get_batteries),
+        web.get("/api/signals", get_signals),
         web.get("/api/energy/prefs", get_energy_prefs),
         web.get("/api/energy/meters", get_energy_meters),
+        web.get("/api/monthreport", get_month_report),
+        web.post("/api/monthreport/send", post_month_report_send),
         web.get("/api/energy/counters", get_energy_counters), web.post("/api/energy/counter", make_energy_counter),
         web.post("/api/energy/stats", post_energy_stats),
         web.post("/api/energy/levels", post_energy_levels),
@@ -4691,6 +5004,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/notify", get_notify),
         web.put("/api/notify", put_notify),
         web.post("/api/notify/test", test_notify),
+        web.post("/api/notify/tgchats", find_tg_chats),
         web.get("/api/guard", get_guard),
         web.put("/api/guard", put_guard),
         web.post("/api/guard/arm", arm_guard),

@@ -19,6 +19,8 @@ import heatrules as hr
 import roommap as rm
 import roomsensors as rs
 import specialdays as sd
+import sunshade as ss
+import vacation as vac
 
 log = logging.getLogger("floorplan3d.rules")
 
@@ -36,11 +38,15 @@ class Rules:
         cfg = cfg if isinstance(cfg, dict) else {}
         mem = mem if isinstance(mem, dict) else {}
         self.cfg = {"heat": hr.clean_rules(cfg.get("heat")), "flows": fl.clean_flows(cfg.get("flows")),
-                    "days": sd.clean_days(cfg.get("days"))}                 # 📅 Besondere Tage for "Nur wenn: besonderer Tag"
+                    "days": sd.clean_days(cfg.get("days")),
+                    "sun": ss.clean_sun(cfg.get("sun")),                    # ☀ Sonnenschutz (sunshade.py)
+                    "vac": vac.clean_vac(cfg.get("vac"))}                   # 🏠 Urlaubs-Licht (vacation.py)                 # 📅 Besondere Tage for "Nur wenn: besonderer Tag"
         self.mem = {"heat": hr.clean_mem(mem.get("heat")), "flows": fl.clean_mem(mem.get("flows")),
                     "sensors": rs.clean_mem(mem.get("sensors")),             # 🌡 Raumfühler (roomsensors.py, #573)
+                    "sun": ss.clean_mem(mem.get("sun")),                     # ☀ the shutters the sun sent down
+                    "vac": vac.clean_mem(mem.get("vac")),                    # 🏠 tonight's plan, its own lamps, what it learned
                     "log": [x for x in mem.get("log") or [] if isinstance(x, dict)][-MAX_LOG:]}
-        self.status = {"rooms": {}, "lanes": {}, "sensors": {}, "cal": {}, "plat": {}}
+        self.status = {"rooms": {}, "lanes": {}, "sensors": {}, "cal": {}, "plat": {}, "sun": {}, "vac": {}}
         self.trace = [x for x in trace if isinstance(x, dict) and x.get("k")][-hl.MAX:] if isinstance(trace, list) else []   # 🩺 (#579)
         self.dirty = False                 # the journal has something not written yet
         self.sent = {}                     # {thermostat: what the add-on sent it lately} (heatlog.remember)
@@ -75,7 +81,8 @@ class Rules:
         wish waiting"""
         h, f = self.mem["heat"], self.mem["flows"]
         return (hr.any_on(self.cfg["heat"]) or rs.any_on(self.cfg["heat"]["sensors"]) or bool(self.mem["sensors"]["t"])
-                or any(x["on"] for x in self.local()) or self.listen() or bool(h["boost"]) or bool(h["pause"]) or bool(f["runs"])
+                or any(x["on"] for x in self.local()) or self.listen() or self.cfg["sun"]["on"] or ss.any_down(self.mem["sun"])
+                or self.cfg["vac"]["on"] or bool(self.mem["vac"]["ours"]) or bool(h["boost"]) or bool(h["pause"]) or bool(f["runs"])
                 or any(t.get("ov") or t.get("level") for t in h["t"].values()) or bool(self.queue and not self.queue.empty()))
 
     def note(self, entries, now):
@@ -205,7 +212,7 @@ async def _loop(rules: Rules, ws, states: dict, pending: list, env, check: float
                 await _look(rules, states, cache, env, clock=True)
             if req is not None:
                 await _wish(rules, req, states, cache, env)
-            st = {k: rules.status[k] for k in ("rooms", "lanes", "sensors", "cal", "plat")}
+            st = {k: rules.status[k] for k in ("rooms", "lanes", "sensors", "cal", "plat", "sun", "vac")}
             s = json.dumps(st, sort_keys=True, default=str)
             if s != sig:
                 sig = s
@@ -311,7 +318,46 @@ async def _look(rules, states, cache, env, clock=False, changed=None):
         await _do(rules, calls, lines, now, env)
     if clock or changed and _heat_cares(changed[0], cache["rooms"], rules):
         await _heat(rules, states, cache, env, now, local)
+    if clock or changed and _sun_cares(changed[0], cache["rooms"]):
+        await _sun(rules, states, cache, env, now)
+    if clock or changed and changed[0] in rules.cfg["vac"]["lights"]:
+        await _vac(rules, states, env, now, local)
     rules.status["lanes"] = fl.view(rules.local(), rules.mem["flows"], now)
+
+
+async def _sun(rules, states, cache, env, now):
+    """☀ Sonnenschutz (sunshade.py): the shutters the sun shines on go down, back up when it has gone"""
+    rules.mem["sun"], calls, status, lines = ss.step(rules.cfg["sun"], cache["rooms"], states, rules.mem["sun"], now, env.weather(states))
+    rules.status["sun"] = status
+    rules.note([{"src": "sun", **x} for x in lines], now)
+    why = {x["ent"]: x.get("room") for x in lines}
+    for svc, data in calls:
+        e = data.get("entity_id")
+        _before(env, "sun", why.get(e), "cover", svc, data)
+        _command(env, "sun", why.get(e), "cover", svc, data, await env.call("cover", svc, data))
+
+
+async def _vac(rules, states, env, now, local):
+    """🏠 Urlaubs-Licht (vacation.py): learns once a day from the history, plays tonight's plan while the holiday alarm is armed"""
+    cfg = rules.cfg["vac"]
+    if cfg["on"] and cfg["lights"] and vac.needs_learning(rules.mem["vac"], local.date().isoformat()) and hasattr(env, "history"):
+        spans = await env.history(cfg["lights"], vac.DAYS)
+        if spans is not None:
+            rules.mem["vac"]["learned"] = {"day": local.date().isoformat(), "spans": spans}
+            rules.mem["vac"]["night"] = ""                       # plan tonight anew with what was learned
+    elev = ((states.get("sun.sun") or {}).get("attributes") or {}).get("elevation")
+    rules.mem["vac"], calls, status, lines = vac.step(cfg, rules.mem["vac"], states, env.guard_armed(), local, elev if isinstance(elev, (int, float)) else None)
+    rules.status["vac"] = status
+    rules.note([{"src": "vac", **x} for x in lines], now)
+    for dom, svc, e in calls:
+        data = {"entity_id": e}
+        _before(env, "vac", None, dom, svc, data)
+        _command(env, "vac", None, dom, svc, data, await env.call(dom, svc, data))
+
+
+def _sun_cares(eid, rooms) -> bool:
+    """a change the sun rule looks at at once: a window of a shutter opened (the shutter goes up to air)"""
+    return any(eid in sh["contacts"] for r in rooms for sh in r.get("shutters") or [])
 
 
 def _journal(rules, cache, eid, old, new, states):

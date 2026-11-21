@@ -2,6 +2,127 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.27.1] - 2026-11-20
+### Changed
+- **"Nicht überwachen" has the sign 🔕 instead of 🙈** (the owner: "der affen emogi ist zu viel"): the button beside each row of the offline list, "🔕 Ganze Etage … nicht überwachen", the line under the list, the ticks of a device, a door / window and a floor, and the section in "✨ Neu".
+
+## [5.27.0] - 2026-11-20
+### Added
+- **🎚 Roller shutters for doors, also two or three side by side** (#779, FrankBecker: "Wie normale Fenster gibt es zu Schiebetüren häufig auch Rollläden (oft mehr als ein Motor/Steuerung wegen der Breite)"): a door (sliding, glass, double or single) now has the tick **"Vorhang / Rollladen"** like a window, with its own cover entity; the contact stays the door's sensor. A garage door, an opening without a leaf and a bare gap have none.
+  - **"Anzahl Rollläden (Motoren)"** 1 to 3: a wide sliding door gets two or three roller shutters side by side, each with its own entity ("Rollladen 1" is the left one seen from inside, "Rollladen 2"). Windows can have it too.
+  - In 3D each part comes down by itself as far as its own cover is closed; the label over it says "↕ 100 % · 30 %" when they differ. In the 2D plan a short line divides the parts.
+  - Its card in the live view has **"Alle · 1 · 2"** on top: "Alle" moves all of them, a number only that one. The room panel lists each part as a row of its own; the search finds the door by each cover.
+  - ☀ Sonnenschutz and 👥 the guest access take a door's roller shutters too (a door that is open is left up, as a window). The JSON import knows them: `"shutterEntities": ["cover.links", "cover.rechts"]` or `"shutterParts": 2`.
+- **🙈 Nicht überwachen** (#780, FrankBecker: "nur das EG gehört mir … wäre es schön diese Geräte … als nicht relevant … zu definieren um die Fehlermeldung oben rechts … weg zu bekommen"): what is only drawn never counts as offline or "no entity" any more: not in the 📴 pill and its list, not as the sign in 3D, not in the device overview, the 🩺 Haus-Check (also no maintenance suggestions for it) or ☀ Heute.
+  - A tick **"🙈 Nicht überwachen (nur gezeichnet)"** in the properties of a device and of a door / window, and **"🙈 Etage nicht überwachen (z. B. fremde Wohnung)"** in "Etage verwalten" for a whole floor (the flat upstairs of a two-family house).
+  - Quicker, right in the list of offline devices: a **🙈** beside each row, and **"🙈 Ganze Etage „OG" nicht überwachen (5)"** for a floor with several; a line under the list says what is not watched and how to undo it.
+  - The JSON import knows it: `"noWatch": true` on a floor, a device or a door / window.
+
+## [5.26.0] - 2026-11-20
+### Added
+- **📊 Monatsbericht** (the owner's choice, docs/ideen-5.15 picture 11): once a month a message about the month before, the way the messages are set up (📲): heating and power in euros, per room, the change to the same month a year before and the room that was warmer than set ("Wohnzimmer war 1,5° wärmer als eingestellt"); with the own Telegram bot also a picture: the plan with each room's amounts and a bar per room (red heating, yellow power).
+  - The numbers come from Home Assistant's energy dashboard: the grid meter and the gas meter with their prices; the power per room from its "individual devices" that stand in the room; the gas is split over the rooms by how long their thermostats heated. Without prices: kWh and m³.
+  - ⚙ → Warnungen & Alarm → card **"Monatsbericht"**: on, the day of the month and the hour, **"👁 Vorschau"** of last month with the bars and **"📨 Jetzt senden"**.
+### Fixed
+- **📱 Phone: the start page no longer is wider than the screen** (#777, the owner: "nach links und rechts machen"): a long room name made a column of the room tiles wider than half the screen; now it is cut off with "…".
+- **📱 Phone: a room's controls no longer slide sideways out of the screen** (#778, the owner: "wenn ich falsch swipe … außerhalb von meinem Sichtblickwinkel"): a row a little wider than the card let the whole card be swiped to the side; now only rows like the chips swipe, the card stays put.
+
+## [5.25.0] - 2026-11-20
+### Added
+- **🧭 Erste Schritte** (the owner's choice, docs/ideen-5.21 picture 2): a card in the editor that leads from the empty plan to the finished house in four steps, each worked out from the house itself (stop any time, go on later):
+  - **1 Grundriss**: draw the walls or take the example house.
+  - **2 Räume mit den Bereichen verbinden**: "8 von 9"; **"🔗 Alle gleichnamigen verbinden"** links every room called like an area of Home Assistant in one step, "Einzeln" selects the next room without an area.
+  - **3 Geräte setzen**: **"✨ Alle 46 automatisch setzen"** puts the areas' devices into their rooms on every floor (one undo step), "Einzeln" selects the next room with devices to place.
+  - **4 Live-Ansicht**: "▶ Live-Ansicht ansehen" and "⚙ Einstellungen" for tabs and tablets.
+  - With a bar in percent, "⏭ Überspringen" and "🎬 Video dazu". The welcome card of an empty house opens it; while a tool draws, it waits small in the corner.
+### Changed
+- **The editor's top bar is shorter** (docs/ideen-5.8 picture 16): 🎬 Anleitung, 🗄️ Backup and 🛡️ Sicherheit are in a new **"⋯" menu** with a line each on what they do, together with 🧭 Erste Schritte; a small "neu" until it was opened once. In the live view they stay in the bar.
+
+## [5.24.0] - 2026-11-20
+### Added
+- **🩺 Haus-Check with 🔧 Wartung** (the owner's choice, docs/ideen-5.21 picture 1, with the maintenance of docs/ideen-5.15 picture 9): a new page of the tab bar (also under 📱 "Mehr", with a chip "🩺 n prüfen" on Start and a number on the tab) with everything that needs a look in one place:
+  - **Dringend**: empty batteries (with %), devices offline, maintenance that is due. A tap on a device shows it in the house.
+  - **Bald**: weak radio (📡, as the radio map counts it), an update of Home Assistant, maintenance in the next two weeks.
+  - **Wartung**: reminders with "in 23 Tagen" and **"✓ Erledigt"**, which starts the time anew; **"Vorschläge für deine Geräte"** from the plan (test the smoke detector once a year, clean the air conditioner's filter, the robot vacuum's brush, the washer's lint filter, bleed the radiators, service the boiler …) with ＋; **"＋ Erinnerung"** for anything else (every 7 … 365 days). Kept with the settings (`maintenance.py`).
+
+## [5.23.1] - 2026-11-20
+### Changed
+- **📱 Phone: a room's page shows the room big on top, turning in 3D**, faded out at the bottom with the room's name and values in the picture, the controls below across the whole width (the owner, 2026-11-20: "dass ich den Raum oben in so einem kleinen eingebetteten Fenster sehe und der dreht sich … unten die Bedienelemente"; his choice from seven kinds, docs/ideen-5.23: C "groß mit Verlauf"). The room turns slowly; a touch on the picture lets you turn it yourself, a few seconds later it turns on.
+- **📱 Phone: switching off a whole room asks first** (the owner: "nicht aus versehen das ganze zimmer ausmacht … nochmal bestätigen"): the 💡 on a room tile and "Alle aus" in the list of the lights ask "Alle 3 Lichter in „Wohnzimmer“ ausschalten?" with "Ja, ausschalten" and "Abbrechen".
+
+## [5.23.0] - 2026-11-20
+### Added
+- **📱 The phone app, the next step** (the owner, 2026-11-20, after 44 pictures of the phone app: "ich sehe nirgends wo ich am handy sagen kann welches gebäude ich auswählen kann"; his choice: all of docs/ideen-5.22 pictures 45–52):
+  - **House and building at the top of Start and Räume** ("🏠 Demo-Haus · Haupthaus ▾"): a tap opens a list from below with every house and the buildings of the house.
+  - **The chips open their list from below** and you stay on Start: "💡 11 an" the lamps that are on (a tap switches one off, "Alle aus" all), "🪟 3 offen" the open windows and doors, "📴 offline" the devices.
+  - **The 3D house is slim**: no ☰ and no row of view buttons any more; on the right round buttons **🎨 Farben im Haus**, **👁 Ansicht** and **🎬 Szenen**, each a list from below.
+  - **"Mehr" has the tools of ☰**: Haus und Gebäude, Bearbeiten, Anleitung (Videos), Backup, Sicherheit, Einstellungen, Klassische Ansicht.
+  - **The settings like a phone's settings**: the groups as a list with icons; a tap opens a group as a page of its own with "‹ Einstellungen"; the search still finds every setting.
+### Fixed
+- 🏠 Urlaubs-Licht: right after saving, the settings opened again could miss tonight's plan for a moment (the page's copy of the rules was older); they now ask the add-on again when they open.
+
+## [5.22.0] - 2026-11-20
+### Added
+- **📱 The phone like an app** (the owner, 2026-11-20: "eine bessere ansicht fürs handy das es nicht so selbstgebaut wirkt … mehr nach einer app aussieht … intuitiver"; his choice: pictures docs/ideen-5.21 8–10 "genau so"): on a phone in the live view the bar at the bottom has **five fixed tabs: Start, Räume, 3D-Haus, Energie, Mehr**.
+  - **Start**: the date and a greeting by the time of day, chips with what is going on (lights on, alarm, open windows, devices offline, empty batteries, the temperature outside; a tap opens the list behind it), a picture of the house ("🧊 Haus in 3D ansehen") and the rooms as tiles (lights on first; the round button turns a room's lights off).
+  - **Räume**: every named room by floor as tiles with temperature and lights.
+  - **A room as a page of its own**: a tile opens the room's card full size with "‹ Räume" / "‹ Start" back.
+  - **3D-Haus**: the house as before (☰, floor button, scene bar). **Mehr**: every other page (Heute, Klima, Kameras …, own pages), ⚙ Einstellungen and **"Klassische Ansicht (wie früher)"**, kept per phone; in the classic view ☰ has "📱 Handy-Ansicht wie eine App" to come back.
+- Tablets, the dashboard card, a room tablet and a guest's screen keep their view.
+- Video guide: the clip "Am Handy: wie eine App" (was "Am Handy: die Seiten"); the other phone clips start with "3D-Haus".
+
+## [5.21.0] - 2026-11-20
+### Added
+- **👥 Guest access: guests control their room with their phone** (the owner, 2026-11-20: "es gibt im Home Assistant einen benutzer … gast und mit einem qr code … bekommt man eine karte dann zu gesicht die man steuern kann von dem raum den man vorher ausgewählt hat"; his choices: the guest logs in once as that Home Assistant user, may switch light, shutters, heating and music / TV of the room, until a date): ⚙ → 👥 Benutzer & Tablets → **👥 Gäste-Zugang**: switch it on, the Home Assistant user ("gast"), the room and **"Bis"** (+1 day, +3 days, +1 week); it shows **the QR code of the add-on's address** and **"🖨 Karte drucken"**, a card to put in the guest room with the QR code, the user and the password (typed only for the print, never saved). How to make the user "gast" in Home Assistant is explained in four steps.
+- **What the guest sees:** only the card of their room, full size, with "👥 Willkommen · Gästezimmer · bis So., 23.11., 12:00" at the top; light (with the room's scenes), shutters, heating and music / TV there. No tab bar, no alarm, no cameras, no settings; the card cannot be closed. When the time is up (or the access is switched off) the page says **"Der Gäste-Zugang ist beendet"**.
+- **The add-on enforces it** (`guest.py`): the guest user gets every lock but switching, can never edit, and may switch only the entities of their room (devices inside it, its Home Assistant area, the shutters of its windows) of those kinds; nothing at all once it is over.
+- Demo: `?gast=1` shows what the guest sees, `?gast=aus` the end.
+- The QR code is made by qrcode-generator (MIT, `vendor/qrcode.js`, NOTICE.md).
+- Video guide: the clips "👥 Gäste-Zugang" and "👥 Was der Gast sieht".
+
+## [5.20.0] - 2026-11-19
+### Added
+- **🌗 Routines by daylight: nothing to change when summer turns to winter** (the owner, 2026-11-19: "dass das addon merkt wie hell es aktuell ist … das man nicht die uhrzeit ändern muss sondern sich das addon an der helligkeit orientiert"; his choices: by where the sun is, as a trigger, as a condition and as a tick at the time). Everything follows Home Assistant's sun (`sun.sun`), no sensor needed:
+  - **"Wenn → 🌗 Es wird dunkel / hell"**, a new trigger: the routine starts when the sun goes below (or, in the morning, above) a chosen level: **Sonne steht tief** (6°, still light), **Sonne am Horizont** (0°), **Dämmerung** (−3°, about a quarter of an hour after sunset) or **fast dunkel** (−6°). Later in summer, earlier in winter, by itself.
+  - **"Nur wenn → Dunkel / hell"** can now say how dark: "dunkler als „Dämmerung“" and so on (without a level it stays as before: the sun below the horizon).
+  - **A tick at "Uhrzeit": "🌗 An der Helligkeit orientieren (wandert mit der Jahreszeit)"**: the time typed is meant for today and then keeps its distance to sunset (a time before 12:00: to sunrise): "Heute um diese Zeit, dann immer 2 Std 17 Min nach Sonnenuntergang". The days still count.
+- As a Home Assistant automation they become `numeric_state` of the sun's elevation and a `sun` trigger with an offset (haflows.py); the add-on runs them itself the same way (flows.py).
+- Video guide: the clip "🌗 Abläufe nach der Helligkeit".
+
+## [5.19.0] - 2026-11-19
+### Added
+- **🔌 Power hogs: what the house draws while everybody sleeps** (the owner's choice 2026-11-19, picture docs/ideen-5.15/06; his choices: a card on the page ⚡ Energie, 2–5 o'clock fixed, "⏰ Nachts abschalten" makes a routine): the page **⚡ Energie** has a new card **"🔌 Stromfresser"**: the house's draw between 2 and 5 o'clock, the mean of the last 14 nights from Home Assistant's long-term statistics (the meters of the page: grid, sun, battery), in watts and **€ a year** (with the page's price); a bar split into **devices on standby** (red), **always on** (orange: fridge, freezer, router, heat pump … recognised by their name) and **no meter of its own** (grey); the devices of the energy dashboard with their watts and € a year, largest first.
+- **"⏰ Nachts abschalten …"**: for the standby devices whose plug can be switched in Home Assistant (the switch on the same device as the energy sensor, `api/energy/meters` "plugs"), the card says what switching them off from 1:00 to 6:00 saves in a year, and the button opens **▶ Abläufe** with a ready routine (01:00 off, 06:00 on, every day) to look at, change and save. An always-on device is never offered.
+- Video guide: the clip "🔌 Stromfresser".
+
+## [5.18.0] - 2026-11-17
+### Added
+- **🏠 Holiday light: the house looks lived in** (the owner's choice 2026-11-17, picture docs/ideen-5.15/07; his choices: while the holiday alarm is armed, lamps and roller shutters, set up with the holiday alarm): ⚙ → Warnungen & Alarm → 🛡 Urlaubs-Alarm → **🏠 Urlaubs-Licht**. While the holiday alarm is armed, the chosen lamps go on and off in the evening the way they do when the family is home: the add-on learns from Home Assistant's history when each lamp was on in the evenings of the last 14 days and plays **a different real evening every night**, every time shifted by a chosen **"Spielraum" of ± 15 … 90 minutes** (± 30 at first; the owner: "dass es nicht immer zu genau der selben Zeit passiert … 1 Stunde Spielraum"), so there is no pattern to see from outside. A lamp without history gets a plain evening (about 18:30 – 22:30). The chosen roller shutters go down after sunset and up in the morning, each night at another minute; **a garage door, gate or door is never offered or moved** (by its device class or a name ending in Tor / Tür / door). Tonight's plan shows as bars (17:00 – 02:30) with how many evenings each lamp was learned from.
+- **It does not fight other rules:** it switches only the chosen lamps and turns off only what it turned on itself; a lamp already on, or one somebody (or another rule) switches meanwhile, is left alone for the night; when the alarm is switched off (somebody came home), it stops at once and turns off only its own lamps. The add-on runs it itself like the heating rules (`vacation.py`), 📜 Protokoll and ▶ Abläufe say what it did.
+- Video guide: the clip "🏠 Urlaubs-Licht".
+
+## [5.17.0] - 2026-11-17
+### Added
+- **📡 Radio map: how well every device hears its sender** (the owner's choice 2026-11-17, picture docs/ideen-5.15/03): the button **"📡 Funk"** beside the colour views (Normal · Temp. · Feuchte · CO₂ · Strom) shows over every device and window contact of the building shown a small sign with its reception, **green good, yellow middle, red weak** (Zigbee LQI from 110 / 50, WiFi from −67 / −80 dBm), and a card "Empfang im Haus" with the counts, the weakest ones (a tap shows the device in the house) and a tip (a mains-powered Zigbee device near the red ones strengthens the network). The add-on finds the signal entity of each device in Home Assistant's registries (`renames.signal_of`: Zigbee2MQTT's linkquality, ZHA's rssi / lqi, the WiFi signal of ESPHome, Shelly, Tasmota). Zigbee2MQTT and ZHA ship these entities switched off: the card says how many are off and how to switch them on. The signs keep their size on the screen, the weak ones on top.
+- Video guide: the clip "📡 Funk".
+
+## [5.16.0] - 2026-11-17
+### Added
+- **📸 Alarm with a picture through your own Telegram bot** (the owner's choice 2026-11-17, pictures docs/ideen-5.15/04, 05: "wäre cool wenn das auch gehen würde über Telegram das mit dem Bild"; his choice: his own bot, the floor plan and a camera): ⚙ → Warnungen & Alarm → Nachricht aufs Handy → **"Telegram – eigener Bot (mit Bild)"**. When water, smoke, gas, carbon monoxide or the alarm goes off, the message comes with **the floor from above, the room in red and a ring where the sensor is** (drawn by the add-on, `alarmpic.py`), and with **the picture of a camera in that room** (Home Assistant's camera picture). The bot is made once with @BotFather (five numbered steps with the link), its key stays in the add-on; **"🔎 Chat finden"** lists who wrote to the bot ("Hallo"), the first one ticked. "Testnachricht" sends a sample picture. Plan and camera can be switched off. CallMeBot, WhatsApp and Home Assistant's notify services stay as they were (text).
+- Video guide: the clip "📸 Alarm mit Bild über deinen Telegram-Bot"; "Nachricht aufs Handy" mentions it.
+
+## [5.15.0] - 2026-11-17
+### Added
+- **☀ Sun protection: roller shutters only where the sun shines** (the owner's choice 2026-11-17 from nine ideas, pictures docs/ideen-5.15/01, 02): 🌡 Klima → **☀ Sonnenschutz**. The plan knows which way every window looks (the side of its wall in no room is outside), Home Assistant knows where the sun is (`sun.sun`): only the shutter whose window the sun shines on goes down (to 30 %, adjustable) while the sun is higher than 15°, no more than 75° to the side and it is warm (outside above 22 °C or in the room above 24 °C; each can be "egal"), optionally only while the weather says sun; it goes back to where it was when the sun has been off the window for 20 minutes. An open window keeps its shutter up (one that is down goes up at once, to air). The add-on runs it itself like the heating rules (also with no screen open, `sunshade.py`); the card lists every window with a shutter, which way it looks, "jetzt Sonne" / "Schatten" / "unten", and a switch per window to leave it out. ▶ Abläufe and 📜 Protokoll say what it did.
+- **The rules do not fight** (the owner: "pass auf das die regeln sich dann nicht beißen"): a shutter moved by hand, by a routine or by the alarm is left alone until the sun has gone (not put back), one already lower stays so; the card names the own routines that move the same shutter.
+- **🧭 Where is north?** (the owner: "die Ausrichtung am Kompass anpassen ohne das Haus neu zu zeichnen"): a plan not drawn with north up gets its direction in the card (−45 · −5 · +5 · +45, a small compass), saved with the house (`layout.north`). The window directions, the sun protection and the compass of the 3D view ("Blick von …") follow; nothing is drawn anew.
+- Video guide: the clip "☀ Sonnenschutz".
+
+## [5.14.1] - 2026-11-17
+### Changed
+- **Turning and zooming the house is lighter on a tablet** (#138, the owner, 2026-11-17: "Tablet flüssiger beim Drehen"): in "Live" the furniture of a floor is drawn together, and now all colours of one kind of surface (matt, shiny, metal ...) go into one piece instead of one piece per colour. The show house ("alles drin") needs about **800 draw calls** in the whole house instead of 1,205 (1,689 in the editor); a single floor about a third fewer. Devices linked to Home Assistant take part too: only what a state changes (the glow of a lamp, a TV screen, a door leaf, a roller shutter) stays on its own. It looks the same as before: every colour, every corner, solar cells over their frame.
+- A piece that is hidden, shown or moved in "Live" after that (a person who comes home, the power editor) is drawn by itself again at once.
+
 ## [5.14.0] - 2026-11-16
 ### Added
 - **🏗 The railing of a balcony side by side** (the owner, 2026-11-16: "ich hätte gerne, dass ich sagen kann, wie weit das Geländer in einer Richtung geht oder ob eine Geländertür dort ist … bei mir geht das Geländer nur an zwei Seiten"): a balcony or roof terrace has **Geländer je Seite** in its properties: every side that has a railing gets a number („Seite 1 · 4,00 m“, the same number stands at that side in the 2D plan) and can be **switched off**, made **shorter** („Geländer von … bis“) or get a **🚪 gate** (its middle and width, 90 cm to start). In the 2D plan the railing is a light line, a gate a gap with its swing; the ends ◆ and the gate ■ can be **dragged** along the side. In 3D the gate is a leaf in a frame like the railing (bars, glass or slats) with a handle. A corner added or taken away keeps the settings at their place. Also in the JSON import and export (`railSides`).

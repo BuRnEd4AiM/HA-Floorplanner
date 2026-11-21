@@ -7,7 +7,7 @@ import { sensorChoices, actionChoices, openNow, leftNow, screenOf, pressKey } fr
 
 const PAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 
-/** ctx: $, t, entities(), layout() */
+/** ctx: $, t, entities(), layout(), vacation (vacationui.js: 🏠 Urlaubs-Licht, its part in the settings, 5.18.0) */
 export function initGuardUi(ctx) {
   const { $, t } = ctx;
   const btn = $('#guardBtn'), scr = $('#guardScreen'), box = $('#guardBox'), bar = $('#guardBar');
@@ -173,6 +173,7 @@ export function initGuardUi(ctx) {
     out.push(el('div', 'sub', t('gd.actions')));
     actionChoices(ctx.entities(), cfg.actions).forEach((g) => out.push(pickGroup(t(`gd.ag.${g.group}`), g.items, cfg.actions, 'data-gd-action', g.items.some((x) => cfg.actions.includes(x.entity)))));
     out.push(checkRow('gdNotify', 'gd.notify', cfg.notify), checkRow('gdReport', 'gd.report', cfg.report));
+    if (ctx.vacation) out.push(...ctx.vacation.part(pickGroup, checkRow));   // 🏠 Urlaubs-Licht (vacationui.js)
     const tools = el('div', 'stopTools'), sv = el('button', '', t('gd.save')); sv.type = 'button'; sv.id = 'gdSave';
     sv.addEventListener('click', saveSettings); tools.append(sv);
     out.push(tools, el('p', 'sub gdStatus', saveNote || t(`gd.ready.${info.ready || 'ok'}`)));
@@ -189,7 +190,9 @@ export function initGuardUi(ctx) {
     const c = v('gdCode').value.trim();
     if (c && !/^[0-9]{4,8}$/.test(c)) { saveNote = t('gd.codeBad'); renderSettings(); return; }
     if (c) body.code = c;
+    const vac = ctx.vacation?.read(box);
     try {
+      if (vac && !(await ctx.vacation.save(vac))) throw new Error('vac');   // 🏠 Urlaubs-Licht: saved with the rules (api/rules)
       const r = await fetch('api/guard', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || r.status);
@@ -198,7 +201,7 @@ export function initGuardUi(ctx) {
     } catch (err) { saveNote = t('gd.failed', { e: err.message }); }
     renderSettings(); render();
   }
-  $('#settingsBtn')?.addEventListener('click', async () => { saveNote = ''; await poll(); renderSettings(); });
+  $('#settingsBtn')?.addEventListener('click', async () => { saveNote = ''; await Promise.all([poll(), ctx.vacation?.refresh?.()]); renderSettings(); });   // 🏠 tonight's plan as the add-on has it now (it was missing right after saving)
   poll();
   return { poll, info: () => info, screen: () => !scr.hidden };
 }

@@ -67,8 +67,8 @@ export function matches(q, text) {
 /* ---- „⇉ Übernehmen“: the same settings for others ---- */
 /** what can be passed on, per kind, in groups of keys of the object; the contacts and names are never passed on (each has its own) */
 export const COPY_GROUPS = {
-  window: { size: ['width', 'height', 'sill'], panes: ['style', 'panes', 'hinge', 'paneHinges', 'openOutward', 'tiltDeg'], fixed: ['fixedBelow', 'fixedAbove'], shutter: ['shutter', 'shutterStyle', 'curtainSide'] },
-  door: { size: ['width', 'height'], style: ['style', 'flip', 'inv'] },
+  window: { size: ['width', 'height', 'sill'], panes: ['style', 'panes', 'hinge', 'paneHinges', 'openOutward', 'tiltDeg'], fixed: ['fixedBelow', 'fixedAbove'], shutter: ['shutter', 'shutterStyle', 'curtainSide', 'shutterParts'] },
+  door: { size: ['width', 'height'], style: ['style', 'flip', 'inv'], shutter: ['shutter', 'shutterStyle', 'curtainSide', 'shutterParts'] },   // a sliding door's roller shutter (#779)
   room: { floor: ['covering', 'floorLook', 'color'], level: ['raise', 'steps'], walls: ['wallLook', 'wallBelow'] },
   device: { dsize: ['scale', 'sx', 'sy', 'sz'], look: ['variant', 'finish', 'hideModel', 'lightColor'], tilt: ['tiltX', 'tiltZ', 'mirror'] },
 };
@@ -90,7 +90,13 @@ export function copyGroups(pk, src, dst, groups) {
       const n = windowPanes(dst), arr = dst.paneEntities.slice(0, n > 1 ? n : 0);
       if (arr.some(Boolean)) dst.paneEntities = arr; else delete dst.paneEntities;
     }
-    if (!dst.shutter) delete dst.shutterEntity;
+  }
+  if (pk === 'window' || pk === 'door') {                        // without a shutter no entities; parts gone, their entities go (#779)
+    if (!dst.shutter) ['shutterEntity', 'shutterMore', 'shutterParts'].forEach((k) => delete dst[k]);
+    else if (Array.isArray(dst.shutterMore)) {
+      const more = dst.shutterMore.slice(0, Math.max(0, (Math.round(+dst.shutterParts || 1)) - 1));
+      if (more.some(Boolean)) dst.shutterMore = more; else delete dst.shutterMore;
+    }
   }
   return dst;
 }

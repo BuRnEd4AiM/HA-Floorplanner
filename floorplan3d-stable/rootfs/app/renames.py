@@ -155,6 +155,7 @@ def look(state: dict, entries: list, states: list, now: float, devices=None) -> 
     new_state = {"known": known, "names": {k: v for k, v in names.items() if k in current},
                  "history": remember(state.get("history") or {}, renames, now), "current": sorted(current), "side": side_entities(entries),
                  "parts": climate_parts(entries, devices), "battery": battery_of(entries, states, devices),
+                 "signal": signal_of(entries, states, devices), "signalOff": signals_off(entries),
                  "plat": climate_platforms(entries)}
     return renames, changes, new_state
 
@@ -204,6 +205,40 @@ def battery_of(entries: list, states: list, devices=None) -> dict:
         if bats:
             out[eid] = next((i for i in bats if i.startswith("sensor.")), bats[0])
     return out
+
+
+SIGNAL_ENDS = ("_linkquality", "_link_quality", "_lqi", "_rssi", "_wifi_signal", "_wifi_strength", "_signal_strength", "_signal_level", "_signal")
+
+
+def _looks_signal(eid: str) -> bool:
+    return eid.startswith("sensor.") and eid.endswith(SIGNAL_ENDS)
+
+
+def signal_of(entries: list, states: list, devices=None) -> dict:
+    """📡 Funk-Karte (5.17.0): {entity id: the radio signal entity of its device} for every entity of a device that reports how well it
+    hears its sender: Zigbee2MQTT's "linkquality" (LQI 0 … 255), ZHA's "rssi" / "lqi", the WiFi signal of ESPHome, Shelly, Tasmota (dBm,
+    device_class signal_strength). The signal entities themselves are keys too (they point to themselves). Like battery_of: a device
+    split into parts takes the one of its own part first. With several the one in dBm, else the first by name."""
+    attrs = {s.get("entity_id"): (s.get("attributes") or {}) for s in states if isinstance(s, dict)}
+
+    def is_signal(i):
+        a = attrs.get(i)
+        if a is None or not i.startswith("sensor."):
+            return False
+        return a.get("device_class") == "signal_strength" or str(a.get("unit_of_measurement") or "").lower() == "lqi" or _looks_signal(i)
+    d = hadevices.Devices(entries, devices)
+    out = {}
+    for eid in d.device_of:
+        sigs = [eid] if is_signal(eid) else d.near(eid, is_signal)
+        if sigs:
+            out[eid] = next((i for i in sigs if str((attrs.get(i) or {}).get("unit_of_measurement") or "").lower() in ("dbm", "db")), sigs[0])
+    return out
+
+
+def signals_off(entries: list) -> list:
+    """📡 the signal entities that Home Assistant has switched off (Zigbee2MQTT, ZHA and others ship them off): the card says how to switch
+    them on. Sorted, at most 50."""
+    return sorted(e["entity_id"] for e in entries if isinstance(e.get("entity_id"), str) and e.get("disabled_by") and _looks_signal(e["entity_id"]))[:50]
 
 
 def is_registry_event(data: dict) -> bool:

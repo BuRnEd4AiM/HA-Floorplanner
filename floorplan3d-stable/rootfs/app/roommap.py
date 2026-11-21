@@ -4,6 +4,8 @@ static/roomtiles.js: a device inside the room's outline, and the entities of the
 static/roompanel.js: a door or window within 35 cm of the outline; a door to the outside as levels.js outerDoors sees it, a side of it in
 no room). Pure (unit test: tests/test_roommap.py)."""
 
+import math
+
 EDGE = 0.35          # a door or window this close to a room's outline belongs to it (roompanel.js)
 SIDE = 0.25          # m beyond the wall's face where a door's side is looked at (more than levels.js: an outline a little inside the wall)
 ROOM_DOMAINS = ("climate", "light", "cover", "switch", "fan", "media_player")
@@ -54,6 +56,27 @@ def opening_entities(o) -> list:
     return out
 
 
+SHUTTER_DOOR_STYLES = ("single", "glass", "double", "sliding")   # doors that can have a roller shutter (#779, static/shutters.js)
+
+
+def shutter_covers(o) -> list:
+    """the cover entities of a window's or door's roller shutter(s) (static/shutters.js shutterEntities): o.shutterEntity and, for two or
+    three side by side (#779), o.shutterMore; only cover.* entities, each once"""
+    if not o.get("shutter"):
+        return []
+    if o.get("type") != "window" and not (o.get("type") == "door" and (o.get("style") or "single") in SHUTTER_DOOR_STYLES):
+        return []
+    roller = o.get("shutterStyle") in (None, "roller")
+    n = o.get("shutterParts") if roller and isinstance(o.get("shutterParts"), int) and not isinstance(o.get("shutterParts"), bool) else 1
+    n = max(1, min(3, n))
+    more = o.get("shutterMore") if isinstance(o.get("shutterMore"), list) else []
+    out = []
+    for e in [o.get("shutterEntity"), *more[:n - 1]]:
+        if isinstance(e, str) and e.startswith("cover.") and e not in out:
+            out.append(e)
+    return out
+
+
 def roof_windows(floors) -> dict:
     """{floor id: [(x, z, window)]}: the windows of the dormers and the roof windows (#643) of every roof floor, by the floor they belong to.
     They are no walls of the plan: the editor keeps where each lies (o.at: its middle in the plan, o.floor: the id of its floor, dormerwin.js)."""
@@ -93,7 +116,35 @@ def _openings(floor, extra=()):
             k = pos / length
             x, z = ax + (bx - ax) * k, az + (bz - az) * k
             out.append((x, z, ((x + nx * t, z + nz * t), (x - nx * t, z - nz * t)), o))
+            if w.get("outside") in (1, -1) and isinstance(o, dict):
+                OUTSIDE[id(o)] = w["outside"]                  # the wall says which side is outside (shutters.js shutterSide)
     return out
+
+
+OUTSIDE = {}          # id(opening) -> +1 / -1 of its wall's "outside", filled by _openings for the call of rooms_of that follows
+
+
+def _bearing(x, z, sides, o, indoor):
+    """☀ (sunshade.py): the compass direction a window looks to, from the side of its wall that is in no room (or the wall's "outside");
+    None for a window that is not on a wall (a roof window) or when both sides are inside or outside"""
+    (px, pz), (qx, qz) = sides
+    if (px, pz) == (qx, qz):
+        return None
+    out = OUTSIDE.get(id(o))
+    if out is None:
+        a, b = (any(point_in_poly(sx, sz, p) for p in indoor) for sx, sz in sides)
+        if a == b:
+            return None
+        out = 1 if not a else -1
+    nx, nz = (px - x, pz - z) if out == 1 else (qx - x, qz - z)
+    return round(math.degrees(math.atan2(nx, -nz)) % 360, 1)
+
+
+def north_of(layout) -> float:
+    """☀ which way the top of the plan looks (layout.north: degrees clockwise from north, 0 = north is up), so a house drawn turned
+    needs no new drawing (the owner, 2026-11-17: "die Ausrichtung am Kompass anpassen ohne das Haus neu zu zeichnen")"""
+    v = layout.get("north") if isinstance(layout, dict) else None
+    return float(v) % 360 if isinstance(v, (int, float)) and not isinstance(v, bool) and v == v and abs(v) != float("inf") else 0.0
 
 
 def rooms_of(houses, area_entities=None) -> list:
@@ -101,14 +152,17 @@ def rooms_of(houses, area_entities=None) -> list:
     houses: [(house id, layout)]; area_entities: {area id: [entity ids]} (rooms linked to an area of Home Assistant).
     windows: the sensors of its windows; doors: of its doors; outer: of the doors that belong to this room only (to the outside, a
     terrace door), not a door between two rooms; a door with a side in no room, or only in an open area (a terrace drawn as a room), is
-    one to the outside too (#577: the owner's door to the outside did not switch the heating off); counted: of the doors with the switch
+    one to the outside too (#577: the owner's door to the outside did not switch the heating off); shutters: the roller shutters of its
+    windows with the way each window looks (☀ sunshade.py); counted: of the doors with the switch
     "Zählt für die Heizung" (o.heat), which the window rule counts for every room beside them like a window (the owner, 2026-10-28: his
     rooms' doors lead to the corridor, which has no heating); entities: every entity of the room (devices inside it and its area)."""
     areas = area_entities or {}
     out = []
+    OUTSIDE.clear()
     for hid, layout in houses:
         floors = layout.get("floors") if isinstance(layout, dict) else None
         roofwin = roof_windows(floors)
+        north = north_of(layout)
         for fi, f in enumerate(floors if isinstance(floors, list) else []):
             if not isinstance(f, dict):
                 continue
@@ -127,11 +181,15 @@ def rooms_of(houses, area_entities=None) -> list:
                         ents.append(d["entity"])
                 if r.get("area"):
                     ents += [e for e in areas.get(r["area"], []) if isinstance(e, str) and e not in ents]
-                windows, doors, outer, counted = [], [], [], []
+                windows, doors, outer, counted, shutters = [], [], [], [], []
                 for _x, _z, _s, o in ops:
                     if r["id"] not in near[id(o)]:
                         continue
                     sensors = opening_entities(o)
+                    for cover in shutter_covers(o):              # its roller shutter(s): of a window, of a sliding door too, every part (#779)
+                        if cover not in [x["cover"] for x in shutters]:
+                            plan = _bearing(_x, _z, _s, o, indoor)
+                            shutters.append({"cover": cover, "plan": plan, "bearing": None if plan is None else round((plan + north) % 360, 1), "contacts": sensors})
                     if o.get("type") == "window":
                         windows += [e for e in sensors if e not in windows]
                     elif o.get("type") == "door":
@@ -142,7 +200,7 @@ def rooms_of(houses, area_entities=None) -> list:
                             counted += [e for e in sensors if e not in counted]
                 out.append({"key": f"{hid}/{r['id']}", "house": hid, "id": r["id"], "name": str(r.get("name") or "")[:60], "floor": fi,
                             "climates": sorted(e for e in ents if e.startswith("climate.")), "windows": windows, "doors": doors, "outer": outer, "counted": counted,
-                            "entities": ents})
+                            "shutters": shutters, "entities": ents})
     return out
 
 
