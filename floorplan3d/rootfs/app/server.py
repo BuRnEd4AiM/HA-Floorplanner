@@ -1676,10 +1676,44 @@ async def get_batteries(request):
 
 
 async def get_signals(request):
-    """📡 Funk-Karte (5.17.0): {"of": {entity: the radio signal entity of its device}, "off": [signal entities switched off in Home Assistant]}
-    from Home Assistant's registries (renames.signal_of). Empty without Home Assistant or before the registry was read."""
+    """📡 Funk-Karte (5.17.0): {"of": {entity: the radio signal entity of its device}, "off": [signal entities switched off in Home Assistant],
+    "offOf": {entity: the switched-off signal entity of its device}} from Home Assistant's registries (renames.signal_of). Empty without Home
+    Assistant or before the registry was read."""
     w = request.app[KEY_RENAMES]
-    return web.json_response({"of": w.get("signal") or {}, "off": w.get("signalOff") or []})
+    return web.json_response({"of": w.get("signal") or {}, "off": w.get("signalOff") or [], "offOf": w.get("signalOffOf") or {}})
+
+
+async def post_signals_on(request):
+    """📡 "Alle einschalten" (5.28.2): switch on in Home Assistant the signal entities it switched off ({"entities": [...]}: those of the
+    devices of the plan; only ones the add-on knows as switched-off signal entities, at most 300). Who may edit only. Home Assistant
+    reloads their integration and sends the values about a minute later; the registry watch (renames.py) then knows them."""
+    if not await can_edit(request):
+        return forbidden()
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no Home Assistant"}, status=503)
+    try:
+        body = await request.json()
+    except ValueError:
+        body = {}
+    w = request.app[KEY_RENAMES]
+    known = set(w.get("signalOff") or ()) | set((w.get("signalOffOf") or {}).values())
+    want = body.get("entities") if isinstance(body, dict) else None
+    ids = sorted({e for e in want if isinstance(e, str)} & known if isinstance(want, list) else known)[:300]
+    if not ids:
+        return web.json_response({"on": [], "failed": []})
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=180)) as sess:
+            async with sess.ws_connect(ha_ws_url()) as ws:
+                await asyncio.wait_for(ws.receive_json(), 10)                                  # auth_required
+                await ws.send_json({"type": "auth", "access_token": SUPERVISOR_TOKEN})
+                if (await asyncio.wait_for(ws.receive_json(), 10)).get("type") != "auth_ok":
+                    return web.json_response({"error": "Home Assistant refused the add-on"}, status=502)
+                on, failed = await rn.switch_on(ws, ids, 1)
+    except (aiohttp.ClientError, asyncio.TimeoutError, ConnectionError, OSError) as err:
+        log.warning("📡 Could not switch the signal entities on in Home Assistant (%s)", err)
+        return web.json_response({"error": "Home Assistant cannot be reached"}, status=502)
+    log.info("📡 Switched on in Home Assistant: %s%s", ", ".join(on) or "-", f"; refused: {', '.join(failed)}" if failed else "")
+    return web.json_response({"on": on, "failed": failed})
 
 
 async def call_service(request):
@@ -2456,6 +2490,7 @@ async def rename_watcher(app):
                                     battery=dict(state.get("battery") or {}),   # the battery entity of each entity's device (#376)
                                     signal=dict(state.get("signal") or {}),     # 📡 the radio signal entity of each entity's device (5.17.0)
                                     signalOff=list(state.get("signalOff") or []),   # 📡 signal entities switched off in Home Assistant
+                                    signalOffOf=dict(state.get("signalOffOf") or {}),   # 📡 the switched-off signal of each entity's device (5.28.2)
                                     plat=dict(state.get("plat") or {}))         # the integration of each thermostat (🌡 Raumfühler, #573)
 
         def load():
@@ -4974,6 +5009,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/areas", get_areas),
         web.get("/api/batteries", get_batteries),
         web.get("/api/signals", get_signals),
+        web.post("/api/signals/on", post_signals_on),          # 📡 "Alle einschalten" (5.28.2)
         web.get("/api/energy/prefs", get_energy_prefs),
         web.get("/api/energy/meters", get_energy_meters),
         web.get("/api/monthreport", get_month_report),

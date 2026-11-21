@@ -531,7 +531,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 219. Neu in 5.27.0: 🎚 Rollläden an Türen (#779) und 🔕 Nicht überwachen (#780) | 3 | 0 | 5 | 0 | 219.4 bis 219.8 |
 | 220. Neu in 5.28.0: 📱 Start: das Haus dreht sich | 3 | 0 | 3 | 0 | 220.4 bis 220.6 |
 | 221. Neu in 5.28.1: 🔕 Beim Bearbeiten sieht man, was nicht überwacht wird | 4 | 0 | 1 | 0 | 221.5 |
-| **Zusammen** | **1357** | **2** | **154** | **92** | |
+| 222. Neu in 5.28.2: 📡 Funk-Karte „Alle einschalten“ | 3 | 0 | 2 | 0 | 222.4, 222.5 |
+| **Zusammen** | **1360** | **2** | **156** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3340,4 +3341,16 @@ Dein Wunsch vom 2026-11-21: „im Bearbeitungsmodus … angezeigt … dass es ni
 | 221.3 | Demo: danach auf „Live“ | Kein 🔕 über der Stehlampe, alles wie vorher | ✅ (2026-11-21, Claude, Demo) |
 | 221.4 | Demo, Bearbeiten: „Etage verwalten“ → Haken „🔕 Etage nicht überwachen“ | Links am Etagen-Knopf steht „🔕“ vor dem Namen; live nicht | ✅ (2026-11-21, Claude) |
 | 221.5 | Dein Haus, Bearbeiten: das Gerät suchen, das du in der Offline-Liste mit 🔕 weggenommen hast | Du findest es am grauen 🔕; anklicken, Haken weg: das 🔕 ist weg, es wird wieder überwacht | ❓ |
+
+
+## 222. Neu in 5.28.2: 📡 Funk-Karte „Alle einschalten“
+Dein Wunsch vom 2026-11-21: „nur ein paar dort erkannt … ich kann nicht für alle das aktivieren“ (deine Wahl: „Ja, Knopf bauen“).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 222.1 | Unit-Tests `tests/radiomap.test.mjs`, `tests/test_renames.py`; Browser-Test Teil `96_radio_map` (erweitert) | Alles grün | ✅ (2026-11-21, Claude) |
+| 222.2 | Demo: Live, unten „📡 Funk“ | Oben in der Karte „… Geräten im Plan (3)“ und der Knopf „📡 Alle 3 einschalten“ | ✅ (2026-11-21, Claude, Demo) |
+| 222.3 | Demo: auf „📡 Alle 3 einschalten“ tippen | „✓ Eingeschaltet: 3 …“; der Kasten mit dem Knopf ist weg, z. B. „Licht Hobbyraum · Keller · LQI 44“ steht bei den schwächsten | ✅ (2026-11-21, Claude, Demo) |
+| 222.4 | Dein Haus: „📡 Funk“, dann „📡 Alle … einschalten“ | Nach etwa einer Minute haben deine Zigbee-Geräte ein Schild mit ihrem Wert | ❓ |
+| 222.5 | Dein Haus: Home Assistant → Einstellungen → Entitäten, nach „linkquality“ suchen | Die Empfangswerte der Geräte im Plan sind jetzt aktiviert | ❓ |
 

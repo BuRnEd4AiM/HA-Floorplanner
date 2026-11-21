@@ -2553,4 +2553,8 @@ export default {
   'shutter.all': 'Wszystkie', 'shutter.allHint': 'Wszystkie rolety razem', 'shutter.part': 'Roleta {n}', 'v2.sum.shutters': '{n} rolety',
   'prop.shutterPartsOrder': 'Roleta 1 to lewa, patrząc z pokoju.',
   'nw.floorOff': 'To piętro nie jest monitorowane (tylko narysowane). Cofnięcie: „Zarządzaj piętrami” → odznacz „🔕 Nie monitoruj piętra”.',
+  'rd.onPlan': 'Wyłączone w Home Assistant: wartość odbioru urządzeń w planie ({n}).', 'rd.onAll': 'Włącz wszystkie ({n})', 'rd.onBusy': 'Włączanie …',
+  'rd.onNote': 'Włącza je w Home Assistant. Wartości pojawią się po około minucie; Home Assistant zapisuje wtedy też ich historię.',
+  'rd.onAdmin': 'Administrator może je tu włączyć jednym dotknięciem.', 'rd.onDone': 'Włączono: {n}. Wartości pojawią się za około minutę.',
+  'rd.onSome': '{n} się nie udało (włącz je ręcznie w Home Assistant).', 'rd.onFail': 'Nie udało się włączyć: {err}',
 };

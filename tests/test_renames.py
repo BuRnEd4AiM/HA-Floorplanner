@@ -381,3 +381,83 @@ def test_signal_of_is_the_radio_signal_of_each_entitys_device():
     assert rn.signals_off(entries) == ["sensor.bad_linkquality"]
     kept = rn.look({}, entries, states, T)[2]
     assert kept["signal"] == sig and kept["signalOff"] == ["sensor.bad_linkquality"]
+
+
+def test_signal_off_of_names_the_switched_off_signal_of_each_device():
+    """📡 "Alle einschalten" (5.28.2): a device without a signal it reports, but with one Home Assistant switched off (Zigbee2MQTT ships
+    them off): its entities point to that one; just switched on (no state yet) it counts as the device's signal at once"""
+    def ent(eid, dev, **k):
+        return {**entry(eid, eid), "device_id": dev, **k}
+    entries = [ent("climate.bad", "trv"), ent("sensor.bad_temp", "trv"), ent("sensor.bad_linkquality", "trv", disabled_by="integration"),
+               ent("light.flur", "z2m"), ent("sensor.flur_linkquality", "z2m"),
+               ent("light.ohne", "wlan"), ent("sensor.lose_linkquality", None, disabled_by="user")]
+    states = [{"entity_id": "climate.bad", "state": "heat", "attributes": {}}, {"entity_id": "light.flur", "state": "on", "attributes": {}},
+              {"entity_id": "sensor.flur_linkquality", "state": "80", "attributes": {"unit_of_measurement": "lqi"}}]
+    sig = rn.signal_of(entries, states)
+    off = rn.signal_off_of(entries, None, sig)
+    assert off == {"climate.bad": "sensor.bad_linkquality", "sensor.bad_temp": "sensor.bad_linkquality"}   # not the one with a signal
+    assert rn.signals_off(entries) == ["sensor.bad_linkquality", "sensor.lose_linkquality"]
+    assert rn.look({}, entries, states, T)[2]["signalOffOf"] == off
+    entries[2] = ent("sensor.bad_linkquality", "trv")                     # switched on: no state yet, but it is the device's signal now
+    sig = rn.signal_of(entries, states)
+    assert sig["climate.bad"] == "sensor.bad_linkquality" and rn.signal_off_of(entries, None, sig) == {}
+
+
+class RegWs:
+    """Home Assistant's websocket for config/entity_registry/update: `refuse` are refused"""
+    def __init__(self, refuse=()):
+        self.sent, self.refuse, self.queue = [], set(refuse), asyncio.Queue()
+
+    async def send_json(self, obj):
+        self.sent.append(obj)
+        ok = obj["entity_id"] not in self.refuse
+        await self.queue.put(Msg({"id": obj["id"], "type": "result", "success": ok, "result": {"entity_entry": {}, "reload_delay": 30} if ok else None,
+                                  **({} if ok else {"error": {"code": "not_found"}})}))
+
+    async def receive(self):
+        return await self.queue.get()
+
+
+async def test_switch_on_asks_home_assistant_for_each_one():
+    ws = RegWs(refuse=["sensor.b_lqi"])
+    on, failed = await rn.switch_on(ws, ["sensor.a_linkquality", "sensor.b_lqi"], 7)
+    assert on == ["sensor.a_linkquality"] and failed == ["sensor.b_lqi"]
+    assert ws.sent == [{"id": 7, "type": "config/entity_registry/update", "entity_id": "sensor.a_linkquality", "disabled_by": None},
+                       {"id": 8, "type": "config/entity_registry/update", "entity_id": "sensor.b_lqi", "disabled_by": None}]
+
+
+async def test_post_signals_on_switches_on_only_known_signals_and_only_for_editors(aiohttp_client, aiohttp_server, tmp_path, monkeypatch):
+    from aiohttp import web
+    got = []
+
+    async def ws(request):
+        w = web.WebSocketResponse(); await w.prepare(request)
+        await w.send_json({"type": "auth_required"})
+        await w.receive_json()
+        await w.send_json({"type": "auth_ok"})
+        async for msg in w:
+            m = json.loads(msg.data)
+            got.append(m)
+            await w.send_json({"id": m["id"], "type": "result", "success": True, "result": {"reload_delay": 30}})
+        return w
+    fake = web.Application()
+    fake.router.add_get("/websocket", ws)
+    srv = await aiohttp_server(fake)
+    client = await aiohttp_client(server.make_app(tmp_path))
+    monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    editor = {"ok": False}
+
+    async def can_edit(request):
+        return editor["ok"]
+    monkeypatch.setattr(server, "can_edit", can_edit)
+    client.server.app[server.KEY_RENAMES].update(signalOff=["sensor.a_linkquality", "sensor.b_linkquality"],
+                                                 signalOffOf={"light.a": "sensor.a_linkquality", "light.c": "sensor.c_lqi"})
+    assert (await client.post("/api/signals/on", json={"entities": ["sensor.a_linkquality"]})).status == 403   # look only
+    editor["ok"] = True
+    r = await (await client.post("/api/signals/on", json={"entities": ["sensor.a_linkquality", "sensor.c_lqi", "light.a", "sensor.x"]})).json()
+    assert r == {"on": ["sensor.a_linkquality", "sensor.c_lqi"], "failed": []}          # never what the add-on does not know as one
+    assert [(m["type"], m["entity_id"], m["disabled_by"]) for m in got] == [("config/entity_registry/update", "sensor.a_linkquality", None),
+                                                                            ("config/entity_registry/update", "sensor.c_lqi", None)]
+    sg = await (await client.get("/api/signals")).json()
+    assert sg["offOf"] == {"light.a": "sensor.a_linkquality", "light.c": "sensor.c_lqi"}

@@ -776,7 +776,19 @@ function sceneShow(m) {                                 // ▶ Ausprobieren and 
 entities['automation.flurlicht_nachts'].at = nowS() - 17 * 60;
 /* 📡 Funk-Karte (5.17.0): the radio signal of some devices, as Home Assistant's registries would give them (renames.signal_of): Zigbee
  * lights and contacts with their linkquality (LQI), two WiFi devices in dBm; the bath is far from the router (weak), one is switched off */
-const signalDemo = { of: {}, off: ['sensor.rauchmelder_flur_linkquality'] };
+const signalDemo = { of: {}, off: ['sensor.keller_linkquality', 'sensor.keller_feuchte_linkquality', 'sensor.kueche_temp_linkquality', 'sensor.rauchmelder_flur_linkquality'],
+  offOf: { 'light.keller': 'sensor.keller_linkquality', 'sensor.keller_feuchte': 'sensor.keller_feuchte_linkquality', 'sensor.kueche_temp': 'sensor.kueche_temp_linkquality' } };   // 📡 three of the plan switched off, like Zigbee2MQTT ships them (5.28.2)
+/** 📡 "Alle einschalten" (5.28.2) in the demo: the add-on would ask Home Assistant; here they report at once */
+function signalsOnDemo(list) {
+  const on = (Array.isArray(list) ? list : []).filter((sig) => signalDemo.off.includes(sig));
+  on.forEach((sig, i) => {
+    const e = Object.keys(signalDemo.offOf).find((k) => signalDemo.offOf[k] === sig);
+    entities[sig] = { name: `${sig.split('.')[1].replace(/_/g, ' ')}`, state: String([96, 44, 150][i % 3]), unit: 'lqi' };
+    if (e) { signalDemo.of[e] = sig; delete signalDemo.offOf[e]; }
+  });
+  signalDemo.off = signalDemo.off.filter((sig) => !on.includes(sig));
+  return { on, failed: [] };
+}
 [['light.wohnzimmer', 168], ['light.stehlampe', 142], ['light.kueche', 74], ['light.schlafzimmer', 121], ['light.bad', 31], ['light.buero', 96],
   ['binary_sensor.fenster_wohnzimmer', 118], ['binary_sensor.fenster_kueche', 58], ['sensor.bad_feuchte', 22], ['climate.wohnzimmer', 131],
   ['media_player.tv', -54, 'dBm'], ['climate.klima_buero', -83, 'dBm']].forEach(([e, v, unit = 'lqi']) => {
@@ -1469,6 +1481,7 @@ export function installDemoBackend() {
     }
     if (path === 'api/batteries') return json(batteryOf);
     if (path === 'api/signals') return json(signalDemo);                // 📡 Funk-Karte (5.17.0)
+    if (path === 'api/signals/on' && method === 'POST') return json(signalsOnDemo(JSON.parse(init.body || '{}').entities));   // 📡 Alle einschalten (5.28.2)
     if (path === 'api/log') return json(logAnswer(new URL(url, location.href).searchParams));   // 📜 Protokoll
     if (path === 'api/timeline') {
       return json({ days: recordedDays().map((day) => ({ day, size: JSON.stringify(recordedDay(day).lines).length })), on: true, keepDays: 7, recording: true,

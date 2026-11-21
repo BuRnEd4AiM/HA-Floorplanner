@@ -40,13 +40,24 @@ export async function fetchBatteries() {
   } catch { return {}; }
 }
 
-/** 📡 { of: { entity: the radio signal entity of its device }, off: [signal entities switched off in Home Assistant] } (5.17.0, api/signals) */
+/** 📡 { of: { entity: the radio signal entity of its device }, off: [signal entities switched off in Home Assistant], offOf: { entity: the
+ *  switched-off signal entity of its device } (5.28.2) } (5.17.0, api/signals) */
 export async function fetchSignals() {
+  const map = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
   try {
     const r = await fetch('api/signals');
     const m = r.ok ? await r.json() : {};
-    return { of: m?.of && typeof m.of === 'object' && !Array.isArray(m.of) ? m.of : {}, off: Array.isArray(m?.off) ? m.off : [] };
-  } catch { return { of: {}, off: [] }; }
+    return { of: map(m?.of), off: Array.isArray(m?.off) ? m.off : [], offOf: map(m?.offOf) };
+  } catch { return { of: {}, off: [], offOf: {} }; }
+}
+
+/** 📡 "Alle einschalten" (5.28.2): the add-on switches these signal entities on in Home Assistant: { on: [...], failed: [...] } or { error } */
+export async function switchSignalsOn(entities) {
+  try {
+    const r = await fetch('api/signals/on', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ entities }) });
+    const m = await r.json().catch(() => ({}));
+    return r.ok ? { on: Array.isArray(m.on) ? m.on : [], failed: Array.isArray(m.failed) ? m.failed : [] } : { error: m.error || `HTTP ${r.status}` };
+  } catch { return { error: 'network' }; }
 }
 
 export async function fetchAreas() {

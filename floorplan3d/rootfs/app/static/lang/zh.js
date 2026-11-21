@@ -4075,4 +4075,7 @@ export default {
   'shutter.part': '卷帘 {n}', 'v2.sum.shutters': '{n} 个卷帘',
   'prop.shutterPartsOrder': '卷帘 1 是从房间内看左边的那个。',
   'nw.floorOff': '此楼层不监控（仅绘制）。撤销：“管理楼层”→ 取消勾选“🔕 不监控此楼层”。',
+  'rd.onPlan': '平面图中有 {n} 个设备的信号值在 Home Assistant 中被停用。', 'rd.onAll': '全部启用（{n}）', 'rd.onBusy': '正在启用…',
+  'rd.onNote': '在 Home Assistant 中启用它们。约一分钟后出现数值；Home Assistant 也会保存它们的历史记录。', 'rd.onAdmin': '管理员可以在这里一键启用它们。', 'rd.onDone': '已启用 {n} 个信号值。约一分钟后显示。',
+  'rd.onSome': '{n} 个未成功（请在 Home Assistant 中手动启用）。', 'rd.onFail': '启用失败：{err}',
 };

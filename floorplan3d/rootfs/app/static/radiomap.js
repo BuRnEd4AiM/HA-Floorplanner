@@ -1,6 +1,7 @@
 /* 📡 Funk-Karte (5.17.0, the owner's choice 2026-11-17, docs/ideen-5.15 picture 3): how well every device of the plan hears its sender,
  * from the signal entity of its device (renames.signal_of on the server: Zigbee2MQTT's linkquality, ZHA's rssi / lqi, the WiFi signal of
- * ESPHome, Shelly, Tasmota). What a value means (good, middle, weak) and the list of the plan are pure (unit test: tests/radiomap.test.mjs);
+ * ESPHome, Shelly, Tasmota). What a value means (good, middle, weak), the list of the plan and the switched-off ones of the plan's devices
+ * (offInPlan, "📡 Alle einschalten", 5.28.2) are pure (unit test: tests/radiomap.test.mjs);
  * radioui.js draws them. */
 
 /** what a signal state says: { v, unit ('dBm' | 'lqi' | '%'), q ('good' | 'mid' | 'bad'), text } or null (unknown, unavailable) */
@@ -38,6 +39,19 @@ export function radioRows(layout, states, of, openings = (f) => (f.walls || []).
     openings(f).forEach((o) => { if (o.entity) take(o.id, 'opening', o.name, o.entity); });
   });
   return rows.sort((a, b) => RANK[a.q] - RANK[b.q] || (a.unit === b.unit ? a.v - b.v : 0));
+}
+
+/** 📡 "Alle einschalten" (5.28.2): the signal entities Home Assistant switched off that belong to the devices and window / door contacts of
+ *  the plan without a signal they report (of: as radioRows; offOf: { entity: the switched-off signal entity of its device }), sorted, each
+ *  once */
+export function offInPlan(layout, of, offOf, openings = (f) => (f.walls || []).flatMap((w) => w.openings || [])) {
+  const out = new Set();
+  (layout?.floors || []).forEach((f) => {
+    const take = (e) => { if (e && !of?.[e] && offOf?.[e]) out.add(offOf[e]); };
+    (f.devices || []).forEach((d) => take(d.entity));
+    openings(f).forEach((o) => take(o.entity));
+  });
+  return [...out].sort();
 }
 
 /** how many of each: { good, mid, bad } */

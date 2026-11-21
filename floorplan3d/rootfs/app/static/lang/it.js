@@ -2593,4 +2593,9 @@ export default {
   'shutter.all': 'Tutte', 'shutter.allHint': 'Tutte le tapparelle insieme', 'shutter.part': 'Tapparella {n}', 'v2.sum.shutters': '{n} tapparelle',
   'prop.shutterPartsOrder': 'La tapparella 1 è quella a sinistra, vista dalla stanza.',
   'nw.floorOff': 'Questo piano non è sorvegliato (solo disegnato). Per annullare: «Gestisci piano» → togli la spunta «🔕 Non sorvegliare questo piano».',
+  'rd.onPlan': 'Disattivato in Home Assistant: il valore di ricezione di dispositivi della pianta ({n}).', 'rd.onAll': 'Attiva tutti i {n}',
+  'rd.onBusy': 'Attivazione …',
+  'rd.onNote': 'Li attiva in Home Assistant. I valori arrivano dopo circa un minuto; Home Assistant ne conserva poi anche la cronologia.',
+  'rd.onAdmin': 'Un amministratore può attivarli qui con un tocco.', 'rd.onDone': 'Attivati: {n}. I valori compaiono tra circa un minuto.',
+  'rd.onSome': '{n} non hanno funzionato (attivali a mano in Home Assistant).', 'rd.onFail': 'Attivazione non riuscita: {err}',
 };

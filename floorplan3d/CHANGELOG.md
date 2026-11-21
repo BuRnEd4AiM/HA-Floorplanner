@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.28.2] - 2026-11-21
+### Changed
+- **📡 Funk-Karte: "Alle einschalten"** (the owner: "nur ein paar dort erkannt … ich kann nicht für alle das aktivieren"): Zigbee2MQTT (and ZHA) create the reception value of every device ("linkquality") but switch it off in Home Assistant, so the radio map knew only the few switched on by hand, one by one.
+  - At the top of the card: "Ausgeschaltet in Home Assistant: der Empfangswert von Geräten im Plan (n)" and a button **"📡 Alle n einschalten"**: the add-on switches exactly those on in Home Assistant (the ones of the devices and window contacts of the plan that have no reception value). Their values show about a minute later; the card looks again by itself.
+  - Only for those who may edit; the others read that an admin can do it. Home Assistant then also keeps their history.
+  - The add-on knows a reception value just switched on at once (before its first value comes).
+
 ## [5.28.1] - 2026-11-21
 ### Changed
 - **🔕 In edit mode you see what is not watched** (the owner: "im Bearbeitungsmodus … angezeigt … dass es nicht überwacht wird und im Live-Modus … so wie man es hat"): a device, door or window with the tick "🔕 Nicht überwachen" had no sign at all and was hard to find again (it is not in the offline list any more). Now, only while editing:

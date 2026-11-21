@@ -146,7 +146,7 @@ import { initVoiceUi } from './voiceui.js';
 import { initVoicePrefs } from './voiceprefs.js';
 import { initVoiceCheck } from './voicecheck.js';
 import { initTapBalls } from './tapballs.js';
-import { initLiveChannel, fetchAreas, fetchBatteries, fetchSignals } from './livechannel.js';
+import { initLiveChannel, fetchAreas, fetchBatteries, fetchSignals, switchSignalsOn } from './livechannel.js';
 import { initRadioUi } from './radioui.js';
 import { initDeviceList } from './devicelist.js';
 import { initTimeline } from './timelineui.js';
@@ -226,7 +226,7 @@ let entities = [];
 let areas = [];                      // Home Assistant areas: [{id, name, entities[]}]
 let areaOf = {};                     // entity_id -> area id
 let batteryOf = {};                  // entity_id -> the battery entity of its device (#376, the device overview)
-let signals = { of: {}, off: [] };   // 📡 the radio signal entity of each entity's device, the ones switched off (radioui.js, 5.17.0)
+let signals = { of: {}, off: [], offOf: {} };   // 📡 the radio signal entity of each entity's device, the ones switched off (radioui.js, 5.17.0)
 let offReasons = new Map();          // device / opening id -> why it is offline (offline.js), for the device overview
 const fxRgb = (name) => fxRgbOf(name, settings.effectColors);            // the colour of a light effect (entitystate.js)
 let states = {};                   // entity_id -> { state, unit }
@@ -1165,6 +1165,7 @@ const deviceList = initDeviceList({
 /* ---- Offline devices: the code lives in offline.js, their signs in 3D in offlinemarks.js (#375) ---- */
 const offMarks = initOfflineMarks({ registry, labelSprites, ballShown: (id) => tapBalls.shown(id), floorShown: (fi) => houseMode || fi === floorIdx });
 const radio = initRadioUi({ $, t, registry, layout: () => shownLayout(), states: () => states, signals: () => signals,   // 📡 Funk-Karte (radioui.js)
+  canEdit: () => me.canEdit, switchOn: (list) => switchSignalsOn(list), reload: async () => { signals = await fetchSignals(); },   // 📡 Alle einschalten (5.28.2)
   openings: (f) => openingWalls(f).flatMap((w) => w.openings || []), floorShown: (fi) => houseMode || fi === floorIdx, wake: () => wake(),
   locate: (id) => {                                              // a tap on a row of the card: fly to it, as the search does
     const fl = shownLayout().floors, fi = fl.findIndex((x) => (x.devices || []).some((d) => d.id === id));

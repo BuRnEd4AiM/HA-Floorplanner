@@ -2602,4 +2602,10 @@ export default {
   'shutter.all': 'Todas', 'shutter.allHint': 'Todas las persianas a la vez', 'shutter.part': 'Persiana {n}', 'v2.sum.shutters': '{n} persianas',
   'prop.shutterPartsOrder': 'La persiana 1 es la de la izquierda, vista desde la habitación.',
   'nw.floorOff': 'Esta planta no se vigila (solo dibujada). Para deshacer: «Gestionar planta» → quita la marca «🔕 No vigilar esta planta».',
+  'rd.onPlan': 'Desactivado en Home Assistant: el valor de recepción de dispositivos del plano ({n}).', 'rd.onAll': 'Activar los {n}',
+  'rd.onBusy': 'Activando …',
+  'rd.onNote': 'Los activa en Home Assistant. Los valores llegan en un minuto aproximadamente; Home Assistant también guarda su historial.',
+  'rd.onAdmin': 'Un administrador puede activarlos aquí con un toque.',
+  'rd.onDone': 'Activados: {n}. Los valores aparecen en un minuto aproximadamente.',
+  'rd.onSome': '{n} no funcionaron (actívalos a mano en Home Assistant).', 'rd.onFail': 'No se pudieron activar: {err}',
 };
