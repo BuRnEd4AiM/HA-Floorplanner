@@ -4079,4 +4079,5 @@ export default {
   'rd.onNote': '在 Home Assistant 中启用它们。约一分钟后出现数值；Home Assistant 也会保存它们的历史记录。', 'rd.onAdmin': '管理员可以在这里一键启用它们。', 'rd.onDone': '已启用 {n} 个信号值。约一分钟后显示。',
   'rd.onSome': '{n} 个未成功（请在 Home Assistant 中手动启用）。', 'rd.onFail': '启用失败：{err}',
   'rd.matterOld': '通过 Thread 的 Matter 设备需要新版 Matter 服务器才会显示：请在 Home Assistant 中更新“Matter Server”。',
+  'rd.offNotPlan': '平面图中的设备都不缺这些值：它们属于不在平面图中的设备（或平面图中的实体不属于任何设备，例如群组）。你仍然可以启用它们。',
 };

@@ -3417,6 +3417,8 @@ body.live .v2Nops { display: none; }
 #radioCard .rcOnBtn:disabled { opacity: .6; cursor: default; }
 #radioCard .rcOn small { display: block; margin-top: 5px; color: var(--muted); font-size: 11.5px; }
 #radioCard .rcOnMsg { margin: 0 0 8px; font-size: 12.5px; }
+#radioCard .rcOff .rcOffAll { margin: 6px 0 2px; }   /* 📡 all switched-off ones at once (5.28.4) */
+#radioCard .rcOff .rcOffNote { display: block; color: var(--muted); font-size: 11.5px; }
 
 /* 🏠 Urlaubs-Licht in the holiday alarm's settings (vacationui.js, 5.18.0) */
 .vacTitle { margin-top: 16px; }

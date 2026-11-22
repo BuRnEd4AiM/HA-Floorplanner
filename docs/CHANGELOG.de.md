@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.28.4] - 2026-11-22
+### Verbessert
+- **📡 Funk-Karte: alle einschalten, auch die nicht im Plan** (der Besitzer, mit einem Foto von „78 Empfangswerte sind … ausgeschaltet“ und keinem Knopf: „Wo sehe ich die Option“): der Knopf oben kommt nur für Geräte im Plan, denen ein Wert fehlt; seine 78 ausgeschalteten Werte gehören zu anderen Geräten, darum sah er keinen.
+  - Der Abschnitt „In Home Assistant ausgeschaltete Empfangswerte: n“ hat jetzt einen eigenen Knopf **„📡 Alle n einschalten“**: er schaltet alle ein, auch die von Geräten, die nicht im Plan stehen.
+  - Gehört keiner davon zu einem Gerät im Plan, dem ein Wert fehlt, ist der Abschnitt gleich offen und sagt, warum („… gehören zu Geräten, die nicht im Plan stehen (oder deren Entität im Plan zu keinem Gerät gehört, z. B. eine Gruppe)“).
+  - Seine Überschrift passt bei jeder Zahl („… Empfangswerte: 1“ statt „1 Empfangswerte sind …“).
+
 ## [5.28.3] - 2026-11-21
 ### Verbessert
 - **📡 Funk-Karte mit Matter** (der Besitzer: „das ist nur per Zigbee. Ich habe aber auch Matter“):

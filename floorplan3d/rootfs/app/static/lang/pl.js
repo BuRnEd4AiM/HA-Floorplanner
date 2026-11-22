@@ -2464,7 +2464,7 @@ export default {
   'rd.q.good': 'dobrze', 'rd.q.mid': 'średnio', 'rd.q.bad': 'słabo', 'rd.weakest': 'Najsłabsze (dotknij, by zobaczyć w domu)',
   'rd.tipBad': 'Urządzenie Zigbee lub Thread zasilane z sieci (gniazdko, lampa) blisko czerwonych wzmacnia sieć. Dla WiFi pomaga wzmacniacz lub inne miejsce.',
   'rd.tipGood': 'Wszystko w porządku: żadne urządzenie nie ma słabego zasięgu.',
-  'rd.none': 'Home Assistant nie zna jeszcze wartości zasięgu dla urządzeń na rzucie.', 'rd.off': '{n} wartości zasięgu jest wyłączonych w Home Assistant',
+  'rd.none': 'Home Assistant nie zna jeszcze wartości zasięgu dla urządzeń na rzucie.', 'rd.off': 'Wartości zasięgu wyłączone w Home Assistant: {n}',
   'rd.offHow': 'Zigbee2MQTT i ZHA dostarczają je wyłączone. Włączanie: Home Assistant → Ustawienia → Urządzenia i usługi → Encje, szukaj „linkquality” lub „rssi”, otwórz encję → ⚙ → włącz „Włączona”. Po około minucie pojawią się tutaj.',
   'vac.title': 'Światło urlopowe',
   'vac.help': 'Gdy alarm urlopowy jest uzbrojony, lampy włączają się i wyłączają wieczorem jak u was – nauczone z ostatnich 14 wieczorów, każdego wieczoru trochę inaczej. Rolety zjeżdżają po zachodzie słońca i podnoszą się rano.',
@@ -2558,4 +2558,5 @@ export default {
   'rd.onAdmin': 'Administrator może je tu włączyć jednym dotknięciem.', 'rd.onDone': 'Włączono: {n}. Wartości pojawią się za około minutę.',
   'rd.onSome': '{n} się nie udało (włącz je ręcznie w Home Assistant).', 'rd.onFail': 'Nie udało się włączyć: {err}',
   'rd.matterOld': 'Urządzenia Matter przez Thread pojawią się dopiero z nowym serwerem Matter: zaktualizuj „Matter Server” w Home Assistant.',
+  'rd.offNotPlan': 'Urządzeniom w planie żadnej nie brakuje: należą do urządzeń, których nie ma w planie (albo których encja w planie nie należy do żadnego urządzenia, np. grupa). Mimo to możesz je włączyć.',
 };

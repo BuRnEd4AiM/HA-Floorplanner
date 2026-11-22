@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.28.4] - 2026-11-22
+### Changed
+- **📡 Funk-Karte: switch on all of them, also those not in the plan** (the owner, with a photo of "78 Empfangswerte sind … ausgeschaltet" and no button: "Wo sehe ich die Option"): the button at the top only comes for devices of the plan that lack a value; his 78 switched-off values belong to other devices, so he saw none.
+  - The section "In Home Assistant ausgeschaltete Empfangswerte: n" now has its own button **"📡 Alle n einschalten"**: it switches all of them on, also those of devices that are not in the plan.
+  - When none of them belongs to a device of the plan that lacks a value, the section is open at once and says why ("… gehören zu Geräten, die nicht im Plan stehen (oder deren Entität im Plan zu keinem Gerät gehört, z. B. eine Gruppe)").
+  - Its heading reads right with any number ("… Empfangswerte: 1" instead of "1 Empfangswerte sind …").
+
 ## [5.28.3] - 2026-11-21
 ### Changed
 - **📡 Funk-Karte with Matter** (the owner: "das ist nur per Zigbee. Ich habe aber auch Matter"):

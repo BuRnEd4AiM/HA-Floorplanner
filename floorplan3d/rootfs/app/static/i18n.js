@@ -1421,7 +1421,7 @@ const DICT = {
     'rd.q.mid': 'mittel', 'rd.q.bad': 'schwach', 'rd.weakest': 'Am schwächsten (antippen zeigt es im Haus)',
     'rd.tipBad': 'Ein Zigbee- oder Thread-Gerät mit Strom (Steckdose, Lampe) in der Nähe der roten Geräte verstärkt das Netz. Bei WLAN hilft ein Repeater oder ein anderer Platz.',
     'rd.tipGood': 'Alles in Ordnung: kein Gerät mit schwachem Empfang.', 'rd.none': 'Für die Geräte im Grundriss kennt Home Assistant noch keinen Empfangswert.',
-    'rd.off': '{n} Empfangswerte sind in Home Assistant ausgeschaltet',
+    'rd.off': 'In Home Assistant ausgeschaltete Empfangswerte: {n}',
     'rd.offHow': 'Zigbee2MQTT und ZHA liefern sie ausgeschaltet. Einschalten: Home Assistant → Einstellungen → Geräte & Dienste → Entitäten, nach „linkquality“ oder „rssi“ suchen, die Entität öffnen → ⚙ → „Aktiviert“ einschalten. Nach etwa einer Minute erscheinen sie hier.',
     'vac.title': 'Urlaubs-Licht',
     'vac.help': 'Solange der Urlaubs-Alarm scharf ist, gehen die Lampen abends so an und aus wie bei euch – gelernt aus den letzten 14 Abenden, jeden Abend ein bisschen anders. Die Rollläden gehen nach Sonnenuntergang runter und morgens hoch.',
@@ -1517,6 +1517,7 @@ const DICT = {
     'rd.onAdmin': 'Ein Admin kann sie hier mit einem Tipp einschalten.', 'rd.onDone': 'Eingeschaltet: {n}. Die Werte erscheinen in etwa einer Minute.',
     'rd.onSome': '{n} gingen nicht (in Home Assistant von Hand einschalten).', 'rd.onFail': 'Einschalten ging nicht: {err}',
     'rd.matterOld': 'Matter-Geräte über Thread zeigt die Karte erst mit dem neuen Matter-Server: in Home Assistant den „Matter Server“ aktualisieren.',
+    'rd.offNotPlan': 'Den Geräten im Plan fehlt keiner davon: sie gehören zu Geräten, die nicht im Plan stehen (oder deren Entität im Plan zu keinem Gerät gehört, z. B. eine Gruppe). Einschalten kannst du sie trotzdem.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2885,7 +2886,7 @@ const DICT = {
     'rd.q.mid': 'middle', 'rd.q.bad': 'weak', 'rd.weakest': 'The weakest (tap to see it in the house)',
     'rd.tipBad': 'A Zigbee or Thread device on mains power (plug, lamp) near the red ones strengthens the network. For WiFi a repeater or another spot helps.',
     'rd.tipGood': 'All fine: no device with weak reception.', 'rd.none': 'Home Assistant knows no reception value yet for the devices of the plan.',
-    'rd.off': '{n} reception values are switched off in Home Assistant',
+    'rd.off': 'Reception values switched off in Home Assistant: {n}',
     'rd.offHow': 'Zigbee2MQTT and ZHA ship them switched off. To switch on: Home Assistant → Settings → Devices & services → Entities, search “linkquality” or “rssi”, open the entity → ⚙ → turn on “Enabled”. They show here after about a minute.',
     'vac.title': 'Holiday light',
     'vac.help': 'While the holiday alarm is armed, the lamps go on and off in the evening the way they do when you are home – learned from the last 14 evenings, a little different every evening. The shutters go down after sunset and up in the morning.',
@@ -2977,6 +2978,7 @@ const DICT = {
     'rd.onAdmin': 'An admin can switch them on here with one tap.', 'rd.onDone': 'Switched on: {n}. The values show in about a minute.',
     'rd.onSome': '{n} did not work (switch them on by hand in Home Assistant).', 'rd.onFail': 'Could not switch them on: {err}',
     'rd.matterOld': 'Matter devices over Thread show only with the new Matter server: update the “Matter Server” in Home Assistant.',
+    'rd.offNotPlan': 'None of them is missing for the devices of the plan: they belong to devices that are not in the plan (or whose entity in the plan belongs to no device, e.g. a group). You can still switch them on.',
   },
 };
 
