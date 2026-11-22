@@ -1,20 +1,20 @@
 {
  "session": "session_012p9z3PQH18siEDJx3FQYqp",
  "start": "2026-11-21",
- "updated": "2026-11-22T01:49:43Z",
+ "updated": "2026-11-22T02:52:32Z",
  "branch": "claude/bold-heisenberg-y046ye",
  "source": "counted",
- "input": 524,
- "cache_write": 1965389,
- "cache_read": 80968889,
- "output": 193058,
+ "input": 748,
+ "cache_write": 2167015,
+ "cache_read": 147661603,
+ "output": 300023,
  "models": {
   "claude-opus-5-5": {
-   "input": 524,
-   "cache_write": 1965389,
-   "cache_read": 80968889,
-   "output": 193058,
-   "requests": 259
+   "input": 748,
+   "cache_write": 2167015,
+   "cache_read": 147661603,
+   "output": 300023,
+   "requests": 368
   }
  }
 }

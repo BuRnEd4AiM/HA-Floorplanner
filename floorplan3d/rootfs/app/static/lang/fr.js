@@ -2634,4 +2634,9 @@ export default {
   'rd.onSome': '{n} n’ont pas fonctionné (à activer à la main dans Home Assistant).', 'rd.onFail': 'Activation impossible : {err}',
   'rd.matterOld': 'Les appareils Matter via Thread n’apparaissent qu’avec le nouveau serveur Matter : mettre à jour le « Matter Server » dans Home Assistant.',
   'rd.offNotPlan': 'Aucune ne manque aux appareils du plan : elles appartiennent à des appareils absents du plan (ou dont l’entité du plan n’appartient à aucun appareil, p. ex. un groupe). Vous pouvez quand même les activer.',
+  'stair.height': 'Hauteur',
+  'stair.heightHint': 'La hauteur de tout l’escalier, p. ex. un escalier en colimaçon du jardin à la terrasse sur le toit. Sans hauteur propre : celle de ses étages. Les marches s’adaptent.',
+  'stair.heightReset': '↺ Revenir à la hauteur de l’étage', 'stair.exit': 'Passerelle en haut (longueur)',
+  'stair.exitHint': 'En haut une passerelle droite après le palier, avec rampe à gauche et à droite, p. ex. vers la terrasse sur le toit. 0 : aucune. Sa direction suit la rotation de l’escalier.',
+  'stair.riseOwn': 'Une marche fait {rise}, tout l’escalier {height} (hauteur propre).',
 };

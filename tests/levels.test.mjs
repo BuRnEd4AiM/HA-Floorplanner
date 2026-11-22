@@ -6,6 +6,7 @@ const dir = process.env.STATIC_DIR || '/tmp/static';
 const L = await import(`${dir}/levels.js`);
 const near = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
 const rect = (x0, z0, x1, z1) => [[x0, z0], [x1, z0], [x1, z1], [x0, z1]];
+const { pointInPoly: pointIn } = await import(`${dir}/rooms.js`);
 
 test('stored values: a plateau 1 cm to 5 m, a room -3 to 3 m, else none', () => {
   assert.equal(L.cleanRise(0.9), 0.9); assert.equal(L.cleanRise('0.456'), 0.46); assert.equal(L.cleanRise(9), 5);
@@ -196,4 +197,43 @@ test('a garage on the lawn beside the house on a plateau (5.14.0): cut out of th
   const mid = { floors: [{ rooms: [{ id: 'm', points: rect(4, 2, 6, 4) }], walls: [] }], plot: { areas: [{ rise: 0.6, points: rect(0, 0, 10, 7) }] } };
   assert.equal(L.groundCut(mid, 0, mid.floors[0].rooms[0], true), -1);              // in the middle of a plateau: no hole cut
   assert.deepEqual(mid.plot.areas[0].points, rect(0, 0, 10, 7));
+});
+
+test('slabPieces (5.28.5, #789): the ceiling of a ground floor on a plateau stays down under a garage on the lawn, with its own walls', () => {
+  const W = (a, b) => ({ a, b, thickness: 0.3 });
+  const f = { rooms: [{ id: 'h', points: rect(0, 0, 10, 7) }, { id: 'g', points: rect(10, 0, 16, 5), onGround: true }],
+    walls: [W([0, 0], [10, 0]), W([10, 0], [10, 7]), W([10, 7], [0, 7]), W([0, 7], [0, 0]), W([10, 0], [16, 0]), W([16, 0], [16, 5]), W([16, 5], [10, 5])] };
+  const ring = [[-0.15, -0.15], [16.15, -0.15], [16.15, 5.15], [10.15, 5.15], [10.15, 7.15], [-0.15, 7.15]];   // the outline of house and garage
+  const pieces = L.slabPieces(f, ring, 0.6);
+  const at = (x, z) => pieces.filter((p) => pointIn(x, z, p.ring) && !p.holes.some((h) => pointIn(x, z, h))).map((p) => p.lift);
+  assert.deepEqual(at(5, 3), [0.6]);                                              // the house stays up
+  assert.deepEqual(at(13, 2.5), [0]);                                             // the garage down
+  assert.deepEqual(at(16.05, 2.5), [0]);                                          // its own outer wall down too
+  assert.deepEqual(at(10, 2.5), [0.6]);                                           // the wall it shares with the house stays up
+  assert.deepEqual(L.slabPieces(f, ring, 0), [{ lift: 0, ring, holes: [] }]);     // not on a plateau: one piece as before
+  f.rooms[1].onGround = false;
+  assert.deepEqual(L.slabPieces(f, ring, 0.6), [{ lift: 0.6, ring, holes: [] }]); // no garage on the lawn: one piece as before
+});
+
+test('a garage on the lawn (5.28.5, #789): its own walls stay down, also on a plateau not cut; a long wall past its corner is split there', () => {
+  const W = (id, a, b) => ({ id, a, b, thickness: 0.3, openings: [] });
+  const f = { rooms: [{ id: 'h', points: rect(0, 0, 10, 7) }, { id: 'g', points: rect(10, 0, 16, 5) }],
+    walls: [W('front', [0, 0], [16, 0]), W('hr', [10, 0], [10, 7]), W('gr', [16, 0], [16, 5]), W('gb', [16, 5], [10, 5]), W('hb', [10, 7], [0, 7]), W('hl', [0, 7], [0, 0])] };
+  const plateau = [{ id: 'p', rise: 0.6, points: rect(-1, -1, 17, 8) }];           // a plateau that cannot be cut (the garage in its middle)
+  near(L.lifter(f, plateau).wall(f.walls[2]), 0.6);                               // before: the garage's walls on the plateau
+  f.rooms[1].onGround = true;
+  near(L.lifter(f, plateau).wall(f.walls[2]), 0);                                 // its own walls stay down now
+  near(L.lifter(f, plateau).wall(f.walls[3]), 0);
+  near(L.lifter(f, plateau).wall(f.walls[1]), 0.6);                               // the wall between house and garage stays up
+  near(L.lifter(f, plateau).wall(f.walls[0]), 0.6);                               // the long front wall: its middle is at the house
+  let k = 0;
+  assert.equal(L.splitAtCorners(f, f.rooms[1], () => `n${++k}`), 2);              // at the corners (10, 0) and (10, 5) of the garage
+  const piece = f.walls.find((w) => w.a[0] === 10 && w.a[1] === 0 && w.b[0] === 16);
+  assert.deepEqual([f.walls[0].a, f.walls[0].b], [[0, 0], [10, 0]]);
+  assert.ok(piece);
+  f.walls.filter((w) => w.a[0] === 10 && w.b[0] === 10).forEach((w) => near(L.lifter(f, plateau).wall(w), 0.6));   // the wall to the house: both pieces up
+  near(L.lifter(f, plateau).wall(f.walls[0]), 0.6);                               // the house's piece stays up
+  near(L.lifter(f, plateau).wall(piece), 0);                                      // the garage's piece goes down
+  assert.equal(L.splitAtCorners(f, f.rooms[1], () => 'x'), 0);                    // nothing more to split
+  assert.equal(L.splitAtCorners(f, f.rooms[1], null), 0);
 });

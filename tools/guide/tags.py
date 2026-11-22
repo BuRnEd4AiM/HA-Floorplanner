@@ -420,6 +420,11 @@ t("stairs-winder",
   "Kellertreppe Lauf massive Treppe Blockstufen",
   "winder stairs quarter turn half turn winders wedge steps stairs with a turn corner landing basement stairs flight "
   "solid stairs block steps")
+t("stairs-height",
+  "Treppenhöhe Höhe der Treppe eigene Höhe Wendeltreppe Spindeltreppe Außentreppe Gartentreppe Steg Übergang Austritt Treppe nach oben "
+  "Podest oben Geländer links rechts halbe Etage Split-Level Zwischenebene Galerie Treppe zu hoch Treppe kürzer Treppe niedriger wie hoch ist die Treppe",
+  "stair height height of the stair own height spiral staircase helical stair outdoor stair garden stair walkway bridge exit stair up "
+  "top landing railing left right half storey split level mezzanine gallery stair too tall shorter stair lower stair how high is the stair")
 t("stairs-storey",
   "Geschosshöhe Etagenhöhe Stockwerkshöhe Höhe der Etage Deckenhöhe Raumhöhe wie hoch ist ein Stockwerk Treppe zu hoch Stufen zählen "
   "Anzahl Stufen Steigung Stufenhöhe zweimal viertelgewendelt unten und oben gewendelt Reihenhaustreppe von der Seite aufsteigen "

@@ -2570,4 +2570,9 @@ export default {
   'rd.onSome': '{n} lukten niet (handmatig in Home Assistant inschakelen).', 'rd.onFail': 'Inschakelen lukte niet: {err}',
   'rd.matterOld': 'Matter-apparaten via Thread verschijnen pas met de nieuwe Matter-server: werk de „Matter Server” in Home Assistant bij.',
   'rd.offNotPlan': 'Bij de apparaten in het plan ontbreekt er geen: ze horen bij apparaten die niet in het plan staan (of waarvan de entiteit in het plan bij geen apparaat hoort, bijv. een groep). Inschakelen kan toch.',
+  'stair.height': 'Hoogte',
+  'stair.heightHint': 'Hoe hoog de hele trap gaat, bijv. een wenteltrap van de tuin naar het dakterras. Zonder eigen hoogte: zo hoog als zijn verdiepingen. De treden passen zich aan.',
+  'stair.heightReset': '↺ Weer zo hoog als de verdieping', 'stair.exit': 'Loopbrug boven (lengte)',
+  'stair.exitHint': 'Boven een rechte loopbrug na het bordes, met leuning links en rechts, bijv. naar het dakterras. 0: geen. De richting volgt de draaiing van de trap.',
+  'stair.riseOwn': 'Een trede is {rise} hoog, de hele trap {height} (eigen hoogte).',
 };

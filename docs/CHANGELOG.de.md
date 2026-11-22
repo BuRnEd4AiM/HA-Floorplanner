@@ -2,6 +2,16 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.29.0] - 2026-11-22
+### Neu
+- **🪜 Treppe mit eigener Höhe, Wendeltreppe mit Steg oben** (der Besitzer: „dass ich die auch unterschiedlich hoch machen kann … die Wendeltreppe geht quasi von meinem Garten hoch auf die Dachterrasse … kommt oben ein Rechteck an und rechts und links ist Geländer“):
+  - Jede Treppe hat **„Höhe“**: leer so hoch wie ihre Etagen wie bisher, sonst genau so hoch wie eingetragen (0,3 bis 8 m), z. B. eine Wendeltreppe vom Garten auf die Dachterrasse oder eine Treppe zwischen zwei Ebenen. Die Stufen passen sich an (die Zeile unter „Stufen je Etage“ sagt „… die ganze Treppe 3,20 m (eigene Höhe)“); **„↺ Wieder so hoch wie die Etage“** nimmt es zurück.
+  - Eine Wendeltreppe hat **„Steg oben (Länge)“**: ein gerader Steg weiter vom Austritt oben (bis 4 m), so breit wie die Treppe, mit **Geländer links und rechts**; das Geländer der Wendel läuft jetzt auch um den Austritt herum. Seine Richtung folgt der Drehung der Treppe.
+  - In „✨ Neu“ stehen beide im Abschnitt 📐, „🔍 Einstellung suchen“ findet sie. Der JSON-Import kennt sie: `"h": 3.2`, `"exit": 1.5`.
+### Repariert
+- **🚗 Eine Garage „unten auf dem Rasen“ neben einem Haus mit Keller blieb oben** (#789, das Foto des Besitzers: „ist noch immer irgendwie angehoben, obwohl da kein Plateau drunter ist“): mit den Etagen gestapelt wie ein echtes Haus steht das EG auf der Decke des Kellers, und diese Decke ging in einem Stück mit dem Plateau nach oben, auch unter der Garage. Der Boden der Garage lag richtig unten auf dem Rasen, aber die angehobene Decke lag darüber, darum schien der Haken „🚗 Steht unten auf dem Rasen“ nichts zu tun. Jetzt bleibt die Decke unter der Garage und ihren eigenen Wänden unten; das Haus und die Wand, die es mit der Garage teilt, bleiben auf dem Plateau.
+- **🚗 Eine lange Wand an Haus und Garage hob die Garage mit an** (#789, der Besitzer: „dass die Wand mit einer Wand Kontakt hat, die auf einem Plateau ist und deswegen alles auf ein Plateau gehoben wird“): eine Wand nimmt ihre Höhe von ihrer Mitte; eine Wand an Haus und Garage entlang hatte ihre Mitte am Haus und ging ganz hoch. Der Haken „🚗 Steht unten auf dem Rasen“ teilt so eine Wand jetzt an der Ecke der Garage, und die eigenen Wände der Garage bleiben immer mit ihr unten (auch wo das Plateau nicht ausgeschnitten werden konnte); die Wand, die sie mit dem Haus teilt, bleibt oben.
+
 ## [5.28.4] - 2026-11-22
 ### Verbessert
 - **📡 Funk-Karte: alle einschalten, auch die nicht im Plan** (der Besitzer, mit einem Foto von „78 Empfangswerte sind … ausgeschaltet“ und keinem Knopf: „Wo sehe ich die Option“): der Knopf oben kommt nur für Geräte im Plan, denen ein Wert fehlt; seine 78 ausgeschalteten Werte gehören zu anderen Geräten, darum sah er keinen.

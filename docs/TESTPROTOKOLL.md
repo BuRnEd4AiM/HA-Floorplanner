@@ -534,7 +534,9 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 222. Neu in 5.28.2: 📡 Funk-Karte „Alle einschalten“ | 3 | 0 | 2 | 0 | 222.4, 222.5 |
 | 223. Neu in 5.28.3: 📡 Funk-Karte mit Matter | 2 | 0 | 3 | 0 | 223.3 bis 223.5 |
 | 224. Neu in 5.28.4: 📡 alle ausgeschalteten Empfangswerte einschalten | 2 | 0 | 2 | 0 | 224.3, 224.4 |
-| **Zusammen** | **1364** | **2** | **161** | **92** | |
+| 225. Repariert in 5.29.0: 🚗 Garage auf dem Rasen neben einem Haus mit Keller, lange Wand (#789) | 1 | 0 | 2 | 0 | 225.2, 225.3 |
+| 226. Neu in 5.29.0: 🪜 Treppe mit eigener Höhe, Wendeltreppe mit Steg oben | 2 | 0 | 2 | 0 | 226.3, 226.4 |
+| **Zusammen** | **1367** | **2** | **165** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3378,4 +3380,25 @@ Dein Foto vom 2026-11-22: „78 Empfangswerte sind … ausgeschaltet“, aber ke
 | 224.2 | Demo: „📡 Funk“, oben „📡 Alle 3 einschalten“ | Danach ist unten „In Home Assistant ausgeschaltete Empfangswerte: 1“ offen, mit der Erklärung und „📡 Alle 1 einschalten“ | ✅ (2026-11-22, Claude, Demo) |
 | 224.3 | Dein Haus: „📡 Funk“ | Unten „In Home Assistant ausgeschaltete Empfangswerte: 78“, aufgeklappt, mit „📡 Alle 78 einschalten“ | ❓ |
 | 224.4 | Dein Haus: „📡 Alle 78 einschalten“ tippen | „✓ Eingeschaltet: 78 …“; nach etwa einer Minute sind sie in Home Assistant aktiviert | ❓ |
+
+
+## 225. Repariert in 5.29.0: 🚗 Garage auf dem Rasen neben einem Haus mit Keller, lange Wand (#789)
+Dein Foto vom 2026-11-22: „Raum 6“ mit „🚗 Steht unten auf dem Rasen“ war „noch immer irgendwie angehoben“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 225.1 | Unit-Test `tests/levels.test.mjs` (`slabPieces`, `splitAtCorners`, Wände); Browser-Test Teil `106_garage_slab` (neu: Keller, Haus und Garage auf einem Plateau, gestapelt, eine lange Wand vorne), dazu `93_plateau_more`, `09_floors`, `82_stacked_openings` | Alles grün; ohne die Reparatur lag die Decke über der Garage 60 cm zu hoch | ✅ (2026-11-22, Claude) |
+| 225.2 | Dein Haus: EG, „Raum 6“ mit „🚗 Steht unten auf dem Rasen“ | Raum 6 liegt unten auf dem Rasen, keine helle Platte mehr darüber; das restliche EG bleibt auf dem Plateau | ❓ |
+| 225.3 | Dein Haus: den Haken bei Raum 6 einmal aus und wieder an | Die Wand, die an Haus und Raum 6 entlangläuft, ist an der Ecke geteilt; das Stück an Raum 6 steht unten | ❓ |
+
+
+## 226. Neu in 5.29.0: 🪜 Treppe mit eigener Höhe, Wendeltreppe mit Steg oben
+Dein Wunsch vom 2026-11-22: die Wendeltreppe vom Garten auf die Dachterrasse, oben ein Rechteck mit Geländer links und rechts.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 226.1 | Unit-Tests `tests/stairs.test.mjs`, `tests/test_import.py`; Browser-Test Teil `107_stair_height` (neu), dazu `70_stair_winders`, `74_storey_stairs` | Alles grün | ✅ (2026-11-22, Claude) |
+| 226.2 | Demo, Bearbeiten: eine Wendeltreppe setzen, „Höhe“ 3,2, „Steg oben (Länge)“ 1,5 | Die Treppe geht 3,20 m hoch, oben ein gerader Steg mit Geländer links und rechts; unter „Stufen je Etage“ steht „… die ganze Treppe 3.20 m (eigene Höhe)“ | ✅ (2026-11-22, Claude, Demo) |
+| 226.3 | Dein Haus: deine Wendeltreppe vom Garten, „Höhe“ so, dass sie oben auf der Dachterrasse ankommt | Der Steg liegt eben mit der Dachterrasse | ❓ |
+| 226.4 | Dein Haus: „Drehung °“ der Treppe ändern | Der Steg zeigt zur Dachterrasse | ❓ |
 

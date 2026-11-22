@@ -11,6 +11,7 @@
  * Pure (no three.js, no DOM; unit test: tests/levels.test.mjs). */
 import { pointInPoly } from './rooms.js';
 import polygonClipping from './vendor/polygon-clipping.js';
+import { splitWall, distAlong, canSplitAt } from './wallsplit.js';
 
 export const LEVELS = { maxRise: 5, maxRaise: 3, lip: 0.2, stepMax: 0.18, tread: 0.28, ceilingFrom: 1.9, slopeRun: 1.5 };
 export const EDGES = ['wall', 'slope'];
@@ -117,8 +118,9 @@ export function lifter(f, areas, ter = null, upper = false) {
     if (h) hung.push([r, h]);
   });
   const low = upper ? [] : rooms.filter((r) => r.onGround && okPoly(r));   // a garage on the ground floor stays on the lawn (5.14.0, groundCut)
-  const ground = (x, z) => {
-    if (low.length && low.some((r) => pointInPoly(x, z, r.points))) return 0;
+  const lowWalls = new Set(low.flatMap((r) => wallsOf(f, r).mine));   // its own walls stay down with it, also on a plateau not cut (5.28.5, #789)
+  const ground = (x, z, withLow = true) => {
+    if (withLow && low.length && low.some((r) => pointInPoly(x, z, r.points))) return 0;
     const g = base(x, z);
     if (g || !hung.length) return g;
     return hung.find(([r]) => onPoly(r.points, x, z))?.[1] || 0;
@@ -135,7 +137,7 @@ export function lifter(f, areas, ter = null, upper = false) {
       if (ter?.stands(d)) return ground(x, z) || ter.at(x, z);      // on a slope: on the ground, on a plateau with the plateau
       return ground(x, z) + ((+d.y || 0) >= LEVELS.ceilingFrom ? 0 : (raised ? raiseAt(rooms, x, z) : 0));   // what hangs from the ceiling stays
     },
-    wall: (w) => (any ? ground((w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2) : 0),
+    wall: (w) => (!any || lowWalls.has(w) ? 0 : ground((w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, !lowWalls.size)),   // the house's walls: never down with a garage
   };
 }
 
@@ -239,14 +241,52 @@ function massOf(rooms, walls, grow) {
  *  (index gi) gets `onGround` and is cut out of the plateaus it lies on (with its own walls and the plateau's lip round them, not the walls
  *  it shares with the house), so its floor lies on the lawn; `on` false gives it back to the plateau it touches. Changes the plateaus'
  *  points; returns how many plateaus changed (-1: the room lies in the middle of a plateau, a hole cannot be cut) */
-export function groundCut(layout, gi, room, on) {
+/** the walls of floor f that are room's own (round it, not shared with another room that is not on the lawn) and those of the rest */
+function wallsOf(f, room) {
+  const rest = (f.rooms || []).filter((r) => r !== room && !r.onGround && !r.terrace && okPoly(r));
+  const near = (r, w) => onPoly(r.points, (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, (+w.thickness || 0.2) / 2 + 0.05);
+  return { rest, mine: (f.walls || []).filter((w) => near(room, w) && !rest.some((r) => near(r, w))), theirs: (f.walls || []).filter((w) => rest.some((r) => near(r, w))) };
+}
+/** the ceiling a ground floor stands on (over a basement), in pieces at their height (5.28.5, the owner's photo: the garage „ist noch immer
+ *  irgendwie angehoben, obwohl da kein Plateau drunter ist“): the outline `ring` of floor f goes up by `lift` (the plateau at its inside),
+ *  but under a room on the lawn (onGround, with its own walls) it stays down. [{ lift, ring, holes }] (rings of [x, z], not closed) */
+export function slabPieces(f, ring, lift) {
+  const low = lift ? (f?.rooms || []).filter((r) => r.onGround && okPoly(r)) : [];
+  if (!low.length) return [{ lift, ring, holes: [] }];
+  const open = (poly) => ({ ring: poly[0].slice(0, -1), holes: poly.slice(1).map((h) => h.slice(0, -1)) });
+  try {
+    const mass = polygonClipping.union(...low.flatMap((r) => {   // the room with its own walls, not the walls it shares with the house
+      const { rest, mine, theirs } = wallsOf(f, r), keep = massOf(rest, theirs, 0.01), own = massOf([r], mine, 0);
+      return keep.length ? polygonClipping.difference(polygonClipping.union(...own), ...keep) : polygonClipping.union(...own);
+    }));
+    const me = [ring4(ring)], down = polygonClipping.intersection(me, mass);
+    if (!down.length) return [{ lift, ring, holes: [] }];
+    return [...polygonClipping.difference(me, mass).map((poly) => ({ lift, ...open(poly) })), ...down.map((poly) => ({ lift: 0, ...open(poly) }))];
+  } catch { return [{ lift, ring, holes: [] }]; }
+}
+/** the walls of floor f that run on past a corner of room (a long wall along the house and the garage): split there, so the room's piece is a
+ *  wall of its own that can stay down with it (5.28.5, the owner: „dass die Wand mit einer Wand Kontakt hat, die auf einem Plateau ist“).
+ *  uid() makes the new ids; returns how many were split */
+export function splitAtCorners(f, room, uid) {
+  if (!f || !okPoly(room) || typeof uid !== 'function') return 0;
+  let n = 0;
+  room.points.forEach(([x, z]) => {
+    const w = (f.walls || []).find((v) => {
+      const d = distAlong(v, x, z), L = Math.hypot(v.b[0] - v.a[0], v.b[1] - v.a[1]);
+      if (!L || d < 0.05 || d > L - 0.05) return false;
+      const px = v.a[0] + ((v.b[0] - v.a[0]) * d) / L, pz = v.a[1] + ((v.b[1] - v.a[1]) * d) / L;
+      return Math.hypot(px - x, pz - z) <= (+v.thickness || 0.2) / 2 + 0.02 && canSplitAt(v, d);
+    });
+    if (w && splitWall(f, w, distAlong(w, x, z), uid)) n++;
+  });
+  return n;
+}
+export function groundCut(layout, gi, room, on, uid = null) {
   const f = layout?.floors?.[gi], areas = layout?.plot?.areas || [];
   if (!f || !okPoly(room)) return 0;
   if (on) room.onGround = true; else delete room.onGround;
-  const rest = (f.rooms || []).filter((r) => r !== room && !r.onGround && !r.terrace && okPoly(r));
-  const near = (r, w) => onPoly(r.points, (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, (+w.thickness || 0.2) / 2 + 0.05);
-  const mine = (f.walls || []).filter((w) => near(room, w) && !rest.some((r) => near(r, w)));
-  const theirs = (f.walls || []).filter((w) => rest.some((r) => near(r, w)));
+  if (on) splitAtCorners(f, room, uid);
+  const { rest, mine, theirs } = wallsOf(f, room);
   let region, house;
   try {
     const keep = massOf(rest, theirs, 0.01), own = massOf([room], mine, LEVELS.lip);

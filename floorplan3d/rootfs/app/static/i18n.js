@@ -1518,6 +1518,11 @@ const DICT = {
     'rd.onSome': '{n} gingen nicht (in Home Assistant von Hand einschalten).', 'rd.onFail': 'Einschalten ging nicht: {err}',
     'rd.matterOld': 'Matter-Geräte über Thread zeigt die Karte erst mit dem neuen Matter-Server: in Home Assistant den „Matter Server“ aktualisieren.',
     'rd.offNotPlan': 'Den Geräten im Plan fehlt keiner davon: sie gehören zu Geräten, die nicht im Plan stehen (oder deren Entität im Plan zu keinem Gerät gehört, z. B. eine Gruppe). Einschalten kannst du sie trotzdem.',
+    'stair.height': 'Höhe',
+    'stair.heightHint': 'Wie hoch die ganze Treppe geht, z. B. eine Wendeltreppe vom Garten auf die Dachterrasse. Ohne eigene Höhe: so hoch wie ihre Etagen. Die Stufen passen sich an.',
+    'stair.heightReset': '↺ Wieder so hoch wie die Etage', 'stair.exit': 'Steg oben (Länge)',
+    'stair.exitHint': 'Oben ein gerader Steg weiter vom Austritt, mit Geländer links und rechts, z. B. hinüber auf die Dachterrasse. 0: keiner. Die Richtung stellst du mit der Drehung der Treppe ein.',
+    'stair.riseOwn': 'Eine Stufe ist {rise} hoch, die ganze Treppe {height} (eigene Höhe).',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2979,6 +2984,11 @@ const DICT = {
     'rd.onSome': '{n} did not work (switch them on by hand in Home Assistant).', 'rd.onFail': 'Could not switch them on: {err}',
     'rd.matterOld': 'Matter devices over Thread show only with the new Matter server: update the “Matter Server” in Home Assistant.',
     'rd.offNotPlan': 'None of them is missing for the devices of the plan: they belong to devices that are not in the plan (or whose entity in the plan belongs to no device, e.g. a group). You can still switch them on.',
+    'stair.height': 'Height',
+    'stair.heightHint': 'How high the whole stair goes, e.g. a spiral stair from the garden up to the roof terrace. Without its own height: as high as its floors. The steps fit themselves to it.',
+    'stair.heightReset': '↺ Back to the height of the floor', 'stair.exit': 'Walkway at the top (length)',
+    'stair.exitHint': 'At the top a straight walkway on from the landing, with a hand rail left and right, e.g. over to the roof terrace. 0: none. Its direction follows the rotation of the stair.',
+    'stair.riseOwn': 'A step is {rise} high, the whole stair {height} (its own height).',
   },
 };
 
