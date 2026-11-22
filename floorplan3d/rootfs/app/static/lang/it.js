@@ -2600,4 +2600,9 @@ export default {
   'rd.onSome': '{n} non hanno funzionato (attivali a mano in Home Assistant).', 'rd.onFail': 'Attivazione non riuscita: {err}',
   'rd.matterOld': 'I dispositivi Matter via Thread compaiono solo con il nuovo server Matter: aggiorna il «Matter Server» in Home Assistant.',
   'rd.offNotPlan': 'Ai dispositivi della pianta non ne manca nessuno: appartengono a dispositivi che non sono nella pianta (o la cui entità nella pianta non appartiene a nessun dispositivo, es. un gruppo). Puoi comunque attivarli.',
+  'stair.height': 'Altezza',
+  'stair.heightHint': 'L’altezza dell’intera scala, es. una scala a chiocciola dal giardino alla terrazza sul tetto. Senza altezza propria: quella dei suoi piani. I gradini si adattano.',
+  'stair.heightReset': '↺ Di nuovo alto quanto il piano', 'stair.exit': 'Passerella in alto (lunghezza)',
+  'stair.exitHint': 'In alto una passerella dritta dopo il pianerottolo, con corrimano a destra e a sinistra, es. verso la terrazza sul tetto. 0: nessuna. La direzione segue la rotazione della scala.',
+  'stair.riseOwn': 'Un gradino è alto {rise}, l’intera scala {height} (altezza propria).',
 };

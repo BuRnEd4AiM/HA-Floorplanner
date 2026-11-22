@@ -5,7 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { floorShapes } from './blocks.js';
 import { polyArea } from './rooms.js';
 import { fmtArea } from './i18n.js';
-import { stairLocal, polyToWorld, stairFloors, storeysShown } from './stairs.js';
+import { stairLocal, polyToWorld, stairFloors, storeysShown, storeyH, cleanStairH } from './stairs.js';
 import { inIso, deviceInIso, clipWallToRoom, wallPieces } from './roomclip.js';
 import { buildWall, wallLength } from './walls.js';
 import { miterEnds } from './wallmiter.js';
@@ -236,9 +236,9 @@ export function initFloorBuild(ctx) {
       const sGhost = ghost && !arriving;
       const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: ctx.holoEdge, transparent: true, opacity: 0.95 }) : o.edge;
       const sg = ctx.stairMesh(st, holo, sGhost, sEdge, storeysShown(st, i, open, house));   // no storeys hanging over the open floor (#229, #246)
-      const n = stairFloors(st), down = st.dir === 'down', sl = stairLift(down ? i - n : i, n, gi(), pl.length ? groundAt(pl, st.x, st.z) : 0, H);
-      sg.position.set(st.x, (down ? -H * n : 0) + sl.y, st.z);   // on a plateau: up with it (#566); from the basement up to it: taller (#713)
-      if (sl.scale !== 1) sg.scale.y = sl.scale;
+      const n = stairFloors(st), down = st.dir === 'down', sH = storeyH(st, H), sl = stairLift(down ? i - n : i, n, gi(), pl.length ? groundAt(pl, st.x, st.z) : 0, sH);
+      sg.position.set(st.x, (down ? -sH * n : 0) + sl.y, st.z);   // on a plateau: up with it (#566); from the basement up to it: taller (#713); its own height (5.28.5)
+      if (sl.scale !== 1 && !cleanStairH(st.h)) sg.scale.y = sl.scale;   // a stair with its own height keeps it
       sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
       g.add(sg);
       ctx.registry.set(st.id, sg);

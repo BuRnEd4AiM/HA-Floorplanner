@@ -214,3 +214,26 @@ test('slabPieces (5.28.5, #789): the ceiling of a ground floor on a plateau stay
   f.rooms[1].onGround = false;
   assert.deepEqual(L.slabPieces(f, ring, 0.6), [{ lift: 0.6, ring, holes: [] }]); // no garage on the lawn: one piece as before
 });
+
+test('a garage on the lawn (5.28.5, #789): its own walls stay down, also on a plateau not cut; a long wall past its corner is split there', () => {
+  const W = (id, a, b) => ({ id, a, b, thickness: 0.3, openings: [] });
+  const f = { rooms: [{ id: 'h', points: rect(0, 0, 10, 7) }, { id: 'g', points: rect(10, 0, 16, 5) }],
+    walls: [W('front', [0, 0], [16, 0]), W('hr', [10, 0], [10, 7]), W('gr', [16, 0], [16, 5]), W('gb', [16, 5], [10, 5]), W('hb', [10, 7], [0, 7]), W('hl', [0, 7], [0, 0])] };
+  const plateau = [{ id: 'p', rise: 0.6, points: rect(-1, -1, 17, 8) }];           // a plateau that cannot be cut (the garage in its middle)
+  near(L.lifter(f, plateau).wall(f.walls[2]), 0.6);                               // before: the garage's walls on the plateau
+  f.rooms[1].onGround = true;
+  near(L.lifter(f, plateau).wall(f.walls[2]), 0);                                 // its own walls stay down now
+  near(L.lifter(f, plateau).wall(f.walls[3]), 0);
+  near(L.lifter(f, plateau).wall(f.walls[1]), 0.6);                               // the wall between house and garage stays up
+  near(L.lifter(f, plateau).wall(f.walls[0]), 0.6);                               // the long front wall: its middle is at the house
+  let k = 0;
+  assert.equal(L.splitAtCorners(f, f.rooms[1], () => `n${++k}`), 2);              // at the corners (10, 0) and (10, 5) of the garage
+  const piece = f.walls.find((w) => w.a[0] === 10 && w.a[1] === 0 && w.b[0] === 16);
+  assert.deepEqual([f.walls[0].a, f.walls[0].b], [[0, 0], [10, 0]]);
+  assert.ok(piece);
+  f.walls.filter((w) => w.a[0] === 10 && w.b[0] === 10).forEach((w) => near(L.lifter(f, plateau).wall(w), 0.6));   // the wall to the house: both pieces up
+  near(L.lifter(f, plateau).wall(f.walls[0]), 0.6);                               // the house's piece stays up
+  near(L.lifter(f, plateau).wall(piece), 0);                                      // the garage's piece goes down
+  assert.equal(L.splitAtCorners(f, f.rooms[1], () => 'x'), 0);                    // nothing more to split
+  assert.equal(L.splitAtCorners(f, f.rooms[1], null), 0);
+});

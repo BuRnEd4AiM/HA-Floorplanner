@@ -2610,4 +2610,9 @@ export default {
   'rd.onSome': '{n} no funcionaron (actívalos a mano en Home Assistant).', 'rd.onFail': 'No se pudieron activar: {err}',
   'rd.matterOld': 'Los dispositivos Matter por Thread solo aparecen con el nuevo servidor Matter: actualiza el «Matter Server» en Home Assistant.',
   'rd.offNotPlan': 'A los dispositivos del plano no les falta ninguno: pertenecen a dispositivos que no están en el plano (o cuya entidad del plano no pertenece a ningún dispositivo, p. ej. un grupo). Aun así puedes activarlos.',
+  'stair.height': 'Altura',
+  'stair.heightHint': 'La altura de toda la escalera, p. ej. una escalera de caracol del jardín a la azotea. Sin altura propia: la de sus plantas. Los peldaños se adaptan.',
+  'stair.heightReset': '↺ Volver a la altura de la planta', 'stair.exit': 'Pasarela arriba (longitud)',
+  'stair.exitHint': 'Arriba una pasarela recta tras el rellano, con barandilla a ambos lados, p. ej. hacia la azotea. 0: ninguna. Su dirección sigue el giro de la escalera.',
+  'stair.riseOwn': 'Un peldaño mide {rise}, toda la escalera {height} (altura propia).',
 };

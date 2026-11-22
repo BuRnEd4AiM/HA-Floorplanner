@@ -2,9 +2,15 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
-## [5.28.5] - 2026-11-22
+## [5.29.0] - 2026-11-22
+### Added
+- **🪜 A stair with its own height, a spiral stair with a walkway at the top** (the owner: "dass ich die auch unterschiedlich hoch machen kann … die Wendeltreppe geht quasi von meinem Garten hoch auf die Dachterrasse … kommt oben ein Rechteck an und rechts und links ist Geländer"):
+  - Every stair has **"Höhe"**: empty it is as high as its floors as before, else exactly as high as typed (0.3 to 8 m), e.g. a spiral stair from the garden up to the roof terrace or a stair between two levels. Its steps fit themselves to it (the line under "Stufen je Etage" says "… die ganze Treppe 3,20 m (eigene Höhe)"); **"↺ Wieder so hoch wie die Etage"** takes it back.
+  - A spiral stair has **"Steg oben (Länge)"**: a straight walkway on from its landing at the top (up to 4 m), as wide as the stair, with a **hand rail left and right**; the hand rail of the spiral now goes on round the landing. Its direction follows the rotation of the stair.
+  - In "✨ Neu" both are in the section 📐, "🔍 Einstellung suchen" finds them. The JSON import knows them: `"h": 3.2`, `"exit": 1.5`.
 ### Fixed
 - **🚗 A garage "on the lawn" next to a house with a basement stayed up** (#789, the owner's photo: "ist noch immer irgendwie angehoben, obwohl da kein Plateau drunter ist"): with the floors stacked like a real house, the ground floor stands on the ceiling of the basement, and that ceiling went up with the plateau in one piece, also under the garage. The garage's floor lay correctly down on the lawn, but the raised ceiling covered it, so the tick "🚗 Steht unten auf dem Rasen" seemed to do nothing. Now the ceiling stays down under the garage and its own walls; the house and the wall it shares with the garage keep theirs on the plateau.
+- **🚗 A long wall along the house and the garage lifted the garage with it** (#789, the owner: "dass die Wand mit einer Wand Kontakt hat, die auf einem Plateau ist und deswegen alles auf ein Plateau gehoben wird"): a wall takes its height from its middle; one wall along house and garage had its middle at the house and went up whole. The tick "🚗 Steht unten auf dem Rasen" now splits such a wall at the corner of the garage, and the garage's own walls always stay down with it (also where the plateau could not be cut out); the wall it shares with the house stays up.
 
 ## [5.28.4] - 2026-11-22
 ### Changed

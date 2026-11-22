@@ -1277,3 +1277,17 @@ def test_looks_roof_stair_opening_roundtrip():
     _, _, rep2, _ = importer.build_layout({**prop, "building": {**prop["building"], "roof": {"type": "gable", "cover": "straw"}}})
     assert any(w["path"].endswith("roof.cover") for w in rep2.warnings)
 
+
+
+def test_stair_own_height_and_spiral_walkway_survive_import_and_match_stairs_js():
+    """5.28.5: a stair's own height ("h", e.g. a spiral from the garden up to a roof terrace) and a spiral's walkway at the top ("exit")"""
+    js = (Path(__file__).parent.parent / "floorplan3d" / "rootfs" / "app" / "static" / "stairs.js").read_text(encoding="utf-8")
+    assert re.search(r"MIN_STAIR_H = ([\d.]+), MAX_STAIR_H = (\d+)", js).groups() == tuple(str(v) for v in importer.STAIR_H)
+    assert int(re.search(r"MAX_EXIT = (\d+)", js).group(1)) == importer.STAIR_MAX_EXIT
+    layout, _, rep, _ = importer.build_layout(_stairs_spec([{"type": "spiral", "x": 0, "z": 0, "h": 3.456, "exit": 1.2},
+                                                           {"type": "straight", "x": 4, "z": 0, "h": 12, "exit": 1},
+                                                           {"type": "spiral", "x": 8, "z": 0, "exit": 0}]))
+    a, b, c = layout["floors"][0]["stairs"]
+    assert a["h"] == 3.46 and a["exit"] == 1.2
+    assert "h" not in b and "exit" not in b and "exit" not in c
+    assert any(".h" in str(w) for w in rep.warnings) and any(".exit" in str(w) for w in rep.warnings)

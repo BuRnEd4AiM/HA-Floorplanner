@@ -10,6 +10,10 @@
  *  - corner2, winders2, split2: an L stair that turns a second time, the same way, after a middle flight of split2 treads (#671).
  *  - steps: treads per storey (#671); without it as many as make the steps about 18 cm high (stairSteps).
  *  - solid: a wall stair with solid steps down to the floor instead of thin plates (#623).
+ *  - h: its own height (m, 5.28.5): the whole stair climbs this much instead of floors × the storey height (a spiral from the garden up to a
+ *    roof terrace, a stair between two levels of a split-level house); its steps fit themselves to it.
+ *  - exit: a spiral stair's walkway at the top (m, 5.28.5): a straight plate on from its landing with a hand rail on both sides, so it reaches
+ *    over to a terrace.
  *  - type 'wall': a light stair hanging on a wall: `path` = the line along the wall as local points [[0,0], ...] (the first is the start), `turn` = the
  *    side the steps stick out to (looking along the path). Every bend of the path is a landing (Podest); the steps are thin plates (`thin`) with
  *    nothing below them.
@@ -39,6 +43,23 @@ export const FLOOR_LANDING = 1.2;    // depth of the landing in front of the sta
 export const perStorey = (st) => st.type === 'straight' || st.type === 'L' || st.type === 'U' || st.type === 'wall';
 /** how many floors the stair climbs (1..MAX_FLOORS) */
 export const stairFloors = (st) => Math.max(1, Math.min(MAX_FLOORS, Math.round(st.floors || 1)));
+/** the own height of a stair (st.h, 5.28.5): 0.3 to 8 m, to the centimetre; 0 = none (it climbs its floors) */
+export const MIN_STAIR_H = 0.3, MAX_STAIR_H = 8;
+export function cleanStairH(v) {
+  const h = Math.round(Number(v) * 100) / 100;
+  return Number.isFinite(h) && h > 0 ? Math.max(MIN_STAIR_H, Math.min(MAX_STAIR_H, h)) : 0;
+}
+/** the height one storey of the stair climbs: its own height shared by its floors, else the storey height H (the same for any H once it has
+ *  its own, so it may be applied more than once) */
+export const storeyH = (st, H) => { const h = cleanStairH(st?.h); return h ? h / stairFloors(st) : H; };
+/** the whole height of the stair */
+export const stairHeight = (st, H) => storeyH(st, H) * stairFloors(st);
+/** a spiral stair's walkway at the top (st.exit, 5.28.5): 0 to 4 m, to the centimetre; 0 = none */
+export const MAX_EXIT = 4;
+export function cleanExit(v) {
+  const e = Math.round(Number(v) * 100) / 100;
+  return Number.isFinite(e) && e > 0 ? Math.min(MAX_EXIT, e) : 0;
+}
 
 export function stairDefaults(type) {
   return { type, w: type === 'spiral' ? 0.9 : type === 'wall' ? 0.9 : 1.0, tread: 0.27, turn: 'right', dir: 'up', floors: 1 };
@@ -51,6 +72,7 @@ export function stepsRange(H) {
 /** number of risers for the floor height, and the rise of one step: as many as make a step about 18 cm high, or the treads set on the
  *  stair (st.steps, #671: a real stair counted; kept to stepsRange) and one more (the last riser arrives at the upper floor) */
 export function stairSteps(H, st) {
+  H = storeyH(st, H);                                  // its own height (5.28.5)
   const k = Math.round(Number(st?.steps));
   const n = Number.isFinite(k) && k > 0 ? Math.max(stepsRange(H)[0], Math.min(stepsRange(H)[1], k)) + 1 : Math.max(3, Math.round(H / 0.18));
   return { n, rise: H / n };
@@ -77,10 +99,11 @@ function outline(rects) {
  */
 export function stairLocal(st, H) {
   const nf = stairFloors(st);
+  H = storeyH(st, H);                                  // its own height, shared by its storeys (5.28.5)
   if (nf > 1 && perStorey(st)) {
     // several floors (#229): the same stair again on every storey, so it arrives on each floor and you step off there; the upper storeys are
     // a slab under their steps (nothing solid down to the floor below); where a U stair ends behind its start a plate closes the gap on the floor
-    const one = stairLocal({ ...st, floors: 1 }, H), { rise } = stairSteps(H, st), treads = [...one.treads];
+    const one = stairLocal({ ...st, floors: 1, h: undefined }, H), { rise } = stairSteps(H, { ...st, h: undefined }), treads = [...one.treads];
     for (let k = 1; k < nf; k++) {
       if (one.gap) treads.push({ poly: one.gap, top: k * H, thin: SLAB, storey: k });
       one.treads.forEach((tr) => treads.push({ ...tr, top: tr.top + k * H, thin: tr.thin || rise + SLAB, storey: k }));   // wall stair: its thin plates
@@ -88,7 +111,7 @@ export function stairLocal(st, H) {
     return { ...one, treads };
   }
   if (st.type === 'wall') return wallStairLocal(st, H);
-  const { n, rise } = stairSteps(H, st);               // every kind of stair counts its steps per storey
+  const { n, rise } = stairSteps(H, { ...st, h: undefined });   // every kind of stair counts its steps per storey (H: already its own)
   const T = n - 1;                                     // treads; the last riser arrives at the upper floor
   const w = st.w || 1, d = st.tread || 0.27, sg = st.turn === 'left' ? -1 : 1;
   const treads = [];
@@ -119,6 +142,18 @@ export function stairLocal(st, H) {
       for (let s = 0; s <= 6; s++) out.push(at(e0 + (dirn * Q * s) / 6, R + 0.05));
       for (let s = 6; s >= 0; s--) out.push(at(e0 + (dirn * Q * s) / 6, POLE_R));
       treads.push({ poly: out, top: (f + 1) * H, thin: THIN, exit: true, ...extra });
+      const ex = f === nf - 1 ? cleanExit(st.exit) : 0;
+      if (ex) {                                          // the walkway at the top (5.28.5): on from the landing, a hand rail on both sides
+        const top = (f + 1) * H, e1 = e0 + dirn * Q, tx = -Math.sin(e1) * dirn, tz = Math.cos(e1) * dirn;   // along the turn, straight on
+        const inner = at(e1, POLE_R), outer = at(e1, R + 0.05), go = ([x, z], d) => [x + tx * d, z + tz * d];
+        treads.push({ poly: [inner, outer, go(outer, ex), go(inner, ex)], top, thin: THIN, exit: true, walkway: true, ...extra });
+        for (let s = 1; s <= 6; s++) { const [x, z] = at(e0 + (dirn * Q * s) / 6, R - RAIL_IN); rail.push([x, top + RAIL_H, z]); }   // round the landing
+        const n = Math.max(2, Math.ceil(ex / 0.3)), side = (p0, k) => { const [x, z] = go(p0, (ex * k) / n); return [x, top + RAIL_H, z]; };
+        const o0 = at(e1, R - RAIL_IN), i0 = at(e1, POLE_R + RAIL_IN), other = [];
+        for (let k = 1; k <= n; k++) rail.push(side(o0, k));
+        for (let k = 0; k <= n; k++) other.push(side(i0, k));
+        rails.push(other);
+      }
     }
     const pole = { r: POLE_R, h: nf * H - rise + RAIL_H };
     hole = Array.from({ length: 20 }, (_, i) => [Math.cos((i / 20) * 2 * Math.PI) * (R + 0.05), Math.sin((i / 20) * 2 * Math.PI) * (R + 0.05)]);

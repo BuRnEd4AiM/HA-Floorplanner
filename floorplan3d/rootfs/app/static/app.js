@@ -1922,7 +1922,7 @@ const props = initProps({
   roomSources: (r, mode, chosen) => { const f = layout.floors.find((x) => x.rooms.includes(r)) || floor(); return sourceChoices(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode, partOf(), chosen); },   // 🌡 #705
   lang: () => currentLanguage(),
   plateauHere: () => floorIdx === groundIdx() && plateausOf(layout.plot?.areas).length > 0,   // „🚗 Steht unten auf dem Rasen“ (a garage, 5.14.0)
-  groundCut: (room, on) => groundCut(layout, groundIdx(), room, on),
+  groundCut: (room, on) => groundCut(layout, groundIdx(), room, on, uid),   // a long wall past its corner is split there (5.28.5)
   balconyFree: (id) => balconies.freeness(floorIdx, id),        // a balcony that hangs free, all of it or a part (#646, #703): its fields say so
   select: (s) => { multiSel.clear(); selection = s; refreshSelection(); },   // the window above / below a door (#694, openingstackui.js)
   previewTilt: (id) => openings.preview(id), allOpenings: () => layout.floors.flatMap((f) => openingWalls(f).flatMap((w) => w.openings || [])),   // "Kippwinkel" (tiltui.js)
@@ -2278,7 +2278,8 @@ if (params.get('debug')) {
     upper: (id) => { const u = registry.get(id)?.userData.upper; return u ? u.visible : null; },   // the storeys of a stair above the open floor (#246)
     stairGeo: (id) => { const st = layout.floors.flatMap((f) => f.stairs || []).find((s) => s.id === id); if (!st) return null;   // #623: its steps
       const g = stairLocal(st, floorH()); return { treads: g.treads.length, winders: g.treads.filter((x) => x.winder).length, thin: g.treads.filter((x) => x.thin).length,
-        order: g.treads.filter((x) => !x.storey).map((x) => (x.winder ? 'w' : 's')).join(''), top: Math.max(...g.treads.map((x) => x.top)) }; },   // #671: the steps of one storey in order (w winder, s straight)
+        order: g.treads.filter((x) => !x.storey).map((x) => (x.winder ? 'w' : 's')).join(''), top: Math.max(...g.treads.map((x) => x.top)),   // #671: the steps of one storey in order (w winder, s straight)
+        walkway: g.treads.some((x) => x.walkway), rails: (g.rails || []).length }; },   // 5.28.5: a spiral's walkway at the top, its hand rails
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
     badgePill: (id) => !!labelSprites.get(id)?.userData.pill,
     badgeScreen: (id) => {                                           // the value badge of a device on the screen, null while it does not show

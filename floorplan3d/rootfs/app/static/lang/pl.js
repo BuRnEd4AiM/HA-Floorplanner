@@ -2559,4 +2559,9 @@ export default {
   'rd.onSome': '{n} się nie udało (włącz je ręcznie w Home Assistant).', 'rd.onFail': 'Nie udało się włączyć: {err}',
   'rd.matterOld': 'Urządzenia Matter przez Thread pojawią się dopiero z nowym serwerem Matter: zaktualizuj „Matter Server” w Home Assistant.',
   'rd.offNotPlan': 'Urządzeniom w planie żadnej nie brakuje: należą do urządzeń, których nie ma w planie (albo których encja w planie nie należy do żadnego urządzenia, np. grupa). Mimo to możesz je włączyć.',
+  'stair.height': 'Wysokość',
+  'stair.heightHint': 'Jak wysoko sięgają całe schody, np. kręte schody z ogrodu na taras dachowy. Bez własnej wysokości: tyle co ich piętra. Stopnie się dopasują.',
+  'stair.heightReset': '↺ Znów wysokość piętra', 'stair.exit': 'Kładka na górze (długość)',
+  'stair.exitHint': 'Na górze prosta kładka za podestem, z poręczą po obu stronach, np. na taras dachowy. 0: brak. Kierunek wynika z obrotu schodów.',
+  'stair.riseOwn': 'Stopień ma {rise}, całe schody {height} (własna wysokość).',
 };

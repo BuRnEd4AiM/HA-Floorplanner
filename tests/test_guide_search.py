@@ -18,6 +18,9 @@ import make_guide as mg  # noqa: E402
 
 # (what is typed, language of the page, the clip that must be among the first three; several ids: one of them)
 QUERIES = [
+    ("Wendeltreppe Dachterrasse", "de", "stairs-height"),          # 5.29.0: a spiral from the garden up to the roof terrace
+    ("Treppe Höhe", "de", "stairs-height"),
+    ("spiral stair walkway", "en", "stairs-height"),
     ("Rollladen an der Schiebetür", "de", "door-shutter"), ("zwei Rollläden an einer Tür", "de", "door-shutter"), ("patio door shutter", "en", "door-shutter"),
     ("fremde Wohnung offline", "de", "no-watch"), ("Gerät nicht überwachen", "de", "no-watch"), ("ignore offline device", "en", "no-watch"),
     ("Bildschirmschoner mit Uhr", "de", "tablet-saver"), ("Display abdunkeln", "de", "tablet-saver"), ("screen saver clock", "en", "tablet-saver"),

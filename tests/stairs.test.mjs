@@ -363,3 +363,41 @@ test('split at a storey (#246): the live mode leaves out the storeys above the o
   assert.deepEqual(pu.below.rails, []); assert.equal(pu.below.poleH, 0);
   assert.equal(S.splitStoreys(S.stairLocal(S.stairDefaults('straight'), H), 0, H).above, null);   // one floor: nothing to split
 });
+
+test('own height (5.28.5): the stair climbs st.h instead of its floors, its steps fit themselves to it', () => {
+  assert.equal(S.cleanStairH(3.456), 3.46); assert.equal(S.cleanStairH(0.1), 0.3); assert.equal(S.cleanStairH(20), 8);
+  assert.equal(S.cleanStairH(0), 0); assert.equal(S.cleanStairH('x'), 0); assert.equal(S.cleanStairH(undefined), 0);
+  assert.equal(S.storeyH({}, 2.8), 2.8);
+  assert.equal(S.storeyH({ h: 3.4 }, 2.8), 3.4);
+  assert.equal(S.storeyH({ h: 3, floors: 2 }, 2.8), 1.5);                         // shared by its floors
+  assert.equal(S.stairHeight({ h: 3, floors: 2 }, 2.8), 3);
+  const st = { ...S.stairDefaults('straight'), h: 1.2 };
+  const { n, rise } = S.stairSteps(2.8, st);
+  assert.ok(Math.abs(n * rise - 1.2) < 1e-9 && Math.abs(rise - 0.2) < 0.03);      // about 18 cm a step on 1.2 m
+  const tops = S.stairLocal(st, 2.8).treads.map((t) => t.top);
+  assert.ok(Math.abs(Math.max(...tops) - (1.2 - rise)) < 1e-9);                  // the last step one rise under the top
+  assert.equal(S.stairLocal(S.stairDefaults('straight'), 2.8).treads.length, S.stairSteps(2.8, {}).n - 1);   // without: as before
+});
+
+test('spiral with its own height and a walkway at the top (5.28.5): a plate on from the landing, a hand rail on both sides', () => {
+  assert.equal(S.cleanExit(1.234), 1.23); assert.equal(S.cleanExit(9), 4); assert.equal(S.cleanExit(-1), 0); assert.equal(S.cleanExit(null), 0);
+  const st = { ...S.stairDefaults('spiral'), h: 3.4, exit: 1.5 };
+  const L = S.stairLocal(st, 2.8), walk = L.treads.find((t) => t.walkway);
+  assert.ok(walk && Math.abs(walk.top - 3.4) < 1e-9);                              // at the top of its own height
+  const land = L.treads.find((t) => t.exit && !t.walkway);
+  assert.ok(Math.abs(land.top - 3.4) < 1e-9);
+  const len = Math.hypot(walk.poly[2][0] - walk.poly[1][0], walk.poly[2][1] - walk.poly[1][1]);
+  assert.ok(Math.abs(len - 1.5) < 1e-9);                                          // as long as set
+  const wid = Math.hypot(walk.poly[1][0] - walk.poly[0][0], walk.poly[1][1] - walk.poly[0][1]);
+  assert.ok(Math.abs(wid - (st.w + 0.05 - S.POLE_R)) < 1e-9);                      // as wide as the stair
+  assert.equal(L.rails.length, 2);                                                // the spiral's rail goes on along one side, a second one on the other
+  const end = L.rails[0][L.rails[0].length - 1], far = L.rails[1][L.rails[1].length - 1];
+  assert.ok(Math.abs(end[1] - (3.4 + S.RAIL_H)) < 1e-9 && Math.abs(far[1] - (3.4 + S.RAIL_H)) < 1e-9);
+  assert.ok(Math.abs(Math.hypot(end[0] - far[0], end[2] - far[2]) - (st.w - S.POLE_R - 2 * S.RAIL_IN)) < 1e-6);   // one each side
+  assert.ok(Math.abs(L.pole.h - (3.4 - S.stairSteps(3.4, {}).rise + S.RAIL_H)) < 1e-9);
+  const plain = S.stairLocal(S.stairDefaults('spiral'), 2.8);                     // without: as before
+  assert.equal(plain.treads.filter((t) => t.walkway).length, 0);
+  assert.equal(plain.rails.length, 1);
+  const left = S.stairLocal({ ...st, turn: 'left' }, 2.8).treads.find((t) => t.walkway);
+  assert.ok(left.poly.every(([, z], i) => Math.abs(z + walk.poly[i][1]) < 1e-9));   // turning left: mirrored
+});

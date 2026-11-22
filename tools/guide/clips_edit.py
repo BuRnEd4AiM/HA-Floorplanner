@@ -1477,6 +1477,46 @@ def _(r):
     r.wait(3200)
 
 
+@clip("stairs-height", "edit",
+      {"de": "Wendeltreppe mit eigener Höhe und Steg oben", "en": "A spiral stair with its own height and a walkway at the top"},
+      {"de": "Jede Treppe hat eine „Höhe“: leer so hoch wie ihre Etagen, sonst genau so hoch wie eingetragen, z. B. eine Wendeltreppe vom Garten auf "
+             "die Dachterrasse; die Stufen passen sich an, „↺“ macht sie wieder so hoch wie die Etage. Eine Wendeltreppe hat dazu „Steg oben“: ein gerader "
+             "Steg weiter vom Austritt, mit Geländer links und rechts; seine Richtung folgt der Drehung der Treppe.",
+       "en": "Every stair has a “Height”: empty as high as its floors, else exactly as high as typed, e.g. a spiral stair from the garden up to the roof "
+             "terrace; the steps fit themselves to it, “↺” makes it as high as the floor again. A spiral stair also has “Walkway at the top”: a straight "
+             "walkway on from the landing, with a hand rail left and right; its direction follows the rotation of the stair."},
+      "Treppe Höhe Wendeltreppe Steg Geländer Garten Außentreppe halbe Etage Split-Level Podest oben stair height spiral walkway railing garden outdoor stair half storey split level landing",
+      query="mode=edit", prep=empty_house(walls=True, rooms=True))
+def _(r):
+    cx, cy = centre(r)
+    r.say("„Treppe“, rechts „Wendeltreppe“, dann in den Raum klicken.", "“Stairs”, on the right “Spiral”, then click into the room.")
+    r.click("#tools [data-tool=stairs]")
+    r.wait(500)
+    r.click("#stairTypes button[data-stair=spiral]")
+    r.wait(500)
+    r.click(cx + 60, cy)
+    r.wait(1200)
+    r.say("„Höhe“: genau so hoch, wie sie gehen soll, zum Beispiel 3,20 m auf die Dachterrasse.", "“Height”: exactly as high as it should go, for example 3.20 m up to the roof terrace.")
+    r.click("#stairHeight")
+    r.pg.keyboard.press("Control+A")
+    r.type("3.2")
+    r.key("Tab")
+    r.wait(1500)
+    r.say("„Steg oben“: 1,5 m gerade weiter, mit Geländer links und rechts.", "“Walkway at the top”: 1.5 m straight on, with a hand rail left and right.")
+    r.click("#stairExit")
+    r.pg.keyboard.press("Control+A")
+    r.type("1.5")
+    r.key("Tab")
+    r.wait(1400)
+    r.poster()
+    r.say("Im 3D-Bild: oben der Steg hinüber zur Terrasse. Die Richtung kommt von der Drehung der Treppe.", "In 3D: at the top the walkway over to the terrace. Its direction comes from the rotation of the stair.")
+    r.click("#view3d")
+    r.wait(600)
+    r.js("""(() => { const fp = window.__fp, st = fp.layout.floors[fp.floorIdx()].stairs.at(-1);
+      fp.camAt(st.x - 4.5, 5.2, st.z + 4.5, st.x, st.z); })()""")
+    r.wait(3200)
+
+
 @clip("plot", "edit",
       {"de": "Grundstück und Garten", "en": "Plot and garden"},
       {"de": "„Grundstück“: Rasen um das Haus, dazu Flächen wie Terrasse, Weg, Beet oder Teich, als Rechteck oder frei gezeichnet.",

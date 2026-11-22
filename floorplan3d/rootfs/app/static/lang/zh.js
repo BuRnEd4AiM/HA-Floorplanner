@@ -4080,4 +4080,7 @@ export default {
   'rd.onSome': '{n} 个未成功（请在 Home Assistant 中手动启用）。', 'rd.onFail': '启用失败：{err}',
   'rd.matterOld': '通过 Thread 的 Matter 设备需要新版 Matter 服务器才会显示：请在 Home Assistant 中更新“Matter Server”。',
   'rd.offNotPlan': '平面图中的设备都不缺这些值：它们属于不在平面图中的设备（或平面图中的实体不属于任何设备，例如群组）。你仍然可以启用它们。',
+  'stair.height': '高度', 'stair.heightHint': '整段楼梯的高度，例如从花园到屋顶露台的旋转楼梯。没有自定高度时：等于其楼层高度。台阶会自动适配。', 'stair.heightReset': '↺ 恢复为楼层高度', 'stair.exit': '顶部通道（长度）',
+  'stair.exitHint': '顶部平台后接一条直通道，左右都有扶手，例如通往屋顶露台。0：无。方向随楼梯的旋转而定。',
+  'stair.riseOwn': '每级台阶高 {rise}，整段楼梯 {height}（自定高度）。',
 };

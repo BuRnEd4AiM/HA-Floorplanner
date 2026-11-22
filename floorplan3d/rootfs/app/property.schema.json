@@ -300,6 +300,18 @@
      "minimum": 0,
      "maximum": 3,
      "description": "Type 'wall': after every bend the stair stays flat for this many metres (default 0: only the corner). Types 'L' and 'U': the landing at the turn is this many metres deeper (default 0: as wide as the stair)."
+    },
+    "h": {
+     "type": "number",
+     "minimum": 0.3,
+     "maximum": 8,
+     "description": "The stair's own height in metres (5.28.5): it climbs this much instead of floors x the storey height, e.g. a spiral stair from the garden up to a roof terrace. Its steps fit themselves to it."
+    },
+    "exit": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 4,
+     "description": "Type 'spiral': a straight walkway this many metres long at the top, on from its landing, with a hand rail on both sides (5.28.5), e.g. over to a terrace."
     }
    }
   },
