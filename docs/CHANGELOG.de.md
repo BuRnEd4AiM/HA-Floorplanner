@@ -2,6 +2,10 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.28.5] - 2026-11-22
+### Repariert
+- **🚗 Eine Garage „unten auf dem Rasen“ neben einem Haus mit Keller blieb oben** (#789, das Foto des Besitzers: „ist noch immer irgendwie angehoben, obwohl da kein Plateau drunter ist“): mit den Etagen gestapelt wie ein echtes Haus steht das EG auf der Decke des Kellers, und diese Decke ging in einem Stück mit dem Plateau nach oben, auch unter der Garage. Der Boden der Garage lag richtig unten auf dem Rasen, aber die angehobene Decke lag darüber, darum schien der Haken „🚗 Steht unten auf dem Rasen“ nichts zu tun. Jetzt bleibt die Decke unter der Garage und ihren eigenen Wänden unten; das Haus und die Wand, die es mit der Garage teilt, bleiben auf dem Plateau.
+
 ## [5.28.4] - 2026-11-22
 ### Verbessert
 - **📡 Funk-Karte: alle einschalten, auch die nicht im Plan** (der Besitzer, mit einem Foto von „78 Empfangswerte sind … ausgeschaltet“ und keinem Knopf: „Wo sehe ich die Option“): der Knopf oben kommt nur für Geräte im Plan, denen ein Wert fehlt; seine 78 ausgeschalteten Werte gehören zu anderen Geräten, darum sah er keinen.

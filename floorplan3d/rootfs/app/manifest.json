@@ -1,6 +1,6 @@
 {
- "version": "5.28.4",
- "buildHash": "240ca5f549a2742f9c98ee2f8d2016b558f966e7d639b5d67940f1e1929074cd",
+ "version": "5.28.5",
+ "buildHash": "ae6ca6645ad168e2be792ac60c803db132bb1d1933599b1520bf9a1ddd8352f2",
  "files": {
   "alarmnotify.py": "c86dd2def8c62f46efa35e5ea2a6e84ebc241d4399d3f5a84db6203b7baf3c86",
   "alarmpic.py": "24bf0db631070afa1489b955c666ca5f1318b7b870a8989d4a47455927253eeb",
@@ -253,7 +253,7 @@
   "static/firststeps.js": "e3ddebb1b6f3f3e2569b90e592ed99b3631585a8277fdd1587deae1aad426e27",
   "static/firststepsui.js": "17512bd08ddb1339e0033eb119334c02b1ad98a1ef718107d6c2b49eea3ac8ce",
   "static/fixedglassui.js": "31ceee00b1f9325170ee1408f828970645048bff716cb3534eef0655a183f922",
-  "static/floorbuild.js": "359eb2c5d69514dd8b0af75292a441e16b486429f4fb7fae59821e26f02a308f",
+  "static/floorbuild.js": "84e459f3b8540e416abcf46c7a222db6cdb9f52a37a129b5c67e2853a86cce91",
   "static/floorcards.js": "1e1512b93628fb93a093b5e33199bb2610cd252d2c7314a1548e03223ce0e78f",
   "static/floorcover.js": "9f8f0c620b151e7cc320f046fc54f3662e50b67b6a39bd3a538f0d626640b025",
   "static/floorpanel.js": "7b739bd16a10a4be8b7c5b922d21b37068d8bf1590b12af389e006d98f08c278",
@@ -313,7 +313,7 @@
   "static/ledring.js": "a1b6854d31b2f45fc7ae99f90b2fe409410de93217f3e1c90d7db2add98c8135",
   "static/ledzones.js": "46fe98428015ba0c74f98bddeff7f6acbd04822b2a01c8c24054e38f79a0a46f",
   "static/leisure.js": "11a4bca6d271814e3df5096be5b46eca5346152f3ec3f6ed9e485ce08958dcb0",
-  "static/levels.js": "dc4da392b542d784830291c48730fd45b42ec3619c5b5b4c2a52e6283b8d519a",
+  "static/levels.js": "d5bc82354bb840cf8b78e97a09523d06cc8554ab2763ca3f9f1a46cc2d4ec595",
   "static/lightcardedit.js": "774b224680dbec042a0c4dee01b0d0770fd0778dc72da75427cef628b8f0d1c7",
   "static/lightcardui.js": "477d57f57000ece6dbf30d65bab13224f25cd6b7ead587811f600b06c456d12c",
   "static/lightgroups.js": "8e962019a2633d2d63e1754e259228cbe55758aae02667c93e06f1dcc3ce3fc1",

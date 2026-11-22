@@ -2,6 +2,10 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.28.5] - 2026-11-22
+### Fixed
+- **🚗 A garage "on the lawn" next to a house with a basement stayed up** (#789, the owner's photo: "ist noch immer irgendwie angehoben, obwohl da kein Plateau drunter ist"): with the floors stacked like a real house, the ground floor stands on the ceiling of the basement, and that ceiling went up with the plateau in one piece, also under the garage. The garage's floor lay correctly down on the lawn, but the raised ceiling covered it, so the tick "🚗 Steht unten auf dem Rasen" seemed to do nothing. Now the ceiling stays down under the garage and its own walls; the house and the wall it shares with the garage keep theirs on the plateau.
+
 ## [5.28.4] - 2026-11-22
 ### Changed
 - **📡 Funk-Karte: switch on all of them, also those not in the plan** (the owner, with a photo of "78 Empfangswerte sind … ausgeschaltet" and no button: "Wo sehe ich die Option"): the button at the top only comes for devices of the plan that lack a value; his 78 switched-off values belong to other devices, so he saw none.

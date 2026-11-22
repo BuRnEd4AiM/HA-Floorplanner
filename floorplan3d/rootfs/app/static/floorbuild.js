@@ -28,7 +28,7 @@ import { openingColors, leadsOut } from './doorlook.js';
 import { floorUVs, floorLook } from './floortex.js';
 import { wallSkins, hasSkins } from './finishes.js';
 import { dressWall } from './wallskin.js';
-import { lifter, wallWithShift, doorSteps, cleanRaise, innerPoint, areasFor, stairLift, slabExtra, groundAt, plateausOf } from './levels.js';
+import { lifter, wallWithShift, doorSteps, cleanRaise, innerPoint, areasFor, stairLift, slabExtra, groundAt, plateausOf, slabPieces } from './levels.js';
 
 export const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
 export const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence', 'steps']);   // keep their natural colours in the hologram theme
@@ -76,9 +76,13 @@ export function initFloorBuild(ctx) {
     if (!rings.length) rings = [...f.rooms, ...(f.blocks || [])].filter((r) => r.points.length >= 3).map((r) => r.points);
     rings = withoutParts(rings, ctx.freeParts?.(i));               // where a balcony hangs free it has a plate of its own (balcony3d.js, #646), also a part of a terrace (#703)
     const up = upOf(f, i), byLift = new Map();                    // a building on a plateau: its ceiling goes up with it (#566)
-    rings.forEach((ring) => { const h = up.any ? up.ground(...innerPoint(ring)) : 0; byLift.set(h, [...(byLift.get(h) || []), ring]); });
+    rings.forEach((ring) => {
+      const h = up.any ? up.ground(...innerPoint(ring)) : 0;
+      const pieces = i === gi() ? slabPieces(f, ring, h) : [{ lift: h, ring, holes: [] }];   // a garage on the lawn: its piece stays down (5.28.5)
+      pieces.forEach((pc) => byLift.set(pc.lift, [...(byLift.get(pc.lift) || []), pc]));
+    });
     byLift.forEach((list, lift) => {
-      const shapes = list.flatMap((ring) => floorShapes(ring, o.holes));
+      const shapes = list.flatMap((pc) => floorShapes(pc.ring, [...pc.holes, ...(o.holes || [])]));
       if (!shapes.length) return;
       const extra = slabExtra(i, gi(), lift);                      // the ground floor on a plateau over a basement: down to its walls (#713)
       const eg = new THREE.ExtrudeGeometry(shapes, { depth: d + extra, bevelEnabled: false, curveSegments: 1 });
