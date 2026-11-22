@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3NqQ5A3TaEZwTNqGS2",
+ "start": "2026-11-22",
+ "updated": "2026-11-22T12:46:43Z",
+ "branch": "claude/message-779-review-0q08zy",
+ "source": "counted",
+ "input": 105,
+ "cache_write": 152141,
+ "cache_read": 8484560,
+ "output": 37661,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 105,
+   "cache_write": 152141,
+   "cache_read": 8484560,
+   "output": 37661,
+   "requests": 55
+  }
+ }
+}
