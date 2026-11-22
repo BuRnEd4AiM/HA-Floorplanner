@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-22 · 149 Sitzungen
+Stand: 2026-11-22 · 150 Sitzungen
 
-**Insgesamt: 10,28 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 10,31 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 27,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 94,2 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 10,16 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 27,6 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 94,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 10,19 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 63 | 4,15 Mrd. | 9,7 Mio. |
+| 2026-11 | 64 | 4,19 Mrd. | 9,8 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-22 | [012p9z3N…](https://claude.ai/code/session_012p9z3NqQ5A3TaEZwTNqGS2) | claude/message-779-review-0q08zy | 33,8 Mio. | 106 Tsd. | gezählt |
 | 2026-11-21 | [012p9z3P…](https://claude.ai/code/session_012p9z3PQH18siEDJx3FQYqp) | claude/bold-heisenberg-y046ye | 150,1 Mio. | 300 Tsd. | gezählt |
 | 2026-11-21 | [012p9z3K…](https://claude.ai/code/session_012p9z3KboBTZkri9K1yp99o) | claude/awesome-ramanujan-wttjce | 17,7 Mio. | 69 Tsd. | gezählt |
 | 2026-11-20 | [012p9z3P…](https://claude.ai/code/session_012p9z3Pj5bUvq8iLe6YqwmN) | claude/serene-pasteur-jb34nb | 79,9 Mio. | 174 Tsd. | gezählt |
