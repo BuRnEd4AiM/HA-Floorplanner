@@ -183,6 +183,8 @@ f("phoneedit", "phone", "Am Handy bearbeiten: Werkzeuge als Leiste, Plan mit dem
 f("cars", "pages", "🚗 Mehrere Autos im Haushalt", "🚗 Several cars on Household", ["cars"], since="4.57.0")
 f("terrain", "edit", "Gelände am Hang: Höhenpunkte, Hang in einem Schritt, Höhenlinien, Keller frei", "Terrain on a slope: spot heights, a slope in one step, contour lines, basement free",
   ["plot-terrain"], since="4.58.0")
+f("lightwell", "edit", "🔆 Lichtschacht vor dem Kellerfenster: von selbst unter dem Rasen, Gitterrost, Boden darüber ausgeschnitten, Breite und Tiefe",
+  "🔆 Light well in front of a basement window: by itself under the lawn, grating, the ground cut open over it, width and depth", ["light-well"], since="5.31.0")
 f("stairheight", "edit", "Treppe mit eigener Höhe (z. B. Wendeltreppe vom Garten auf die Dachterrasse), Wendeltreppe mit Steg oben und Geländer links und rechts",
   "A stair with its own height (e.g. a spiral stair from the garden up to the roof terrace), a spiral stair with a walkway at the top and a hand rail on both sides", ["stairs-height"], since="5.29.0")
 f("stairwinder", "edit", "Gewendelte Treppe: Keilstufen statt Podest, Stufen im 1. Lauf, massive Wandtreppe", "Winder stairs: wedge steps instead of a landing, steps in flight 1, solid wall stair",

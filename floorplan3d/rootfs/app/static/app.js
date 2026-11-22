@@ -72,6 +72,8 @@ import { sweepTextures } from './finishtex.js';                                 
 import { initRoomLabels } from './roomlabels.js';
 import { lampLights, lampRgb } from './lamplight.js';
 import { initEarth } from './earth.js';
+import { initLightWells } from './lightwell3d.js';
+import { wellsSvg } from './lightwell2d.js';
 import { initSky } from './skyui.js';
 import { roomReading, roomEntityIds, roomSummary, thermostatParts } from './roomtiles.js';
 import { sourceOf, sourceChoices } from './roomsource.js';   // where a room's temperature / humidity come from (#705)
@@ -378,7 +380,9 @@ const roomMeshes = new Map();     // room id -> { mesh, room }
 const groundOf = memoField();
 const terrainHere = () => groundOf(layout.plot?.terrain);
 const GARDEN = new Set([...OUTDOOR, ...Object.keys(YARD)]);           // garden things stand on the ground even close to the house
-const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundIdx(), floorH, settings: () => settings, houseMode: () => houseMode, terrain: terrainHere });
+const lightWells = initLightWells({ layout: () => shownLayout(), groundIdx: () => groundIdx(), floorH, terrain: terrainHere,   // 🕳 light wells at the basement windows (#786), lightwell3d.js
+  drawn: (i) => !isolatedRoom() && (houseMode || (i <= floorIdx && !(settings.belowMode === 'hidden' && i < floorIdx))) });
+const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundIdx(), floorH, settings: () => settings, houseMode: () => houseMode, terrain: terrainHere, wells: () => lightWells.rings() });
 const sky = initSky({ $, t, canvas, params, settings: () => settings, states: () => states, isLive: () => isLive(), isHolo: () => isHolo(),   // sky and weather (#418, #419), skyui.js
   low: () => perfParam === 'low', earthTint: (c) => earth.setTint(c) });
 let plotLoop = null;                  // the plot outline: a drawing aid, only in edit mode
@@ -551,7 +555,7 @@ function build() {
   }
   if ((houseMode || floorIdx >= groundIdx()) && !iso && shownAreas().length) {   // the areas of the plot (#538): yard, terrace, drive ... on the ground
     const hf = terrainHere(), shown = shownAreas();              // on a slope they lie on the ground, a plateau stays level (#629); one building: its plateau
-    buildYards(world, shown, { y: withEarth ? -0.014 : -0.034, holo, low: perfParam === 'low', clip: earth.cut() ? earth.plane : null, hf });
+    buildYards(world, shown, { y: withEarth ? -0.014 : -0.034, holo, low: perfParam === 'low', clip: earth.cut() ? earth.plane : null, hf, wells: lightWells.rings() });
     buildPlateaus(world, shown, { y: withEarth ? -0.014 : -0.034, holo, clip: earth.cut() ? earth.plane : null, hf });   // their walls or banks (#566)
   }
   if (tool === 'plot') plotUi.render();
@@ -585,6 +589,7 @@ function build() {
 
     floorBuild.stairs(g, f, i, { ...part, edge: edgeMaterial });   // stairs and walls: floorbuild.js
     floorBuild.walls(g, f, i, { ...part, edge: edgeMaterial, roofClip: roofsUi.wallClip(i) });   // under the roof the walls follow the slope (#260)
+    if (i < groundIdx()) lightWells.build(g, i, { holo });   // 🕳 light wells outside its windows under the ground (#786); not cut with the earth: on the cut side they show in front of the basement
 
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
     if (!ghost && !holo) liveBatch.add(g, f.devices.map((d) => registry.get(d.id)).filter(Boolean));
@@ -1911,6 +1916,7 @@ uiV2 = initUiV2({
   fmtArea: (m2) => fmtArea(m2, imperial()), roomLock: roomLocks, roofEdit,   // 🔒 at a room, the locks in the tree, the roof editor (5.1.0)
 });
 const props = initProps({
+  wellInfo: (op, wall) => lightWells.info(floorIdx, wall, op),   // 🕳 the light well of a basement window (#786)
   multiBox: () => multiSel.box(), roofInfo: (id) => roofRectOf(id), v2: (...a) => uiV2.decorate(...a), v2Reset: () => uiV2?.reset(),
   roofEdit, lockRow: (r) => roomLocks.roomRow(r), lockFreeze: (body, r) => roomLocks.freeze(body, r), lockWhy: (k, id) => roomLocks.why(k, id), sayLock: (w) => roomLocks.say(w),
   $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, roomCtx: () => roomCtx, setRoomCtx: (id) => { roomCtx = id; },
@@ -2088,6 +2094,7 @@ plan = createPlan({
   area: (p) => fmtArea(polyArea(p), imperial()),
   yards: () => shownAreas(), yardShown: () => tool === 'plot' || floorIdx === groundIdx(), plotRect: () => plotUi.rect(),   // the plot and its areas (#538)
   groundIdx: () => groundIdx(),                                   // a plateau lifts the ground floor and the floors over it, not a basement (#713)
+  wells2d: (o) => wellsSvg({ ...o, wells: lightWells.wells(floorIdx) }),   // 🕳 light wells (#786)
   terrainMode: () => tool === 'plot' && plotUi.mode() === 'terrain', terrainSvg: (o) => plotUi.terrain.svg(o), terrainHit: (x, z, tol) => plotUi.terrain.hit(x, z, tol),   // ⛰ spot heights (#629, terrainui.js)
   terrainMove: (id, x, z) => plotUi.terrain.move(id, x, z), terrainPick: (id) => plotUi.terrain.pick(id), terrainClick: (x, z) => plotUi.terrain.click(x, z),
 });
@@ -2202,6 +2209,8 @@ if (params.get('debug')) {
     showPopup(id) { popup.show(id); },                // the live card of a device, as a tap opens it
     setStatus: (txt) => setStatus(txt),               // the status line (statusline.js), for tests
     powerLinks: () => power.links(),
+    lightWells: () => { const out = []; world.traverse((o) => { if (o.userData.lightWell) out.push({ id: o.userData.lightWell, x: o.position.x, z: o.position.z }); }); return out; },   // 🕳 (#786), for tests
+    wellRings: () => lightWells.rings(),
     powerInfo: () => power.info(),
     energy: () => energyBalance(states, layout),
     energyUnits: () => energyUnitsUi.shown().map((u) => ({ bid: u.bid, name: u.name, bal: energyBalance(states, u.layout) })),   // per building (4.70.0), for tests
@@ -2237,7 +2246,7 @@ if (params.get('debug')) {
     },
     roofMeshes: () => { const out = []; scene.traverse((o) => { if (o.userData?.roofPart) { const w = new THREE.Vector3(); o.getWorldPosition(w); out.push({ tag: o.userData.roofPart, y: +w.y.toFixed(3), tris: (o.geometry?.attributes?.position?.count || 0) / 3, part: o.userData.dormerPart || (o.userData.skylightPart ? `skylight-${o.userData.skylightPart}` : null) || (o.userData.gableWall ? 'gablewall' : null), box: ((b3) => [b3.min.x, b3.max.x, b3.min.z, b3.max.z].map((v) => +v.toFixed(3)))(new THREE.Box3().setFromObject(o)) }); } }); return out; },
     heatGlow: (id) => registry.get(id)?.userData.heat?.[0]?.emissiveIntensity ?? -1,
-    cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests
+    cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z, ty = controls.target.y) => { controls.target.set(tx, ty, tz); camera.position.set(x, y, z); controls.update(); },   // for tests (ty: the height looked at, for pictures)
     liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, ball: !!h.data.tapBall } : null; },   // ball: a tap ball or a heater's temperature was hit
     touchSize: (id) => { let m = 0; registry.get(id)?.children.forEach((c) => { if (c.userData.touchOnly) { c.geometry.computeBoundingBox(); const s = c.geometry.boundingBox.getSize(new THREE.Vector3()); m = Math.min(s.x, s.y, s.z); } }); return m; },
     addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach', uid())); build(); }, viewShift: () => (camera.view?.enabled ? camera.view.offsetY : 0), camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofsUi.faded.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),

@@ -414,6 +414,18 @@ def _opening_from(rep: Report, path: str, spec: dict):
             o["shutterMore"] = more
     if spec.get("noWatch") is True:                               # only drawn, never offline (#780)
         o["noWatch"] = True
+    if any(k in spec for k in ("noWell", "wellW", "wellD")):       # 🕳 the light well of a basement window (#786, static/lightwell.js)
+        if o.get("type") != "window":
+            rep.warn(f"{path}.noWell", "only windows have a light well, ignored")
+        else:
+            if spec.get("noWell") is True:
+                o["noWell"] = True
+            for k, lo, hi in (("wellW", 0.4, 4), ("wellD", 0.25, 1.5)):
+                if k in spec:
+                    if _num(spec[k], lo, hi):
+                        o[k] = round(float(spec[k]), 3)
+                    else:
+                        rep.warn(f"{path}.{k}", f"{k} must be a number from {lo} to {hi} (m), ignored")
     if "shutterStyle" in spec:
         style = spec["shutterStyle"]
         if not can:
@@ -1469,7 +1481,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "fixedBelow", "fixedAbove", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "shutterParts", "shutterMore", "noWatch", "rainWarn", "heat", "look") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "fixedBelow", "fixedAbove", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "shutterParts", "shutterMore", "noWatch", "noWell", "wellW", "wellD", "rainWarn", "heat", "look") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []

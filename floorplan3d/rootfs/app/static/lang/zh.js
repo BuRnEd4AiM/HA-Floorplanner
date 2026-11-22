@@ -4086,4 +4086,6 @@ export default {
   'wel.ai': '🤖 让 AI 根据平面图建房', 'wel.fast': '最快', 'wel.aiSub': '把平面图的照片或 PDF 连同现成的说明文字交给 AI（Claude、ChatGPT、Gemini），几分钟后整栋房子就建好了。', 'fs.draw.ai': '用 AI 根据平面图',
   'imp.aiHead': '🤖 三步用 AI 完成', 'imp.ai1': '一段现成的文字，向 AI 说明格式', 'imp.ai2': '粘贴到 Claude、ChatGPT 或 Gemini，并附上平面图的照片或 PDF（有尺寸更好）。AI 需要几分钟。',
   'imp.ai3': '把它的回答（JSON）粘贴到下面 → “检查” → “导入”。总是创建一栋新房屋，不会覆盖任何内容。', 'imp.aiAfter': '然后：把房间和设备与 Home Assistant 关联（🧭 入门步骤）。', 'imp.or': '或者：',
+  'well.title': '采光井', 'well.on': '窗前采光井', 'well.w': '采光井宽度', 'well.d': '深度（离墙）', 'well.free': '窗户高于地面：不需要采光井。', 'well.offHint': '已关闭：泥土直到墙边，窗户埋在地下。',
+  'well.onHint': '窗户在地面以下 {d}。采光井让光线进入；上方的草坪、小路和平台已被切开，顶部盖有格栅。', 'v2.sec.well': '采光井', 'v2.sum.wellSize': '{w} × {d}', 'v2.sum.wellOff': '关闭',
 };

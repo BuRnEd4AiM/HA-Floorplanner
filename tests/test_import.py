@@ -303,6 +303,28 @@ def test_not_watched_floor_device_and_window_are_imported_and_exported():
     assert next(o for w in eg2["walls"] for o in w["openings"]).get("noWatch") is True
 
 
+def test_light_well_of_a_basement_window_is_imported_and_exported():
+    # #786: a basement window's light well: off, or its own width and depth; a door has none
+    room = [{"points": [[0, 0], [6, 0], [6, 3], [0, 3]]}]
+    f = {"schemaVersion": 1, "building": {"floors": [
+        {"name": "KG", "kind": "basement", "rooms": room, "openings": [
+            {"preset": "window", "at": [1.5, 0], "wellW": 1.6, "wellD": 0.8},
+            {"preset": "window", "at": [4.5, 0], "noWell": True, "wellD": 9},
+            {"preset": "door", "at": [3, 3], "noWell": True}]},
+        {"name": "EG", "kind": "floor", "rooms": room}]}}
+    layout, _, rep, _ = importer.build_layout(f)
+    ops = [o for w in layout["floors"][0]["walls"] for o in w["openings"]]
+    a, b = sorted((o for o in ops if o["type"] == "window"), key=lambda o: o.get("noWell", False))
+    assert (a.get("wellW"), a.get("wellD"), a.get("noWell")) == (1.6, 0.8, None)
+    assert b.get("noWell") is True and "wellD" not in b
+    assert "noWell" not in next(o for o in ops if o["type"] == "door")
+    assert any(w["path"].endswith("wellD") for w in rep.warnings) and any(w["path"].endswith("noWell") for w in rep.warnings)
+    again, _, rep2, _ = importer.build_layout(importer.layout_to_property(layout, "x"))
+    ops2 = [o for w in again["floors"][0]["walls"] for o in w["openings"] if o["type"] == "window"]
+    assert sorted((o.get("wellW"), o.get("wellD"), o.get("noWell")) for o in ops2 if o.get("wellW")) == [(1.6, 0.8, None)]
+    assert any(o.get("noWell") is True for o in ops2) and not rep2.errors
+
+
 def test_window_curtains_panes_and_per_pane_hinges_are_imported_and_exported():
     room = [{"points": [[0, 0], [10, 0], [10, 3], [0, 3]]}]
     f = square_flat(rooms=room, openings=[

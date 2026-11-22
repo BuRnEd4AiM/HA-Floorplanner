@@ -957,6 +957,22 @@
      "type": "boolean",
      "description": "Only drawn: its entities are never reported offline (e.g. in a flat that belongs to someone else)"
     },
+    "noWell": {
+     "type": "boolean",
+     "description": "A basement window under the ground gets a light well by itself (#786); true switches it off"
+    },
+    "wellW": {
+     "type": "number",
+     "minimum": 0.4,
+     "maximum": 4,
+     "description": "Width of the light well in m (default: the window + 2 × 0.15 m)"
+    },
+    "wellD": {
+     "type": "number",
+     "minimum": 0.25,
+     "maximum": 1.5,
+     "description": "How far the light well reaches out from the wall, in m (default 0.5)"
+    },
     "shutterStyle": {
      "enum": [
       "roller",

@@ -58,8 +58,8 @@ test('the search: every word, inside words, without umlauts and capitals', () =>
 });
 
 test('„Übernehmen“: the groups of a kind, ticked at first all but the size', () => {
-  assert.deepEqual(Object.keys(M.COPY_GROUPS.window), ['size', 'panes', 'fixed', 'shutter']);
-  assert.deepEqual(M.copyDefaults('window'), ['panes', 'fixed', 'shutter']);
+  assert.deepEqual(Object.keys(M.COPY_GROUPS.window), ['size', 'panes', 'fixed', 'shutter', 'well']);
+  assert.deepEqual(M.copyDefaults('window'), ['panes', 'fixed', 'shutter', 'well']);
   assert.deepEqual(M.copyDefaults('device'), ['look', 'tilt']);
   assert.deepEqual(M.copyDefaults('room'), ['floor', 'level', 'walls']);
   assert.deepEqual(M.copyDefaults('stair'), []);

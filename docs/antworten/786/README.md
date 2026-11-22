@@ -8,7 +8,7 @@ Die Bilder in der Antwort auf [#786](https://github.com/BuRnEd4AiM/HA-Floorplann
 - `4-gelaende.jpg`: „⛰ Gelände“, vorne 0, hinten −0,30 m
 - `5-garten.jpg`: von hinten, der Garten 30 cm tiefer
 
-Nicht gebaut: Lichtschächte als eigenes Teil.
+Lichtschächte gab es da noch nicht; gebaut in 5.31.0 (von selbst vor jedem Kellerfenster unter dem Boden).
 
 Gemacht mit der Demo (`demo/floorplan3d-demo.html`) und Playwright:
 

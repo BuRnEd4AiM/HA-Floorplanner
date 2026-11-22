@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-22, Version **5.30.0** (5.28.3 ist für alle freigegeben, am 2026-11-21). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-22, Version **5.31.0** (5.28.3 ist für alle freigegeben, am 2026-11-21). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,10 +10,10 @@ Stand: 2026-11-22, Version **5.30.0** (5.28.3 ist für alle freigegeben, am 2026
 
 ## Zuletzt
 
+- **2026-11-22, 5.31.0: 🔆 Lichtschächte (#786, Branch `claude/charming-galileo-c4fwuk`):** erst mariomichaelbauer mit Bildern geantwortet (Plateau 0,65 m, `docs/antworten/786/`), dann sein Wunsch: ein Kellerfenster unter dem Boden bekommt von selbst einen Schacht mit Gitterrost, Rasen, Erde, Wege und Plateau darüber ausgeschnitten (`lightwell.js`, `lightwell3d.js`); in „Ganzes Haus“ bleibt er auf der aufgeschnittenen Seite stehen.
 - **2026-11-22, 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779, Branch `claude/message-779-review-0q08zy`):** Franks Tipp „JSON-Import prominenter“; Bilder `docs/ideen-5.30`, seine Wahl: alle vier. Willkommen-Fenster (welcome.js), Erste Schritte (`ai`), Import-Fenster mit drei Schritten (`#importAi`), Tipp oben in der README; Import- und Willkommen-Bilder in docs/img neu.
 - **2026-11-22, 5.29.0: 🚗 Garage auf dem Rasen (#789) und 🪜 Treppenhöhe (Branch `claude/bold-heisenberg-y046ye`):** sein Foto, Raum 6 blieb angehoben: die Kellerdecke ging in einem Stück mit dem Plateau hoch (jetzt `slabPieces`), eine lange Wand an Haus und Garage auch (`splitAtCorners`, `lifter.wall`); dazu eigene Höhe jeder Treppe (`st.h`) und der Steg oben der Wendeltreppe (`st.exit`), seine Wendeltreppe vom Garten auf die Dachterrasse.
 - **2026-11-22, 5.28.4: 📡 „Alle einschalten“ auch für Werte außerhalb des Plans (Branch `claude/bold-heisenberg-y046ye`):** sein Foto: 78 ausgeschaltet, kein Knopf (der oben kommt nur für Plan-Geräte ohne Wert); jetzt ein Knopf im Abschnitt der ausgeschalteten, offen mit Erklärung, wenn keiner zum Plan gehört. 5.28.3 vorher für alle freigegeben.
-- **2026-11-21, 5.28.3: 📡 Funk-Karte mit Matter (Branch `claude/bold-heisenberg-y046ye`):** er hat auch Matter; Thread-Geräte über die Matter-Netzwerkkarte von Home Assistant 2026.11 (`matter/network_topology`, matterlinks.py, braucht den neuen Matter-Server), Matter-WLAN über „Wi-Fi RSSI“ (translation_key). Vorher 5.28.1 und 5.28.2 für alle freigegeben (sein Wunsch).
 
 ## Offen
 
@@ -37,7 +37,7 @@ Stand: 2026-11-22, Version **5.30.0** (5.28.3 ist für alle freigegeben, am 2026
 - **5.21.0 Gäste-Zugang:** sein Test (212.5 bis 212.8).
 - **5.20.0 Helligkeit:** sein Test (211.4 bis 211.6).
 - **5.19.0 Stromfresser:** sein Test (210.4 bis 210.6), vor allem ob „läuft immer“ bei seinen Geräten stimmt.
-- **#786 Haus höher als der Rasen (2026-11-22):** mariomichaelbauer mit Bildern geantwortet (Plateau 0,65 m + Außentreppe, Garten hinten mit „⛰ Gelände“, `docs/antworten/786/`); Lichtschächte gibt es noch nicht: den Besitzer fragen, ob sie gebaut werden sollen.
+- **5.31.0 Lichtschächte (#786):** sein Test (Testprotokoll 228.5, 228.6); mariomichaelbauer fragen, ob es so passt (für Lichtschächte, die herausschauen, eher „⛰ Gelände“ tiefer statt Plateau).
 - **Gewählte Liste abgearbeitet (2026-11-20):** fragen, was als Nächstes kommt. Aus `docs/ideen-5.15` sonst (👥 Gäste-Modus als Gäste-Zugang gebaut, 5.21.0; Gast-WLAN-QR, Gästezimmer heizt, Flurlicht nachts, Alarm nur außen daraus noch nicht) (🌙 Nachtlicht-Weg: von ihm weggelassen, `docs/ideen-5.17`); fragen, welche als Nächstes.
 - **5.14.0:** sein Test mit seinem Haus (Testprotokoll 204.2 bis 204.9), vor allem Balkon „Raum 17“ (204.5) und Garage „Raum 6“ (204.6).
 - **Tablet 5.13.1 (#759):** sein Test am echten Wandtablet (Testprotokoll 203.5 bis 203.7); kommt das leere Stockwerk noch, fragen, welcher Bildschirmschoner läuft und was davor getippt wurde.

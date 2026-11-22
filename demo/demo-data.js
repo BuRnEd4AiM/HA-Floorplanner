@@ -41,7 +41,7 @@ const layout = {
       W('g_w1', [10, 0], [15, 0], 0.3, [D('g_o1', 2.5, { width: 2.6, height: 2.1, style: 'garage', entity: 'cover.garagentor', name: 'Garagentor' })]),
       W('g_w2', [15, 0], [15, 6], 0.3, []),
       W('g_w3', [15, 6], [10, 6], 0.3, []),
-      W('k_w3', [10, 7], [0, 7], 0.3, []),
+      W('k_w3', [10, 7], [0, 7], 0.3, [Win('k_o9', 7, { width: 1, height: 0.6, sill: 1.6, name: 'Kellerfenster Waschküche' })]),   // under the lawn at the back: a light well (#786)
       W('k_w4', [0, 7], [0, 0], 0.3, []),
       W('k_i1', [6, 0], [6, 4.5], 0.12, [D('k_o2', 3.2)]),
       W('k_i2', [0, 4.5], [10, 4.5], 0.12, [D('k_o3', 3), D('k_o4', 8)]),

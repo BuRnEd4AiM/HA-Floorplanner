@@ -2570,4 +2570,8 @@ export default {
   'imp.ai2': 'Wklej go w Claude, ChatGPT lub Gemini i dołącz zdjęcie lub PDF swojego rzutu (wymiary pomagają). AI potrzebuje kilku minut.',
   'imp.ai3': 'Wklej odpowiedź (JSON) poniżej → „Sprawdź” → „Importuj”. Zawsze powstaje nowy dom, nic nie jest nadpisywane.',
   'imp.aiAfter': 'Potem: połącz pokoje i urządzenia z Home Assistant (🧭 Pierwsze kroki).', 'imp.or': 'Albo:',
+  'well.title': 'Doświetlacz piwniczny', 'well.on': 'Doświetlacz przed oknem', 'well.w': 'Szerokość doświetlacza', 'well.d': 'Głębokość (od ściany)',
+  'well.free': 'Okno jest nad ziemią: doświetlacz nie jest potrzebny.', 'well.offHint': 'Wyłączone: ziemia sięga ściany, okno jest w gruncie.',
+  'well.onHint': 'Okno jest {d} pod ziemią. Doświetlacz wpuszcza światło; trawnik, ścieżki i podest są nad nim wycięte, na górze leży krata.',
+  'v2.sec.well': 'Doświetlacz', 'v2.sum.wellSize': '{w} × {d}', 'v2.sum.wellOff': 'wyłączony',
 };

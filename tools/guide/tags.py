@@ -453,6 +453,13 @@ t("plot-terrain",
   "Hanghaus Souterrain Keller frei Böschung Sockel Straße tiefer halber Keller Keller halb aus der Erde Hochparterre Rasen tiefer Geländehöhe",
   "slope hillside gradient sloping plot terrain height height difference contour lines terrain model house on a slope "
   "walkout basement exposed basement embankment plinth street lower half basement partially below ground raised ground floor ground level lawn lower")
+t("light-well",
+  "Lichtschacht Lichtschächte Kellerschacht Kellerlichtschacht Kellerfenster Fenster im Keller Kellerfenster unter der Erde Gitterrost Rost "
+  "Schachtabdeckung Betonschacht Kunststoffschacht Lichtschacht aus Lichtschacht Größe Lichtschacht tiefer Fenster in der Erde Keller dunkel "
+  "Licht in den Keller Boden ausschneiden Rasen ausgeschnitten wie baue ich einen Lichtschacht Mea ACO",
+  "light well light wells window well area well basement window cellar window basement light well grating grate cover well cover "
+  "concrete well plastic well light well off light well size deeper light well window in the ground dark basement light into the basement "
+  "cut the ground out lawn cut open how do I add a light well egress well")
 t("floors-add",
   "Etage hinzufügen neue Etage Stockwerk hinzufügen Obergeschoss anlegen Dachgeschoss anlegen Keller anlegen "
   "Untergeschoss Geschoss Etage löschen Etage umbenennen Etagenhöhe",

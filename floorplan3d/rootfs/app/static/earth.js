@@ -69,7 +69,7 @@ const ringsOf = (fn) => { try { return fn().map((poly) => poly[0].slice(0, -1));
 const closed = (r) => [[...r, r[0]]];
 
 /** ctx: layout(), groundIdx(), floorH() (the storey height, #671), settings(), houseMode(), terrain() (the height of the ground (x, z) => h on a slope, terrain.js;
- *  null when the plot is level, #629) */
+ *  null when the plot is level, #629), wells() (the outlines of the light wells drawn, lightwell3d.js: the lawn has a hole over them, #786) */
 export function initEarth(ctx) {
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 1000);     // nothing cut until the camera says where (what lies under the plane is cut: nothing)
   let info = null;                                                     // { cx, cz, corners, rings, depth, cap, key } while the earth is cut
@@ -112,6 +112,8 @@ export function initEarth(ctx) {
     const depth = nb > 0 ? nb * ctx.floorH() + 0.4 : 0.4;   // without a basement: a slab of ground the house stands on
     const cellar = nb > 0 ? houseFootprint(layout.floors, nb, true) : [];
     let holes = nb > 0 && !hf ? cellar : foot;            // only the basement is cut out of the earth: parts without one (garage ...) stand on the ground; on a slope the whole house (they get a plinth)
+    const wells = ctx.wells?.() || [];                    // and every light well (#786, lightwell3d.js): no soil in front of its window, no lawn over it
+    if (wells.length) { const u = ringsOf(() => polygonClipping.union(...[...holes, ...wells].map(closed))); if (u.length) holes = u; }
     if (layout.plot?.boundary?.length >= 3) {                     // a plot smaller than the house: only cut out what lies on it
       try { holes = polygonClipping.intersection(holes.map((r) => [[...r, r[0]]]), [[...outline, outline[0]]]).map((poly) => poly[0].slice(0, -1)); } catch { /* keep the house outline */ }
     }

@@ -28,6 +28,7 @@ import { trySpan } from './openingstack.js';
 import { stackFields } from './openingstackui.js';
 import { roomSourceFields } from './roomsourceui.js';
 import { noWatchField } from './nowatchui.js';
+import { wellFields } from './lightwellui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -54,7 +55,7 @@ export function stretchValue(n) {
  *  hangs free: 'all', 'part' or '', #646, #703), previewTilt(id) (a window leans in for a moment: its tilt angle changed), allOpenings() (every door and
  *  window of the house), layout() (the open house: the rooms of every floor, roomnameui.js), select(sel) (selects that thing instead, e.g. the
  *  window above a door, openingstackui.js), uid(), roomSources(room, mode, chosen) (what measures its temperature / humidity: roomsource.js
- *  sourceChoices, #705), lang() */
+ *  sourceChoices, #705), lang(), wellInfo(op, wall) (the light well of a basement window: { state, deep }, lightwell3d.js, #786) */
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
@@ -334,6 +335,10 @@ export function initProps(ctx) {
         windows: () => ctx.allOpenings(), setStatus: (x) => ctx.setStatus(x) }, body, it);
     }
     if (it.type === 'window') { mark(body, 'contact'); rainProps(body, it); mark(body, 'shutter'); shutterProps(body, it, entities, room); }
+    if (it.type === 'window' && ctx.wellInfo) {                      // 🕳 a basement window under the ground: its light well (#786, lightwellui.js)
+      const wi = ctx.wellInfo(it, wall);
+      if (['on', 'off', 'free'].includes(wi.state)) { mark(body, 'well'); wellFields({ ...levelUi, ...wi }, body, it); }
+    }
     else if (canHaveShutter(it)) { mark(body, 'shutter'); shutterProps(body, it, entities, room); }   // a sliding door to the terrace (#779)
     mark(body, 'contact');   // right under the contact: the rain warning (#419), the roller shutter (#331)
     const count = paneCount(it);

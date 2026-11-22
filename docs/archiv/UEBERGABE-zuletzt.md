@@ -2,6 +2,7 @@
 
 Aus `docs/UEBERGABE.md` hierher verschoben, damit die Übergabe kurz bleibt (Wunsch des Besitzers, 2026-10-26). Die neuesten oben.
 
+- **2026-11-21, 5.28.3: 📡 Funk-Karte mit Matter (Branch `claude/bold-heisenberg-y046ye`):** er hat auch Matter; Thread-Geräte über die Matter-Netzwerkkarte von Home Assistant 2026.11 (`matter/network_topology`, matterlinks.py, braucht den neuen Matter-Server), Matter-WLAN über „Wi-Fi RSSI“ (translation_key). Vorher 5.28.1 und 5.28.2 für alle freigegeben (sein Wunsch).
 - **2026-11-21, 5.28.2: 📡 Funk-Karte „Alle einschalten“ (Branch `claude/bold-heisenberg-y046ye`):** seine Linkqualität fehlte bei den meisten (Zigbee2MQTT schaltet sie aus); der Knopf schaltet die der Geräte im Plan in Home Assistant ein (`POST api/signals/on`, renames.py `signal_off_of`, `switch_on`).
 - **2026-11-21, 5.28.1: 🔕 beim Bearbeiten sichtbar (Branch `claude/bold-heisenberg-y046ye`):** seine Frage, wie man „nicht überwachen“ zurücknimmt; jetzt zeigt der Bearbeiten-Modus ein graues 🔕 über dem Gerät, im 2D-Plan und am Etagen-Knopf, live bleibt alles wie vorher (nowatch.js `noWatchMarks`, offlinemarks.js).
 - **2026-11-20, 5.27.0: die zwei Issues von FrankBecker (Branch `claude/serene-pasteur-jb34nb`):** #779 Rollläden an Türen, 1–3 nebeneinander mit eigener Entität (shutters.js `shutterParts`, Karte „Alle · 1 · 2“); #780 „🔕 Nicht überwachen“ für Gerät, Tür/Fenster, Etage, 🔕 in der Offline-Liste (nowatch.js, nowatchui.js). Demo: Terrassentür im OG mit zwei Rollläden. 5.27.1: 🔕 statt 🙈 (seine Wahl, der Affe war ihm zu viel).

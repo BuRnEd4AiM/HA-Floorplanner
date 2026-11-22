@@ -2621,4 +2621,9 @@ export default {
   'imp.ai2': 'Pégalo en Claude, ChatGPT o Gemini y adjunta una foto o un PDF de tu plano (las medidas ayudan). La IA necesita unos minutos.',
   'imp.ai3': 'Pega su respuesta (el JSON) abajo → «Comprobar» → «Importar». Siempre se crea una casa nueva, no se sobrescribe nada.',
   'imp.aiAfter': 'Después: conecta habitaciones y dispositivos con Home Assistant (🧭 Primeros pasos).', 'imp.or': 'O:',
+  'well.title': 'Patio inglés', 'well.on': 'Patio inglés delante de la ventana', 'well.w': 'Ancho del patio', 'well.d': 'Fondo (desde la pared)',
+  'well.free': 'La ventana está por encima del suelo: no hace falta patio inglés.',
+  'well.offHint': 'Desactivado: la tierra llega hasta la pared, la ventana queda bajo tierra.',
+  'well.onHint': 'La ventana está {d} bajo el suelo. El patio deja entrar la luz; césped, caminos y meseta se recortan encima, arriba hay una rejilla.',
+  'v2.sec.well': 'Patio inglés', 'v2.sum.wellSize': '{w} × {d}', 'v2.sum.wellOff': 'desactivado',
 };
