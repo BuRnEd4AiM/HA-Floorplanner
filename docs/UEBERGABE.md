@@ -31,7 +31,7 @@ Stand: 2026-11-22, Version **5.30.0** (5.28.3 ist für alle freigegeben, am 2026
 - **5.28.4 alle einschalten:** sein Test (224.3, 224.4); vielleicht stehen in seinem Plan Gruppen statt der Zigbee-Geräte.
 - **5.29.0 Garage (#789) und Treppenhöhe:** sein Test (225.2, 225.3, 226.3, 226.4); #789 schließt sich mit dem Merge.
 - **5.27.0 Tür-Rollläden und 🔕 (#779, #780):** sein Test (219.4 bis 219.8). Frank (#779, 21.11.): Tür-Rollläden oben, im Plan zu; Rückfrage (Entität, Zustand) am 22.11. gestellt, seine Antwort fehlt; im Code kein Fehler gefunden.
-- **5.30.0 KI-Weg vorne:** sein Test (227.4, 227.5); Frank in #779 sagen, dass sein Tipp drin ist (nur wenn der Besitzer es will).
+- **5.30.0 KI-Weg vorne:** sein Test (227.4, 227.5); Frank hat in #779 am 22.11. erfahren, dass sein Tipp drin ist.
 - **5.23.0 / 5.23.1 Handy-App 2:** sein Test (214.6, 214.7, 215.4, 215.5) und was ihm an den Bildern 1–44 noch auffällt.
 - **5.22.0 Handy-App:** sein Eindruck am Handy (213.4 bis 213.6).
 - **5.21.0 Gäste-Zugang:** sein Test (212.5 bis 212.8).
