@@ -2,6 +2,17 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.31.0] - 2026-11-22
+### Added
+- **🔆 Light wells at the basement windows** (#786, mariomichaelbauer: "my basement light wells … end up flush with the front path and back lawn instead of protruding"; the owner: "baue licht schächte ein für den keller das das auch gut aussieht auch drauf achten das der boden ausgeschnitten wird wenn da ein licht schacht ist"):
+  - A window of a floor below the ground floor whose sill lies under the ground outside gets a **light well by itself**: a concrete box in front of the window, open at the top, 10 cm over the ground, with gravel at its bottom, a galvanised frame and a **grating** you can look through; it reaches from the top down to 20 cm under the sill. On a slope its top follows the highest ground around it; a window over the ground (the terrain lower, a basement half out of the ground) gets none.
+  - **The ground is cut open over it**: the lawn, the earth in front of the window, the areas of the plot (paths, terraces …) and the top of a plateau have a hole there. In the whole-house view the earth on the camera's side is cut open as before; the light wells stay there, in front of the basement.
+  - **2D plan**: on the basement a rectangle with the bars of the grating in front of the window, in the window's colour when it is selected.
+  - **The window's panel**: **"🔆 Lichtschacht"** with the tick "Lichtschacht vor dem Fenster" (on by itself, off: the earth reaches the wall), **"Breite des Schachts"** (the window + 15 cm on each side) and **"Tiefe (von der Wand weg)"** (50 cm, 25 cm to 1.5 m), and a line that says how far the window lies under the ground, or "kein Lichtschacht nötig". In "✨ Neu" the section 🔆 Lichtschacht (with "⇉ Übernehmen"), "🔍 Einstellung suchen" finds it.
+  - JSON import and export: `"noWell": true`, `"wellW"`, `"wellD"`. The demo house has one at the back window of the laundry.
+  - Video guide: the new clip "Lichtschacht vor dem Kellerfenster". Browser test `109_light_wells`, unit test `tests/lightwell.test.mjs`.
+- The answer to #786 with pictures (a plateau of 0.65 m under the house with outdoor steps, the garden at the back lower with "⛰ Gelände") is kept in `docs/antworten/786/`.
+
 ## [5.30.0] - 2026-11-22
 ### Added
 - **🤖 A house from the floor plan by an AI, shown first** (#779, FrankBecker: "Mach auf der Hauptseite von Floorplanner die Möglichkeit für den JSON Import prominenter"; he had Claude write the JSON from his building plan and had his whole flat after an afternoon; the owner chose all four ideas of docs/ideen-5.30):

@@ -2645,4 +2645,9 @@ export default {
   'imp.ai2': 'Colle-le dans Claude, ChatGPT ou Gemini et joins une photo ou un PDF de ton plan (les cotes aident). L’IA a besoin de quelques minutes.',
   'imp.ai3': 'Colle sa réponse (le JSON) ci-dessous → « Vérifier » → « Importer ». Cela crée toujours une nouvelle maison, rien n’est écrasé.',
   'imp.aiAfter': 'Ensuite : relie les pièces et les appareils à Home Assistant (🧭 Premiers pas).', 'imp.or': 'Ou :',
+  'well.title': 'Saut-de-loup', 'well.on': 'Saut-de-loup devant la fenêtre', 'well.w': 'Largeur du saut-de-loup', 'well.d': 'Profondeur (depuis le mur)',
+  'well.free': 'La fenêtre est au-dessus du sol : pas besoin de saut-de-loup.',
+  'well.offHint': 'Désactivé : la terre va jusqu’au mur, la fenêtre est dans le sol.',
+  'well.onHint': 'La fenêtre est {d} sous le sol. Le saut-de-loup laisse entrer la lumière ; pelouse, allées et plateau sont découpés au-dessus, une grille le couvre.',
+  'v2.sec.well': 'Saut-de-loup', 'v2.sum.wellSize': '{w} × {d}', 'v2.sum.wellOff': 'désactivé',
 };

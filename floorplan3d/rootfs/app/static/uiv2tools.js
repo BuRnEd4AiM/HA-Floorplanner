@@ -16,7 +16,7 @@ import { pointInPoly } from './rooms.js';
 
 const WIDE = '(min-width: 1000px)';
 const GROUP_LABEL = {
-  window: { size: 'v2.sec.size', panes: 'v2.sec.panes', fixed: 'v2.sec.fixed', shutter: 'v2.sec.shutter' },
+  window: { size: 'v2.sec.size', panes: 'v2.sec.panes', fixed: 'v2.sec.fixed', shutter: 'v2.sec.shutter', well: 'v2.sec.well' },
   door: { size: 'v2.sec.size', style: 'v2.sec.style' },
   room: { floor: 'v2.tab.floor', level: 'v2.level.title', walls: 'v2.tab.walls' },
   device: { dsize: 'v2.sec.dsize', look: 'v2.sec.look', tilt: 'v2.sec.tilt' },

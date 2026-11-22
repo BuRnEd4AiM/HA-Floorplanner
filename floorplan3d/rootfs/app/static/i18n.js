@@ -1529,6 +1529,11 @@ const DICT = {
     'imp.ai2': 'In Claude, ChatGPT oder Gemini einfügen und ein Foto oder PDF deines Bauplans anhängen (Maße helfen). Die KI braucht ein paar Minuten.',
     'imp.ai3': 'Ihre Antwort (das JSON) hier unten einfügen → „Prüfen“ → „Importieren“. Es entsteht immer ein neues Haus, nichts wird überschrieben.',
     'imp.aiAfter': 'Danach: Räume und Geräte mit Home Assistant verbinden (🧭 Erste Schritte).', 'imp.or': 'Oder:',
+    'well.title': 'Lichtschacht', 'well.on': 'Lichtschacht vor dem Fenster', 'well.w': 'Breite des Schachts', 'well.d': 'Tiefe (von der Wand weg)',
+    'well.free': 'Das Fenster liegt über dem Boden: kein Lichtschacht nötig.',
+    'well.offHint': 'Ausgeschaltet: die Erde reicht bis an die Wand, das Fenster liegt im Boden.',
+    'well.onHint': 'Das Fenster liegt {d} unter dem Boden. Der Schacht bringt Licht herein; Rasen, Wege und Plateau sind darüber ausgeschnitten, oben liegt ein Gitterrost.',
+    'v2.sec.well': 'Lichtschacht', 'v2.sum.wellSize': '{w} × {d}', 'v2.sum.wellOff': 'aus',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -3001,6 +3006,11 @@ const DICT = {
     'imp.ai2': 'Paste it into Claude, ChatGPT or Gemini and attach a photo or PDF of your floor plan (measurements help). The AI needs a few minutes.',
     'imp.ai3': 'Paste its answer (the JSON) below → “Check” → “Import”. It always becomes a new house, nothing is overwritten.',
     'imp.aiAfter': 'Then: link rooms and devices with Home Assistant (🧭 First steps).', 'imp.or': 'Or:',
+    'well.title': 'Light well', 'well.on': 'Light well in front of the window', 'well.w': 'Width of the well', 'well.d': 'Depth (out from the wall)',
+    'well.free': 'The window lies above the ground: no light well needed.',
+    'well.offHint': 'Switched off: the earth reaches the wall, the window lies in the ground.',
+    'well.onHint': 'The window lies {d} under the ground. The well lets the light in; lawn, paths and plateau are cut open over it, a grating lies on top.',
+    'v2.sec.well': 'Light well', 'v2.sum.wellSize': '{w} × {d}', 'v2.sum.wellOff': 'off',
   },
 };
 

@@ -537,7 +537,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 225. Repariert in 5.29.0: 🚗 Garage auf dem Rasen neben einem Haus mit Keller, lange Wand (#789) | 1 | 0 | 2 | 0 | 225.2, 225.3 |
 | 226. Neu in 5.29.0: 🪜 Treppe mit eigener Höhe, Wendeltreppe mit Steg oben | 2 | 0 | 2 | 0 | 226.3, 226.4 |
 | 227. Neu in 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779) | 3 | 0 | 2 | 0 | 227.4, 227.5 |
-| **Zusammen** | **1370** | **2** | **167** | **92** | |
+| 228. Neu in 5.31.0: 🔆 Lichtschächte an den Kellerfenstern | 4 | 0 | 2 | 0 | 228.5, 228.6 |
+| **Zusammen** | **1374** | **2** | **169** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3413,4 +3414,16 @@ Franks Tipp in #779: den JSON-Import deutlicher zeigen. Du hast alle vier Ideen 
 | 227.3 | Dann „🤖 Haus aus dem Bauplan bauen lassen“ antippen | Das Import-Fenster geht auf, oben die drei Schritte mit Nummern; dahinter „🧭 Erste Schritte“ mit „🤖 Aus dem Bauplan per KI“ vorne | ✅ (2026-11-22, Claude, Demo) |
 | 227.4 | Im Add-on: „📋 KI-Text kopieren“, in Claude, ChatGPT oder Gemini einfügen, ein Foto deines Grundrisses anhängen, die Antwort einfügen, „Prüfen“, „Importieren“ | Ein neues Haus mit deinen Räumen entsteht; was nicht passt, sagt „Prüfen“ | ❓ |
 | 227.5 | GitHub-Seite des Projekts ansehen (nach dem Merge) | Gleich unter dem ersten Absatz der grüne Kasten „💡 Tip: Fastest start“ mit drei Schritten, neben „Try the demo“ der Knopf „🤖 House from your floor plan“ | ❓ |
+
+## 228. Neu in 5.31.0: 🔆 Lichtschächte an den Kellerfenstern
+Dein Wunsch vom 2026-11-22 (#786): Lichtschächte für den Keller, die gut aussehen, und der Boden darüber ausgeschnitten.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 228.1 | Unit-Tests `tests/lightwell.test.mjs`, `tests/uiv2.test.mjs`, `tests/uiv2more.test.mjs`, `tests/test_import.py`; Browser-Test Teil `109_light_wells` (neu) | Alles grün | ✅ (2026-11-22, Claude) |
+| 228.2 | Demo, Bearbeiten: Etage „Keller“, 2D: hinten das Fenster der Waschküche antippen | Vor dem Fenster ein Rechteck mit Gitter; rechts „🔆 Lichtschacht“ mit Haken, Breite 1,3, Tiefe 0,5 und „Das Fenster liegt … unter dem Boden“ | ✅ (2026-11-22, Claude, Demo) |
+| 228.3 | Demo: „Ganzes Haus“, 3D, hinter das Haus drehen | Der Schacht steht 10 cm über dem Rasen, oben ein Gitterrost; der Rasen ist dort ausgeschnitten | ✅ (2026-11-22, Claude, Demo) |
+| 228.4 | Demo: beim Fenster den Haken „Lichtschacht vor dem Fenster“ aus und wieder an | Aus: Schacht weg (2D und 3D), Zeile „Ausgeschaltet …“; an: wieder da | ✅ (2026-11-22, Claude, Demo) |
+| 228.5 | Dein Haus: deine Kellerfenster ansehen (3D, Ganzes Haus, von der Seite) | Vor jedem Kellerfenster unter dem Rasen ein Lichtschacht, der Rasen darüber ausgeschnitten; passen Breite und Tiefe? | ❓ |
+| 228.6 | Dein Haus: ein Kellerfenster, das über dem Boden liegt (z. B. am Hang) | Kein Schacht, im Panel „kein Lichtschacht nötig“ | ❓ |
 

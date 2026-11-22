@@ -2581,4 +2581,9 @@ export default {
   'imp.ai2': 'Plak hem in Claude, ChatGPT of Gemini en voeg een foto of pdf van je bouwtekening toe (maten helpen). De AI heeft een paar minuten nodig.',
   'imp.ai3': 'Plak het antwoord (de JSON) hieronder → “Controleren” → “Importeren”. Er komt altijd een nieuw huis bij, er wordt niets overschreven.',
   'imp.aiAfter': 'Daarna: kamers en apparaten aan Home Assistant koppelen (🧭 Eerste stappen).', 'imp.or': 'Of:',
+  'well.title': 'Lichtschacht', 'well.on': 'Lichtschacht voor het raam', 'well.w': 'Breedte van de schacht', 'well.d': 'Diepte (van de muur af)',
+  'well.free': 'Het raam ligt boven de grond: geen lichtschacht nodig.',
+  'well.offHint': 'Uitgeschakeld: de aarde komt tot aan de muur, het raam ligt in de grond.',
+  'well.onHint': 'Het raam ligt {d} onder de grond. De schacht laat licht binnen; gazon, paden en plateau zijn erboven uitgesneden, bovenop ligt een rooster.',
+  'v2.sec.well': 'Lichtschacht', 'v2.sum.wellSize': '{w} × {d}', 'v2.sum.wellOff': 'uit',
 };

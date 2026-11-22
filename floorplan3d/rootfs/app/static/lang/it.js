@@ -2611,4 +2611,9 @@ export default {
   'imp.ai2': 'Incollalo in Claude, ChatGPT o Gemini e allega una foto o un PDF della tua planimetria (le misure aiutano). L’IA ha bisogno di qualche minuto.',
   'imp.ai3': 'Incolla la sua risposta (il JSON) qui sotto → «Verifica» → «Importa». Nasce sempre una nuova casa, non viene sovrascritto nulla.',
   'imp.aiAfter': 'Poi: collega stanze e dispositivi a Home Assistant (🧭 Primi passi).', 'imp.or': 'Oppure:',
+  'well.title': 'Bocca di lupo', 'well.on': 'Bocca di lupo davanti alla finestra', 'well.w': 'Larghezza della bocca', 'well.d': 'Profondità (dal muro)',
+  'well.free': 'La finestra è sopra il terreno: nessuna bocca di lupo necessaria.',
+  'well.offHint': 'Disattivato: la terra arriva al muro, la finestra resta nel terreno.',
+  'well.onHint': 'La finestra è {d} sotto il terreno. La bocca di lupo fa entrare la luce; prato, vialetti e terrapieno sono tagliati sopra, in cima c’è una griglia.',
+  'v2.sec.well': 'Bocca di lupo', 'v2.sum.wellSize': '{w} × {d}', 'v2.sum.wellOff': 'disattivato',
 };

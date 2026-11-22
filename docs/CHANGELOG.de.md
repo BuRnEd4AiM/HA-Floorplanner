@@ -2,6 +2,17 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.31.0] - 2026-11-22
+### Neu
+- **🔆 Lichtschächte an den Kellerfenstern** (#786, mariomichaelbauer: „meine Lichtschächte … liegen bündig mit dem Weg vorne und dem Rasen hinten, statt herauszuschauen“; der Besitzer: „baue licht schächte ein für den keller das das auch gut aussieht auch drauf achten das der boden ausgeschnitten wird wenn da ein licht schacht ist“):
+  - Ein Fenster einer Etage unter dem Erdgeschoss, dessen Brüstung draußen unter dem Boden liegt, bekommt **von selbst einen Lichtschacht**: ein Kasten aus Beton vor dem Fenster, oben offen, 10 cm über dem Boden, unten Kies, ein verzinkter Rahmen und ein **Gitterrost**, durch den man hineinsieht; er reicht von oben bis 20 cm unter die Brüstung. Am Hang richtet sich seine Oberkante nach dem höchsten Boden um ihn herum; ein Fenster über dem Boden (Gelände tiefer, ein Keller halb aus der Erde) bekommt keinen.
+  - **Der Boden ist darüber ausgeschnitten**: der Rasen, die Erde vor dem Fenster, die Flächen des Grundstücks (Wege, Terrassen …) und die Oberseite eines Plateaus haben dort ein Loch. In der Ansicht „Ganzes Haus“ ist die Erde auf der Kameraseite wie bisher aufgeschnitten; die Lichtschächte bleiben dort vor dem Keller stehen.
+  - **2D-Plan**: im Keller ein Rechteck mit den Stäben des Gitterrosts vor dem Fenster, in der Farbe des Fensters, wenn es ausgewählt ist.
+  - **Das Panel des Fensters**: **„🔆 Lichtschacht“** mit dem Haken „Lichtschacht vor dem Fenster“ (von selbst an, aus: die Erde reicht bis an die Wand), **„Breite des Schachts“** (Fenster + 15 cm je Seite) und **„Tiefe (von der Wand weg)“** (50 cm, 25 cm bis 1,5 m), dazu eine Zeile, wie tief das Fenster unter dem Boden liegt, oder „kein Lichtschacht nötig“. In „✨ Neu“ der Abschnitt 🔆 Lichtschacht (mit „⇉ Übernehmen“), „🔍 Einstellung suchen“ findet ihn.
+  - JSON-Import und -Export: `"noWell": true`, `"wellW"`, `"wellD"`. Das Demo-Haus hat einen am hinteren Fenster der Waschküche.
+  - Video-Anleitung: der neue Clip „Lichtschacht vor dem Kellerfenster“. Browser-Test `109_light_wells`, Unit-Test `tests/lightwell.test.mjs`.
+- Die Antwort auf #786 mit Bildern (ein Plateau von 0,65 m unter dem Haus mit Außentreppe, der Garten hinten tiefer mit „⛰ Gelände“) liegt in `docs/antworten/786/`.
+
 ## [5.30.0] - 2026-11-22
 ### Neu
 - **🤖 Haus aus dem Bauplan mit einer KI, ganz vorne** (#779, FrankBecker: „Mach auf der Hauptseite von Floorplanner die Möglichkeit für den JSON Import prominenter“; er hat Claude das JSON aus seiner Bauzeichnung schreiben lassen und hatte nach einem Nachmittag seine ganze Wohnung; der Besitzer hat alle vier Ideen aus docs/ideen-5.30 gewählt):

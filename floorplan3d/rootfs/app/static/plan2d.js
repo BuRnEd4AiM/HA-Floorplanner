@@ -570,6 +570,7 @@ export function createPlan(ctx) {
       gaps.forEach(([g0, g1], i) => { seg(cur, g0, i === 0 ? endA : 0, 0); cur = g1; });
       seg(cur, L, gaps.length ? 0 : endA, endB);
     });
+    o += ctx.wells2d?.({ sx, sy, sel, C }) || '';                  // 🕳 light wells in front of the basement windows (#786, lightwell2d.js)
     /* openings */
     f.walls.forEach((w) => {
       const [ux, uz] = dirOf(w);

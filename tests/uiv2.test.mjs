@@ -162,6 +162,8 @@ test('the lines of the sections say what is set', () => {
   assert.equal(say('window', 'shutter', win()), 'v2.sum.noneM{}');
   assert.equal(say('window', 'shutter', win({ shutter: true })), 'v2.sum.yes{}');
   assert.equal(say('window', 'shutter', win({ shutter: true, shutterEntity: 'cover.r' })), 'v2.sum.is{"x":"COVER.R"}');
+  assert.equal(say('window', 'well', win({ noWell: true })), 'v2.sum.wellOff{}');   // 🕳 #786
+  assert.match(say('window', 'well', win({ wellD: 0.8 })), /^v2\.sum\.wellSize\{"w":".*","d":".*0[.,]8.*"\}$/);
   assert.equal(say('window', 'more', win()), 'v2.sum.tiltDeg{"d":14}');
   assert.equal(say('window', 'more', win({ tiltDeg: 30 })), 'v2.sum.tiltDeg{"d":30}');
   assert.equal(say('door', 'style', { type: 'door', style: 'sliding' }), 'st.sliding{}');

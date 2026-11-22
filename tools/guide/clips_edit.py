@@ -2278,6 +2278,51 @@ def _(r):
     r.wait(600)
 
 
+
+def well_view(r):
+    """prep: the demo house on its basement in the 2D plan: the window of the laundry at the back lies under the lawn (#786)"""
+    r.pg.evaluate("() => window.__fp.switchFloor(0)")
+    r.pg.click("#view2d")
+    r.pg.wait_for_timeout(1200)
+
+
+@clip("light-well", "edit",
+      {"de": "Lichtschacht vor dem Kellerfenster", "en": "Light well in front of a basement window"},
+      {"de": "Ein Kellerfenster unter dem Rasen bekommt von selbst einen Lichtschacht: ein Schacht aus Beton mit Gitterrost, 10 cm über dem Boden; Rasen, Wege und Plateau sind darüber ausgeschnitten. Beim Fenster „🔆 Lichtschacht“: an oder aus, Breite und Tiefe. Liegt das Fenster über dem Boden (Gelände tiefer), braucht es keinen.",
+       "en": "A basement window under the lawn gets a light well by itself: a concrete well with a grating, 10 cm over the ground; lawn, paths and plateau are cut open over it. At the window “🔆 Light well”: on or off, width and depth. A window over the ground (terrain lower) needs none."},
+      "Lichtschacht Kellerfenster Kellerschacht Gitterrost Schacht Keller Fenster unter der Erde light well basement window window well area well grating cellar window",
+      query="mode=edit", prep=well_view)
+def _(r):
+    r.say("Im Keller liegt das Fenster hinten unter dem Rasen. Davor zeichnet der Plan den Lichtschacht mit seinem Gitter.",
+          "In the basement the window at the back lies under the lawn. In front of it the plan draws the light well with its grating.")
+    r.move(".well2d")
+    r.wait(2000)
+    r.say("Tippe das Fenster an: rechts steht „🔆 Lichtschacht“.", "Tap the window: on the right there is “🔆 Light well”.")
+    x, y = r.pg.evaluate("window.__fp.plan().toClient(3, 7)")
+    r.click(x, y)
+    r.wait(1200)
+    r.loc("#wellBox").scroll_into_view_if_needed()
+    r.move("#wellOn")
+    r.wait(1800)
+    r.say("Breite und Tiefe stellst du hier ein, z. B. 80 cm von der Wand weg.", "Width and depth are set here, e.g. 80 cm out from the wall.")
+    r.click("#wellD")
+    r.key("Control+a")
+    r.type("0.8")
+    r.key("Tab")
+    r.wait(1600)
+    r.say("Im 3D-Bild: der Schacht mit Gitterrost, 10 cm über dem Rasen; der Rasen ist darüber ausgeschnitten.",
+          "In 3D: the well with its grating, 10 cm over the lawn; the lawn is cut open over it.")
+    r.js("(() => { const s = window.__fp.settings(); s.houseFloors = 'stacked'; s.seeThrough = false; })()")
+    r.click("#view3d")
+    r.js("window.__fp.setHouseMode(true)")
+    r.wait(1600)
+    r.js("window.__fp.camAt(-3, 2.2, 9.5, 3, 7.4, -0.2)")
+    r.wait(3600)
+    r.poster()
+    r.say("Liegt ein Fenster über dem Boden, etwa am Hang, braucht es keinen. Der Haken schaltet ihn aus.",
+          "A window over the ground, e.g. on a slope, needs none. The tick switches it off.")
+    r.wait(2600)
+
 def _import_check():
     """the add-on's answer to "Prüfen" for the example house (the demo has no importer): the real importer of the add-on decides"""
     import json
