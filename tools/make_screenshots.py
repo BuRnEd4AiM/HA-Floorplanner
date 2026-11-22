@@ -456,9 +456,9 @@ def shot_import(b):
             if name:
                 store(im, f"{pre}{name}.jpg")
             if frame:
-                frames.append(im.resize((960, 600), Image.LANCZOS))
+                frames.append(im.resize((960, 675), Image.LANCZOS))
         with Server(PORT + 1):
-            pg = app_page(b, "mode=edit&debug=1", w=1280, h=800, lang=lang, dsf=2, port=PORT + 1)
+            pg = app_page(b, "mode=edit&debug=1", w=1280, h=900, lang=lang, dsf=2, port=PORT + 1)   # 900: the dialog with its AI steps (5.30.0) shows "Import" too
             pg.evaluate("localStorage.setItem('fp3d.welcome','1')")
             pg.reload(); pg.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pg.wait_for_timeout(2000)
             pg.click("#housePanel summary"); pg.wait_for_timeout(600)

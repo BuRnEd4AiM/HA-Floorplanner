@@ -2,6 +2,14 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.30.0] - 2026-11-22
+### Neu
+- **🤖 Haus aus dem Bauplan mit einer KI, ganz vorne** (#779, FrankBecker: „Mach auf der Hauptseite von Floorplanner die Möglichkeit für den JSON Import prominenter“; er hat Claude das JSON aus seiner Bauzeichnung schreiben lassen und hatte nach einem Nachmittag seine ganze Wohnung; der Besitzer hat alle vier Ideen aus docs/ideen-5.30 gewählt):
+  - **Willkommen-Fenster** eines leeren Hauses: zuerst und groß **„🤖 Haus aus dem Bauplan bauen lassen“** mit „am schnellsten“ und einer Zeile, wie es geht; darunter „✏️ Wände selbst zeichnen“, „🏠 Beispielhaus ausprobieren“ und „📥 Fertige JSON-Datei importieren“ (öffnet gleich die Dateiauswahl).
+  - **🧭 Erste Schritte**, Schritt 1 „Grundriss: per KI, zeichnen oder Vorlage“: vorne der Knopf **„🤖 Aus dem Bauplan per KI“**.
+  - **Import-Fenster** „Haus aus dem Bauplan (mit KI) oder aus JSON bauen“: oben **drei nummerierte Schritte**: ① „📋 KI-Text kopieren“ ② in Claude, ChatGPT oder Gemini mit einem Foto oder PDF des Bauplans einfügen ③ die Antwort einfügen, „Prüfen“, „Importieren“; danach Räume und Geräte verbinden (🧭 Erste Schritte). Datei und Beispiele stehen darunter als „Oder:“.
+  - **GitHub-Seite**: gleich unter dem ersten Absatz ein Tipp „Fastest start: let an AI build your house from the building plan“ und neben der Demo ein Knopf „🤖 House from your floor plan“; docs/IMPORT.md und IMPORT.en.md erklären die drei Schritte.
+
 ## [5.29.0] - 2026-11-22
 ### Neu
 - **🪜 Treppe mit eigener Höhe, Wendeltreppe mit Steg oben** (der Besitzer: „dass ich die auch unterschiedlich hoch machen kann … die Wendeltreppe geht quasi von meinem Garten hoch auf die Dachterrasse … kommt oben ein Rechteck an und rechts und links ist Geländer“):

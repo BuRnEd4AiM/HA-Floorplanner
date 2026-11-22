@@ -219,7 +219,13 @@ A polygon, feature or feature collection in longitude / latitude is detected aut
 
 ## AI prompting
 
-The import dialog has **Copy AI prompt**. The prompt contains the full format, all allowed types and presets and an example. Paste it into ChatGPT / Claude / Gemini and append your description, for example:
+The fastest way to a house: give an AI your **building plan**. The import dialog shows it on top in three steps:
+
+1. **📋 Copy AI prompt**: the prompt contains the full format, all allowed types and presets and an example.
+2. Paste it into **Claude, ChatGPT or Gemini** and attach a **photo or PDF of your floor plan** (measurements help). The AI needs a few minutes.
+3. Paste its answer (the JSON) into the dialog → **Check** → **Import**. Then link rooms and devices with Home Assistant (🧭 First steps).
+
+Instead of a plan you can also describe the house in words, for example:
 
 > Plot 20 × 28 m, house 10 × 8 m in the middle, two floors. Ground floor: open kitchen/living room 6×5, hall, WC, office. Upper floor: 3 bedrooms and a bathroom. Gable roof 35°. Front door on the south side, patio door to the garden, one window in every room. Lights `light.<room>`.
 
@@ -239,7 +245,7 @@ Tips:
 | Goal | How |
 |---|---|
 | Build a flat quickly | Load the example, adjust sizes and rooms, check, import |
-| Let an AI plan the house | Copy the prompt, add your description, paste the answer, check, send errors back to the AI |
+| Let an AI plan the house | Copy the AI prompt, attach your building plan (photo / PDF) or a description, paste the answer, check, send errors back to the AI |
 | Use a cadastre outline | Paste GeoJSON (building + plot), import, draw the rooms in the editor |
 | Back up / share a house | Export it, hand over the file, import it on the other side |
 | Script / CI | `POST /api/import` with curl (see above) |

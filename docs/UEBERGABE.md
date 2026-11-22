@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-22, Version **5.29.0** (5.28.3 ist für alle freigegeben, am 2026-11-21). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-22, Version **5.30.0** (5.28.3 ist für alle freigegeben, am 2026-11-21). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,10 +10,10 @@ Stand: 2026-11-22, Version **5.29.0** (5.28.3 ist für alle freigegeben, am 2026
 
 ## Zuletzt
 
+- **2026-11-22, 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779, Branch `claude/message-779-review-0q08zy`):** Franks Tipp „JSON-Import prominenter“; Bilder `docs/ideen-5.30`, seine Wahl: alle vier. Willkommen-Fenster (welcome.js), Erste Schritte (`ai`), Import-Fenster mit drei Schritten (`#importAi`), Tipp oben in der README; Import- und Willkommen-Bilder in docs/img neu.
 - **2026-11-22, 5.29.0: 🚗 Garage auf dem Rasen (#789) und 🪜 Treppenhöhe (Branch `claude/bold-heisenberg-y046ye`):** sein Foto, Raum 6 blieb angehoben: die Kellerdecke ging in einem Stück mit dem Plateau hoch (jetzt `slabPieces`), eine lange Wand an Haus und Garage auch (`splitAtCorners`, `lifter.wall`); dazu eigene Höhe jeder Treppe (`st.h`) und der Steg oben der Wendeltreppe (`st.exit`), seine Wendeltreppe vom Garten auf die Dachterrasse.
 - **2026-11-22, 5.28.4: 📡 „Alle einschalten“ auch für Werte außerhalb des Plans (Branch `claude/bold-heisenberg-y046ye`):** sein Foto: 78 ausgeschaltet, kein Knopf (der oben kommt nur für Plan-Geräte ohne Wert); jetzt ein Knopf im Abschnitt der ausgeschalteten, offen mit Erklärung, wenn keiner zum Plan gehört. 5.28.3 vorher für alle freigegeben.
 - **2026-11-21, 5.28.3: 📡 Funk-Karte mit Matter (Branch `claude/bold-heisenberg-y046ye`):** er hat auch Matter; Thread-Geräte über die Matter-Netzwerkkarte von Home Assistant 2026.11 (`matter/network_topology`, matterlinks.py, braucht den neuen Matter-Server), Matter-WLAN über „Wi-Fi RSSI“ (translation_key). Vorher 5.28.1 und 5.28.2 für alle freigegeben (sein Wunsch).
-- **2026-11-21, 5.28.2: 📡 Funk-Karte „Alle einschalten“ (Branch `claude/bold-heisenberg-y046ye`):** seine Linkqualität fehlte bei den meisten (Zigbee2MQTT schaltet sie aus); der Knopf schaltet die der Geräte im Plan in Home Assistant ein (`POST api/signals/on`, renames.py `signal_off_of`, `switch_on`).
 
 ## Offen
 
@@ -30,7 +30,8 @@ Stand: 2026-11-22, Version **5.29.0** (5.28.3 ist für alle freigegeben, am 2026
 - **5.28.3 Funk mit Matter:** sein Test mit seinem Haus (223.3 bis 223.5); ob sein Matter-Server die Karte schon kann.
 - **5.28.4 alle einschalten:** sein Test (224.3, 224.4); vielleicht stehen in seinem Plan Gruppen statt der Zigbee-Geräte.
 - **5.29.0 Garage (#789) und Treppenhöhe:** sein Test (225.2, 225.3, 226.3, 226.4); #789 schließt sich mit dem Merge.
-- **5.27.0 Tür-Rollläden und 🔕 (#779, #780):** sein Test (219.4 bis 219.8); FrankBecker fragen, ob es so passt (Issues zu, mit Kommentar).
+- **5.27.0 Tür-Rollläden und 🔕 (#779, #780):** sein Test (219.4 bis 219.8). Frank (#779, 21.11.): Tür-Rollläden oben, im Plan zu; Rückfrage (Entität, Zustand) am 22.11. gestellt, seine Antwort fehlt; im Code kein Fehler gefunden.
+- **5.30.0 KI-Weg vorne:** sein Test (227.4, 227.5); Frank hat in #779 am 22.11. erfahren, dass sein Tipp drin ist.
 - **5.23.0 / 5.23.1 Handy-App 2:** sein Test (214.6, 214.7, 215.4, 215.5) und was ihm an den Bildern 1–44 noch auffällt.
 - **5.22.0 Handy-App:** sein Eindruck am Handy (213.4 bis 213.6).
 - **5.21.0 Gäste-Zugang:** sein Test (212.5 bis 212.8).

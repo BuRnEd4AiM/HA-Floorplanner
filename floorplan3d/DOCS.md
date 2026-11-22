@@ -7,7 +7,7 @@ Draw your home, view it in 3D and control your devices from the floor plan.
 ## First steps
 
 1. Start the add-on and open **3D Floorplan** from the sidebar.
-   A new, empty house shows a **welcome card** with three ways to start: *Draw walls*, *Try the example house* (a ready-made house with plot and garden, created as a new house) and *Import a house from JSON*. The interface follows the language of your browser and starts in the dark design; both can be changed in ⚙.
+   A new, empty house shows a **welcome card** with the ways to start: first *Let an AI build it from your floor plan* (the fastest: the import dialog with three steps, a photo or PDF of your floor plan and a ready-made text for Claude, ChatGPT or Gemini), then *Draw walls yourself*, *Try the example house* (a ready-made house with plot and garden, created as a new house) and *Import a ready-made JSON file*. The interface follows the language of your browser and starts in the dark design; both can be changed in ⚙.
 2. Pick **Wall** and click your outline point by point (double-click or `Esc` finishes).
 3. Pick **Door/Window** and click a wall to cut an opening.
 4. Pick **Device**, choose a type and a Home Assistant entity, click the floor.

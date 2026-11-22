@@ -221,7 +221,13 @@ Ein Polygon, Feature oder eine FeatureCollection in Längen-/Breitengrad wird au
 
 ## KI-Prompting
 
-Im Import-Dialog gibt es **KI-Prompt kopieren**: Der Prompt enthält das komplette Format, alle erlaubten Typen/Presets und ein Beispiel. Kopiere ihn in ChatGPT/Claude/Gemini und hänge deine Beschreibung an, z. B.:
+Am schnellsten kommst du zu deinem Haus, wenn du einer KI deinen **Bauplan** gibst. Das Import-Fenster zeigt das oben in drei Schritten:
+
+1. **📋 KI-Text kopieren**: Der Text enthält das komplette Format, alle erlaubten Typen/Presets und ein Beispiel.
+2. In **Claude, ChatGPT oder Gemini** einfügen und ein **Foto oder PDF deines Bauplans** anhängen (Maße helfen). Die KI braucht ein paar Minuten.
+3. Ihre Antwort (das JSON) ins Fenster einfügen → **Prüfen** → **Importieren**. Danach Räume und Geräte mit Home Assistant verbinden (🧭 Erste Schritte).
+
+Statt eines Plans kannst du das Haus auch in Worten beschreiben, z. B.:
 
 > Grundstück 20 × 28 m, Haus 10 × 8 m mittig, zwei Etagen. EG: Wohnküche 6×5, Flur, WC, Büro. OG: 3 Zimmer und Bad. Satteldach 35°. Haustür Süden, Terrassentür zum Garten, in jedem Zimmer ein Fenster. Lichter `light.<raum>`.
 
@@ -241,7 +247,7 @@ Tipps:
 | Ziel | Vorgehen |
 |---|---|
 | Wohnung schnell aufbauen | Beispiel laden, Maße/Räume anpassen, prüfen, importieren |
-| Haus von der KI planen lassen | Prompt kopieren, Beschreibung anhängen, Antwort einfügen, prüfen, Fehler an KI zurückgeben |
+| Haus von der KI planen lassen | KI-Text kopieren, Bauplan (Foto/PDF) oder Beschreibung anhängen, Antwort einfügen, prüfen, Fehler an KI zurückgeben |
 | Katasterumriss verwenden | GeoJSON einfügen (Gebäude + Grundstück), importieren, Räume im Editor einzeichnen |
 | Haus sichern/teilen | Exportieren, Datei weitergeben, beim Empfänger importieren |
 | Per Skript/CI | `POST /api/import` mit curl (siehe oben) |
