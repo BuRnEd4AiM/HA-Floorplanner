@@ -2504,7 +2504,7 @@ export default {
   'rd.tipBad': 'Un dispositivo Zigbee o Thread alimentato (presa, lampada) vicino ai rossi rafforza la rete. Per il WiFi aiuta un ripetitore o un altro posto.',
   'rd.tipGood': 'Tutto a posto: nessun dispositivo con ricezione debole.',
   'rd.none': 'Home Assistant non conosce ancora alcun valore di ricezione per i dispositivi della pianta.',
-  'rd.off': '{n} valori di ricezione sono disattivati in Home Assistant',
+  'rd.off': 'Valori di ricezione disattivati in Home Assistant: {n}',
   'rd.offHow': 'Zigbee2MQTT e ZHA li forniscono disattivati. Per attivarli: Home Assistant → Impostazioni → Dispositivi e servizi → Entità, cerca «linkquality» o «rssi», apri l’entità → ⚙ → attiva «Abilitato». Compaiono qui dopo circa un minuto.',
   'vac.title': 'Luce delle vacanze',
   'vac.help': 'Finché l’allarme vacanze è inserito, le lampade si accendono e spengono la sera come quando siete a casa – imparato dalle ultime 14 sere, ogni sera un po’ diverso. Le tapparelle scendono dopo il tramonto e salgono al mattino.',
@@ -2599,4 +2599,5 @@ export default {
   'rd.onAdmin': 'Un amministratore può attivarli qui con un tocco.', 'rd.onDone': 'Attivati: {n}. I valori compaiono tra circa un minuto.',
   'rd.onSome': '{n} non hanno funzionato (attivali a mano in Home Assistant).', 'rd.onFail': 'Attivazione non riuscita: {err}',
   'rd.matterOld': 'I dispositivi Matter via Thread compaiono solo con il nuovo server Matter: aggiorna il «Matter Server» in Home Assistant.',
+  'rd.offNotPlan': 'Ai dispositivi della pianta non ne manca nessuno: appartengono a dispositivi che non sono nella pianta (o la cui entità nella pianta non appartiene a nessun dispositivo, es. un gruppo). Puoi comunque attivarli.',
 };

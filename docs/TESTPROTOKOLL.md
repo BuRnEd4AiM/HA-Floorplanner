@@ -533,7 +533,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 221. Neu in 5.28.1: 🔕 Beim Bearbeiten sieht man, was nicht überwacht wird | 4 | 0 | 1 | 0 | 221.5 |
 | 222. Neu in 5.28.2: 📡 Funk-Karte „Alle einschalten“ | 3 | 0 | 2 | 0 | 222.4, 222.5 |
 | 223. Neu in 5.28.3: 📡 Funk-Karte mit Matter | 2 | 0 | 3 | 0 | 223.3 bis 223.5 |
-| **Zusammen** | **1362** | **2** | **159** | **92** | |
+| 224. Neu in 5.28.4: 📡 alle ausgeschalteten Empfangswerte einschalten | 2 | 0 | 2 | 0 | 224.3, 224.4 |
+| **Zusammen** | **1364** | **2** | **161** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3366,4 +3367,15 @@ Dein Wunsch vom 2026-11-21: „das ist nur per Zigbee. Ich habe aber auch Matter
 | 223.3 | Dein Haus (Home Assistant 2026.11, neuer Matter-Server): „📡 Funk“ | Deine Matter-Geräte über Thread haben ein Schild; in der Karte steht bei ihnen „Matter · Thread“ | ❓ |
 | 223.4 | Dein Haus: ein Matter-Gerät über WLAN, „📡 Alle … einschalten“ | Nach etwa einer Minute hat es ein Schild mit dBm | ❓ |
 | 223.5 | Dein Haus, nur falls in der Karte „ℹ … den „Matter Server“ aktualisieren“ steht | Nach dem Update des Matter Servers erscheinen die Thread-Geräte | ❓ |
+
+
+## 224. Neu in 5.28.4: 📡 alle ausgeschalteten Empfangswerte einschalten
+Dein Foto vom 2026-11-22: „78 Empfangswerte sind … ausgeschaltet“, aber kein Knopf („Wo sehe ich die Option“).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 224.1 | Browser-Test Teil `96_radio_map` (erweitert: ein Wert eines Geräts, das nicht im Plan ist) | Alles grün | ✅ (2026-11-22, Claude) |
+| 224.2 | Demo: „📡 Funk“, oben „📡 Alle 3 einschalten“ | Danach ist unten „In Home Assistant ausgeschaltete Empfangswerte: 1“ offen, mit der Erklärung und „📡 Alle 1 einschalten“ | ✅ (2026-11-22, Claude, Demo) |
+| 224.3 | Dein Haus: „📡 Funk“ | Unten „In Home Assistant ausgeschaltete Empfangswerte: 78“, aufgeklappt, mit „📡 Alle 78 einschalten“ | ❓ |
+| 224.4 | Dein Haus: „📡 Alle 78 einschalten“ tippen | „✓ Eingeschaltet: 78 …“; nach etwa einer Minute sind sie in Home Assistant aktiviert | ❓ |
 

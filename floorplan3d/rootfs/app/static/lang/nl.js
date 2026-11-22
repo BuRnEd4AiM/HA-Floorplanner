@@ -2473,7 +2473,7 @@ export default {
   'rd.q.mid': 'middel', 'rd.q.bad': 'zwak', 'rd.weakest': 'Het zwakst (tik om het in huis te zien)',
   'rd.tipBad': 'Een Zigbee- of Thread-apparaat op netstroom (stekker, lamp) bij de rode versterkt het netwerk. Bij wifi helpt een repeater of een andere plek.',
   'rd.tipGood': 'Alles in orde: geen apparaat met zwakke ontvangst.',
-  'rd.none': 'Home Assistant kent nog geen ontvangstwaarde voor de apparaten in de plattegrond.', 'rd.off': '{n} ontvangstwaarden staan uit in Home Assistant',
+  'rd.none': 'Home Assistant kent nog geen ontvangstwaarde voor de apparaten in de plattegrond.', 'rd.off': 'Ontvangstwaarden uitgeschakeld in Home Assistant: {n}',
   'rd.offHow': 'Zigbee2MQTT en ZHA leveren ze uitgeschakeld. Aanzetten: Home Assistant → Instellingen → Apparaten en diensten → Entiteiten, zoek „linkquality” of „rssi”, open de entiteit → ⚙ → „Ingeschakeld” aan. Na ongeveer een minuut verschijnen ze hier.',
   'vac.title': 'Vakantielicht',
   'vac.help': 'Zolang het vakantiealarm aan staat, gaan de lampen ’s avonds aan en uit zoals bij jullie – geleerd uit de laatste 14 avonden, elke avond een beetje anders. De rolluiken gaan na zonsondergang omlaag en ’s ochtends omhoog.',
@@ -2569,4 +2569,5 @@ export default {
   'rd.onAdmin': 'Een beheerder kan ze hier met één tik inschakelen.', 'rd.onDone': 'Ingeschakeld: {n}. De waarden verschijnen over ongeveer een minuut.',
   'rd.onSome': '{n} lukten niet (handmatig in Home Assistant inschakelen).', 'rd.onFail': 'Inschakelen lukte niet: {err}',
   'rd.matterOld': 'Matter-apparaten via Thread verschijnen pas met de nieuwe Matter-server: werk de „Matter Server” in Home Assistant bij.',
+  'rd.offNotPlan': 'Bij de apparaten in het plan ontbreekt er geen: ze horen bij apparaten die niet in het plan staan (of waarvan de entiteit in het plan bij geen apparaat hoort, bijv. een groep). Inschakelen kan toch.',
 };

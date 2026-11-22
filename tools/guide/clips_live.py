@@ -269,9 +269,9 @@ def _(r):
     r.wait(2000)
     r.say("Fehlen Geräte? Oben: Home Assistant hat ihren Empfangswert ausgeschaltet. Ein Tipp schaltet alle ein.",
           "Devices missing? At the top: Home Assistant switched their reception value off. One tap switches them all on.")
-    r.move("#radioCard .rcOnBtn")
+    r.move("#radioCard .rcOn .rcOnBtn")
     r.wait(1800)
-    r.click("#radioCard .rcOnBtn")
+    r.click("#radioCard .rcOn .rcOnBtn")
     r.wait(2600)
     r.say("Nach etwa einer Minute sind ihre Werte da.", "Their values come after about a minute.")
     r.move("#radioCard .rcRow", nth=2)

@@ -108,7 +108,15 @@ export function initRadioUi(ctx) {
     if (ctx.signals().matter === 'old') out.push(el('p', 'rcTip rcMatterOld', `ℹ ${t('rd.matterOld')}`));   // Matter over Thread needs the new Matter server (5.28.3)
     if (off.length) {
       const d = el('details', 'rcOff'); d.dataset.off = off.length;
-      d.append(el('summary', '', t('rd.off', { n: off.length })), el('p', '', t('rd.offHow')));
+      d.open = !plan.length;                   // nothing of the plan above: open, so that its button is seen (5.28.4)
+      d.append(el('summary', '', t('rd.off', { n: off.length })));
+      if (!plan.length) d.append(el('p', '', t('rd.offNotPlan')));
+      if (ctx.canEdit?.() !== false && ctx.switchOn) {   // 📡 all of them at once, also those of devices not in the plan (5.28.4, the owner: „ich sehe sie nicht“)
+        const b = el('button', 'rcOnBtn rcOffAll', busy ? t('rd.onBusy') : `📡 ${t('rd.onAll', { n: off.length })}`); b.type = 'button'; b.disabled = busy;
+        b.addEventListener('click', () => switchOn(off));
+        d.append(b, el('small', 'rcOffNote', t('rd.onNote')));
+      }
+      d.append(el('p', '', t('rd.offHow')));
       const ul = el('ul', ''); off.slice(0, 8).forEach((e) => ul.append(el('li', '', e))); d.append(ul);
       out.push(d);
     }

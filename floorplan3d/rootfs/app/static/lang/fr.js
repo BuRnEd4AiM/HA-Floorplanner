@@ -2533,7 +2533,7 @@ export default {
   'rd.tipBad': 'Un appareil Zigbee ou Thread sur secteur (prise, lampe) près des rouges renforce le réseau. En WiFi, un répéteur ou un autre emplacement aide.',
   'rd.tipGood': 'Tout va bien : aucun appareil avec une réception faible.',
   'rd.none': 'Home Assistant ne connaît encore aucune valeur de réception pour les appareils du plan.',
-  'rd.off': '{n} valeurs de réception sont désactivées dans Home Assistant',
+  'rd.off': 'Valeurs de réception désactivées dans Home Assistant : {n}',
   'rd.offHow': 'Zigbee2MQTT et ZHA les livrent désactivées. Pour les activer : Home Assistant → Paramètres → Appareils et services → Entités, cherchez « linkquality » ou « rssi », ouvrez l’entité → ⚙ → activez « Activé ». Elles apparaissent ici après environ une minute.',
   'vac.title': 'Lumière de vacances',
   'vac.help': 'Tant que l’alarme vacances est armée, les lampes s’allument et s’éteignent le soir comme chez vous – apprises des 14 derniers soirs, un peu différemment chaque soir. Les volets descendent après le coucher du soleil et remontent le matin.',
@@ -2633,4 +2633,5 @@ export default {
   'rd.onDone': 'Activées : {n}. Les valeurs apparaissent dans environ une minute.',
   'rd.onSome': '{n} n’ont pas fonctionné (à activer à la main dans Home Assistant).', 'rd.onFail': 'Activation impossible : {err}',
   'rd.matterOld': 'Les appareils Matter via Thread n’apparaissent qu’avec le nouveau serveur Matter : mettre à jour le « Matter Server » dans Home Assistant.',
+  'rd.offNotPlan': 'Aucune ne manque aux appareils du plan : elles appartiennent à des appareils absents du plan (ou dont l’entité du plan n’appartient à aucun appareil, p. ex. un groupe). Vous pouvez quand même les activer.',
 };

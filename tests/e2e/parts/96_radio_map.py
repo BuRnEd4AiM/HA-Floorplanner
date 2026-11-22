@@ -25,7 +25,9 @@ post_rm("/_topology", {"collected_at": 1, "nodes": [      # 5.28.3: a Matter lam
     {"id": "br", "kind": "border_router", "network_type": "thread"}],
     "connections": [{"source": "n9", "target": "br", "network": "thread", "strength": "weak", "source_to_target": {"strength": "weak", "lqi": 1, "rssi": -88}}]})
 post_rm("/_regoff", {"sensor.rm_dose_linkquality": {"state": "77", "attributes": {"friendly_name": "Funkdose Linkquality", "unit_of_measurement": "lqi"},
-                                                    "device": "rm_dev3"}})   # 5.28.2: switched off, like Zigbee2MQTT ships it
+                                                    "device": "rm_dev3"},     # 5.28.2: switched off, like Zigbee2MQTT ships it
+                     "sensor.rm_fremd_linkquality": {"state": "120", "attributes": {"friendly_name": "Fremd Linkquality", "unit_of_measurement": "lqi"},
+                                                     "device": "rm_dev9"}})   # 5.28.4: of a device that is not in the plan
 post_rm("/_regevent", {})                      # the add-on reads the registry again: which signal belongs to which device
 lay_rm = json.loads(json.dumps(saved_rm))
 f_rm = lay_rm["floors"][0]
@@ -84,10 +86,10 @@ check("📡 5.28.2: the add-on knows the switched-off signal of the plug's devic
       and "sensor.rm_dose_linkquality" in sg.get("off", []), sg)
 on_box = pgRM.locator("#radioCard .rcOn")
 check("📡 5.28.2: at the top of the card „Ausgeschaltet in Home Assistant … (1)“ and the button „📡 Alle 1 einschalten“",
-      on_box.count() == 1 and "(1)" in on_box.inner_text() and pgRM.locator("#radioCard .rcOnBtn").inner_text() == "📡 Alle 1 einschalten"
+      on_box.count() == 1 and "(1)" in on_box.inner_text() and pgRM.locator("#radioCard .rcOn .rcOnBtn").inner_text() == "📡 Alle 1 einschalten"
       and pgRM.evaluate("window.__fp.radioMark('rm_plug')") is None, on_box.inner_text() if on_box.count() else pgRM.inner_text("#radioCard")[:300])
-if pgRM.locator("#radioCard .rcOnBtn").count():
-    pgRM.click("#radioCard .rcOnBtn")
+if pgRM.locator("#radioCard .rcOn .rcOnBtn").count():
+    pgRM.click("#radioCard .rcOn .rcOnBtn")
 ups = []
 for _ in range(40):
     ups = json.load(urllib.request.urlopen(HA + "/_regupdates"))
@@ -106,6 +108,21 @@ for _ in range(60):                             # the card asks for the signals 
     pgRM.wait_for_timeout(250)
 check("📡 5.28.2: its value comes: the plug has its sign (LQI 77, yellow), the box with the button is gone",
       mark_plug == "mid" and pgRM.locator("#radioCard .rcOn").count() == 0, [mark_plug, pgRM.inner_text("#radioCard")[:300]])
+
+# ---- 5.28.4 (the owner, with a photo of „78 Empfangswerte sind … ausgeschaltet“ and no button: „Wo sehe ich die Option“)
+off_box = pgRM.locator("#radioCard details.rcOff")
+check("📡 5.28.4: nothing of the plan left: the section of the switched-off ones is open, says why, and has „📡 Alle 1 einschalten“",
+      off_box.count() == 1 and off_box.evaluate("d => d.open") and "nicht im Plan" in off_box.inner_text()
+      and off_box.locator(".rcOffAll").inner_text() == "📡 Alle 1 einschalten", off_box.inner_text() if off_box.count() else pgRM.inner_text("#radioCard")[:400])
+if off_box.locator(".rcOffAll").count():
+    off_box.locator(".rcOffAll").click()
+ups2 = []
+for _ in range(40):
+    ups2 = json.load(urllib.request.urlopen(HA + "/_regupdates"))
+    if "sensor.rm_fremd_linkquality" in ups2:
+        break
+    pgRM.wait_for_timeout(250)
+check("📡 5.28.4: it switches on the one of the device not in the plan too", ups2 == ["sensor.rm_dose_linkquality", "sensor.rm_fremd_linkquality"], ups2)
 pgRM.click("#radioCard .rcClose"); pgRM.wait_for_timeout(500)
 check("📡 ✕ closes the card and the signs go", pgRM.is_hidden("#radioCard") and pgRM.evaluate("window.__fp.radioMark('rm_lamp')") is None
       and pgRM.get_attribute("#radioBtn", "aria-pressed") == "false")
