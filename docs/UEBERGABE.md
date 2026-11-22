@@ -37,6 +37,7 @@ Stand: 2026-11-22, Version **5.30.0** (5.28.3 ist für alle freigegeben, am 2026
 - **5.21.0 Gäste-Zugang:** sein Test (212.5 bis 212.8).
 - **5.20.0 Helligkeit:** sein Test (211.4 bis 211.6).
 - **5.19.0 Stromfresser:** sein Test (210.4 bis 210.6), vor allem ob „läuft immer“ bei seinen Geräten stimmt.
+- **#786 Haus höher als der Rasen (2026-11-22):** mariomichaelbauer mit Bildern geantwortet (Plateau 0,65 m + Außentreppe, Garten hinten mit „⛰ Gelände“, `docs/antworten/786/`); Lichtschächte gibt es noch nicht: den Besitzer fragen, ob sie gebaut werden sollen.
 - **Gewählte Liste abgearbeitet (2026-11-20):** fragen, was als Nächstes kommt. Aus `docs/ideen-5.15` sonst (👥 Gäste-Modus als Gäste-Zugang gebaut, 5.21.0; Gast-WLAN-QR, Gästezimmer heizt, Flurlicht nachts, Alarm nur außen daraus noch nicht) (🌙 Nachtlicht-Weg: von ihm weggelassen, `docs/ideen-5.17`); fragen, welche als Nächstes.
 - **5.14.0:** sein Test mit seinem Haus (Testprotokoll 204.2 bis 204.9), vor allem Balkon „Raum 17“ (204.5) und Garage „Raum 6“ (204.6).
 - **Tablet 5.13.1 (#759):** sein Test am echten Wandtablet (Testprotokoll 203.5 bis 203.7); kommt das leere Stockwerk noch, fragen, welcher Bildschirmschoner läuft und was davor getippt wurde.
