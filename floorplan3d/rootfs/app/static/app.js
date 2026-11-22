@@ -1341,7 +1341,8 @@ welcomeUi = initWelcome({
   t, getLayout: () => layout, isEdit: () => !isLive(), loaded: () => planLoaded,
   draw: () => { firstSteps?.open(); $('#viewSplit').click(); setTool('wall'); },     // each way in also opens 🧭 Erste Schritte
   example: () => { firstSteps?.open(); return houseLoad.openExample(); },
-  importJson: () => { firstSteps?.open(); $('#importOpen').click(); },
+  ai: () => { firstSteps?.open(); $('#importOpen').click(); },                     // the import dialog with its three steps (5.30.0, #779)
+  importJson: () => { firstSteps?.open(); $('#importOpen').click(); $('#importFile').click(); },   // a ready-made file: straight to choosing it
 });
 welcomeUi.update();
 /* 🧭 Erste Schritte (5.25.0): the four steps from the empty plan to the finished house (firststeps.js, firststepsui.js) and the "⋯" menu
@@ -1364,6 +1365,7 @@ firstSteps = initFirstSteps({
       unplaced: stillToPlace().reduce((n, x) => n + x.ids.length, 0), devices: layout.floors.reduce((n, f) => n + (f.devices || []).length, 0) };
   },
   show: () => !isLive() && planLoaded && me.canEdit !== false && $('#welcome').hidden,
+  ai: () => $('#importOpen').click(),                       // 🤖 from the floor plan by AI: the import dialog (5.30.0, #779)
   draw: () => { $('#viewSplit').click(); setTool('wall'); },
   example: () => houseLoad.openExample(),
   linkAll: () => {

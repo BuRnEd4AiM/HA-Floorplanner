@@ -2,6 +2,14 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.30.0] - 2026-11-22
+### Added
+- **🤖 A house from the floor plan by an AI, shown first** (#779, FrankBecker: "Mach auf der Hauptseite von Floorplanner die Möglichkeit für den JSON Import prominenter"; he had Claude write the JSON from his building plan and had his whole flat after an afternoon; the owner chose all four ideas of docs/ideen-5.30):
+  - **Welcome card** of an empty house: first and big **"🤖 Let an AI build it from your floor plan"** with "fastest", one line on how; below it "✏️ Draw walls yourself", "🏠 Try the example house" and "📥 Import a ready-made JSON file" (opens the file chooser at once).
+  - **🧭 First steps**, step 1 "Floor plan: by AI, drawn or a template": in front the button **"🤖 From the floor plan by AI"**.
+  - **Import dialog** "Build a house from the floor plan (with AI) or from JSON": on top **three numbered steps**: ① "📋 Copy AI prompt" ② paste it into Claude, ChatGPT or Gemini with a photo or PDF of the floor plan ③ paste the answer, "Check", "Import"; then link rooms and devices (🧭 First steps). The file and the examples are below as "Or:".
+  - **GitHub page**: a tip "Fastest start: let an AI build your house from the building plan" right under the first paragraph, and a button "🤖 House from your floor plan" next to the demo; docs/IMPORT.md and IMPORT.en.md explain the three steps.
+
 ## [5.29.0] - 2026-11-22
 ### Added
 - **🪜 A stair with its own height, a spiral stair with a walkway at the top** (the owner: "dass ich die auch unterschiedlich hoch machen kann … die Wendeltreppe geht quasi von meinem Garten hoch auf die Dachterrasse … kommt oben ein Rechteck an und rechts und links ist Geländer"):

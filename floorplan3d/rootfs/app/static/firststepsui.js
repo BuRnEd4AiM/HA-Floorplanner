@@ -8,7 +8,7 @@ const read = (k) => { try { return localStorage.getItem(k); } catch { return nul
 const write = (k, v) => { try { localStorage.setItem(k, v); } catch { /* not stored: only for now */ } };
 
 /** ctx: t, host (the element the card goes into), stats() ({ rooms, linked, areas, toLink, unplaced, devices }), show() (editor, plan
- *  loaded, may edit, no welcome card), and the buttons: draw(), example(), linkAll(), linkOne(), placeAll(), placeOne(), goLive(),
+ *  loaded, may edit, no welcome card), and the buttons: ai() (the import dialog, 5.30.0), draw(), example(), linkAll(), linkOne(), placeAll(), placeOne(), goLive(),
  *  settings(), video(), busy() (drawing or placing with a tool: the card shrinks to its head and bar in the corner, out of the way) */
 export function initFirstSteps(ctx) {
   const { t } = ctx;
@@ -23,7 +23,9 @@ export function initFirstSteps(ctx) {
   function detail(key, s) {
     const d = make('div', 'fsDetail');
     if (key === 'draw') {
-      d.append(make('p', '', t('fs.draw.text')), button('bdBtn primary', `✏️ ${t('fs.draw.btn')}`, 'draw', ctx.draw), button('bdBtn', `🏠 ${t('fs.draw.example')}`, 'example', ctx.example));
+      d.append(make('p', '', t('fs.draw.text')));
+      if (ctx.ai) d.append(button('bdBtn primary', `🤖 ${t('fs.draw.ai')}`, 'ai', ctx.ai));   // fastest: a house from the floor plan by an AI (5.30.0, #779)
+      d.append(button(ctx.ai ? 'bdBtn' : 'bdBtn primary', `✏️ ${t('fs.draw.btn')}`, 'draw', ctx.draw), button('bdBtn', `🏠 ${t('fs.draw.example')}`, 'example', ctx.example));
     } else if (key === 'link') {
       d.append(make('p', '', t('fs.link.text', { n: s.areas })));
       if (s.toLink) d.append(button('bdBtn primary', `🔗 ${t('fs.link.all', { n: s.toLink })}`, 'linkAll', ctx.linkAll));

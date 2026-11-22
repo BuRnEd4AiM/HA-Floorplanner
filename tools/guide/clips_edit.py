@@ -61,11 +61,12 @@ def empty_house(walls=False, rooms=False, sofa=False):
 @clip("first-steps", "edit",
       {"de": "Erste Schritte: vom leeren Plan zum fertigen Haus", "en": "First steps: from the empty plan to the finished house"},
       {"de": "Oben „⋯“ → „🧭 Erste Schritte“ (beim leeren Haus öffnet es sich von selbst): vier Schritte, die das Add-on am Haus abliest – "
-             "Grundriss, Räume mit den Bereichen von Home Assistant verbinden, Geräte automatisch setzen, Live-Ansicht. Jederzeit "
-             "unterbrechen. Im „⋯“ liegen auch Anleitung, Backup und Sicherheit.",
-       "en": "At the top “⋯” → “🧭 First steps” (an empty house opens it by itself): four steps the add-on reads from the house – the plan, "
-             "linking the rooms with Home Assistant’s areas, placing the devices automatically, the live view. Stop any time. The “⋯” "
-             "also holds the guide, backup and security."},
+             "Grundriss (am schnellsten „🤖 Aus dem Bauplan per KI“, sonst zeichnen oder das Beispielhaus), Räume mit den Bereichen von "
+             "Home Assistant verbinden, Geräte automatisch setzen, Live-Ansicht. Jederzeit unterbrechen. Im „⋯“ liegen auch Anleitung, "
+             "Backup und Sicherheit.",
+       "en": "At the top “⋯” → “🧭 First steps” (an empty house opens it by itself): four steps the add-on reads from the house – the plan "
+             "(fastest “🤖 From the floor plan by AI”, else draw it or take the example house), linking the rooms with Home Assistant’s "
+             "areas, placing the devices automatically, the live view. Stop any time. The “⋯” also holds the guide, backup and security."},
       "Erste Schritte Assistent Einrichtung Anfang Bereiche verbinden Geräte automatisch setzen Menü Backup Anleitung "
       "first steps wizard setup start areas link devices place automatically menu backup guide",
       query="mode=edit")
@@ -2292,10 +2293,15 @@ def _import_check():
 
 
 @clip("import", "edit",
-      {"de": "Ein Haus aus einer Beschreibung bauen (Import)", "en": "Build a house from a description (import)"},
-      {"de": "Import: ein Haus als Text (JSON) beschreiben, z. B. von einer KI, prüfen und bauen lassen; mit Beispielen und Anleitung für die KI.",
-       "en": "Import: describe a house as text (JSON), e.g. from an AI, check it and let it be built; with examples and a prompt for the AI."},
-      "Import JSON KI ChatGPT beschreiben bauen Grundstück Räume Beispiel prüfen GeoJSON import AI describe build plot rooms example check",
+      {"de": "Ein Haus aus dem Bauplan (mit KI) oder einer Beschreibung bauen (Import)", "en": "Build a house from the floor plan (with AI) or a description (import)"},
+      {"de": "Import: am schnellsten baut eine KI das Haus aus deinem Bauplan. Oben im Fenster drei Schritte: „📋 KI-Text kopieren“, mit einem "
+             "Foto oder PDF des Bauplans in Claude, ChatGPT oder Gemini einfügen, die Antwort (JSON) einfügen, prüfen und bauen lassen. "
+             "Darunter Beispiele und eigene Dateien. Ein leeres Haus zeigt den Weg im Willkommen-Fenster ganz oben.",
+       "en": "Import: the fastest way is an AI that builds the house from your floor plan. On top of the dialog three steps: “📋 Copy AI prompt”, "
+             "paste it with a photo or PDF of the floor plan into Claude, ChatGPT or Gemini, paste the answer (JSON), check it and let it be "
+             "built. Below it examples and your own files. An empty house shows the way at the top of the welcome card."},
+      "Import JSON KI ChatGPT Bauplan Foto PDF beschreiben bauen Grundstück Räume Beispiel prüfen GeoJSON import AI floor plan photo PDF "
+      "describe build plot rooms example check",
       query="mode=edit", answers=_import_check)
 def _(r):
     r.say("Unter „Häuser“: „Import“.", "Under “Houses”: “Import”.")
@@ -2303,10 +2309,17 @@ def _(r):
     r.wait(600)
     r.click("#importOpen")
     r.wait(1300)
-    r.say("Ein Beispiel laden, oder den Text einer KI einfügen.", "Load an example, or paste the text of an AI.")
+    r.poster()
+    r.say("Am schnellsten mit einer KI: diesen Text kopieren …", "Fastest with an AI: copy this text …")
+    r.move("#importPrompt")
+    r.wait(1500)
+    r.say("… in Claude, ChatGPT oder Gemini einfügen, ein Foto oder PDF deines Bauplans dazu, und die Antwort hier einfügen.",
+          "… paste it into Claude, ChatGPT or Gemini with a photo or PDF of your floor plan, and paste the answer here.")
+    r.move("#importText")
+    r.wait(1800)
+    r.say("Zum Ausprobieren: ein Beispiel laden.", "To try it: load an example.")
     r.click("#importExHouse")
     r.wait(1300)
-    r.poster()
     r.say("„Prüfen“ sagt, ob alles stimmt und was gebaut wird.", "“Check” says whether everything is right and what will be built.")
     r.click("#importCheck")
     r.wait(2200)

@@ -72,7 +72,7 @@ QUERIES = [
     ("Balkon mit Stützen", "de", "balcony"), ("add a balcony", "en", "balcony"), ("glass railing", "en", "balcony"),
     ("Fenster in der Dachschräge", "de", "skylight"), ("skylight", "en", "skylight"), ("roof window", "en", "skylight"),
     ("rückgängig", "de", "move"), ("löschen", "de", "move"), ("Ferienwohnung", "de", "houses"), ("ChatGPT", "de", "import"),
-    ("Haus mit KI bauen", "de", "import"), ("Symbolleiste", "de", "toolbar"),
+    ("Haus mit KI bauen", "de", "import"), ("Bauplan abfotografieren", "de", "import"), ("blueprint photo", "en", "import"), ("Symbolleiste", "de", "toolbar"),
     ("Filmabend", "de", "scenes"), ("Szene erstellen", "de", "sceneedit"), ("Lieblingsgeräte", "de", "tiles"),
     ("Batterie leer", "de", "devices"), ("Sensor offline", "de", "devices"), ("welche Fenster sind offen", "de", "open voice"),
     ("Alarmanlage scharf schalten", "de", "alarm"), ("Einbrecher", "de", "alarm security"), ("was war gestern los", "de", "security log"),

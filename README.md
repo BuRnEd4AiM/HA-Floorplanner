@@ -6,6 +6,16 @@
 
 Draw your home (or let an AI build it), then run lights, heating, energy, security, cameras and your own routines right where things are, with ready-made dashboard pages, on the phone, the PC and the wall tablet.
 
+</div>
+
+> [!TIP]
+> **Fastest start: let an AI build your house from the building plan.** No drawing needed:
+> 1. In the add-on: **Import house from JSON → 📋 Copy AI prompt** (or take the [prompt from the guide](docs/IMPORT.en.md#ai-prompting))
+> 2. Paste it into **Claude, ChatGPT or Gemini** and attach a **photo or PDF of your floor plan**
+> 3. Paste the answer back → **Check** → **Import**. A few minutes later the whole house is there, then you link your devices.
+
+<div align="center">
+
 <a href="#-features"><img src="docs/img/inside.svg" alt="More than a floor plan. Inside: plan in 2D and 3D, lights and scenes, heating control, energy, security, cameras and doorbell, routines, dashboard pages, voice, sky and weather, a house by AI, phone and wall tablet" width="760"></a>
 
 [![CI](https://github.com/BuRnEd4AiM/HA-Floorplanner/actions/workflows/ci.yml/badge.svg)](https://github.com/BuRnEd4AiM/HA-Floorplanner/actions/workflows/ci.yml)
@@ -23,7 +33,7 @@ Draw your home (or let an AI build it), then run lights, heating, energy, securi
 
 <sub>**Like it?** 3D Floorplan is free and made with love in many evenings. A small donation via PayPal buys me a cup of tea and prevents brain overflow. Thank you! 💛</sub>
 
-[![Open the demo in the browser](https://img.shields.io/badge/%E2%96%B6%20Try%20the%20demo-open%20in%20the%20browser-7dff9a?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/) [![Download the demo](https://img.shields.io/badge/%E2%AC%87%20Download%20the%20demo-always%20the%20latest-23e0ff?style=for-the-badge&labelColor=0a3ba8)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html) [![Try the beta in the browser](https://img.shields.io/badge/%F0%9F%A7%AA%20Try%20the%20beta-the%20newest%20changes-ff7ad9?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/beta/)
+[![House from your floor plan by AI](https://img.shields.io/badge/%F0%9F%A4%96%20House%20from%20your%20floor%20plan-by%20AI%20in%20minutes-7dff9a?style=for-the-badge&labelColor=0a3ba8)](#-describe-it-instead-of-drawing-it) [![Open the demo in the browser](https://img.shields.io/badge/%E2%96%B6%20Try%20the%20demo-open%20in%20the%20browser-7dff9a?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/) [![Download the demo](https://img.shields.io/badge/%E2%AC%87%20Download%20the%20demo-always%20the%20latest-23e0ff?style=for-the-badge&labelColor=0a3ba8)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html) [![Try the beta in the browser](https://img.shields.io/badge/%F0%9F%A7%AA%20Try%20the%20beta-the%20newest%20changes-ff7ad9?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/beta/)
 
 <sub>**Try the demo:** one click and it runs right in your browser, the version everybody has in the add-on, no install and no Home Assistant needed. Or download it as one HTML file with an example house, lights and sensors and double-click it. **Try the beta:** the newest changes before they are released to everyone, also right in the browser, without installing the beta add-on.</sub>
 
@@ -117,7 +127,7 @@ Tell the add-on what your property looks like and it builds the house: walls fro
 </tr>
 </table>
 
-**Three ways in:** the import dialog (examples, check, file upload, a *Copy AI prompt* button that gives ChatGPT / Claude / Gemini everything they need), the API, or GeoJSON outlines from a cadastre / OpenStreetMap.
+**Three ways in:** the import dialog (on top three steps with an AI: *📋 Copy AI prompt* gives Claude / ChatGPT / Gemini everything they need, attach a photo or PDF of your floor plan, paste the answer back; below it examples, check and file upload), the API, or GeoJSON outlines from a cadastre / OpenStreetMap.
 
 ```bash
 curl -X POST "$BASE/api/import?dryRun=1" -H "Content-Type: application/json" -d @house.json   # check only
@@ -234,12 +244,12 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Double-click a wall** to add a corner exactly there
 - **Measure** (tool *Messen*, key `M`, in the 2D plan and in 2D + 3D): click two points for their distance (corners and wall faces snap), or click two walls and type their exact distance (face to face or centre to centre) or the angle between them: the wall moves, the walls joined to it and the rooms follow
 - **Placed devices stay selected** so you can fine-tune them right away (switchable in the settings)
-- **First start**: an empty house shows a welcome card: draw walls, try the example house or import your own
+- **First start**: an empty house shows a welcome card: first and biggest *Let an AI build it from your floor plan* (the fastest way), then draw walls yourself, try the example house or import a ready-made JSON file
 
 <table>
 <tr>
 <td width="50%"><img src="docs/img/toolbar.jpg" alt="Dialog to customise the toolbar"><br><sub><b>Toolbar</b>: show, hide and order the tools</sub></td>
-<td width="50%"><img src="docs/img/welcome.jpg" alt="Welcome card on an empty house"><br><sub><b>First start</b>: three ways to begin</sub></td>
+<td width="50%"><img src="docs/img/welcome.jpg" alt="Welcome card on an empty house"><br><sub><b>First start</b>: an AI builds it from your floor plan, or draw, example house, JSON file</sub></td>
 </tr>
 <tr>
 <td width="50%"><img src="docs/img/backup.png" alt="Automatic backup settings"><br><sub><b>Automatic backups</b> with check and restore</sub></td>

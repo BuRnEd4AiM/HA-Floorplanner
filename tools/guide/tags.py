@@ -537,9 +537,11 @@ t("toolbar",
   "tool bar toolbar hide tools sort tools change the order tidy up the bar fewer buttons more menu reset pencil")
 t("import",
   "importieren Import Export JSON Datei KI künstliche Intelligenz ChatGPT Claude Gemini Copilot Text beschreiben "
-  "Haus aus Text automatisch bauen GeoJSON Prompt Vorlage Beispiel",
+  "Haus aus Text automatisch bauen GeoJSON Prompt Vorlage Beispiel Bauplan Bauzeichnung Grundriss abfotografieren Foto PDF "
+  "schnellster Weg Wie baue ich mein Haus mit KI Grundriss einlesen",
   "import export JSON file AI artificial intelligence ChatGPT Claude Gemini Copilot text describe house from text "
-  "build automatically GeoJSON prompt template example")
+  "build automatically GeoJSON prompt template example building plan blueprint floor plan photo PDF fastest way "
+  "how do I build my house with AI read a floor plan")
 
 # ---------- designing pages (clips_dash.py) ----------
 t("addcard",

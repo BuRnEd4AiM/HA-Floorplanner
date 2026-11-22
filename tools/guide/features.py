@@ -108,6 +108,8 @@ f("nanoleaf", "edit", "Nanoleaf: die Form der Panels zeichnen (Layout-Editor)", 
 f("objlist", "edit", "Liste aller Objekte", "List of all objects", ["objlist"])
 f("toolbar", "edit", "Werkzeugleiste anpassen", "Customise the tool bar", ["toolbar"])
 f("import", "edit", "Haus aus einer Beschreibung bauen (Import, KI)", "Build a house from a description (import, AI)", ["import"])
+f("importai", "edit", "🤖 Haus aus dem Bauplan per KI: ganz oben im Willkommen-Fenster und in „Erste Schritte“, im Import-Fenster drei Schritte",
+  "🤖 A house from the floor plan by AI: first on the welcome card and in “First steps”, three steps in the import dialog", ["import", "first-steps"], since="5.30.0")
 f("glb", "edit", "Eigene 3D-Modelle (.glb) und Bilder an Wänden", "Own 3D models (.glb) and pictures on walls", ["library"],
   why="braucht eine eigene Datei; geht wie im Video „Möbel“ über „Gerät“ → „Eigene Modelle“")
 

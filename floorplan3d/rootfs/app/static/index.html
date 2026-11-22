@@ -77,7 +77,8 @@
         <h2 data-i18n="wel.title"></h2>
         <p data-i18n="wel.text"></p>
         <div class="welBtns">
-          <button id="welDraw" type="button" class="primary" data-i18n="wel.draw"></button>
+          <button id="welAi" type="button" class="welAi"><b><span data-i18n="wel.ai"></span><span class="welFast" data-i18n="wel.fast"></span></b><span class="welAiSub" data-i18n="wel.aiSub"></span></button>
+          <button id="welDraw" type="button" data-i18n="wel.draw"></button>
           <button id="welExample" type="button" data-i18n="wel.example"></button>
           <button id="welImport" type="button" data-i18n="wel.import"></button>
         </div>
@@ -313,14 +314,21 @@
 <dialog id="importDialog">
   <form method="dialog" novalidate>
     <div class="dlgHead"><h2 data-i18n="imp.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
-    <p class="sub" data-i18n="imp.hint"></p>
+    <div id="importAi">
+      <b class="impAiHead" data-i18n="imp.aiHead"></b>
+      <div class="impStep"><span class="impNum">1</span><div><button type="button" id="importPrompt" class="bdBtn primary small" data-i18n="imp.prompt"></button> <span class="impMuted" data-i18n="imp.ai1"></span></div></div>
+      <div class="impStep"><span class="impNum">2</span><div data-i18n="imp.ai2"></div></div>
+      <div class="impStep"><span class="impNum">3</span><div data-i18n="imp.ai3"></div></div>
+      <p class="impMuted" data-i18n="imp.aiAfter"></p>
+    </div>
     <div class="impBar">
+      <span class="impMuted" data-i18n="imp.or"></span>
       <label class="btn"><span data-i18n="imp.file"></span><input type="file" id="importFile" accept=".json,.geojson,application/json" hidden></label>
       <button type="button" id="importExFlat" data-i18n="imp.exFlat"></button>
       <button type="button" id="importExHouse" data-i18n="imp.exHouse"></button>
       <button type="button" id="importExShow" data-i18n="imp.exShow"></button>
-      <button type="button" id="importPrompt" data-i18n="imp.prompt"></button>
     </div>
+    <p class="sub impHint" data-i18n="imp.hint"></p>
     <textarea id="importText" spellcheck="false" data-i18n-placeholder="imp.placeholder"></textarea>
     <input type="text" id="importName" data-i18n-placeholder="imp.name">
     <div id="importResult"></div>

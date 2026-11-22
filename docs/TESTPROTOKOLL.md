@@ -536,7 +536,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 224. Neu in 5.28.4: 📡 alle ausgeschalteten Empfangswerte einschalten | 2 | 0 | 2 | 0 | 224.3, 224.4 |
 | 225. Repariert in 5.29.0: 🚗 Garage auf dem Rasen neben einem Haus mit Keller, lange Wand (#789) | 1 | 0 | 2 | 0 | 225.2, 225.3 |
 | 226. Neu in 5.29.0: 🪜 Treppe mit eigener Höhe, Wendeltreppe mit Steg oben | 2 | 0 | 2 | 0 | 226.3, 226.4 |
-| **Zusammen** | **1367** | **2** | **165** | **92** | |
+| 227. Neu in 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779) | 3 | 0 | 2 | 0 | 227.4, 227.5 |
+| **Zusammen** | **1370** | **2** | **167** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3401,4 +3402,15 @@ Dein Wunsch vom 2026-11-22: die Wendeltreppe vom Garten auf die Dachterrasse, ob
 | 226.2 | Demo, Bearbeiten: eine Wendeltreppe setzen, „Höhe“ 3,2, „Steg oben (Länge)“ 1,5 | Die Treppe geht 3,20 m hoch, oben ein gerader Steg mit Geländer links und rechts; unter „Stufen je Etage“ steht „… die ganze Treppe 3.20 m (eigene Höhe)“ | ✅ (2026-11-22, Claude, Demo) |
 | 226.3 | Dein Haus: deine Wendeltreppe vom Garten, „Höhe“ so, dass sie oben auf der Dachterrasse ankommt | Der Steg liegt eben mit der Dachterrasse | ❓ |
 | 226.4 | Dein Haus: „Drehung °“ der Treppe ändern | Der Steg zeigt zur Dachterrasse | ❓ |
+
+## 227. Neu in 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779)
+Franks Tipp in #779: den JSON-Import deutlicher zeigen. Du hast alle vier Ideen aus `docs/ideen-5.30` gewählt.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 227.1 | Browser-Test Teil `108_import_ai` (neu), dazu `103_first_steps`, `08_stairs`, `14_showcase`; Unit-Tests der Video-Anleitung | Alles grün | ✅ (2026-11-22, Claude) |
+| 227.2 | Demo, Bearbeiten: links „Häuser“ → „Neues Haus“ | Das Willkommen-Fenster zeigt zuerst groß und grün „🤖 Haus aus dem Bauplan bauen lassen“ mit „am schnellsten“, darunter „✏️ Wände selbst zeichnen“, „🏠 Beispielhaus ausprobieren“, „📥 Fertige JSON-Datei importieren“ | ✅ (2026-11-22, Claude, Demo) |
+| 227.3 | Dann „🤖 Haus aus dem Bauplan bauen lassen“ antippen | Das Import-Fenster geht auf, oben die drei Schritte mit Nummern; dahinter „🧭 Erste Schritte“ mit „🤖 Aus dem Bauplan per KI“ vorne | ✅ (2026-11-22, Claude, Demo) |
+| 227.4 | Im Add-on: „📋 KI-Text kopieren“, in Claude, ChatGPT oder Gemini einfügen, ein Foto deines Grundrisses anhängen, die Antwort einfügen, „Prüfen“, „Importieren“ | Ein neues Haus mit deinen Räumen entsteht; was nicht passt, sagt „Prüfen“ | ❓ |
+| 227.5 | GitHub-Seite des Projekts ansehen (nach dem Merge) | Gleich unter dem ersten Absatz der grüne Kasten „💡 Tip: Fastest start“ mit drei Schritten, neben „Try the demo“ der Knopf „🤖 House from your floor plan“ | ❓ |
 
