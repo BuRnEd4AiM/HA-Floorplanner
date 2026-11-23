@@ -67,7 +67,7 @@ check("security (#317): the recorded days are listed in the backup dialog", pgB.
 pgB.fill("#setTimelineKeep", "9"); pgB.press("#setTimelineKeep", "Tab"); pgB.wait_for_timeout(800)
 check("security: 'days to keep' is stored", api("api/settings")["timelineKeepDays"] == 9.0, api("api/settings")["timelineKeepDays"])
 href = lambda: pgB.get_attribute("#backupExport", "href")
-check("backup (4.53.0): a box for the recordings (on) and one for the CallMeBot keys (off)", pgB.locator("#setBackupSecrets").is_visible()
+check("backup (4.53.0): a box for the recordings (on) and one for the keys of CallMeBot and the Telegram bot (off, 5.33.0)", pgB.locator("#setBackupSecrets").is_visible()
       and pgB.locator("#setBackupRecording").is_checked() and not pgB.locator("#setBackupSecrets").is_checked())
 check("backup: the download link says what the boxes say", href() == "api/backup?recording=1&secrets=0", href())
 pgB.check("#setBackupSecrets"); pgB.wait_for_timeout(800)

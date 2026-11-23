@@ -2,6 +2,20 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.33.0] - 2026-11-23
+### Neu
+- **🖼 Bildkarten fürs Handy: dein eigenes Bild für einen Alarm oder einen Ablauf** (der Besitzer, 2026-11-23: „eigene Bilderkarten designen für spezielle Alarme … hier oben soll das Bild von dem Raum hin, hier die Informationen, hier die Uhrzeit … und in den Abläufen sagen: löse … aus“; seine Wahl aus docs/ideen-5.33: Idee 1 „Bausteine untereinander“ mit Vorlagen, unter ▶ Abläufe, alles davon):
+  - **Wo:** ▶ Abläufe → **„🖼 Bildkarten fürs Handy“** (wer bearbeiten darf): jede Karte als kleines Bild und wo sie benutzt wird, **„＋ Neue Bildkarte“**. Ein Haus beginnt mit dreien: **„Wasser-Alarm“** (Überschrift, Grundriss mit dem Raum in Rot, Kamera und Infos daneben), **„Test 1“** (große Kamera, riesige Uhrzeit, der Text, kleiner Grundriss, wer zu Hause ist) und **„Gute Nacht“** (die Etage mit offenen Fenstern in Rot und brennendem Licht in Gelb, darunter die Liste).
+  - **Der Editor** (Bilder 2 und 3): links Name, Farbe (sieben oder eine eigene), hell oder dunkel, hoch oder quer; in der Mitte die **Bausteine von oben nach unten**: Überschrift, Raumbild (Grundriss: die ganze Etage oder nur der Raum, offene Fenster und Licht markiert), Kamerabild (von selbst die Kamera im Raum oder eine gewählte), Uhrzeit & Datum, Infos (Zeilen: Melder, seit wann, Raum und Etage, Temperatur, Feuchte, offene Fenster & Türen, Licht an, wer zu Hause ist, Wetter draußen, Alarmanlage), Werte aus Home Assistant (bis 8 Entitäten), Text, Trennlinie, Fußzeile. Mit ⠿ ziehen oder ▲▼, 🗑, ein Tipp öffnet die Einstellungen eines Bausteins darunter, „Neben den nächsten Baustein“ stellt zwei nebeneinander. Rechts **die Karte so, wie das Add-on sie malt** (mit deinem eigenen Melder dieser Art als Beispiel), **„📨 Test an mich“** schickt sie über den Bot. Am Handy kommt die Karte zuerst, die Bausteine darunter.
+  - **„＋ Neue Bildkarte“** beginnt mit einer von sechs Vorlagen: Alarm mit Raum, Kamera groß, Etage mit Liste, Uhr groß, Nur Text, Leer.
+  - **Texte mit Platzhaltern:** {kind} (WASSER, RAUCH …, bei einem Ablauf sein Name), {text} (die Nachricht), {room}, {floor}, {name} (der Melder), {time}, {house}.
+  - **Je Alarm:** ⚙ → Warnungen & Alarm → Nachricht aufs Handy → „Telegram – eigener Bot (mit Bild)“ → **„🖼 Bildkarte je Alarm“**: für Alarmanlage, Rauch, Gas, Kohlenmonoxid und Wasser eine Karte oder „Standard“ (Grundriss und Kamera wie bisher). Die Karte ist dann das eine Bild, der Text steht darunter.
+  - **Im Ablauf:** der Baustein „🔔 Nachricht“ hat **„🖼 Als Bildkarte schicken“**: die Karte zeigt den Raum des Geräts, das ihn ausgelöst hat (auch wenn Home Assistant den Ablauf ausführt: seine Automation fragt das Add-on mit dem Ereignis fp3d_notify, jetzt mit der Karte und dem Gerät).
+  - Das Add-on malt die Karte selbst mit Pillow (`piccard.py`), auch nachts ohne offenen Bildschirm; die Demo malt dasselbe im Browser (`demo/piccard.js`). Die Karten kommen ins Backup. Nur über den eigenen Telegram-Bot (ein Bild); WhatsApp und die anderen Wege bekommen weiter den Text.
+  - Video-Anleitung: der neue Clip „🖼 Bildkarten fürs Handy gestalten“. Browser-Test `111_picture_cards`, Unit-Tests `tests/test_piccard.py`, `tests/piccards.test.mjs`.
+### Repariert
+- **Der Schlüssel des eigenen Telegram-Bots kam in jedes Backup**, auch ohne „CallMeBot-Schlüssel mitsichern“ (seit 5.16.0): jetzt nur mit diesem Haken, der jetzt „Schlüssel mitsichern: CallMeBot und Telegram-Bot“ heißt.
+
 ## [5.32.1] - 2026-11-23
 ### Repariert
 - **📸 Telegram-Bot: der Schlüssel ließ sich nicht richtig einfügen, „🔎 Chat finden“ sprang zurück auf WhatsApp** (#796, der Besitzer: „kann man da den Schlüssel des Bots nicht richtig einfügen. Und wenn man auf Chat finden drückt, resettet sich irgendwie die Ansicht“): ⚙ → Warnungen & Alarm → Nachricht aufs Handy → „Telegram – eigener Bot (mit Bild)“:

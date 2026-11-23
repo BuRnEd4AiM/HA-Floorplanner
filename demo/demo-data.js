@@ -6,6 +6,8 @@ import showcaseExample from '../floorplan3d/rootfs/app/examples/showcase.json';
 import propertySchema from '../floorplan3d/rootfs/app/property.schema.json';
 import { approxSun, skyTimeOf } from '../floorplan3d/rootfs/app/static/sky.js';
 import { pauseChoices } from '../floorplan3d/rootfs/app/static/heatpause.js';
+import { defaultCards, renderCard, samplePlace } from './piccard.js';
+import { cleanCard } from '../floorplan3d/rootfs/app/static/piccards.js';
 
 const W = (id, a, b, thickness, openings = []) => ({ id, a, b, thickness, height: 2.6, openings });
 const D = (id, pos, extra = {}) => ({ id, type: 'door', pos, width: 0.9, height: 2.05, sill: 0, ...extra });
@@ -649,6 +651,11 @@ function guardView() {
   return { phase: g.st.phase, left: ['arming', 'entry'].includes(g.st.phase) ? Math.max(0, Math.round(g.st.due - now)) : 0, since: g.st.since, by: g.st.by, what: g.st.what };
 }
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+let demoCards = defaultCards('de');                     // 🖼 Bildkarten fürs Handy (5.33.0): the three a house starts with
+/** the demo's entities as Home Assistant's states (for the picture cards: device_class from the unit, the weather's temperature) */
+const haLikeStates = () => Object.fromEntries(Object.entries(entities).map(([e, x]) => [e, { entity_id: e, state: x.state, attributes: {
+  friendly_name: x.name, unit_of_measurement: x.unit, temperature: x.wx?.t,
+  device_class: x.unit === '°C' ? 'temperature' : x.unit === '%' && /feucht|humid/i.test(x.name || '') ? 'humidity' : undefined } }]));
 /* ---- the add-on's own heating rules and routines (#546): in the demo the window rule paused the living room (its window is open), the
  * schedule runs there, two own routines; nothing runs by itself here (the add-on does that), a boost or "Trotzdem heizen" shows at once ---- */
 const workDay = [[0, 'night'], [360, 'comfort'], [480, 'eco'], [930, 'comfort'], [1350, 'night']], homeDay = [[0, 'night'], [480, 'comfort'], [1350, 'night']];
@@ -1510,6 +1517,21 @@ export function installDemoBackend() {
     }
     if (path === 'api/import') return json({ error: ONLY_ADDON }, 501);   // building a house from JSON is the add-on's (importer.py)
     if (path === 'api/notify/test') return json({ error: 'in der Demo wird nichts gesendet' }, 501);
+    if (path === 'api/piccards') {                       // 🖼 Bildkarten fürs Handy (5.33.0): kept only in this tab
+      if (method === 'PUT') demoCards = (JSON.parse(init.body || '{}').cards || []).slice(0, 20).map(cleanCard);
+      return json({ cards: demoCards, edit: true });
+    }
+    if (path === 'api/piccards/preview') {               // drawn by the browser (demo/piccard.js), as the add-on draws it with Pillow
+      const b = JSON.parse(init.body || '{}'), card = b.card || demoCards.find((c) => c.id === b.id) || demoCards[0];
+      const lay = layouts[houses[0].id], states = haLikeStates();
+      const place = b.kind === 'flow' ? null : samplePlace(lay, b.ent);
+      const camBlock = (card.blocks || []).find((x) => x.k === 'camera');
+      const blob = await renderCard(card, { kind: b.kind || 'water', title: b.title || card.name, text: b.text || '', name: place ? 'Keller Luftfeuchte' : '', place, floors: lay.floors,
+        house: houses[0].name, states, lang: /^en/.test(navigator.language) && settings.language === 'auto' ? 'en' : settings.language === 'en' ? 'en' : 'de', now: new Date(), preview: true,
+        cameraName: camBlock?.ent ? entities[camBlock.ent]?.name.replace(/^Kamera\s*/, '') : place?.room?.name || '' });
+      return new Response(blob, { status: 200, headers: { 'Content-Type': 'image/png' } });
+    }
+    if (path === 'api/piccards/test') return json({ error: 'in der Demo wird nichts gesendet' }, 501);
     if (path === 'api/notify/tgchats') {                 // 📸 nothing goes to Telegram from the demo; the key typed in the field counts, as in the add-on (5.32.1)
       const typed = String(JSON.parse(init.body || '{}').bottoken || '').trim(), tok = /^[0-9]{5,12}:[A-Za-z0-9_-]{30,64}$/.test(typed) ? typed : notify.bottoken;
       return json(tok ? { bot: '@demo_haus_bot', chats: [{ id: '4711', name: 'Demo' }] } : { error: 'bottoken' }, tok ? 200 : 400);

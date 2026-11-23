@@ -13,7 +13,7 @@ const ROW_ICON = { open: '🪟', lights: '💡', media: '📺', locks: '🔓' };
 /** ctx: t, el (the page), states(), settings(), names() ({ entity: name }), openNames() (the names of the open windows and doors),
  *  litLights() (the lights on in the house), callService(entity, service, data) (-> true when Home Assistant took it), canEdit(), board
  *  (pageboard.js, #484: keys leave, night, r:<entity>, own, autos, log, rtiles, rooms), own (routinesown.js: the cards of the own routines,
- *  #546), groups (roomgroupsui.js, #590), areaOf() ({entity: area id}) */
+ *  #546), groups (roomgroupsui.js, #590), areaOf() ({entity: area id}), cards (piccardsui.js: 🖼 Bildkarten fürs Handy, 5.33.0) */
 export function initRoutinesPage(ctx) {
   const { t, el } = ctx;
   const flash = new Map();                           // button (entity or check) -> 'ok' | 'bad' for a moment after a tap
@@ -114,7 +114,7 @@ export function initRoutinesPage(ctx) {
     const inRooms = grouped ? all.filter((r) => roomsFor(r).length) : [];
     const tiles = inRooms.length ? { items: inRooms, roomsFor, row: routineTile, nameOf: (r) => r.name, unit: 'tile', tiles: true, title: `▶️ ${t('rg.tilesShort')}`,
       sig: JSON.stringify([inRooms, [...flash]]) } : null;
-    const sig = JSON.stringify([all, ctx.canEdit() ? automations(st, names) : [], ctx.own.sig(), linkedOf('leave'), linkedOf('night'), [...flash], ctx.groups?.sig(), t('tab.routines')]);
+    const sig = JSON.stringify([all, ctx.canEdit() ? automations(st, names) : [], ctx.own.sig(), linkedOf('leave'), linkedOf('night'), [...flash], ctx.groups?.sig(), ctx.cards?.sig(), t('tab.routines')]);
     if (!force && sig === drawn) { drawCheck(); return; }
     drawn = sig;
     const head = make('div', 'tpHead');
@@ -130,6 +130,7 @@ export function initRoutinesPage(ctx) {
     buttons.forEach((r) => items.push({ key: `r:${r.entity}`, name: r.name, el: routineTile(r), width: 1 }));
     const out = [head];
     if (!all.length) out.push(make('p', 'tpSub', t('rt.none')));
+    items.push(...(ctx.cards?.items() || []));     // 🖼 Bildkarten fürs Handy (5.33.0, editors): above the own routines (picture 1)
     items.push(...ctx.own.items(tiles));           // the own routines, the automations (editors) and what happened (#546), by room (#590)
     el.replaceChildren(...out, grid);
     ctx.board.fill('routines', grid, items, { min: 220 });

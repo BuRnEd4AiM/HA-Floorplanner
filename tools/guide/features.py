@@ -72,6 +72,8 @@ f("media", "pages", "🎵 Musik und Fernseher", "🎵 Music and TV", ["media"])
 f("household", "pages", "🧺 Haushalt: Wäsche, Saugroboter, Auto, Garten, Einkauf", "🧺 Household: laundry, vacuum, car, garden, shopping", ["household"])
 f("routines", "pages", "▶ Abläufe: Knöpfe, Szenen, Automationen", "▶ Routines: buttons, scenes, automations", ["routines"])
 f("flow", "pages", "Eigener Ablauf „Wenn … dann …“", "Own routine “When … then …”", ["flow"])
+f("piccards", "pages", "🖼 Bildkarten fürs Handy: eigene Bilder für Telegram, Bausteine untereinander, aus Vorlagen; je Alarm oder im Ablauf",
+  "🖼 Picture cards for the phone: your own pictures for Telegram, blocks from top to bottom, from templates; per alarm or in a routine", ["piccards"], since="5.33.0")
 f("housecheck", "pages", "🩺 Haus-Check: leere Batterien, Geräte offline, schwacher Funk, Updates und 🔧 Wartung mit Vorschlägen und „✓ Erledigt“",
   "🩺 House check: empty batteries, devices offline, weak radio, updates and 🔧 maintenance with suggestions and “✓ Done”", ["house-check"], since="5.24.0")
 f("flowdaylight", "pages", "🌗 Abläufe nach der Helligkeit: „Es wird dunkel / hell“, „dunkler als Dämmerung“, Uhrzeit wandert mit der Jahreszeit",

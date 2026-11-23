@@ -16,9 +16,9 @@ def st(eid, state, dc=None, name=None):
 def test_settings_are_cleaned_and_the_key_stays_in_the_add_on():
     c = an.clean({"on": True, "via": "whatsapp", "phone": "+49 170 / 123-4567", "apikey": "123456", "kinds": ["smoke", "bogus", "alarm"], "clear": True})
     assert c == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "entities": [], "tgMode": "user",
-                 "tgUsers": [], "clear": True, "botChats": [], "plan": True, "camera": True, "botName": "", "bottoken": "", "apikey": "123456", "tgkey": ""}
+                 "tgUsers": [], "clear": True, "botChats": [], "plan": True, "camera": True, "botName": "", "cards": {}, "bottoken": "", "apikey": "123456", "tgkey": ""}
     assert an.public(c) == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "entities": [],
-                            "tgMode": "user", "tgUsers": [], "clear": True, "botChats": [], "plan": True, "camera": True, "botName": "", "hasKey": True, "hasTgKey": False,
+                            "tgMode": "user", "tgUsers": [], "clear": True, "botChats": [], "plan": True, "camera": True, "botName": "", "cards": {}, "hasKey": True, "hasTgKey": False,
                             "hasBot": False}
     kept = an.clean({"phone": "+491701234567"}, c)
     assert kept["apikey"] == "123456" and kept["on"] is True              # a save without the key keeps it

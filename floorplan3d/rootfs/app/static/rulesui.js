@@ -49,7 +49,7 @@ export function initRulesUi(ctx) {
   const sensors = initRoomSensorsUi({ ...base, rules, deg, delta, rooms: () => ctx.climate()?.sensorRooms() || [], partOf: () => ctx.partOf?.() || {},   // 🌡 Raumfühler (#573)
     changed: () => ctx.climate()?.update() });
   const days = initSpecialDaysUi({ ...base, entities: ctx.entities, rules });                                                     // 📅 Besondere Tage
-  const flowEdit = initFlowEdit({ ...base, entities: ctx.entities, rules, days });
+  const flowEdit = initFlowEdit({ ...base, entities: ctx.entities, rules, days, cards: ctx.cards });   // 🖼 cards: the picture cards (5.33.0)
   const openRules = () => { ctx.tabs().show('climate'); ctx.climate().show('rules'); };
   const editFlow = (f) => { ctx.tabs().show('routines'); flowEdit.open(f); };
   const openFlow = (id) => { const f = (rules.get()?.flows || []).find((x) => x.id === id); if (f) editFlow(f); else ctx.tabs().show('routines'); };

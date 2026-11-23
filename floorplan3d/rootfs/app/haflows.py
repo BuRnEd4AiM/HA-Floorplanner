@@ -289,7 +289,10 @@ def _message(text: str, ctx) -> str:
 def _notify(b: dict, ctx) -> list:
     msg, to = _message(b["text"], ctx), ctx["notify"]
     if not to or not (to.get("services") or to.get("entities")):
-        return [{"event": "fp3d_notify", "event_data": {"message": msg}}]          # the add-on sends it its own way (WhatsApp, Telegram)
+        data = {"message": msg}
+        if b.get("card"):                                     # 🖼 a picture card (5.33.0): the add-on draws it for the device that set it off
+            data.update(card=b["card"], entity="{{ " + WHO + " }}")
+        return [{"event": "fp3d_notify", "event_data": data}]          # the add-on sends it its own way (WhatsApp, Telegram)
     data = {"title": "3D Floorplan", "message": msg}
     out = [{"action": f"notify.{s}", "data": data, "continue_on_error": True} for s in to.get("services") or []]
     if to.get("entities"):

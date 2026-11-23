@@ -1743,3 +1743,28 @@ async def test_me_says_admin(client):
     """api/me says whether the user is an administrator (5.1.0: „nur Admins dürfen entsperren“); standalone everybody is"""
     me = await (await client.get("/api/me")).json()
     assert me["admin"] is True
+
+
+async def test_backup_keeps_the_picture_cards_and_the_bots_key_only_with_the_keys(client, tmp_path):
+    """🖼 5.33.0: saved picture cards go into a backup and come back; the key of the own Telegram bot (since 5.16.0 in every backup) only
+    with the keys, like the CallMeBot keys"""
+    import json
+    tok = "123456789:AAH" + "x" * 32
+    (tmp_path / "notify.json").write_text(json.dumps({"on": True, "via": "tgbot", "bottoken": tok, "botChats": [{"id": "4711"}]}))
+    cards = (await (await client.get("/api/piccards")).json())["cards"]
+    assert [c["id"] for c in cards] == ["wasser", "test1", "gutenacht"]           # none saved: the three a house starts with
+    plain = await (await client.get("/api/backup?files=0")).json()
+    assert tok not in json.dumps(plain) and "piccards" not in plain["extras"]   # nothing saved: the start cards stay out
+    mine = [{**cards[1], "name": "Haustür"}]
+    assert (await client.put("/api/piccards", json={"cards": mine})).status == 200
+    keys = await (await client.get("/api/backup?files=0&secrets=1")).json()
+    assert keys["extras"]["notify"]["bottoken"] == tok and keys["extras"]["piccards"][0]["name"] == "Haustür"
+    (tmp_path / "piccards.json").write_text(json.dumps({"cards": []}))
+    (tmp_path / "notify.json").write_text(json.dumps({"on": False}))
+    client.app[server.KEY_NOTIFY].clear()
+    r = await (await client.post("/api/backup", json=keys)).json()
+    assert "piccards" in r["extras"] and json.loads((tmp_path / "piccards.json").read_text())["cards"][0]["name"] == "Haustür"
+    assert json.loads((tmp_path / "notify.json").read_text())["bottoken"] == tok
+    png = await (await client.post("/api/piccards/preview", json={"id": "test1"})).read()
+    assert png[:4] == b"\x89PNG"
+    assert (await client.post("/api/piccards/test", json={"id": "test1"})).status in (400, 502)   # no Telegram here

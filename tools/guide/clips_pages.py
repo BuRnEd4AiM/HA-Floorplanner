@@ -407,6 +407,41 @@ def _(r):
     r.wait(1600)
 
 
+@clip("piccards", "pages",
+      {"de": "🖼 Bildkarten fürs Handy gestalten", "en": "🖼 Design picture cards for the phone"},
+      {"de": "Eigene Bilder für Telegram: Bausteine untereinander (Raumbild, Kamera, Uhrzeit, Infos …), rechts sofort die Karte, wie sie ankommt. "
+             "Je Alarm eine Karte oder im Ablauf beim Baustein „Nachricht“.",
+       "en": "Your own pictures for Telegram: blocks from top to bottom (room picture, camera, time, info …), on the right the card as it arrives. "
+             "One card per alarm, or in a routine's block “Message”."},
+      "Bildkarte Karte Bild Telegram Alarm Nachricht gestalten Bausteine Vorlage picture card image Telegram alarm message design blocks template")
+def _(r):
+    tab(r, "routines")
+    r.say("Unter „Abläufe“: 🖼 Bildkarten fürs Handy – eigene Bilder für Telegram.", "Under “Routines”: 🖼 picture cards for the phone – your own pictures for Telegram.")
+    r.pg.locator("[data-page=routines] .pcCard").scroll_into_view_if_needed()
+    r.wait(1500)
+    r.click("[data-page=routines] .pcTile[data-card=wasser]")
+    r.wait(2200)
+    r.say("In der Mitte die Bausteine von oben nach unten, rechts die Karte, wie sie ankommt.", "In the middle the blocks from top to bottom, on the right the card as it arrives.")
+    r.wait(1800)
+    r.say("Ein Tipp öffnet einen Baustein: das Raumbild zeigt nur den Raum.", "A tap opens a block: the room picture shows only the room.")
+    r.click("#picCardDlg .pcRow[data-k=plan] .pcRowMain")
+    r.wait(1000)
+    r.click("#picCardDlg .pcOpts .tpChip[data-v=room]")
+    r.wait(2000)
+    r.poster()
+    r.say("„＋ Baustein dazu“: zum Beispiel die Uhrzeit. ▲▼ ändert die Reihenfolge.", "“＋ Add a block”: for example the time. ▲▼ changes the order.")
+    r.click("#picCardDlg [data-add=clock]")
+    r.wait(1400)
+    r.click("#picCardDlg .pcRow[data-k=clock] [data-act=up]")
+    r.wait(1800)
+    r.say("Speichern. Benutzen: je Alarm unter ⚙ Warnungen & Alarm, oder im Ablauf beim Baustein „Nachricht“.",
+          "Save. Use it: per alarm under ⚙ Warnings & alarm, or in a routine's block “Message”.")
+    r.click("#pcSave")
+    r.wait(2200)
+    r.key("Escape")
+    r.wait(600)
+
+
 @clip("flow-daylight", "pages",
       {"de": "🌗 Abläufe nach der Helligkeit: im Winter nichts umstellen", "en": "🌗 Routines by daylight: nothing to change in winter"},
       {"de": "„Es wird dunkel / hell“ startet einen Ablauf, wenn die Sonne so tief steht wie gewählt (Dämmerung, fast dunkel …). Bei einer Uhrzeit "

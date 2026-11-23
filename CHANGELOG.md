@@ -2,6 +2,20 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.33.0] - 2026-11-23
+### Added
+- **🖼 Bildkarten fürs Handy: your own picture for an alarm or a routine** (the owner, 2026-11-23: "eigene Bilderkarten designen für spezielle Alarme … hier oben soll das Bild von dem Raum hin, hier die Informationen, hier die Uhrzeit … und in den Abläufen sagen: löse … aus"; his choice of docs/ideen-5.33: idea 1 "Bausteine untereinander" with templates, in ▶ Abläufe, all of it):
+  - **Where:** ▶ Abläufe → **"🖼 Bildkarten fürs Handy"** (who may edit): every card as a small picture and where it is used, **"＋ Neue Bildkarte"**. A house starts with three: **"Wasser-Alarm"** (heading, floor plan with the room in red, camera and information beside it), **"Test 1"** (big camera, huge time, the text, small plan, who is at home) and **"Gute Nacht"** (the floor with open windows red and lamps that are on yellow, the list below).
+  - **The editor** (pictures 2 and 3): name, colour (seven or one of your own), light or dark, tall or wide on the left; the **building blocks from top to bottom** in the middle: Überschrift, Raumbild (Grundriss: the whole floor or only the room, open windows and lights marked), Kamerabild (by itself the camera in the room, or one chosen), Uhrzeit & Datum, Infos (rows: sensor, since when, room and floor, temperature, humidity, open windows & doors, lights on, who is at home, weather outside, alarm panel), Werte aus Home Assistant (up to 8 entities), Text, Trennlinie, Fußzeile. Drag with ⠿ or ▲▼, 🗑, a tap opens a block's options under it, "Neben den nächsten Baustein" puts two side by side. On the right **the card as the add-on draws it** (with your own sensor of that kind as the sample), **"📨 Test an mich"** sends it through the bot. On the phone the card comes first, the blocks below.
+  - **"＋ Neue Bildkarte"** starts from one of six templates: Alarm mit Raum, Kamera groß, Etage mit Liste, Uhr groß, Nur Text, Leer.
+  - **Texts with placeholders:** {kind} (WASSER, RAUCH …, for a routine its name), {text} (the message), {room}, {floor}, {name} (the sensor), {time}, {house}.
+  - **Per alarm:** ⚙ → Warnungen & Alarm → Nachricht aufs Handy → "Telegram – eigener Bot (mit Bild)" → **"🖼 Bildkarte je Alarm"**: for the alarm panel, smoke, gas, carbon monoxide and water a card or "Standard" (the plan and the camera as before). The card is then the one picture, the text under it.
+  - **In a routine:** the block "🔔 Nachricht" has **"🖼 Als Bildkarte schicken"**: the card shows the room of the device that set it off (also when Home Assistant runs the routine: its automation asks the add-on with the event fp3d_notify, now with the card and the device).
+  - The add-on draws the card itself with Pillow (`piccard.py`), also at night with no screen open; the demo draws the same in the browser (`demo/piccard.js`). The cards go into backups. Only through the own Telegram bot (a picture); WhatsApp and the others keep the text.
+  - Video guide: the new clip "🖼 Bildkarten fürs Handy gestalten". Browser test `111_picture_cards`, unit tests `tests/test_piccard.py`, `tests/piccards.test.mjs`.
+### Fixed
+- **The key of the own Telegram bot went into every backup**, also without "CallMeBot-Schlüssel mitsichern" (since 5.16.0): now only with that tick, now called "Schlüssel mitsichern: CallMeBot und Telegram-Bot".
+
 ## [5.32.1] - 2026-11-23
 ### Fixed
 - **📸 Telegram bot: the key could not be pasted properly, "🔎 Chat finden" jumped back to WhatsApp** (#796, the owner: "kann man da den Schlüssel des Bots nicht richtig einfügen. Und wenn man auf Chat finden drückt, resettet sich irgendwie die Ansicht"): ⚙ → Warnungen & Alarm → Nachricht aufs Handy → "Telegram – eigener Bot (mit Bild)":

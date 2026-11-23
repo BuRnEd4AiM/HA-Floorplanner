@@ -290,6 +290,16 @@ export function initFlowEdit(ctx) {
         const ta = make('textarea', 'feText'); ta.value = b.text; ta.maxLength = 200; ta.rows = 3; ta.dataset.field = 'text';
         ta.addEventListener('change', () => set((x) => { x.text = ta.value; }));
         f.push(field(t('fe.text'), ta), make('p', 'tpSub', t('fe.textHelp')));
+        const cards = ctx.cards?.() || [];                          // 🖼 as a picture card through the own bot (5.33.0, piccardsui.js)
+        if (cards.length || b.card) {
+          const s = make('select'); s.dataset.field = 'card';
+          s.add(new Option(t('fe.cardNone'), ''));
+          cards.forEach((c) => s.add(new Option(`🖼 ${c.name}`, c.id)));
+          if (b.card && !cards.some((c) => c.id === b.card)) s.add(new Option(b.card, b.card));
+          s.value = b.card || '';
+          s.addEventListener('change', () => set((x) => { if (s.value) x.card = s.value; else delete x.card; }));
+          f.push(field(`🖼 ${t('fe.card')}`, s), make('p', 'tpSub', t('fe.cardHelp')));
+        }
         break;
       }
       case 'restore': {

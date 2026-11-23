@@ -37,9 +37,12 @@ APIKEY = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 TG_USER = re.compile(r"^(@[A-Za-z0-9_]{5,32}|\+[0-9]{6,16})$")   # a Telegram user name or a phone number (CallMeBot text.php)
 VIA = ("whatsapp", "telegram", "ha", "tgbot")   # tgbot: the add-on's own Telegram bot, with pictures (5.16.0, tgbot.py)
 SECRETS = ("apikey", "tgkey")      # the CallMeBot keys of WhatsApp and of a Telegram group: stay in the add-on
+BACKUP_SECRETS = (*SECRETS, "bottoken")   # what a backup holds only with "keys" ticked (the bot's key too, 5.33.0)
+CARD_ID = re.compile(r"^[a-z0-9_-]{1,24}$")
 DEFAULT = {"on": False, "kinds": list(KINDS), "via": "whatsapp", "phone": "", "services": [], "entities": [], "tgMode": "user", "tgUsers": [],
            "clear": False, "botChats": [], "plan": True, "camera": True,   # 📸 the bot's chats; a picture of the plan, of a camera in the room
-           "botName": ""}                                                  # the bot's user name ("@haus_bot"), as "Chat finden" saw it (5.32.1)
+           "botName": "",                                                  # the bot's user name ("@haus_bot"), as "Chat finden" saw it (5.32.1)
+           "cards": {}}                                                    # 🖼 {kind: id of a picture card} (5.33.0, piccard.py)
 
 TEXTS = {
     "de": {"alarm": "🚨 ALARM: {name}", "smoke": "🔥 Rauch erkannt: {name}", "gas": "⚠️ Gas erkannt: {name}", "co": "☠️ Kohlenmonoxid erkannt: {name}",
@@ -92,6 +95,9 @@ def clean(data, old=None) -> dict:
     for k in ("plan", "camera"):
         if isinstance(data.get(k), bool):
             out[k] = data[k]
+    out["cards"] = dict(out.get("cards") or {}) if isinstance(out.get("cards"), dict) else {}
+    if isinstance(data.get("cards"), dict):                         # 🖼 a picture card for an alarm of a kind ('' = the plan as before)
+        out["cards"] = {k: v for k, v in data["cards"].items() if k in KINDS and isinstance(v, str) and CARD_ID.match(v)}
     tok = old.get("bottoken", "")                                  # 📸 the bot's key ("123456:ABC…"), kept like the CallMeBot keys
     if "bottoken" in data:
         v = data["bottoken"]
