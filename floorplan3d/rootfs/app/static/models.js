@@ -8,7 +8,8 @@ import { closetSize } from './closet.js';
 import { closetModel } from './closet3d.js';
 import { solarField, standParts, PANEL, STAND } from './solarroof.js';
 import { bridgeParts } from './bridge.js';
-import { stepsParts } from './levels.js';
+import { stepsParts, stepsSize } from './levels.js';
+import { porchParts, porchSize } from './porchroof.js';
 import { LAMP_TYPES } from './lamplight.js';
 import { SCANDI, SCANDI_TYPES, partsOf, matOf, finishOf, variantOf, sizeVariant } from './scandi.js';
 import { tvArmParts } from './tvmount.js';
@@ -56,6 +57,7 @@ export const DEVICE_TYPES = {
   fence:      { label: 'Zaun',        y: 0 },
   bridge:     { label: 'Brücke / Übergang', y: 0 },
   steps:      { label: 'Außentreppe', y: 0 },
+  porchroof:  { label: 'Vordach',     y: 0 },
   sofa2:      { label: 'Ecksofa',      y: 0 },
   tvstand:    { label: 'TV-Board',     y: 0 },
   bookcase:   { label: 'Bücherregal',  y: 0 },
@@ -132,7 +134,7 @@ export const CATEGORIES = {
   lighting: LAMP_TYPES,                                         // the lamps (lamplight.js: a lamp on a relay lights the room like any lamp, #367)
   smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence', 'watermeter', 'gasmeter', 'heatmeter'],
   power:   ['houseentry', 'fusebox', 'powermeter', 'inverter', 'solarpanel', 'battery', 'wallbox'],
-  outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car', 'bridge', 'steps'],
+  outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car', 'bridge', 'steps', 'porchroof'],
   decor:   ['picture'],
 };
 SCANDI_TYPES.forEach((k) => { if (SCANDI[k].cat !== 'lighting') CATEGORIES[SCANDI[k].cat].push(k); });   // the lamps are in LAMP_TYPES already (a lamp of another group, e.g. an LED mirror, is in both: its own group comes first)
@@ -672,6 +674,7 @@ export function makeModel(type, onReady, dev, opts) {
   else if (type === 'closet') closetModel(g, dev);          // the cabinet built in the editor (closet.js, closet3d.js)
   else if (type === 'bridge') bridgeModel(g, dev);
   else if (type === 'steps') stepsModel(g, dev);
+  else if (type === 'porchroof') porchModel(g, dev);
   else if (type === 'solarpanel') solarPanels(g, dev, opts?.mount || 'stand', opts?.groundAt);
   else if (type === 'tv_arm') tvArmModel(g, dev);
   else if (SCANDI[type]) scandiModel(g, type, dev);
@@ -741,19 +744,34 @@ function bridgeModel(g, dev) {
   const mats = { deck: std('#6f767d', { metalness: 0.6, roughness: 0.5 }), beam: std('#4a5057', { metalness: 0.6, roughness: 0.45 }), post: std('#8d949b', { metalness: 0.6, roughness: 0.45 }), rail: std('#8d949b', { metalness: 0.6, roughness: 0.45 }) };
   bridgeParts(dev).forEach((p) => { const m = box(p.w, p.h, p.d, mats[p.kind], p.x, p.y, p.z); m.rotation.z = p.tilt || 0; g.add(m); });   // sloping parts turn round their middle (#222)
 }
-/** Outdoor steps (#566): a landing and steps of stone from the edge of a plateau down to the lawn, a hand rail on both sides (levels.js) */
+/** Outdoor steps (#566): a landing and steps of stone from the edge of a plateau down to the lawn, a hand rail on both sides, one side or
+ *  none, black or stainless with bars across (#786, levels.js) */
 function stepsModel(g, dev) {
-  const stone = std('#cfc8bc', { roughness: 0.85 }), metal = std('#3a3d42', { metalness: 0.6, roughness: 0.45 });
+  const steel = stepsSize(dev).look === 'steel';
+  const stone = std('#cfc8bc', { roughness: 0.85 }), metal = steel ? std('#d3d7db', { metalness: 0.45, roughness: 0.3 }) : std('#3a3d42', { metalness: 0.6, roughness: 0.45 });
   stepsParts(dev).forEach((p) => {
-    if (p.kind === 'rail') {
-      const [ax, ay, az] = p.from, [bx, by, bz] = p.to, L = Math.hypot(bx - ax, by - ay, bz - az);
-      const m = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.045, L), metal);
+    if (p.from) {
+      const [ax, ay, az] = p.from, [bx, by, bz] = p.to, L = Math.hypot(bx - ax, by - ay, bz - az), t = p.kind === 'bar' ? 0.014 : 0.045;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(t, t, L), metal);
       m.position.set((ax + bx) / 2, (ay + by) / 2, (az + bz) / 2);
       m.rotation.x = -Math.atan2(by - ay, bz - az);
       g.add(m);
       return;
     }
     g.add(box(p.x1 - p.x0, p.y1 - p.y0, p.z1 - p.z0, p.kind === 'post' ? metal : stone, (p.x0 + p.x1) / 2, p.y0, (p.z0 + p.z1) / 2));
+  });
+}
+/** A canopy over a door (#786, porchroof.js): dark wood, a cover of tiles, metal or glass */
+function porchModel(g, dev) {
+  const cover = porchSize(dev).cover, wood = std('#5b3a26', { roughness: 0.8 });
+  const mats = { cover: cover === 'glass' ? new THREE.MeshStandardMaterial({ color: 0xcfe3ee, transparent: true, opacity: 0.35, roughness: 0.1, metalness: 0.1, depthWrite: false })
+    : cover === 'metal' ? std('#5d6166', { metalness: 0.5, roughness: 0.45 }) : std('#4d4541', { roughness: 0.95 }) };
+  porchParts(dev).forEach((p) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(p.w, p.h, p.d), mats[p.kind] || wood);
+    m.position.set(p.x, p.y + p.h / 2, p.z);
+    m.rotation.set(p.rx || 0, 0, p.rz || 0);
+    m.castShadow = true;
+    g.add(m);
   });
 }
 /** Solar panels (#176): one panel or a field (rows x columns, see solarField), on stands tilted to the sun

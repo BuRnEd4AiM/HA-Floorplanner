@@ -538,7 +538,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 226. Neu in 5.29.0: 🪜 Treppe mit eigener Höhe, Wendeltreppe mit Steg oben | 2 | 0 | 2 | 0 | 226.3, 226.4 |
 | 227. Neu in 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779) | 3 | 0 | 2 | 0 | 227.4, 227.5 |
 | 228. Neu in 5.31.0: 🔆 Lichtschächte an den Kellerfenstern | 4 | 0 | 2 | 0 | 228.5, 228.6 |
-| **Zusammen** | **1374** | **2** | **169** | **92** | |
+| 229. Neu in 5.32.0: 🪜 Eingang mit Außentreppe und Vordach, Balkon unter dem Dach (#786, #794) | 6 | 0 | 1 | 0 | 229.7 |
+| **Zusammen** | **1380** | **2** | **170** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3427,3 +3428,16 @@ Dein Wunsch vom 2026-11-22 (#786): Lichtschächte für den Keller, die gut ausse
 | 228.5 | Dein Haus: deine Kellerfenster ansehen (3D, Ganzes Haus, von der Seite) | Vor jedem Kellerfenster unter dem Rasen ein Lichtschacht, der Rasen darüber ausgeschnitten; passen Breite und Tiefe? | ❓ |
 | 228.6 | Dein Haus: ein Kellerfenster, das über dem Boden liegt (z. B. am Hang) | Kein Schacht, im Panel „kein Lichtschacht nötig“ | ❓ |
 
+
+## 229. Neu in 5.32.0: 🪜 Eingang mit Außentreppe und Vordach, Balkon unter dem Dach (#786, #794)
+Marios Reihenhaus (#786, 23.11.): 3 Stufen statt 4, Geländer nur links, ein Vordach auf zwei Pfosten, der Balkon hinten unter dem Dach; dazu der Fehler in „Ganzes Haus“ bei einem schmalen Grundstück (#794).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 229.1 | Unit-Tests `tests/levels.test.mjs`, `tests/porchroof.test.mjs` (neu), `tests/roofs.test.mjs`, `tests/earth.test.mjs`, `tests/test_import.py`; Browser-Test Teil `110_entrance` (neu) | Alles grün | ✅ (2026-11-23, Claude) |
+| 229.2 | Demo, Bearbeiten: ein Haus, vor dem der Boden tiefer liegt (⛰ Gelände, z. B. ein Punkt vor der Haustür auf −0,65); „Grundstück“ → „⛰ Gelände“ → „＋ Außentreppe an die Haustür“ | Vor der Haustür eine Treppe, genau so hoch wie der Unterschied | ✅ (2026-11-23, Claude, Demo) |
+| 229.3 | Bei der Treppe: „Stufen“ auf 3, „Geländer“ auf „Links“, „Edelstahl mit Stäben“ | 3 Stufen (2 und das Podest), das Geländer links (von unten zur Tür gesehen) aus Edelstahl; die Treppe bleibt an der Wand | ✅ (2026-11-23, Claude, Demo) |
+| 229.4 | Die Haustür antippen → „＋ Vordach über die Tür“ | Ein Pultdach aus Holz auf zwei Pfosten über der Tür; Breite, Tiefe, Höhe, Neigung, Pfosten, Dach (Ziegel/Blech/Glas) einstellbar | ✅ (2026-11-23, Claude, Demo) |
+| 229.5 | Ein Balkon im Obergeschoss: „Hausdach reicht darüber“ ankreuzen | Das Dach des Hauses reicht über den Balkon | ✅ (2026-11-23, Claude, Demo) |
+| 229.6 | „Ganzes Haus“ bei einem Grundstück, das so breit ist wie das Haus, von der Seite ansehen | Der Keller ist offen, keine Erde davor (#794) | ✅ (2026-11-23, Claude, Demo) |
+| 229.7 | Dein Haus: Außentreppe, Vordach und Balkon so einstellen, wie es bei dir ist | Sieht aus wie in echt? | ❓ |

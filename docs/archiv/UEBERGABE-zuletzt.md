@@ -2,6 +2,7 @@
 
 Aus `docs/UEBERGABE.md` hierher verschoben, damit die Übergabe kurz bleibt (Wunsch des Besitzers, 2026-10-26). Die neuesten oben.
 
+- **2026-11-22, 5.28.4: 📡 „Alle einschalten“ auch für Werte außerhalb des Plans (Branch `claude/bold-heisenberg-y046ye`):** sein Foto: 78 ausgeschaltet, kein Knopf (der oben kommt nur für Plan-Geräte ohne Wert); jetzt ein Knopf im Abschnitt der ausgeschalteten, offen mit Erklärung, wenn keiner zum Plan gehört. 5.28.3 vorher für alle freigegeben.
 - **2026-11-21, 5.28.3: 📡 Funk-Karte mit Matter (Branch `claude/bold-heisenberg-y046ye`):** er hat auch Matter; Thread-Geräte über die Matter-Netzwerkkarte von Home Assistant 2026.11 (`matter/network_topology`, matterlinks.py, braucht den neuen Matter-Server), Matter-WLAN über „Wi-Fi RSSI“ (translation_key). Vorher 5.28.1 und 5.28.2 für alle freigegeben (sein Wunsch).
 - **2026-11-21, 5.28.2: 📡 Funk-Karte „Alle einschalten“ (Branch `claude/bold-heisenberg-y046ye`):** seine Linkqualität fehlte bei den meisten (Zigbee2MQTT schaltet sie aus); der Knopf schaltet die der Geräte im Plan in Home Assistant ein (`POST api/signals/on`, renames.py `signal_off_of`, `switch_on`).
 - **2026-11-21, 5.28.1: 🔕 beim Bearbeiten sichtbar (Branch `claude/bold-heisenberg-y046ye`):** seine Frage, wie man „nicht überwachen“ zurücknimmt; jetzt zeigt der Bearbeiten-Modus ein graues 🔕 über dem Gerät, im 2D-Plan und am Etagen-Knopf, live bleibt alles wie vorher (nowatch.js `noWatchMarks`, offlinemarks.js).

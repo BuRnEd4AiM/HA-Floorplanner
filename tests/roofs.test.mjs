@@ -25,6 +25,15 @@ test('roof box: a roof terrace (and what lies below it) has no roof', () => {
     floor('roof')];
   assert.deepEqual(R.roofBoxOf(floors, 2), { x0: 0, x1: 8, z0: 0, z1: 6 });
 });
+test('roof box: a balcony under the eaves (roofOver, #786) counts like a room, the roof reaches over it', () => {
+  const floors = [
+    floor('floor', [{ points: sq(0, 0, 6, 11) }]),
+    floor('floor', [{ points: sq(0, 0, 6, 11) }, { points: sq(0, 11, 6, 12.4), terrace: true, roofOver: true }]),
+    floor('roof')];
+  assert.deepEqual(R.roofBoxOf(floors, 2), { x0: 0, x1: 6, z0: 0, z1: 12.4 });
+  delete floors[1].rooms[1].roofOver;
+  assert.deepEqual(R.roofBoxOf(floors, 2), { x0: 0, x1: 6, z0: 0, z1: 11 });
+});
 test('roof box: a size set by hand wins when it is valid', () => {
   const floors = [floor('floor', [{ points: sq(0, 0, 8, 6) }]), { ...floor('roof'), roof: { box: { x0: 1, x1: 5, z0: 2, z1: 4 } } }];
   assert.deepEqual(R.roofBoxOf(floors, 1), { x0: 1, x1: 5, z0: 2, z1: 4 });

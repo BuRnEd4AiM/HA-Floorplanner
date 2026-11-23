@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3Mcm2xMzsUuXGYgKak",
+ "start": "2026-11-23",
+ "updated": "2026-11-23T10:19:37Z",
+ "branch": "claude/epic-faraday-rdiicg",
+ "source": "counted",
+ "input": 472,
+ "cache_write": 433827,
+ "cache_read": 71468356,
+ "output": 166811,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 472,
+   "cache_write": 433827,
+   "cache_read": 71468356,
+   "output": 166811,
+   "requests": 230
+  }
+ }
+}

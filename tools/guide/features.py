@@ -195,6 +195,9 @@ f("skylight", "edit", "Dachfenster ohne Gaube: in der Dachschräge, übliche Gr�
   ["skylight"], since="4.62.0")
 f("balcony", "edit", "Balkon und Dachterrasse: Geländer aus Metall, Glas oder Holz, Stützen bis zum Boden, frei hängend auf einer Platte (auch am Hang, auch nur der Teil, der über die Garage hinausragt)", "Balcony and roof terrace: a railing of metal, glass or wood, supports down to the ground, hanging free on a plate (also on a slope, also only the part that reaches out beyond the garage)",
   ["balcony"], since="4.63.0")
+f("entrance", "edit", "Eingang: „＋ Außentreppe an die Haustür“ auch beim tieferen Gelände, Zahl der Stufen, Geländer links, rechts, beidseitig oder keins, Edelstahl mit Stäben, „＋ Vordach über die Tür“ auf zwei Pfosten",
+  "Entrance: “＋ Outdoor steps at the front door” also on lower ground, the number of steps, the hand rail left, right, both or none, stainless with bars, “＋ Canopy over the door” on two posts", ["entrance"], since="5.32.0")
+f("balconyroof", "edit", "Balkon unter dem Hausdach („Hausdach reicht darüber“)", "A balcony under the house's roof (“House roof reaches over it”)", ["balcony-roof"], since="5.32.0")
 f("windowtilt", "edit", "Fenster mit zwei Kontakten: gekippt und offen", "A window with two contacts: tilted and open", ["window-tilt"], since="4.59.0")
 f("storeystairs", "edit", "Geschosshöhe je Haus, Stufen je Etage, L-Treppe mit 2. Ecke (unten und oben gewendelt)", "Storey height per house, steps per floor, L stair with a 2nd corner (winders at both ends)",
   ["stairs-storey"], since="4.68.0")

@@ -460,6 +460,18 @@ t("light-well",
   "light well light wells window well area well basement window cellar window basement light well grating grate cover well cover "
   "concrete well plastic well light well off light well size deeper light well window in the ground dark basement light into the basement "
   "cut the ground out lawn cut open how do I add a light well egress well")
+t("entrance",
+  "Hauseingang Eingangstreppe Treppe vor der Haustür Stufen vor dem Haus Eingangsstufen Anzahl Stufen weniger Stufen Stufenhöhe Handlauf "
+  "Geländer nur eine Seite Geländer einseitig Edelstahlgeländer Relinggeländer Vordach Haustürvordach Türvordach Überdachung Eingang "
+  "Holzpfosten Pfosten Podest Reihenhaus Eingangsbereich Erdgeschoss höher als Weg",
+  "house entrance entrance steps stairs in front of the front door steps in front of the house entry steps number of steps fewer steps "
+  "step height handrail railing on one side only one railing stainless railing door canopy front door canopy entrance roof porch "
+  "wooden posts posts landing terraced house entrance area ground floor higher than the path")
+t("balcony-roof",
+  "Balkon überdacht Dach über dem Balkon Balkondach Traufe über dem Balkon Dachüberstand Balkon unter dem Dach Loggia Regenschutz "
+  "Dach ausgespart Dach fehlt über Balkon Balkon hinten Obergeschoss Holzbalkon",
+  "covered balcony roof over the balcony balcony roof eaves over the balcony roof overhang balcony under the roof loggia rain cover "
+  "roof left out roof missing over balcony balcony at the back upper floor wooden balcony")
 t("floors-add",
   "Etage hinzufügen neue Etage Stockwerk hinzufügen Obergeschoss anlegen Dachgeschoss anlegen Keller anlegen "
   "Untergeschoss Geschoss Etage löschen Etage umbenennen Etagenhöhe",

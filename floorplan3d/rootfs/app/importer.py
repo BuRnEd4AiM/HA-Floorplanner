@@ -113,10 +113,13 @@ def clean_faces(v):
     o = {k: f for k in ("left", "right") if (f := clean_finish(v.get(k), "side"))}
     return o or None
 # optional device fields that are copied when they have the right type
-DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range", "len", "rise", "armSwing", "armReach", "armTilt", "h", "land")
+DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range", "len", "rise", "armSwing", "armReach", "armTilt", "h", "land", "count", "d", "pitch")
 DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img", "batPower")
-DEVICE_FLAGS = ("mirror", "locked", "hideModel", "batInvert", "noRail", "noWatch")   # noWatch: only drawn, never offline (#780)
+DEVICE_FLAGS = ("mirror", "locked", "hideModel", "batInvert", "noRail", "noWatch", "noPosts")   # noWatch: only drawn, never offline (#780)
 CABLE_ROUTES = ("floor", "through", "air")
+STEPS_RAILS = ("both", "left", "right", "none")                   # STEPS_RAILS in static/levels.js (#786)
+STEPS_RAIL_LOOKS = ("black", "steel")
+PORCH_COVERS = ("tiles", "metal", "glass")                         # PORCH_COVERS in static/porchroof.js
 ROOM_MAX_RAISE = 3                                                # LEVELS.maxRaise in static/levels.js (#566)
 PLATEAU_MAX_RISE = 5                                              # LEVELS.maxRise
 PLATEAU_EDGES = ("wall", "slope")                                 # EDGES
@@ -640,6 +643,13 @@ def _device(rep: Report, path: str, spec, ids):
     for k in DEVICE_FLAGS:
         if spec.get(k) is True:
             d[k] = True
+    if typ == "steps":                                # the outdoor steps (#786): where the hand rail runs and how it looks
+        if spec.get("rail") in STEPS_RAILS:
+            d["rail"] = spec["rail"]
+        if spec.get("railLook") in STEPS_RAIL_LOOKS:
+            d["railLook"] = spec["railLook"]
+    if typ == "porchroof" and spec.get("cover") in PORCH_COVERS:   # a canopy over a door (#786): tiles, metal or glass
+        d["cover"] = spec["cover"]
     if isinstance(spec.get("lightColor"), str) and re.fullmatch(r"#[0-9a-fA-F]{6}", spec["lightColor"]):
         d["lightColor"] = spec["lightColor"].lower()   # the colour of a lamp that reports none, e.g. one on a relay (#367)
     if isinstance(spec.get("finish"), str) and re.fullmatch(r"[a-z]{2,20}", spec["finish"]):
@@ -1009,6 +1019,8 @@ def build_layout(data):
                     rep.warn(f"{rp}.rail", "rail must be \"metal\", \"glass\" or \"wood\": metal used")
                 if r.get("posts") is True:
                     room["posts"] = True                        # a balcony that hangs free: supports down to the ground (#646)
+                if r.get("roofOver") is True:
+                    room["roofOver"] = True                     # the house's roof reaches over it (#786)
                 sides = _rail_sides(rep, f"{rp}.railSides", r.get("railSides"), len(poly)) if "railSides" in r else None
                 if sides:
                     room["railSides"] = sides                   # the railing side by side: off, from … to, a gate (5.14.0)
@@ -1476,7 +1488,7 @@ def layout_to_property(layout, name="Haus"):
             if not (f.get("rooms") or f.get("walls") or f.get("devices")):      # a plain roof; otherwise also its solar panels, a loft's rooms
                 floors.append(item)
                 continue
-        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "tempFrom", "humidFrom", "terrace", "rail", "posts", "railSides", "raise", "steps", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
+        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "tempFrom", "humidFrom", "terrace", "rail", "posts", "roofOver", "railSides", "raise", "steps", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
         item["walls"] = []
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
@@ -1486,7 +1498,7 @@ def layout_to_property(layout, name="Haus"):
             item["walls"].append(ow)
         item["devices"] = []
         for d in f.get("devices", []):
-            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "variant", "tvSize", "leds", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount", "cab") if k in d and d[k] not in (None, "")}
+            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "variant", "tvSize", "rail", "railLook", "cover", "leds", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount", "cab") if k in d and d[k] not in (None, "")}
             cs = cables_of(d)
             if cs or d["id"] in feeding:
                 od["id"] = d["id"]

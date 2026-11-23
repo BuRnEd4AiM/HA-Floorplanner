@@ -106,7 +106,7 @@ test('the outdoor steps at the front door: where the door meets the edge, turned
 });
 
 test('the outdoor steps: a landing on top, steps of at most 18 cm down to the lawn, a hand rail on both sides', () => {
-  assert.deepEqual(L.stepsSize({}), { h: 0.54, w: 1.4, land: 1, n: 3, rise: 0.18, tread: 0.28 });
+  assert.deepEqual(L.stepsSize({}), { h: 0.54, w: 1.4, land: 1, n: 3, rise: 0.18, tread: 0.28, rail: 'both', look: 'black' });
   const sz = L.stepsSize({ h: 0.9, w: 1.5, land: 1.2 });
   assert.equal(sz.n, 5); near(sz.rise, 0.18);
   assert.equal(L.stepsDepth({ h: 0.9, land: 1.2 }), 2.32);
@@ -120,6 +120,31 @@ test('the outdoor steps: a landing on top, steps of at most 18 cm down to the la
   assert.equal(p.filter((x) => x.kind === 'post').length, 6); assert.equal(p.filter((x) => x.kind === 'rail').length, 4);
   assert.equal(L.stepsLocal({ h: 0.9, noRail: true }).filter((x) => x.kind === 'post' || x.kind === 'rail').length, 0);
   assert.equal(L.stepsLocal({ h: 0.5, land: 0 }).filter((x) => x.kind === 'land').length, 0);
+});
+
+test('the outdoor steps (#786): a number of steps chosen, the hand rail on one side, stainless with bars', () => {
+  assert.equal(L.stepsSize({ h: 0.65 }).n, 4);                                // by itself: at most 18 cm
+  assert.deepEqual(L.stepsCountRange(0.65), [3, 5]);                          // 12 to 25 cm each
+  const three = L.stepsSize({ h: 0.65, count: 3 });
+  assert.equal(three.n, 3); near(three.rise, 0.2167);
+  assert.equal(L.stepsSize({ h: 0.65, count: 9 }).n, 5);                      // kept to the range
+  assert.equal(L.stepsSize({ h: 0.65, count: 1 }).n, 3);
+  assert.equal(L.stepsSize({ h: 0.65, count: '' }).n, 4);
+  assert.equal(L.stepsLocal({ h: 0.65, count: 3 }).filter((x) => x.kind === 'step').length, 2);   // 2 steps and the landing (Mario: "2 Stufen + das obere Podest")
+  assert.equal(L.stepsDepth({ h: 0.65, count: 3, land: 1 }), 1.56);
+  const side = (d) => [...new Set(L.stepsLocal({ h: 0.65, ...d }).filter((x) => x.kind === 'post').map((x) => Math.sign(x.x0)))];
+  assert.deepEqual(side({}), [-1, 1]);
+  assert.deepEqual(side({ rail: 'left' }), [-1]);                             // seen from below, looking up at the door (-z): left is -x
+  assert.deepEqual(side({ rail: 'right' }), [1]);
+  assert.deepEqual(side({ rail: 'none' }), []);
+  assert.deepEqual(side({ noRail: true }), []);                               // the old field
+  assert.equal(L.stepsRail({ noRail: true, rail: 'left' }), 'left');          // a choice made later wins
+  assert.equal(L.stepsRail({ rail: 'x' }), 'both');
+  assert.equal(L.stepsLocal({ h: 0.65, rail: 'left' }).filter((x) => x.kind === 'bar').length, 0);
+  const steel = L.stepsParts({ h: 0.65, rail: 'left', railLook: 'steel' }).filter((x) => x.kind === 'bar');
+  assert.equal(steel.length, 6);                                              // three bars along the steps, three along the landing
+  assert.ok(steel.every((b) => b.from[0] < 0 && b.from[1] > 0.65 && b.from[1] < 0.65 + 0.9));
+  assert.equal(L.stepsSize({ railLook: 'gold' }).look, 'black');
 });
 
 test('on a slope (#629): a device that stands on the ground goes with it, on a plateau with the plateau, the house stays', () => {
@@ -237,3 +262,21 @@ test('a garage on the lawn (5.28.5, #789): its own walls stay down, also on a pl
   assert.equal(L.splitAtCorners(f, f.rooms[1], () => 'x'), 0);                    // nothing more to split
   assert.equal(L.splitAtCorners(f, f.rooms[1], null), 0);
 });
+
+test('the outdoor steps at the front door on lowered ground (#786): as high as the step down, on the ground under their middle', () => {
+  const f = { rooms: [{ points: rect(0, 0, 6, 11) }], walls: [
+    { a: [0, 0], b: [6, 0], thickness: 0.3, openings: [{ id: 'hd', type: 'door', name: 'Haustür', pos: 2.4, width: 1.2 }] },
+    { a: [6, 11], b: [0, 11], thickness: 0.3, openings: [{ id: 'td', type: 'door', name: 'Terrasse', pos: 3, width: 1 }] }] };
+  const flat = L.stepsAtDoorOnGround(f, () => -0.65);
+  assert.equal(flat.door, 'hd'); assert.equal(flat.h, 0.65); assert.equal(flat.rot, 180);   // the front door, the steps run out to -z
+  assert.deepEqual(flat.edge, [2.4, -0.15]);
+  near(flat.z, -0.15 - L.stepsDepth({ h: 0.65 }) / 2);
+  assert.equal(L.stepsAtDoorOnGround(f, () => -0.05), null);                  // less than 10 cm: no steps
+  const back = L.stepsAtDoorOnGround(f, (x, z) => (z > 5 ? -1 : 0));
+  assert.equal(back.door, 'td'); assert.equal(back.h, 1);                   // only the garden door lies over the ground
+  assert.equal(L.stepsAtDoorOnGround(f, () => -0.65, [{ points: rect(-1, -1, 7, 5), rise: 0.6 }]).door, 'td');   // the front door is on a plateau
+  const ter = { at: () => -0.65, stands: () => false };
+  near(L.lifter(f, [], ter).device({ type: 'steps', x: 2.4, z: -1 }), -0.65);   // they stand on the lowered ground
+  near(L.lifter(f, [{ points: rect(-1, -2, 7, 5), rise: 0.6 }], ter).device({ type: 'steps', x: 2.4, z: -1 }), 0);   // on a plateau as before
+});
+

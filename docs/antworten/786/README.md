@@ -15,3 +15,19 @@ Gemacht mit der Demo (`demo/floorplan3d-demo.html`) und Playwright:
     NODE_PATH=$(npm root -g) node docs/antworten/786/make_pictures.js <Ordner>
 
 (das Skript macht PNG; die JPG mit Beschriftung entstanden danach mit Pillow).
+
+## Zweite Antwort (2026-11-23, Version 5.32.0): `2/`
+
+Seine Antwort mit Fotos (Eingang mit 3 Stufen und Geländer links, Vordach, Balkon hinten unter dem Dach, Bild 1 mit dem falschen Schnitt in „Ganzes Haus“). Gebaut in 5.32.0 (#794 für den Schnitt). Die Bilder zeigen sein Reihenhaus nachgebaut (Keller, EG, OG mit Balkon, Dachgeschoss, Dachstuhl; Grundstück so breit wie das Haus, vorne 65 cm tiefer):
+
+- `1-waende-abgesenkt.jpg`, `2-waende-oben.jpg`: „Ansicht“ → „Auto“ aus, „Wände hoch“: die Vorderwand bleibt zu
+- `3-gelaende-treppe.jpg`: „Grundstück“ → „⛰ Gelände“, Höhenpunkte, „＋ Außentreppe an die Haustür“
+- `4-treppe-felder.jpg`: „Stufen“ 3, „Geländer“ links, „Edelstahl mit Stäben“
+- `5-vordach-knopf.jpg`, `6-vordach-felder.jpg`, `7-eingang-3d.jpg`: „＋ Vordach über die Tür“ und das Ergebnis
+- `8a`/`8b`/`8c`: der Balkon ohne und mit „Hausdach reicht darüber“
+- `9a`/`9b`/`9c`: das Dach oben drauf und „Ausgebauter Dachstuhl“ mit Kniestock 1 m
+- `10-ganzes-haus-seite.jpg`: „Ganzes Haus“ von der Seite, der Keller offen (#794)
+
+    NODE_PATH=$(npm root -g) node docs/antworten/786/2/make_pictures.js <Ordner>
+
+(PNG, danach mit Pillow als JPG, halbe Größe, Qualität 80).

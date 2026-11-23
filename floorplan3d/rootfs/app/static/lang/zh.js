@@ -4088,4 +4088,13 @@ export default {
   'imp.ai3': '把它的回答（JSON）粘贴到下面 → “检查” → “导入”。总是创建一栋新房屋，不会覆盖任何内容。', 'imp.aiAfter': '然后：把房间和设备与 Home Assistant 关联（🧭 入门步骤）。', 'imp.or': '或者：',
   'well.title': '采光井', 'well.on': '窗前采光井', 'well.w': '采光井宽度', 'well.d': '深度（离墙）', 'well.free': '窗户高于地面：不需要采光井。', 'well.offHint': '已关闭：泥土直到墙边，窗户埋在地下。',
   'well.onHint': '窗户在地面以下 {d}。采光井让光线进入；上方的草坪、小路和平台已被切开，顶部盖有格栅。', 'v2.sec.well': '采光井', 'v2.sum.wellSize': '{w} × {d}', 'v2.sum.wellOff': '关闭',
+  'steps.number': '台阶数', 'steps.countAuto': '自动（{n}）', 'steps.countN': '{n} 级，每级 {rise}', 'steps.rail.both': '两侧', 'steps.rail.left': '左侧',
+  'steps.rail.right': '右侧', 'steps.rail.none': '无', 'steps.railLook': '扶手材质', 'steps.look.black': '黑色金属', 'steps.look.steel': '不锈钢横杆',
+  'steps.railHint': '左右以站在台阶下方、面向门的方向为准。',
+  'terrain.stepsHead': '室外台阶', 'terrain.stepsHelp': '如果大门前的地面低于一楼，此按钮会在门前放置室外台阶，高度正好等于高差。', 'terrain.noDoor': '没有找到门前地面至少低 10 厘米的外门。请从资料库（室外）自行放置室外台阶。',
+  'dev.porchroof': '门廊雨棚', 'v2.sec.porch': '雨棚', 'porch.title': '雨棚', 'porch.add': '＋ 门上加雨棚', 'porch.show': '选择此门的雨棚',
+  'porch.done': '已放置雨棚：可在右侧修改宽度、深度、高度、立柱和顶面。', 'porch.help': '在此门上方加一个木质单坡小屋顶，可用两根立柱支撑（例如立在室外台阶的平台上），也可只挂在墙上。', 'porch.w': '宽度', 'porch.d': '进深（离墙）',
+  'porch.h': '前沿高度（梁底）', 'porch.pitch': '坡度（°）', 'porch.posts': '两根立柱', 'porch.cover': '顶面', 'porch.cover.tiles': '瓦片', 'porch.cover.metal': '金属板',
+  'porch.cover.glass': '玻璃', 'porch.fieldsHelp': '后端挂在墙上，前端搁在梁上。立柱一直到本层地面，例如立在室外台阶的平台上。旋转使其背面朝向墙。',
+  'balc.roofOver': '房屋屋顶覆盖其上', 'balc.roofOverHint': '阳台位于房屋屋顶之下（屋檐覆盖它）。不勾选时，屋顶会避开开放空间。',
 };
