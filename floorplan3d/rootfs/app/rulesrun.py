@@ -300,7 +300,10 @@ async def _do(rules, calls, lines, now, env):
     name = next((x["name"] for x in lines if x.get("name")), None)          # the routine
     for dom, svc, data in calls:
         if dom == "notify":
-            await env.notify(data.get("message", ""))
+            if data.get("card"):                                            # 🖼 with a picture card (5.33.0)
+                await env.notify(data.get("message", ""), card=data["card"], ent=data.get("ent") or None, title=name or "")
+            else:
+                await env.notify(data.get("message", ""))
         else:
             _before(env, "flow", name, dom, svc, data)
             _command(env, "flow", name, dom, svc, data, await env.call(dom, svc, data))
@@ -392,7 +395,11 @@ async def _wish(rules, req, states, cache, env):
         if ev.get("event_type") == NOTIFY_EVENT and isinstance(d.get("message"), str) and d["message"].strip():
             text = d["message"].strip()[:300]
             rules.note([{"src": "flow", "act": "notify", "name": "Home Assistant", "v": text}], time.time())
-            await env.notify(text)
+            if isinstance(d.get("card"), str) and d["card"]:                 # 🖼 an automation's message with a picture card (5.33.0)
+                ent = d.get("entity") if isinstance(d.get("entity"), str) and "." in d.get("entity", "") else None
+                await env.notify(text, card=d["card"][:24], ent=ent, title=str(d.get("title") or "")[:60])
+            else:
+                await env.notify(text)
             return
         eid = d.get("entity_id")
         if ev.get("event_type") != "state_changed" or not isinstance(eid, str):

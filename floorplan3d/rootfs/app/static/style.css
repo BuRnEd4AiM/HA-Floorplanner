@@ -558,6 +558,77 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 #alarmNotify .anTokCheck { margin: 2px 0 8px; min-height: 1em; }
 #alarmNotify .anTokCheck.bad { color: #e0a030; }
 #alarmNotify .anChatHand { margin: 4px 0 8px; }
+#alarmNotify .anCards { margin: 6px 0 10px; padding: 6px 10px 4px; border: 1px solid var(--line); border-radius: 8px; border-left: 4px solid #9b6cf0; }
+#alarmNotify .anCardRow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 8px; align-items: center; margin: 4px 0; font-size: 13px; }   /* 🖼 a card per alarm (5.33.0) */
+/* 🖼 Bildkarten fürs Handy (5.33.0, piccardsui.js): the part of ▶ Abläufe and the editor */
+.pcCard .pcHeadSub { margin-left: 8px; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--muted); font-size: 12.5px; }
+.pcCard .pcList { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; padding: 6px 2px 4px; }
+.pcCard .pcTile { width: 180px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 0; background: none; border: none; color: var(--text); text-align: left; cursor: pointer; }
+.pcCard .pcTile .pcThumb { width: 180px; min-height: 120px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); box-shadow: 0 4px 14px rgba(0, 0, 0, .35); object-fit: cover; object-position: top; max-height: 230px; }
+.pcCard .pcTile b { font-size: 15px; }
+.pcCard .pcTile small { color: var(--muted); font-size: 12px; }
+.pcCard .pcNew { height: 200px; justify-content: center; align-items: center; text-align: center; border: 2px dashed var(--accent); border-radius: 12px; color: var(--accent); padding: 10px; }
+.pcCard .pcNew .pcPlus { font-size: 32px; line-height: 1; }
+.pcCard .pcNote { margin: 6px 2px 0; }
+#picCardDlg { width: min(1240px, calc(100vw - 16px)); max-width: none; height: min(840px, calc(100vh - 16px)); padding: 0; display: none; flex-direction: column; overflow: hidden; }
+#picCardDlg[open] { display: flex; }
+#picCardDlg .pcTop { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+#picCardDlg .pcTopIcon { font-size: 20px; }
+#picCardDlg .pcName { flex: 1 1 200px; min-width: 0; font-size: 17px; font-weight: 700; }
+#picCardDlg .pcStatus { color: var(--muted); font-size: 13px; flex: 1 1 160px; min-width: 0; }
+#picCardDlg .pcTplTitle { font-size: 17px; }
+#picCardDlg .pcBody { flex: 1; min-height: 0; display: grid; grid-template-columns: 230px minmax(0, 1fr) 420px; overflow: hidden; }
+#picCardDlg .pcSide, #picCardDlg .pcBlocks, #picCardDlg .pcPrev { overflow: auto; padding: 10px 14px; min-height: 0; }
+#picCardDlg .pcSide { border-right: 1px solid var(--line); }
+#picCardDlg .pcPrev { border-left: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 55%, var(--panel)); display: flex; flex-direction: column; align-items: center; }
+#picCardDlg .pcPrevImg { width: 100%; max-width: 390px; border-radius: 12px; box-shadow: 0 8px 26px rgba(0, 0, 0, .45); min-height: 200px; background: var(--field); transition: opacity .2s; }
+#picCardDlg .pcPrevImg.busy { opacity: .6; }
+#picCardDlg .pcSect { font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
+#picCardDlg .pcSwatches { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+#picCardDlg .pcSwatch { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); padding: 0; cursor: pointer; }
+#picCardDlg .pcSwatch.on { outline: 3px solid var(--text); outline-offset: 1px; }
+#picCardDlg .pcColor { width: 34px; height: 30px; padding: 0; border: none; background: none; }
+#picCardDlg .pcChips { display: flex; flex-wrap: wrap; gap: 6px; }
+#picCardDlg .pcUsed { font-size: 13px; line-height: 1.6; }
+#picCardDlg .pcDel { margin-top: 16px; }
+#picCardDlg .pcRow { display: flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 10px; background: var(--field); margin-bottom: 6px; padding: 2px 4px 2px 0; }
+#picCardDlg .pcRow.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--field)); }
+#picCardDlg .pcRow.half { border-style: dashed; }
+#picCardDlg .pcRow.over { outline: 2px dashed var(--accent); }
+#picCardDlg .pcRow.drag { opacity: .5; }
+#picCardDlg .pcRowMain { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; background: none; border: none; color: var(--text); text-align: left; padding: 6px 8px; cursor: pointer; }
+#picCardDlg .pcGrip { color: var(--muted); cursor: grab; font-size: 17px; }
+#picCardDlg .pcIcon { font-size: 18px; width: 26px; text-align: center; }
+#picCardDlg .pcRowTx { display: flex; flex-direction: column; min-width: 0; }
+#picCardDlg .pcRowTx small { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#picCardDlg .pcMini { background: none; border: none; color: var(--muted); padding: 6px 7px; font-size: 13px; cursor: pointer; }
+#picCardDlg .pcMini:disabled { opacity: .3; }
+#picCardDlg .pcOpts { margin: -2px 0 10px 30px; padding: 8px 10px; border-left: 3px solid var(--accent); display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+#picCardDlg .pcField { display: flex; flex-direction: column; gap: 4px; }
+#picCardDlg .pcCheck { display: flex; align-items: center; gap: 8px; }
+#picCardDlg .pcRowsPick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; }
+#picCardDlg .pcEnt { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+#picCardDlg .pcAddEnt { display: flex; gap: 6px; }
+#picCardDlg .pcAddEnt input { flex: 1; min-width: 0; }
+#picCardDlg .pcTpls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 16px; overflow: auto; }
+#picCardDlg .pcTpl { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--field); color: var(--text); text-align: left; cursor: pointer; }
+#picCardDlg .pcTpl:hover { border-color: var(--accent); }
+#picCardDlg .pcTplIcon { font-size: 28px; }
+#picCardDlg .pcTpl small { color: var(--muted); }
+@media (max-width: 900px) {   /* phone and small tablet: the card first, then the blocks, then colour and shape (picture 3) */
+  #picCardDlg { height: calc(100vh - 8px); width: calc(100vw - 8px); }
+  #picCardDlg .pcBody { display: flex; flex-direction: column; overflow: auto; }
+  #picCardDlg .pcSide, #picCardDlg .pcBlocks, #picCardDlg .pcPrev { overflow: visible; border: none; flex: none; min-height: auto; }
+  #picCardDlg .pcTopIcon { display: none; }
+  #picCardDlg .pcName { flex: 1 1 100%; }
+  #picCardDlg .pcStatus { order: 5; flex: 1 1 100%; }
+  #picCardDlg .pcTop .bdBtn { flex: 1 1 auto; }
+  #picCardDlg .pcTop .pcClose { flex: none; }
+  #picCardDlg .pcPrev { order: -1; border-bottom: 1px solid var(--line); }
+  #picCardDlg .pcPrevImg { max-width: min(330px, 100%); }
+  #picCardDlg .pcSide { order: 2; border-top: 1px solid var(--line); }
+  #picCardDlg .pcTpls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 dialog .row[hidden] { display: none; }
 #settingsDialog .sgHit { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 /* wide screens (4.35.0, setgroups.js): the settings over almost the whole screen, the groups as a list on the left, the chosen one on the

@@ -59,6 +59,7 @@ import maintenance as mt
 import alarmpic as apic
 import monthreport as mr
 import tgbot
+import piccard as pc  # 🖼 Bildkarten fürs Handy (5.33.0)
 import scenes as sc
 import trains as tr
 import rulesrun as rr
@@ -2021,13 +2022,17 @@ def backup_extras(request, secrets: bool = False) -> dict:
     rules = read_json(rules_path(request), {})
     rules = rules if isinstance(rules, dict) else {}
     full = read_json(full_path(request), {})
-    return {"pinboard": read_notes(request),
+    out = {"pinboard": read_notes(request),
             "guard": {**{k: v for k, v in guard.items() if k != "code"}, "code": gd.stored_code(guard.get("code"))},
             "fullscreen": {"code": gd.stored_code(full.get("code") if isinstance(full, dict) else None)},
-            "notify": {k: v for k, v in an.clean(n, n).items() if secrets or k not in an.SECRETS},
+            "notify": {k: v for k, v in an.clean(n, n).items() if secrets or k not in an.BACKUP_SECRETS},   # the bot's key too (5.33.0)
             "rules": {"heat": hr.clean_rules(rules.get("heat")), "flows": fl.clean_flows(rules.get("flows")),   # heating rules, routines (#546)
                       "days": sdays.clean_days(rules.get("days")), "sun": sunshade.clean_sun(rules.get("sun")),   # 📅 Besondere Tage, ☀ Sonnenschutz
                       "vac": vacation.clean_vac(rules.get("vac"))}}                                            # 🏠 Urlaubs-Licht
+    cards = read_json(piccards_path(request), None)                  # 🖼 Bildkarten (5.33.0): the saved ones (none saved: the three a house starts with)
+    if isinstance(cards, dict) and isinstance(cards.get("cards"), list):
+        out["piccards"] = pc.clean_cards(cards["cards"])
+    return out
 
 
 def apply_extras(request, extras) -> list:
@@ -2053,11 +2058,14 @@ def apply_extras(request, extras) -> list:
         write_json_atomic(full_path(request), {"code": code})
         done.append("fullscreen")
     if isinstance(extras.get("notify"), dict):
-        keys = {k: extras["notify"][k] for k in an.SECRETS if isinstance(extras["notify"].get(k), str) and extras["notify"][k].strip()}
-        cfg = an.clean({**{k: v for k, v in extras["notify"].items() if k not in an.SECRETS}, **keys}, notify_cfg(request))
+        keys = {k: extras["notify"][k] for k in an.BACKUP_SECRETS if isinstance(extras["notify"].get(k), str) and extras["notify"][k].strip()}
+        cfg = an.clean({**{k: v for k, v in extras["notify"].items() if k not in an.BACKUP_SECRETS}, **keys}, notify_cfg(request))
         write_json_atomic(notify_path(request), cfg)
         app_state(request)[KEY_NOTIFY]["cfg"] = cfg
         done.append("notify")
+    if isinstance(extras.get("piccards"), list):                                    # 🖼 Bildkarten (5.33.0)
+        write_json_atomic(piccards_path(request), {"cards": pc.clean_cards(extras["piccards"])})
+        done.append("piccards")
     if isinstance(extras.get("rules"), dict):
         cfg = {"heat": hr.clean_rules(extras["rules"].get("heat")), "flows": fl.clean_flows(extras["rules"].get("flows")),
                "days": sdays.clean_days(extras["rules"].get("days")), "sun": sunshade.clean_sun(extras["rules"].get("sun")),   # ☀ Sonnenschutz
@@ -3598,9 +3606,17 @@ async def put_notify(request):
 
 async def alarm_pics(request, cfg: dict, places: list, alarm: dict | None, lang: str) -> list:
     """📸 the pictures of an alarm for the bot (5.16.0): the floor from above with the room in red (alarmpic.plan_png) and the picture of a
-    camera in the room (Home Assistant's camera_proxy); none for "back to normal", nothing that fails stops the message"""
+    camera in the room (Home Assistant's camera_proxy); none for "back to normal", nothing that fails stops the message. 🖼 With a picture
+    card chosen for its kind (5.33.0, notify settings "cards"): that card as the one picture."""
     if cfg.get("via") != "tgbot" or not alarm or alarm.get("ev") == "clear":
         return []
+    card = card_by_id(request, (cfg.get("cards") or {}).get(alarm.get("kind")))
+    if card:
+        try:
+            ctx = await card_ctx(request, card, alarm.get("kind", "alarm"), alarm.get("eid"), name=alarm.get("name") or "", places=places)
+            return [await asyncio.to_thread(pc.render, card, ctx)]
+        except Exception as err:  # noqa: BLE001 - the plain pictures then
+            log.info("alarm card: %s", err)
     out = []
     place = apic.place_of(places, alarm.get("eid"))
     if cfg.get("plan") and place:
@@ -3661,6 +3677,147 @@ async def find_tg_chats(request):
     except Exception as e:  # noqa: BLE001 - no network: said
         found, err = None, str(e) or type(e).__name__
     return web.json_response(found if found else {"error": err}, status=200 if found else 502)
+
+
+# ---------- 🖼 Bildkarten fürs Handy (5.33.0, piccard.py): a picture of one's own design for an alarm or a routine, through the own bot ----------
+def piccards_path(request) -> Path:
+    return data_dir(request) / "piccards.json"
+
+
+def piccards_of(request) -> list:
+    """the cards: as saved, else the three a house starts with (in the language of the messages)"""
+    stored = read_json(piccards_path(request), None)
+    if isinstance(stored, dict) and isinstance(stored.get("cards"), list):
+        return pc.clean_cards(stored["cards"])
+    return pc.defaults(notify_lang(request))
+
+
+def card_by_id(request, cid):
+    return next((c for c in piccards_of(request) if c["id"] == cid), None) if isinstance(cid, str) and cid else None
+
+
+async def camera_bytes(entity: str):
+    """the picture of a camera of Home Assistant (camera_proxy), None when there is none"""
+    if not (SUPERVISOR_TOKEN and isinstance(entity, str) and entity.startswith("camera.")):
+        return None
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+            async with s.get(f"{HA_API}/camera_proxy/{entity}", headers=ha_headers()) as r:
+                body = await r.read()
+                if r.status == 200 and body[:2] in (b"\xff\xd8", b"\x89P") and len(body) < 9_000_000:
+                    return body
+    except Exception as err:  # noqa: BLE001 - the card goes without it
+        log.info("card camera %s: %s", entity, err)
+    return None
+
+
+async def card_ctx(request, card: dict, kind: str, eid=None, *, name: str = "", text: str = "", title: str = "", preview: bool = False,
+                   places=None) -> dict:
+    """what a card shows (piccard.render): where eid is in the plans, the states of Home Assistant, the time, the camera of the card or of
+    the room; preview: a sample when eid is in no plan (a sensor of that kind in the plan, else a room with a camera, else the first room)"""
+    places = places if places is not None else await asyncio.to_thread(notify_places, request, {})
+    app = app_state(request)
+    place = apic.place_of(places, eid) if eid else None
+    house = place["house"] if place else (places[0][0] if places else "")
+    floors = next(((lay or {}).get("floors") or [] for h, lay in places if h == house), [])
+    lang = notify_lang(request)
+    states = {}
+    if SUPERVISOR_TOKEN:
+        try:
+            states = await ha_states_cached(app)
+        except Exception as err:  # noqa: BLE001 - a card without values
+            log.info("card states: %s", err)
+    if preview and not place and kind != "flow":                 # the sample: a sensor of that kind in the plan, else a room with a camera
+        cls = {v: k for k, v in an.CLASSES.items()}.get(kind)
+        for e in sorted(states):
+            st = states[e]
+            if (cls and e.startswith("binary_sensor.") and (st.get("attributes") or {}).get("device_class") == cls) or (kind == "alarm" and e.startswith("alarm_control_panel.")):
+                place = apic.place_of(places, e)
+                if place:
+                    eid, name = e, name or hanames.name(st, e) or ""
+                    house = place["house"]
+                    floors = next(((lay or {}).get("floors") or [] for h, lay in places if h == house), floors)
+                    break
+    if preview and not place:
+        rooms = [(h, f, r) for h, lay in places for f in (lay or {}).get("floors") or [] for r in f.get("rooms") or []
+                 if isinstance(r, dict) and len(r.get("points") or []) >= 3 and f.get("kind") != "roof"]
+        with_cam = [x for x in rooms if apic.cameras_near({"floor": x[1], "room": x[2], "x": 0, "z": 0})]
+        sample = (with_cam or rooms or [None])[0]
+        if sample and kind != "flow":
+            h, f, r = sample
+            pts = r["points"]
+            place = {"house": h, "floor": f, "room": r, "x": sum(float(p[0]) for p in pts) / len(pts), "z": sum(float(p[1]) for p in pts) / len(pts)}
+            house = h
+            name = name or pc.words(lang)["sample"]
+            floors = next(((lay or {}).get("floors") or [] for hh, lay in places if hh == h), floors)
+    if eid and not name:
+        name = hanames.name(states.get(eid), eid) or ""
+    tz = (app.get(KEY_RULES) or {}).get("tz")
+    now = datetime.datetime.now(tz)
+    cams = [b.get("ent") for b in card.get("blocks") or [] if b.get("k") == "camera"]
+    cam = next((c for c in cams if c), "") or (apic.cameras_near(place)[:1] or [""])[0] if cams else ""
+    if not cam and cams and preview:
+        cam = next((e for e in sorted(states) if e.startswith("camera.")), "")
+    return {"kind": kind, "title": title, "name": name, "text": text, "place": place, "floors": floors, "house": house, "states": states,
+            "lang": lang, "now": now, "since": now, "camera": await camera_bytes(cam) if cam else None,
+            "camera_name": hanames.name(states.get(cam), "") or (cam.split(".", 1)[1].replace("_", " ").title() if cam else ""), "preview": preview}
+
+
+async def get_piccards(request):
+    """the cards (everyone who sees the page: they hold no keys)"""
+    return web.json_response({"cards": piccards_of(request), "edit": await can_edit(request)})
+
+
+async def put_piccards(request):
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    cards = pc.clean_cards((body or {}).get("cards") if isinstance(body, dict) else None)
+    write_json_atomic(piccards_path(request), {"cards": cards})
+    return web.json_response({"cards": cards, "edit": True})
+
+
+async def _card_from(request):
+    try:
+        body = await request.json()
+    except ValueError:
+        body = {}
+    body = body if isinstance(body, dict) else {}
+    card = pc.clean_card(body.get("card")) if isinstance(body.get("card"), dict) else card_by_id(request, body.get("id"))
+    kind = body.get("kind") if body.get("kind") in (*an.KINDS, "flow", "test") else "water"
+    return card, kind, body
+
+
+async def preview_piccard(request):
+    """🖼 the card drawn with what the house shows now (a room of the plan as the sample), as a PNG (editors)"""
+    if not await can_edit(request):
+        return forbidden()
+    card, kind, body = await _card_from(request)
+    if not card:
+        return web.json_response({"error": "card"}, status=400)
+    ctx = await card_ctx(request, card, kind, body.get("ent") if isinstance(body.get("ent"), str) else None,
+                         text=str(body.get("text") or "")[:200], title=str(body.get("title") or card["name"])[:60], preview=True)
+    png = await asyncio.to_thread(pc.render, card, ctx)
+    return web.Response(body=png, content_type="image/png", headers={"Cache-Control": "no-store"})
+
+
+async def test_piccard(request):
+    """🖼 „Test an mich“: the card through the own Telegram bot to its chats (editors)"""
+    if not await can_edit(request):
+        return forbidden()
+    cfg = notify_cfg(request)
+    if cfg.get("via") != "tgbot" or an.ready({**cfg, "on": True}):
+        return web.json_response({"ok": False, "error": "notbot"}, status=400)
+    card, kind, body = await _card_from(request)
+    if not card:
+        return web.json_response({"error": "card"}, status=400)
+    ctx = await card_ctx(request, card, kind, None, text=str(body.get("text") or "")[:200], title=card["name"], preview=True)
+    png = await asyncio.to_thread(pc.render, card, ctx)
+    ok, err = await send_notify(cfg, f"🖼 {card['name']}", [png])
+    return web.json_response({"ok": ok, "error": err}, status=200 if ok else 502)
 
 
 def notify_places(request, cache: dict) -> list:
@@ -4203,8 +4360,17 @@ async def rules_runner(app):
             def command(self, src, name, domain, service, data, ok):
                 cmd_log(ctx, src, name, domain, service, data, ok, self.err)
 
-            async def notify(self, text):
-                ok, err = await send_notify(notify_cfg(ctx), text)
+            async def notify(self, text, card=None, ent=None, title=""):
+                """a routine's message; 🖼 with a picture card (5.33.0) through the own bot: the card drawn for the device that set it off"""
+                cfg, pics = notify_cfg(ctx), []
+                c = card_by_id(ctx, card) if cfg.get("via") == "tgbot" else None
+                if c:
+                    try:
+                        cc = await card_ctx(ctx, c, "flow", ent, text=text, title=title or c["name"])
+                        pics = [await asyncio.to_thread(pc.render, c, cc)]
+                    except Exception as err:  # noqa: BLE001 - the text goes alone
+                        log.info("routine card: %s", err)
+                ok, err = await send_notify(cfg, text, pics)
                 log.info("routine message %s", "sent" if ok else f"not sent: {err}")
 
             version = (mf.load_manifest(Path(__file__).parent) or {}).get("version")
@@ -5081,6 +5247,10 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.put("/api/notify", put_notify),
         web.post("/api/notify/test", test_notify),
         web.post("/api/notify/tgchats", find_tg_chats),
+        web.get("/api/piccards", get_piccards),                  # 🖼 Bildkarten fürs Handy (5.33.0)
+        web.put("/api/piccards", put_piccards),
+        web.post("/api/piccards/preview", preview_piccard),
+        web.post("/api/piccards/test", test_piccard),
         web.get("/api/guard", get_guard),
         web.put("/api/guard", put_guard),
         web.post("/api/guard/arm", arm_guard),

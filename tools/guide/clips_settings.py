@@ -135,9 +135,9 @@ def _(r):
 @clip("backup", "settings",
       {"de": "Backup: alles sichern und zurückholen", "en": "Backup: save everything and restore it"},
       {"de": "„Backup“ lädt alles als eine Datei herunter: Häuser, Einstellungen, Bilder, die Codes und auf Wunsch die Aufzeichnungen "
-             "und die CallMeBot-Schlüssel. Mit der Datei kommt alles wieder zurück.",
+             "und die Schlüssel (CallMeBot, Telegram-Bot). Mit der Datei kommt alles wieder zurück.",
        "en": "“Backup” downloads everything as one file: houses, settings, pictures, the codes and, if you like, the recordings and "
-             "the CallMeBot keys. With that file everything comes back."},
+             "the keys (CallMeBot, Telegram bot). With that file everything comes back."},
       "Backup Sicherung sichern wiederherstellen Datei herunterladen hochladen alles komplett Codes Schlüssel Aufzeichnung Protokoll "
       "backup save restore file download upload everything complete codes keys recordings log")
 def _(r):
@@ -154,8 +154,8 @@ def _(r):
     r.say("Mit Häkchen auch die Aufzeichnungen …", "Ticked: the recordings too …")
     r.move("#setBackupRecording")
     r.wait(1700)
-    r.say("… und auf Wunsch die CallMeBot-Schlüssel. Die stehen lesbar drin: die Datei dann nicht weitergeben.",
-          "… and, if you like, the CallMeBot keys. They are readable in the file: then do not pass it on.")
+    r.say("… und auf Wunsch die Schlüssel von CallMeBot und vom Telegram-Bot. Die stehen lesbar drin: die Datei dann nicht weitergeben.",
+          "… and, if you like, the keys of CallMeBot and of the Telegram bot. They are readable in the file: then do not pass it on.")
     r.click("#setBackupSecrets")
     r.wait(2200)
     r.click("#setBackupSecrets")

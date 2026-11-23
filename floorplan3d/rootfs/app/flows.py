@@ -20,6 +20,7 @@ import specialdays as sd
 ENTITY = re.compile(r"^[a-z_]{1,32}\.[a-z0-9_]{1,100}$")
 FLOW_ID = re.compile(r"^f_[a-z0-9]{1,16}$")
 LANE_ID = re.compile(r"^l[a-z0-9]{1,8}$")
+CARD = re.compile(r"^[a-z0-9_-]{1,24}$")           # 🖼 the id of a picture card (piccard.py)
 HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 MAX_FLOWS, MAX_LANES, MAX_BLOCKS, MAX_ENTS = 40, 4, 12, 20
 OPEN, CLOSED, GONE = {"on", "open", "opening", "tilted"}, {"off", "closed"}, {None, "unavailable", "unknown"}   # tilted: #624
@@ -141,7 +142,12 @@ def clean_block(b) -> dict | None:
         return {"k": k, "ent": ent} if ent else None
     if k == "notify":
         text = b.get("text")
-        return {"k": k, "text": text.strip()[:200]} if isinstance(text, str) and text.strip() else None
+        if not (isinstance(text, str) and text.strip()):
+            return None
+        out = {"k": k, "text": text.strip()[:200]}
+        if isinstance(b.get("card"), str) and CARD.match(b["card"]):
+            out["card"] = b["card"]                                 # 🖼 sent as this picture card (5.33.0, piccard.py)
+        return out
     return None
 
 
@@ -348,7 +354,10 @@ def action_calls(block, run, ctx, saved: dict) -> list:
     """the calls of one action; what it changes is remembered first (once per routine) for "wie vorher\""""
     k, calls = block["k"], []
     if k == "notify":
-        return [("notify", "", {"message": fill(block["text"], run, ctx)})]
+        data = {"message": fill(block["text"], run, ctx)}
+        if block.get("card"):
+            data.update(card=block["card"], ent=run.get("ent") or "")   # 🖼 the card shows where the device that set it off is
+        return [("notify", "", data)]
     if k == "run":
         return [(block["ent"].split(".")[0], "turn_on", {"entity_id": block["ent"]})]
     ents = [e for e in targets(block, run, ctx) if _state(ctx, e) not in GONE or k == "restore"]

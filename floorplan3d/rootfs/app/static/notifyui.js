@@ -8,7 +8,8 @@
  * it (alarmpic.py); "🔎 Chat finden" lists who wrote to the bot. 5.32.1 (the owner: "kann man den Schlüssel des Bots nicht richtig
  * einfügen", "wenn man auf Chat finden drückt, resettet sich die Ansicht"): the part is drawn anew from what is typed, not from what was
  * saved (it jumped back to WhatsApp and the key was gone); the key is a plain field with a check under it, found inside a pasted message,
- * with a 📋 button; Telegram's "no" is said in words; a chat can be typed by hand (when another program reads the bot). Above it, in the group "Warnings & alarm", which alarm panels Home Assistant has: the add-on has no alarm of its own, the doors
+ * with a 📋 button; Telegram's "no" is said in words; a chat can be typed by hand (when another program reads the bot). 🖼 5.33.0: per kind
+ * of alarm a picture card of one's own (piccardsui.js) instead of the plan and the camera ("cards"). Above it, in the group "Warnings & alarm", which alarm panels Home Assistant has: the add-on has no alarm of its own, the doors
  * and windows that set it off are chosen in the alarm panel (e.g. Alarmo). */
 import { alarmPanels } from './alerts.js';
 
@@ -51,7 +52,7 @@ export function chatId(v) {
   return /^-?[0-9]{1,20}$/.test(s) || /^@[A-Za-z0-9_]{5,32}$/.test(s) ? s : '';
 }
 
-/** ctx: $, t, entities() */
+/** ctx: $, t, entities(), cards() (the picture cards, 5.33.0), loadCards() */
 export function initNotifyUi(ctx) {
   const { $, t } = ctx;
   const box = $('#alarmNotify'), head = $('#alarmNotifyTitle'), off = $('#alarmNotifyOff'), panelsEl = $('#alarmPanels');
@@ -83,6 +84,7 @@ export function initNotifyUi(ctx) {
       cfg = j; services = j.available || []; status = why(j.ready);
     } catch { cfg = null; }
     render(true);
+    if (cfg && ctx.loadCards && !(ctx.cards?.() || []).length) ctx.loadCards().then(() => render()).catch(() => {});   // 🖼 the cards to choose from
   }
   /** what the fields say now (with `raw`: also what is typed in the key fields, to draw it again) */
   function read(raw) {
@@ -100,6 +102,7 @@ export function initNotifyUi(ctx) {
     if (raw) out.typed = { anKey: v('anKey').value, anTgKey: v('anTgKey').value, anBotToken: v('anBotToken').value, anChatId: v('anChatId')?.value || '' };
     out.botChats = [...box.querySelectorAll('[data-chat]:checked')].map((c) => ({ id: c.dataset.chat, name: c.dataset.name || '' }));
     out.plan = v('anPlan').checked; out.camera = v('anCamera').checked;
+    out.cards = Object.fromEntries([...box.querySelectorAll('[data-card-kind]')].map((s) => [s.dataset.cardKind, s.value]).filter(([, id]) => id));   // 🖼 5.33.0
     return out;
   }
   /** numbered steps, folded in a line that opens (needed once, 5.8.0); the link goes after the step at `at` */
@@ -299,6 +302,21 @@ export function initNotifyUi(ctx) {
     const handRow = el('div', 'anTokRow'); handRow.append(cid, addBtn);
     byHand.append(el('summary', '', `✍️ ${t('an.bot.byHand')}`), el('p', 'sub', t('an.bot.byHandHelp')), handRow);
     bot.append(byHand, check('anPlan', 'an.bot.plan', cfg.plan !== false), check('anCamera', 'an.bot.camera', cfg.camera !== false));
+    // 🖼 a picture card of one's own per kind of alarm (5.33.0): instead of the plan and the camera above
+    const cards = ctx.cards?.() || [], perKind = el('div', 'anCards');
+    perKind.append(el('div', 'anSrcHead', `🖼 ${t('an.cards')}`));
+    KINDS.forEach((k) => {
+      const row = el('label', 'anCardRow'), s = el('select'); s.dataset.cardKind = k;
+      s.add(new Option(t('an.cardStd'), ''));
+      cards.forEach((c) => s.add(new Option(c.name, c.id)));
+      const id = (cfg.cards || {})[k] || '';
+      if (id && !cards.some((c) => c.id === id)) s.add(new Option(id, id));
+      s.value = id;
+      row.append(el('span', '', t(`an.kind.${k}`)), s);
+      perKind.append(row);
+    });
+    perKind.append(el('p', 'sub', t('an.cardsHint')));
+    bot.append(perKind);
     const shown = () => {
       wa.hidden = via.value !== 'whatsapp'; tg.hidden = via.value !== 'telegram'; ha.hidden = via.value !== 'ha'; bot.hidden = via.value !== 'tgbot';
       tgUser.hidden = mode.value !== 'user'; tgGroup.hidden = mode.value !== 'group';

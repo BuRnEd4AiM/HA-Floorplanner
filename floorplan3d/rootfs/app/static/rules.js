@@ -126,7 +126,7 @@ export function blockWords(b, ctx) {
     case 'heat': return { icon: '🔥', text: b.same ? same('heat') : nm(b.ents), sub: b.do === 'temp' ? deg(b.v) : t(`fl.heat.${b.do}`) };
     case 'cover': return { icon: '🪟', text: b.same ? same('cover') : nm(b.ents), sub: b.do === 'pos' ? `${b.v} %` : t(`fl.cover.${b.do}`) };
     case 'run': return { icon: b.ent.startsWith('scene.') ? '🎬' : '📜', text: one(b.ent), sub: t('fl.start') };
-    case 'notify': return { icon: '🔔', text: t('fl.b.notify'), sub: `„${b.text}“` };
+    case 'notify': return { icon: b.card ? '🖼' : '🔔', text: t('fl.b.notify'), sub: `„${b.text}“` };   // 🖼 with a picture card (5.33.0)
     case 'restore': return { icon: '↩', text: t('fl.b.restore'), sub: b.same ? same('restore') : b.ents.length ? nm(b.ents) : t('fl.everything') };
     default: return { icon: '?', text: b.k, sub: '' };
   }

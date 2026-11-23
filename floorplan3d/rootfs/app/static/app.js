@@ -161,6 +161,7 @@ import { initShortcuts } from './shortcuts.js';
 import { initClipboard } from './clipboard.js';
 import { initEnergySetup } from './energysetup.js';
 import { initNotifyUi } from './notifyui.js';
+import { initPicCards } from './piccardsui.js';
 import { initMonthReportUi } from './monthreportui.js';
 import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.js';
 import { initSetControls } from './setcontrols.js';
@@ -686,6 +687,10 @@ const lightGroups = initLightGroups({ $, t, layout: () => shownLayout(), plan: (
   areaEntities: areaEntitiesOf, isOn: isLit, callService: (e, svc) => live.callService(e, svc), canEdit: () => me.canEdit, setStatus: (x) => setStatus(x),
   occupied: (r, f) => roomSummary(r, f, { placed: entityDevices(f), areaEntities: areaEntitiesOf(r), states, isOn: isLit, isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o) }).occupied,
   openSettings: () => openSettingsAt('quick'), commit: () => commitSettings(), isOpen: () => !$('#lightsMenu').hidden, close: () => toggleMenu($('#lightsMenu'), $('#lightsPill'), false) });
+const picCards = initPicCards({                                  // 🖼 Bildkarten fürs Handy (5.33.0, piccardsui.js): a part of ▶ Abläufe
+  t, canEdit: () => me.canEdit, states: () => states, names: () => namesOf(/./), flows: () => rulesUi.rules.get()?.flows || [],
+  notify: () => notifyUi.cfg(), changed: () => routinesPage.update(),
+});
 const rulesUi = initRulesUi({                                    // the add-on's own heating rules and routines, 🔎 Wird benutzt (#546, rulesui.js)
   t, lang: () => currentLanguage(), settings: () => settings, states: () => states, entities: () => entities, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
   canEdit: () => me.canEdit, locked: () => locks.has('control'), locks: () => locks, callService: (e, svc, data) => live.callService(e, svc, data), houseId: () => hs.id(),
@@ -693,6 +698,7 @@ const rulesUi = initRulesUi({                                    // the add-on's
   redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); }, partOf, areas: () => areas, areaOf: () => areaOf,   // ▶ Abläufe by room (#590)
   shows: inBuilding,                                             // only the routines, automations and scenes of the building shown (#677)
   north: () => northOf(layout), setNorth: (v) => { snapshot(); layout.north = v; changed(false); },   // ☀ where north is (sunshade.js), no new drawing
+  cards: () => picCards.list(),                                  // 🖼 a routine's message as a picture card (5.33.0)
 });
 const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
   settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf,
@@ -828,6 +834,7 @@ const routinesPage = initRoutinesPage({                          // ▶ Abläufe
   openNames: () => openings.items().map((x) => x.name), litLights: () => lightGroups.lit(),
   callService: (e, svc, data) => live.callService(e, svc, data), board, own: rulesUi.own, shows: inBuilding,   // the own routines (#546)
   groups: rulesUi.groups, areaOf: () => areaOf,                   // by room (#590)
+  cards: picCards,                                               // 🖼 Bildkarten fürs Handy (5.33.0)
 });
 const roomOf = (e) => placeOf(layout, e)?.room || areas.find((a) => a.id === areaOf[e])?.name || '';   // the room of a device: in the plan, else its area
 const checkPage = initCheckPage({                                // 🩺 Haus-Check with 🔧 Wartung (pagecheck.js, housecheck.js, 5.24.0)
@@ -1998,7 +2005,7 @@ const settingsStore = initSettings({
   },
 });
 const loadSettings = () => settingsStore.load();
-const notifyUi = initNotifyUi({ $, t, entities: () => entities }); // settings: a message on alarm by WhatsApp (#414) and the alarm panels, notifyui.js
+const notifyUi = initNotifyUi({ $, t, entities: () => entities, cards: () => picCards.list(), loadCards: () => picCards.load() }); // settings: a message on alarm by WhatsApp (#414) and the alarm panels, notifyui.js; 🖼 a card per alarm
 const monthReportUi = initMonthReportUi({ t, settings: () => settings, save: () => settingsStore.save(), canEdit: () => me.canEdit });   // 📊 Monatsbericht (5.26.0)
 $('#settingsBtn').addEventListener('click', () => monthReportUi.render());
 initSetGroups({ $, t });                         // settings in groups that fold open, with a search, setgroups.js

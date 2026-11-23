@@ -540,7 +540,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 228. Neu in 5.31.0: 🔆 Lichtschächte an den Kellerfenstern | 4 | 0 | 2 | 0 | 228.5, 228.6 |
 | 229. Neu in 5.32.0: 🪜 Eingang mit Außentreppe und Vordach, Balkon unter dem Dach (#786, #794) | 6 | 0 | 1 | 0 | 229.7 |
 | 230. Repariert in 5.32.1: 📸 Telegram-Bot einrichten (#796) | 5 | 0 | 3 | 0 | 230.6 bis 230.8 |
-| **Zusammen** | **1385** | **2** | **173** | **92** | |
+| 231. Neu in 5.33.0: 🖼 Bildkarten fürs Handy | 5 | 0 | 4 | 0 | 231.6 bis 231.9 |
+| **Zusammen** | **1390** | **2** | **177** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3456,3 +3457,18 @@ Dein Hinweis (23.11.): der Schlüssel des Bots ließ sich nicht richtig einfüge
 | 230.6 | Im Add-on am Handy: den Schlüssel von BotFather kopieren und einfügen (lange tippen → Einfügen, oder „📋 Einfügen“), dem Bot „Hallo“ schreiben, „🔎 Chat finden“ | Der Schlüssel ist zu sehen und hat ein ✅; dein Name erscheint angekreuzt, die Ansicht springt nicht zurück | ❓ |
 | 230.7 | „Test senden“ | In Telegram kommt das Bild deines Grundrisses mit dem Text darunter | ❓ |
 | 230.8 | Nur wenn „Chat finden“ „ein anderes Programm liest diesen Bot schon“ sagt: deine Chat-ID von @userinfobot von Hand eintragen, „Speichern“, „Test senden“ | Die Nachricht kommt trotzdem an | ❓ |
+
+## 231. Neu in 5.33.0: 🖼 Bildkarten fürs Handy
+Dein Wunsch (23.11.): eigene Bilderkarten für Alarme und Abläufe; deine Wahl aus `docs/ideen-5.33`: Idee 1 (Bausteine untereinander) mit Vorlagen, unter ▶ Abläufe, alles davon; die Karte mit der großen Kamera heißt „Test 1“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 231.1 | Unit-Tests `tests/test_piccard.py`, `tests/piccards.test.mjs` (neu), `tests/test_alarmnotify.py`; Browser-Test Teil `111_picture_cards` (neu), dazu `95_alarm_picture`, `24_alarm_notify`, `50_rules` | Alles grün | ✅ (2026-11-23, Claude) |
+| 231.2 | Demo: unten „▶ Abläufe“ | Oben der Abschnitt „🖼 Bildkarten fürs Handy“ mit drei Karten als Bild („Wasser-Alarm“, „Test 1“, „Gute Nacht“) und „＋ Neue Bildkarte“ | ✅ (2026-11-23, Claude, Demo) |
+| 231.3 | „Wasser-Alarm“ antippen, „Raumbild“ antippen → „nur den Raum“, „＋ Uhrzeit & Datum“, mit ▲ nach oben, „Speichern“ | Rechts ändert sich die Karte bei jedem Schritt; „✓ Gespeichert.“ | ✅ (2026-11-23, Claude, Demo) |
+| 231.4 | „＋ Neue Bildkarte“ | Sechs Vorlagen; „Etage mit Liste“ öffnet den Editor mit einer Karte wie „Gute Nacht“ | ✅ (2026-11-23, Claude, Demo) |
+| 231.5 | Den Editor am Handy (schmal) öffnen | Oben die Karte, darunter die Bausteine, dann Farbe und Form | ✅ (2026-11-23, Claude, Demo schmal) |
+| 231.6 | Im Add-on: ⚙ → Warnungen & Alarm → Nachricht aufs Handy → „Telegram – eigener Bot“ → „🖼 Bildkarte je Alarm“: Wasser → „Wasser-Alarm“, Speichern; dann einen Wassermelder auslösen | In Telegram kommt EIN Bild: die Karte mit deinem Raum in Rot, deinem Kamerabild und den Infos, der Text darunter | ❓ |
+| 231.7 | Im Add-on eine Karte öffnen → „📨 Test an mich“ | Die Karte kommt in Telegram an, darunter „🖼“ und ihr Name | ❓ |
+| 231.8 | Im Add-on ein Ablauf mit „🔔 Nachricht“ → „🖼 Als Bildkarte schicken: Test 1“, dann den Ablauf auslösen | Die Karte „Test 1“ kommt mit dem Raum des Geräts, das ausgelöst hat, und dem Text darunter | ❓ |
+| 231.9 | Dein Eindruck: deine eigene Karte bauen (z. B. für die Haustür) | Lässt sie sich so gestalten, wie du willst? Was fehlt? | ❓ |

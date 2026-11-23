@@ -332,7 +332,7 @@ async def set_todo(r): TODO.clear(); TODO.update(await r.json()); return web.jso
 async def set_related(r): RELATED.update(await r.json()); return web.json_response({"ok": True})
 async def set_hist(r): HIST.clear(); HIST.update(await r.json()); return web.json_response(HIST)
 async def media_proxy(r): return web.Response(body=PNG, content_type="image/png")   # #490: the picture of what a player plays
-PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010806000000" "1f15c4890000000d49444154789c6360f8ffff3f0005fe02fea75a3c260000000049454e44ae426082")
+PNG = bytes.fromhex("89504e470d0a1a0a0000000d49484452000000040000000308020000003b963991" "0000001449444154789c634cc82861800126062480c201002e340142ace1604c0000000049454e44ae426082")   # 4 x 3 grey, Pillow reads it (5.33.0)
 async def in_two(r, body, ctype):
     """an answer in two pieces with a pause between them, as pictures and video pieces come through the Supervisor (#385)"""
     import asyncio
