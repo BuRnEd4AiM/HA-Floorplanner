@@ -4097,4 +4097,12 @@ export default {
   'porch.h': '前沿高度（梁底）', 'porch.pitch': '坡度（°）', 'porch.posts': '两根立柱', 'porch.cover': '顶面', 'porch.cover.tiles': '瓦片', 'porch.cover.metal': '金属板',
   'porch.cover.glass': '玻璃', 'porch.fieldsHelp': '后端挂在墙上，前端搁在梁上。立柱一直到本层地面，例如立在室外台阶的平台上。旋转使其背面朝向墙。',
   'balc.roofOver': '房屋屋顶覆盖其上', 'balc.roofOverHint': '阳台位于房屋屋顶之下（屋檐覆盖它）。不勾选时，屋顶会避开开放空间。',
+  'an.bot.paste': '粘贴', 'an.bot.looksOk': '✅ 这是机器人密钥。现在点“🔎 查找聊天”。', 'an.bot.saved': '✅ 密钥已保存。', 'an.bot.ok': '已找到机器人 {bot}，密钥已保存。',
+  'an.bot.foundSaved': '✅ 机器人 {bot}：找到并保存了 {n} 个聊天。现在点“发送测试”。',
+  'an.bot.err.badToken': '⚠ 这不是机器人密钥。它的样子是：一串数字、一个冒号和大约 35 个字符（123456789:AAH…）。在 BotFather 中：/mybots → 你的机器人 → “API Token”。',
+  'an.bot.err.bottoken': '⚠ 请先粘贴机器人的密钥。', 'an.bot.err.unauthorized': '⚠ Telegram 不认识这个密钥。请在 BotFather 中重新复制（/mybots → 你的机器人 → “API Token”）。',
+  'an.bot.err.conflict': '⚠ 加载项无法读取聊天：另一个程序已经在读取这个机器人（例如 Home Assistant 中的 Telegram 集成）。发送仍然可以 —— 请在下面“✍️ 手动输入聊天 ID”中填写你的聊天 ID。',
+  'an.bot.err.chatId': '⚠ 聊天 ID 是一个数字（群组的以“-”开头），例如 123456789。', 'an.bot.chatAdded': '聊天已添加并勾选 —— 现在点“保存”。', 'an.bot.err.paste': '浏览器不允许用按钮粘贴：长按输入框 → “粘贴”。',
+  'an.bot.byHand': '手动输入聊天 ID',
+  'an.bot.byHandHelp': '只有“查找聊天”什么也找不到时才需要。你的聊天 ID：在 Telegram 里给 @userinfobot 写“你好”，它会回复“Id: 123456789”。之前先给你自己的机器人写一次“你好”，否则它不能给你发消息。', 'an.bot.chatAdd': '添加',
 };

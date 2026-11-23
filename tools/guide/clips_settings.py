@@ -342,7 +342,7 @@ def _(r):
       {"de": "📸 Alarm mit Bild über deinen Telegram-Bot", "en": "📸 Alarm with a picture through your Telegram bot"},
       {"de": "Dein eigener Telegram-Bot schickt bei Wasser, Rauch oder Alarm den Grundriss mit dem Raum in Rot und das Bild der Kamera dort.",
        "en": "Your own Telegram bot sends the floor plan with the room in red and the picture of the camera there on water, smoke or an alarm."},
-      "Telegram Bot Bild Foto Grundriss Kamera Alarm Wasser BotFather Telegram bot picture photo floor plan camera alarm water")
+      "Telegram Bot Bild Foto Grundriss Kamera Alarm Wasser BotFather Schlüssel einfügen Chat-ID Telegram bot picture photo floor plan camera alarm water paste key chat ID")
 def _(r):
     r.click("#settingsBtn")
     r.wait(900)
@@ -357,8 +357,16 @@ def _(r):
     r.say("Die Anleitung: bei BotFather einen Bot anlegen und seinen Schlüssel hier einfügen.", "The steps: make a bot with BotFather and paste its key here.")
     r.click("#alarmNotify .anBot details.anStepsBox > summary")
     r.wait(2600)
-    r.say("Dem Bot „Hallo“ schreiben, dann „Chat finden“ – fertig.", "Write “Hello” to the bot, then “Find chat” – done.")
-    r.pg.mouse.wheel(0, 300)
+    r.say("Die ganze Nachricht von BotFather darf rein – der Schlüssel wird herausgesucht.", "BotFather's whole message may go in – the key is picked out.")
+    r.click("#anBotToken")
+    r.pg.fill("#anBotToken", "Use this token to access the HTTP API: 7712345678:AAF" + "k" * 32)
+    r.pg.dispatch_event("#anBotToken", "input")
+    r.wait(2200)
+    r.say("Dem Bot „Hallo“ schreiben, dann „Chat finden“: der Chat ist angekreuzt und gespeichert.", "Write “Hello” to the bot, then “Find chat”: the chat is ticked and saved.")
+    r.click("#anBotFind")
+    r.wait(2400)
+    r.say("Findet es nichts, trägst du die Chat-ID hier von Hand ein.", "If it finds nothing, you enter the chat ID here by hand.")
+    r.click("#alarmNotify .anChatHand > summary")
     r.wait(2200)
     r.say("Bei Alarm kommt der Grundriss mit dem Raum in Rot, und das Bild der Kamera dort.", "On an alarm the floor plan comes with the room in red, and the picture of the camera there.")
     r.wait(2200)

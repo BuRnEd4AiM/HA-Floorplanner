@@ -633,9 +633,9 @@ t("vacation",
   "look lived in away travelling lights on off how do I make the house look occupied")
 t("notify-bot",
   "Telegram Bot BotFather Bild Foto Grundriss Kamera Kamerabild Alarm mit Bild Wassermelder Wasser Rauch Einbruch Chat finden "
-  "Schlüssel Token Wo ist es passiert Nachricht mit Foto",
+  "Schlüssel Token einfügen Schlüssel geht nicht Chat-ID von Hand userinfobot Wo ist es passiert Nachricht mit Foto",
   "Telegram bot BotFather picture photo floor plan camera camera picture alarm with picture water sensor water smoke burglary find chat "
-  "key token where did it happen message with photo")
+  "key token paste key does not work chat ID by hand userinfobot where did it happen message with photo")
 t("settings-easy",
   "Schalter Kippschalter Häkchen Knopf Knöpfe Auswahl Liste Schieberegler Regler Prozent Deckkraft Einheit Meter "
   "mehr lesen Erklärung Anleitung aufklappen einklappen übersichtlich einfacher Licht-Gruppe Raumknopf Wie stelle ich etwas ein",

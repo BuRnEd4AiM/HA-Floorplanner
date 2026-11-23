@@ -551,6 +551,13 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 #alarmNotify .anTarget .n { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
 #alarmNotify .anTarget small { color: var(--muted); font-size: 11px; }
 #alarmNotify .anMy { display: inline-block; margin: 2px 0 6px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--accent); text-decoration: none; }
+#alarmNotify .anTokRow { display: flex; gap: 6px; align-items: center; }   /* 📸 the bot's key with 📋, a chat by hand with ＋ (5.32.1) */
+#alarmNotify .anTokRow input { flex: 1; min-width: 0; }
+#alarmNotify .anTokRow button { flex: none; white-space: nowrap; }
+#alarmNotify .anTok { font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 12px; }
+#alarmNotify .anTokCheck { margin: 2px 0 8px; min-height: 1em; }
+#alarmNotify .anTokCheck.bad { color: #e0a030; }
+#alarmNotify .anChatHand { margin: 4px 0 8px; }
 dialog .row[hidden] { display: none; }
 #settingsDialog .sgHit { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 /* wide screens (4.35.0, setgroups.js): the settings over almost the whole screen, the groups as a list on the left, the chosen one on the

@@ -16,9 +16,9 @@ def st(eid, state, dc=None, name=None):
 def test_settings_are_cleaned_and_the_key_stays_in_the_add_on():
     c = an.clean({"on": True, "via": "whatsapp", "phone": "+49 170 / 123-4567", "apikey": "123456", "kinds": ["smoke", "bogus", "alarm"], "clear": True})
     assert c == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "entities": [], "tgMode": "user",
-                 "tgUsers": [], "clear": True, "botChats": [], "plan": True, "camera": True, "bottoken": "", "apikey": "123456", "tgkey": ""}
+                 "tgUsers": [], "clear": True, "botChats": [], "plan": True, "camera": True, "botName": "", "bottoken": "", "apikey": "123456", "tgkey": ""}
     assert an.public(c) == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "entities": [],
-                            "tgMode": "user", "tgUsers": [], "clear": True, "botChats": [], "plan": True, "camera": True, "hasKey": True, "hasTgKey": False,
+                            "tgMode": "user", "tgUsers": [], "clear": True, "botChats": [], "plan": True, "camera": True, "botName": "", "hasKey": True, "hasTgKey": False,
                             "hasBot": False}
     kept = an.clean({"phone": "+491701234567"}, c)
     assert kept["apikey"] == "123456" and kept["on"] is True              # a save without the key keeps it
@@ -218,3 +218,13 @@ def test_the_own_telegram_bot_keeps_its_key_and_needs_a_chat():
     assert an.clean({"bottoken": "nonsense"}, c)["bottoken"] == TOKEN                   # junk is not taken
     assert an.clean({"bottoken": ""}, c)["bottoken"] == ""                              # "" removes it
     assert an.clean({"plan": False, "camera": False}, c)["plan"] is False
+
+
+def test_the_bots_name_is_kept_with_its_key():
+    """5.32.1: "Chat finden" keeps the bot's user name; another key forgets it"""
+    tok = "123456789:AAH" + "x" * 32
+    c = an.clean({"bottoken": tok, "botName": "@haus_bot<script>"}, {})
+    assert c["botName"] == "@haus_botscript" and an.public(c)["botName"] == "@haus_botscript"
+    assert an.clean({"on": True}, c)["botName"] == "@haus_botscript"
+    assert an.clean({"bottoken": "987654321:AAH" + "y" * 32}, c)["botName"] == ""
+    assert an.clean({"botName": "@x_bot"}, {})["botName"] == ""                      # no key: no name

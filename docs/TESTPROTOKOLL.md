@@ -539,7 +539,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 227. Neu in 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779) | 3 | 0 | 2 | 0 | 227.4, 227.5 |
 | 228. Neu in 5.31.0: 🔆 Lichtschächte an den Kellerfenstern | 4 | 0 | 2 | 0 | 228.5, 228.6 |
 | 229. Neu in 5.32.0: 🪜 Eingang mit Außentreppe und Vordach, Balkon unter dem Dach (#786, #794) | 6 | 0 | 1 | 0 | 229.7 |
-| **Zusammen** | **1380** | **2** | **170** | **92** | |
+| 230. Repariert in 5.32.1: 📸 Telegram-Bot einrichten (#796) | 5 | 0 | 3 | 0 | 230.6 bis 230.8 |
+| **Zusammen** | **1385** | **2** | **173** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3441,3 +3442,17 @@ Marios Reihenhaus (#786, 23.11.): 3 Stufen statt 4, Geländer nur links, ein Vor
 | 229.5 | Ein Balkon im Obergeschoss: „Hausdach reicht darüber“ ankreuzen | Das Dach des Hauses reicht über den Balkon | ✅ (2026-11-23, Claude, Demo) |
 | 229.6 | „Ganzes Haus“ bei einem Grundstück, das so breit ist wie das Haus, von der Seite ansehen | Der Keller ist offen, keine Erde davor (#794) | ✅ (2026-11-23, Claude, Demo) |
 | 229.7 | Dein Haus: Außentreppe, Vordach und Balkon so einstellen, wie es bei dir ist | Sieht aus wie in echt? | ❓ |
+
+## 230. Repariert in 5.32.1: 📸 Telegram-Bot einrichten (#796)
+Dein Hinweis (23.11.): der Schlüssel des Bots ließ sich nicht richtig einfügen, „Chat finden“ setzte die Ansicht zurück (sie sprang auf WhatsApp).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 230.1 | Unit-Tests `tests/test_tgbot.py`, `tests/test_alarmnotify.py`, `tests/notifyui.test.mjs`; Browser-Test Teile `95_alarm_picture`, `24_alarm_notify`, `28_settings`, `45_tell` | Alles grün | ✅ (2026-11-23, Claude) |
+| 230.2 | Demo: ⚙ → Warnungen & Alarm → Nachricht aufs Handy → „Telegram – eigener Bot (mit Bild)“, ins Feld „Schlüssel des Bots“ „hallo“ tippen, „🔎 Chat finden“ | Unter dem Feld und unten „⚠ Das ist kein Bot-Schlüssel …“; die Ansicht bleibt beim Bot, „hallo“ steht noch im Feld | ✅ (2026-11-23, Claude, Demo) |
+| 230.3 | Die ganze Nachricht von BotFather einfügen (mit „Use this token …“ davor) | Im Feld bleibt nur der Schlüssel, darunter „✅ Das ist ein Bot-Schlüssel“ | ✅ (2026-11-23, Claude, Demo) |
+| 230.4 | „🔎 Chat finden“ | Die Ansicht bleibt beim Bot; „Demo“ ist angekreuzt; unter dem Feld „✅ Der Schlüssel ist gespeichert. (@demo_haus_bot)“ | ✅ (2026-11-23, Claude, Demo) |
+| 230.5 | „✍️ Chat-ID von Hand eintragen“ öffnen, „-100 123456“ eintragen, „＋ Hinzufügen“, „Speichern“ | Der Chat steht angekreuzt in der Liste, „Bereit“ | ✅ (2026-11-23, Claude, Demo) |
+| 230.6 | Im Add-on am Handy: den Schlüssel von BotFather kopieren und einfügen (lange tippen → Einfügen, oder „📋 Einfügen“), dem Bot „Hallo“ schreiben, „🔎 Chat finden“ | Der Schlüssel ist zu sehen und hat ein ✅; dein Name erscheint angekreuzt, die Ansicht springt nicht zurück | ❓ |
+| 230.7 | „Test senden“ | In Telegram kommt das Bild deines Grundrisses mit dem Text darunter | ❓ |
+| 230.8 | Nur wenn „Chat finden“ „ein anderes Programm liest diesen Bot schon“ sagt: deine Chat-ID von @userinfobot von Hand eintragen, „Speichern“, „Test senden“ | Die Nachricht kommt trotzdem an | ❓ |

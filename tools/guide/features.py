@@ -143,6 +143,8 @@ f("vacation", "settings", "🏠 Urlaubs-Licht: Lampen wie an euren Abenden, Roll
   "🏠 Holiday light: lamps as on your evenings, shutters down and up, while the holiday alarm is armed", ["vacation"], since="5.18.0")
 f("notifybot", "settings", "📸 Alarm mit Bild: eigener Telegram-Bot, Grundriss mit dem Raum in Rot, Kamerabild", "📸 Alarm with a picture: own Telegram bot, floor plan with the room in red, camera picture",
   ["notify-bot"], since="5.16.0")
+f("botsetup", "settings", "✍️ Telegram-Bot einrichten: Schlüssel einfügen mit ✅ (auch die ganze Nachricht von BotFather), Chat-ID von Hand",
+  "✍️ Setting up the Telegram bot: paste the key with a ✅ (also BotFather's whole message), a chat ID by hand", ["notify-bot"], since="5.32.1")
 f("monthreport", "settings", "📊 Monatsbericht: einmal im Monat Heizung und Strom je Raum in Euro, mit Bild und Vorjahr",
   "📊 Monthly report: heating and power per room in euros once a month, with a picture and last year", ["month-report"], since="5.26.0")
 f("backup", "settings", "Backup und Wiederherstellen: alles, auch Codes und Aufzeichnungen", "Backup and restore: everything, codes and recordings too",

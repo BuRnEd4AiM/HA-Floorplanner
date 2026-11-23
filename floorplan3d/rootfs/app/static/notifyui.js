@@ -5,7 +5,10 @@
  * Home Assistant's UI such as its own Telegram bot, or the old way in configuration.yaml; #456, #460). Only editors see it;
  * the phone number and the keys are kept by the add-on (api/notify), not in the settings every tablet reads. Saved with its own button; "Send a test" saves
  * first. 📸 Since 5.16.0 also the add-on's own Telegram bot (tgbot.py): text and a picture of the plan with the room in red and of a camera in
- * it (alarmpic.py); "🔎 Chat finden" lists who wrote to the bot. Above it, in the group "Warnings & alarm", which alarm panels Home Assistant has: the add-on has no alarm of its own, the doors
+ * it (alarmpic.py); "🔎 Chat finden" lists who wrote to the bot. 5.32.1 (the owner: "kann man den Schlüssel des Bots nicht richtig
+ * einfügen", "wenn man auf Chat finden drückt, resettet sich die Ansicht"): the part is drawn anew from what is typed, not from what was
+ * saved (it jumped back to WhatsApp and the key was gone); the key is a plain field with a check under it, found inside a pasted message,
+ * with a 📋 button; Telegram's "no" is said in words; a chat can be typed by hand (when another program reads the bot). Above it, in the group "Warnings & alarm", which alarm panels Home Assistant has: the add-on has no alarm of its own, the doors
  * and windows that set it off are chosen in the alarm panel (e.g. Alarmo). */
 import { alarmPanels } from './alerts.js';
 
@@ -33,11 +36,27 @@ export function targetGroups(available, picked = []) {
   return ORIGINS.map((origin) => ({ origin, items: all.filter((a) => a.origin === origin) })).filter((g) => g.items.length);
 }
 
+const TOKEN_IN = /(?<![0-9A-Za-z_-])([0-9]{5,12}:[A-Za-z0-9_-]{30,64})(?![A-Za-z0-9_-])/g;
+/** 📸 the key of a Telegram bot in what was typed or pasted (BotFather's whole message too; invisible marks of the copy dropped), '' when there is
+ *  none or more than one (as tgbot.check_token) */
+export function findToken(v) {
+  const s = String(v ?? '').replace(/[\u00ad\u200b-\u200f\u2028-\u202f\u2060-\u2064\ufeff]/g, '').trim();
+  if (/^[0-9]{5,12}:[A-Za-z0-9_-]{30,64}$/.test(s)) return s;
+  const m = [...s.matchAll(TOKEN_IN)];
+  return m.length === 1 ? m[0][1] : '';
+}
+/** a chat typed by hand: a number (a group's starts with "-") or "@channel", '' when it is neither (as tgbot.chats_of) */
+export function chatId(v) {
+  const s = String(v ?? '').trim().replace(/\s+/g, '');
+  return /^-?[0-9]{1,20}$/.test(s) || /^@[A-Za-z0-9_]{5,32}$/.test(s) ? s : '';
+}
+
 /** ctx: $, t, entities() */
 export function initNotifyUi(ctx) {
   const { $, t } = ctx;
   const box = $('#alarmNotify'), head = $('#alarmNotifyTitle'), off = $('#alarmNotifyOff'), panelsEl = $('#alarmPanels');
   let cfg = null, services = [], status = '', busy = false, found = null;   // found: the chats that wrote to the bot (📸 5.16.0)
+  let over = null;                    // what the fields show instead of the stored settings for the next drawing (a chat just found or typed)
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const check = (id, key, on) => {
     const row = el('div', 'row check'), cb = el('input'); cb.type = 'checkbox'; cb.id = id; cb.checked = !!on;
@@ -63,10 +82,10 @@ export function initNotifyUi(ctx) {
       const j = await r.json();
       cfg = j; services = j.available || []; status = why(j.ready);
     } catch { cfg = null; }
-    render();
+    render(true);
   }
-  /** what the fields say now */
-  function read() {
+  /** what the fields say now (with `raw`: also what is typed in the key fields, to draw it again) */
+  function read(raw) {
     const v = (id) => box.querySelector(`#${id}`);
     const out = {
       on: v('anOn').checked, clear: v('anClear').checked, via: v('anVia').value,
@@ -77,7 +96,8 @@ export function initNotifyUi(ctx) {
     const key = v('anKey').value.trim(), tgKey = v('anTgKey').value.trim(), bot = v('anBotToken').value.trim();
     if (key) out.apikey = key;                                // empty: the stored key stays
     if (tgKey) out.tgkey = tgKey;
-    if (bot) out.bottoken = bot;                              // 📸 the own Telegram bot (5.16.0)
+    if (bot) out.bottoken = findToken(bot) || bot;            // 📸 the own Telegram bot (5.16.0); the key inside a pasted message (5.32.1)
+    if (raw) out.typed = { anKey: v('anKey').value, anTgKey: v('anTgKey').value, anBotToken: v('anBotToken').value, anChatId: v('anChatId')?.value || '' };
     out.botChats = [...box.querySelectorAll('[data-chat]:checked')].map((c) => ({ id: c.dataset.chat, name: c.dataset.name || '' }));
     out.plan = v('anPlan').checked; out.camera = v('anCamera').checked;
     return out;
@@ -94,7 +114,7 @@ export function initNotifyUi(ctx) {
     d.append(el('summary', '', `📖 ${t(title).replace(/\s*[:：]\s*$/, '')}`), ol);
     return [d];
   }
-  const secret = (has) => { const k = el('input'); k.type = 'password'; k.autocomplete = 'off'; k.placeholder = has ? t('an.keySaved') : '123456'; return k; };
+  const secret = (has, value = '') => { const k = el('input'); k.type = 'password'; k.autocomplete = 'off'; k.placeholder = has ? t('an.keySaved') : '123456'; k.value = value; return k; };
   async function save(body) {
     const r = await fetch('api/notify', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (!r.ok) throw new Error(String(r.status));
@@ -103,10 +123,12 @@ export function initNotifyUi(ctx) {
   }
   async function act(test) {
     if (busy) return;
-    const body = read();                                       // before drawing anew: the fields are drawn from what is stored
+    const body = read();
     busy = true; status = t(test ? 'an.sending' : 'an.saving'); render();
+    let saved = false;
     try {
       const c = await save(body);
+      saved = true;
       if (!test) status = `${t('an.saved')} ${why(c.ready)}`;
       else {
         const r = await fetch('api/notify/test', { method: 'POST' }), j = await r.json().catch(() => ({}));
@@ -114,32 +136,73 @@ export function initNotifyUi(ctx) {
       }
     } catch (err) { status = t('an.failed', { e: err.message }); }
     busy = false;
-    render();
+    render(saved);                                             // saved: drawn from what is stored now; else what was typed stays
   }
-  /** 📸 the chats that wrote to the bot: the key typed now (not saved yet) or the saved one */
+  /** what went wrong with the bot, in words (5.32.1) */
+  const botWhy = (e) => (['bottoken', 'unauthorized', 'conflict'].includes(e) ? t(`an.bot.err.${e}`) : t('an.failed', { e }));
+  /** 📸 the chats that wrote to the bot: the key typed now (not saved yet) or the saved one. Drawn anew from what is typed (5.32.1: it
+   *  jumped back to the stored "Senden über" and the key was gone); when Telegram knows the key it is saved with the chats at once */
   async function findChats() {
     if (busy) return;
-    const body = read();
+    const body = read(), typed = box.querySelector('#anBotToken').value.trim();
+    if (typed && !findToken(typed)) { status = t('an.bot.err.badToken'); render(); return; }
     busy = true; status = t('an.bot.finding'); render();
+    let saved = false;
     try {
       const r = await fetch('api/notify/tgchats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bottoken: body.bottoken || '' }) });
       const j = await r.json().catch(() => ({}));
       if (r.ok) {
         found = j.chats || [];
-        cfg = { ...cfg, ...body, botChats: body.botChats.length ? body.botChats : found.slice(0, 1) };   // the first one ticked at once
-        if (body.bottoken) { await save({ ...body, botChats: cfg.botChats }); cfg.via = body.via; }
-        status = found.length ? t('an.bot.found', { bot: j.bot || '', n: found.length }) : t('an.bot.noChat', { bot: j.bot || '' });
-      } else status = t('an.failed', { e: j.error === 'bottoken' ? t('an.ready.bottoken') : j.error || r.status });
+        const botChats = body.botChats.length ? body.botChats : found.slice(0, 1);   // the first one ticked at once
+        await save({ ...body, via: 'tgbot', botChats, botName: j.bot || '' });
+        saved = true;
+        status = j.error ? `${t('an.bot.ok', { bot: j.bot || '' })} ${botWhy(j.error)}`
+          : found.length ? t('an.bot.foundSaved', { bot: j.bot || '', n: found.length }) : t('an.bot.noChat', { bot: j.bot || '' });
+      } else status = botWhy(j.error || r.status);
     } catch (err) { status = t('an.failed', { e: err.message }); }
     busy = false;
-    render();
+    render(saved);
   }
-  function render() {
+  /** 📸 a chat typed by hand (its number, or "@channel"): added to the list, ticked (5.32.1) */
+  function addChat() {
+    const id = chatId(box.querySelector('#anChatId').value);
+    if (!id) { status = t('an.bot.err.chatId'); render(); return; }
+    const body = read();
+    if (!(found || []).some((c) => c.id === id)) found = [...(found || []), { id, name: '' }];
+    if (!body.botChats.some((c) => c.id === id)) body.botChats.push({ id, name: '' });
+    over = { botChats: body.botChats };
+    status = t('an.bot.chatAdded');
+    render();
+    box.querySelector('#anChatId').value = '';
+  }
+  /** 📋 the key from the clipboard (where the browser allows it; else a long tap in the field → "Einfügen") */
+  async function pasteKey() {
+    const f = box.querySelector('#anBotToken');
+    try { f.value = await navigator.clipboard.readText(); } catch { status = t('an.bot.err.paste'); render(); box.querySelector('#anBotToken')?.focus(); return; }
+    f.dispatchEvent(new Event('input'));
+  }
+  /** the part drawn anew. `fresh`: from the stored settings (after loading or saving); else what the fields say now stays (5.32.1), also the
+   *  typed keys, which guides are open and where the dialog is scrolled to */
+  function render(fresh) {
     if (!box) return;
     if (head) head.hidden = !cfg;
     if (off) off.hidden = !!cfg;                              // who may not edit learns why the part is missing
     box.hidden = !cfg;
     if (!cfg) { box.replaceChildren(); box.dispatchEvent(new CustomEvent('sg-status', { bubbles: true })); return; }
+    const now = !fresh && box.querySelector('#anVia') ? read(true) : null;
+    const opened = [...box.querySelectorAll('details')].map((d) => d.open);
+    let scroller = box.parentElement;
+    while (scroller && scroller.scrollHeight <= scroller.clientHeight) scroller = scroller.parentElement;
+    const top = scroller?.scrollTop;
+    const view = { ...cfg, ...(now || {}), ...(over || {}) };
+    over = null;
+    box.replaceChildren(...draw(view, now?.typed || {}));
+    box.querySelectorAll('details').forEach((d, i) => { if (opened[i]) d.open = true; });
+    if (scroller && top != null) scroller.scrollTop = top;
+    box.dispatchEvent(new CustomEvent('sg-status', { bubbles: true }));   // the card's head shows the state (setsections.js)
+  }
+  /** the fields of the part: `cfg` is what they show (the stored settings with what is typed over them), `typed` the typed keys */
+  function draw(cfg, typed) {
     const out = [el('p', 'hint', t('an.help')), check('anOn', 'an.on', cfg.on)];
     const kinds = el('div', 'anKinds');
     KINDS.forEach((k) => kinds.append(check(`anKind_${k}`, `an.kind.${k}`, (cfg.kinds || []).includes(k))));
@@ -150,15 +213,16 @@ export function initNotifyUi(ctx) {
     out.push(field('anVia', 'an.via', via));
     // WhatsApp through CallMeBot: the steps to get the key (#454), the number, the key
     const wa = el('div', 'anWa'), phone = el('input'); phone.type = 'tel'; phone.placeholder = '+49 170 1234567'; phone.value = cfg.phone || ''; phone.autocomplete = 'off';
-    wa.append(...steps(['an.step1', 'an.step2', 'an.step3'], CALLMEBOT), field('anPhone', 'an.phone', phone), field('anKey', 'an.key', secret(cfg.hasKey)));
+    wa.append(...steps(['an.step1', 'an.step2', 'an.step3'], CALLMEBOT), field('anPhone', 'an.phone', phone), field('anKey', 'an.key', secret(cfg.hasKey, typed.anKey)));
     // Telegram through CallMeBot (#456): to users (they allow CallMeBot once) or into a group (the group's key)
     const tg = el('div', 'anTg'), mode = el('select');
     [['user', 'an.tg.user'], ['group', 'an.tg.group']].forEach(([v, k]) => mode.add(new Option(t(k), v)));
     mode.value = cfg.tgMode === 'group' ? 'group' : 'user';
-    const users = el('input'); users.placeholder = '@name, @name2'; users.value = (cfg.tgUsers || []).join(', '); users.autocomplete = 'off';
+    const users = el('input'); users.placeholder = '@name, @name2'; users.autocomplete = 'off';
+    users.value = Array.isArray(cfg.tgUsers) ? cfg.tgUsers.join(', ') : cfg.tgUsers || '';   // drawn from what is typed: the text as it is
     const tgUser = el('div', 'anTgUser'), tgGroup = el('div', 'anTgGroup');
     tgUser.append(...steps(['an.tgu.step1', 'an.tgu.step2', 'an.step3'], CMB_TG, 0, 'an.stepsTitleTg'), field('anTgUsers', 'an.tg.users', users));
-    tgGroup.append(...steps(['an.tgg.step1', 'an.tgg.step2', 'an.step3'], CMB_TG_GROUP, 0, 'an.stepsTitleTg'), field('anTgKey', 'an.tg.key', secret(cfg.hasTgKey)));
+    tgGroup.append(...steps(['an.tgg.step1', 'an.tgg.step2', 'an.step3'], CMB_TG_GROUP, 0, 'an.stepsTitleTg'), field('anTgKey', 'an.tg.key', secret(cfg.hasTgKey, typed.anTgKey)));
     tg.append(field('anTgMode', 'an.tg.mode', mode), tgUser, tgGroup);
     // what Home Assistant can send through, grouped by where it comes from (#460): the phone app, set up in its UI (notify entities, e.g.
     // one per chat of its own Telegram bot), the old way in configuration.yaml; typed only when it lists nothing
@@ -191,9 +255,26 @@ export function initNotifyUi(ctx) {
     guide.append(ol, add, el('p', 'sub', t('an.tgbot.note')));
     ha.append(guide);
     // 📸 the own Telegram bot (5.16.0): text and pictures straight from the add-on; made once with @BotFather, the chat found by itself
-    const bot = el('div', 'anBot'), tok = secret(cfg.hasBot); tok.placeholder = cfg.hasBot ? t('an.keySaved') : '123456789:AA…';
+    // the key: a plain field (a pasted key can be seen; 5.32.1), the key found inside a pasted message, a line under it says whether it is one
+    const bot = el('div', 'anBot'), tok = el('input', 'anTok'); tok.type = 'text'; tok.autocomplete = 'off'; tok.spellcheck = false; tok.setAttribute('autocapitalize', 'off');
+    tok.setAttribute('autocorrect', 'off'); tok.placeholder = cfg.hasBot ? t('an.keySaved') : '123456789:AA…'; tok.value = typed.anBotToken || '';
+    const tokCheck = el('p', 'sub anTokCheck');
+    const checkTok = () => {
+      const raw = tok.value.trim(), k = findToken(raw);
+      if (k && k !== raw) tok.value = k;                      // BotFather's whole message pasted: only the key stays
+      tokCheck.textContent = !raw ? (cfg.hasBot ? `${t('an.bot.saved')}${cfg.botName ? ` (${cfg.botName})` : ''}` : '') : k ? t('an.bot.looksOk') : t('an.bot.err.badToken');
+      tokCheck.classList.toggle('bad', !!raw && !k);
+    };
+    tok.addEventListener('input', checkTok); checkTok();
+    const tokRow = el('div', 'anTokRow'); tokRow.append(tok);
+    if (navigator.clipboard?.readText) {
+      const paste = el('button', '', `📋 ${t('an.bot.paste')}`); paste.type = 'button'; paste.id = 'anBotPaste'; paste.addEventListener('click', pasteKey);
+      tokRow.append(paste);
+    }
+    const tokField = el('div', 'prop stack'), tokLabel = el('label', '', t('an.bot.token')); tok.id = tokLabel.htmlFor = 'anBotToken';
+    tokField.append(tokLabel, tokRow);
     bot.append(el('p', 'sub', t('an.bot.help')), ...steps(['an.bot.s1', 'an.bot.s2', 'an.bot.s3', 'an.bot.s4', 'an.bot.s5'], BOTFATHER, 0, 'an.stepsTitleTg'),
-      field('anBotToken', 'an.bot.token', tok));
+      tokField, tokCheck);
     const find = el('button', '', `🔎 ${t('an.bot.find')}`); find.type = 'button'; find.id = 'anBotFind'; find.disabled = busy;
     find.addEventListener('click', findChats);
     bot.append(find);
@@ -210,7 +291,14 @@ export function initNotifyUi(ctx) {
       });
       bot.append(list);
     }
-    bot.append(check('anPlan', 'an.bot.plan', cfg.plan !== false), check('anCamera', 'an.bot.camera', cfg.camera !== false));
+    // a chat by hand (5.32.1): when "Chat finden" cannot read the bot (Home Assistant's Telegram integration uses the same bot)
+    const byHand = el('details', 'sgGuide anChatHand'), cid = el('input'); cid.id = 'anChatId'; cid.inputMode = 'text'; cid.autocomplete = 'off';
+    cid.placeholder = '123456789'; cid.value = typed.anChatId || '';
+    const addBtn = el('button', '', `＋ ${t('an.bot.chatAdd')}`); addBtn.type = 'button'; addBtn.id = 'anChatAdd'; addBtn.addEventListener('click', addChat);
+    cid.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addChat(); } });
+    const handRow = el('div', 'anTokRow'); handRow.append(cid, addBtn);
+    byHand.append(el('summary', '', `✍️ ${t('an.bot.byHand')}`), el('p', 'sub', t('an.bot.byHandHelp')), handRow);
+    bot.append(byHand, check('anPlan', 'an.bot.plan', cfg.plan !== false), check('anCamera', 'an.bot.camera', cfg.camera !== false));
     const shown = () => {
       wa.hidden = via.value !== 'whatsapp'; tg.hidden = via.value !== 'telegram'; ha.hidden = via.value !== 'ha'; bot.hidden = via.value !== 'tgbot';
       tgUser.hidden = mode.value !== 'user'; tgGroup.hidden = mode.value !== 'group';
@@ -222,8 +310,7 @@ export function initNotifyUi(ctx) {
     sv.addEventListener('click', () => act(false)); ts.addEventListener('click', () => act(true));
     bar.append(sv, ts);
     out.push(bar, el('p', 'sub anStatus', status));
-    box.replaceChildren(...out);
-    box.dispatchEvent(new CustomEvent('sg-status', { bubbles: true }));   // the card's head shows the state (setsections.js)
+    return out;
   }
   $('#settingsBtn')?.addEventListener('click', load);         // read again each time the settings open (another screen may have changed it)
   return { load, render, renderPanels, cfg: () => cfg };
