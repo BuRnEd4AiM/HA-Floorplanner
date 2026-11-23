@@ -12,7 +12,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
   - **"✍️ Chat-ID von Hand eintragen"** (folded): a chat number (a group's with "-") or "@channel" is added ticked, with how to find your ID (@userinfobot).
   - The demo now takes the key typed in the field, as the add-on does (before it said "Es fehlt noch der Schlüssel des Bots").
 ### Added
-- **🖼 Example pictures: your own picture cards for the phone** (the owner: "eigene Bilderkarten designen für spezielle Alarme … das ist die spezielle Benachrichtigung für Florian 1 … in den Abläufen sagen: löse Florian 1 aus"), nothing built yet: `docs/ideen-5.33`, ten pictures with numbers: where the cards live (▶ Abläufe → "🖼 Bildkarten fürs Handy"), three ways to design one (idea 1 building blocks in a list, idea 2 a free canvas, idea 3 a template with numbered fields), three cards as they arrive in Telegram ("Wasser-Alarm", "Florian 1", "Gute Nacht"), a card in a routine and a card per kind of alarm.
+- **🖼 Example pictures: your own picture cards for the phone** (the owner: "eigene Bilderkarten designen für spezielle Alarme"), nothing built yet: `docs/ideen-5.33`, ten pictures with numbers: where the cards live (▶ Abläufe → "🖼 Bildkarten fürs Handy"), three ways to design one (idea 1 building blocks in a list, idea 2 a free canvas, idea 3 a template with numbered fields), three cards as they arrive in Telegram ("Wasser-Alarm", "Test 1", "Gute Nacht"), a card in a routine and a card per kind of alarm. His choice: idea 1 with templates, in ▶ Abläufe, all of it.
 
 ## [5.32.0] - 2026-11-23
 ### Added

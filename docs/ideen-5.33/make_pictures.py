@@ -124,7 +124,7 @@ with sync_playwright() as p:
         telegram(b, "6-handy-wasser", cards["wasser"], "💧 <b>Wasser erkannt:</b> Waschmaschine · Keller · Waschküche", "07:41",
                  '<div style="align-self:flex-start;background:#fff;border-radius:14px;padding:7px 10px;font-size:15px;max-width:290px">✅ Test: die Alarm-Benachrichtigung vom 3D Floorplan funktioniert. <span style="font-size:12px;color:#a0a6ae">07:12</span></div>')
     if want(7):
-        telegram(b, "7-handy-florian1", cards["florian"], "🚪 <b>Florian 1:</b> Bewegung an der Haustür", "21:47")
+        telegram(b, "7-handy-test1", cards["florian"], "🚪 <b>Test 1:</b> Bewegung an der Haustür", "21:47")
     if want(8):
         telegram(b, "8-handy-gute-nacht", cards["abend"], "🌙 <b>Gute Nacht:</b> 2 Fenster offen, 1 Licht an", "22:30")
     if want(9):

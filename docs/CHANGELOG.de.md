@@ -12,7 +12,7 @@ Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`
   - **„✍️ Chat-ID von Hand eintragen“** (zugeklappt): eine Chat-Nummer (bei einer Gruppe mit „-“) oder „@kanal“ kommt angekreuzt dazu, mit dem Weg zur eigenen ID (@userinfobot).
   - Die Demo nimmt jetzt den Schlüssel aus dem Feld, wie das Add-on (vorher hieß es „Es fehlt noch der Schlüssel des Bots“).
 ### Neu
-- **🖼 Beispielbilder: eigene Bildkarten fürs Handy** (der Besitzer: „eigene Bilderkarten designen für spezielle Alarme … das ist die spezielle Benachrichtigung für Florian 1 … in den Abläufen sagen: löse Florian 1 aus“), noch nichts gebaut: `docs/ideen-5.33`, zehn Bilder mit Nummern: wo die Karten wohnen (▶ Abläufe → „🖼 Bildkarten fürs Handy“), drei Wege, eine zu gestalten (Idee 1 Bausteine untereinander, Idee 2 freie Fläche, Idee 3 Vorlage mit nummerierten Feldern), drei Karten, wie sie in Telegram ankommen („Wasser-Alarm“, „Florian 1“, „Gute Nacht“), eine Karte im Ablauf und eine Karte je Art von Alarm.
+- **🖼 Beispielbilder: eigene Bildkarten fürs Handy** (der Besitzer: „eigene Bilderkarten designen für spezielle Alarme“), noch nichts gebaut: `docs/ideen-5.33`, zehn Bilder mit Nummern: wo die Karten wohnen (▶ Abläufe → „🖼 Bildkarten fürs Handy“), drei Wege, eine zu gestalten (Idee 1 Bausteine untereinander, Idee 2 freie Fläche, Idee 3 Vorlage mit nummerierten Feldern), drei Karten, wie sie in Telegram ankommen („Wasser-Alarm“, „Test 1“, „Gute Nacht“), eine Karte im Ablauf und eine Karte je Art von Alarm. Seine Wahl: Idee 1 mit Vorlagen, unter ▶ Abläufe, alles davon.
 
 ## [5.32.0] - 2026-11-23
 ### Neu

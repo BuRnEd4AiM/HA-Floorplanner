@@ -11,7 +11,7 @@ JOBS = [
     ("1-ort", "01-wo-die-karten-wohnen", 0, 1400), ("2-bausteine", "02-idee1-bausteine", 1, 1400),
     ("3-bausteine-handy", "03-idee1-bausteine-handy", 1, 780), ("4-freie-flaeche", "04-idee2-freie-flaeche", 2, 1400),
     ("5-vorlagen", "05-idee3-vorlagen", 3, 1400), ("6-handy-wasser", "06-handy-wasser-alarm", 0, 780),
-    ("7-handy-florian1", "07-handy-florian-1", 0, 780), ("8-handy-gute-nacht", "08-handy-gute-nacht", 0, 780),
+    ("7-handy-test1", "07-handy-test-1", 0, 780), ("8-handy-gute-nacht", "08-handy-gute-nacht", 0, 780),
     ("9-ablauf", "09-im-ablauf", 0, 1400), ("10-alarm", "10-bei-welchem-alarm", 0, 1400),
 ]
 

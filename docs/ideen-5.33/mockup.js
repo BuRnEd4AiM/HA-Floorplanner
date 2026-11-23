@@ -1,6 +1,6 @@
 /* Beispielbilder für docs/ideen-5.33 (2026-11-23, Wunsch des Besitzers: „eigene Bilderkarten designen für spezielle Alarme … hier oben soll
- * das Bild von dem Raum hin, hier die Informationen, hier die Uhrzeit … das ist die spezielle Benachrichtigung für Florian 1 … und in den
- * Abläufen sagen: löse Florian 1 aus“). Malt die Ideen nur fürs Foto in die echte Demo (make_pictures.py spielt diese Datei ein).
+ * das Bild von dem Raum hin, hier die Informationen, hier die Uhrzeit … das ist die spezielle Benachrichtigung für Test 1 … und in den
+ * Abläufen sagen: löse Test 1 aus“). Malt die Ideen nur fürs Foto in die echte Demo (make_pictures.py spielt diese Datei ein).
  * Nichts davon ist gebaut. I = die Bilder als data-URLs (Grundrisse von cardpics.py, Kamerabilder aus dem 3D-Haus der Demo). */
 /* eslint-disable no-unused-vars */
 const el = (tag, css, html) => { const e = document.createElement(tag); if (css) e.style.cssText = css; if (html != null) e.innerHTML = html; return e; };
@@ -68,7 +68,7 @@ function mockCard(kind, I) {
         <img src="${I.plan_door}" style="width:100%;border-radius:10px;display:block">
         <div>${rowsHtml([['door', 'Haustür', 'zu'], ['lock', 'Schloss', 'offen', '#d6893a'], ['win', 'Fenster', 'alle zu']], true)}</div>
       </div>
-      <div style="display:flex;justify-content:space-between;padding:7px 18px 9px;font-size:11.5px;color:#7d889c;border-top:1px solid #ffffff14"><span>Demo-Haus</span><span>Karte „Florian 1“ · 3D Floorplan</span></div>`;
+      <div style="display:flex;justify-content:space-between;padding:7px 18px 9px;font-size:11.5px;color:#7d889c;border-top:1px solid #ffffff14"><span>Demo-Haus</span><span>Karte „Test 1“ · 3D Floorplan</span></div>`;
   } else {
     c.style.background = '#101726'; c.style.color = '#eef2f8';
     c.innerHTML = `
@@ -132,7 +132,7 @@ async function mockPlace(I) {
   card.replaceChildren();
   const h = el('h3', '', `🖼 Bildkarten fürs Handy <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted);margin-left:8px">eigene Bilder für Telegram · bei Alarm und in Abläufen</span>`); h.className = 'peH roHead';
   const row = el('div', 'display:flex;gap:16px;align-items:flex-start;overflow:hidden;padding:6px 2px 4px');
-  const items = [['wasser', 'Wasser-Alarm', 'bei Wasser · 💧'], ['florian', 'Florian 1', 'in 2 Abläufen'], ['abend', 'Gute Nacht', 'Ablauf „Gute Nacht“']];
+  const items = [['wasser', 'Wasser-Alarm', 'bei Wasser · 💧'], ['florian', 'Test 1', 'in 2 Abläufen'], ['abend', 'Gute Nacht', 'Ablauf „Gute Nacht“']];
   for (const [k, name, use] of items) {
     const c = await measured(k, I);
     const t = el('div', 'display:flex;flex-direction:column;gap:6px;width:200px');
@@ -209,7 +209,7 @@ async function mockStackPhone(I) {
 
 /* ================= Idee 2: freie Fläche (ziehen und größer machen wie in einem Malprogramm) ================= */
 async function mockFree(I) {
-  const { body, tools } = overlay(1260, 820, '🖼 Bildkarte: Florian 1', 'Idee 2 · Freie Fläche');
+  const { body, tools } = overlay(1260, 820, '🖼 Bildkarte: Test 1', 'Idee 2 · Freie Fläche');
   tools.append(button('↶', false), button('📨 Test an mich', false), button('✓ Speichern', true));
   const left = el('div', 'width:230px;padding:12px 14px;border-right:1px solid var(--line);overflow:hidden');
   left.innerHTML = `<div style="${SECT};margin-top:2px">Bausteine – auf die Karte ziehen</div>`;
@@ -300,7 +300,7 @@ async function mockTemplates(I) {
   return 'ok';
 }
 
-/* ================= Bild 9: im Ablauf „Florian 1“ schicken ================= */
+/* ================= Bild 9: im Ablauf „Test 1“ schicken ================= */
 async function mockFlow(I) {
   document.querySelector('[data-tab=routines]')?.click();
   await new Promise((r) => setTimeout(r, 600));
@@ -309,7 +309,7 @@ async function mockFlow(I) {
   document.querySelector('[data-tpl=door]')?.click();
   await new Promise((r) => setTimeout(r, 900));
   const name = [...document.querySelectorAll('input')].find((i) => /Haustür lange offen/.test(i.value));
-  if (name) name.value = 'Haustür nachts → Florian 1';
+  if (name) name.value = 'Haustür nachts → Test 1';
   const blk = [...document.querySelectorAll('*')].filter((e) => e.children.length < 4 && /^🔔?\s*Nachricht/.test(e.textContent.trim()) && e.offsetParent);
   blk.at(-1)?.click();
   await new Promise((r) => setTimeout(r, 500));
@@ -319,7 +319,7 @@ async function mockFlow(I) {
   ta.value = 'Bewegung an der Haustür ({room})';
   const box = el('div', 'margin:10px 0 6px;padding:10px;border:1px solid var(--accent);border-radius:10px;background:color-mix(in srgb, var(--accent) 10%, var(--panel))');
   box.innerHTML = `<div style="font-weight:800;font-size:14px;margin-bottom:6px">🖼 Als Bildkarte schicken</div>
-    <div style="${BTN};justify-content:space-between;display:flex">Florian 1 <span style="color:var(--muted)">▾</span></div>
+    <div style="${BTN};justify-content:space-between;display:flex">Test 1 <span style="color:var(--muted)">▾</span></div>
     <div style="font-size:12px;color:var(--muted);margin:6px 0 8px">Der Text oben steht unter dem Bild. „Raum“ der Karte = der Raum des Geräts, das ausgelöst hat.</div>`;
   const c = await measured('florian', I);
   const pw = Math.min(250, (side?.clientWidth || 300) - 48);
@@ -329,9 +329,9 @@ async function mockFlow(I) {
   (fieldRow?.parentElement || side).insertBefore(box, fieldRow?.nextSibling || null);
   document.querySelectorAll('.feMissing').forEach((m) => { m.style.display = 'none'; });
   // the block on the board says it too
-  [...document.querySelectorAll('*')].filter((s) => s.children.length === 0 && /^„?Die Haustür ist seit/.test(s.textContent.trim())).forEach((s) => { s.textContent = '🖼 Florian 1 · „Bewegung an der Haustür …“'; });
+  [...document.querySelectorAll('*')].filter((s) => s.children.length === 0 && /^„?Die Haustür ist seit/.test(s.textContent.trim())).forEach((s) => { s.textContent = '🖼 Test 1 · „Bewegung an der Haustür …“'; });
   [...document.querySelectorAll('*')].filter((s) => s.children.length === 0 && /Nachricht \(„Die Haustür ist seit 5 Minuten offen/.test(s.textContent)).forEach((s) => {
-    s.textContent = s.textContent.replace(/Nachricht \(„Die Haustür ist seit 5 Minuten offen \(\{name\}\)“\)/, 'Bildkarte „Florian 1“ mit „Bewegung an der Haustür ({room})“'); });
+    s.textContent = s.textContent.replace(/Nachricht \(„Die Haustür ist seit 5 Minuten offen \(\{name\}\)“\)/, 'Bildkarte „Test 1“ mit „Bewegung an der Haustür ({room})“'); });
   return 'ok';
 }
 
@@ -344,7 +344,7 @@ async function mockAlarm(I) {
   const kinds = box.querySelector('.anKinds'); kinds.style.display = 'none';
   kinds.previousElementSibling.style.display = 'none';
   const t = el('div', 'margin:6px 0 12px;border:1px solid var(--line);border-radius:10px;overflow:hidden');
-  const rows = [['🚨', 'Alarmanlage löst aus', 'Florian 1', true], ['🔥', 'Rauchmelder', 'Feuer (rot, Etage)', true], ['⚠️', 'Gasmelder', 'Standard (Grundriss)', true],
+  const rows = [['🚨', 'Alarmanlage löst aus', 'Test 1', true], ['🔥', 'Rauchmelder', 'Feuer (rot, Etage)', true], ['⚠️', 'Gasmelder', 'Standard (Grundriss)', true],
     ['☠️', 'Kohlenmonoxid', 'Standard (Grundriss)', true], ['💧', 'Wassermelder', 'Wasser-Alarm', true], ['✅', 'Wieder normal', 'nur Text', false]];
   t.innerHTML = `<div style="display:grid;grid-template-columns:34px 1fr 1.2fr;gap:8px;padding:7px 10px;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--field)"><span></span><span>Melden, wenn …</span><span>🖼 Bildkarte</span></div>`
     + rows.map(([i, n, card, on]) => `<div style="display:grid;grid-template-columns:34px 1fr 1.2fr;gap:8px;align-items:center;padding:7px 10px;border-top:1px solid var(--line)">
