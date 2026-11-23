@@ -8,7 +8,7 @@ import { mergeParts } from './meshmerge.js';
 import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
 import { finishMaterial } from './finishtex.js';
 import { treadFinish, treadHex, riserHex, railLook, oneLook, treadUVs } from './stairlook.js';
-import { stairDefaults, stairBounds, stairLocal, splitStoreys, POLE_R, stairCounts, stairLength, stairRun, stairSteps, stepsRange, autoSteps, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD, RAIL_H, MAX_LANDING, landingLength, FLOOR_LANDING } from './stairs.js';
+import { stairDefaults, stairBounds, stairLocal, splitStoreys, POLE_R, stairCounts, stairLength, stairRun, stairSteps, stepsRange, autoSteps, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD, RAIL_H, MAX_LANDING, landingLength, FLOOR_LANDING, storeyH, stairHeight, cleanStairH, cleanExit, MIN_STAIR_H, MAX_STAIR_H, MAX_EXIT } from './stairs.js';
 import { OPENING_DEFAULTS, wallLength } from './walls.js';
 import { hasWinders, winderCount, hasCorner2, hasWinders2, winderCount2, WINDER_RANGE } from './winders.js';
 
@@ -61,7 +61,7 @@ export function initStairTool(ctx) {
     const stepMat = holo
       ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: ghost ? 0.12 : 0.38, depthWrite: false, side: THREE.DoubleSide })
       : ctx.mat(treadHex(st), ghost, { side: THREE.DoubleSide });
-    const parts = splitStoreys(stairLocal(st, ctx.floorH()), upTo, ctx.floorH());
+    const parts = splitStoreys(stairLocal(st, ctx.floorH()), upTo, storeyH(st, ctx.floorH()));   // its own height (5.28.5)
     const rl = railLook(st), railOf = (gh) => ctx.mat(rl.color, gh, rl.metal ? { metalness: 0.5, roughness: 0.4 } : { metalness: 0.05, roughness: 0.7 });
     const railMat = holo ? stepMat : railOf(ghost);
     // the treads' covering (parquet, tiles, stone …) and the risers in their own colour (#753): a step in two, its caps and its sides
@@ -177,6 +177,7 @@ export function initStairTool(ctx) {
     mark(body, 'form');
     body.append(field(t('stair.dir'), sel([['up', t('stair.up')], ['down', t('stair.down')]], it.dir || 'up', (v) => { ctx.snapshot(); it.dir = v; ctx.changed(); })));
     body.append(field(t('stair.floors'), inp('number', stairFloors(it), (v) => { it.floors = Math.max(1, Math.min(MAX_FLOORS, Math.round(+v) || 1)); }, { step: 1, min: 1, max: MAX_FLOORS })));
+    heightFields(body, it);                                           // its own height, a spiral's walkway at the top (5.28.5)
     if (it.type !== 'straight') {
       body.append(field(it.type === 'wall' ? t('stair.side') : t('stair.turn'), sel([['right', t('stair.right')], ['left', t('stair.left')]], it.turn || 'right', (v) => { ctx.snapshot(); it.turn = v; ctx.changed(); })));
     }
@@ -236,10 +237,34 @@ export function initStairTool(ctx) {
     body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
     const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t(it.type === 'wall' ? 'stair.wallHelp' : 'stair.help'); body.append(hp);
   }
+  /** "Höhe" (5.28.5, the owner: „dass ich die auch unterschiedlich hoch machen kann … die Wendeltreppe geht … von meinem Garten hoch auf
+   *  die Dachterrasse“): empty = it climbs its floors; a spiral stair also "Steg oben": a walkway on from its landing, a hand rail on both
+   *  sides */
+  function heightFields(body, it) {
+    const { field, lenInput } = ctx.ui;
+    const hi = lenInput(() => stairHeight(it, ctx.floorH()), (v) => {
+      const h = cleanStairH(v);
+      if (h && Math.abs(h - ctx.floorH() * stairFloors(it)) > 0.005) it.h = h; else delete it.h;
+      queueMicrotask(() => ctx.renderProps?.());                     // the rise of a step under "Stufen" and "↺" change with it
+    }, { min: MIN_STAIR_H, step: 0.05 });
+    hi.id = 'stairHeight'; hi.max = String(MAX_STAIR_H);
+    const hf = field(t('stair.height'), hi); hf.title = t('stair.heightHint');
+    body.append(hf);
+    if (cleanStairH(it.h)) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'linkBtn'; b.id = 'stairHeightReset'; b.textContent = t('stair.heightReset');
+      b.addEventListener('click', () => { ctx.snapshot(); delete it.h; ctx.changed(); ctx.renderProps?.(); });
+      body.append(b);
+    }
+    if (it.type !== 'spiral') return;
+    const ex = lenInput(() => cleanExit(it.exit), (v) => { const e = cleanExit(v); if (e) it.exit = e; else delete it.exit; }, { min: 0, step: 0.1 });
+    ex.id = 'stairExit'; ex.max = String(MAX_EXIT);
+    const ef = field(t('stair.exit'), ex); ef.title = t('stair.exitHint');
+    body.append(ef);
+  }
   /** "Stufen je Etage" (#671): the treads per storey, by themselves from the storey height (a step about 18 cm high) or as counted on the
    *  real stair; under it how high a step is and the storey height it climbs */
   function stepsField(body, it) {
-    const { field, inp } = ctx.ui, H = ctx.floorH(), [lo, hi] = stepsRange(H), auto = autoSteps(H);
+    const { field, inp } = ctx.ui, H = storeyH(it, ctx.floorH()), [lo, hi] = stepsRange(H), auto = autoSteps(H);   // its own height (5.28.5)
     const si = inp('number', stairCounts(it, H).T, (v) => {
       const k = Math.round(+v);
       if (String(v).trim() === '' || !Number.isFinite(k) || k === auto) delete it.steps; else it.steps = Math.max(lo, Math.min(hi, k));
@@ -249,7 +274,9 @@ export function initStairTool(ctx) {
     body.append(f);
     const info = document.createElement('p'); info.className = 'sub'; info.id = 'stairRise';
     const rise = stairSteps(H, it).rise;
-    info.textContent = t('stair.rise', { rise: ctx.imperial?.() ? `${(rise / 0.0254).toFixed(1)} in` : `${(rise * 100).toFixed(1)} cm`, storey: ctx.fmtLen?.(H) ?? `${H.toFixed(2)} m` });
+    const riseTxt = ctx.imperial?.() ? `${(rise / 0.0254).toFixed(1)} in` : `${(rise * 100).toFixed(1)} cm`, len = (v) => ctx.fmtLen?.(v) ?? `${v.toFixed(2)} m`;
+    info.textContent = cleanStairH(it.h) ? t('stair.riseOwn', { rise: riseTxt, height: len(stairHeight(it, ctx.floorH())) })   // its own height (5.28.5)
+      : t('stair.rise', { rise: riseTxt, storey: len(H) });
     body.append(info);
   }
   /** "2. Ecke" of an L stair (#671): none, a landing or winder steps, and how many */

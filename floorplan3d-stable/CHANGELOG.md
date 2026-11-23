@@ -2,6 +2,42 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.31.0] - 2026-11-22
+### Added
+- **🔆 Light wells at the basement windows** (#786, mariomichaelbauer: "my basement light wells … end up flush with the front path and back lawn instead of protruding"; the owner: "baue licht schächte ein für den keller das das auch gut aussieht auch drauf achten das der boden ausgeschnitten wird wenn da ein licht schacht ist"):
+  - A window of a floor below the ground floor whose sill lies under the ground outside gets a **light well by itself**: a concrete box in front of the window, open at the top, 10 cm over the ground, with gravel at its bottom, a galvanised frame and a **grating** you can look through; it reaches from the top down to 20 cm under the sill. On a slope its top follows the highest ground around it; a window over the ground (the terrain lower, a basement half out of the ground) gets none.
+  - **The ground is cut open over it**: the lawn, the earth in front of the window, the areas of the plot (paths, terraces …) and the top of a plateau have a hole there. In the whole-house view the earth on the camera's side is cut open as before; the light wells stay there, in front of the basement.
+  - **2D plan**: on the basement a rectangle with the bars of the grating in front of the window, in the window's colour when it is selected.
+  - **The window's panel**: **"🔆 Lichtschacht"** with the tick "Lichtschacht vor dem Fenster" (on by itself, off: the earth reaches the wall), **"Breite des Schachts"** (the window + 15 cm on each side) and **"Tiefe (von der Wand weg)"** (50 cm, 25 cm to 1.5 m), and a line that says how far the window lies under the ground, or "kein Lichtschacht nötig". In "✨ Neu" the section 🔆 Lichtschacht (with "⇉ Übernehmen"), "🔍 Einstellung suchen" finds it.
+  - JSON import and export: `"noWell": true`, `"wellW"`, `"wellD"`. The demo house has one at the back window of the laundry.
+  - Video guide: the new clip "Lichtschacht vor dem Kellerfenster". Browser test `109_light_wells`, unit test `tests/lightwell.test.mjs`.
+- The answer to #786 with pictures (a plateau of 0.65 m under the house with outdoor steps, the garden at the back lower with "⛰ Gelände") is kept in `docs/antworten/786/`.
+
+## [5.30.0] - 2026-11-22
+### Added
+- **🤖 A house from the floor plan by an AI, shown first** (#779, FrankBecker: "Mach auf der Hauptseite von Floorplanner die Möglichkeit für den JSON Import prominenter"; he had Claude write the JSON from his building plan and had his whole flat after an afternoon; the owner chose all four ideas of docs/ideen-5.30):
+  - **Welcome card** of an empty house: first and big **"🤖 Let an AI build it from your floor plan"** with "fastest", one line on how; below it "✏️ Draw walls yourself", "🏠 Try the example house" and "📥 Import a ready-made JSON file" (opens the file chooser at once).
+  - **🧭 First steps**, step 1 "Floor plan: by AI, drawn or a template": in front the button **"🤖 From the floor plan by AI"**.
+  - **Import dialog** "Build a house from the floor plan (with AI) or from JSON": on top **three numbered steps**: ① "📋 Copy AI prompt" ② paste it into Claude, ChatGPT or Gemini with a photo or PDF of the floor plan ③ paste the answer, "Check", "Import"; then link rooms and devices (🧭 First steps). The file and the examples are below as "Or:".
+  - **GitHub page**: a tip "Fastest start: let an AI build your house from the building plan" right under the first paragraph, and a button "🤖 House from your floor plan" next to the demo; docs/IMPORT.md and IMPORT.en.md explain the three steps.
+
+## [5.29.0] - 2026-11-22
+### Added
+- **🪜 A stair with its own height, a spiral stair with a walkway at the top** (the owner: "dass ich die auch unterschiedlich hoch machen kann … die Wendeltreppe geht quasi von meinem Garten hoch auf die Dachterrasse … kommt oben ein Rechteck an und rechts und links ist Geländer"):
+  - Every stair has **"Höhe"**: empty it is as high as its floors as before, else exactly as high as typed (0.3 to 8 m), e.g. a spiral stair from the garden up to the roof terrace or a stair between two levels. Its steps fit themselves to it (the line under "Stufen je Etage" says "… die ganze Treppe 3,20 m (eigene Höhe)"); **"↺ Wieder so hoch wie die Etage"** takes it back.
+  - A spiral stair has **"Steg oben (Länge)"**: a straight walkway on from its landing at the top (up to 4 m), as wide as the stair, with a **hand rail left and right**; the hand rail of the spiral now goes on round the landing. Its direction follows the rotation of the stair.
+  - In "✨ Neu" both are in the section 📐, "🔍 Einstellung suchen" finds them. The JSON import knows them: `"h": 3.2`, `"exit": 1.5`.
+### Fixed
+- **🚗 A garage "on the lawn" next to a house with a basement stayed up** (#789, the owner's photo: "ist noch immer irgendwie angehoben, obwohl da kein Plateau drunter ist"): with the floors stacked like a real house, the ground floor stands on the ceiling of the basement, and that ceiling went up with the plateau in one piece, also under the garage. The garage's floor lay correctly down on the lawn, but the raised ceiling covered it, so the tick "🚗 Steht unten auf dem Rasen" seemed to do nothing. Now the ceiling stays down under the garage and its own walls; the house and the wall it shares with the garage keep theirs on the plateau.
+- **🚗 A long wall along the house and the garage lifted the garage with it** (#789, the owner: "dass die Wand mit einer Wand Kontakt hat, die auf einem Plateau ist und deswegen alles auf ein Plateau gehoben wird"): a wall takes its height from its middle; one wall along house and garage had its middle at the house and went up whole. The tick "🚗 Steht unten auf dem Rasen" now splits such a wall at the corner of the garage, and the garage's own walls always stay down with it (also where the plateau could not be cut out); the wall it shares with the house stays up.
+
+## [5.28.4] - 2026-11-22
+### Changed
+- **📡 Funk-Karte: switch on all of them, also those not in the plan** (the owner, with a photo of "78 Empfangswerte sind … ausgeschaltet" and no button: "Wo sehe ich die Option"): the button at the top only comes for devices of the plan that lack a value; his 78 switched-off values belong to other devices, so he saw none.
+  - The section "In Home Assistant ausgeschaltete Empfangswerte: n" now has its own button **"📡 Alle n einschalten"**: it switches all of them on, also those of devices that are not in the plan.
+  - When none of them belongs to a device of the plan that lacks a value, the section is open at once and says why ("… gehören zu Geräten, die nicht im Plan stehen (oder deren Entität im Plan zu keinem Gerät gehört, z. B. eine Gruppe)").
+  - Its heading reads right with any number ("… Empfangswerte: 1" instead of "1 Empfangswerte sind …").
+
 ## [5.28.3] - 2026-11-21
 ### Changed
 - **📡 Funk-Karte with Matter** (the owner: "das ist nur per Zigbee. Ich habe aber auch Matter"):

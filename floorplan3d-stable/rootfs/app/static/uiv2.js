@@ -5,6 +5,7 @@
  * three.js; unit test: tests/uiv2.test.mjs); uiv2ui.js draws them. */
 import { windowPanes, paneHinge, stylePanes, fixedGlass, MAX_PANES, WINDOW_HINGES } from './windowpanes.js';
 import { tiltDeg } from './windowtilt.js';
+import { wellSize } from './lightwell.js';
 
 export const UI_KEY = 'fp.ui';                      // the choice of this device (localStorage): 'v2' or 'classic' (the default)
 export const OPEN_KEY = 'fp.ui.open';               // which sections this device has open ({ "window.panes": true, … })
@@ -24,7 +25,7 @@ export const panelKind = (kind, it) => (kind === 'opening' ? (it?.type === 'wind
 /** the sections per kind, in the order shown: [key, icon, open at the start]. props.js marks where its fields belong (v2mark); fields
  *  before the first mark stay on top, a section without fields is left out. 'kind' is drawn by uiv2ui.js (the kinds of window). */
 export const SECTIONS = {
-  window: [['kind', '🧩', false], ['size', '📐', true], ['panes', '🪟', true], ['fixed', '▭', false], ['contact', '🔗', false], ['shutter', '🎚', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],
+  window: [['kind', '🧩', false], ['size', '📐', true], ['panes', '🪟', true], ['fixed', '▭', false], ['contact', '🔗', false], ['shutter', '🎚', false], ['well', '🔆', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],
   door: [['size', '📐', true], ['style', '🚪', false], ['contact', '🔗', false], ['shutter', '🎚', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],   // look: its colours (#754); shutter: a sliding door's (#779)
   device: [['entity', '🔗', true], ['special', '⚙️', true], ['place', '📍', false], ['dsize', '📏', false], ['tilt', '↻', false], ['look', '🎨', false], ['inroom', '📟', false]],
   wall: [['wsize', '📐', true], ['split', '✂️', false], ['finish', '🎨', false]],
@@ -221,6 +222,7 @@ export function summary(pk, key, it, h = {}) {
       if (n > 1) return ['v2.sum.shutters', { n }];                 // two or three side by side (#779)
       return it.shutterEntity ? ['v2.sum.is', { x: ent(it.shutterEntity) }] : ['v2.sum.yes', {}];
     }
+    if (key === 'well') return it.noWell ? ['v2.sum.wellOff', {}] : ['v2.sum.wellSize', { w: len(wellSize(it).w), d: len(wellSize(it).d) }];   // 🕳 a basement window's light well (#786)
     if (key === 'style') return [`st.${it.style || 'single'}`, {}];
     if (key === 'more') return pk === 'window' && it.style !== 'fixed' ? ['v2.sum.tiltDeg', { d: tiltDeg(it) }] : null;
     if (key === 'look') return it.look && (it.look.leaf || it.look.frame) ? ['v2.sum.ownColors', {}] : ['v2.sum.houseColors', {}];   // #754

@@ -67,7 +67,7 @@ export function matches(q, text) {
 /* ---- „⇉ Übernehmen“: the same settings for others ---- */
 /** what can be passed on, per kind, in groups of keys of the object; the contacts and names are never passed on (each has its own) */
 export const COPY_GROUPS = {
-  window: { size: ['width', 'height', 'sill'], panes: ['style', 'panes', 'hinge', 'paneHinges', 'openOutward', 'tiltDeg'], fixed: ['fixedBelow', 'fixedAbove'], shutter: ['shutter', 'shutterStyle', 'curtainSide', 'shutterParts'] },
+  window: { size: ['width', 'height', 'sill'], panes: ['style', 'panes', 'hinge', 'paneHinges', 'openOutward', 'tiltDeg'], fixed: ['fixedBelow', 'fixedAbove'], shutter: ['shutter', 'shutterStyle', 'curtainSide', 'shutterParts'], well: ['noWell', 'wellW', 'wellD'] },
   door: { size: ['width', 'height'], style: ['style', 'flip', 'inv'], shutter: ['shutter', 'shutterStyle', 'curtainSide', 'shutterParts'] },   // a sliding door's roller shutter (#779)
   room: { floor: ['covering', 'floorLook', 'color'], level: ['raise', 'steps'], walls: ['wallLook', 'wallBelow'] },
   device: { dsize: ['scale', 'sx', 'sy', 'sz'], look: ['variant', 'finish', 'hideModel', 'lightColor'], tilt: ['tiltX', 'tiltZ', 'mirror'] },

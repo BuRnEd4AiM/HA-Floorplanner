@@ -126,6 +126,8 @@ STAIR_TYPES = ("straight", "L", "U", "spiral", "wall")           # same as STAIR
 STAIR_MAX_FLOORS = 6                                              # MAX_FLOORS in static/stairs.js
 STAIR_TREAD = (0.1, 0.45)                                         # MIN_TREAD / MAX_TREAD in static/stairs.js
 STAIR_MAX_LANDING = 3                                             # MAX_LANDING in static/stairs.js
+STAIR_H = (0.3, 8)                                                # MIN_STAIR_H, MAX_STAIR_H in static/stairs.js (5.28.5)
+STAIR_MAX_EXIT = 4                                                # MAX_EXIT in static/stairs.js
 STAIR_WINDERS = {"L": (2, 6), "U": (3, 10)}                       # WINDER_RANGE in static/winders.js (#623)
 STAIR_STEPS = (2, 40)                                             # treads per storey a stair may be given (#671; the app keeps them from 25 to 12 cm high)
 STOREY_HEIGHT = (2.2, 6)                                          # STOREY_MIN / STOREY_MAX in static/housefloors.js (#671), 3 m when not given
@@ -412,6 +414,18 @@ def _opening_from(rep: Report, path: str, spec: dict):
             o["shutterMore"] = more
     if spec.get("noWatch") is True:                               # only drawn, never offline (#780)
         o["noWatch"] = True
+    if any(k in spec for k in ("noWell", "wellW", "wellD")):       # 🕳 the light well of a basement window (#786, static/lightwell.js)
+        if o.get("type") != "window":
+            rep.warn(f"{path}.noWell", "only windows have a light well, ignored")
+        else:
+            if spec.get("noWell") is True:
+                o["noWell"] = True
+            for k, lo, hi in (("wellW", 0.4, 4), ("wellD", 0.25, 1.5)):
+                if k in spec:
+                    if _num(spec[k], lo, hi):
+                        o[k] = round(float(spec[k]), 3)
+                    else:
+                        rep.warn(f"{path}.{k}", f"{k} must be a number from {lo} to {hi} (m), ignored")
     if "shutterStyle" in spec:
         style = spec["shutterStyle"]
         if not can:
@@ -770,6 +784,17 @@ def _stair(rep: Report, path: str, spec, ids, ox, oz):
             return None
         st["x"], st["z"] = st["x"] + float(p0[0]), st["z"] + float(p0[1])
         st["path"] = pts
+    if "h" in spec:                                         # its own height instead of floors x the storey height (5.28.5)
+        if _num(spec["h"], *STAIR_H):
+            st["h"] = round(float(spec["h"]), 2)
+        else:
+            rep.warn(f"{path}.h", f"h (the stair's own height) must be between {STAIR_H[0]} and {STAIR_H[1]} m: ignored")
+    if "exit" in spec:                                      # a spiral stair's walkway at the top (5.28.5)
+        if typ == "spiral" and _num(spec["exit"], 0, STAIR_MAX_EXIT):
+            if float(spec["exit"]) > 0:
+                st["exit"] = round(float(spec["exit"]), 2)
+        else:
+            rep.warn(f"{path}.exit", f"exit (the walkway at the top) is for spiral stairs, 0 to {STAIR_MAX_EXIT} m: ignored")
     if "landing" in spec and typ in ("wall", "L", "U"):     # wall: flat after every bend for this long (#210); L / U: a deeper landing at the turn (#229)
         if _num(spec["landing"], 0, STAIR_MAX_LANDING):
             if float(spec["landing"]) > 0:
@@ -1456,7 +1481,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "fixedBelow", "fixedAbove", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "shutterParts", "shutterMore", "noWatch", "rainWarn", "heat", "look") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "fixedBelow", "fixedAbove", "pos", "entity", "name", "paneEntities", "tiltEntity", "tiltDeg", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "shutterParts", "shutterMore", "noWatch", "noWell", "wellW", "wellD", "rainWarn", "heat", "look") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []

@@ -5,7 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { floorShapes } from './blocks.js';
 import { polyArea } from './rooms.js';
 import { fmtArea } from './i18n.js';
-import { stairLocal, polyToWorld, stairFloors, storeysShown } from './stairs.js';
+import { stairLocal, polyToWorld, stairFloors, storeysShown, storeyH, cleanStairH } from './stairs.js';
 import { inIso, deviceInIso, clipWallToRoom, wallPieces } from './roomclip.js';
 import { buildWall, wallLength } from './walls.js';
 import { miterEnds } from './wallmiter.js';
@@ -28,7 +28,7 @@ import { openingColors, leadsOut } from './doorlook.js';
 import { floorUVs, floorLook } from './floortex.js';
 import { wallSkins, hasSkins } from './finishes.js';
 import { dressWall } from './wallskin.js';
-import { lifter, wallWithShift, doorSteps, cleanRaise, innerPoint, areasFor, stairLift, slabExtra, groundAt, plateausOf } from './levels.js';
+import { lifter, wallWithShift, doorSteps, cleanRaise, innerPoint, areasFor, stairLift, slabExtra, groundAt, plateausOf, slabPieces } from './levels.js';
 
 export const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
 export const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence', 'steps']);   // keep their natural colours in the hologram theme
@@ -76,9 +76,13 @@ export function initFloorBuild(ctx) {
     if (!rings.length) rings = [...f.rooms, ...(f.blocks || [])].filter((r) => r.points.length >= 3).map((r) => r.points);
     rings = withoutParts(rings, ctx.freeParts?.(i));               // where a balcony hangs free it has a plate of its own (balcony3d.js, #646), also a part of a terrace (#703)
     const up = upOf(f, i), byLift = new Map();                    // a building on a plateau: its ceiling goes up with it (#566)
-    rings.forEach((ring) => { const h = up.any ? up.ground(...innerPoint(ring)) : 0; byLift.set(h, [...(byLift.get(h) || []), ring]); });
+    rings.forEach((ring) => {
+      const h = up.any ? up.ground(...innerPoint(ring)) : 0;
+      const pieces = i === gi() ? slabPieces(f, ring, h) : [{ lift: h, ring, holes: [] }];   // a garage on the lawn: its piece stays down (5.28.5)
+      pieces.forEach((pc) => byLift.set(pc.lift, [...(byLift.get(pc.lift) || []), pc]));
+    });
     byLift.forEach((list, lift) => {
-      const shapes = list.flatMap((ring) => floorShapes(ring, o.holes));
+      const shapes = list.flatMap((pc) => floorShapes(pc.ring, [...pc.holes, ...(o.holes || [])]));
       if (!shapes.length) return;
       const extra = slabExtra(i, gi(), lift);                      // the ground floor on a plateau over a basement: down to its walls (#713)
       const eg = new THREE.ExtrudeGeometry(shapes, { depth: d + extra, bevelEnabled: false, curveSegments: 1 });
@@ -232,9 +236,9 @@ export function initFloorBuild(ctx) {
       const sGhost = ghost && !arriving;
       const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: ctx.holoEdge, transparent: true, opacity: 0.95 }) : o.edge;
       const sg = ctx.stairMesh(st, holo, sGhost, sEdge, storeysShown(st, i, open, house));   // no storeys hanging over the open floor (#229, #246)
-      const n = stairFloors(st), down = st.dir === 'down', sl = stairLift(down ? i - n : i, n, gi(), pl.length ? groundAt(pl, st.x, st.z) : 0, H);
-      sg.position.set(st.x, (down ? -H * n : 0) + sl.y, st.z);   // on a plateau: up with it (#566); from the basement up to it: taller (#713)
-      if (sl.scale !== 1) sg.scale.y = sl.scale;
+      const n = stairFloors(st), down = st.dir === 'down', sH = storeyH(st, H), sl = stairLift(down ? i - n : i, n, gi(), pl.length ? groundAt(pl, st.x, st.z) : 0, sH);
+      sg.position.set(st.x, (down ? -sH * n : 0) + sl.y, st.z);   // on a plateau: up with it (#566); from the basement up to it: taller (#713); its own height (5.28.5)
+      if (sl.scale !== 1 && !cleanStairH(st.h)) sg.scale.y = sl.scale;   // a stair with its own height keeps it
       sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
       g.add(sg);
       ctx.registry.set(st.id, sg);
