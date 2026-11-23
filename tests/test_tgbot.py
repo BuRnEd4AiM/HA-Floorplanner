@@ -13,6 +13,21 @@ def test_the_key_of_a_bot():
     assert tgbot.check_token("123:abc") == "" and tgbot.check_token(None) == "" and tgbot.check_token("abc:" + "x" * 35) == ""
 
 
+def test_the_key_inside_a_pasted_message():
+    """5.32.1 (the owner: "kann man den Schlüssel des Bots nicht richtig einfügen"): BotFather's whole message, invisible marks of a copy"""
+    msg = f"Done! Congratulations on your new bot.\nUse this token to access the HTTP API:\n{TOKEN}\nKeep your token secure"
+    assert tgbot.check_token(msg) == TOKEN
+    assert tgbot.check_token(f"\u200b{TOKEN[:20]}\u200b{TOKEN[20:]}\ufeff") == TOKEN
+    assert tgbot.check_token(f"{TOKEN} {TOKEN.replace('9:', '8:')}") == ""          # two keys: none
+    assert tgbot.check_token(f"x{TOKEN}") == "" and tgbot.check_token(f"Key: {TOKEN}.") == TOKEN
+
+
+def test_what_telegram_said_no_to():
+    assert tgbot.why_not("Telegram 401: Unauthorized") == "unauthorized" and tgbot.why_not("Telegram 404: Not Found") == "unauthorized"
+    assert tgbot.why_not("Telegram 409: Conflict: terminated by other getUpdates request") == "conflict"
+    assert tgbot.why_not("Telegram 500: error") == "Telegram 500: error"
+
+
 def test_chats():
     assert tgbot.chats_of([{"id": 5, "name": "A"}, "-100123", {"id": "@kanal_name"}, {"id": "a b"}, 5]) == [
         {"id": "5", "name": "A"}, {"id": "-100123", "name": ""}, {"id": "@kanal_name", "name": ""}]

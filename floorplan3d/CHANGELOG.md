@@ -2,6 +2,18 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.32.1] - 2026-11-23
+### Fixed
+- **📸 Telegram bot: the key could not be pasted properly, "🔎 Chat finden" jumped back to WhatsApp** (#796, the owner: "kann man da den Schlüssel des Bots nicht richtig einfügen. Und wenn man auf Chat finden drückt, resettet sich irgendwie die Ansicht"): ⚙ → Warnungen & Alarm → Nachricht aufs Handy → "Telegram – eigener Bot (mit Bild)":
+  - The part was drawn anew from the saved settings while "Chat finden", "Speichern" or "Test senden" worked: "Senden über" jumped back to WhatsApp, the bot's part and the pasted key were gone, open steps closed. Now what is typed stays (also the keys of WhatsApp and the Telegram group, which steps are open, where the window is scrolled to).
+  - **The key is a plain field you can read**, with a line under it: "✅ Das ist ein Bot-Schlüssel" or why it is none (how it looks, where BotFather shows it). **BotFather's whole message can be pasted**: only the key stays (also without invisible marks of the copy). A **📋 Einfügen** button where the browser allows it.
+  - **"Chat finden" saves at once** the key, the chat (the first one ticked) and the bot's name ("✅ Der Schlüssel ist gespeichert. (@haus_bot)"), and stays on the bot.
+  - Telegram's "no" in words: "Telegram kennt diesen Schlüssel nicht" (a wrong key), or "ein anderes Programm liest diesen Bot schon" (e.g. the Telegram integration of Home Assistant with the same bot: sending still works).
+  - **"✍️ Chat-ID von Hand eintragen"** (folded): a chat number (a group's with "-") or "@channel" is added ticked, with how to find your ID (@userinfobot).
+  - The demo now takes the key typed in the field, as the add-on does (before it said "Es fehlt noch der Schlüssel des Bots").
+### Added
+- **🖼 Example pictures: your own picture cards for the phone** (the owner: "eigene Bilderkarten designen für spezielle Alarme … das ist die spezielle Benachrichtigung für Florian 1 … in den Abläufen sagen: löse Florian 1 aus"), nothing built yet: `docs/ideen-5.33`, ten pictures with numbers: where the cards live (▶ Abläufe → "🖼 Bildkarten fürs Handy"), three ways to design one (idea 1 building blocks in a list, idea 2 a free canvas, idea 3 a template with numbered fields), three cards as they arrive in Telegram ("Wasser-Alarm", "Florian 1", "Gute Nacht"), a card in a routine and a card per kind of alarm.
+
 ## [5.32.0] - 2026-11-23
 ### Added
 - **🪜 Outdoor steps: the number of steps, the hand rail on one side, stainless with bars** (#786, mariomichaelbauer: "Bei meinem Eingang sind es in der Realität 3 Stufen (2 Stufen + das obere Podest als 3. Stufe) … nur auf der linken Seite ein Geländer"):

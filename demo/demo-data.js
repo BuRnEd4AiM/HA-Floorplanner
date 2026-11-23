@@ -1381,7 +1381,7 @@ export function installDemoBackend() {
         available: [{ id: 'mobile_app_handy', name: 'mobile_app_handy', origin: 'app', platform: '' },     // where each one comes from (#460)
           { id: 'notify.telegram_bot_familie', name: 'Familien-Chat', origin: 'integration', platform: 'telegram_bot' },
           { id: 'telegram_familie', name: 'telegram_familie', origin: 'yaml', platform: '' }, { id: 'whatsapp', name: 'whatsapp', origin: 'yaml', platform: '' }],
-        tgMode: n.tgMode, tgUsers: n.tgUsers, clear: n.clear, hasKey: !!n.apikey, hasTgKey: !!n.tgkey, hasBot: !!n.bottoken, botChats: n.botChats, plan: n.plan, camera: n.camera, ready });
+        tgMode: n.tgMode, tgUsers: n.tgUsers, clear: n.clear, hasKey: !!n.apikey, hasTgKey: !!n.tgkey, hasBot: !!n.bottoken, botChats: n.botChats, plan: n.plan, camera: n.camera, botName: n.botName || '', ready });
     }
     if (path === 'api/guard') {
       if (method === 'PUT') {
@@ -1510,7 +1510,10 @@ export function installDemoBackend() {
     }
     if (path === 'api/import') return json({ error: ONLY_ADDON }, 501);   // building a house from JSON is the add-on's (importer.py)
     if (path === 'api/notify/test') return json({ error: 'in der Demo wird nichts gesendet' }, 501);
-    if (path === 'api/notify/tgchats') return json(notify.bottoken ? { bot: '@demo_haus_bot', chats: [{ id: '4711', name: 'Demo' }] } : { error: 'bottoken' }, notify.bottoken ? 200 : 400);   // 📸 nothing goes to Telegram from the demo
+    if (path === 'api/notify/tgchats') {                 // 📸 nothing goes to Telegram from the demo; the key typed in the field counts, as in the add-on (5.32.1)
+      const typed = String(JSON.parse(init.body || '{}').bottoken || '').trim(), tok = /^[0-9]{5,12}:[A-Za-z0-9_-]{30,64}$/.test(typed) ? typed : notify.bottoken;
+      return json(tok ? { bot: '@demo_haus_bot', chats: [{ id: '4711', name: 'Demo' }] } : { error: 'bottoken' }, tok ? 200 : 400);
+    }
     if (path === 'api/backgrounds' && method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);
     if (path === 'api/models') {
       if (method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);

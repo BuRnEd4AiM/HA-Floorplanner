@@ -36,3 +36,18 @@ test('what to send through is grouped by where it comes from, ticked ones that a
   assert.deepEqual(N.targetGroups(undefined, ['notify.x']).map((x) => x.origin), ['integration']);
   assert.deepEqual(N.targetGroups([{ id: 'whatsapp', name: 'whatsapp', origin: 'yaml', platform: '' }]).map((x) => x.origin), ['yaml']);
 });
+
+test('📸 the key of the bot is found in what was pasted, a chat typed by hand is checked (5.32.1)', () => {
+  const key = `123456789:AAH${'x'.repeat(32)}`;
+  assert.equal(N.findToken(` ${key}\n`), key);
+  assert.equal(N.findToken(`Use this token to access the HTTP API:\n${key}\nKeep your token secure`), key);
+  assert.equal(N.findToken(`\u200b${key.slice(0, 9)}\u200b${key.slice(9)}\ufeff`), key);
+  assert.equal(N.findToken(`${key} ${key.replace('9:', '8:')}`), '');
+  assert.equal(N.findToken('hallo'), '');
+  assert.equal(N.findToken(null), '');
+  assert.equal(N.chatId(' 123456789 '), '123456789');
+  assert.equal(N.chatId('-100 123 456'), '-100123456');
+  assert.equal(N.chatId('@mein_kanal'), '@mein_kanal');
+  assert.equal(N.chatId('Flo'), '');
+  assert.equal(N.chatId(''), '');
+});

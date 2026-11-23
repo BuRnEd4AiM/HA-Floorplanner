@@ -2,6 +2,18 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.32.1] - 2026-11-23
+### Repariert
+- **📸 Telegram-Bot: der Schlüssel ließ sich nicht richtig einfügen, „🔎 Chat finden“ sprang zurück auf WhatsApp** (#796, der Besitzer: „kann man da den Schlüssel des Bots nicht richtig einfügen. Und wenn man auf Chat finden drückt, resettet sich irgendwie die Ansicht“): ⚙ → Warnungen & Alarm → Nachricht aufs Handy → „Telegram – eigener Bot (mit Bild)“:
+  - Der Teil wurde aus den gespeicherten Einstellungen neu gezeichnet, während „Chat finden“, „Speichern“ oder „Test senden“ arbeiteten: „Senden über“ sprang auf WhatsApp zurück, der Teil des Bots und der eingefügte Schlüssel waren weg, offene Schritte gingen zu. Jetzt bleibt, was eingetippt ist (auch die Schlüssel von WhatsApp und der Telegram-Gruppe, welche Schritte offen sind, wohin das Fenster gescrollt ist).
+  - **Der Schlüssel steht in einem normalen Feld, das man lesen kann**, mit einer Zeile darunter: „✅ Das ist ein Bot-Schlüssel“ oder warum es keiner ist (wie er aussieht, wo BotFather ihn zeigt). **Die ganze Nachricht von BotFather darf eingefügt werden**: nur der Schlüssel bleibt (auch ohne unsichtbare Zeichen der Kopie). Ein Knopf **📋 Einfügen**, wo der Browser es erlaubt.
+  - **„Chat finden“ speichert sofort** den Schlüssel, den Chat (der erste angekreuzt) und den Namen des Bots („✅ Der Schlüssel ist gespeichert. (@haus_bot)“) und bleibt beim Bot.
+  - Das „Nein“ von Telegram in Worten: „Telegram kennt diesen Schlüssel nicht“ (ein falscher Schlüssel) oder „ein anderes Programm liest diesen Bot schon“ (z. B. die Telegram-Integration von Home Assistant mit demselben Bot: Senden geht trotzdem).
+  - **„✍️ Chat-ID von Hand eintragen“** (zugeklappt): eine Chat-Nummer (bei einer Gruppe mit „-“) oder „@kanal“ kommt angekreuzt dazu, mit dem Weg zur eigenen ID (@userinfobot).
+  - Die Demo nimmt jetzt den Schlüssel aus dem Feld, wie das Add-on (vorher hieß es „Es fehlt noch der Schlüssel des Bots“).
+### Neu
+- **🖼 Beispielbilder: eigene Bildkarten fürs Handy** (der Besitzer: „eigene Bilderkarten designen für spezielle Alarme … das ist die spezielle Benachrichtigung für Florian 1 … in den Abläufen sagen: löse Florian 1 aus“), noch nichts gebaut: `docs/ideen-5.33`, zehn Bilder mit Nummern: wo die Karten wohnen (▶ Abläufe → „🖼 Bildkarten fürs Handy“), drei Wege, eine zu gestalten (Idee 1 Bausteine untereinander, Idee 2 freie Fläche, Idee 3 Vorlage mit nummerierten Feldern), drei Karten, wie sie in Telegram ankommen („Wasser-Alarm“, „Florian 1“, „Gute Nacht“), eine Karte im Ablauf und eine Karte je Art von Alarm.
+
 ## [5.32.0] - 2026-11-23
 ### Neu
 - **🪜 Außentreppe: Zahl der Stufen, Geländer auf einer Seite, Edelstahl mit Stäben** (#786, mariomichaelbauer: „Bei meinem Eingang sind es in der Realität 3 Stufen (2 Stufen + das obere Podest als 3. Stufe) … nur auf der linken Seite ein Geländer“):

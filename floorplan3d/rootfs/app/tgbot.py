@@ -2,20 +2,40 @@
 (made once with @BotFather) sends text and pictures straight from the add-on. The key of the bot stays in the add-on (notify.json); the
 chats are found by what was written to the bot (getUpdates): the owner writes "Hallo" to it once, the add-on lists that chat.
 
+5.32.1 (the owner, 2026-11-23: "kann man da den Schlüssel des Bots nicht richtig einfügen"): the key is found inside whatever was pasted
+(the whole message of BotFather, invisible marks of the copy); "Chat finden" names why Telegram said no (a wrong key, the bot already read
+by another program such as Home Assistant's Telegram integration).
+
 The base of the API is TELEGRAM_API (server.py; the browser test's stand-in). check_token is pure (unit test: tests/test_tgbot.py)."""
 import re
 
 import aiohttp
 
 TOKEN = re.compile(r"^[0-9]{5,12}:[A-Za-z0-9_-]{30,64}$")
+IN_TEXT = re.compile(r"(?<![0-9A-Za-z_-])([0-9]{5,12}:[A-Za-z0-9_-]{30,64})(?![A-Za-z0-9_-])")   # the key inside a pasted message
+INVISIBLE = re.compile("[\u00ad\u200b-\u200f\u2028-\u202f\u2060-\u2064\ufeff]")           # marks a copy can carry
 CHAT = re.compile(r"^-?[0-9]{1,20}$|^@[A-Za-z0-9_]{5,32}$")
 CAPTION = 1000        # Telegram takes up to 1024 characters under a picture
 
 
 def check_token(v) -> str:
-    """the key of a bot ("123456:ABC…") checked, '' when it is not one"""
-    v = v.strip() if isinstance(v, str) else ""
-    return v if TOKEN.match(v) else ""
+    """the key of a bot ("123456:ABC…"), also found inside a longer pasted text (BotFather's whole message), '' when there is none"""
+    v = INVISIBLE.sub("", v).strip() if isinstance(v, str) else ""
+    if TOKEN.match(v):
+        return v
+    m = IN_TEXT.findall(v)
+    return m[0] if len(m) == 1 else ""
+
+
+def why_not(err: str) -> str:
+    """what Telegram's answer means, as a short word the page explains: 'unauthorized' (no such key), 'conflict' (another program reads
+    the bot's messages, e.g. Home Assistant's Telegram integration), else the answer itself"""
+    e = str(err or "")
+    if re.search(r"Telegram (401|404)\b|Unauthorized|Not Found", e):
+        return "unauthorized"
+    if re.search(r"Telegram 409\b|Conflict", e):
+        return "conflict"
+    return e
 
 
 def chats_of(v) -> list:
@@ -89,8 +109,9 @@ async def find_chats(base, token) -> tuple:
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=20)) as s:
         ok, me = await _call(s, base, token, "getMe")
         if not ok:
-            return None, me
+            return None, why_not(me)
+        bot = f"@{me.get('username')}" if isinstance(me, dict) and me.get("username") else ""
         ok, res = await _call(s, base, token, "getUpdates", {"allowed_updates": ["message", "my_chat_member", "channel_post"]})
         if not ok:
-            return None, res
-        return {"bot": f"@{me.get('username')}" if isinstance(me, dict) and me.get("username") else "", "chats": updates_chats(res)}, None
+            return {"bot": bot, "chats": [], "error": why_not(res)}, None   # the key is right; the chat can still be typed
+        return {"bot": bot, "chats": updates_chats(res)}, None

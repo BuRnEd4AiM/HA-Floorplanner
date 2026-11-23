@@ -38,7 +38,8 @@ TG_USER = re.compile(r"^(@[A-Za-z0-9_]{5,32}|\+[0-9]{6,16})$")   # a Telegram us
 VIA = ("whatsapp", "telegram", "ha", "tgbot")   # tgbot: the add-on's own Telegram bot, with pictures (5.16.0, tgbot.py)
 SECRETS = ("apikey", "tgkey")      # the CallMeBot keys of WhatsApp and of a Telegram group: stay in the add-on
 DEFAULT = {"on": False, "kinds": list(KINDS), "via": "whatsapp", "phone": "", "services": [], "entities": [], "tgMode": "user", "tgUsers": [],
-           "clear": False, "botChats": [], "plan": True, "camera": True}   # 📸 the bot's chats; a picture of the plan, of a camera in the room
+           "clear": False, "botChats": [], "plan": True, "camera": True,   # 📸 the bot's chats; a picture of the plan, of a camera in the room
+           "botName": ""}                                                  # the bot's user name ("@haus_bot"), as "Chat finden" saw it (5.32.1)
 
 TEXTS = {
     "de": {"alarm": "🚨 ALARM: {name}", "smoke": "🔥 Rauch erkannt: {name}", "gas": "⚠️ Gas erkannt: {name}", "co": "☠️ Kohlenmonoxid erkannt: {name}",
@@ -96,6 +97,10 @@ def clean(data, old=None) -> dict:
         v = data["bottoken"]
         tok = tgbot.check_token(v) or ("" if v in ("", None) else tok)
     out["bottoken"] = tgbot.check_token(tok)
+    if out["bottoken"] != tgbot.check_token(old.get("bottoken", "")):
+        out["botName"] = ""                                        # another bot: its name comes with the next "Chat finden"
+    if isinstance(data.get("botName"), str) and out["bottoken"]:
+        out["botName"] = re.sub(r"[^@A-Za-z0-9_]", "", data["botName"])[:40]
     for name in SECRETS:
         key = old.get(name, "")
         if name in data:

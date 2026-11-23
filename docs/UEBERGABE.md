@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-23, Version **5.32.0** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-23, Version **5.32.1** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,13 +10,15 @@ Stand: 2026-11-23, Version **5.32.0** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
+- **2026-11-23, 5.32.1: 📸 Telegram-Bot einrichten repariert (#796) und Beispielbilder „Bildkarten“ (Branch `claude/charming-carson-d1uepn`):** „Chat finden“ zeichnete aus dem Gespeicherten neu (sprang auf WhatsApp, Schlüssel weg); jetzt bleibt das Getippte, Schlüssel lesbar mit ✅, ganze BotFather-Nachricht geht, Chat-ID von Hand. Sein neuer Wunsch: eigene Bildkarten („Florian 1“) für Alarme und Abläufe, zehn Bilder in `docs/ideen-5.33` (Idee 1 Bausteine, 2 freie Fläche, 3 Vorlage); seine Wahl fehlt noch.
 - **2026-11-23, 5.32.0: 🪜 Eingang und Balkon für Marios Reihenhaus (#786, #794, Branch `claude/epic-faraday-rdiicg`):** seine Antwort mit Fotos: Außentreppe mit Zahl der Stufen, Geländer links/rechts/keins, Edelstahl; „＋ Außentreppe an die Haustür“ auch in „⛰ Gelände“; „＋ Vordach über die Tür“ (`porchroof.js`); Balkon „Hausdach reicht darüber“ (`roofOver`); Fehler #794: „Ganzes Haus“ schnitt bei einem schmalen Grundstück die Erde nicht auf (`cutPlane`). Danach Mario antworten (Bilder in `docs/antworten/786/`).
 - **2026-11-22, 5.31.0: 🔆 Lichtschächte (#786, Branch `claude/charming-galileo-c4fwuk`):** erst mariomichaelbauer mit Bildern geantwortet (Plateau 0,65 m, `docs/antworten/786/`), dann sein Wunsch: ein Kellerfenster unter dem Boden bekommt von selbst einen Schacht mit Gitterrost, Rasen, Erde, Wege und Plateau darüber ausgeschnitten (`lightwell.js`, `lightwell3d.js`); in „Ganzes Haus“ bleibt er auf der aufgeschnittenen Seite stehen.
 - **2026-11-22, 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779, Branch `claude/message-779-review-0q08zy`):** Franks Tipp „JSON-Import prominenter“; Bilder `docs/ideen-5.30`, seine Wahl: alle vier. Willkommen-Fenster (welcome.js), Erste Schritte (`ai`), Import-Fenster mit drei Schritten (`#importAi`), Tipp oben in der README; Import- und Willkommen-Bilder in docs/img neu.
-- **2026-11-22, 5.29.0: 🚗 Garage auf dem Rasen (#789) und 🪜 Treppenhöhe (Branch `claude/bold-heisenberg-y046ye`):** sein Foto, Raum 6 blieb angehoben: die Kellerdecke ging in einem Stück mit dem Plateau hoch (jetzt `slabPieces`), eine lange Wand an Haus und Garage auch (`splitAtCorners`, `lifter.wall`); dazu eigene Höhe jeder Treppe (`st.h`) und der Steg oben der Wendeltreppe (`st.exit`), seine Wendeltreppe vom Garten auf die Dachterrasse.
 
 ## Offen
 
+- **Bildkarten (`docs/ideen-5.33`):** seine Wahl (Idee 1, 2 oder 3, und ob alles aus den Bildern 1, 6–10), dann bauen.
+- **5.32.1 Telegram-Bot:** sein Test im Add-on am Handy (230.6 bis 230.8).
 - **5.15.0 Sonnenschutz:** sein Test (Testprotokoll 206.5 bis 206.7), vor allem ob Norden bei seinem Haus stimmt.
 - **5.16.0 Bild bei Alarm:** sein Test mit seinem Bot (Testprotokoll 207.3 bis 207.5).
 - **5.17.0 Funk-Karte:** sein Test (208.4, 208.5), ob seine Zigbee-Werte ausgeschaltet sind.

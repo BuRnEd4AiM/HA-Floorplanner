@@ -400,6 +400,8 @@ async def tg_bot(r):              # 📸 the add-on's own Telegram bot (5.16.0, 
     token, method = r.match_info["token"], r.match_info["method"]
     if not token.startswith("123456789:"): return web.json_response({"ok": False, "description": "Unauthorized"}, status=401)
     if method == "getMe": return web.json_response({"ok": True, "result": {"id": 1, "is_bot": True, "username": "haus_test_bot"}})
+    if method == "getUpdates" and token.startswith("123456789:AAC"):   # 5.32.1: another program reads this bot (Home Assistant's Telegram integration)
+        return web.json_response({"ok": False, "description": "Conflict: terminated by other getUpdates request"}, status=409)
     if method == "getUpdates": return web.json_response({"ok": True, "result": [{"update_id": 7, "message": {"chat": {"id": 4711, "first_name": "Flo"}, "text": "Hallo"}}]})
     if method == "sendMessage":
         b = await r.json(); NOTIFIED.append(["tg_bot", str(b.get("chat_id")), b.get("text")]); return web.json_response({"ok": True, "result": {}})
