@@ -1,20 +1,20 @@
 {
  "session": "session_012p9z3KLQj8eWznsMp6tjGM",
  "start": "2026-11-23",
- "updated": "2026-11-23T18:16:57Z",
+ "updated": "2026-11-23T18:43:39Z",
  "branch": "claude/charming-carson-d1uepn",
  "source": "counted",
- "input": 529,
- "cache_write": 639986,
- "cache_read": 106240831,
- "output": 323103,
+ "input": 563,
+ "cache_write": 668490,
+ "cache_read": 117652744,
+ "output": 331665,
  "models": {
   "claude-opus-5-5": {
-   "input": 529,
-   "cache_write": 639986,
-   "cache_read": 106240831,
-   "output": 323103,
-   "requests": 258
+   "input": 563,
+   "cache_write": 668490,
+   "cache_read": 117652744,
+   "output": 331665,
+   "requests": 274
   }
  }
 }

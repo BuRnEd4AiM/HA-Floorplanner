@@ -57,7 +57,8 @@ check("floors chip: on again (below)", name0 in legend() and pg13.evaluate("loca
 pg13.click("#view3d"); pg13.wait_for_timeout(400)
 # --- cameras (#69) and the room panel (#67)
 camapi = pg13.evaluate("fetch('api/camera/camera.flur').then(async r => [r.status, r.headers.get('content-type'), (await r.arrayBuffer()).byteLength])")
-check("camera still image comes through the add-on, whole (#385: it comes in two pieces)", camapi == [200, "image/png", 70], camapi)
+whole_cam = len(urllib.request.urlopen(HA + "/camera_proxy/camera.flur").read())          # the mock's picture as it is (77 bytes since 5.33.0)
+check("camera still image comes through the add-on, whole (#385: it comes in two pieces)", camapi == [200, "image/png", whole_cam] and whole_cam > 60, [camapi, whole_cam])
 check("only cameras can be fetched", pg13.evaluate("fetch('api/camera/light.x').then(r => r.status)") == 400)
 rid = pg13.evaluate("""() => {
   const f = window.__fp.layout.floors[window.__fp.floorIdx()], r = f.rooms[0];
