@@ -1,5 +1,6 @@
 /* 🏗 The balcony / roof terrace fields of a room (#646, before in props.js): the tick "Balkon / Dachterrasse" (an open room: no roof, a
- * railing on every edge without a wall), and when it is set: the railing (metal, glass, wood), the supports down to the ground and a line
+ * railing on every edge without a wall), and when it is set: the railing (metal, glass, wood), the supports down to the ground, "Hausdach
+ * reicht darüber" (#786: the roof of the house is not left out over it) and a line
  * that says whether the room hangs free (a balcony with a plate under it), partly (#703) or lies on the house or the ground. The rules:
  * balcony.js. Below them (5.14.0) the railing side by side: each side with a number (the same as in the 2D plan, rail2d.js) can be
  * switched off, made shorter („von … bis“) or get a gate (Geländertür); the rules: railsides.js. */
@@ -16,7 +17,7 @@ export function balconyFields(body, it, ui) {
   tc.addEventListener('change', () => {
     ui.snapshot();
     if (tc.checked) { it.terrace = true; if (!it.color || it.color === ROOM_COLOR) it.color = OPEN_COLOR; } else {
-      delete it.terrace; delete it.rail; delete it.posts;
+      delete it.terrace; delete it.rail; delete it.posts; delete it.roofOver;
       if (it.color === OPEN_COLOR) it.color = ROOM_COLOR;
     }
     ui.changed(); ui.render();
@@ -37,9 +38,13 @@ export function balconyFields(body, it, ui) {
   const pc = document.createElement('input'); pc.type = 'checkbox'; pc.checked = !!it.posts; pc.id = 'roomPosts';
   pc.addEventListener('change', () => { ui.snapshot(); if (pc.checked) it.posts = true; else delete it.posts; ui.changed(); });
   const pl = document.createElement('label'); pl.className = 'chk'; pl.title = t('balc.postsHint'); pl.append(pc, document.createTextNode(' ' + t('balc.posts')));
+  const rc = document.createElement('input'); rc.type = 'checkbox'; rc.checked = !!it.roofOver; rc.id = 'roomRoofOver';   // under the house's roof (#786)
+  rc.addEventListener('change', () => { ui.snapshot(); if (rc.checked) it.roofOver = true; else delete it.roofOver; ui.changed(); });
+  const rl = document.createElement('label'); rl.className = 'chk'; rl.title = t('balc.roofOverHint'); rl.append(rc, document.createTextNode(' ' + t('balc.roofOver')));
   const hint = document.createElement('p'); hint.className = 'sub'; hint.id = 'balconyHint'; hint.dataset.free = free === 'part' ? 'part' : free ? '1' : '0';
   hint.textContent = t(free === 'part' ? 'balc.part' : free ? 'balc.free' : 'balc.onTop');
-  body.append(pl, hint);
+  const rr = document.createElement('div'); rr.className = 'roofOverRow'; rr.append(rl);   // a line of its own (a label alone sits beside the one before)
+  body.append(pl, rr, hint);
   sideFields(body, it, ui);
 }
 

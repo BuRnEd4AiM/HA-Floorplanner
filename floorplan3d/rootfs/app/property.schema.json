@@ -675,6 +675,10 @@
         "type": "boolean",
         "description": "With terrace: a balcony that hangs free gets supports from its outer corners down to the ground."
        },
+       "roofOver": {
+        "type": "boolean",
+        "description": "With terrace: the roof of the house reaches over it (a balcony under the eaves); without it the roof leaves an open room out."
+       },
        "railSides": {
         "type": "array",
         "maxItems": 200,
@@ -1199,6 +1203,7 @@
       "pool_lamp",
       "pooltable",
       "popcorn",
+      "porchroof",
       "pouf",
       "powermeter",
       "powerrack",
@@ -1555,6 +1560,42 @@
      "minimum": 0,
      "maximum": 4,
      "description": "Only for type steps: how deep the landing on top is in metres (default 1). w: their width (default 1.4)."
+    },
+    "count": {
+     "type": "integer",
+     "minimum": 1,
+     "description": "Only for type steps: how many steps (risers, the landing's included), each 12 to 25 cm high; empty = as many as make them at most 18 cm."
+    },
+    "rail": {
+     "type": "string",
+     "enum": ["both", "left", "right", "none"],
+     "description": "Only for type steps: where the hand rail runs, seen from the bottom of the steps looking up at the door (default both; noRail = none)."
+    },
+    "d": {
+     "type": "number",
+     "minimum": 0.6,
+     "maximum": 3,
+     "description": "Only for type porchroof (a canopy over a door): how far it reaches out from the wall in metres (default 1.2). w: its width (default 2.4), h: the underside of its front beam over the floor (default 2.45)."
+    },
+    "pitch": {
+     "type": "number",
+     "minimum": 5,
+     "maximum": 35,
+     "description": "Only for type porchroof: the pitch of its shed roof in degrees (default 15)."
+    },
+    "noPosts": {
+     "type": "boolean",
+     "description": "Only for type porchroof: no posts, it hangs on the wall."
+    },
+    "cover": {
+     "type": "string",
+     "enum": ["tiles", "metal", "glass"],
+     "description": "Only for type porchroof: what its roof is made of (default tiles)."
+    },
+    "railLook": {
+     "type": "string",
+     "enum": ["black", "steel"],
+     "description": "Only for type steps: the hand rail black (default) or stainless steel with bars across."
     },
     "mount": {
      "enum": ["auto", "flat", "stand"],

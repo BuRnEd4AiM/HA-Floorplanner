@@ -2,6 +2,18 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.32.0] - 2026-11-23
+### Added
+- **🪜 Outdoor steps: the number of steps, the hand rail on one side, stainless with bars** (#786, mariomichaelbauer: "Bei meinem Eingang sind es in der Realität 3 Stufen (2 Stufen + das obere Podest als 3. Stufe) … nur auf der linken Seite ein Geländer"):
+  - The steps' panel has **"Stufen"**: "Automatisch (4)" as before (at most 18 cm each), or a number of your own where each step is 12 to 25 cm high (65 cm: 3 to 5, e.g. "3 Stufen à 0.22 m"). The steps keep their landing at the house when they get deeper or shallower (also with "Höhe" and "Podest oben").
+  - **"Geländer"**: "Beide", "Links", "Rechts" or "Keins" (left and right as seen from the bottom, looking up at the door), and **"Geländer aus"**: "Metall schwarz" or **"Edelstahl mit Stäben"** (three bars across under the hand rail, like his).
+  - **"＋ Außentreppe an die Haustür" also without a plateau**: in "⛰ Gelände", when the ground in front of the front door lies at least 10 cm lower than the ground floor (the ground lowered instead of the house raised), the button puts steps there, exactly as high as the difference. Outdoor steps stand on the lowered ground.
+- **🏠 A canopy over a door** (#786, his front door: "Ein kleines Vordach über der Haustür … wäre noch das i-Tüpfelchen"): a door that leads outside has **"＋ Vordach über die Tür"**: a small shed roof of dark wood over the door, its back at the wall, its front on a beam over **two posts** with head braces (they stand on the landing of the steps), 1.2 m wider than the door, its beam 30 cm over the door. Its fields: width, depth (it grows to the front), height at the front, pitch, "Zwei Pfosten" (off: it hangs on the wall) and the cover **tiles, metal or glass**. Also in the library (Outdoor: "Vordach"). It goes up with the house on a plateau and never down with the ground. In "✨ Neu" the door has the section 🏠 Vordach, "🔍 Einstellung suchen" finds it. JSON: the device `porchroof` with `w`, `d`, `h`, `pitch`, `noPosts`, `cover`. The show house has one at the front door.
+- **🏗 A balcony under the house's roof** (#786, his photo of the back: the roof reaches over the balcony): a balcony has the tick **"Hausdach reicht darüber"**: the roof of the house is no longer left out over it but reaches over it, like a balcony under the eaves. JSON: `"roofOver": true` on the room.
+- Video guide: the new clips "Eingang: Außentreppe und Vordach" and "Balkon unter dem Hausdach"; the clip "Balkon mit Geländer" mentions the new tick. Browser test `110_entrance`, unit test `tests/porchroof.test.mjs`.
+### Fixed
+- **🏘 Whole house: on a plot as narrow as the house the basement stayed behind the earth** (#794, from #786, his picture 1: "schimmern bzw. schneiden die darunterliegenden Kellerfenster … durch die geschlossene Fassade/Erde durch"): the cut through the earth lay just inside the outer wall, but the plot of a terraced house ends on the side walls, so the side of the earth stayed and hid the basement (only parts of its walls showed through). Now the cut never lies outside the plot's edge.
+
 ## [5.31.0] - 2026-11-22
 ### Added
 - **🔆 Light wells at the basement windows** (#786, mariomichaelbauer: "my basement light wells … end up flush with the front path and back lawn instead of protruding"; the owner: "baue licht schächte ein für den keller das das auch gut aussieht auch drauf achten das der boden ausgeschnitten wird wenn da ein licht schacht ist"):

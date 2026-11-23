@@ -29,6 +29,7 @@ import { stackFields } from './openingstackui.js';
 import { roomSourceFields } from './roomsourceui.js';
 import { noWatchField } from './nowatchui.js';
 import { wellFields } from './lightwellui.js';
+import { porchDoorFields, porchFields } from './porchroofui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -364,6 +365,9 @@ export function initProps(ctx) {
       ci.addEventListener('change', () => { ctx.snapshot(); it.inv = ci.checked; ctx.changed(); });
       body.append(field(t('prop.inv'), ci));
       mark(body, 'contact'); if (it.entity || (it.paneEntities || []).some(Boolean)) heatProps(body, it);
+      mark(body, 'porch');                                            // 🏠 a canopy over a door that leads outside (#786, porchroofui.js)
+      porchDoorFields({ t, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), select: (s) => ctx.select(s), setStatus: (x) => ctx.setStatus(x),
+        uid: () => ctx.uid(), floor: () => f }, body, it);
     }
     mark(body, 'contact'); noWatchField(nwUi(), body, it, 'opening');   // only drawn, never offline (#780)
     mark(body, 'look'); looksUi.openingFields(body, it, wall);      // the colours of its leaf and frame (#754)
@@ -503,6 +507,7 @@ export function initProps(ctx) {
     if (it.type === 'solarpanel') solarProps(body, it);
     if (it.type === 'bridge') bridgeProps(body, it);
     if (it.type === 'steps') stepsFields(body, it, levelUi);    // outdoor steps (#566)
+    if (it.type === 'porchroof') porchFields({ ...levelUi, inp }, body, it);   // a canopy over a door (#786)
     if (it.type === 'tv_arm') tvArmProps(body, it);
     if (ctx.power().isType(it.type)) ctx.power().deviceProps(body, it);
     mark(body, 'entity');

@@ -5,6 +5,7 @@
  * the rules are in terrain.js (tested), the plan draws it with terrain2d.js, 3D with terrain3d.js. */
 import { cleanTerrain, heightField, slopePoints, mainAxis, TERRAIN } from './terrain.js';
 import { houseFootprint } from './earth.js';
+import { stepsAtDoorOnGround, stepsSize, plateausOf } from './levels.js';
 import { terrainSvg, hitPoint, fmtH, pointNo } from './terrain2d.js';
 import { houseBox } from './yard.js';
 
@@ -19,6 +20,7 @@ export function initTerrainUi(ctx) {
   let sel = null, pending = null, drop = ctx.floorH?.() || 3, key = null;
   const stored = () => ctx.layout().plot?.terrain || null;
   const points = () => cleanTerrain(stored())?.points || [];
+  const c0 = () => !!cleanTerrain(stored());
   /** the stored list of points (made when there is none yet) */
   function writable() {
     const L = ctx.layout();
@@ -142,7 +144,25 @@ export function initTerrainUi(ctx) {
     const clr = make('button', '', t('terrain.clear')); clr.type = 'button'; clr.id = 'terrainClear'; clr.disabled = !c;
     clr.addEventListener('click', clear);
     out.push(clr, make('p', 'sub', t('terrain.houseStays')));
+    if (c) {                                                       // the front door lies over the ground: steps down to it (#786)
+      const st = make('button', '', t('plat.steps')); st.type = 'button'; st.id = 'terrainSteps';
+      st.addEventListener('click', addSteps);
+      out.push(make('p', 'plotHead', `🪜 ${t('terrain.stepsHead')}`), st, make('p', 'sub', t('terrain.stepsHelp')));
+    }
     holder.replaceChildren(...out);
+  }
+  /** the outdoor steps at the front door where the ground outside lies lower (not on a plateau: that has a button of its own) */
+  function addSteps() {
+    const L = ctx.layout(), gi = groundIdx(L), f = L.floors?.[gi], hf = c0() ? heightField(stored()) : null;
+    const at = f && hf ? stepsAtDoorOnGround(f, hf, plateausOf(L.plot?.areas)) : null;
+    if (!at) { ctx.setStatus(t('terrain.noDoor')); return; }
+    ctx.snapshot();
+    const d = { id: ctx.uid(), type: 'steps', name: t('dev.steps'), x: at.x, z: at.z, y: 0, rot: at.rot, scale: 1, h: at.h, w: 1.4, land: 1, entity: '' };
+    (f.devices ||= []).push(d);
+    if ((ctx.floorIdx?.() ?? gi) === gi) ctx.select?.({ kind: 'device', id: d.id });
+    ctx.changed();
+    const s = stepsSize(d);
+    ctx.setStatus(t('plat.stepsDone', { n: s.n, rise: ctx.fmtLen(s.rise) }));
   }
   /** the mode was left: no slope waits for its tap */
   function leave() { pending = null; key = null; }

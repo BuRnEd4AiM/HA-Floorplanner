@@ -12,6 +12,7 @@
 import { pointInPoly } from './rooms.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { splitWall, distAlong, canSplitAt } from './wallsplit.js';
+import { porchBack } from './porchroof.js';
 
 export const LEVELS = { maxRise: 5, maxRaise: 3, lip: 0.2, stepMax: 0.18, tread: 0.28, ceilingFrom: 1.9, slopeRun: 1.5 };
 export const EDGES = ['wall', 'slope'];
@@ -132,7 +133,9 @@ export function lifter(f, areas, ter = null, upper = false) {
     at,
     room: (r) => { if (!any || !okPoly(r)) return 0; const [x, z] = innerPoint(r.points); return ground(x, z) + cleanRaise(r.raise); },
     device: (d) => {
-      if (!any || NO_LIFT.has(d?.type)) return 0;
+      if (!any) return 0;
+      if (NO_LIFT.has(d?.type)) return ter && !base(+d.x || 0, +d.z || 0) ? ter.at(+d.x || 0, +d.z || 0) : 0;   // outdoor steps: on the lawn, also on a slope (#786)
+      if (d?.type === 'porchroof') return ground(...porchBack(d));      // a canopy goes up with the house at its back edge, never with the ground (#786)
       const x = +d.x || 0, z = +d.z || 0;
       if (ter?.stands(d)) return ground(x, z) || ter.at(x, z);      // on a slope: on the ground, on a plateau with the plateau
       return ground(x, z) + ((+d.y || 0) >= LEVELS.ceilingFrom ? 0 : (raised ? raiseAt(rooms, x, z) : 0));   // what hangs from the ceiling stays
@@ -359,20 +362,58 @@ export function stepsAtDoor(f, area) {
   return { x: r2(ex + d.ux * half), z: r2(ez + d.uz * half), rot: Math.round((Math.atan2(d.ux, d.uz) * 180) / Math.PI), h, edge: [r2(ex), r2(ez)], door: d.op.id };
 }
 
-/** the outdoor steps (device `steps`): height h (to the top), width w, the landing on top `land` deep, a hand rail on both sides unless
- *  noRail; { h, w, land, n (risers), rise, tread } with defaults and limits */
+/** the outdoor steps at a door of the ground floor f where the ground outside lies lower (a slope, #786: the ground lowered with
+ *  "⛰ Gelände" instead of a plateau): the front door first, else the door with the biggest step down. at(x, z): the height of the ground;
+ *  plats: the plateaus (a door on one gets its steps from the plateau). Same result as stepsAtDoor, or null (no door 10 cm over the ground) */
+export function stepsAtDoorOnGround(f, at, plats = []) {
+  const front = (d) => /haus|front|eingang|entr|main/i.test(d.op.name || '');
+  const list = outerDoors(f, null).filter((d) => !plats.some((a) => okPoly(a) && pointInPoly(d.x, d.z, a.points))).map((d) => {
+    const th = (+d.wall.thickness || 0.2) / 2, ex = d.x + d.ux * th, ez = d.z + d.uz * th;
+    let h = Math.max(0, d.level) - at(ex + d.ux * 0.5, ez + d.uz * 0.5);
+    for (let k = 0; k < 2; k++) {                                     // the steps stand on the ground under their middle (lifter): measure it there
+      const half = stepsDepth({ h }) / 2;
+      h = Math.max(0, d.level) - at(ex + d.ux * half, ez + d.uz * half);
+    }
+    const half = stepsDepth({ h }) / 2;
+    return { d, h: r2(h), ex, ez, half };
+  }).filter((q) => q.h >= 0.1).sort((p, q) => (front(q.d) - front(p.d)) || q.h - p.h);
+  const q = list[0];
+  if (!q) return null;
+  const { d } = q;
+  return { x: r2(q.ex + d.ux * q.half), z: r2(q.ez + d.uz * q.half), rot: Math.round((Math.atan2(d.ux, d.uz) * 180) / Math.PI), h: q.h, edge: [r2(q.ex), r2(q.ez)], door: d.op.id };
+}
+
+/** the outdoor steps (device `steps`): height h (to the top), width w, the landing on top `land` deep; `count`: how many risers (the
+ *  landing's included, #786: 65 cm as 3 steps of 22 cm instead of 4 of 16), empty = as many as make them at most 18 cm; `rail`: where the
+ *  hand rail runs, seen from the bottom of the steps ('both', 'left', 'right', 'none'; the old `noRail` = 'none'), `railLook`: 'black' or
+ *  'steel' (stainless with bars across). { h, w, land, n (risers), rise, tread, rail, look } with defaults and limits */
 export function stepsSize(d) {
   const c = (v, lo, hi, def) => { const n = num(v); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : def; };
-  const h = c(d?.h, 0.1, LEVELS.maxRise, 0.54), { n, rise } = stepCount(h);
-  return { h, w: c(d?.w, 0.6, 6, 1.4), land: c(d?.land, 0, 4, 1.0), n, rise, tread: LEVELS.tread };
+  const h = c(d?.h, 0.1, LEVELS.maxRise, 0.54), auto = stepCount(h), [lo, hi] = stepsCountRange(h), k = Math.round(num(d?.count));
+  const n = Number.isFinite(k) && k > 0 ? Math.max(lo, Math.min(hi, k)) : auto.n;
+  return { h, w: c(d?.w, 0.6, 6, 1.4), land: c(d?.land, 0, 4, 1.0), n, rise: Math.round((h / n) * 1e4) / 1e4, tread: LEVELS.tread,
+    rail: stepsRail(d), look: d?.railLook === 'steel' ? 'steel' : 'black' };
+}
+/** how many risers outdoor steps of height h can have: each one from 25 cm down to 12 cm high, [least, most] */
+export function stepsCountRange(h) {
+  const a = Math.abs(num(h)) || 0;
+  const lo = Math.max(1, Math.ceil(a / 0.25 - 1e-9)), hi = Math.max(lo, Math.floor(a / 0.12 + 1e-9));
+  return [lo, hi];
+}
+export const STEPS_RAILS = ['both', 'left', 'right', 'none'];
+/** where the hand rail of outdoor steps runs: 'both' (the default), 'left', 'right' (seen from the bottom, looking up at the door) or 'none' */
+export function stepsRail(d) {
+  if (STEPS_RAILS.includes(d?.rail)) return d.rail;
+  return d?.noRail ? 'none' : 'both';
 }
 /** how deep the outdoor steps are: the landing and the treads */
 export const stepsDepth = (d) => { const s = stepsSize(d); return r2(s.land + (s.n - 1) * s.tread); };
 /** the boxes of the outdoor steps in their own frame (x across, y up from the lawn, z outwards from the edge of the plateau at z0 = -depth/2,
- *  the middle of the device at 0): [{ kind: land | step | post | rail, x0, x1, y0, y1, z0, z1 }]; a rail runs from post to post (from, to) */
+ *  the middle of the device at 0): [{ kind: land | step | post | rail | bar, x0, x1, y0, y1, z0, z1 }]; a rail (and a bar of a stainless
+ *  railing) runs from post to post (from, to) */
 export function stepsParts(d) {
   const off = -stepsDepth(d) / 2;
-  return stepsLocal(d).map((p) => (p.kind === 'rail' ? { ...p, from: [p.from[0], p.from[1], r2(p.from[2] + off)], to: [p.to[0], p.to[1], r2(p.to[2] + off)] }
+  return stepsLocal(d).map((p) => (p.from ? { ...p, from: [p.from[0], p.from[1], r2(p.from[2] + off)], to: [p.to[0], p.to[1], r2(p.to[2] + off)] }
     : { ...p, z0: r2(p.z0 + off), z1: r2(p.z1 + off) }));
 }
 /** the same, z from the edge of the plateau (0) outwards */
@@ -380,16 +421,21 @@ export function stepsLocal(d) {
   const { h, w, land, n, rise, tread } = stepsSize(d), parts = [], hw = w / 2;
   if (land > 0) parts.push({ kind: 'land', x0: -hw, x1: hw, y0: 0, y1: h, z0: 0, z1: land });
   for (let k = 1; k < n; k++) parts.push({ kind: 'step', x0: -hw, x1: hw, y0: 0, y1: r2(h - k * rise), z0: land + (k - 1) * tread, z1: land + k * tread });
-  if (d?.noRail) return parts;
+  const { rail, look } = stepsSize(d);
+  if (rail === 'none') return parts;
   const RH = 0.9, end = land + (n - 1) * tread, zTop = Math.max(0.05, land - 0.05), zBot = Math.max(zTop + 0.05, end - 0.12), yBot = r2(h - (n - 1) * rise);
-  [-1, 1].forEach((s) => {
+  const bars = look === 'steel' ? [0.2, 0.4, 0.6] : [];               // stainless: bars across between the posts, under the hand rail
+  // seen from the bottom (looking up at the door along -z) the left side is -x
+  (rail === 'both' ? [-1, 1] : [rail === 'left' ? -1 : 1]).forEach((s) => {
     const x = s * (hw - 0.06);
     parts.push({ kind: 'post', x0: x - 0.025, x1: x + 0.025, y0: yBot, y1: yBot + RH, z0: zBot - 0.025, z1: zBot + 0.025 });
     parts.push({ kind: 'post', x0: x - 0.025, x1: x + 0.025, y0: h, y1: h + RH, z0: zTop - 0.025, z1: zTop + 0.025 });
     parts.push({ kind: 'rail', from: [x, h + RH, zTop], to: [x, yBot + RH, zBot] });
+    bars.forEach((b) => parts.push({ kind: 'bar', from: [x, h + b, zTop], to: [x, yBot + b, zBot] }));
     if (land > 0.3) {
       parts.push({ kind: 'post', x0: x - 0.025, x1: x + 0.025, y0: h, y1: h + RH, z0: 0.03, z1: 0.08 });
       parts.push({ kind: 'rail', from: [x, h + RH, 0.055], to: [x, h + RH, zTop] });
+      bars.forEach((b) => parts.push({ kind: 'bar', from: [x, h + b, 0.055], to: [x, h + b, zTop] }));
     }
   });
   return parts;

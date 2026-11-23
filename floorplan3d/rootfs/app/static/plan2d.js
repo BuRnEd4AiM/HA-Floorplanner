@@ -9,6 +9,7 @@ import { solarField } from './solarroof.js';
 import { rotPoint, readableAngle } from './planview.js';
 import { bridgeSize } from './bridge.js';
 import { stepsSize, stepsDepth, stepsLocal, lifter, areasFor, cleanRise, offsetPoly, LEVELS } from './levels.js';
+import { porchSize } from './porchroof.js';
 import { armPose } from './tvmount.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange, sectionHex } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, treadAt, wallStairWidthAt, arrivingStairs } from './stairs.js';
@@ -122,6 +123,7 @@ export function createPlan(ctx) {
     if (d.type === 'closet') { const c = closetSize(d.cab); return { w: c.x * k, d: c.z * k }; }   // a cabinet built in its editor (closet.js)
     if (d.type === 'bridge') { const b = bridgeSize(d); return { w: b.len * k * (d.sx || 1), d: b.width * k * (d.sz || 1) }; }   // metal bridge (#189)
     if (d.type === 'steps') return { w: stepsSize(d).w * k * (d.sx || 1), d: stepsDepth(d) * k * (d.sz || 1) };   // outdoor steps (#566)
+    if (d.type === 'porchroof') { const c = porchSize(d); return { w: c.w * k * (d.sx || 1), d: c.d * k * (d.sz || 1) }; }   // a canopy over a door (#786)
     if (d.type === 'solarpanel' && ((d.cols || 1) > 1 || (d.rows || 1) > 1)) { const l = solarField(d); return { w: l.w * k * (d.sx || 1), d: l.d * k * (d.sz || 1) }; }   // a field of panels (#176)
     if (d.type === 'nanoleaf') return { w: nanoBounds(d.panels).w * k * (d.sx || 1), d: 0.06 };
     if (d.type === 'ledring') {                                   // not used for hits (those follow the line), only for sizes and labels

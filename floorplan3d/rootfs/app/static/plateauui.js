@@ -2,7 +2,7 @@
  * fields of a plateau (its height over the lawn, its edge: a wall of natural stone, concrete, clinker or gabions, or a bank of lawn) and
  * "＋ Außentreppe" at its front door; the fields of the outdoor steps (device `steps`); a room's floor higher or lower than its storey and
  * whether its doors get steps. The rules are in levels.js (tested). */
-import { cleanRise, cleanRaise, EDGES, WALL_KEYS, WALL_LOOKS, LEVELS, plateauRing, stepsAtDoor, stepsSize, groundCut } from './levels.js';
+import { cleanRise, cleanRaise, EDGES, WALL_KEYS, WALL_LOOKS, LEVELS, plateauRing, stepsAtDoor, stepsSize, stepsDepth, stepsCountRange, stepCount, STEPS_RAILS, groundCut } from './levels.js';
 import { buildingsOf, roomOwners } from './buildings.js';
 import { houseFootprint } from './earth.js';
 import { inIso } from './roomclip.js';
@@ -51,15 +51,34 @@ export function roomLevelFields(body, it, u) {
   body.append(make('p', 'sub', t('room.raiseHint')));
 }
 
-/** the fields of the outdoor steps (props.js). u: as roomLevelFields */
+/** the fields of the outdoor steps (props.js). u: as roomLevelFields. What makes them deeper or shallower (height, landing, number of steps)
+ *  keeps their top edge where it is (at the house), so they do not leave a gap or reach into the wall (#786) */
 export function stepsFields(body, it, u) {
   const { t } = u, s = stepsSize(it);
-  body.append(u.field(t('steps.h'), Object.assign(u.lenInput(() => s.h, (v) => { it.h = stepsSize({ h: v }).h; }, { min: 0.1, step: 0.05 }), { id: 'stepsH' })));
+  const keep = (fn) => {
+    const d0 = stepsDepth(it);
+    fn();
+    const dd = (stepsDepth(it) - d0) / 2, r = ((+it.rot || 0) * Math.PI) / 180;   // the steps run down along +z of their own frame
+    if (Math.abs(dd) > 1e-6) { it.x = Math.round(((+it.x || 0) + Math.sin(r) * dd) * 1000) / 1000; it.z = Math.round(((+it.z || 0) + Math.cos(r) * dd) * 1000) / 1000; }
+  };
+  body.append(u.field(t('steps.h'), Object.assign(u.lenInput(() => s.h, (v) => { keep(() => { it.h = stepsSize({ h: v }).h; }); queueMicrotask(() => u.render()); }, { min: 0.1, step: 0.05 }), { id: 'stepsH' })));   // the choice of steps follows the height
   body.append(u.field(t('steps.w'), u.lenInput(() => s.w, (v) => { it.w = stepsSize({ w: v }).w; }, { min: 0.6, step: 0.1 })));
-  body.append(u.field(t('steps.land'), u.lenInput(() => s.land, (v) => { it.land = stepsSize({ land: v }).land; }, { min: 0, step: 0.1 })));
-  const rc = make('input'); rc.type = 'checkbox'; rc.checked = !it.noRail; rc.id = 'stepsRail';
-  rc.addEventListener('change', () => { u.snapshot(); if (rc.checked) delete it.noRail; else it.noRail = true; u.changed(); });
-  body.append(u.field(t('steps.rail'), rc));
+  body.append(u.field(t('steps.land'), u.lenInput(() => s.land, (v) => { keep(() => { it.land = stepsSize({ land: v }).land; }); }, { min: 0, step: 0.1 })));
+  const [lo, hi] = stepsCountRange(s.h), cnt = make('select'); cnt.id = 'stepsCount';   // how many steps (#786: 3 instead of 4 at 65 cm)
+  cnt.add(new Option(t('steps.countAuto', { n: stepCount(s.h).n }), ''));
+  for (let k = lo; k <= hi; k++) cnt.add(new Option(t('steps.countN', { n: k, rise: u.fmtLen(s.h / k) }), String(k)));
+  cnt.value = Number.isFinite(+it.count) && +it.count > 0 ? String(s.n) : '';
+  cnt.addEventListener('change', () => { u.snapshot(); keep(() => { if (cnt.value) it.count = +cnt.value; else delete it.count; }); u.changed(); u.render(); });
+  body.append(u.field(t('steps.number'), cnt));
+  const rail = seg('stepsRail', STEPS_RAILS.map((k) => [k, t(`steps.rail.${k}`)]), s.rail, (v) => {   // both sides, one side or none (#786)
+    u.snapshot(); delete it.noRail; if (v === 'both') delete it.rail; else it.rail = v; u.changed(); u.render();
+  });
+  rail.classList.add('plotSeg4');
+  body.append(u.field(t('steps.rail'), rail));
+  if (s.rail === 'left' || s.rail === 'right') body.append(make('p', 'sub', t('steps.railHint')));
+  if (s.rail !== 'none') body.append(u.field(t('steps.railLook'), seg('stepsRailLook', [['black', t('steps.look.black')], ['steel', t('steps.look.steel')]], s.look, (v) => {
+    u.snapshot(); if (v === 'steel') it.railLook = v; else delete it.railLook; u.changed(); u.render();
+  })));
   body.append(make('p', 'sub', `${t('steps.count', { n: s.n, rise: u.fmtLen(s.rise) })} · ${t('steps.help')}`));
 }
 

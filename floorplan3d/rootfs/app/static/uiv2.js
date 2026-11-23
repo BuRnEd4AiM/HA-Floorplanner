@@ -26,7 +26,7 @@ export const panelKind = (kind, it) => (kind === 'opening' ? (it?.type === 'wind
  *  before the first mark stay on top, a section without fields is left out. 'kind' is drawn by uiv2ui.js (the kinds of window). */
 export const SECTIONS = {
   window: [['kind', '🧩', false], ['size', '📐', true], ['panes', '🪟', true], ['fixed', '▭', false], ['contact', '🔗', false], ['shutter', '🎚', false], ['well', '🔆', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],
-  door: [['size', '📐', true], ['style', '🚪', false], ['contact', '🔗', false], ['shutter', '🎚', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],   // look: its colours (#754); shutter: a sliding door's (#779)
+  door: [['size', '📐', true], ['style', '🚪', false], ['contact', '🔗', false], ['shutter', '🎚', false], ['porch', '🏠', false], ['look', '🎨', false], ['more', '⋯', false], ['inroom', '📟', false]],   // look: its colours (#754); shutter: a sliding door's (#779)
   device: [['entity', '🔗', true], ['special', '⚙️', true], ['place', '📍', false], ['dsize', '📏', false], ['tilt', '↻', false], ['look', '🎨', false], ['inroom', '📟', false]],
   wall: [['wsize', '📐', true], ['split', '✂️', false], ['finish', '🎨', false]],
   stair: [['form', '📐', true], ['corner', '↪️', true], ['steps', '🪜', true], ['look', '🎨', false], ['place', '📍', false]],   // 5.7.0 (the owner, 2026-11-11); look: covering, rail (#753)

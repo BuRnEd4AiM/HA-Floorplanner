@@ -37,12 +37,15 @@ export function cutCrossings(px, pz, ux, uz, rings) {
   return ts.sort((x, y) => x - y);
 }
 /** the facade the camera looks at (dx, dz is one of the four axis directions) and where the cut plane goes: just inside that outer wall.
- *  Returns null when the camera is straight above the middle. */
+ *  info.outline (optional): the edge of the earth (the plot); a plot that ends at the house (a terraced house, #786: its edge on the side
+ *  walls) moves the cut just inside its edge, else that side of the earth stays and hides the basement. Returns null when the camera is
+ *  straight above the middle. */
 export function cutPlane(cam, info) {
   let dx = cam.x - info.cx, dz = cam.z - info.cz;
   if (Math.hypot(dx, dz) < 1e-3) return null;
   if (Math.abs(dx) > Math.abs(dz)) { dx = Math.sign(dx); dz = 0; } else { dz = Math.sign(dz); dx = 0; }
-  const ext = Math.max(...info.corners.map(([x, z]) => (x - info.cx) * dx + (z - info.cz) * dz)) - 0.08;   // the basement wall is laid bare
+  const far = (pts) => Math.max(...pts.map(([x, z]) => (x - info.cx) * dx + (z - info.cz) * dz));
+  const ext = Math.min(far(info.corners), info.outline?.length >= 3 ? far(info.outline) : Infinity) - 0.08;   // the basement wall is laid bare
   return { dx, dz, px: info.cx + dx * ext, pz: info.cz + dz * ext };
 }
 
@@ -179,7 +182,7 @@ export function initEarth(ctx) {
     if (cut) {
       const cap = new THREE.Mesh(new THREE.BufferGeometry(), tintOf(new THREE.MeshBasicMaterial({ map: tex, color: holo ? 0x8a6a8a : 0xffffff, transparent: holo, opacity: holo ? 0.9 : 1, side: THREE.DoubleSide })));
       world.add(cap);
-      info = { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, corners: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]], rings: [outline, ...holes], depth, cap, key: '', hf, bottom };
+      info = { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, corners: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]], outline, rings: [outline, ...holes], depth, cap, key: '', hf, bottom };
     }
   }
   /** the face of the cut: a wall of soil layers from the lawn down to the bottom of the basement where the cut line runs through earth */

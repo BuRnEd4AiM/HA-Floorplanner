@@ -425,6 +425,9 @@ body.readonly #bgPanel { display: none; }
 .plotSeg button { flex: 1; border: 0; border-radius: 0; padding: 7px 6px; background: transparent; }
 .plotSeg button + button { border-left: 1px solid var(--line); }
 .plotSeg button.active { background: var(--accent); color: var(--accent-text); }
+#stepsRail.plotSeg4 { display: grid; grid-template-columns: 1fr 1fr; }   /* the hand rail of outdoor steps: four choices in two rows (#786) */
+#stepsRail.plotSeg4 button:nth-child(3) { border-left: 0; }
+#stepsRail.plotSeg4 button:nth-child(n + 3) { border-top: 1px solid var(--line); }
 .plotHead { margin: 10px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .yardGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
 .yardGrid button { display: flex; align-items: center; gap: 6px; padding: 5px 6px; text-align: left; font-size: 12px; min-width: 0; }

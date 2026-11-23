@@ -1637,8 +1637,8 @@ def balcony_view(r):
 
 @clip("balcony", "edit",
       {"de": "Balkon mit Geländer", "en": "A balcony with a railing"},
-      {"de": "Einen Raum vor die Tür zeichnen und „Balkon / Dachterrasse“ ankreuzen: Geländer aus Metall, Glas oder Holz, auf Wunsch Stützen bis zum Boden. „Geländer je Seite“: jede Seite (mit Nummer, auch im Grundriss) aus, nur ein Stück („von … bis“, oder die ◆ im Grundriss ziehen) oder mit 🚪 Geländertür. Ragt er hinaus oder liegt der Hang tiefer, hängt er frei auf einer Platte; eine Terrasse auf der Garage nur dort, wo sie hinausragt.",
-       "en": "Draw a room in front of the door and tick “Balcony / roof terrace”: a railing of metal, glass or wood, supports down to the ground if you like. “Railing side by side”: each side (numbered, also in the 2D plan) off, only a stretch (“from … to”, or drag the ◆ in the 2D plan) or with a 🚪 gate. Where it reaches out or the slope lies lower, it hangs free on a plate; a terrace on the garage only where it reaches out."},
+      {"de": "Einen Raum vor die Tür zeichnen und „Balkon / Dachterrasse“ ankreuzen: Geländer aus Metall, Glas oder Holz, auf Wunsch Stützen bis zum Boden. „Geländer je Seite“: jede Seite (mit Nummer, auch im Grundriss) aus, nur ein Stück („von … bis“, oder die ◆ im Grundriss ziehen) oder mit 🚪 Geländertür. Ragt er hinaus oder liegt der Hang tiefer, hängt er frei auf einer Platte; eine Terrasse auf der Garage nur dort, wo sie hinausragt. „Hausdach reicht darüber“ legt ihn unter das Dach des Hauses.",
+       "en": "Draw a room in front of the door and tick “Balcony / roof terrace”: a railing of metal, glass or wood, supports down to the ground if you like. “Railing side by side”: each side (numbered, also in the 2D plan) off, only a stretch (“from … to”, or drag the ◆ in the 2D plan) or with a 🚪 gate. Where it reaches out or the slope lies lower, it hangs free on a plate; a terrace on the garage only where it reaches out. “House roof reaches over it” puts it under the roof of the house."},
       "Balkon Geländer Balkongeländer Glasgeländer Holzgeländer Stützen Dachterrasse Hang Platte Geländertür Seite balcony railing glass railing wooden railing supports posts roof terrace slope plate gate side",
       query="mode=edit", prep=balcony_view)
 def _(r):
@@ -2322,6 +2322,134 @@ def _(r):
     r.say("Liegt ein Fenster über dem Boden, etwa am Hang, braucht es keinen. Der Haken schaltet ihn aus.",
           "A window over the ground, e.g. on a slope, needs none. The tick switches it off.")
     r.wait(2600)
+
+def terraced_house(balcony=False):
+    """prep: an empty house made into a terraced house 6 × 11 m (#786, Mario's): a basement, the ground floor with the front door, an upper
+    floor, a gable roof; the ground in front 65 cm lower ("⛰ Gelände"), the garden behind lower still; maybe a balcony at the back of the
+    upper floor (an open room, not yet under the roof). The ground floor in the 2D plan, or the 3D view from behind with the balcony"""
+    def prep(r):
+        empty_house()(r)
+        r.pg.evaluate("""(bal) => {
+          const fp = window.__fp, L = fp.layout, de = document.documentElement.lang !== 'en';
+          const wall = (id, a, b, ops = [], h = 2.6) => ({ id, a, b, thickness: 0.3, height: h, openings: ops });
+          const win = (id, pos, o = {}) => ({ id, type: 'window', style: 'double', pos, width: 1.2, height: 1.3, sill: 0.9, ...o });
+          const ring = (p, front, back, h) => [wall(p + 1, [0, 0], [6, 0], front, h), wall(p + 2, [6, 0], [6, 11], [], h), wall(p + 3, [6, 11], [0, 11], back, h), wall(p + 4, [0, 11], [0, 0], [], h)];
+          const room = (id, name, z0, z1) => ({ id, name, color: '#d8c3a5', points: [[0, z0], [6, z0], [6, z1], [0, z1]] });
+          const fl = (id, name, kind, walls, rs) => ({ id, name, kind, holes: [], rooms: rs, walls, devices: [], blocks: [], stairs: [] });
+          const kw = (id, pos) => win(id, pos, { width: 1, height: 0.5, sill: 1.9 });
+          const og = fl('tOG', de ? 'Obergeschoss' : 'Upper floor', 'floor', ring('to', [win('tow1', 1.6), win('tow2', 4.4)],
+            [win('tow3', 1.6, { height: 2.1, sill: 0 }), win('tow4', 4.4, { height: 2.1, sill: 0 })]), [room('tr3', de ? 'Bad' : 'Bath', 0, 5), room('tr4', de ? 'Schlafen' : 'Bedroom', 5, 11)]);
+          if (bal) og.rooms.push({ id: 'tBal', name: de ? 'Balkon' : 'Balcony', terrace: true, rail: 'wood', color: '#a58a63', points: [[0, 11.15], [6, 11.15], [6, 12.5], [0, 12.5]] });
+          L.floors.splice(0, L.floors.length,
+            fl('tKG', de ? 'Keller' : 'Basement', 'basement', ring('tk', [kw('tkw1', 1), kw('tkw2', 4.6)], [kw('tkw3', 3)]), [room('tr0', de ? 'Keller' : 'Basement', 0, 11)]),
+            fl('tEG', de ? 'Erdgeschoss' : 'Ground floor', 'floor', ring('te', [{ id: 'tDoor', type: 'door', name: de ? 'Haustür' : 'Front door', pos: 2.4, width: 1.2, height: 2.1, sill: 0 },
+              win('tew1', 0.8, { width: 0.6 }), win('tew2', 4.6)], [{ id: 'tew3', type: 'window', style: 'double', pos: 3, width: 2.4, height: 2.1, sill: 0 }]),
+              [room('tr1', de ? 'Flur' : 'Hall', 0, 4), room('tr2', de ? 'Wohnen' : 'Living', 4, 11)]),
+            og,
+            Object.assign(fl('tDach', de ? 'Dach' : 'Roof', 'roof', [], []), { roof: { type: 'gable', pitch: 40, overhang: 0.4, ridge: 'x' } }));
+          L.plot = { boundary: [[0, -7], [6, -7], [6, 20], [0, 20]], areas: [{ id: 'tWeg', name: de ? 'Weg' : 'Path', surface: 'paving', points: [[1.7, -7], [3.1, -7], [3.1, -2], [1.7, -2]] }],
+            terrain: { points: [{ id: 'tt1', x: 3, z: -1, h: -0.65 }, { id: 'tt2', x: 3, z: 15, h: -0.95 }] } };
+          const s = fp.settings(); s.houseFloors = 'stacked'; s.seeThrough = false; s.cutaway = false;
+          fp.rebuild(); fp.switchFloor(1);
+        }""", balcony)
+        r.pg.wait_for_timeout(1200)
+        if balcony:
+            r.pg.click("#view3d")
+            r.pg.evaluate("window.__fp.setHouseMode(true)")
+            r.pg.wait_for_timeout(1000)
+            r.pg.evaluate("window.__fp.camAt(21, 9, 21, 3, 8)")
+        else:
+            r.pg.click("#view2d")
+        r.pg.wait_for_timeout(1000)
+    return prep
+
+
+@clip("entrance", "edit",
+      {"de": "Eingang: Außentreppe und Vordach", "en": "Entrance: outdoor steps and a canopy"},
+      {"de": "Liegt der Boden vor der Haustür tiefer, setzt „⛰ Gelände“ → „＋ Außentreppe an die Haustür“ eine Treppe davor, genau so hoch. "
+             "Bei der Treppe: die Zahl der Stufen (z. B. 3 statt 4), das Geländer beidseitig, nur links, nur rechts oder keins, schwarz oder "
+             "Edelstahl mit Stäben. Bei der Haustür: „＋ Vordach über die Tür“, ein Pultdach aus Holz auf zwei Pfosten (Ziegel, Blech oder Glas).",
+       "en": "Where the ground in front of the front door lies lower, “⛰ Terrain” → “＋ Outdoor steps at the front door” puts steps there, exactly as "
+             "high. At the steps: the number of steps (e.g. 3 instead of 4), the hand rail on both sides, left only, right only or none, black or "
+             "stainless with bars. At the front door: “＋ Canopy over the door”, a wooden shed roof on two posts (tiles, metal or glass)."},
+      "Außentreppe Eingang Haustür Stufen Stufenzahl Treppenstufen Geländer links rechts Handlauf Edelstahl Vordach Pultdach Pfosten Podest "
+      "Reihenhaus outdoor steps entrance front door steps number of steps railing left right handrail stainless steel canopy porch roof posts landing terraced house",
+      query="mode=edit", prep=terraced_house())
+def _(r):
+    r.say("Ein Reihenhaus: vorne liegt der Boden 65 cm tiefer als das Erdgeschoss (⛰ Gelände).",
+          "A terraced house: in front the ground lies 65 cm lower than the ground floor (⛰ Terrain).")
+    r.click("#tools [data-tool=plot]")
+    r.wait(900)
+    r.click("#plotMode [data-v=terrain]")
+    r.wait(1200)
+    r.say("„＋ Außentreppe an die Haustür“: die Treppe kommt vor die Haustür, genau 65 cm hoch.",
+          "“＋ Outdoor steps at the front door”: the steps go in front of the front door, exactly 65 cm high.")
+    r.loc("#terrainSteps").scroll_into_view_if_needed()
+    r.click("#terrainSteps")
+    r.wait(1800)
+    r.say("„Stufen“: 3 statt 4, jede etwa 22 cm hoch.", "“Steps”: 3 instead of 4, each about 22 cm high.")
+    r.loc("#stepsCount").scroll_into_view_if_needed()
+    r.click("#stepsCount")
+    r.loc("#stepsCount").select_option("3")
+    r.wait(1400)
+    r.say("„Geländer“: nur links (von unten zur Tür gesehen), aus Edelstahl mit Stäben.",
+          "“Hand rail”: left only (seen from below, looking at the door), stainless steel with bars.")
+    r.click("#stepsRail [data-v=left]")
+    r.wait(900)
+    r.click("#stepsRailLook [data-v=steel]")
+    r.wait(1400)
+    r.say("Jetzt die Haustür antippen: „＋ Vordach über die Tür“.", "Now tap the front door: “＋ Canopy over the door”.")
+    r.click("#tools [data-tool=select]")
+    r.wait(600)
+    r.js("window.__fp.select('opening', 'tDoor')")
+    r.wait(1000)
+    r.loc("#porchAdd").scroll_into_view_if_needed()
+    r.click("#porchAdd")
+    r.wait(1600)
+    r.say("Breite, Tiefe, Höhe, Neigung, die Pfosten und das Dach (Ziegel, Blech, Glas) stehen beim Vordach.",
+          "Width, depth, height, pitch, the posts and the cover (tiles, metal, glass) are at the canopy.")
+    r.loc("#porchCover").scroll_into_view_if_needed()
+    r.move("#porchCover")
+    r.wait(1800)
+    r.say("Im 3D-Bild: drei Stufen, das Geländer links, das Vordach auf zwei Pfosten.", "In 3D: three steps, the rail on the left, the canopy on two posts.")
+    r.click("#view3d")
+    r.js("window.__fp.select(null, null)")
+    r.wait(1200)
+    r.js("window.__fp.camAt(6.5, 1.8, -6.5, 2.4, 0.5)")
+    r.wait(3400)
+    r.poster()
+
+
+@clip("balcony-roof", "edit",
+      {"de": "Balkon unter dem Hausdach", "en": "A balcony under the house's roof"},
+      {"de": "Ein Balkon liegt sonst offen, das Dach spart ihn aus. Mit „Hausdach reicht darüber“ reicht das Dach des Hauses über ihn, wie bei einem "
+             "Balkon unter der Traufe.",
+       "en": "A balcony is open otherwise, the roof leaves it out. With “House roof reaches over it” the roof of the house reaches over it, like a "
+             "balcony under the eaves."},
+      "Balkon Dach überdacht Traufe Dachüberstand Hausdach Loggia unter dem Dach Regen Reihenhaus hinten balcony roof covered eaves overhang "
+      "house roof loggia under the roof rain covered balcony terraced house back",
+      query="mode=edit", prep=terraced_house(balcony=True))
+def _(r):
+    r.say("Hinten im Obergeschoss ein Balkon über die ganze Breite: das Dach endet an der Wand.",
+          "At the back of the upper floor a balcony across the whole width: the roof ends at the wall.")
+    r.wait(2200)
+    r.say("Den Balkon antippen …", "Tap the balcony …")
+    r.js("window.__fp.switchFloor(2)")
+    r.wait(800)
+    r.js("window.__fp.select('room', 'tBal')")
+    r.wait(1200)
+    r.say("… und „Hausdach reicht darüber“ ankreuzen.", "… and tick “House roof reaches over it”.")
+    r.loc("#roomRoofOver").scroll_into_view_if_needed()
+    r.click("#roomRoofOver")
+    r.wait(1400)
+    r.say("Jetzt reicht das Dach über den Balkon, wie eine Traufe.", "Now the roof reaches over the balcony, like eaves.")
+    r.js("window.__fp.select(null, null)")
+    r.js("window.__fp.setHouseMode(true)")
+    r.wait(1000)
+    r.js("window.__fp.camAt(21, 9, 21, 3, 8)")
+    r.wait(3200)
+    r.poster()
+
 
 def _import_check():
     """the add-on's answer to "Prüfen" for the example house (the demo has no importer): the real importer of the add-on decides"""

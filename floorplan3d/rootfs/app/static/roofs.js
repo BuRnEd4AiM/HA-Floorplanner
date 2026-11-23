@@ -27,8 +27,9 @@ export function roofBoxOf(floors, i) {
   return autoRoofBox(floors, i);
 }
 export function autoRoofBox(floors, i) {
-  // a roof terrace (an open room) has no roof, and neither has what lies below it (the garage): their walls and rooms do not count
-  const zones = floors.flatMap((f, fi) => f.rooms.filter((r) => r.terrace && r.points.length >= 3).map((r) => {
+  // a roof terrace (an open room) has no roof, and neither has what lies below it (the garage): their walls and rooms do not count; a
+  // balcony with `roofOver` lies under the house's roof (#786: Mario's balcony at the back, the eaves reach over it): it counts like a room
+  const zones = floors.flatMap((f, fi) => f.rooms.filter((r) => r.terrace && !r.roofOver && r.points.length >= 3).map((r) => {
     const xs = r.points.map((p) => p[0]), zs = r.points.map((p) => p[1]);
     return { fi, x0: Math.min(...xs) - 0.2, x1: Math.max(...xs) + 0.2, z0: Math.min(...zs) - 0.2, z1: Math.max(...zs) + 0.2 };
   }));
@@ -37,7 +38,7 @@ export function autoRoofBox(floors, i) {
   floors.forEach((f, k) => {
     if (k >= i || f.kind === 'basement' || f.kind === 'roof') return;
     f.walls.flatMap((w) => wallPieces(w, f.wallCuts)).forEach((w) => { if (!open(k, [w.a, w.b])) pts.push(w.a, w.b); });   // one building of several: its parts (#451)
-    f.rooms.forEach((r) => { if (!r.terrace && !open(k, r.points)) pts.push(...r.points); });
+    f.rooms.forEach((r) => { if ((!r.terrace || r.roofOver) && !open(k, r.points)) pts.push(...r.points); });
   });
   if (!pts.length) return null;
   const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);

@@ -44,6 +44,14 @@ test('cut plane: on the facade facing the camera, just inside the outer wall; no
   assert.equal(E.cutPlane({ x: 5, z: -40 }, info).dz, -1);
   assert.equal(E.cutPlane({ x: 5, z: 5 }, info), null);
 });
+test('cut plane: a plot that ends at the side walls (a terraced house, #786) moves the cut inside its edge', () => {
+  const info = { cx: 3, cz: 5, corners: sq(-0.15, -0.15, 6.15, 11.15), outline: sq(0, -7, 6, 20) };
+  const side = E.cutPlane({ x: 30, z: 4 }, info);
+  assert.equal(side.dx, 1);
+  assert.ok(Math.abs(side.px - 5.92) < 1e-9);                             // inside the edge of the plot at x = 6, so its side face is cut away
+  const front = E.cutPlane({ x: 3, z: -40 }, info);
+  assert.ok(Math.abs(front.pz - -0.07) < 1e-9);                           // the plot reaches further: just inside the house's wall, as before
+});
 test('colour scale: ends outside, mixed in between, exact at a stop', () => {
   const stops = [{ v: 18, c: '#0000ff' }, { v: 22, c: '#00ff00' }, { v: 26, c: '#ff0000' }];
   assert.equal(L.colorFromStops(stops, 10), 0x0000ff);
