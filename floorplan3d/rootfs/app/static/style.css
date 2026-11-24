@@ -606,6 +606,15 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 #picCardDlg .pcOpts { margin: -2px 0 10px 30px; padding: 8px 10px; border-left: 3px solid var(--accent); display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
 #picCardDlg .pcField { display: flex; flex-direction: column; gap: 4px; }
 #picCardDlg .pcCheck { display: flex; align-items: center; gap: 8px; }
+/* 🖼 a card's text with its placeholders as green boxes (phfield.js, 5.34.0) */
+#picCardDlg .pcPhField { min-height: 36px; padding: 6px 10px; line-height: 1.9; border: 1px solid rgba(127, 127, 127, .4); border-radius: 8px; background: rgba(127, 127, 127, .1);
+  color: var(--text); font-size: 14px; cursor: text; outline: none; white-space: pre-wrap; overflow-wrap: anywhere; }
+#picCardDlg .pcPhField:focus { border-color: var(--accent); }
+#picCardDlg .pcPh { display: inline-block; background: #2ea057; color: #fff; border-radius: 6px; padding: 0 7px; margin: 0 2px; line-height: 1.55; font-weight: 600; user-select: all; }
+#picCardDlg .pcPhChips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+#picCardDlg .pcPhLead { width: 100%; font-size: 12px; color: var(--muted); }
+#picCardDlg .pcPhChip { border: 1px solid #2ea057; background: rgba(46, 160, 87, .14); color: var(--text); border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+#picCardDlg .pcPhChip small { color: var(--muted); margin-left: 5px; font-size: 11.5px; }
 #picCardDlg .pcRowsPick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; }
 #picCardDlg .pcEnt { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 #picCardDlg .pcAddEnt { display: flex; gap: 6px; }

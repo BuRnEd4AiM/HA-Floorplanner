@@ -42,11 +42,24 @@ test('rows: a half block shares its row with the next one (never with a heading,
 });
 
 test("a block's line in the list", () => {
-  assert.equal(P.blockSub({ k: 'head', text: '{kind}', clock: true }, t), '„{kind}“ · pc.o.clock');
+  assert.equal(P.blockSub({ k: 'head', text: '{kind}', clock: true }, t), '„[pc.ph.kind]“ · pc.o.clock');
+  assert.equal(P.blockSub({ k: 'text', text: 'In {raum} um {zeit}' }, t), '„In [pc.ph.room] um [pc.ph.time]“');
   assert.equal(P.blockSub({ k: 'plan', show: 'room', marks: true, half: true }, t), 'pc.o.room · pc.o.marksShort · pc.halfShort');
+  assert.equal(P.blockSub({ k: 'plan', show: 'floor', floor: 'og' }, t, {}, [{ id: 'og', name: 'Obergeschoss' }]), 'Obergeschoss · pc.o.floor');   // a chosen floor
+  assert.equal(P.blockSub({ k: 'plan', show: 'floor', floor: 'weg' }, t, {}, []), 'pc.o.floorGone · pc.o.floor');
   assert.equal(P.blockSub({ k: 'camera', ent: 'camera.flur' }, t, { 'camera.flur': 'Flur' }), 'Flur');
   assert.equal(P.blockSub({ k: 'info', rows: ['temp', 'who'] }, t), 'pc.r.temp, pc.r.who');
   assert.equal(P.blockSub({ k: 'values', ents: [] }, t), 'pc.o.entsNone');
+});
+
+test('the placeholders of a text as green boxes (5.34.0, docs/ideen-5.34 idea 2)', () => {
+  assert.deepEqual(P.phParts('Wasser in {raum} ({floor})!'), [{ s: 'Wasser in ' }, { ph: 'room' }, { s: ' (' }, { ph: 'floor' }, { s: ')!' }]);
+  assert.deepEqual(P.phParts('{kind}'), [{ ph: 'kind' }]);
+  assert.deepEqual(P.phParts('{foo} und {Raum} bleiben {'), [{ s: '{foo} und {Raum} bleiben {' }]);   // unknown: text
+  assert.deepEqual(P.phParts(''), []);
+  assert.equal(P.phText(P.phParts('{melder} in {etage} um {zeit}, {haus}: {art} {text}')), '{name} in {floor} um {time}, {house}: {kind} {text}');
+  assert.equal(P.phRead('{title} {room}', (k) => k), '{title} [pc.ph.room]');
+  assert.deepEqual([...P.PH].sort(), ['floor', 'house', 'kind', 'name', 'room', 'text', 'time']);
 });
 
 test('where a card is used: the alarms it is chosen for, the routines that send it', () => {

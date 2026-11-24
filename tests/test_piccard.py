@@ -139,3 +139,18 @@ def test_a_routine_sends_a_card():
     out = hf.compile_flow({**f, "ha": True}, hf.context(rooms, {}))
     ev = next(s for s in out["autos"][0]["actions"] if s.get("event") == "fp3d_notify")
     assert ev["event_data"]["card"] == "test1" and "trigger.entity_id" in ev["event_data"]["entity"]
+
+
+def test_plan_of_a_chosen_floor():
+    """the owner's wish 2026-11-24: a plan block can show a chosen floor ("Stockwerke auswählen"); automatic without one"""
+    assert pc.clean_block({"k": "plan", "floor": "og"})["floor"] == "og"
+    assert "floor" not in pc.clean_block({"k": "plan", "floor": ""}) and "floor" not in pc.clean_block({"k": "plan", "floor": "a b/c"})
+    og = {"id": "og", "name": "Obergeschoss", "kind": "floor", "rooms": [{"id": "r3", "name": "Bad", "points": [[0, 0], [4, 0], [4, 4], [0, 4]]}],
+          "walls": [], "devices": [{"x": 2, "z": 2, "entity": "light.bad", "name": "Badlicht"}]}
+    c = ctx(floors=[FLOOR, og], states={**STATES, "light.bad": {"state": "on"}})
+    assert pc.plan_floor(c) is FLOOR                         # automatic: the sensor's floor
+    assert pc.plan_floor(c, want="og") is og                 # chosen
+    assert pc.plan_floor(c, want="weg") is FLOOR             # deleted floor: automatic again
+    assert [x[2] for x in pc.opened(c, [og]) + pc.lit(c, [og])] == ["Badlicht"]
+    card = {"blocks": [{"k": "plan", "floor": "og", "show": "room", "marks": True}, {"k": "plan", "floor": "eg", "half": True}, {"k": "plan", "floor": "og"}]}
+    assert png_size(pc.render(card, c))[1] > 0

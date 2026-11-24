@@ -63,9 +63,9 @@ export function fill(text, ctx) {
 const num = (st) => { const n = parseFloat(st?.state); return Number.isFinite(n) ? n : null; };
 const value = (st, lang) => { if (!st) return '–'; const n = num(st), u = st.attributes?.unit_of_measurement || ''; return `${n !== null ? dec(n, lang) : st.state} ${u}`.trim(); };
 const floorsOf = (ctx) => (ctx.place ? [ctx.place.floor] : ctx.floors || []);
-function opened(ctx) {
+function opened(ctx, floors = null) {
   const out = [];
-  floorsOf(ctx).forEach((f) => (f.walls || []).forEach((w) => {
+  (floors || floorsOf(ctx)).forEach((f) => (f.walls || []).forEach((w) => {
     if (!w.a || !w.b) return;
     const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1;
     (w.openings || []).forEach((o) => {
@@ -77,9 +77,9 @@ function opened(ctx) {
   }));
   return out;
 }
-function lit(ctx) {
+function lit(ctx, floors = null) {
   const out = [];
-  floorsOf(ctx).forEach((f) => (f.devices || []).forEach((d) => {
+  (floors || floorsOf(ctx)).forEach((f) => (f.devices || []).forEach((d) => {
     if (d.entity?.startsWith('light.') && ctx.states[d.entity]?.state === 'on') out.push([d.x, d.z, d.name || d.entity, f.id]);
   }));
   return out;
@@ -164,7 +164,9 @@ function bounds(floors, room) {
   if (!xs.length) return null;
   return [Math.min(...xs) - pad, Math.min(...zs) - pad, Math.max(...xs) + pad, Math.max(...zs) + pad];
 }
-function planFloor(ctx, marks) {
+function planFloor(ctx, marks, want = '') {
+  const chosen = want && [ctx.place?.floor, ...(ctx.floors || [])].find((f) => f && f.id === want);   // a chosen floor (piccard.plan_floor)
+  if (chosen) return chosen;
   if (ctx.place) return ctx.place.floor;
   const floors = (ctx.floors || []).filter((f) => (f.rooms || []).length);
   if (marks) {
@@ -174,10 +176,10 @@ function planFloor(ctx, marks) {
   }
   return floors.find((f) => !['basement', 'roof'].includes(f.kind)) || floors[0];
 }
-function drawPlan(ctx, th, widthPx, show, marks) {
-  const f = planFloor(ctx, marks);
+function drawPlan(ctx, th, widthPx, show, marks, want = '') {
+  const f = planFloor(ctx, marks, want);
   if (!f) return null;
-  const place = ctx.place || {}, room = place.room;
+  const place = ctx.place && ctx.place.floor?.id === f.id ? ctx.place : {}, room = place.room;   // another floor than the sensor's: no red room, no ring
   const b = bounds([f], show === 'room' ? room : null);
   if (!b) return null;
   let [x0, z0, x1, z1] = b;
@@ -223,7 +225,7 @@ function drawPlan(ctx, th, widthPx, show, marks) {
   });
   const w = words(ctx.lang);
   if (marks) {
-    [[opened(ctx), RED, w.open1], [lit(ctx), YELLOW, w.on1]].forEach(([items, col, word]) => items.forEach(([x, z, , fid]) => {
+    [[opened(ctx, [f]), RED, w.open1], [lit(ctx, [f]), YELLOW, w.on1]].forEach(([items, col, word]) => items.forEach(([x, z, , fid]) => {
       if (fid !== f.id) return;
       const [px, pz] = P(x, z), rr = Math.max(10, s * 0.26);
       g.fillStyle = css(col, 0.27); g.beginPath(); g.arc(px, pz, rr + 6, 0, 7); g.fill();
@@ -282,7 +284,7 @@ function block(card, b, ctx, th, g, x, y, w, fullW, col) {
       return h;
     }
     case 'plan': {
-      const whole = !b.half && col === 'full', pic = drawPlan(ctx, th, whole ? fullW : w, b.show, b.marks);
+      const whole = !b.half && col === 'full', pic = drawPlan(ctx, th, whole ? fullW : w, b.show, b.marks, b.floor || '');
       if (!pic) return 0;
       if (whole) g.drawImage(pic, 0, y); else { g.save(); rrect(g, x, y, w, pic.height, 10 * S); g.clip(); g.drawImage(pic, x, y); g.restore(); }
       return pic.height;

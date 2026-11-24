@@ -410,9 +410,9 @@ def _(r):
 @clip("piccards", "pages",
       {"de": "🖼 Bildkarten fürs Handy gestalten", "en": "🖼 Design picture cards for the phone"},
       {"de": "Eigene Bilder für Telegram: Bausteine untereinander (Raumbild, Kamera, Uhrzeit, Infos …), rechts sofort die Karte, wie sie ankommt. "
-             "Je Alarm eine Karte oder im Ablauf beim Baustein „Nachricht“.",
+             "Texte mit grünen Kästchen für Raum, Etage, Melder, Uhrzeit. Das Raumbild zeigt das Stockwerk vom Melder oder ein gewähltes. Je Alarm eine Karte oder im Ablauf beim Baustein „Nachricht“.",
        "en": "Your own pictures for Telegram: blocks from top to bottom (room picture, camera, time, info …), on the right the card as it arrives. "
-             "One card per alarm, or in a routine's block “Message”."},
+             "Texts with green boxes for room, floor, sensor, time. The room picture shows the sensor's floor or a chosen one. One card per alarm, or in a routine's block “Message”."},
       "Bildkarte Karte Bild Telegram Alarm Nachricht gestalten Bausteine Vorlage picture card image Telegram alarm message design blocks template")
 def _(r):
     tab(r, "routines")
@@ -429,6 +429,21 @@ def _(r):
     r.click("#picCardDlg .pcOpts .tpChip[data-v=room]")
     r.wait(2000)
     r.poster()
+    r.say("„Stockwerk“: automatisch das vom Melder – oder ein festes, z. B. das Obergeschoss.", "“Floor”: automatically the sensor's – or a fixed one, e.g. the upper floor.")
+    r.move("#picCardDlg .pcOpts [data-opt=floor]")
+    r.loc("#picCardDlg .pcOpts [data-opt=floor]").select_option("og")
+    r.wait(2200)
+    r.loc("#picCardDlg .pcOpts [data-opt=floor]").select_option("")
+    r.wait(1000)
+    r.say("Texte mit grünen Kästchen: „＋ Raum“ setzt den Raum ein, beim Senden steht dort der echte, z. B. „Waschküche“.",
+          "Texts with green boxes: “＋ Room” puts the room in; when sent, the real one stands there, e.g. “Laundry”.")
+    r.click("#picCardDlg .pcRow[data-k=head] .pcRowMain")
+    r.wait(1000)
+    r.click("#picCardDlg .pcPhField")
+    r.key("End")
+    r.type(" in ")
+    r.click("#picCardDlg .pcPhChip[data-ph=room]")
+    r.wait(2200)
     r.say("„＋ Baustein dazu“: zum Beispiel die Uhrzeit. ▲▼ ändert die Reihenfolge.", "“＋ Add a block”: for example the time. ▲▼ changes the order.")
     r.click("#picCardDlg [data-add=clock]")
     r.wait(1400)

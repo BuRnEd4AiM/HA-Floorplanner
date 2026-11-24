@@ -541,7 +541,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 229. Neu in 5.32.0: 🪜 Eingang mit Außentreppe und Vordach, Balkon unter dem Dach (#786, #794) | 6 | 0 | 1 | 0 | 229.7 |
 | 230. Repariert in 5.32.1: 📸 Telegram-Bot einrichten (#796) | 5 | 0 | 3 | 0 | 230.6 bis 230.8 |
 | 231. Neu in 5.33.0: 🖼 Bildkarten fürs Handy | 5 | 0 | 4 | 0 | 231.6 bis 231.9 |
-| **Zusammen** | **1390** | **2** | **177** | **92** | |
+| 232. Neu in 5.34.0: 🖼 Bildkarten: Stockwerk wählen, grüne Kästchen | 4 | 0 | 2 | 0 | 232.5, 232.6 |
+| **Zusammen** | **1394** | **2** | **179** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3472,3 +3473,15 @@ Dein Wunsch (23.11.): eigene Bilderkarten für Alarme und Abläufe; deine Wahl a
 | 231.7 | Im Add-on eine Karte öffnen → „📨 Test an mich“ | Die Karte kommt in Telegram an, darunter „🖼“ und ihr Name | ❓ |
 | 231.8 | Im Add-on ein Ablauf mit „🔔 Nachricht“ → „🖼 Als Bildkarte schicken: Test 1“, dann den Ablauf auslösen | Die Karte „Test 1“ kommt mit dem Raum des Geräts, das ausgelöst hat, und dem Text darunter | ❓ |
 | 231.9 | Dein Eindruck: deine eigene Karte bauen (z. B. für die Haustür) | Lässt sie sich so gestalten, wie du willst? Was fehlt? | ❓ |
+
+## 232. Neu in 5.34.0: 🖼 Bildkarten: Stockwerk wählen, grüne Kästchen
+Dein Wunsch (24.11.): beim Raumbild Stockwerke auswählen; deine Frage, wie die Texte gemacht werden; deine Wahl aus `docs/ideen-5.34`: Idee 2 (grüne Kästchen).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 232.1 | Unit-Tests `tests/test_piccard.py`, `tests/piccards.test.mjs`; Browser-Test Teil `111_picture_cards` | Alles grün | ✅ (2026-11-24, Claude) |
+| 232.2 | Demo: ▶ Abläufe → „Wasser-Alarm“ → „Raumbild“ antippen → „Stockwerk“: „Obergeschoss“ | Rechts zeigt die Karte das Obergeschoss, ohne roten Raum und Ring; die Zeile des Bausteins sagt „Obergeschoss“ | ✅ (2026-11-24, Claude, Demo) |
+| 232.3 | „Überschrift“ antippen, ins Feld hinter „Art“ tippen, „ in “ schreiben, „＋ Raum“ | Im Feld steht „Art in Raum“ mit zwei grünen Kästchen; rechts „WASSER in Waschküche“ | ✅ (2026-11-24, Claude, Demo) |
+| 232.4 | Im Feld ⌫ hinter einem grünen Kästchen | Das ganze Kästchen ist weg | ✅ (2026-11-24, Claude, Demo) |
+| 232.5 | Am Handy: ein Kästchen mit den Knöpfen einsetzen und Text tippen | Die Tastatur bleibt, das Kästchen kommt an die Stelle vom Strich | ❓ |
+| 232.6 | Im Add-on: „📨 Test an mich“ mit einem Text wie „Wasser in [Raum] um [Uhrzeit]“ | In Telegram steht dort der echte Raum und die Uhrzeit | ❓ |

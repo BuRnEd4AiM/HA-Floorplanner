@@ -2,6 +2,12 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.34.0] - 2026-11-24
+### Added
+- **🖼 Bildkarten: room, floor, sensor, time as green boxes in the texts** (the owner, 2026-11-24: "ich weiß aktuell nicht, wie die Meldungen gemacht werden, ob das Variablen/Platzhalter sind … wenn ich nur Raum reinschreibe, es einen Raum nimmt"; his choice of docs/ideen-5.34: idea 2, green boxes): the texts of the blocks "Überschrift" and "Text" show their placeholders as **green boxes** ("Raum", "Etage", "Melder", "Uhrzeit", "Art", "Haus", "Nachricht") instead of {room} …; under the field **a button per placeholder** ("＋ Raum  wo es ist") puts one where the cursor is. ⌫ deletes a whole box; {raum} typed by hand becomes a box as well. When sent, the real value stands there ("Wasser in Waschküche (Keller) um 07:41"); the card on the right shows it at once. The block's line shows them as [Raum]. Kept as before ({room} …), so cards made earlier stay the same. Video guide: the clip "🖼 Bildkarten fürs Handy gestalten" shows it.
+### Changed
+- **🖼 Bildkarten: the room picture can show a chosen floor** (the owner, 2026-11-24: "bei den Karten … dass man auch Stockwerke auswählen kann, weil das geht aktuell nicht"): the block "🗺️ Raumbild" has **"Stockwerk"**: "Automatisch" (as before: the sensor's floor, else the ground floor) or any floor of the house. On another floor than the sensor's, its red room and the ring are left out; open windows and lights are marked on the chosen floor. Two floors side by side: two room pictures with "Neben den nächsten Baustein". The block's line names the floor. Video guide: the clip "🖼 Bildkarten fürs Handy gestalten" shows it.
+
 ## [5.33.0] - 2026-11-23
 ### Added
 - **🖼 Bildkarten fürs Handy: your own picture for an alarm or a routine** (the owner, 2026-11-23: "eigene Bilderkarten designen für spezielle Alarme … hier oben soll das Bild von dem Raum hin, hier die Informationen, hier die Uhrzeit … und in den Abläufen sagen: löse … aus"; his choice of docs/ideen-5.33: idea 1 "Bausteine untereinander" with templates, in ▶ Abläufe, all of it):

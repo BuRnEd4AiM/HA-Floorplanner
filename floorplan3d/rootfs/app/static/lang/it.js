@@ -2679,4 +2679,11 @@ export default {
   'fe.cardNone': '— solo testo —',
   'fe.cardHelp': 'Il testo sopra va sotto l’immagine. La scheda mostra la stanza del dispositivo che ha avviato la routine. Solo tramite «Telegram – bot proprio».',
   'pc.sampleFlow': 'Movimento alla porta d’ingresso',
+  'pc.o.floorPick': 'Piano', 'pc.o.floorAuto': 'Automatico (quello del sensore, altrimenti il piano terra)', 'pc.o.floorGone': 'piano eliminato',
+  'pc.o.floorHelp': 'Se il sensore è su un altro piano, mancano la sua stanza rossa e l\'anello. Due piani affiancati: due piante con «Accanto al blocco successivo».',
+  'pc.ph.kind': 'Tipo', 'pc.ph.text': 'Messaggio', 'pc.ph.room': 'Stanza', 'pc.ph.floor': 'Piano', 'pc.ph.name': 'Sensore', 'pc.ph.time': 'Ora',
+  'pc.ph.house': 'Casa', 'pc.phx.kind': 'ACQUA, FUMO …', 'pc.phx.text': 'il testo', 'pc.phx.room': 'dove si trova', 'pc.phx.floor': 'il suo piano',
+  'pc.phx.name': 'il dispositivo', 'pc.phx.time': 'adesso', 'pc.phx.house': 'la tua casa',
+  'pc.o.phLead': 'Un tocco lo inserisce dove si trova il cursore – all\'invio c\'è il valore vero:',
+  'pc.o.phHelp': 'Le caselle verdi vengono sostituite all\'invio. ⌫ cancella una casella intera.',
 };

@@ -688,7 +688,7 @@ const lightGroups = initLightGroups({ $, t, layout: () => shownLayout(), plan: (
   occupied: (r, f) => roomSummary(r, f, { placed: entityDevices(f), areaEntities: areaEntitiesOf(r), states, isOn: isLit, isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o) }).occupied,
   openSettings: () => openSettingsAt('quick'), commit: () => commitSettings(), isOpen: () => !$('#lightsMenu').hidden, close: () => toggleMenu($('#lightsMenu'), $('#lightsPill'), false) });
 const picCards = initPicCards({                                  // 🖼 Bildkarten fürs Handy (5.33.0, piccardsui.js): a part of ▶ Abläufe
-  t, canEdit: () => me.canEdit, states: () => states, names: () => namesOf(/./), flows: () => rulesUi.rules.get()?.flows || [],
+  t, canEdit: () => me.canEdit, states: () => states, names: () => namesOf(/./), floors: () => (layout.floors || []).map((f) => ({ id: f.id, name: f.name })), flows: () => rulesUi.rules.get()?.flows || [],
   notify: () => notifyUi.cfg(), changed: () => routinesPage.update(),
 });
 const rulesUi = initRulesUi({                                    // the add-on's own heating rules and routines, 🔎 Wird benutzt (#546, rulesui.js)

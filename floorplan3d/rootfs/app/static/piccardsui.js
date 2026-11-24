@@ -4,8 +4,9 @@
  * used on the left; the building blocks from top to bottom in the middle (⠿ to drag, ▲▼, 🗑, the options of the chosen one under it, "＋"
  * for another); on the right the card as the add-on draws it (api/piccards/preview, with a room of the house as the sample).
  * "📨 Test an mich" sends it through the own Telegram bot. The rules are in piccards.js (tested), the picture in piccard.py.
- * ctx: t, canEdit(), states(), names() ({entity: name}), flows() (the routines), notify() (the alarm messages' settings or null),
+ * ctx: t, canEdit(), states(), names() ({entity: name}), floors() ([{ id, name }] of the house: a plan's floor to choose), flows() (the routines), notify() (the alarm messages' settings or null),
  *  changed() (the page draws anew) */
+import { makePhField } from './phfield.js';
 import { KINDS, NO_HALF, ROWS, ICON, COLORS, TEMPLATES, newBlock, fromTemplate, moveBlock, dragBlock, blockSub, usedBy, cleanCard, MAX_CARDS, MAX_BLOCKS } from './piccards.js';
 
 export function initPicCards(ctx) {
@@ -178,7 +179,7 @@ export function initPicCards(ctx) {
       const main = btn('pcRowMain', '', () => { sel = sel === i ? -1 : i; draw(); });
       main.append(make('span', 'pcGrip', '⠿'), make('span', 'pcIcon', ICON[b.k]));
       const tx = make('span', 'pcRowTx');
-      tx.append(make('b', '', t(`pc.b.${b.k}`)), make('small', '', blockSub(b, t, ctx.names?.() || {})));
+      tx.append(make('b', '', t(`pc.b.${b.k}`)), make('small', '', blockSub(b, t, ctx.names?.() || {}, ctx.floors?.() || [])));
       main.append(tx);
       const up = btn('pcMini', '▲', () => { draft.blocks = moveBlock(draft.blocks, i, -1); sel = sel === i ? i - 1 : sel; dirty = true; draw(); }, t('pc.up'));
       const down = btn('pcMini', '▼', () => { draft.blocks = moveBlock(draft.blocks, i, 1); sel = sel === i ? i + 1 : sel; dirty = true; draw(); }, t('pc.down'));
@@ -209,22 +210,31 @@ export function initPicCards(ctx) {
       cb.addEventListener('change', () => set((x) => fn(x, cb.checked)));
       l.append(cb, make('span', '', label)); return l;
     };
-    const text = (label, value, fn, help, key) => {
-      const l = make('label', 'pcField'), inp = make('input'); inp.value = value || ''; inp.maxLength = b.k === 'head' ? 60 : 200; if (key) inp.dataset.opt = key;
-      inp.addEventListener('change', () => set((x) => fn(x, inp.value)));
-      l.append(make('span', '', label), inp);
-      if (help) l.append(make('small', 'tpSub', help));
-      return l;
-    };
+    /** a text with its placeholders as green boxes (phfield.js, 5.34.0): kept as it is typed, without drawing the editor anew */
+    const text = (label, value, fn, key) => makePhField({ t, label, value, max: b.k === 'head' ? 60 : 200, key, onInput: (v) => {
+      fn(b, v); dirty = true;
+      const sub = dlg.querySelector(`.pcRow[data-i="${draft.blocks.indexOf(b)}"] .pcRowTx small`);
+      if (sub) sub.textContent = blockSub(b, t, ctx.names?.() || {}, ctx.floors?.() || []);
+      preview();
+    } }).el;
     switch (b.k) {
       case 'head':
-        o.append(text(t('pc.o.text'), b.text, (x, v) => { x.text = v || '{kind}'; }, t('pc.o.textHelp'), 'text'),
+        o.append(text(t('pc.o.text'), b.text, (x, v) => { x.text = v || '{kind}'; }, 'text'),
           check(t('pc.o.clock'), b.clock, (x, v) => { x.clock = v; }, 'clock'));
         break;
-      case 'plan':
-        o.append(chips([['floor', t('pc.o.floor')], ['room', t('pc.o.room')]], b.show, (v) => set((x) => { x.show = v; })),
+      case 'plan': {                                              // which floor: automatic (the sensor's, else the ground floor) or a chosen one
+        const s = make('select'); s.dataset.opt = 'floor';
+        s.add(new Option(t('pc.o.floorAuto'), ''));
+        (ctx.floors?.() || []).forEach((f) => s.add(new Option(f.name || f.id, f.id)));
+        if (b.floor && !(ctx.floors?.() || []).some((f) => f.id === b.floor)) s.add(new Option(t('pc.o.floorGone'), b.floor));
+        s.value = b.floor || '';
+        s.addEventListener('change', () => set((x) => { if (s.value) x.floor = s.value; else delete x.floor; }));
+        const l = make('label', 'pcField'); l.append(make('span', '', t('pc.o.floorPick')), s);
+        if (b.floor) l.append(make('small', 'tpSub', t('pc.o.floorHelp')));
+        o.append(l, chips([['floor', t('pc.o.floor')], ['room', t('pc.o.room')]], b.show, (v) => set((x) => { x.show = v; })),
           check(t('pc.o.marks'), b.marks, (x, v) => { x.marks = v; }, 'marks'));
         break;
+      }
       case 'camera': {
         const s = make('select'); s.dataset.opt = 'ent';
         s.add(new Option(t('pc.o.camAuto'), ''));
@@ -263,7 +273,7 @@ export function initPicCards(ctx) {
         break;
       }
       case 'text':
-        o.append(text(t('pc.o.text'), b.text, (x, v) => { x.text = v; }, t('pc.o.textHelp'), 'text'), check(t('pc.o.big'), b.big, (x, v) => { x.big = v; }, 'big'));
+        o.append(text(t('pc.o.text'), b.text, (x, v) => { x.text = v; }, 'text'), check(t('pc.o.big'), b.big, (x, v) => { x.big = v; }, 'big'));
         break;
       default: o.append(make('p', 'tpSub', t('pc.o.none')));
     }

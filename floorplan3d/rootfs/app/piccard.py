@@ -19,6 +19,7 @@ import hanames
 from alarmnotify import _inside
 
 ID = re.compile(r"^[a-z0-9_-]{1,24}$")
+FLOOR_ID = re.compile(r"^[A-Za-z0-9_.-]{1,40}$")
 COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 ENTITY = re.compile(r"^[a-z_]+\.[a-z0-9_]{1,100}$")
 KINDS = ("head", "plan", "camera", "clock", "info", "values", "text", "line", "foot")
@@ -126,6 +127,8 @@ def clean_block(b):
         out.update(text=_text(b.get("text"), 60, "{kind}") or "{kind}", clock=_bool(b.get("clock"), True))
     elif k == "plan":
         out.update(show=b.get("show") if b.get("show") in ("floor", "room") else "floor", marks=_bool(b.get("marks"), False))
+        if isinstance(b.get("floor"), str) and FLOOR_ID.match(b["floor"]):    # a chosen floor (the owner's wish 2026-11-24); none = automatic
+            out["floor"] = b["floor"]
     elif k == "camera":
         e = b.get("ent")
         out["ent"] = e if isinstance(e, str) and e.startswith("camera.") and ENTITY.match(e) else ""
@@ -257,10 +260,10 @@ def _floors(ctx):
     return [place["floor"]] if place else [f for f in ctx.get("floors") or [] if isinstance(f, dict)]
 
 
-def opened(ctx) -> list:
-    """the doors and windows that are open now on the place's floor (else the house): [(x, z, name, floor id)]"""
+def opened(ctx, floors=None) -> list:
+    """the doors and windows that are open now on the place's floor (else the house, or floors): [(x, z, name, floor id)]"""
     states, out = ctx.get("states") or {}, []
-    for f in _floors(ctx):
+    for f in floors if floors is not None else _floors(ctx):
         for w in f.get("walls") or []:
             if not isinstance(w, dict) or len(w.get("a") or []) < 2 or len(w.get("b") or []) < 2:
                 continue
@@ -277,10 +280,10 @@ def opened(ctx) -> list:
     return out
 
 
-def lit(ctx) -> list:
-    """the lamps that are on now on the place's floor (else the house): [(x, z, name, floor id)]"""
+def lit(ctx, floors=None) -> list:
+    """the lamps that are on now on the place's floor (else the house, or floors): [(x, z, name, floor id)]"""
     states, out = ctx.get("states") or {}, []
-    for f in _floors(ctx):
+    for f in floors if floors is not None else _floors(ctx):
         for d in f.get("devices") or []:
             e = d.get("entity") if isinstance(d, dict) else None
             if isinstance(e, str) and e.startswith("light.") and (states.get(e) or {}).get("state") == "on":
@@ -485,9 +488,14 @@ def _bounds(floors, room=None, pad=0.8):
     return min(xs) - pad, min(zs) - pad, max(xs) + pad, max(zs) + pad
 
 
-def plan_floor(ctx, marks=False):
-    """the floor the plan shows: the place's; else (marks) the one with the most open doors, windows and lamps that are on, else the ground
-    floor (the first that is no basement)"""
+def plan_floor(ctx, marks=False, want=""):
+    """the floor the plan shows: the chosen one (want: its id, when the house has it); else the place's; else (marks) the one with the most
+    open doors, windows and lamps that are on, else the ground floor (the first that is no basement)"""
+    if want:
+        place_floor = (ctx.get("place") or {}).get("floor")
+        f = next((f for f in [place_floor, *(ctx.get("floors") or [])] if isinstance(f, dict) and f.get("id") == want), None)
+        if f:
+            return f
     if ctx.get("place"):
         return ctx["place"]["floor"]
     floors = [f for f in ctx.get("floors") or [] if isinstance(f, dict) and f.get("rooms")]
@@ -500,14 +508,16 @@ def plan_floor(ctx, marks=False):
     return next((f for f in floors if f.get("kind") not in ("basement", "roof")), floors[0] if floors else None)   # the ground floor
 
 
-def draw_plan(ctx, th, width_px, show="floor", marks=False, lang="de"):
+def draw_plan(ctx, th, width_px, show="floor", marks=False, lang="de", want=""):
     """the floor from above as a picture width_px wide: the place's room in red, a ring with the word of the kind where the sensor is;
-    marks: open doors and windows red, lamps that are on yellow"""
+    marks: open doors and windows red, lamps that are on yellow; want: the id of a chosen floor (the place shows only when it is on it)"""
     from PIL import Image, ImageDraw
-    f = plan_floor(ctx, marks)
+    f = plan_floor(ctx, marks, want)
     if not f:
         return None
     place = ctx.get("place") or {}
+    if place and (place.get("floor") or {}).get("id") != f.get("id"):
+        place = {}                                           # another floor than the sensor's: no red room, no ring
     room = place.get("room")
     b = _bounds([f], room if show == "room" else None)
     if not b:
@@ -564,7 +574,7 @@ def draw_plan(ctx, th, width_px, show="floor", marks=False, lang="de"):
     w = words(lang)
     if marks:
         fid = f.get("id")
-        for items, col, word in ((opened(ctx), RED, w["open1"].upper()), (lit(ctx), YELLOW, w["on1"])):
+        for items, col, word in ((opened(ctx, [f]), RED, w["open1"].upper()), (lit(ctx, [f]), YELLOW, w["on1"])):
             for x, z, _n, flid in items:
                 if flid != fid:
                     continue
@@ -658,7 +668,7 @@ def _block(card, b, ctx, th, im, d, x, y, w, full_w, col):
         return h
     if k == "plan":
         whole = not b.get("half") and col == "full"
-        pic = draw_plan(ctx, th, full_w if whole else w, b.get("show", "floor"), b.get("marks"), lang)
+        pic = draw_plan(ctx, th, full_w if whole else w, b.get("show", "floor"), b.get("marks"), lang, b.get("floor") or "")
         if pic is None:
             return 0
         if whole:
