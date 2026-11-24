@@ -62,6 +62,14 @@ pgPC.uncheck("#picCardDlg .pcOpts [data-opt=date]")
 pgPC.wait_for_function(f"document.querySelector('#pcPreview').src !== {json.dumps(src0)} && document.querySelector('#pcPreview').naturalWidth > 0", timeout=20000)
 check("🖼 a block's option (the clock without the date): its line says so, the picture is drawn anew",
       "nur die Uhrzeit" in pgPC.inner_text("#picCardDlg .pcRow[data-k=clock]"))
+# a chosen floor for the plan (the owner's wish 2026-11-24: "Stockwerke auswählen")
+pgPC.click("#picCardDlg .pcRow[data-k=plan] .pcRowMain"); pgPC.wait_for_timeout(200)
+fl_pc = pgPC.evaluate("[...document.querySelectorAll('#picCardDlg .pcOpts [data-opt=floor] option')].map((o) => [o.value, o.textContent])")
+src1 = pgPC.get_attribute("#pcPreview", "src")
+pgPC.select_option("#picCardDlg .pcOpts [data-opt=floor]", fl_pc[-1][0]); pgPC.wait_for_timeout(300)
+pgPC.wait_for_function(f"document.querySelector('#pcPreview').src !== {json.dumps(src1)} && document.querySelector('#pcPreview').naturalWidth > 0", timeout=20000)
+check("🖼 the plan's „Stockwerk“: „Automatisch“ and every floor of the house; the chosen one is in its line, the picture drawn anew",
+      fl_pc[0][0] == "" and len(fl_pc) >= 3 and fl_pc[-1][1] in pgPC.inner_text("#picCardDlg .pcRow[data-k=plan]"), fl_pc)
 pgPC.click("#picCardDlg [data-add=line]"); pgPC.wait_for_timeout(200)
 pgPC.click("#picCardDlg .pcRow[data-k=line] [data-act=up]"); pgPC.wait_for_timeout(200)
 rows_pc = pgPC.evaluate("[...document.querySelectorAll('#picCardDlg .pcRow')].map((r) => r.dataset.k)")
@@ -70,7 +78,8 @@ pgPC.click("#pcSave"); pgPC.wait_for_timeout(800)
 saved_cards = json.loads(urllib.request.urlopen(urllib.request.Request(BASE + "api/piccards", headers={"X-Remote-User-Name": "admin"})).read())["cards"]
 t1 = next(c for c in saved_cards if c["id"] == "test1")
 check("🖼 „Speichern“: the add-on keeps it", [b_["k"] for b_ in t1["blocks"]][-2:] == ["line", "foot"]
-      and next(b_ for b_ in t1["blocks"] if b_["k"] == "clock")["date"] is False and "Gespeichert" in pgPC.inner_text("#picCardDlg .pcStatus"), t1)
+      and next(b_ for b_ in t1["blocks"] if b_["k"] == "clock")["date"] is False
+      and next(b_ for b_ in t1["blocks"] if b_["k"] == "plan").get("floor") == fl_pc[-1][0] and "Gespeichert" in pgPC.inner_text("#picCardDlg .pcStatus"), t1)
 pgPC.click("#picCardDlg .pcClose"); pgPC.wait_for_timeout(300)
 
 # a new card from a template, then deleted

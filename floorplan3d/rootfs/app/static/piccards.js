@@ -80,12 +80,14 @@ export function rowsOf(blocks) {
   return out;
 }
 
-/** the second line of a block in the list ("„WASSER“ · mit Uhrzeit", "ganze Etage · halbe Breite" …); t: the texts */
-export function blockSub(b, t, names = {}) {
+/** the second line of a block in the list ("„WASSER“ · mit Uhrzeit", "ganze Etage · halbe Breite" …); t: the texts; floors: [{ id, name }]
+ * of the house (a plan's chosen floor by its name) */
+export function blockSub(b, t, names = {}, floors = []) {
   const half = b.half ? [t('pc.halfShort')] : [];
   switch (b.k) {
     case 'head': return [`„${b.text || '{kind}'}“`, ...(b.clock ? [t('pc.o.clock')] : [])].join(' · ');
-    case 'plan': return [t(b.show === 'room' ? 'pc.o.room' : 'pc.o.floor'), ...(b.marks ? [t('pc.o.marksShort')] : []), ...half].join(' · ');
+    case 'plan': return [...(b.floor ? [floors.find((f) => f.id === b.floor)?.name || t('pc.o.floorGone')] : []),
+      t(b.show === 'room' ? 'pc.o.room' : 'pc.o.floor'), ...(b.marks ? [t('pc.o.marksShort')] : []), ...half].join(' · ');
     case 'camera': return [b.ent ? names[b.ent] || b.ent : t('pc.o.camAuto'), ...half].join(' · ');
     case 'clock': return [b.date ? t('pc.o.date') : t('pc.o.timeOnly'), ...half].join(' · ');
     case 'info': return [(b.rows || []).map((r) => t(`pc.r.${r}`)).join(', ') || '–', ...half].join(' · ');

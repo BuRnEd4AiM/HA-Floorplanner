@@ -633,9 +633,9 @@ t("vacation",
   "look lived in away travelling lights on off how do I make the house look occupied")
 t("piccards",
   "Bildkarte Bildkarten Karte gestalten designen Bild Foto Telegram Alarm Wasseralarm Benachrichtigung Nachricht aufs Handy Vorlage Bausteine "
-  "Raumbild Kamerabild Uhrzeit eigene Nachricht mit Bild Wie mache ich ein eigenes Bild für den Alarm",
+  "Raumbild Kamerabild Uhrzeit eigene Nachricht mit Bild Wie mache ich ein eigenes Bild für den Alarm Stockwerk Etage auswählen Obergeschoss Keller",
   "picture card picture cards card design image photo Telegram alarm water alarm notification message to the phone template blocks "
-  "room picture camera picture time own message with picture how do I make my own picture for the alarm")
+  "room picture camera picture time own message with picture how do I make my own picture for the alarm choose floor storey upstairs basement")
 t("notify-bot",
   "Telegram Bot BotFather Bild Foto Grundriss Kamera Kamerabild Alarm mit Bild Wassermelder Wasser Rauch Einbruch Chat finden "
   "Schlüssel Token einfügen Schlüssel geht nicht Chat-ID von Hand userinfobot Wo ist es passiert Nachricht mit Foto",

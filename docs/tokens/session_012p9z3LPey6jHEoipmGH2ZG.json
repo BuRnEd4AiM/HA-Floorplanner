@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3LPey6jHEoipmGH2ZG",
+ "start": "2026-11-24",
+ "updated": "2026-11-24T11:43:30Z",
+ "branch": "claude/wonderful-dijkstra-5vernn",
+ "source": "counted",
+ "input": 72,
+ "cache_write": 95551,
+ "cache_read": 4717418,
+ "output": 16314,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 72,
+   "cache_write": 95551,
+   "cache_read": 4717418,
+   "output": 16314,
+   "requests": 36
+  }
+ }
+}
