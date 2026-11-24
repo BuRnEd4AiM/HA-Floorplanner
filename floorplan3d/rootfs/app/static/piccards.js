@@ -12,6 +12,29 @@ export const ALARM_KINDS = ['alarm', 'smoke', 'gas', 'co', 'water'];
 export const MAX_CARDS = 20, MAX_BLOCKS = 12;
 const ID = /^[a-z0-9_-]{1,24}$/;
 
+/** the placeholders of a card's texts with a button each (piccard.fill; 5.34.0, the owner's choice of docs/ideen-5.34: idea 2, green boxes) */
+export const PH = ['room', 'floor', 'name', 'time', 'kind', 'house', 'text'];
+const PH_ALIAS = { art: 'kind', melder: 'name', raum: 'room', etage: 'floor', haus: 'house', zeit: 'time' };   // German, as piccard.fill
+/** a text cut into plain pieces and placeholders: "Wasser in {raum}!" → [{ s: 'Wasser in ' }, { ph: 'room' }, { s: '!' }];
+ * an unknown {word} stays text */
+export function phParts(text) {
+  const str = String(text ?? ''), out = [];
+  let last = 0;
+  for (const m of str.matchAll(/\{(\w+)\}/g)) {
+    const k = PH.includes(m[1]) ? m[1] : PH_ALIAS[m[1]];
+    if (!k) continue;
+    if (m.index > last) out.push({ s: str.slice(last, m.index) });
+    out.push({ ph: k });
+    last = m.index + m[0].length;
+  }
+  if (last < str.length) out.push({ s: str.slice(last) });
+  return out;
+}
+/** the pieces as the text that is kept ({room} …) */
+export const phText = (parts) => parts.map((p) => (p.ph ? `{${p.ph}}` : p.s)).join('');
+/** a text as people read it: the placeholders by their names in brackets ("Wasser in [Raum]"); t: the texts */
+export const phRead = (text, t) => phParts(text).map((p) => (p.ph ? `[${t(`pc.ph.${p.ph}`)}]` : p.s)).join('');
+
 /** a new block of a kind with its defaults (as piccard.clean_block) */
 export function newBlock(k) {
   switch (k) {
@@ -85,14 +108,14 @@ export function rowsOf(blocks) {
 export function blockSub(b, t, names = {}, floors = []) {
   const half = b.half ? [t('pc.halfShort')] : [];
   switch (b.k) {
-    case 'head': return [`„${b.text || '{kind}'}“`, ...(b.clock ? [t('pc.o.clock')] : [])].join(' · ');
+    case 'head': return [`„${phRead(b.text || '{kind}', t)}“`, ...(b.clock ? [t('pc.o.clock')] : [])].join(' · ');
     case 'plan': return [...(b.floor ? [floors.find((f) => f.id === b.floor)?.name || t('pc.o.floorGone')] : []),
       t(b.show === 'room' ? 'pc.o.room' : 'pc.o.floor'), ...(b.marks ? [t('pc.o.marksShort')] : []), ...half].join(' · ');
     case 'camera': return [b.ent ? names[b.ent] || b.ent : t('pc.o.camAuto'), ...half].join(' · ');
     case 'clock': return [b.date ? t('pc.o.date') : t('pc.o.timeOnly'), ...half].join(' · ');
     case 'info': return [(b.rows || []).map((r) => t(`pc.r.${r}`)).join(', ') || '–', ...half].join(' · ');
     case 'values': return [(b.ents || []).map((e) => names[e] || e).join(', ') || t('pc.o.entsNone'), ...half].join(' · ');
-    case 'text': return [`„${b.text || ''}“`, ...(b.big ? [t('pc.o.big')] : []), ...half].join(' · ');
+    case 'text': return [`„${phRead(b.text || '', t)}“`, ...(b.big ? [t('pc.o.big')] : []), ...half].join(' · ');
     case 'line': return t('pc.s.line');
     case 'foot': return t('pc.s.foot');
     default: return '';

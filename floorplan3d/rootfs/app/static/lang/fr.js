@@ -2716,4 +2716,11 @@ export default {
   'fe.cardNone': '— texte seul —',
   'fe.cardHelp': 'Le texte ci-dessus va sous l’image. La carte montre la pièce de l’appareil qui a déclenché la routine. Seulement via « Telegram – propre bot ».',
   'pc.sampleFlow': 'Mouvement à la porte d’entrée',
+  'pc.o.floorPick': 'Étage', 'pc.o.floorAuto': 'Automatique (celui du capteur, sinon le rez-de-chaussée)', 'pc.o.floorGone': 'étage supprimé',
+  'pc.o.floorHelp': 'Si le capteur est à un autre étage, sa pièce rouge et l\'anneau sont absents. Deux étages côte à côte : deux plans avec « À côté du bloc suivant ».',
+  'pc.ph.kind': 'Type', 'pc.ph.text': 'Message', 'pc.ph.room': 'Pièce', 'pc.ph.floor': 'Étage', 'pc.ph.name': 'Capteur', 'pc.ph.time': 'Heure',
+  'pc.ph.house': 'Maison', 'pc.phx.kind': 'EAU, FUMÉE …', 'pc.phx.text': 'le texte', 'pc.phx.room': 'où c\'est', 'pc.phx.floor': 'son étage',
+  'pc.phx.name': 'l\'appareil', 'pc.phx.time': 'maintenant', 'pc.phx.house': 'ta maison',
+  'pc.o.phLead': 'Un appui l\'insère à l\'emplacement du curseur – à l\'envoi, la vraie valeur y figure :',
+  'pc.o.phHelp': 'Les cases vertes sont remplacées à l\'envoi. ⌫ supprime une case entière.',
 };

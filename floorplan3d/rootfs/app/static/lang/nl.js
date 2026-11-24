@@ -2646,4 +2646,11 @@ export default {
   'fe.card': 'Als beeldkaart versturen', 'fe.cardNone': '— alleen tekst —',
   'fe.cardHelp': 'De tekst hierboven staat onder het beeld. De kaart toont de kamer van het apparaat dat de routine startte. Alleen via “Telegram – eigen bot”.',
   'pc.sampleFlow': 'Beweging bij de voordeur',
+  'pc.o.floorPick': 'Verdieping', 'pc.o.floorAuto': 'Automatisch (die van de melder, anders de begane grond)', 'pc.o.floorGone': 'verdieping verwijderd',
+  'pc.o.floorHelp': 'Staat de melder op een andere verdieping, dan ontbreken zijn rode ruimte en de ring. Twee verdiepingen naast elkaar: twee plattegronden met „Naast het volgende blok”.',
+  'pc.ph.kind': 'Soort', 'pc.ph.text': 'Bericht', 'pc.ph.room': 'Ruimte', 'pc.ph.floor': 'Verdieping', 'pc.ph.name': 'Melder', 'pc.ph.time': 'Tijd',
+  'pc.ph.house': 'Huis', 'pc.phx.kind': 'WATER, ROOK …', 'pc.phx.text': 'de tekst', 'pc.phx.room': 'waar het is', 'pc.phx.floor': 'de verdieping',
+  'pc.phx.name': 'het apparaat', 'pc.phx.time': 'nu', 'pc.phx.house': 'je huis',
+  'pc.o.phLead': 'Tikken zet het waar de cursor staat – bij het versturen staat daar het echte:',
+  'pc.o.phHelp': 'Groene vakjes worden bij het versturen vervangen. ⌫ wist een heel vakje.',
 };

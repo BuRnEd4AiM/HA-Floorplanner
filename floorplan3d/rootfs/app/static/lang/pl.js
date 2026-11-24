@@ -2631,4 +2631,11 @@ export default {
   'fe.cardNone': '— tylko tekst —',
   'fe.cardHelp': 'Tekst powyżej jest pod obrazem. Karta pokazuje pokój urządzenia, które uruchomiło rutynę. Tylko przez „Telegram – własny bot”.',
   'pc.sampleFlow': 'Ruch przy drzwiach wejściowych',
+  'pc.o.floorPick': 'Piętro', 'pc.o.floorAuto': 'Automatycznie (piętro czujnika, inaczej parter)', 'pc.o.floorGone': 'piętro usunięte',
+  'pc.o.floorHelp': 'Gdy czujnik jest na innym piętrze, brak jego czerwonego pokoju i pierścienia. Dwa piętra obok siebie: dwa plany z „Obok następnego bloku”.',
+  'pc.ph.kind': 'Rodzaj', 'pc.ph.text': 'Wiadomość', 'pc.ph.room': 'Pokój', 'pc.ph.floor': 'Piętro', 'pc.ph.name': 'Czujnik', 'pc.ph.time': 'Godzina',
+  'pc.ph.house': 'Dom', 'pc.phx.kind': 'WODA, DYM …', 'pc.phx.text': 'tekst', 'pc.phx.room': 'gdzie to jest', 'pc.phx.floor': 'jego piętro',
+  'pc.phx.name': 'urządzenie', 'pc.phx.time': 'teraz', 'pc.phx.house': 'twój dom',
+  'pc.o.phLead': 'Dotknięcie wstawia to w miejscu kursora – przy wysyłaniu pojawi się prawdziwa wartość:',
+  'pc.o.phHelp': 'Zielone pola są zastępowane przy wysyłaniu. ⌫ usuwa całe pole.',
 };

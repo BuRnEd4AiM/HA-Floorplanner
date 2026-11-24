@@ -2,7 +2,9 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
-## [5.33.1] - 2026-11-24
+## [5.34.0] - 2026-11-24
+### Neu
+- **🖼 Bildkarten: Raum, Etage, Melder, Uhrzeit als grüne Kästchen in die Texte** (der Besitzer, 2026-11-24: „ich weiß aktuell nicht, wie die Meldungen gemacht werden, ob das Variablen/Platzhalter sind … wenn ich nur Raum reinschreibe, es einen Raum nimmt“; seine Wahl aus docs/ideen-5.34: Idee 2, grüne Kästchen): die Texte der Bausteine „Überschrift“ und „Text“ zeigen ihre Platzhalter als **grüne Kästchen** („Raum“, „Etage“, „Melder“, „Uhrzeit“, „Art“, „Haus“, „Nachricht“) statt {room} …; unter dem Feld setzt **ein Knopf je Platzhalter** („＋ Raum  wo es ist“) eines an der Stelle vom Strich ein. ⌫ löscht ein Kästchen ganz; von Hand getipptes {raum} wird auch zum Kästchen. Beim Senden steht dort das Echte („Wasser in Waschküche (Keller) um 07:41“); die Karte rechts zeigt es sofort. Die Zeile des Bausteins zeigt sie als [Raum]. Gespeichert wird wie bisher ({room} …), frühere Karten bleiben gleich. Video-Anleitung: der Clip „🖼 Bildkarten fürs Handy gestalten“ zeigt es.
 ### Verbessert
 - **🖼 Bildkarten: das Raumbild kann ein gewähltes Stockwerk zeigen** (der Besitzer, 2026-11-24: „bei den Karten … dass man auch Stockwerke auswählen kann, weil das geht aktuell nicht“): der Baustein „🗺️ Raumbild“ hat **„Stockwerk“**: „Automatisch“ (wie bisher: das Stockwerk vom Melder, sonst das Erdgeschoss) oder jedes Stockwerk des Hauses. Auf einem anderen Stockwerk als dem vom Melder fehlen sein roter Raum und der Ring; offene Fenster und Licht werden auf dem gewählten Stockwerk markiert. Zwei Stockwerke nebeneinander: zwei Raumbilder mit „Neben den nächsten Baustein“. Die Zeile des Bausteins nennt das Stockwerk. Video-Anleitung: der Clip „🖼 Bildkarten fürs Handy gestalten“ zeigt es.
 

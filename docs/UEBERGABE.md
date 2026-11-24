@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-24, Version **5.33.1** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-24, Version **5.34.0** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,7 +10,7 @@ Stand: 2026-11-24, Version **5.33.1** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
-- **2026-11-24, 5.33.1: 🖼 Bildkarten, Stockwerk wählen (Branch `claude/wonderful-dijkstra-5vernn`):** sein Wunsch „Stockwerke auswählen“: das Raumbild hat „Stockwerk“ (Automatisch oder ein festes). Seine Frage, wie die Texte gemacht werden: Platzhalter `{raum}` usw. erklärt; Knöpfe zum Einsetzen will er erst als Bild sehen: `docs/ideen-5.34` (Idee 1 Knöpfe, Idee 2 grüne Kästchen).
+- **2026-11-24, 5.34.0: 🖼 Bildkarten: Stockwerk wählen, Platzhalter als grüne Kästchen (Branch `claude/wonderful-dijkstra-5vernn`):** sein Wunsch „Stockwerke auswählen“: das Raumbild hat „Stockwerk“ (Automatisch oder ein festes). Seine Frage, wie die Texte gemacht werden: Platzhalter; seine Wahl aus `docs/ideen-5.34`: Idee 2, grüne Kästchen mit Knöpfen „＋ Raum“ … (`phfield.js`).
 - **2026-11-23, 5.33.0: 🖼 Bildkarten fürs Handy (Branch `claude/charming-carson-d1uepn`):** gebaut wie gewählt: unter ▶ Abläufe, Editor mit Bausteinen untereinander und Vorlagen, Karte je Alarm und im Ablauf, „Test an mich“; das Add-on malt sie mit Pillow (`piccard.py`), die Demo im Browser (`demo/piccard.js`, beide gleich halten). Nebenbei: der Bot-Schlüssel kam in jedes Backup (jetzt nur mit Haken).
 - **2026-11-23, 5.32.1: 📸 Telegram-Bot einrichten repariert (#796) und Beispielbilder „Bildkarten“ (Branch `claude/charming-carson-d1uepn`):** „Chat finden“ zeichnete aus dem Gespeicherten neu (sprang auf WhatsApp, Schlüssel weg); jetzt bleibt das Getippte, Schlüssel lesbar mit ✅, ganze BotFather-Nachricht geht, Chat-ID von Hand. Sein neuer Wunsch: eigene Bildkarten für Alarme und Abläufe, zehn Bilder in `docs/ideen-5.33`; seine Wahl: Idee 1 (Bausteine) mit Vorlagen, unter ▶ Abläufe, alles (Ablauf, je Alarm, 3 fertige Karten, „Test an mich“); die Karte mit der großen Kamera heißt „Test 1“, nicht „Florian 1“.
 - **2026-11-23, 5.32.0: 🪜 Eingang und Balkon für Marios Reihenhaus (#786, #794, Branch `claude/epic-faraday-rdiicg`):** seine Antwort mit Fotos: Außentreppe mit Zahl der Stufen, Geländer links/rechts/keins, Edelstahl; „＋ Außentreppe an die Haustür“ auch in „⛰ Gelände“; „＋ Vordach über die Tür“ (`porchroof.js`); Balkon „Hausdach reicht darüber“ (`roofOver`); Fehler #794: „Ganzes Haus“ schnitt bei einem schmalen Grundstück die Erde nicht auf (`cutPlane`). Danach Mario antworten (Bilder in `docs/antworten/786/`).
@@ -18,7 +18,7 @@ Stand: 2026-11-24, Version **5.33.1** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Offen
 
-- **Platzhalter-Knöpfe (docs/ideen-5.34):** seine Wahl fehlt: Idee 1 (Knöpfe, `{raum}` im Feld) oder Idee 2 (grüne Kästchen) oder keins.
+- **5.34.0 Bildkarten Stockwerk und grüne Kästchen:** sein Test (Testprotokoll 232).
 - **5.33.0 Bildkarten:** sein Test im Add-on mit seinem Bot (231.6 bis 231.9). Nicht gebaut: Verlauf (24 h) als Baustein, Idee 2 (freie Fläche).
 - **5.32.1 Telegram-Bot:** sein Test im Add-on am Handy (230.6 bis 230.8).
 - **5.15.0 Sonnenschutz:** sein Test (Testprotokoll 206.5 bis 206.7), vor allem ob Norden bei seinem Haus stimmt.

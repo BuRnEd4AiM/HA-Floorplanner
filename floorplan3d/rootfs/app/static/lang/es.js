@@ -2689,4 +2689,11 @@ export default {
   'fe.cardNone': '— solo texto —',
   'fe.cardHelp': 'El texto de arriba va bajo la imagen. La tarjeta muestra la habitación del dispositivo que activó la rutina. Solo por «Telegram – bot propio».',
   'pc.sampleFlow': 'Movimiento en la puerta de entrada',
+  'pc.o.floorPick': 'Planta', 'pc.o.floorAuto': 'Automático (la del sensor, si no la planta baja)', 'pc.o.floorGone': 'planta eliminada',
+  'pc.o.floorHelp': 'Si el sensor está en otra planta, faltan su habitación roja y el anillo. Dos plantas lado a lado: dos planos con «Junto al siguiente bloque».',
+  'pc.ph.kind': 'Tipo', 'pc.ph.text': 'Mensaje', 'pc.ph.room': 'Habitación', 'pc.ph.floor': 'Planta', 'pc.ph.name': 'Sensor', 'pc.ph.time': 'Hora',
+  'pc.ph.house': 'Casa', 'pc.phx.kind': 'AGUA, HUMO …', 'pc.phx.text': 'el texto', 'pc.phx.room': 'dónde está', 'pc.phx.floor': 'su planta',
+  'pc.phx.name': 'el dispositivo', 'pc.phx.time': 'ahora', 'pc.phx.house': 'tu casa',
+  'pc.o.phLead': 'Un toque lo inserta donde está el cursor; al enviar aparece el valor real:',
+  'pc.o.phHelp': 'Las casillas verdes se sustituyen al enviar. ⌫ borra una casilla entera.',
 };
