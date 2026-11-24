@@ -62,6 +62,18 @@ test('the placeholders of a text as green boxes (5.34.0, docs/ideen-5.34 idea 2)
   assert.deepEqual([...P.PH].sort(), ['floor', 'house', 'kind', 'name', 'room', 'text', 'time']);
 });
 
+test('how picture cards reach the phone, the help\'s sentence (5.35.0)', () => {
+  assert.equal(P.cardWay(null), 'off');
+  assert.equal(P.cardWay({ on: false, via: 'tgbot' }), 'off');
+  assert.equal(P.cardWay({ on: true, via: 'tgbot' }), 'ok');
+  assert.equal(P.cardWay({ on: true, via: 'ha', services: ['whatsapp', 'mobile_app_pixel'] }), 'ok');
+  assert.equal(P.cardWay({ on: true, via: 'ha', services: ['whatsapp'], entities: ['notify.x'] }), 'haNoApp');
+  assert.equal(P.cardWay({ on: true, via: 'whatsapp' }), 'text');
+  assert.deepEqual(P.helpFilled('WASSER|Wassermelder|Waschküche|Keller|07:41').filter((x) => x.v).map((x) => x.v), ['WASSER', 'Wassermelder', 'Waschküche', 'Keller', '07:41']);
+  assert.deepEqual(P.helpFilled('Gute Nacht||||22:00').filter((x) => x.gap).map((x) => x.gap), ['name', 'room', 'floor']);
+  assert.equal(P.HELP_SENTENCE.filter((p) => P.PH.includes(p)).length, 5);
+});
+
 test('where a card is used: the alarms it is chosen for, the routines that send it', () => {
   const flows = [{ name: 'Tür', lanes: [{ blocks: [{ k: 'state' }, { k: 'notify', text: 'x', card: 'test1' }] }] }, { name: 'Andere', lanes: [{ blocks: [{ k: 'notify', text: 'y' }] }] }];
   assert.deepEqual(P.usedBy('test1', { cards: { water: 'test1', smoke: 'x' } }, flows), { kinds: ['water'], flows: ['Tür'] });

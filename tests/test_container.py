@@ -67,5 +67,5 @@ def test_data_only_in_the_folders_of_make_app():
     """files only under DATA_DIR or the config folder of make_app (in Docker /config does not exist, it is /data/addon_config there)"""
     for p in APP.glob("*.py"):
         lines = [ln for ln in p.read_text("utf-8").splitlines() if re.search(r"[\"'](/config|/share|/media|/addon_configs)\b", ln)]
-        allowed = [ln for ln in lines if "app[KEY_CONFIG] = " in ln]
+        allowed = [ln for ln in lines if "app[KEY_CONFIG] = " in ln or "an address of Home Assistant, not a folder" in ln]   # hamedia.url (5.35.0)
         assert lines == allowed, f"{p.name}: a fixed folder, use data_dir(request) or request.app[KEY_CONFIG]: {lines}"

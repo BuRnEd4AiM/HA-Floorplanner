@@ -23,13 +23,15 @@ def extra_pc(d):
     urllib.request.urlopen(urllib.request.Request(HA + "/_extra", data=json.dumps(d).encode(), method="POST", headers={"Content-Type": "application/json"})).read()
 
 
-extra_pc({"binary_sensor.wasser_pc": {"state": "off", "attributes": {"friendly_name": "Wassermelder Keller", "device_class": "moisture"}}})
+extra_pc({"binary_sensor.wasser_pc": {"state": "off", "attributes": {"friendly_name": "Wassermelder Keller", "device_class": "moisture"}},
+          "binary_sensor.wasser_pc2": {"state": "off", "attributes": {"friendly_name": "Wassermelder Spüle", "device_class": "moisture"}}})
 lay_pc = json.loads(json.dumps(saved_pc))
 f_pc = lay_pc["floors"][0]
 f_pc.setdefault("rooms", []).append({"id": "pc_room", "name": "Waschküche", "color": "#777777", "points": [[70, 70], [74, 70], [74, 73], [70, 73]]})
 f_pc.setdefault("walls", []).append({"id": "pc_wall", "a": [70, 70], "b": [74, 70], "thickness": 0.2, "height": 2.6, "openings": []})
 f_pc.setdefault("devices", []).extend([
     {"id": "pc_w", "type": "sensor", "x": 71, "z": 71, "y": 0, "rot": 0, "scale": 1, "name": "Wassermelder", "entity": "binary_sensor.wasser_pc"},
+    {"id": "pc_w2", "type": "sensor", "x": 72, "z": 72, "y": 0, "rot": 0, "scale": 1, "name": "Wassermelder Spüle", "entity": "binary_sensor.wasser_pc2"},
     {"id": "pc_c", "type": "camera", "x": 73.5, "z": 72.5, "y": 2.2, "rot": 0, "scale": 1, "name": "Kamera Waschküche", "entity": "camera.flur"}])
 send_pc("api/layout", lay_pc)
 
@@ -49,6 +51,16 @@ pgPC.wait_for_function("document.querySelectorAll('[data-page=routines] .pcCard 
                        "&& [...document.querySelectorAll('[data-page=routines] .pcCard img.pcThumb')].every((i) => i.naturalWidth > 0)", timeout=30000)
 check("🖼 ▶ Abläufe has „🖼 Bildkarten fürs Handy“: the three cards as pictures and „＋ Neue Bildkarte“",
       pgPC.locator("[data-page=routines] .pcCard [data-act=newCard]").count() == 1 and "Bildkarten fürs Handy" in pgPC.text_content("[data-page=routines] .pcCard h3"))
+# how the cards reach the phone and „❓ So funktionieren Bildkarten“ (5.35.0, the owner: "die Grafik … bei Abläufe …, besser hervorheben")
+pgPC.wait_for_function("document.querySelector('[data-page=routines] .pcWay')?.dataset.way === 'off'", timeout=20000)
+check("🖼 the part says how cards reach the phone (Telegram bot or Home Assistant app) and that messages are still off",
+      "Home-Assistant-App" in pgPC.inner_text("[data-page=routines] .pcWay") and "noch nicht eingeschaltet" in pgPC.inner_text("[data-page=routines] .pcWay"))
+pgPC.click("[data-page=routines] .pcWay [data-act=cardsHelp]")
+pgPC.wait_for_function("document.querySelector('#pcHelpDlg[open] .pchScr img')?.naturalWidth > 0", timeout=30000)
+help_pc = pgPC.evaluate("""[...document.querySelectorAll('#pcHelpDlg .pchRow')].map((r) => [r.dataset.case, r.querySelectorAll('.pchVal').length, r.querySelectorAll('.pchGap').length])""")
+check("🖼 „❓ So funktionieren Bildkarten“: the gaps, the card drawn with a room of the house, A alarm and B device all filled, C by time with three gaps",
+      help_pc == [["a", 5, 0], ["b", 5, 0], ["c", 2, 3]] and "Lücken" in pgPC.inner_text("#pcHelpDlg .pchLead"), help_pc)
+pgPC.click("#pcHelpDlg .pchClose"); pgPC.wait_for_timeout(200)
 
 # the editor: a card, a block's option, another block moved up, saved
 pgPC.click("[data-page=routines] .pcTile[data-card=test1]")
@@ -115,6 +127,11 @@ pgPC.click("#settingsBtn"); open_setting(pgPC, "#alarmNotify")
 pgPC.wait_for_function("document.querySelectorAll('#alarmNotify [data-card-kind=water] option').length >= 4", timeout=20000)
 opts_pc = pgPC.evaluate("[...document.querySelectorAll('#alarmNotify [data-card-kind=water] option')].map((o) => o.textContent)")
 check("🖼 Nachricht aufs Handy → Telegram-Bot: per kind of alarm a card or „Standard“", opts_pc[0].startswith("Standard") and "Wasser-Alarm" in opts_pc, opts_pc)
+pgPC.select_option("#anVia", "ha"); pgPC.wait_for_timeout(200)
+check("🖼 „Bildkarte je Alarm“ also for Home Assistant's notify service, saying the picture comes in the app (5.35.0)",
+      pgPC.is_visible("#alarmNotify .anCards") and pgPC.is_visible("#alarmNotify .anCardsHa") and "Home-Assistant-App" in pgPC.inner_text("#alarmNotify .anCardsHa"))
+pgPC.select_option("#anVia", "tgbot"); pgPC.wait_for_timeout(200)
+check("🖼 … and for the bot, without that line", pgPC.is_visible("#alarmNotify .anCards") and not pgPC.is_visible("#alarmNotify .anCardsHa"))
 pgPC.select_option("#alarmNotify [data-card-kind=water]", "wasser")
 pgPC.click("#anSave"); pgPC.wait_for_timeout(800)
 cfg_pc = json.loads(urllib.request.urlopen(urllib.request.Request(BASE + "api/notify", headers={"X-Remote-User-Name": "admin"})).read())
@@ -143,6 +160,8 @@ pgPC.keyboard.press("Escape"); pgPC.wait_for_timeout(200)
 pgPC.goto(BASE + "?debug=1&mode=live"); pgPC.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgPC.wait_for_timeout(600)
 pgPC.click("#tabBar [data-tab=routines]"); pgPC.wait_for_timeout(1200)
 pgPC.click("[data-page=routines] [data-edit-flow=f_pc]"); pgPC.wait_for_timeout(800)
+way_pc = pgPC.evaluate("(() => { const w = document.querySelector('[data-page=routines] .pcWay'); return w ? [w.dataset.way, w.innerText] : null; })()")
+check("🖼 the part of ▶ Abläufe: the bot is set up (✅ Telegram – eigener Bot)", way_pc and way_pc[0] == "ok" and "Telegram – eigener Bot" in way_pc[1], way_pc)
 pgPC.click(".feDlg [data-block='0:1']"); pgPC.wait_for_timeout(300)
 sel_pc = pgPC.evaluate("(() => { const s = document.querySelector('.feDlg [data-field=card]'); return s ? [s.value, [...s.options].map((o) => o.textContent)] : null; })()")
 check("🖼 the routine editor: „🖼 Als Bildkarte schicken“ with the cards, „Test 1“ chosen", sel_pc and sel_pc[0] == "test1" and "🖼 Test 1" in sel_pc[1], sel_pc)
@@ -180,7 +199,30 @@ check("🖼 no errors on the page", not own_pc, own_pc)
 pgPC.close()
 
 send_pc("api/rules", {"flows": []})
-send_pc("api/notify", {"on": False, "via": "whatsapp", "bottoken": "", "botChats": [], "cards": {}})
+# 🖼 the card through Home Assistant's notifications (5.35.0, the owner: "nicht jeder hat Telegram"): uploaded into Home Assistant's media
+# folder, the Companion app's service gets data.image; a service of another kind only the text
+send_pc("api/notify", {"on": True, "via": "ha", "services": ["mobile_app_test", "whatsapp"], "entities": [], "kinds": ["water"], "cards": {"water": "wasser"}})
+n_pc = len(notified_pc())
+urllib.request.urlopen(f"{HA}/_set?e=binary_sensor.wasser_pc2&s=on").read()
+for _ in range(60):
+    got_pc = [x for x in notified_pc()[n_pc:] if x[0] == "ha"]
+    if len(got_pc) >= 2:
+        break
+    time.sleep(0.25)
+media_pc = json.loads(urllib.request.urlopen(HA + "/_media").read())
+app_pc = next((x for x in got_pc if x[1] == "mobile_app_test"), None)
+check("🖼 Home Assistant's notifications: the app gets the card as /media/local/3d-floorplan/karte-….png (a PNG in Home Assistant's media), "
+      "the other service only the text",
+      app_pc and len(app_pc) == 4 and app_pc[3].startswith("/media/local/3d-floorplan/karte-") and "Wasser erkannt" in app_pc[2]
+      and media_pc.get("media-source://media_source/local" + app_pc[3][len("/media/local"):], [0, ""])[1] == "89504e47"
+      and any(x[1] == "whatsapp" and len(x) == 3 for x in got_pc), [got_pc, media_pc])
+urllib.request.urlopen(f"{HA}/_set?e=binary_sensor.wasser_pc2&s=off").read()
+n_pc = len(notified_pc())
+send_pc("api/piccards/test", {"id": "test1"}, "POST")
+got_pc = [x for x in notified_pc()[n_pc:] if x[0] == "ha" and x[1] == "mobile_app_test"]
+check("🖼 „Test an mich“ also through the Home Assistant app, with the picture", len(got_pc) == 1 and len(got_pc[0]) == 4 and "Test 1" in got_pc[0][2], got_pc)
+
+send_pc("api/notify", {"on": False, "via": "whatsapp", "bottoken": "", "botChats": [], "cards": {}, "services": [], "entities": []})
 send_pc("api/piccards", {"cards": start_pc["cards"]})
 send_pc("api/layout", saved_pc)
 extra_pc({})

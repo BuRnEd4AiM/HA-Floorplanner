@@ -689,7 +689,7 @@ const lightGroups = initLightGroups({ $, t, layout: () => shownLayout(), plan: (
   openSettings: () => openSettingsAt('quick'), commit: () => commitSettings(), isOpen: () => !$('#lightsMenu').hidden, close: () => toggleMenu($('#lightsMenu'), $('#lightsPill'), false) });
 const picCards = initPicCards({                                  // 🖼 Bildkarten fürs Handy (5.33.0, piccardsui.js): a part of ▶ Abläufe
   t, canEdit: () => me.canEdit, states: () => states, names: () => namesOf(/./), floors: () => (layout.floors || []).map((f) => ({ id: f.id, name: f.name })), flows: () => rulesUi.rules.get()?.flows || [],
-  notify: () => notifyUi.cfg(), changed: () => routinesPage.update(),
+  notify: () => notifyUi.cfg(), loadNotify: () => notifyUi.load(), changed: () => routinesPage.update(),
 });
 const rulesUi = initRulesUi({                                    // the add-on's own heating rules and routines, 🔎 Wird benutzt (#546, rulesui.js)
   t, lang: () => currentLanguage(), settings: () => settings, states: () => states, entities: () => entities, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,

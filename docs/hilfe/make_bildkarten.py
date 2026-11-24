@@ -148,7 +148,7 @@ def html(cs, phone_png):
     <div class="box"><h2><span class="step">3</span>Merke</h2><div class="tips">
       <div class="tip g"><span class="ic">✅</span>Bei einem <b>Alarm</b> oder einem Ablauf, den ein <b>Gerät</b> startet, kannst du <b>alle</b> Kästchen nehmen.</div>
       <div class="tip r"><span class="ic">⚠️</span>Bei einem Ablauf mit <b>Uhrzeit</b> oder <b>Knopf</b> nur {pill("time")} {pill("house")} {pill("kind")} {pill("text")} nehmen. Beim Raumbild ein festes <b>Stockwerk</b> wählen.</div>
-      <div class="tip b"><span class="ic">📨</span>Bildkarten kommen nur über <b>„Telegram – eigener Bot“</b>. Wo du sie einstellst: bei einem <b>Alarm</b> unter ⚙ → Warnungen &amp; Alarm, bei einem <b>Ablauf</b> im Baustein „🔔 Nachricht“ → „🖼 Als Bildkarte schicken“.</div>
+      <div class="tip b"><span class="ic">📨</span>Bildkarten kommen über <b>„Telegram – eigener Bot“</b> oder die <b>Home-Assistant-App</b> (Benachrichtigungsdienst „mobile_app_…“). Wo du sie einstellst: bei einem <b>Alarm</b> unter ⚙ → Warnungen &amp; Alarm → Nachricht aufs Handy, bei einem <b>Ablauf</b> im Baustein „🔔 Nachricht“ → „🖼 Als Bildkarte schicken“.</div>
     </div></div>
     </div></body></html>"""
 

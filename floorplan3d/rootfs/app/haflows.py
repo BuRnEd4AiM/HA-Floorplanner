@@ -287,14 +287,15 @@ def _message(text: str, ctx) -> str:
 
 
 def _notify(b: dict, ctx, name: str = "") -> list:
-    """name: the routine's (the title of a picture card; the message when a card goes without a text to a notify service, 5.34.1)"""
+    """name: the routine's (the title of a picture card, 5.34.1)"""
     msg, to = _message(b["text"], ctx), ctx["notify"]
-    if not to or not (to.get("services") or to.get("entities")):
+    # a picture card goes the add-on's way also when Home Assistant's notify services are set: the add-on draws it and sends it with the
+    # picture to the Home Assistant app (5.35.0)
+    if not to or not (to.get("services") or to.get("entities")) or b.get("card"):
         data = {"message": msg}
         if b.get("card"):                                     # 🖼 a picture card (5.33.0): the add-on draws it for the device that set it off
             data.update(card=b["card"], entity="{{ " + WHO + " }}", title=name)
         return [{"event": "fp3d_notify", "event_data": data}]          # the add-on sends it its own way (WhatsApp, Telegram)
-    msg = msg or _plain(f"🖼 {name}")                         # a card without a text: Home Assistant's services need a message
     data = {"title": "3D Floorplan", "message": msg}
     out = [{"action": f"notify.{s}", "data": data, "continue_on_error": True} for s in to.get("services") or []]
     if to.get("entities"):

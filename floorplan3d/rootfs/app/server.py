@@ -60,6 +60,7 @@ import alarmpic as apic
 import monthreport as mr
 import tgbot
 import piccard as pc  # 🖼 Bildkarten fürs Handy (5.33.0)
+import hamedia  # 🖼 a picture in a notification of the Home Assistant app (5.35.0)
 import scenes as sc
 import trains as tr
 import rulesrun as rr
@@ -3541,9 +3542,12 @@ async def send_notify(cfg: dict, message: str, pics=()):
                 if not SUPERVISOR_TOKEN:
                     return False, "no Home Assistant (standalone mode)"
                 bad = []
+                img = await ha_media_put(s, pics[0]) if pics and any(hamedia.app_service(x) for x in cfg["services"]) else None
                 for svc in cfg["services"]:
-                    async with s.post(f"{HA_API}/services/notify/{svc}", headers=ha_headers(),
-                                      json={"title": "3D Floorplan", "message": message}) as r:
+                    body = {"title": "3D Floorplan", "message": message}
+                    if img and hamedia.app_service(svc):           # 🖼 the picture in the Home Assistant app (5.35.0)
+                        body["data"] = {"image": img}
+                    async with s.post(f"{HA_API}/services/notify/{svc}", headers=ha_headers(), json=body) as r:
                         if r.status != 200:
                             bad.append(f"notify.{svc}: Home Assistant answered {r.status}")
                 if cfg.get("entities"):                           # notify entities (#460): all in one notify.send_message
@@ -3563,6 +3567,44 @@ async def send_notify(cfg: dict, message: str, pics=()):
                 return (False, err) if err else (True, None)
     except Exception as err:  # noqa: BLE001 - no network, a timeout ...: said, never raised
         return False, str(err) or type(err).__name__
+
+
+async def ha_media_put(s, png: bytes):
+    """🖼 a picture for a notification of the Home Assistant app (5.35.0, hamedia.py): uploaded into Home Assistant's media folder, its
+    address for the app (/media/local/3d-floorplan/…); None when it cannot be (no media folder, no rights): the message then goes without it"""
+    jpg = png[:2] == b"\xff\xd8"
+    name = hamedia.file_name(time.time(), jpg)
+    form = aiohttp.FormData()
+    form.add_field("media_content_id", hamedia.FOLDER_ID)
+    form.add_field("file", png, filename=name, content_type="image/jpeg" if jpg else "image/png")
+    try:
+        async with s.post(f"{HA_API}/media_source/local_source/upload", headers={"Authorization": ha_headers()["Authorization"]}, data=form) as r:
+            if r.status != 200:
+                log.info("picture for the app not uploaded: Home Assistant answered %s", r.status)
+                return None
+    except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+        log.info("picture for the app not uploaded: %s", err)
+        return None
+    try:
+        await asyncio.wait_for(ha_media_tidy(), 10)
+    except Exception as err:  # noqa: BLE001 - an old picture more in the folder
+        log.info("old pictures for the app not removed: %s", err)
+    return hamedia.url(name)
+
+
+async def ha_media_tidy():
+    """🖼 the add-on's older pictures in Home Assistant's media folder removed (the last hamedia.KEEP stay)"""
+    async with aiohttp.ClientSession() as sess:
+        async with sess.ws_connect(ha_ws_url()) as ws:
+            await ws.receive_json()                                              # auth_required
+            await ws.send_json({"type": "auth", "access_token": SUPERVISOR_TOKEN})
+            if (await ws.receive_json()).get("type") != "auth_ok":
+                return
+            await ws.send_json({"id": 1, "type": "media_source/browse_media", "media_content_id": hamedia.FOLDER_ID})
+            res = await ws.receive_json()
+            for n, cid in enumerate(hamedia.old((res.get("result") or {}).get("children") if res.get("success") else []), 2):
+                await ws.send_json({"id": n, "type": "media_source/local_source/remove", "media_content_id": cid})
+                await ws.receive_json()
 
 
 async def get_notify(request):
@@ -3609,7 +3651,7 @@ async def alarm_pics(request, cfg: dict, places: list, alarm: dict | None, lang:
     camera in the room (Home Assistant's camera_proxy); none for "back to normal", nothing that fails stops the message. 🖼 With a picture
     card chosen for its kind (5.33.0, notify settings "cards"): that card as the one picture; text: the alarm's message, the card's {text}
     (5.34.1: it was empty)"""
-    if cfg.get("via") != "tgbot" or not alarm or alarm.get("ev") == "clear":
+    if not an.pictures(cfg) or not alarm or alarm.get("ev") == "clear":
         return []
     card = card_by_id(request, (cfg.get("cards") or {}).get(alarm.get("kind")))
     if card:
@@ -3618,6 +3660,8 @@ async def alarm_pics(request, cfg: dict, places: list, alarm: dict | None, lang:
             return [await asyncio.to_thread(pc.render, card, ctx)]
         except Exception as err:  # noqa: BLE001 - the plain pictures then
             log.info("alarm card: %s", err)
+    if cfg.get("via") != "tgbot":                             # the plan and the camera (their ticks) only through the bot
+        return []
     out = []
     place = apic.place_of(places, alarm.get("eid"))
     if cfg.get("plan") and place:
@@ -3810,7 +3854,7 @@ async def test_piccard(request):
     if not await can_edit(request):
         return forbidden()
     cfg = notify_cfg(request)
-    if cfg.get("via") != "tgbot" or an.ready({**cfg, "on": True}):
+    if not an.pictures(cfg) or an.ready({**cfg, "on": True}):        # the own bot or the Home Assistant app (5.35.0)
         return web.json_response({"ok": False, "error": "notbot"}, status=400)
     card, kind, body = await _card_from(request)
     if not card:
@@ -3839,7 +3883,7 @@ def notify_places(request, cache: dict) -> list:
 async def send_alarm(ctx, cache: dict, message: str, alarm: dict | None = None):
     """an alarm message: the text, with the bot also the pictures (📸 5.16.0)"""
     cfg = notify_cfg(ctx)
-    pics = await alarm_pics(ctx, cfg, await asyncio.to_thread(notify_places, ctx, cache), alarm, notify_lang(ctx), message) if cfg.get("via") == "tgbot" else []
+    pics = await alarm_pics(ctx, cfg, await asyncio.to_thread(notify_places, ctx, cache), alarm, notify_lang(ctx), message) if an.pictures(cfg) else []
     return await send_notify(cfg, message, pics)
 
 
@@ -4364,7 +4408,7 @@ async def rules_runner(app):
             async def notify(self, text, card=None, ent=None, title=""):
                 """a routine's message; 🖼 with a picture card (5.33.0) through the own bot: the card drawn for the device that set it off"""
                 cfg, pics = notify_cfg(ctx), []
-                c = card_by_id(ctx, card) if cfg.get("via") == "tgbot" else None
+                c = card_by_id(ctx, card) if an.pictures(cfg) else None   # the own bot or the Home Assistant app (5.35.0)
                 if c:
                     try:
                         cc = await card_ctx(ctx, c, "flow", ent, text=text, title=title or c["name"])

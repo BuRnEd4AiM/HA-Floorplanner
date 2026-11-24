@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-24, Version **5.34.1** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-24, Version **5.35.0** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,6 +10,7 @@ Stand: 2026-11-24, Version **5.34.1** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
+- **2026-11-24, 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ (Branch `claude/wonderful-dijkstra-5vernn`):** seine Wünsche: Telegram reicht (kein WhatsApp mit Bild), aber auch über HA-Benachrichtigungen („nicht jeder hat Telegram“): Bild in den Medien-Ordner von HA, `notify.mobile_app_…` mit `data.image` (`hamedia.py`); die Erklär-Grafik als Fenster unter ▶ Abläufe (`piccardshelp.js`); deutlicher Hinweis, worüber Karten kommen. Nie mit echter Companion-App getestet.
 - **2026-11-24, 5.34.1: 🔔 Nachricht nur mit Bildkarte (Branch `claude/wonderful-dijkstra-5vernn`):** seine Frage „muss ich eine Nachricht reinschreiben?“: nein, mit Bildkarte darf der Text leer bleiben (Editor, `flows.py`, `haflows.py`, `rulesrun.py`, `server.py`); die Vorschau zeigt auch für Abläufe Raum und Etage; bei Alarm füllt der Warntext {text}. Seine Bitte um eine Erklärung als Grafik: `docs/hilfe/bildkarten.jpg` (`make_bildkarten.py`).
 - **2026-11-24, 5.34.0: 🖼 Bildkarten: Stockwerk wählen, Platzhalter als grüne Kästchen (Branch `claude/wonderful-dijkstra-5vernn`):** sein Wunsch „Stockwerke auswählen“: das Raumbild hat „Stockwerk“ (Automatisch oder ein festes). Seine Frage, wie die Texte gemacht werden: Platzhalter; seine Wahl aus `docs/ideen-5.34`: Idee 2, grüne Kästchen mit Knöpfen „＋ Raum“ … (`phfield.js`).
 - **2026-11-23, 5.33.0: 🖼 Bildkarten fürs Handy (Branch `claude/charming-carson-d1uepn`):** gebaut wie gewählt: unter ▶ Abläufe, Editor mit Bausteinen untereinander und Vorlagen, Karte je Alarm und im Ablauf, „Test an mich“; das Add-on malt sie mit Pillow (`piccard.py`), die Demo im Browser (`demo/piccard.js`, beide gleich halten). Nebenbei: der Bot-Schlüssel kam in jedes Backup (jetzt nur mit Haken).
@@ -19,7 +20,7 @@ Stand: 2026-11-24, Version **5.34.1** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Offen
 
-- **5.34.0 / 5.34.1 Bildkarten:** sein Test (Testprotokoll 232, 233).
+- **5.34.0 / 5.34.1 / 5.35.0 Bildkarten:** sein Test (Testprotokoll 232, 233, 234), vor allem 234.4: das Bild in der Home-Assistant-App am echten Handy (auch unterwegs).
 - **5.33.0 Bildkarten:** sein Test im Add-on mit seinem Bot (231.6 bis 231.9). Nicht gebaut: Verlauf (24 h) als Baustein, Idee 2 (freie Fläche).
 - **5.32.1 Telegram-Bot:** sein Test im Add-on am Handy (230.6 bis 230.8).
 - **5.15.0 Sonnenschutz:** sein Test (Testprotokoll 206.5 bis 206.7), vor allem ob Norden bei seinem Haus stimmt.

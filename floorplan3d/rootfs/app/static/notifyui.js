@@ -315,14 +315,15 @@ export function initNotifyUi(ctx) {
       row.append(el('span', '', t(`an.kind.${k}`)), s);
       perKind.append(row);
     });
-    perKind.append(el('p', 'sub', t('an.cardsHint')));
-    bot.append(perKind);
+    const haNote = el('p', 'sub anCardsHa', t('an.cardsHa'));       // 🖼 through Home Assistant: the picture only in the app (5.35.0)
+    perKind.append(el('p', 'sub', t('an.cardsHint')), haNote);
     const shown = () => {
       wa.hidden = via.value !== 'whatsapp'; tg.hidden = via.value !== 'telegram'; ha.hidden = via.value !== 'ha'; bot.hidden = via.value !== 'tgbot';
+      perKind.hidden = via.value !== 'tgbot' && via.value !== 'ha'; haNote.hidden = via.value !== 'ha';   // the cards: the bot or the app
       tgUser.hidden = mode.value !== 'user'; tgGroup.hidden = mode.value !== 'group';
     };
     via.addEventListener('change', shown); mode.addEventListener('change', shown); shown();
-    out.push(wa, tg, bot, ha, check('anClear', 'an.clear', cfg.clear));
+    out.push(wa, tg, bot, ha, perKind, check('anClear', 'an.clear', cfg.clear));
     const bar = el('div', 'stopTools'), sv = el('button', '', t('an.save')), ts = el('button', '', t('an.test'));
     sv.type = ts.type = 'button'; sv.id = 'anSave'; ts.id = 'anTest'; sv.disabled = ts.disabled = busy;
     sv.addEventListener('click', () => act(false)); ts.addEventListener('click', () => act(true));

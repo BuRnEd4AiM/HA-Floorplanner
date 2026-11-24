@@ -543,7 +543,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 231. Neu in 5.33.0: 🖼 Bildkarten fürs Handy | 5 | 0 | 4 | 0 | 231.6 bis 231.9 |
 | 232. Neu in 5.34.0: 🖼 Bildkarten: Stockwerk wählen, grüne Kästchen | 4 | 0 | 2 | 0 | 232.5, 232.6 |
 | 233. Repariert in 5.34.1: 🔔 Nachricht nur mit Bildkarte | 3 | 0 | 1 | 0 | 233.3 |
-| **Zusammen** | **1397** | **2** | **180** | **92** | |
+| 234. Neu in 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ | 3 | 0 | 2 | 0 | 234.4, 234.5 |
+| **Zusammen** | **1400** | **2** | **182** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3496,3 +3497,14 @@ Deine Frage (24.11.): „wenn ich eine Karte mache als Nachricht, muss ich eine 
 | 233.2 | Ein Ablauf mit „🔔 Nachricht“: Text leer lassen, „🖼 Als Bildkarte schicken: Gute Nacht“, „Speichern“ | Kein „⚠ Hier fehlt noch etwas“; im Feld „Darf leer bleiben …“; der Baustein zeigt „nur die Bildkarte“; nach dem Speichern ist die Karte noch gewählt | ✅ (2026-11-24, Claude, Browser-Test) |
 | 233.3 | Im Add-on mit deinem Bot den Ablauf auslösen (auch einmal mit „🏠 Home Assistant“) | In Telegram kommt die Karte, darunter „🖼 <Name des Ablaufs>“ | ❓ |
 | 233.4 | Demo: ▶ Abläufe → „Test 1“ → „Text“: hinter „Nachricht“ „ · “ tippen und „＋ Etage“ | Rechts steht „Bewegung an der Haustür · Keller“ (ein Raum deines Hauses als Beispiel) | ✅ (2026-11-24, Claude, Demo) |
+
+## 234. Neu in 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“
+Deine Wünsche (24.11.): Telegram reicht, aber auch über die Benachrichtigungen von Home Assistant („nicht jeder hat Telegram“); die Erklär-Grafik unter ▶ Abläufe; deutlicher, worüber die Karten kommen.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 234.1 | Unit-Tests `tests/test_hamedia.py` (neu), `tests/piccards.test.mjs`, `tests/test_haflows.py`; Browser-Test Teil `111_picture_cards` | Alles grün | ✅ (2026-11-24, Claude) |
+| 234.2 | Demo: ▶ Abläufe → 🖼 Bildkarten fürs Handy | Oben „📨 Bildkarten kommen aufs Handy über „Telegram – eigener Bot“ oder die Home-Assistant-App.“ und was bei dir eingestellt ist | ✅ (2026-11-24, Claude, Demo) |
+| 234.3 | „❓ So funktionieren Bildkarten“ (auch am Handy) | Ein Fenster: ① Lücken → etwas passiert → Karte auf dem Handy; ② A, B gefüllt, C mit roten Fragezeichen; ③ Merke | ✅ (2026-11-24, Claude, Demo und Demo schmal) |
+| 234.4 | Im Add-on: ⚙ → Warnungen & Alarm → Nachricht aufs Handy → „Benachrichtigungsdienst von Home Assistant (Bild in der App)“, deine Home-Assistant-App (mobile_app_…) anhaken, „🖼 Bildkarte je Alarm“: Wasser → eine Karte, Speichern; dann bei der Karte „📨 Test an mich“ | In der Home-Assistant-App am Handy kommt die Benachrichtigung mit der Karte als Bild (auch unterwegs, wenn die App dein Home Assistant von außen erreicht) | ❓ |
+| 234.5 | Im Medien-Browser von Home Assistant: Medien → Lokale Medien → „3d-floorplan“ | Dort liegen die Bilder der Karten, höchstens 12 | ❓ |

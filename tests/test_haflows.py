@@ -196,4 +196,4 @@ def test_a_picture_card_without_a_text():
     assert ev["event"] == "fp3d_notify" and ev["event_data"]["message"] == "" and ev["event_data"]["card"] == "gutenacht"
     assert ev["event_data"]["title"] == "Gute Nacht"                                  # the add-on writes „🖼 Gute Nacht“ under the card
     svc = hf.compile_flow(f, ctx(notify={"services": ["mobile_app_anna"]}))["autos"][0]["actions"][-1]
-    assert svc["action"] == "notify.mobile_app_anna" and svc["data"]["message"] == "🖼 Gute Nacht"   # a service needs a message
+    assert svc["event"] == "fp3d_notify" and svc["event_data"]["card"] == "gutenacht"   # 5.35.0: the add-on sends it, with the picture to the app
