@@ -3604,16 +3604,17 @@ async def put_notify(request):
     return web.json_response({**an.public(cfg), "ready": an.ready(cfg)})
 
 
-async def alarm_pics(request, cfg: dict, places: list, alarm: dict | None, lang: str) -> list:
+async def alarm_pics(request, cfg: dict, places: list, alarm: dict | None, lang: str, text: str = "") -> list:
     """📸 the pictures of an alarm for the bot (5.16.0): the floor from above with the room in red (alarmpic.plan_png) and the picture of a
     camera in the room (Home Assistant's camera_proxy); none for "back to normal", nothing that fails stops the message. 🖼 With a picture
-    card chosen for its kind (5.33.0, notify settings "cards"): that card as the one picture."""
+    card chosen for its kind (5.33.0, notify settings "cards"): that card as the one picture; text: the alarm's message, the card's {text}
+    (5.34.1: it was empty)"""
     if cfg.get("via") != "tgbot" or not alarm or alarm.get("ev") == "clear":
         return []
     card = card_by_id(request, (cfg.get("cards") or {}).get(alarm.get("kind")))
     if card:
         try:
-            ctx = await card_ctx(request, card, alarm.get("kind", "alarm"), alarm.get("eid"), name=alarm.get("name") or "", places=places)
+            ctx = await card_ctx(request, card, alarm.get("kind", "alarm"), alarm.get("eid"), name=alarm.get("name") or "", text=text, places=places)
             return [await asyncio.to_thread(pc.render, card, ctx)]
         except Exception as err:  # noqa: BLE001 - the plain pictures then
             log.info("alarm card: %s", err)
@@ -3838,7 +3839,7 @@ def notify_places(request, cache: dict) -> list:
 async def send_alarm(ctx, cache: dict, message: str, alarm: dict | None = None):
     """an alarm message: the text, with the bot also the pictures (📸 5.16.0)"""
     cfg = notify_cfg(ctx)
-    pics = await alarm_pics(ctx, cfg, await asyncio.to_thread(notify_places, ctx, cache), alarm, notify_lang(ctx)) if cfg.get("via") == "tgbot" else []
+    pics = await alarm_pics(ctx, cfg, await asyncio.to_thread(notify_places, ctx, cache), alarm, notify_lang(ctx), message) if cfg.get("via") == "tgbot" else []
     return await send_notify(cfg, message, pics)
 
 

@@ -1768,3 +1768,18 @@ async def test_backup_keeps_the_picture_cards_and_the_bots_key_only_with_the_key
     png = await (await client.post("/api/piccards/preview", json={"id": "test1"})).read()
     assert png[:4] == b"\x89PNG"
     assert (await client.post("/api/piccards/test", json={"id": "test1"})).status in (400, 502)   # no Telegram here
+
+
+async def test_an_alarm_card_gets_the_alarm_message(monkeypatch):
+    """🖼 5.34.1: the placeholder {text} („Nachricht“) of a card chosen for an alarm is the alarm's message (it was empty)"""
+    seen = {}
+
+    async def fake_ctx(request, card, kind, eid=None, **kw):
+        seen.update(kind=kind, eid=eid, **kw)
+        return {}
+    monkeypatch.setattr(server, "card_by_id", lambda request, cid: {"id": cid, "name": "Wasser-Alarm", "blocks": []} if cid else None)
+    monkeypatch.setattr(server, "card_ctx", fake_ctx)
+    monkeypatch.setattr(server.pc, "render", lambda card, ctx: b"PNG")
+    pics = await server.alarm_pics(None, {"via": "tgbot", "cards": {"water": "wasser"}}, [], {"kind": "water", "eid": "binary_sensor.w", "name": "Wassermelder"},
+                                   "de", "Wasser erkannt: Wassermelder")
+    assert pics == [b"PNG"] and seen["text"] == "Wasser erkannt: Wassermelder" and seen["kind"] == "water" and seen["name"] == "Wassermelder"
