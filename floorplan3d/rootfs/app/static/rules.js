@@ -126,7 +126,8 @@ export function blockWords(b, ctx) {
     case 'heat': return { icon: '🔥', text: b.same ? same('heat') : nm(b.ents), sub: b.do === 'temp' ? deg(b.v) : t(`fl.heat.${b.do}`) };
     case 'cover': return { icon: '🪟', text: b.same ? same('cover') : nm(b.ents), sub: b.do === 'pos' ? `${b.v} %` : t(`fl.cover.${b.do}`) };
     case 'run': return { icon: b.ent.startsWith('scene.') ? '🎬' : '📜', text: one(b.ent), sub: t('fl.start') };
-    case 'notify': return { icon: b.card ? '🖼' : '🔔', text: t('fl.b.notify'), sub: `„${b.text}“` };   // 🖼 with a picture card (5.33.0)
+    case 'notify': return { icon: b.card ? '🖼' : '🔔', text: t('fl.b.notify'),   // 🖼 with a picture card (5.33.0); its text may stay empty (5.34.1)
+      sub: (b.text || '').trim() || !b.card ? `„${b.text || ''}“` : t('fl.b.cardOnly') };
     case 'restore': return { icon: '↩', text: t('fl.b.restore'), sub: b.same ? same('restore') : b.ents.length ? nm(b.ents) : t('fl.everything') };
     default: return { icon: '?', text: b.k, sub: '' };
   }
@@ -276,7 +277,7 @@ export function blockReady(b) {
   if (['num', 'if_state', 'if_num'].includes(b.k)) return !!b.ent && (b.k === 'if_state' || typeof b.v === 'number');
   if (['switch', 'heat', 'cover'].includes(b.k)) return b.same || (b.ents || []).length > 0;
   if (b.k === 'run') return !!b.ent;
-  if (b.k === 'notify') return !!(b.text || '').trim();
+  if (b.k === 'notify') return !!(b.text || '').trim() || !!b.card;   // a picture card says it all: the text may stay empty (5.34.1)
   return true;
 }
 export const flowReady = (f) => (f.lanes || []).length > 0 && f.lanes.every((l) => l.blocks.length > 0 && TRIGGERS.includes(l.blocks[0].k) && l.blocks.every(blockReady));

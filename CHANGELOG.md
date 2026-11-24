@@ -2,6 +2,11 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.34.1] - 2026-11-24
+### Fixed
+- **🔔 Nachricht with a picture card needed a text** (the owner, 2026-11-24: "wenn ich eine Karte mache als Nachricht, muss ich eine Nachricht reinschreiben, soll das so?"): no. With "🖼 Als Bildkarte schicken" the text may now stay empty: the block no longer says "Hier fehlt noch etwas", the field says "Darf leer bleiben: die Bildkarte reicht.", the block shows "nur die Bildkarte". Under the card stands "🖼 <the routine's name>". Also when Home Assistant runs the routine (its automation now sends the routine's name along); through notify services of Home Assistant (which cannot send the card) the message is "🖼 <name>". Before, the add-on dropped such a block when saving.
+- **🖼 The preview of a card used by no alarm showed no room, floor or sensor** (the owner, 2026-11-24, his card "Test 1" with "[Nachricht][Etage]": "hier sehe ich keine Nachricht-Vorschau in der Karte"): a card for routines was drawn without a place, so {room}, {floor} and {name} stayed empty. Now the preview takes a room of your house as the sample for routines too ("Bewegung an der Haustür · Keller"), in the add-on and in the demo.
+
 ## [5.34.0] - 2026-11-24
 ### Added
 - **🖼 Bildkarten: room, floor, sensor, time as green boxes in the texts** (the owner, 2026-11-24: "ich weiß aktuell nicht, wie die Meldungen gemacht werden, ob das Variablen/Platzhalter sind … wenn ich nur Raum reinschreibe, es einen Raum nimmt"; his choice of docs/ideen-5.34: idea 2, green boxes): the texts of the blocks "Überschrift" and "Text" show their placeholders as **green boxes** ("Raum", "Etage", "Melder", "Uhrzeit", "Art", "Haus", "Nachricht") instead of {room} …; under the field **a button per placeholder** ("＋ Raum  wo es ist") puts one where the cursor is. ⌫ deletes a whole box; {raum} typed by hand becomes a box as well. When sent, the real value stands there ("Wasser in Waschküche (Keller) um 07:41"); the card on the right shows it at once. The block's line shows them as [Raum]. Kept as before ({room} …), so cards made earlier stay the same. Video guide: the clip "🖼 Bildkarten fürs Handy gestalten" shows it.

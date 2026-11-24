@@ -1524,7 +1524,7 @@ export function installDemoBackend() {
     if (path === 'api/piccards/preview') {               // drawn by the browser (demo/piccard.js), as the add-on draws it with Pillow
       const b = JSON.parse(init.body || '{}'), card = b.card || demoCards.find((c) => c.id === b.id) || demoCards[0];
       const lay = layouts[houses[0].id], states = haLikeStates();
-      const place = b.kind === 'flow' ? null : samplePlace(lay, b.ent);
+      const place = samplePlace(lay, b.ent);              // also for a routine: {room}, {floor}, {name} as samples (5.34.1)
       const camBlock = (card.blocks || []).find((x) => x.k === 'camera');
       const blob = await renderCard(card, { kind: b.kind || 'water', title: b.title || card.name, text: b.text || '', name: place ? 'Keller Luftfeuchte' : '', place, floors: lay.floors,
         house: houses[0].name, states, lang: /^en/.test(navigator.language) && settings.language === 'auto' ? 'en' : settings.language === 'en' ? 'en' : 'de', now: new Date(), preview: true,

@@ -2686,4 +2686,5 @@ export default {
   'pc.phx.name': 'il dispositivo', 'pc.phx.time': 'adesso', 'pc.phx.house': 'la tua casa',
   'pc.o.phLead': 'Un tocco lo inserisce dove si trova il cursore – all\'invio c\'è il valore vero:',
   'pc.o.phHelp': 'Le caselle verdi vengono sostituite all\'invio. ⌫ cancella una casella intera.',
+  'fl.b.cardOnly': 'solo la scheda immagine', 'fe.cardNoText': 'Può restare vuoto: basta la scheda immagine.',
 };

@@ -3743,7 +3743,7 @@ async def card_ctx(request, card: dict, kind: str, eid=None, *, name: str = "", 
                  if isinstance(r, dict) and len(r.get("points") or []) >= 3 and f.get("kind") != "roof"]
         with_cam = [x for x in rooms if apic.cameras_near({"floor": x[1], "room": x[2], "x": 0, "z": 0})]
         sample = (with_cam or rooms or [None])[0]
-        if sample and kind != "flow":
+        if sample:                                                # also for a routine (5.34.1, the owner: the preview showed no {floor})
             h, f, r = sample
             pts = r["points"]
             place = {"house": h, "floor": f, "room": r, "x": sum(float(p[0]) for p in pts) / len(pts), "z": sum(float(p[1]) for p in pts) / len(pts)}
@@ -4370,6 +4370,9 @@ async def rules_runner(app):
                         pics = [await asyncio.to_thread(pc.render, c, cc)]
                     except Exception as err:  # noqa: BLE001 - the text goes alone
                         log.info("routine card: %s", err)
+                if not (text or "").strip():                  # a card without a text (5.34.1): "🖼 <the routine>" under the picture (or alone)
+                    named = c or (card_by_id(ctx, card) if card else None) or {}
+                    text = f"🖼 {title or named.get('name') or '3D Floorplan'}"
                 ok, err = await send_notify(cfg, text, pics)
                 log.info("routine message %s", "sent" if ok else f"not sent: {err}")
 

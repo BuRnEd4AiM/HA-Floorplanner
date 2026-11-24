@@ -130,6 +130,9 @@ test('"Nur wenn: besonderer Tag" (📅 specialdays.js) in words: the days by nam
   assert.ok(R.CONDS.includes('if_special') && R.groupOf('if_special') === 'and');
   assert.deepEqual(R.newBlock('if_special'), { k: 'if_special', is: 'yes', days: [] });
   assert.equal(R.blockReady(R.newBlock('if_special')), true);
+  assert.equal(R.blockReady({ k: 'notify', text: ' ' }), false);                  // a message needs a text …
+  assert.equal(R.blockReady({ k: 'notify', text: '', card: 'test1' }), true);    // … or a picture card (5.34.1)
+  assert.equal(R.blockWords({ k: 'notify', text: '', card: 'test1' }, { t: (k) => k, nameOf: () => '' }).sub, 'fl.b.cardOnly');
   assert.deepEqual(R.blockWords({ k: 'if_special', is: 'yes', days: [] }, c), { icon: '🎉', text: 'fl.b.special.yesAny', sub: '' });
   assert.equal(R.blockWords({ k: 'if_special', is: 'no', days: [] }, c).text, 'fl.b.special.noAny');
   const one = R.blockWords({ k: 'if_special', is: 'no', days: ['d_xmas'] }, c);

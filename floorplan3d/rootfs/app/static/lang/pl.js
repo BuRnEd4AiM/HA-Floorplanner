@@ -2638,4 +2638,5 @@ export default {
   'pc.phx.name': 'urządzenie', 'pc.phx.time': 'teraz', 'pc.phx.house': 'twój dom',
   'pc.o.phLead': 'Dotknięcie wstawia to w miejscu kursora – przy wysyłaniu pojawi się prawdziwa wartość:',
   'pc.o.phHelp': 'Zielone pola są zastępowane przy wysyłaniu. ⌫ usuwa całe pole.',
+  'fl.b.cardOnly': 'tylko karta obrazkowa', 'fe.cardNoText': 'Może zostać puste: karta obrazkowa wystarczy.',
 };

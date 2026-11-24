@@ -2653,4 +2653,5 @@ export default {
   'pc.phx.name': 'het apparaat', 'pc.phx.time': 'nu', 'pc.phx.house': 'je huis',
   'pc.o.phLead': 'Tikken zet het waar de cursor staat – bij het versturen staat daar het echte:',
   'pc.o.phHelp': 'Groene vakjes worden bij het versturen vervangen. ⌫ wist een heel vakje.',
+  'fl.b.cardOnly': 'alleen de fotokaart', 'fe.cardNoText': 'Mag leeg blijven: de fotokaart is genoeg.',
 };

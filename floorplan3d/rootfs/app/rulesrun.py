@@ -392,10 +392,11 @@ async def _wish(rules, req, states, cache, env):
         data = json.loads(msg.data)
         ev = (data.get("event") or {}) if data.get("type") == "event" else {}
         d = ev.get("data") or {}
-        if ev.get("event_type") == NOTIFY_EVENT and isinstance(d.get("message"), str) and d["message"].strip():
+        card = d.get("card") if isinstance(d.get("card"), str) and d.get("card") else ""
+        if ev.get("event_type") == NOTIFY_EVENT and isinstance(d.get("message"), str) and (d["message"].strip() or card):   # a card alone too (5.34.1)
             text = d["message"].strip()[:300]
-            rules.note([{"src": "flow", "act": "notify", "name": "Home Assistant", "v": text}], time.time())
-            if isinstance(d.get("card"), str) and d["card"]:                 # 🖼 an automation's message with a picture card (5.33.0)
+            rules.note([{"src": "flow", "act": "notify", "name": "Home Assistant", "v": text or f"🖼 {card}"}], time.time())
+            if card:                                                         # 🖼 an automation's message with a picture card (5.33.0)
                 ent = d.get("entity") if isinstance(d.get("entity"), str) and "." in d.get("entity", "") else None
                 await env.notify(text, card=d["card"][:24], ent=ent, title=str(d.get("title") or "")[:60])
             else:

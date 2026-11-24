@@ -154,6 +154,28 @@ for _ in range(60):
         break
     pgPC.wait_for_timeout(250)
 check("🖼 the routine runs: its text under the card „Test 1“", len(got_pc) == 1 and got_pc[0][2] == "Hallo aus dem Ablauf" and got_pc[0][4] == "89504e47", got_pc)
+# a picture card without a text (the owner, 2026-11-24: "muss ich eine Nachricht reinschreiben?", 5.34.1): the block is complete, the add-on
+# writes „🖼 <the routine>“ under the card
+send_pc("api/rules", {"flows": [{"id": "f_pc", "name": "Kartentest", "on": True, "ha": False, "lanes": [
+    {"id": "l1", "blocks": [{"k": "button"}, {"k": "notify", "text": "", "card": "test1"}]}]}]})
+saved_flow = json.loads(urllib.request.urlopen(urllib.request.Request(BASE + "api/rules", headers={"X-Remote-User-Name": "admin"})).read())["flows"]
+check("🖼 a message with only a picture card is kept (no text)", saved_flow and saved_flow[0]["lanes"][0]["blocks"][1] == {"k": "notify", "text": "", "card": "test1"}, saved_flow)
+pgPC.keyboard.press("Escape"); pgPC.wait_for_timeout(200)
+pgPC.goto(BASE + "?debug=1&mode=live"); pgPC.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgPC.wait_for_timeout(600)
+pgPC.click("#tabBar [data-tab=routines]"); pgPC.wait_for_timeout(1200)
+pgPC.click("[data-page=routines] [data-edit-flow=f_pc]"); pgPC.wait_for_timeout(800)
+pgPC.click(".feDlg [data-block='0:1']"); pgPC.wait_for_timeout(300)
+check("🖼 the routine editor: no „Hier fehlt noch etwas“, the text says it may stay empty, the block says „nur die Bildkarte“",
+      pgPC.locator(".feDlg .feMissing").count() == 0 and "leer bleiben" in (pgPC.get_attribute(".feDlg [data-field=text]", "placeholder") or "")
+      and "nur die Bildkarte" in pgPC.inner_text(".feDlg [data-block='0:1']"), pgPC.inner_text(".feDlg [data-block='0:1']"))
+n_pc = len(notified_pc())
+send_pc("api/rules/run", {"flow": "f_pc", "lane": "l1", "test": True}, "POST")
+for _ in range(60):
+    got_pc = [x for x in notified_pc()[n_pc:] if x[0] == "tg_photo"]
+    if got_pc:
+        break
+    pgPC.wait_for_timeout(250)
+check("🖼 it runs: the card „Test 1“, „🖼 Kartentest“ under it", len(got_pc) == 1 and got_pc[0][2] == "🖼 Kartentest" and got_pc[0][4] == "89504e47", got_pc)
 check("🖼 no errors on the page", not own_pc, own_pc)
 pgPC.close()
 

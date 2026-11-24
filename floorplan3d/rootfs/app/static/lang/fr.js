@@ -2723,4 +2723,5 @@ export default {
   'pc.phx.name': 'l\'appareil', 'pc.phx.time': 'maintenant', 'pc.phx.house': 'ta maison',
   'pc.o.phLead': 'Un appui l\'insère à l\'emplacement du curseur – à l\'envoi, la vraie valeur y figure :',
   'pc.o.phHelp': 'Les cases vertes sont remplacées à l\'envoi. ⌫ supprime une case entière.',
+  'fl.b.cardOnly': 'seulement la carte image', 'fe.cardNoText': 'Peut rester vide : la carte image suffit.',
 };

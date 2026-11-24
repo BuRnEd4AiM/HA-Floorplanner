@@ -4130,4 +4130,5 @@ export default {
   'pc.o.floorHelp': '如果传感器在其他楼层，就不显示它的红色房间和圆环。两层并排：两个平面图，勾选“与下一个模块并排”。', 'pc.ph.kind': '类型', 'pc.ph.text': '消息', 'pc.ph.room': '房间', 'pc.ph.floor': '楼层',
   'pc.ph.name': '传感器', 'pc.ph.time': '时间', 'pc.ph.house': '房屋', 'pc.phx.kind': '水、烟 …', 'pc.phx.text': '文字', 'pc.phx.room': '所在位置', 'pc.phx.floor': '所在楼层',
   'pc.phx.name': '设备', 'pc.phx.time': '现在', 'pc.phx.house': '你的房屋', 'pc.o.phLead': '点按即在光标处插入——发送时显示真实内容：', 'pc.o.phHelp': '绿色方框在发送时被替换。⌫ 删除整个方框。',
+  'fl.b.cardOnly': '仅图片卡', 'fe.cardNoText': '可以留空：图片卡就够了。',
 };

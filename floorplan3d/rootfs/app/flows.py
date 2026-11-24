@@ -141,12 +141,13 @@ def clean_block(b) -> dict | None:
         ent = _ent(b.get("ent"), DOMAINS["run"])
         return {"k": k, "ent": ent} if ent else None
     if k == "notify":
-        text = b.get("text")
-        if not (isinstance(text, str) and text.strip()):
+        text = b.get("text").strip()[:200] if isinstance(b.get("text"), str) else ""
+        card = b["card"] if isinstance(b.get("card"), str) and CARD.match(b["card"]) else ""
+        if not text and not card:                                   # a picture card alone is enough (the owner, 2026-11-24, 5.34.1)
             return None
-        out = {"k": k, "text": text.strip()[:200]}
-        if isinstance(b.get("card"), str) and CARD.match(b["card"]):
-            out["card"] = b["card"]                                 # 🖼 sent as this picture card (5.33.0, piccard.py)
+        out = {"k": k, "text": text}
+        if card:
+            out["card"] = card                                      # 🖼 sent as this picture card (5.33.0, piccard.py)
         return out
     return None
 

@@ -1603,6 +1603,7 @@ const DICT = {
     'pc.phx.name': 'das Gerät', 'pc.phx.time': 'jetzt', 'pc.phx.house': 'dein Haus',
     'pc.o.phLead': 'Antippen setzt es an der Stelle vom Strich ein – beim Senden steht dort das Echte:',
     'pc.o.phHelp': 'Grüne Kästchen werden beim Senden ersetzt. ⌫ löscht ein Kästchen ganz.',
+    'fl.b.cardOnly': 'nur die Bildkarte', 'fe.cardNoText': 'Darf leer bleiben: die Bildkarte reicht.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -3147,6 +3148,7 @@ const DICT = {
     'pc.phx.name': 'the device', 'pc.phx.time': 'now', 'pc.phx.house': 'your house',
     'pc.o.phLead': 'A tap puts it where the cursor is – when sent, the real thing stands there:',
     'pc.o.phHelp': 'Green boxes are replaced when it is sent. ⌫ deletes a whole box.',
+    'fl.b.cardOnly': 'only the picture card', 'fe.cardNoText': 'May stay empty: the picture card is enough.',
   },
 };
 

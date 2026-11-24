@@ -2696,4 +2696,5 @@ export default {
   'pc.phx.name': 'el dispositivo', 'pc.phx.time': 'ahora', 'pc.phx.house': 'tu casa',
   'pc.o.phLead': 'Un toque lo inserta donde está el cursor; al enviar aparece el valor real:',
   'pc.o.phHelp': 'Las casillas verdes se sustituyen al enviar. ⌫ borra una casilla entera.',
+  'fl.b.cardOnly': 'solo la tarjeta de imagen', 'fe.cardNoText': 'Puede quedar vacío: basta con la tarjeta de imagen.',
 };

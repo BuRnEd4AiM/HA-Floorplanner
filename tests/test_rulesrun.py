@@ -61,8 +61,8 @@ class Env:
             await self.ha.set(e, data["hvac_mode"])
         return True
 
-    async def notify(self, text):
-        self.told.append(text)
+    async def notify(self, text, card=None, ent=None, title=""):
+        self.told.append(text if not card else (text, card, title))
 
     def save(self, mem):
         self.saved.append(mem)
@@ -156,6 +156,11 @@ async def test_a_routine_in_home_assistant_is_left_to_it_but_its_message_is_sent
     await ha.queue.put({"type": "event", "event": {"event_type": "fp3d_notify", "data": {"message": "  Fenster offen  "}}})
     assert await until(lambda: env.told == ["Fenster offen"])
     assert rules.mem["log"][-1] == {"t": rules.mem["log"][-1]["t"], "src": "flow", "act": "notify", "name": "Home Assistant", "v": "Fenster offen"}
+    await ha.queue.put({"type": "event", "event": {"event_type": "fp3d_notify", "data": {"message": "", "card": "gutenacht", "title": "Licht"}}})
+    assert await until(lambda: env.told[-1] == ("", "gutenacht", "Licht"))   # a picture card without a text (5.34.1)
+    await ha.queue.put({"type": "event", "event": {"event_type": "fp3d_notify", "data": {"message": " "}}})
+    await asyncio.sleep(0.2)
+    assert len(env.told) == 2                                                   # neither text nor card: nothing
     task.cancel()
     with contextlib.suppress(asyncio.CancelledError):
         await task
