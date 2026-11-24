@@ -186,3 +186,14 @@ def test_brightness_by_the_sun_in_home_assistant():
     assert l2["triggers"] == [{"trigger": "sun", "event": "sunset", "offset": "+02:17:00"}] and l2["actions"][0] == {"condition": "time", "weekday": ["mon"]}
     assert l3["triggers"] == [{"trigger": "sun", "event": "sunrise", "offset": "-01:30:00"}]
 
+
+def test_a_picture_card_without_a_text():
+    """the owner (2026-11-24): with a picture card the text of „🔔 Nachricht“ may stay empty (5.34.1)"""
+    f = fl.clean_flows([{"id": "f_n", "name": "Gute Nacht", "lanes": [{"id": "l1", "blocks": [
+        {"k": "state", "ents": ["binary_sensor.fenster_wz"], "to": "open"}, {"k": "notify", "text": "  ", "card": "gutenacht"}]}]}])[0]
+    assert f["lanes"][0]["blocks"][1] == {"k": "notify", "text": "", "card": "gutenacht"}
+    ev = hf.compile_flow(f, ctx())["autos"][0]["actions"][-1]
+    assert ev["event"] == "fp3d_notify" and ev["event_data"]["message"] == "" and ev["event_data"]["card"] == "gutenacht"
+    assert ev["event_data"]["title"] == "Gute Nacht"                                  # the add-on writes „🖼 Gute Nacht“ under the card
+    svc = hf.compile_flow(f, ctx(notify={"services": ["mobile_app_anna"]}))["autos"][0]["actions"][-1]
+    assert svc["event"] == "fp3d_notify" and svc["event_data"]["card"] == "gutenacht"   # 5.35.0: the add-on sends it, with the picture to the app

@@ -136,3 +136,22 @@ export function cleanCard(c) {
   return { id: ID.test(c?.id || '') ? c.id : uniqueId(c?.name), name: String(c?.name || '').trim().slice(0, 40), color: /^#[0-9a-f]{6}$/i.test(c?.color || '') ? c.color.toLowerCase() : '#d63c31',
     theme: c?.theme === 'dark' ? 'dark' : 'light', width: c?.width === 'wide' ? 'wide' : 'tall', blocks };
 }
+
+/** how picture cards reach the phone with the messages' settings (5.35.0, alarmnotify.pictures): 'ok' (the own Telegram bot, or Home
+ * Assistant's notify services with the Companion app), 'haNoApp' (Home Assistant's services without the app: text only), 'text' (WhatsApp,
+ * Telegram through CallMeBot: text only), 'off' (messages off or not loaded) */
+export function cardWay(n) {
+  if (!n || !n.on) return 'off';
+  if (n.via === 'tgbot') return 'ok';
+  if (n.via === 'ha') return (n.services || []).some((s) => String(s).startsWith('mobile_app_')) ? 'ok' : 'haNoApp';
+  return 'text';
+}
+
+/** the help's sentence (5.35.0, piccardshelp.js): the keys of the sentence's boxes in order and the words between them */
+export const HELP_SENTENCE = ['kind', ': ', 'name', ' · ', 'room', ' (', 'floor', ') · ', 'time'];
+/** the sentence filled with sample values ('kind|name|room|floor|time', an empty one stays a gap): [{ s } | { v } | { gap: key }] */
+export function helpFilled(vals) {
+  const [kind, name, room, floor, time] = String(vals || '').split('|');
+  const v = { kind, name, room, floor, time };
+  return HELP_SENTENCE.map((p) => (PH.includes(p) ? (v[p] ? { v: v[p] } : { gap: p }) : { s: p }));
+}

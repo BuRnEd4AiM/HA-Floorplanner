@@ -260,8 +260,8 @@ def _(r):
 
 @clip("notify", "settings",
       {"de": "Nachricht aufs Handy bei Alarm", "en": "A message to your phone on an alarm"},
-      {"de": "⚙ → Warnungen & Alarm → Karte „Nachricht aufs Handy“: bei Rauch, Gas, Wasser oder Alarm kommt eine Nachricht per WhatsApp, Telegram (auch mit Bild über deinen eigenen Bot) oder die Home-Assistant-App.",
-       "en": "⚙ → Warnings & alarm → card “Message to your phone”: on smoke, gas, water or an alarm a message comes by WhatsApp, Telegram (also with a picture through your own bot) or the Home Assistant app."},
+      {"de": "⚙ → Warnungen & Alarm → Karte „Nachricht aufs Handy“: bei Rauch, Gas, Wasser oder Alarm kommt eine Nachricht per WhatsApp, Telegram (auch mit Bild über deinen eigenen Bot) oder die Home-Assistant-App (dort auch mit Bildkarte).",
+       "en": "⚙ → Warnings & alarm → card “Message to your phone”: on smoke, gas, water or an alarm a message comes by WhatsApp, Telegram (also with a picture through your own bot) or the Home Assistant app (there with a picture card too)."},
       "Nachricht Handy WhatsApp Telegram Benachrichtigung Alarm Rauch Wasser Gas schicken message phone notification alarm smoke water gas send")
 def _(r):
     r.click("#settingsBtn")

@@ -72,8 +72,10 @@ f("media", "pages", "🎵 Musik und Fernseher", "🎵 Music and TV", ["media"])
 f("household", "pages", "🧺 Haushalt: Wäsche, Saugroboter, Auto, Garten, Einkauf", "🧺 Household: laundry, vacuum, car, garden, shopping", ["household"])
 f("routines", "pages", "▶ Abläufe: Knöpfe, Szenen, Automationen", "▶ Routines: buttons, scenes, automations", ["routines"])
 f("flow", "pages", "Eigener Ablauf „Wenn … dann …“", "Own routine “When … then …”", ["flow"])
-f("piccards", "pages", "🖼 Bildkarten fürs Handy: eigene Bilder für Telegram, Bausteine untereinander, aus Vorlagen; je Alarm oder im Ablauf",
-  "🖼 Picture cards for the phone: your own pictures for Telegram, blocks from top to bottom, from templates; per alarm or in a routine", ["piccards"], since="5.33.0")
+f("piccards", "pages", "🖼 Bildkarten fürs Handy: eigene Bilder für Telegram und die Home-Assistant-App, Bausteine untereinander, aus Vorlagen; je Alarm oder im Ablauf",
+  "🖼 Picture cards for the phone: your own pictures for Telegram and the Home Assistant app, blocks from top to bottom, from templates; per alarm or in a routine", ["piccards"], since="5.33.0")
+f("piccard-help", "pages", "🖼 Bildkarten auch über die Home-Assistant-App; „❓ So funktionieren Bildkarten“ erklärt die grünen Kästchen mit Beispielen",
+  "🖼 Picture cards through the Home Assistant app too; “❓ How picture cards work” explains the green boxes with examples", ["piccards", "notify"], since="5.35.0")
 f("piccard-ph", "pages", "🖼 Bildkarten: Raum, Etage, Melder, Uhrzeit als grüne Kästchen in die Texte setzen; Raumbild mit gewähltem Stockwerk",
   "🖼 Picture cards: room, floor, sensor, time as green boxes in the texts; room picture of a chosen floor", ["piccards"], since="5.34.0")
 f("housecheck", "pages", "🩺 Haus-Check: leere Batterien, Geräte offline, schwacher Funk, Updates und 🔧 Wartung mit Vorschlägen und „✓ Erledigt“",

@@ -149,6 +149,12 @@ def public(cfg: dict) -> dict:
             "hasBot": bool(cfg.get("bottoken"))}
 
 
+def pictures(cfg: dict) -> bool:
+    """can a message carry a picture: the own Telegram bot (5.16.0), or Home Assistant's notify services with the Companion app among them
+    (notify.mobile_app_…, 5.35.0: the picture goes through Home Assistant's media folder, hamedia.py)"""
+    return cfg.get("via") == "tgbot" or (cfg.get("via") == "ha" and any(str(s).startswith("mobile_app_") for s in cfg.get("services") or []))
+
+
 def ready(cfg: dict):
     """None when the messages can be sent, else why not ('off', 'phone', 'apikey', 'service', 'tguser', 'tgkey', 'bottoken', 'botchat')"""
     if not cfg.get("on"):

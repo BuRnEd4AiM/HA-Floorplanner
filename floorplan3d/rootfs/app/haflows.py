@@ -286,12 +286,15 @@ def _message(text: str, ctx) -> str:
     return "".join(parts.get(p, _plain(p)) for p in re.split(r"(\{name\}|\{room\}|\{state\})", text))
 
 
-def _notify(b: dict, ctx) -> list:
+def _notify(b: dict, ctx, name: str = "") -> list:
+    """name: the routine's (the title of a picture card, 5.34.1)"""
     msg, to = _message(b["text"], ctx), ctx["notify"]
-    if not to or not (to.get("services") or to.get("entities")):
+    # a picture card goes the add-on's way also when Home Assistant's notify services are set: the add-on draws it and sends it with the
+    # picture to the Home Assistant app (5.35.0)
+    if not to or not (to.get("services") or to.get("entities")) or b.get("card"):
         data = {"message": msg}
         if b.get("card"):                                     # 🖼 a picture card (5.33.0): the add-on draws it for the device that set it off
-            data.update(card=b["card"], entity="{{ " + WHO + " }}")
+            data.update(card=b["card"], entity="{{ " + WHO + " }}", title=name)
         return [{"event": "fp3d_notify", "event_data": data}]          # the add-on sends it its own way (WhatsApp, Telegram)
     data = {"title": "3D Floorplan", "message": msg}
     out = [{"action": f"notify.{s}", "data": data, "continue_on_error": True} for s in to.get("services") or []]
@@ -365,7 +368,7 @@ def _lane(flow: dict, lane: dict, n: int, ctx, problems: list) -> dict:
         elif k == "run":
             steps.append({"action": f"{b['ent'].split('.')[0]}.turn_on", "target": {"entity_id": b["ent"]}, "continue_on_error": True})
         elif k == "notify":
-            steps += _notify(b, ctx)
+            steps += _notify(b, ctx, flow["name"])
     alias = flow["name"] if len(flow["lanes"]) == 1 else f"{flow['name']} · {n + 1}"
     return {"id": auto_id(fid, lane["id"]), "alias": alias, "description": NOTE[ctx["lang"]].format(name=flow["name"]),
             "mode": "restart", "triggers": triggers, "conditions": [], "actions": steps}

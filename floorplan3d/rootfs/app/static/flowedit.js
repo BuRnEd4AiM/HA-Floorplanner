@@ -288,6 +288,7 @@ export function initFlowEdit(ctx) {
       case 'run': f.push(field(t('fe.device'), picker(DOMS.run, b.ent ? [b.ent] : [], true, (v) => set((x) => { x.ent = v[0]; })))); break;
       case 'notify': {
         const ta = make('textarea', 'feText'); ta.value = b.text; ta.maxLength = 200; ta.rows = 3; ta.dataset.field = 'text';
+        if (b.card) ta.placeholder = t('fe.cardNoText');           // with a picture card the text may stay empty (5.34.1)
         ta.addEventListener('change', () => set((x) => { x.text = ta.value; }));
         f.push(field(t('fe.text'), ta), make('p', 'tpSub', t('fe.textHelp')));
         const cards = ctx.cards?.() || [];                          // 🖼 as a picture card through the own bot (5.33.0, piccardsui.js)

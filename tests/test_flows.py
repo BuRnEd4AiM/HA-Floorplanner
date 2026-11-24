@@ -245,3 +245,13 @@ def test_a_time_that_moves_with_the_season():
     h3.states["sun.sun"]["attributes"]["next_setting"] = "2026-06-22T19:30:00+00:00"
     h3.now = datetime.datetime(2026, 6, 22, 21, 47, tzinfo=datetime.timezone.utc).timestamp()
     assert h3.wait(30) == []
+
+
+def test_a_message_may_be_only_a_picture_card():
+    """5.34.1: a picture card alone is a message; neither text nor card: the block is dropped"""
+    lane = lambda b: [{"id": "f_m", "name": "M", "lanes": [{"id": "l1", "blocks": [{"k": "button"}, b]}]}]   # noqa: E731
+    f = fl.clean_flows(lane({"k": "notify", "card": "test1"}))[0]
+    b = f["lanes"][0]["blocks"][1]
+    assert b == {"k": "notify", "text": "", "card": "test1"}
+    assert fl.action_calls(b, {"ent": "binary_sensor.x"}, {"room_of": lambda e: "", "names": {}, "room_names": {}, "states": {}}, {}) == [("notify", "", {"message": "", "card": "test1", "ent": "binary_sensor.x"})]
+    assert fl.clean_flows(lane({"k": "notify", "text": " "}))[0]["lanes"][0]["blocks"] == [{"k": "button"}]

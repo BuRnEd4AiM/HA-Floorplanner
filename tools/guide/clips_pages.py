@@ -409,16 +409,25 @@ def _(r):
 
 @clip("piccards", "pages",
       {"de": "🖼 Bildkarten fürs Handy gestalten", "en": "🖼 Design picture cards for the phone"},
-      {"de": "Eigene Bilder für Telegram: Bausteine untereinander (Raumbild, Kamera, Uhrzeit, Infos …), rechts sofort die Karte, wie sie ankommt. "
-             "Texte mit grünen Kästchen für Raum, Etage, Melder, Uhrzeit. Das Raumbild zeigt das Stockwerk vom Melder oder ein gewähltes. Je Alarm eine Karte oder im Ablauf beim Baustein „Nachricht“.",
-       "en": "Your own pictures for Telegram: blocks from top to bottom (room picture, camera, time, info …), on the right the card as it arrives. "
-             "Texts with green boxes for room, floor, sensor, time. The room picture shows the sensor's floor or a chosen one. One card per alarm, or in a routine's block “Message”."},
+      {"de": "Eigene Bilder für Telegram und die Home-Assistant-App: Bausteine untereinander (Raumbild, Kamera, Uhrzeit, Infos …), rechts sofort die Karte, wie sie ankommt. "
+             "Texte mit grünen Kästchen für Raum, Etage, Melder, Uhrzeit. Das Raumbild zeigt das Stockwerk vom Melder oder ein gewähltes. Je Alarm eine Karte oder im Ablauf beim Baustein „Nachricht“. „❓ So funktionieren Bildkarten“ erklärt es mit Beispielen.",
+       "en": "Your own pictures for Telegram and the Home Assistant app: blocks from top to bottom (room picture, camera, time, info …), on the right the card as it arrives. "
+             "Texts with green boxes for room, floor, sensor, time. The room picture shows the sensor's floor or a chosen one. One card per alarm, or in a routine's block “Message”. “❓ How picture cards work” explains it with examples."},
       "Bildkarte Karte Bild Telegram Alarm Nachricht gestalten Bausteine Vorlage picture card image Telegram alarm message design blocks template")
 def _(r):
     tab(r, "routines")
-    r.say("Unter „Abläufe“: 🖼 Bildkarten fürs Handy – eigene Bilder für Telegram.", "Under “Routines”: 🖼 picture cards for the phone – your own pictures for Telegram.")
+    r.say("Unter „Abläufe“: 🖼 Bildkarten fürs Handy – eigene Bilder für Telegram oder die Home-Assistant-App.",
+          "Under “Routines”: 🖼 picture cards for the phone – your own pictures for Telegram or the Home Assistant app.")
     r.pg.locator("[data-page=routines] .pcCard").scroll_into_view_if_needed()
     r.wait(1500)
+    r.say("„❓ So funktionieren Bildkarten“: die grünen Kästchen sind Lücken, die sich beim Senden füllen.",
+          "“❓ How picture cards work”: the green boxes are gaps that fill themselves when it is sent.")
+    r.click("[data-page=routines] .pcWay [data-act=cardsHelp]")
+    r.wait(2600)
+    r.pg.evaluate("document.querySelector('#pcHelpDlg .pchMain').scrollTo({ top: 700, behavior: 'smooth' })")
+    r.wait(2600)
+    r.click("#pcHelpDlg .pchClose")
+    r.wait(800)
     r.click("[data-page=routines] .pcTile[data-card=wasser]")
     r.wait(2200)
     r.say("In der Mitte die Bausteine von oben nach unten, rechts die Karte, wie sie ankommt.", "In the middle the blocks from top to bottom, on the right the card as it arrives.")

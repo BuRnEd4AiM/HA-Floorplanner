@@ -542,7 +542,9 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 230. Repariert in 5.32.1: 📸 Telegram-Bot einrichten (#796) | 5 | 0 | 3 | 0 | 230.6 bis 230.8 |
 | 231. Neu in 5.33.0: 🖼 Bildkarten fürs Handy | 5 | 0 | 4 | 0 | 231.6 bis 231.9 |
 | 232. Neu in 5.34.0: 🖼 Bildkarten: Stockwerk wählen, grüne Kästchen | 4 | 0 | 2 | 0 | 232.5, 232.6 |
-| **Zusammen** | **1394** | **2** | **179** | **92** | |
+| 233. Repariert in 5.34.1: 🔔 Nachricht nur mit Bildkarte | 3 | 0 | 1 | 0 | 233.3 |
+| 234. Neu in 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ | 3 | 0 | 2 | 0 | 234.4, 234.5 |
+| **Zusammen** | **1400** | **2** | **182** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3485,3 +3487,24 @@ Dein Wunsch (24.11.): beim Raumbild Stockwerke auswählen; deine Frage, wie die 
 | 232.4 | Im Feld ⌫ hinter einem grünen Kästchen | Das ganze Kästchen ist weg | ✅ (2026-11-24, Claude, Demo) |
 | 232.5 | Am Handy: ein Kästchen mit den Knöpfen einsetzen und Text tippen | Die Tastatur bleibt, das Kästchen kommt an die Stelle vom Strich | ❓ |
 | 232.6 | Im Add-on: „📨 Test an mich“ mit einem Text wie „Wasser in [Raum] um [Uhrzeit]“ | In Telegram steht dort der echte Raum und die Uhrzeit | ❓ |
+
+## 233. Repariert in 5.34.1: 🔔 Nachricht nur mit Bildkarte
+Deine Frage (24.11.): „wenn ich eine Karte mache als Nachricht, muss ich eine Nachricht reinschreiben?“ – nein, mit Bildkarte darf der Text leer bleiben.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 233.1 | Unit-Tests `tests/test_flows.py`, `tests/test_haflows.py`, `tests/test_rulesrun.py`, `tests/rules.test.mjs`; Browser-Test Teil `111_picture_cards` | Alles grün | ✅ (2026-11-24, Claude) |
+| 233.2 | Ein Ablauf mit „🔔 Nachricht“: Text leer lassen, „🖼 Als Bildkarte schicken: Gute Nacht“, „Speichern“ | Kein „⚠ Hier fehlt noch etwas“; im Feld „Darf leer bleiben …“; der Baustein zeigt „nur die Bildkarte“; nach dem Speichern ist die Karte noch gewählt | ✅ (2026-11-24, Claude, Browser-Test) |
+| 233.3 | Im Add-on mit deinem Bot den Ablauf auslösen (auch einmal mit „🏠 Home Assistant“) | In Telegram kommt die Karte, darunter „🖼 <Name des Ablaufs>“ | ❓ |
+| 233.4 | Demo: ▶ Abläufe → „Test 1“ → „Text“: hinter „Nachricht“ „ · “ tippen und „＋ Etage“ | Rechts steht „Bewegung an der Haustür · Keller“ (ein Raum deines Hauses als Beispiel) | ✅ (2026-11-24, Claude, Demo) |
+
+## 234. Neu in 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“
+Deine Wünsche (24.11.): Telegram reicht, aber auch über die Benachrichtigungen von Home Assistant („nicht jeder hat Telegram“); die Erklär-Grafik unter ▶ Abläufe; deutlicher, worüber die Karten kommen.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 234.1 | Unit-Tests `tests/test_hamedia.py` (neu), `tests/piccards.test.mjs`, `tests/test_haflows.py`; Browser-Test Teil `111_picture_cards` | Alles grün | ✅ (2026-11-24, Claude) |
+| 234.2 | Demo: ▶ Abläufe → 🖼 Bildkarten fürs Handy | Oben „📨 Bildkarten kommen aufs Handy über „Telegram – eigener Bot“ oder die Home-Assistant-App.“ und was bei dir eingestellt ist | ✅ (2026-11-24, Claude, Demo) |
+| 234.3 | „❓ So funktionieren Bildkarten“ (auch am Handy) | Ein Fenster: ① Lücken → etwas passiert → Karte auf dem Handy; ② A, B gefüllt, C mit roten Fragezeichen; ③ Merke | ✅ (2026-11-24, Claude, Demo und Demo schmal) |
+| 234.4 | Im Add-on: ⚙ → Warnungen & Alarm → Nachricht aufs Handy → „Benachrichtigungsdienst von Home Assistant (Bild in der App)“, deine Home-Assistant-App (mobile_app_…) anhaken, „🖼 Bildkarte je Alarm“: Wasser → eine Karte, Speichern; dann bei der Karte „📨 Test an mich“ | In der Home-Assistant-App am Handy kommt die Benachrichtigung mit der Karte als Bild (auch unterwegs, wenn die App dein Home Assistant von außen erreicht) | ❓ |
+| 234.5 | Im Medien-Browser von Home Assistant: Medien → Lokale Medien → „3d-floorplan“ | Dort liegen die Bilder der Karten, höchstens 12 | ❓ |

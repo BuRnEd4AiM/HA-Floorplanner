@@ -4,10 +4,11 @@
  * used on the left; the building blocks from top to bottom in the middle (⠿ to drag, ▲▼, 🗑, the options of the chosen one under it, "＋"
  * for another); on the right the card as the add-on draws it (api/piccards/preview, with a room of the house as the sample).
  * "📨 Test an mich" sends it through the own Telegram bot. The rules are in piccards.js (tested), the picture in piccard.py.
- * ctx: t, canEdit(), states(), names() ({entity: name}), floors() ([{ id, name }] of the house: a plan's floor to choose), flows() (the routines), notify() (the alarm messages' settings or null),
+ * ctx: t, canEdit(), states(), names() ({entity: name}), loadNotify() (the messages' settings, once: how the cards reach the phone), floors() ([{ id, name }] of the house: a plan's floor to choose), flows() (the routines), notify() (the alarm messages' settings or null),
  *  changed() (the page draws anew) */
 import { makePhField } from './phfield.js';
-import { KINDS, NO_HALF, ROWS, ICON, COLORS, TEMPLATES, newBlock, fromTemplate, moveBlock, dragBlock, blockSub, usedBy, cleanCard, MAX_CARDS, MAX_BLOCKS } from './piccards.js';
+import { initPicCardsHelp } from './piccardshelp.js';
+import { KINDS, NO_HALF, ROWS, ICON, COLORS, TEMPLATES, newBlock, fromTemplate, moveBlock, dragBlock, blockSub, usedBy, cleanCard, cardWay, MAX_CARDS, MAX_BLOCKS } from './piccards.js';
 
 export function initPicCards(ctx) {
   const { t } = ctx;
@@ -15,6 +16,21 @@ export function initPicCards(ctx) {
   const thumbs = new Map();                                       // the JSON of a card → the URL of its picture
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
+  const help = initPicCardsHelp({ t });                           // ❓ „So funktionieren Bildkarten“ (5.35.0)
+  const helpBtn = () => { const b = btn('bdBtn pcHelpBtn', `❓ ${t('pc.h.btn')}`, () => help.open()); b.dataset.act = 'cardsHelp'; return b; };
+  /** how the cards reach the phone (5.35.0, the owner: "besser hervorheben, dass man diese Karten nur über Telegram benutzen kann"):
+   * the ways, and what is set up here */
+  let askedNotify = false;
+  function wayBox() {
+    const n = ctx.notify?.(), way = cardWay(n);
+    if (!n && !askedNotify && ctx.loadNotify) { askedNotify = true; Promise.resolve(ctx.loadNotify()).then(() => ctx.changed?.()).catch(() => {}); }   // the settings once
+    const box = make('div', `pcWay${!n || way === 'ok' ? '' : ' warn'}`); box.dataset.way = n ? way : '';
+    const row = make('div', 'pcWayRow'); row.append(make('b', '', `📨 ${t('pc.via')}`), helpBtn());
+    box.append(row);
+    if (n) box.append(make('div', '', way === 'ok' ? t('pc.viaNow', { way: t(`an.via.${n.via}`) }) : way === 'haNoApp' ? t('pc.viaHaNoApp')
+      : way === 'off' ? t('pc.viaOff') : t('pc.viaText', { way: t(`an.via.${n.via}`) })));
+    return box;
+  }
 
   async function load(force = false) {
     if (loading && !force) return loading;
@@ -84,11 +100,10 @@ export function initPicCards(ctx) {
       add.append(make('span', 'pcPlus', '＋'), make('b', '', t('pc.new')), make('small', '', t('pc.newSub')));
       row.append(add);
     }
-    c.append(h, row);
-    if (ctx.notify?.() && ctx.notify().via !== 'tgbot') c.append(make('p', 'tpSub pcNote', t('pc.notBot')));
+    c.append(h, wayBox(), row);
     return c;
   }
-  const sig = () => JSON.stringify([cards, ctx.canEdit?.(), ctx.notify?.()?.cards, ctx.notify?.()?.via, (ctx.flows?.() || []).map((f) => [f.name, (f.lanes || []).flatMap((l) => (l.blocks || []).filter((b) => b.k === 'notify').map((b) => b.card || ''))]), t('pc.title')]);
+  const sig = () => JSON.stringify([cards, ctx.canEdit?.(), ctx.notify?.()?.cards, ctx.notify?.()?.via, cardWay(ctx.notify?.()), (ctx.flows?.() || []).map((f) => [f.name, (f.lanes || []).flatMap((l) => (l.blocks || []).filter((b) => b.k === 'notify').map((b) => b.card || ''))]), t('pc.title')]);
   /** the board's part (pageboard.js) for who may edit; the cards are loaded the first time */
   function items() {
     if (!ctx.canEdit?.()) return [];
@@ -127,7 +142,8 @@ export function initPicCards(ctx) {
     name.addEventListener('input', () => { draft.name = name.value; dirty = true; preview(); });
     const test = btn('bdBtn', `📨 ${t('pc.test')}`, sendTest); test.id = 'pcTest';
     const save = btn('bdBtn primary', `✓ ${t('pc.save')}`, saveDraft); save.id = 'pcSave';
-    head.append(make('span', 'pcTopIcon', '🖼'), name, make('span', 'pcStatus', status), test, save, btn('bdBtn pcClose', '✕', close, t('pc.close')));
+    const hb = btn('bdBtn pcHelpBtn', '❓', () => help.open(), t('pc.h.btn')); hb.dataset.act = 'cardsHelp';
+    head.append(make('span', 'pcTopIcon', '🖼'), name, make('span', 'pcStatus', status), hb, test, save, btn('bdBtn pcClose', '✕', close, t('pc.close')));
     const body = make('div', 'pcBody');
     body.append(drawSide(), drawBlocks(), drawPreview());
     dlg.replaceChildren(head, body);

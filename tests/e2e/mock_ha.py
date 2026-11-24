@@ -13,6 +13,7 @@ PARTS = [{"id": "dev_rauch", "name": "Rauchmelder", "area_id": None, "parent_dev
 ALIAS = {}         # entity id the tests know -> its id after a rename (/_rename)
 COVER_POS = {}     # covers with a position (current_position), from set_cover_position on; /_set takes it away again
 ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_prefs, #407) and more registry entries (entity -> device): POST /_energy
+MEDIA = {}         # 🖼 Home Assistant's media folder (5.35.0): {media id: bytes} of uploaded pictures
 NOTIFIED = []      # messages sent (#414): ["ha", service, message] through notify.*, ["ha_entity", "notify.a,notify.b", message] through notify.send_message (#460), ["callmebot", phone, text, apikey] through /_callmebot
 STATS_ASKED = []   # the statistics the add-on asked for (#479): [ids, period]
 LEVELS_ASKED = []  # the charge of batteries asked for (types mean, min, max; #515): [ids, period]
@@ -79,7 +80,8 @@ async def service(r):
         CALL_DATA.append(["apply", "", body])
         return web.json_response([])
     if dom == "notify":           # #414: a message of the add-on; #460: notify.send_message to notify entities
-        NOTIFIED.append(["ha_entity", ",".join(e), body.get("message")] if svc == "send_message" and isinstance(e, list) else ["ha", svc, body.get("message")])
+        img = (body.get("data") or {}).get("image")      # 🖼 a picture for the Home Assistant app (5.35.0): a 4th item
+        NOTIFIED.append(["ha_entity", ",".join(e), body.get("message")] if svc == "send_message" and isinstance(e, list) else ["ha", svc, body.get("message")] + ([img] if img else []))
         return web.json_response([])
     if isinstance(e, list):       # several at once (homeassistant.turn_on of the holiday alarm's sirens, #456): only noted
         return web.json_response([])
@@ -180,6 +182,13 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
             ok = m.get("entity_id") in TODO
             await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": {"items": TODO.get(m.get("entity_id"), [])} if ok else None,
                                 **({} if ok else {"error": {"code": "not_found"}})})
+        elif m.get("type") == "media_source/browse_media":     # 🖼 5.35.0: the pictures of a folder
+            pre = m.get("media_content_id", "") + "/"
+            await ws.send_json({"id": m["id"], "type": "result", "success": True,
+                                "result": {"children": [{"media_content_id": k, "title": k.rsplit("/", 1)[-1]} for k in MEDIA if k.startswith(pre)]}})
+        elif m.get("type") == "media_source/local_source/remove":
+            gone = MEDIA.pop(m.get("media_content_id"), None) is not None
+            await ws.send_json({"id": m["id"], "type": "result", "success": gone, "result": None})
         elif m.get("type") == "get_states":         # the security view recorder starts with all states (#546: the added ones too)
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": [state_of(e) for e in STATE] + [{"entity_id": e, **v} for e, v in EXTRA.items()]})
         elif m.get("type") == "search/related":     # #546: who uses an entity
@@ -411,6 +420,19 @@ async def tg_bot(r):              # 📸 the add-on's own Telegram bot (5.16.0, 
         NOTIFIED.append(["tg_photo", str(form.get("chat_id")), form.get("caption"), len(data), data[:4].hex()]); return web.json_response({"ok": True, "result": {}})
     return web.json_response({"ok": False, "description": "Not Found"}, status=404)
 async def notified(r): return web.json_response(NOTIFIED)
+
+
+async def media_upload(r):      # 🖼 POST /api/media_source/local_source/upload (5.35.0): kept as Home Assistant keeps it
+    form = await r.post()
+    f, folder = form.get("file"), form.get("media_content_id") or ""
+    if not folder.startswith("media-source://media_source/local") or not f or not (f.content_type or "").startswith("image/"):
+        return web.json_response({"message": "bad"}, status=400)
+    mid = f"{folder}/{f.filename}"
+    MEDIA[mid] = f.file.read()
+    return web.json_response({"media_content_id": mid})
+
+
+async def media_list(r): return web.json_response({k: [len(v), v[:4].hex()] for k, v in MEDIA.items()})
 async def set_voice(r):           # test helper (#509): {"assist": false} = no speech-to-text, {"text": ...} = what is heard; answers what was heard
     VOICE.update({k: v for k, v in (await r.json()).items() if k in ("assist", "text")})
     return web.json_response(VOICE)
@@ -485,7 +507,7 @@ async def set_areas(r):          # test helper (#590)
     AREAS[:] = (await r.json()) or AREAS_DEFAULT
     return web.json_response({"ok": True})
 app = web.Application()
-app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.post("/_regevent", reg_event), web.post("/_regoff", reg_off), web.get("/_regupdates", reg_updates), web.post("/_topology", set_topology), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified), web.post("/_voice", set_voice),
+app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.post("/_regevent", reg_event), web.post("/_regoff", reg_off), web.get("/_regupdates", reg_updates), web.post("/_topology", set_topology), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified), web.post("/media_source/local_source/upload", media_upload), web.get("/_media", media_list), web.post("/_voice", set_voice),
                 web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group), web.post("/_tg/bot{token}/{method}", tg_bot),
                 web.get("/websocket", websocket), web.post("/template", template), web.post("/_areas", set_areas), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),
