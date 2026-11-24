@@ -1,4 +1,5 @@
-"""Erklär-Grafik „So reagiert eine Bildkarte“ (der Besitzer, 2026-11-24: „erkläre mir, wie die Karten auf Input reagieren, dass ich weiß,
+"""Erklär-Grafik „Bildkarten einfach erklärt“ (2. Fassung: „ich verstehe diese Grafik noch nicht so richtig … visuell besser und einfach zu verstehen“)
+Erster Anlass (der Besitzer, 2026-11-24: „erkläre mir, wie die Karten auf Input reagieren, dass ich weiß,
 wie ich die richtig einsetzen kann, anhand von einer Grafik“). Dieselbe Karte, drei Auslöser; die Karten malt der echte Zeichner des
 Add-ons (piccard.py) mit dem Haus der Demo.
     cd demo && npm ci && node build.mjs && cd ..
@@ -13,19 +14,14 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "floorplan3d" / "rootfs" / "app"))
-import alarmnotify as an  # noqa: E402
 import piccard as pc  # noqa: E402
 
-CARD = {"id": "meine", "name": "Meine Karte", "color": "#3a7bd5", "theme": "light", "width": "tall", "blocks": [
+SIMPLE = {"id": "meine", "name": "Meine Karte", "color": "#d63c31", "theme": "light", "width": "tall", "blocks": [
     {"k": "head", "text": "{kind}", "clock": True},
-    {"k": "text", "text": "{text}", "big": False},
-    {"k": "text", "text": "{name} · {room} ({floor}) · {time} Uhr", "big": False},
-    {"k": "plan", "show": "floor", "marks": False},
-    {"k": "info", "rows": ["sensor", "room", "who"]},
-    {"k": "foot"}]}
-CARD_ROWS = [("Überschrift", ["kind"]), ("Text", ["text"]), ("Text", ["name", " · ", "room", " (", "floor", ") · ", "time", " Uhr"]),
-             ("Raumbild", None), ("Infos", None), ("Fußzeile", None)]
+    {"k": "text", "text": "{kind}: {name} in {room} ({floor}) um {time}", "big": True},
+    {"k": "plan", "show": "floor", "marks": False}, {"k": "foot"}]}
 LABEL = {"kind": "Art", "text": "Nachricht", "room": "Raum", "floor": "Etage", "name": "Melder", "time": "Uhrzeit", "house": "Haus"}
+SENTENCE = ["kind", ": ", "name", " in ", "room", " (", "floor", ") um ", "time"]   # the one sentence every row shows
 
 
 def demo_house():
@@ -55,95 +51,116 @@ def place(lay, floor_id, room_name):
 def cases(lay, states):
     base = {"floors": lay["floors"], "house": "Demo-Haus", "states": states, "lang": "de", "camera": None, "camera_name": "", "preview": False}
     t1, t2, t3 = (datetime.datetime(2026, 11, 24, h, m) for h, m in ((7, 41), (18, 5), (22, 0)))
-    water = place(lay, "kg", "Waschküche")
-    office = place(lay, "eg", "Büro")
     return [
-        {"num": "①", "title": "Alarm", "how": "Der Wassermelder in der Waschküche schlägt an.",
-         "where": "⚙ Einstellungen → Warnungen & Alarm → Nachricht aufs Handy → „Telegram – eigener Bot“ → 🖼 Bildkarte je Alarm: Wasser → „Meine Karte“",
-         "ctx": {**base, "kind": "water", "name": "Wassermelder", "place": water, "now": t1, "since": t1,
-                 "text": an.text("alarm", "water", "Wassermelder", "Waschküche (Keller)", "de", "07:41").replace("\n", " · ")}},
-        {"num": "②", "title": "Ablauf mit Gerät", "how": "Ablauf „Licht im Büro“: WENN Präsenz im Büro → DANN 🔔 Nachricht „Jemand ist im Büro“.",
-         "where": "▶ Abläufe → Ablauf → Baustein „🔔 Nachricht“ → 🖼 Als Bildkarte schicken: „Meine Karte“",
-         "ctx": {**base, "kind": "flow", "title": "Licht im Büro", "name": "Präsenz Büro", "place": office, "now": t2, "since": t2,
-                 "text": "Jemand ist im Büro"}},
-        {"num": "③", "title": "Ablauf ohne Gerät", "how": "Ablauf „Gute Nacht“: WENN es 22:00 Uhr ist (oder ein Knopf) → DANN 🔔 Nachricht, Text leer.",
-         "where": "wie ②, aber der Auslöser ist eine Uhrzeit oder ein Knopf: es gibt kein Gerät und keinen Raum",
-         "ctx": {**base, "kind": "flow", "title": "Gute Nacht", "name": "", "place": None, "now": t3, "since": t3, "text": ""},
-         "note": '<div class="note">⚠ Leere Kästchen lassen Lücken: aus „<span class="pill">Melder</span> · <span class="pill">Raum</span> '
-                 '(<span class="pill">Etage</span>) · <span class="pill">Uhrzeit</span> Uhr“ wird „· () · 22:00 Uhr“. Für ③ also lieber nur '
-                 '<span class="pill">Uhrzeit</span> <span class="pill">Haus</span> <span class="pill">Art</span>.</div>'},
+        {"icon": "💧", "title": "Ein Alarm", "what": "Der Wassermelder in der Waschküche schlägt an.", "ok": True,
+         "ctx": {**base, "kind": "water", "name": "Wassermelder", "place": place(lay, "kg", "Waschküche"), "now": t1, "since": t1, "text": ""}},
+        {"icon": "🚶", "title": "Ein Ablauf, den ein Gerät startet", "what": "Der Präsenzmelder im Büro startet den Ablauf „Licht im Büro“.", "ok": True,
+         "ctx": {**base, "kind": "flow", "title": "Licht im Büro", "name": "Präsenz Büro", "place": place(lay, "eg", "Büro"), "now": t2, "since": t2, "text": ""}},
+        {"icon": "🕙", "title": "Ein Ablauf mit Uhrzeit oder Knopf", "what": "Um 22:00 Uhr startet der Ablauf „Gute Nacht“. Kein Gerät, kein Raum.", "ok": False,
+         "ctx": {**base, "kind": "flow", "title": "Gute Nacht", "name": "", "place": None, "now": t3, "since": t3, "text": ""}},
     ]
-
-
-def values(ctx):
-    """what each green box becomes (as piccard.fill)"""
-    return {k: pc.fill("{" + k + "}", ctx) for k in LABEL}
 
 
 def pill(k):
     return f'<span class="pill">{LABEL[k]}</span>'
 
 
-def html(cs):
-    rows = "".join(f'<div class="blk"><b>{n}</b> {"".join(pill(p) if p in LABEL else p for p in parts) if parts else "<i>malt sich selbst</i>"}</div>'
-                   for n, parts in CARD_ROWS)
-    cols = ""
-    for c in cs:
-        v = values(c["ctx"])
-        img = base64.b64encode(c["png"]).decode()
-        table = "".join(f'<tr><td>{pill(k)}</td><td>{v[k] or "<span class=empty>leer</span>"}</td></tr>' for k in LABEL)
-        cols += f"""<div class="col"><div class="colhead"><span class="num">{c["num"]}</span>{c["title"]}</div>
-          <div class="how">⚡ {c["how"]}</div>
-          <img src="data:image/png;base64,{img}">
-          <table>{table}</table>{c.get("note", "")}<div class="where">📍 {c["where"]}</div></div>"""
+def template():
+    return "".join(pill(p) if p in LABEL else p for p in SENTENCE)
+
+
+def filled(ctx):
+    """the sentence as it arrives: every box its value (yellow), an empty one a red question mark"""
+    out = ""
+    for p in SENTENCE:
+        if p in LABEL:
+            v = pc.fill("{" + p + "}", ctx)
+            out += f'<span class="val">{v}</span>' if v else '<span class="gap">?</span>'
+        else:
+            out += p
+    return out
+
+
+def html(cs, phone_png):
+    img = base64.b64encode(phone_png).decode()
+    rows = ""
+    for n, c in zip("ABC", cs):
+        warn = ('<div class="warn">⚠️ Kein Gerät → <b>Raum</b>, <b>Etage</b> und <b>Melder</b> bleiben leer.</div>' if not c["ok"] else
+                '<div class="good">✅ Alle Kästchen werden gefüllt.</div>')
+        rows += f"""<div class="row {'bad' if not c['ok'] else ''}">
+          <div class="trig"><div class="big">{c["icon"]}</div><div><div class="n">{n}</div></div></div>
+          <div class="body"><div class="t">{c["title"]}</div><div class="w">{c["what"]}</div>
+            <div class="arrive"><span class="lbl">📱 Es kommt an:</span><div class="bubble">{filled(c["ctx"])}</div></div>{warn}</div></div>"""
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>
-    body {{ margin: 0; background: #eef1f6; font-family: Inter, 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif; color: #1b2230; width: 1500px; }}
-    .wrap {{ padding: 34px 40px 40px; }}
-    h1 {{ margin: 0 0 6px; font-size: 38px; }} .sub {{ font-size: 19px; color: #4a5468; margin-bottom: 24px; }}
-    .card {{ background: #fff; border-radius: 16px; box-shadow: 0 2px 8px #0001; padding: 18px 22px; margin-bottom: 22px; }}
-    .design {{ display: flex; gap: 26px; align-items: center; }}
-    .design h2, .tips h2 {{ margin: 0 0 10px; font-size: 22px; }}
-    .blk {{ font-size: 17px; padding: 6px 0; border-bottom: 1px solid #eef0f4; }} .blk b {{ display: inline-block; width: 120px; color: #4a5468; font-weight: 600; }}
-    .pill {{ display: inline-block; background: #2ea057; color: #fff; border-radius: 6px; padding: 1px 9px; font-weight: 700; font-size: 15px; margin: 0 1px; }}
-    .arrow {{ font-size: 18px; color: #4a5468; max-width: 470px; line-height: 1.45; }}
-    .cols {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-bottom: 22px; }}
-    .col {{ background: #fff; border-radius: 16px; box-shadow: 0 2px 8px #0001; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }}
-    .colhead {{ font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; }}
-    .num {{ background: #3a7bd5; color: #fff; border-radius: 50%; width: 38px; height: 38px; display: grid; place-items: center; font-size: 22px; }}
-    .how {{ font-size: 16px; background: #fff7e0; border-radius: 10px; padding: 8px 10px; min-height: 48px; }}
-    .col img {{ width: 100%; border-radius: 12px; box-shadow: 0 1px 6px #0002; }}
-    table {{ border-collapse: collapse; font-size: 16px; }} td {{ padding: 4px 6px; vertical-align: top; }} td:first-child {{ width: 108px; }}
-    .empty {{ color: #b0372b; font-weight: 700; }}
-    .note {{ font-size: 15px; background: #fdecea; color: #7a1d14; border-radius: 10px; padding: 8px 10px; line-height: 1.6; }}
-    .where {{ font-size: 14px; color: #4a5468; margin-top: auto; }}
-    .tips ul {{ margin: 0; padding-left: 22px; font-size: 18px; line-height: 1.55; }}
+    body {{ margin: 0; background: #eef1f6; font-family: Inter, 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif; color: #1b2230; width: 1100px; }}
+    .wrap {{ padding: 36px 40px 44px; }}
+    h1 {{ margin: 0 0 8px; font-size: 44px; line-height: 1.15; }}
+    .lead {{ font-size: 24px; color: #3d475a; margin-bottom: 28px; line-height: 1.4; }}
+    .pill {{ display: inline-block; background: #2ea057; color: #fff; border-radius: 8px; padding: 2px 12px; font-weight: 800; margin: 2px 2px; }}
+    .box {{ background: #fff; border-radius: 22px; box-shadow: 0 3px 12px #0001; padding: 26px 30px; margin-bottom: 26px; }}
+    h2 {{ margin: 0 0 18px; font-size: 30px; display: flex; align-items: center; gap: 14px; }}
+    .step {{ background: #3a7bd5; color: #fff; border-radius: 50%; width: 48px; height: 48px; display: grid; place-items: center; font-size: 28px; flex: none; }}
+    .hero {{ display: grid; grid-template-columns: 1fr 60px 380px; align-items: center; gap: 10px; }}
+    .write {{ font-size: 30px; line-height: 2; background: #f6f8fb; border: 3px dashed #c8d0dc; border-radius: 18px; padding: 18px 22px; }}
+    .write small {{ display: block; font-size: 19px; color: #5a6478; line-height: 1.4; margin-top: 8px; }}
+    .arr {{ font-size: 54px; text-align: center; color: #3a7bd5; }}
+    .phone {{ background: #1b2230; border-radius: 38px; padding: 14px; box-shadow: 0 8px 26px #0003; }}
+    .phone .scr {{ background: linear-gradient(160deg,#b9d7a2,#86b58f); border-radius: 26px; padding: 14px 10px; }}
+    .phone img {{ width: 100%; border-radius: 12px; display: block; }}
+    .phone .cap {{ background: #fff; border-radius: 0 0 12px 12px; font-size: 15px; padding: 6px 10px; margin-top: -4px; }}
+    .trigline {{ margin-top: 16px; font-size: 22px; background: #fff7e0; border-radius: 14px; padding: 10px 16px; }}
+    .tmpl {{ font-size: 26px; background: #f6f8fb; border-radius: 14px; padding: 10px 18px; margin-bottom: 20px; line-height: 1.9; }}
+    .tmpl b {{ font-size: 20px; color: #5a6478; margin-right: 8px; }}
+    .row {{ display: grid; grid-template-columns: 120px 1fr; gap: 18px; padding: 20px 0; border-top: 2px solid #eef0f4; }}
+    .row:first-of-type {{ border-top: none; }}
+    .trig {{ position: relative; }} .big {{ font-size: 76px; text-align: center; line-height: 1.1; }}
+    .n {{ position: absolute; top: -4px; left: 0; background: #3a7bd5; color: #fff; border-radius: 50%; width: 38px; height: 38px; display: grid; place-items: center; font-weight: 800; font-size: 22px; }}
+    .t {{ font-size: 28px; font-weight: 800; }} .w {{ font-size: 21px; color: #3d475a; margin: 4px 0 12px; }}
+    .arrive {{ display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }}
+    .lbl {{ font-size: 19px; color: #5a6478; font-weight: 700; }}
+    .bubble {{ font-size: 25px; background: #e7f6ec; border-radius: 16px 16px 16px 4px; padding: 10px 16px; line-height: 1.7; }}
+    .row.bad .bubble {{ background: #fdecea; }}
+    .val {{ background: #ffe27a; border-radius: 6px; padding: 1px 6px; font-weight: 700; }}
+    .gap {{ background: #d63c31; color: #fff; border-radius: 6px; padding: 1px 12px; font-weight: 900; }}
+    .good {{ font-size: 20px; color: #1f7a43; margin-top: 10px; font-weight: 700; }}
+    .warn {{ font-size: 21px; color: #9c2318; margin-top: 10px; }}
+    .tips {{ display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }}
+    .tip {{ border-radius: 18px; padding: 18px 20px; font-size: 22px; line-height: 1.45; }}
+    .tip .ic {{ font-size: 40px; display: block; margin-bottom: 6px; }}
+    .tip.g {{ background: #e7f6ec; }} .tip.r {{ background: #fdecea; }} .tip.b {{ background: #e8f0fb; grid-column: 1 / -1; }}
     </style></head><body><div class="wrap">
-    <h1>🖼 So reagiert eine Bildkarte</h1>
-    <div class="sub">Dieselbe Karte, drei Auslöser. Die <span class="pill">grünen Kästchen</span> holen sich ihren Wert von dem, was die Karte auslöst.
-      Die Karten unten hat das Add-on selbst gemalt (mit dem Haus der Demo).</div>
-    <div class="card design"><div style="flex:1"><h2>Deine Karte „Meine Karte“ im Editor</h2>{rows}</div>
-      <div class="arrow">Du baust die Karte <b>einmal</b>. Was in den Kästchen steht, entscheidet sich erst <b>beim Senden</b>:<br>
-      ① ein Alarm → der Melder, sein Raum, seine Etage<br>② ein Ablauf mit Gerät → das Gerät, das ihn ausgelöst hat<br>
-      ③ ein Ablauf mit Uhrzeit oder Knopf → <b>kein</b> Gerät: Raum, Etage, Melder bleiben leer</div></div>
-    <div class="cols">{cols}</div>
-    <div class="card tips"><h2>💡 Tipps, damit es klappt</h2><ul>
-      <li><b>Art</b> ist bei einem Alarm WASSER, RAUCH, GAS …, bei einem Ablauf sein <b>Name</b>.</li>
-      <li><b>Nachricht</b> ist bei einem Alarm der Text der Warnung, bei einem Ablauf der Text im Baustein „🔔 Nachricht“ (mit Karte darf er leer bleiben).</li>
-      <li>Für Abläufe mit <b>Uhrzeit oder Knopf</b> (③): <span class="pill">Raum</span> <span class="pill">Etage</span> <span class="pill">Melder</span> weglassen und beim Raumbild ein festes <b>Stockwerk</b> wählen. Gut passen <span class="pill">Uhrzeit</span> <span class="pill">Haus</span> <span class="pill">Art</span>, „Wer ist zu Hause“, „Offene Fenster“, „Licht an“.</li>
-      <li>Eine Info-Zeile ohne Wert fällt weg; das Kamerabild „von selbst“ braucht eine Kamera im Raum (bei ③ also eine fest gewählte).</li>
-      <li>Karten kommen nur über <b>„Telegram – eigener Bot“</b>. Die Vorschau im Editor nimmt einen Raum deines Hauses als Beispiel.</li>
-    </ul></div></div></body></html>"""
+    <h1>🖼 Bildkarten einfach erklärt</h1>
+    <div class="lead">Die <span class="pill">grünen Kästchen</span> sind <b>Lücken</b>. Du schreibst die Karte nur <b>einmal</b>.
+      Erst wenn etwas passiert, füllt das Add-on die Lücken mit dem, was gerade passiert ist.</div>
+
+    <div class="box"><h2><span class="step">1</span>So funktioniert es</h2>
+      <div class="hero">
+        <div><div class="write">{template()}<small>✏️ Das schreibst du <b>einmal</b> in den Baustein „Text“.</small></div>
+          <div class="trigline">⚡ Dann passiert etwas: <b>💧 der Wassermelder in der Waschküche schlägt an.</b></div></div>
+        <div class="arr">➜</div>
+        <div class="phone"><div class="scr"><img src="data:image/png;base64,{img}"><div class="cap">📱 kommt aufs Handy</div></div></div>
+      </div></div>
+
+    <div class="box"><h2><span class="step">2</span>Was in die Lücken kommt, hängt davon ab, <u>was</u> passiert</h2>
+      <div class="tmpl"><b>Deine Karte:</b>{template()}</div>
+      {rows}</div>
+
+    <div class="box"><h2><span class="step">3</span>Merke</h2><div class="tips">
+      <div class="tip g"><span class="ic">✅</span>Bei einem <b>Alarm</b> oder einem Ablauf, den ein <b>Gerät</b> startet, kannst du <b>alle</b> Kästchen nehmen.</div>
+      <div class="tip r"><span class="ic">⚠️</span>Bei einem Ablauf mit <b>Uhrzeit</b> oder <b>Knopf</b> nur {pill("time")} {pill("house")} {pill("kind")} {pill("text")} nehmen. Beim Raumbild ein festes <b>Stockwerk</b> wählen.</div>
+      <div class="tip b"><span class="ic">📨</span>Bildkarten kommen nur über <b>„Telegram – eigener Bot“</b>. Wo du sie einstellst: bei einem <b>Alarm</b> unter ⚙ → Warnungen &amp; Alarm, bei einem <b>Ablauf</b> im Baustein „🔔 Nachricht“ → „🖼 Als Bildkarte schicken“.</div>
+    </div></div>
+    </div></body></html>"""
 
 
 def main():
     lay, states = demo_house()
     cs = cases(lay, states)
-    for c in cs:
-        c["png"] = pc.render(CARD, c["ctx"])
+    phone = pc.render(SIMPLE, cs[0]["ctx"])
     with sync_playwright() as p:
         b = p.chromium.launch()
-        pg = b.new_page(viewport={"width": 1500, "height": 1000}, device_scale_factor=1.5)
-        pg.set_content(html(cs))
+        pg = b.new_page(viewport={"width": 1100, "height": 1000}, device_scale_factor=2)
+        pg.set_content(html(cs, phone))
         pg.wait_for_timeout(500)
         out = Path(__file__).parent / "bildkarten.jpg"
         pg.screenshot(path=str(out), full_page=True, type="jpeg", quality=82)
