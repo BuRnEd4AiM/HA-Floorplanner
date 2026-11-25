@@ -12,6 +12,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **📱 Start shows everything at the top without swiping**: the chips (lights, alarm, open windows, batteries …) wrap into lines instead of a row to swipe sideways (the owner: "ohne dass man scrollen muss nach links"); the empty strip at the top of the app's pages is gone and the house button stands next to the date (the owner: "du hast doch oben genug Platz, warum quetschst du alles nach unten").
 - **📱 A lit tile takes the colour of its light** (a border and a glow; amber for white light).
 ### Fixed
+- **📷 The page Kameras is there whenever Home Assistant has a camera** (the owner: "der Reiter Kamera … sehe ihn nirgends mehr", everywhere): it came only with a camera placed in the plan as a device "Kamera"; now it also shows the cameras of Home Assistant not placed in the plan (after the placed ones, without "Im Plan zeigen"; not those of another building's area, #677), the doorbell's camera too.
 - **📱 The room tiles see every light that is on** (#801, the owner: "nicht zuverlässig, dass die Kacheln das erkennen und sich einfärben"): Start showed six rooms at most, so a 7th room with a light on was missing (the demo has eight); now every lit room shows. And a tile counts the lights the way the 3D picture lights the room: a lamp on a relay (a switch entity on a lamp) and a wall lamp on the room's edge count too (`roomLightIds` in `roomtiles.js`); so do "💡 n an" and its list.
 
 ## [5.35.0] - 2026-11-24

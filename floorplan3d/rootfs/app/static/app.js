@@ -812,6 +812,7 @@ const board = dash.board;
 const camPage = initCameraPage({
   t, el: $('#tabPages [data-page=cameras]'), cams, layout: () => layout, settings: () => lockedSettings(settings, [...locks]), board, shows: inBuilding,
   showDevice: (fi, id) => { tabsUi.show('house'); offline.show({ floor: fi, kind: 'device', id }); },
+  haCameras: () => entities.filter((e) => e.entity_id.startsWith('camera.') && states[e.entity_id]?.state !== 'unavailable').map((e) => ({ entity: e.entity_id, name: e.name })),   // 5.36.0
 });
 const namesOf = (re) => Object.fromEntries(entities.filter((e) => re.test(e.entity_id)).map((e) => [e.entity_id, e.name]));
 const pinboard = initPinboard({ t, lang: () => currentLanguage(), changed: () => { if (tabsUi.open() === 'today') todayPage.update(); if (tabsUi.open() === 'family') familyPage.changed(); } });   // the pinboard (#483, pinboardui.js)
@@ -904,9 +905,7 @@ const appOn = () => appMode({ phone: phoneMenu.isPhone(), live: isLive(), card: 
 let appBack = START;                                              // where "‹ Zurück" of a room page goes
 /** 📷 on Start (5.36.0, the owner: "der Reiter Kamera … sehe ihn nirgends mehr"; on the phone it is under "Mehr"): the cameras, what moves */
 function appCams() {
-  if (!tabsUi.has('cameras')) return { cams: 0, motion: 0 };
-  const l = cams.list();
-  return { cams: l.filter((x) => x.kind === 'cam').length, motion: l.filter((x) => x.motion).length };
+  return tabsUi.has('cameras') ? camPage.count() : { cams: 0, motion: 0 };
 }
 function appRooms() {
   const l = shownLayout();

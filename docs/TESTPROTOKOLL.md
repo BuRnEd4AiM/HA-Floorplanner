@@ -544,8 +544,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 232. Neu in 5.34.0: 🖼 Bildkarten: Stockwerk wählen, grüne Kästchen | 4 | 0 | 2 | 0 | 232.5, 232.6 |
 | 233. Repariert in 5.34.1: 🔔 Nachricht nur mit Bildkarte | 3 | 0 | 1 | 0 | 233.3 |
 | 234. Neu in 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ | 3 | 0 | 2 | 0 | 234.4, 234.5 |
-| 235. Neu in 5.36.0: 📱 Räume anheften, alles an/aus mit Szenen, Seiten am Handy bearbeiten (#801) | 7 | 0 | 3 | 0 | 235.8 bis 235.10 |
-| **Zusammen** | **1407** | **2** | **185** | **92** | |
+| 235. Neu in 5.36.0: 📱 Räume anheften, alles an/aus mit Szenen, Seiten am Handy bearbeiten (#801) | 7 | 0 | 4 | 0 | 235.8 bis 235.11 |
+| **Zusammen** | **1407** | **2** | **186** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3520,8 +3520,9 @@ Deine Rückmeldung zur Handy-App (25.11.): die Kacheln merken ein Licht nicht zu
 | 235.3 | Oben auf Start | Die Chips (💡, 🛡, 🪟, 🔋, 🩺, 📷, 🌡) stehen in Zeilen, nichts zum seitlichen Wischen; Datum und Haus in einer Zeile, oben kein leerer Streifen | ✅ (2026-11-25, Claude, Demo als iPhone) |
 | 235.4 | Der runde Knopf auf „Wohnzimmer“, dann auf „Küche“ (unter „Räume“) | Wohnzimmer: „⏻ Alle Lichter aus“ (rot), die Szenen „Wohnzimmer Gemütlich“, „Wohnzimmer Aus“, „TV-Abend“, „📌 Auf Start anheften“, „🚪 Raum öffnen“, „Abbrechen“; Küche: „💡 Licht an“; ein Tipp schaltet, „Abbrechen“ schaltet nichts | ✅ (2026-11-25, Claude, Demo als iPhone) |
 | 235.5 | „📌 Anheften“ neben „Räume“, „Bad“ antippen, Liste schließen | Bad steht auf Start zuerst, mit 📌, obwohl sein Licht aus ist; nach dem Neuladen noch da | ✅ (2026-11-25, Claude, Demo als iPhone) |
-| 235.6 | „📷 2 Bewegung“ antippen | Die Seite 📷 Kameras öffnet sich | ✅ (2026-11-25, Claude, Demo als iPhone) |
+| 235.6 | „📷 2 Bewegung“ antippen | Die Seite 📷 Kameras öffnet sich, nach den zwei Kameras im Plan auch „Kamera Haustür“ (die Klingel, nicht im Plan) | ✅ (2026-11-25, Claude, Demo als iPhone, Browser-Test) |
 | 235.7 | Mehr → Heute → oben rechts „✎ Bearbeiten“; dann „🗂 Reiter“ | Die Seite im Bearbeiten-Modus (＋ Karte, ⠿, 👁, ✓ Fertig); „🗂 Reiter“ zeigt alle Seiten in Zeilen mit „＋ Seite“; „✓ Fertig“ bringt die Leiste der App zurück | ✅ (2026-11-25, Claude, Demo als iPhone) |
 | 235.8 | Im Add-on am echten Handy (Home-Assistant-App): ein Licht im Haus anmachen (Wandschalter oder in Home Assistant), dann auf Start schauen | Die Kachel des Raums färbt sich in 1–2 Sekunden ein, auch bei einer Lampe am Relais (Shelly) oder einer Wandlampe | ❓ |
 | 235.9 | Im Add-on am echten Handy: deine Räume anheften, eine Szene über den runden Knopf, eine Seite mit „✎ Bearbeiten“ ändern | Wie in der Demo; die angehefteten Räume bleiben auf diesem Handy | ❓ |
 | 235.10 | Video-Anleitung: „📱 Am Handy: Räume anheften, alles an oder aus, Szenen“ und „📱 Am Handy die Seiten bearbeiten“ (nach dem Merge) | Die Videos zeigen die Schritte | ❓ |
+| 235.11 | Im Add-on am PC, am Tablet und am Handy (unter „Mehr“, Chip 📷 auf Start) | Der Reiter 📷 Kameras ist da und zeigt alle deine Kameras, auch die, die nicht im Plan stehen | ❓ |

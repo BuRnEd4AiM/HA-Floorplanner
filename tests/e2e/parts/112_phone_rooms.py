@@ -22,7 +22,6 @@ fi_pr = pgQ.evaluate("""() => { const L = window.__fp.layout, fi = Math.max(0, L
   f.rooms.push({ id: 'e2e_relay', name: 'E2E Relais', points: [[200, 220], [204, 220], [204, 224], [200, 224]] });
   f.devices.push({ id: 'e2e_sw', type: 'pendant', entity: 'switch.garage', x: 202, z: 222, y: 2.4 });                // a lamp on a relay
   f.rooms.push({ id: 'e2e_dark', name: 'E2E Dunkel', points: [[210, 220], [214, 220], [214, 224], [210, 224]] });
-  f.devices.push({ id: 'e2e_cam', type: 'camera', entity: 'camera.flur', x: 212, z: 222, y: 2.4 });               // a camera: the page 📷 is there
   return fi; }""")
 urllib.request.urlopen(HA + "/_set?e=sensor.temp&s=21.6")                                          # a pushed change: the pages are brought up to date
 pgQ.wait_for_function("document.querySelectorAll('[data-page=start] .apRoom.lit').length >= 7", timeout=15000)
@@ -33,9 +32,12 @@ check("📱 5.36.0: every room with a light on is on Start, also a 7th (the owne
 chips_pr = pgQ.evaluate("""() => { const c = document.querySelector('[data-page=start] .apChips'); const r = c.getBoundingClientRect();
   return [getComputedStyle(c).flexWrap, c.scrollWidth <= c.clientWidth + 1, [...c.children].every((x) => x.getBoundingClientRect().right <= innerWidth + 1), r.width]; }""")
 check("📱 5.36.0: the chips wrap into lines, none beyond the edge („ohne dass man scrollen muss nach links“)", chips_pr[0] == "wrap" and chips_pr[1] and chips_pr[2], chips_pr)
-check("📱 5.36.0: 📷 the cameras as a chip on Start (on the phone the page is under „Mehr“)", pgQ.locator("[data-page=start] [data-chip=cams]").count() == 1)
+placed_cam = pgQ.evaluate("window.__fp.layout.floors.some((f) => f.devices.some((d) => d.type === 'camera'))")
+check("📱 5.36.0: 📷 the cameras as a chip on Start (on the phone the page is under „Mehr“), also without a camera placed in the plan",
+      pgQ.locator("[data-page=start] [data-chip=cams]").count() == 1, placed_cam)
 pgQ.tap("[data-page=start] [data-chip=cams]"); pgQ.wait_for_timeout(700)
-check("📱 5.36.0: … a tap opens the page 📷", pgQ.is_visible("[data-page=cameras]"))
+check("📱 5.36.0: … a tap opens the page 📷 with Home Assistant's camera (placed in the plan or not)", pgQ.is_visible("[data-page=cameras]")
+      and pgQ.locator("[data-page=cameras] .tpCam[data-entity='camera.flur']").count() == 1)
 pgQ.tap("#tabBar [data-tab=rooms]"); pgQ.wait_for_timeout(600)
 relay_pr = pgQ.locator("[data-page=rooms] .apRoom[data-room=e2e_relay]")
 check("📱 5.36.0: a lamp on a relay (switch) is the room's light: „aus“, its button ⏻", relay_pr.count() == 1 and "aus" in relay_pr.inner_text()

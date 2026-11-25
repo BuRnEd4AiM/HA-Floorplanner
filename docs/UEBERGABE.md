@@ -19,7 +19,7 @@ Stand: 2026-11-25, Version **5.36.0** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Offen
 
-- **5.36.0 Handy-App (#801):** sein Test am echten Handy (235.8 bis 235.10); seine Antwort, wo ihm der Reiter Kameras fehlte (am Handy unter „Mehr“, jetzt auch 📷 auf Start).
+- **5.36.0 Handy-App (#801):** sein Test am echten Handy (235.8 bis 235.10); ob der Reiter Kameras jetzt überall da ist (235.11; fehlte ihm überall: kam nur mit einer im Plan gesetzten Kamera, jetzt auch alle Kameras von Home Assistant).
 - **5.34.0 / 5.34.1 / 5.35.0 Bildkarten:** sein Test (Testprotokoll 232, 233, 234), vor allem 234.4: das Bild in der Home-Assistant-App am echten Handy (auch unterwegs).
 - **5.33.0 Bildkarten:** sein Test im Add-on mit seinem Bot (231.6 bis 231.9). Nicht gebaut: Verlauf (24 h) als Baustein, Idee 2 (freie Fläche).
 - **5.32.1 Telegram-Bot:** sein Test im Add-on am Handy (230.6 bis 230.8).

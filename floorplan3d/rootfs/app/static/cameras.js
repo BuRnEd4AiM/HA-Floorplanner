@@ -44,10 +44,15 @@ export function groupCameras(list) {
 }
 
 /** the page 📷 of the tab bar (#479): the cameras as tiles, those that see movement first, and the motion sensors as a row below; each
- *  with its place ("room · floor", the floor alone when it hangs in no room). sig: changes only when something shown changes */
-export function cameraPage(list, floors) {
+ *  with its place ("room · floor", the floor alone when it hangs in no room). sig: changes only when something shown changes.
+ *  unplaced: [{ entity, name }] the cameras of Home Assistant not placed in the plan (5.36.0, the owner: „der Reiter Kamera … sehe ihn
+ *  nirgends mehr“, everywhere: the page came only with a camera placed in the plan); they come after the placed ones, without a place */
+export function cameraPage(list, floors, unplaced = []) {
   const item = ({ d, fi, room, motion }) => ({ id: d.id, entity: d.entity, fi, name: d.name || d.entity, place: [room, floors[fi]?.name || ''].filter(Boolean).join(' · '), motion });
-  const cams = list.filter((x) => x.kind === 'cam').map(item), sensors = list.filter((x) => x.kind === 'sensor').map(item);
+  const placed = new Set(list.map((x) => x.d?.entity));
+  const free = (unplaced || []).filter((c) => c?.entity?.startsWith('camera.') && !placed.has(c.entity))
+    .map((c) => ({ id: null, entity: c.entity, fi: -1, name: c.name || c.entity, place: '', motion: false }));
+  const cams = [...list.filter((x) => x.kind === 'cam').map(item), ...free], sensors = list.filter((x) => x.kind === 'sensor').map(item);
   return { cams, sensors, motion: list.filter((x) => x.motion).length, sig: JSON.stringify([cams, sensors]) };
 }
 

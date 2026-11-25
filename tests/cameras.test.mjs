@@ -62,3 +62,15 @@ test('the camera page of the tab bar (#479): cameras and sensors apart, each wit
   assert.equal(C.cameraPage(C.cameraEntries(env()), layout.floors).sig, p.sig);
   assert.equal(C.cameraPage([], layout.floors).cams.length, 0);
 });
+
+test('the camera page also shows the cameras of Home Assistant not placed in the plan (5.36.0: the tab was missing without a placed camera)', () => {
+  const placed = C.cameraEntries(env());
+  const one = placed.find((x) => x.kind === 'cam').d.entity;
+  const p = C.cameraPage(placed, layout.floors, [{ entity: 'camera.einfahrt', name: 'Einfahrt' }, { entity: one, name: 'twice' }, { entity: 'image.x', name: 'no camera' }, null]);
+  const free = p.cams.filter((c) => c.id === null);
+  assert.deepEqual(free.map((c) => [c.entity, c.name, c.place, c.fi]), [['camera.einfahrt', 'Einfahrt', '', -1]], 'a placed one not twice, only camera entities');
+  assert.equal(p.cams.at(-1).entity, 'camera.einfahrt', 'after the placed ones');
+  const none = C.cameraPage([], layout.floors, [{ entity: 'camera.a' }]);
+  assert.deepEqual(none.cams.map((c) => [c.entity, c.name]), [['camera.a', 'camera.a']]);
+  assert.notEqual(none.sig, C.cameraPage([], layout.floors).sig);
+});
