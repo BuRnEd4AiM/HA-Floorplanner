@@ -18,7 +18,6 @@ Stand: 2026-11-25, Version **5.36.1** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Offen
 
-- **5.36.1:** nach dem Merge das englische Video „Edit the pages on the phone“ (236.5).
 - **5.36.0 Handy-App (#801):** sein Test am echten Handy (235.9); Kameras-Reiter und Kachel-Farbe hat Claude im Test-Add-on geprüft.
 - **5.34.0 / 5.34.1 / 5.35.0 Bildkarten:** sein Test (232.6, 233.3, 234.4, 234.5), vor allem 234.4: das Bild in der Home-Assistant-App am echten Handy (auch unterwegs).
 - **5.33.0 Bildkarten:** sein Test im Add-on mit seinem Bot (231.6 bis 231.9). Nicht gebaut: Verlauf (24 h) als Baustein, Idee 2 (freie Fläche).
