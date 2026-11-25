@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-24 · 154 Sitzungen
+Stand: 2026-11-25 · 155 Sitzungen
 
-**Insgesamt: 10,67 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 10,72 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 28,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 96,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 10,54 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 28,6 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 96,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 10,59 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 68 | 4,54 Mrd. | 10,7 Mio. |
+| 2026-11 | 69 | 4,59 Mrd. | 10,8 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-25 | [012p9z3P…](https://claude.ai/code/session_012p9z3PWsPAECSFq98YRYFy) | claude/focused-darwin-wjndmo | 52,4 Mio. | 133 Tsd. | gezählt |
 | 2026-11-24 | [012p9z3L…](https://claude.ai/code/session_012p9z3LPey6jHEoipmGH2ZG) | claude/wonderful-dijkstra-5vernn | 72,9 Mio. | 196 Tsd. | gezählt |
 | 2026-11-23 | [012p9z3K…](https://claude.ai/code/session_012p9z3KLQj8eWznsMp6tjGM) | claude/charming-carson-d1uepn | 118,7 Mio. | 332 Tsd. | gezählt |
 | 2026-11-23 | [012p9z3M…](https://claude.ai/code/session_012p9z3Mcm2xMzsUuXGYgKak) | claude/epic-faraday-rdiicg | 72,1 Mio. | 167 Tsd. | gezählt |
