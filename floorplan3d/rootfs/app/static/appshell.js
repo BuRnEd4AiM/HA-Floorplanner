@@ -94,7 +94,7 @@ export function statusChips(s, t, num = String) {
   if (s.offline) out.push({ key: 'offline', icon: '📴', text: t('app.offline', { n: s.offline }), tone: 'warn' });
   if (s.low) out.push({ key: 'low', icon: '🔋', text: t('app.low', { n: s.low }), tone: 'warn' });
   if (s.check) out.push({ key: 'check', icon: '🩺', text: t('app.check', { n: s.check }), tone: 'warn' });   // 🩺 Haus-Check (5.24.0)
-  if (s.cams) out.push({ key: 'cams', icon: '📷', text: s.motion ? t('app.motion', { n: s.motion }) : t('app.cams', { n: s.cams }), tone: s.motion ? 'warn' : '' });
+  if (s.cams) out.push({ key: 'cams', icon: '📷', text: s.motion ? t('app.motion', { n: s.motion }) : t(s.cams === 1 ? 'app.cams1' : 'app.cams', { n: s.cams }), tone: s.motion ? 'warn' : '' });
   if (s.temp != null && Number.isFinite(s.temp)) out.push({ key: 'temp', icon: '🌡', text: `${num(s.temp)}°`, tone: '' });
   return out;
 }

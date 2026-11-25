@@ -31,8 +31,8 @@ export function initFirstSteps(ctx) {
       if (s.toLink) d.append(button('bdBtn primary', `🔗 ${t('fs.link.all', { n: s.toLink })}`, 'linkAll', ctx.linkAll));
       d.append(button('bdBtn', t('fs.one'), 'linkOne', ctx.linkOne));
     } else if (key === 'place') {
-      d.append(make('p', '', t('fs.place.text', { n: s.unplaced })));
-      if (s.unplaced) d.append(button('bdBtn primary', `✨ ${t('fs.place.all', { n: s.unplaced })}`, 'placeAll', ctx.placeAll), button('bdBtn', t('fs.one'), 'placeOne', ctx.placeOne));
+      d.append(make('p', '', t(s.unplaced === 1 ? 'fs.place.text1' : 'fs.place.text', { n: s.unplaced })));
+      if (s.unplaced) d.append(button('bdBtn primary', `✨ ${t(s.unplaced === 1 ? 'fs.place.all1' : 'fs.place.all', { n: s.unplaced })}`, 'placeAll', ctx.placeAll), button('bdBtn', t('fs.one'), 'placeOne', ctx.placeOne));
     } else {
       d.append(make('p', '', t('fs.live.text')), button('bdBtn primary', `▶ ${t('fs.live.btn')}`, 'goLive', ctx.goLive), button('bdBtn', `⚙ ${t('fs.live.settings')}`, 'settings', ctx.settings));
     }

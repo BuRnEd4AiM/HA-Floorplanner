@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.36.1] - 2026-11-25
+### Fixed
+- **Deleting a house: the question ended in "{name}"** (#803, found while testing 204.9): "Zum Bestätigen den Namen eintippen: {name}" now names the house. The texts' placeholders are filled in every place they stand (before only the first one), and a name with "$" in it is taken as it is.
+- **Drawing: the green ∟ 90° (and ∥) did not show with the grid** (#804, found while testing 204.8): 3° off square at 3 m, the next point of the 0.25 m grid lay 4.8° off, past the tolerance of 4°, and the wall came out slanted (3.01 m). Now the guide also looks at the pointer itself: the point lies exactly square (or parallel) and only its length goes onto the grid (`guideOnGrid` in drawguide.js, browser test part `113_draw_guide`).
+- **"1 Kameras", "1 Geräte"** (#805): the page 📷 and its chip on Start say "1 Kamera", 🧭 Erste Schritte with one device "Home Assistant kennt 1 Gerät …", "✨ Automatisch setzen" and "1 Gerät gesetzt" (all 8 languages).
+- **Video guide: the English video "📱 Edit the pages on the phone" was missing** (#806): the clip tapped the button "Reiter", in English it is "Tabs"; the recording stopped there and the workflow went on without it.
+
 ## [5.36.0] - 2026-11-25
 ### Added
 - **📱 Pin rooms on Start** (the owner, 2026-11-25: "da aktuell nur 6 Räume Platz haben, die Räume, die an sind, priorisiert werden … Räume anheften, dass man immer seine Räume oben hat"): "📌 Anheften" next to "Räume" on Start lists every room by floor, a tap pins or unpins it; a room's round button has "📌 Auf Start anheften" too. Pinned rooms stand on Start first, in the order they were pinned, with 📌; then every room with a light on; then the others up to six. Kept on this phone, per house.

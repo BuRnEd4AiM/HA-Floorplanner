@@ -27,7 +27,7 @@ import { YARD_FLAT } from './yarddeco.js';
 import { areaAt, nearEdge, edgeList, rectFrom, surfaceColor } from './yard.js';
 import { miterEnds } from './wallmiter.js';
 import { initRail2d } from './rail2d.js';
-import { guideAt, guideLines } from './drawguide.js';
+import { guideOnGrid, guideLines } from './drawguide.js';
 import { splitSide, dropCorner } from './railsides.js';
 import { markedNoWatch } from './nowatch.js';
 
@@ -196,7 +196,7 @@ export function createPlan(ctx) {
     if (e.altKey) return p;
     const f = shown(), onCorner = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...drawPts].some((q) => q[0] === p[0] && q[1] === p[1]);
     if (onCorner) return p;                                          // a corner it snapped to stays exact
-    const g = guideAt(drawPts.length >= 2 ? drawPts[drawPts.length - 2] : null, last, p, guideLines(f, tool === 'plot' ? yardList() : [], drawPts));
+    const g = guideOnGrid(drawPts.length >= 2 ? drawPts[drawPts.length - 2] : null, last, [x, z], p, guideLines(f, tool === 'plot' ? yardList() : [], drawPts), grid());   // also when the grid point is a little too far off (5.36.1)
     if (!g.kind) return p;
     guideHit = g;
     return g.p;

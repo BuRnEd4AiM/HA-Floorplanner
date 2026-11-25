@@ -4,7 +4,9 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.14.0, 2026-11-16)
+## Kurze Prüfliste: nur noch der Feinschliff für dich (Stand 5.36.1, 2026-11-25)
+
+**Am 2026-11-25 hat Claude wieder alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Mach mal alle Tests, die du machen kannst“): alle automatischen Tests (782 Server-Tests, 1.579 Bausteintests, beide Code-Prüfer, die Browser-Test-Teile zu 5.8.0, der ganze Browser-Test in der CI nach dem Merge von 5.36.0), die offenen Punkte von 5.14.0 bis 5.36.0 in der Demo (am PC mit Mausklicks, am nachgebauten iPhone mit Finger-Tippen und Wischen), im Test-Add-on (PC, iPad, iPhone), die zwei neuen Videos Bild für Bild und auf GitHub (README, Connector-Repository, HACS-Liste). 36 Punkte sind jetzt ✅, offen sind noch 151 (vorher 186). Dabei gefunden und gleich repariert in **5.36.1** (Abschnitt 236): die Frage beim Haus-Löschen endete mit „{name}“ (#803), der grüne rechte Winkel kam mit dem Raster manchmal nicht (#804), „1 Kameras“ / „1 Geräte“ (#805), das englische Video „Edit the pages on the phone“ fehlte (#806). Übrig ist, was dein Haus, deine Geräte, dein Bot, dein Home Assistant oder dein Eindruck braucht: die Übersicht weiter unten zeigt jede Nummer.
 
 **Am 2026-11-12 hat Claude noch einmal alles geprüft, was ohne deine echten Geräte geht** (dein Wunsch: „Kannst du noch Tests machen, die du testen kannst? Und den Rest teste ich dann später“): in der Demo 5.7.1 (am PC mit Mausklicks und am nachgebauten iPad mit Fingertippen), im Test-Add-on (PC, iPad, Wandtablet, Thermostat-Kreis mit dem Finger, ein nachgestelltes Update) und die Videos der Anleitung (aufgenommen nach 5.7.1). 38 Punkte sind jetzt ✅, offen sind noch 71 (vorher 109). Kein Fehler im Add-on; nur im Video „Oberfläche 2: das Haus als Baum“ sagte der erste Satz noch „Version 2“ statt „✨ Neu“ (geändert). Die Liste unten sagt bei jedem Punkt, was davon noch für dich bleibt.
 
@@ -53,7 +55,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 39. **Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder** (Abschnitt 201, dein Wunsch vom 2026-11-15, #756): Claude hat 201.1 bis 201.7 geprüft (Demo, Browser-Test); für dich auf deinem echten Tablet 201.8 (Bildschirmschoner und Abdunkeln), 201.9 (Bewegungsmelder), 201.10 (Bildschirm anlassen) und dein Eindruck 201.11.
 40. **Neu in 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart** (Abschnitt 202, deine Wahl im Chat vom 2026-11-15): Claude hat 202.1 bis 202.7 geprüft (Demo, nachgebautes iPad, Browser-Test); für dich am echten Tablet 202.8 bis 202.11 (eigener Bewegungsmelder, Fully Kiosk, Putzen, Kindertablet) und dein Eindruck 202.12.
 41. **Neu in 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr** (Abschnitt 203, #759, deine Fotos vom 2026-11-16): Claude hat 203.1 bis 203.4 geprüft (nachgebautes Tablet, Browser-Test); für dich am echten Wandtablet 203.5 bis 203.7 (schneller Start, kein leeres Stockwerk nach dem Aufwecken, sofort drin nach dem Öffnen).
-42. **Neu in 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen** (Abschnitt 204, deine Wünsche und Bilder vom 2026-11-16): Claude hat 204.1 geprüft (Browser-Test); für dich in der Beta mit deinem Haus 204.2 bis 204.9 (vor allem 204.5 Balkon „Raum 17“ und 204.6 Garage „Raum 6“).
+42. **Neu in 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen** (Abschnitt 204, deine Wünsche und Bilder vom 2026-11-16): Claude hat 204.1 bis 204.4 und 204.7 bis 204.9 geprüft (204.2 bis 204.9 am 2026-11-25 in der Demo); für dich mit deinem Haus nur noch 204.5 (Balkon „Raum 17“) und 204.6 (Garage „Raum 6“).
 
 Hinweise von Claude (keine Fehler, nur zum Wissen): wird ein Gerät aus einer Liste weiter unten in der Leiste gewählt (z. B. „☀ PV Dach ›“ in der Etagen-Karte), bleibt die Leiste so weit gescrollt wie vorher, der Kopf mit dem Namen ist dann oben aus dem Bild (2026-11-10); „⛰ Hang in einem Schritt“ ersetzt Höhenpunkte, die schon da sind, ohne zu fragen (Strg+Z holt sie zurück, 147.5); „+ Vordach“ kommt an die untere lange Seite im Plan (in der Demo die Gartenseite, 144.7); am Handy liegen die Knöpfe oben im Bild über dem Rand des Plans (145.7); das Bild `docs/img/version.png` auf der Startseite zeigt „GitHub (main): anderer Stand“, weil es während eines Updates aufgenommen wurde.
 
@@ -503,17 +505,17 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 191. Verbessert in 5.6.4: 🧹 automatische Code-Prüfer (ruff, eslint) | 2 | 0 | 0 | 0 | – |
 | 192. Repariert in 5.6.5: 🧱 Gehrung an schrägen Ecken (#724) | 3 | 0 | 1 | 0 | 192.4 |
 | 193. Verbessert in 5.7.0: ✨ Neu für Treppe, Bodenöffnung, Block, Grundstück, Garten, Kabel; 🔓 und ⋯ am Haus | 4 | 0 | 0 | 0 | – |
-| 194. Neu in 5.8.0: Einstellungen mit einem Tipp, „Reiter unten“ je Seite, Alarm-Karten, Anleitungen eingeklappt, Licht-Gruppen-Knöpfe, Handy oben | 8 | 0 | 3 | 0 | 194.1, 194.10, 194.11 |
+| 194. Neu in 5.8.0: Einstellungen mit einem Tipp, „Reiter unten“ je Seite, Alarm-Karten, Anleitungen eingeklappt, Licht-Gruppen-Knöpfe, Handy oben | 9 | 0 | 2 | 0 | 194.10, 194.11 |
 | 195. Repariert in 5.8.1: Rollläden in der Raum-Leiste mit 0 bis 100 %, Lichter-Liste, Meldung unten links (#740, #741, #742) | 4 | 0 | 2 | 0 | 195.5, 195.6 |
-| 196. Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, Hinweis bei verschiedenen Versionen; die Karte im HACS-Store | 6 | 0 | 1 | 0 | 196.7 |
+| 196. Neu in 5.9.0: 🐳 Docker mit fertigem Image, der Connector über HACS, Hinweis bei verschiedenen Versionen; die Karte im HACS-Store | 7 | 0 | 0 | 0 | – |
 | 197. Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite (#747) | 3 | 0 | 1 | 0 | 197.3 |
-| 198. Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel mit Home Assistant (#744) | 1 | 0 | 2 | 0 | 198.2, 198.3 |
+| 198. Neu in 5.9.2: 🧩 Symbol der Docker-Integration, Compose-Beispiel mit Home Assistant (#744) | 2 | 0 | 1 | 0 | 198.3 |
 | 199. Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein (docs/ideen-5.10, #750) | 6 | 0 | 3 | 0 | 199.7 bis 199.9 |
 | 200. Neu in 5.11.0: 🎨 Farben von Dach, Treppe, Türen und Fenstern (#752, #753, #754 von Miicki) | 9 | 0 | 2 | 0 | 200.10, 200.11 |
 | 201. Neu in 5.12.0: 💤 mehr fürs Wandtablet, der Bildschirmschoner geht wieder (#756) | 7 | 0 | 4 | 0 | 201.8 bis 201.11 |
 | 202. Neu in 5.13.0: 🏢 Etagen nacheinander, 🧽 Putzen, mehr eigene Werte je Tablet, Fully Kiosk, 🎚 Rechte je Geräteart | 7 | 0 | 5 | 0 | 202.8 bis 202.12 |
 | 203. Neu in 5.13.1: das Tablet startet schneller, der Aufweck-Tipper öffnet nichts mehr (#759) | 4 | 0 | 3 | 0 | 203.5 bis 203.7 |
-| 204. Neu in 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen | 1 | 0 | 8 | 0 | 204.2 bis 204.9 |
+| 204. Neu in 5.14.0: 🏗 Geländer je Seite, 🔓 Grundriss-Knopf oben, 🏘 Flächen je Gebäude, 🚗 Garage auf dem Rasen, 📐 rechter Winkel, Haus löschen mit Namen | 7 | 0 | 2 | 0 | 204.5, 204.6 |
 | 205. Verbessert in 5.14.1: das Haus dreht sich leichter am Tablet (#138) | 3 | 0 | 1 | 0 | 205.4 |
 | 206. Neu in 5.15.0: ☀ Sonnenschutz, 🧭 wo Norden ist | 4 | 0 | 3 | 0 | 206.5 bis 206.7 |
 | 207. Neu in 5.16.0: 📸 Alarm mit Bild über deinen Telegram-Bot | 2 | 0 | 3 | 0 | 207.3 bis 207.5 |
@@ -521,31 +523,32 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 209. Neu in 5.18.0: 🏠 Urlaubs-Licht | 2 | 0 | 3 | 0 | 209.3 bis 209.5 |
 | 210. Neu in 5.19.0: 🔌 Stromfresser | 3 | 0 | 3 | 0 | 210.4 bis 210.6 |
 | 211. Neu in 5.20.0: 🌗 Abläufe nach der Helligkeit | 3 | 0 | 3 | 0 | 211.4 bis 211.6 |
-| 212. Neu in 5.21.0: 👥 Gäste-Zugang | 4 | 0 | 4 | 0 | 212.5 bis 212.8 |
-| 213. Neu in 5.22.0: 📱 Das Handy wie eine App | 3 | 0 | 3 | 0 | 213.4 bis 213.6 |
-| 214. Neu in 5.23.0: 📱 Handy-App, der nächste Schritt | 5 | 0 | 2 | 0 | 214.6, 214.7 |
-| 215. Neu in 5.23.1: 📱 Raum dreht sich oben, Ausschalten fragt nach | 3 | 0 | 2 | 0 | 215.4, 215.5 |
-| 216. Neu in 5.24.0: 🩺 Haus-Check mit 🔧 Wartung | 2 | 0 | 3 | 0 | 216.3 bis 216.5 |
-| 217. Neu in 5.25.0: 🧭 Erste Schritte und das „⋯“-Menü oben | 2 | 0 | 3 | 0 | 217.3 bis 217.5 |
-| 218. Neu in 5.26.0: 📊 Monatsbericht | 2 | 0 | 5 | 0 | 218.3 bis 218.7 |
-| 219. Neu in 5.27.0: 🎚 Rollläden an Türen (#779) und 🔕 Nicht überwachen (#780) | 3 | 0 | 5 | 0 | 219.4 bis 219.8 |
-| 220. Neu in 5.28.0: 📱 Start: das Haus dreht sich | 3 | 0 | 3 | 0 | 220.4 bis 220.6 |
-| 221. Neu in 5.28.1: 🔕 Beim Bearbeiten sieht man, was nicht überwacht wird | 4 | 0 | 1 | 0 | 221.5 |
+| 212. Neu in 5.21.0: 👥 Gäste-Zugang | 6 | 0 | 2 | 0 | 212.5, 212.6 |
+| 213. Neu in 5.22.0: 📱 Das Handy wie eine App | 5 | 0 | 1 | 0 | 213.4 |
+| 214. Neu in 5.23.0: 📱 Handy-App, der nächste Schritt | 7 | 0 | 0 | 0 | – |
+| 215. Neu in 5.23.1: 📱 Raum dreht sich oben, Ausschalten fragt nach | 5 | 0 | 0 | 0 | – |
+| 216. Neu in 5.24.0: 🩺 Haus-Check mit 🔧 Wartung | 4 | 0 | 1 | 0 | 216.3 |
+| 217. Neu in 5.25.0: 🧭 Erste Schritte und das „⋯“-Menü oben | 4 | 0 | 1 | 0 | 217.4 |
+| 218. Neu in 5.26.0: 📊 Monatsbericht | 4 | 0 | 3 | 0 | 218.3 bis 218.5 |
+| 219. Neu in 5.27.0: 🎚 Rollläden an Türen (#779) und 🔕 Nicht überwachen (#780) | 6 | 0 | 2 | 0 | 219.6, 219.8 |
+| 220. Neu in 5.28.0: 📱 Start: das Haus dreht sich | 5 | 0 | 1 | 0 | 220.4 |
+| 221. Neu in 5.28.1: 🔕 Beim Bearbeiten sieht man, was nicht überwacht wird | 5 | 0 | 0 | 0 | – |
 | 222. Neu in 5.28.2: 📡 Funk-Karte „Alle einschalten“ | 3 | 0 | 2 | 0 | 222.4, 222.5 |
 | 223. Neu in 5.28.3: 📡 Funk-Karte mit Matter | 2 | 0 | 3 | 0 | 223.3 bis 223.5 |
 | 224. Neu in 5.28.4: 📡 alle ausgeschalteten Empfangswerte einschalten | 2 | 0 | 2 | 0 | 224.3, 224.4 |
 | 225. Repariert in 5.29.0: 🚗 Garage auf dem Rasen neben einem Haus mit Keller, lange Wand (#789) | 1 | 0 | 2 | 0 | 225.2, 225.3 |
-| 226. Neu in 5.29.0: 🪜 Treppe mit eigener Höhe, Wendeltreppe mit Steg oben | 2 | 0 | 2 | 0 | 226.3, 226.4 |
-| 227. Neu in 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779) | 3 | 0 | 2 | 0 | 227.4, 227.5 |
-| 228. Neu in 5.31.0: 🔆 Lichtschächte an den Kellerfenstern | 4 | 0 | 2 | 0 | 228.5, 228.6 |
+| 226. Neu in 5.29.0: 🪜 Treppe mit eigener Höhe, Wendeltreppe mit Steg oben | 3 | 0 | 1 | 0 | 226.3 |
+| 227. Neu in 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779) | 4 | 0 | 1 | 0 | 227.4 |
+| 228. Neu in 5.31.0: 🔆 Lichtschächte an den Kellerfenstern | 5 | 0 | 1 | 0 | 228.5 |
 | 229. Neu in 5.32.0: 🪜 Eingang mit Außentreppe und Vordach, Balkon unter dem Dach (#786, #794) | 6 | 0 | 1 | 0 | 229.7 |
 | 230. Repariert in 5.32.1: 📸 Telegram-Bot einrichten (#796) | 5 | 0 | 3 | 0 | 230.6 bis 230.8 |
 | 231. Neu in 5.33.0: 🖼 Bildkarten fürs Handy | 5 | 0 | 4 | 0 | 231.6 bis 231.9 |
-| 232. Neu in 5.34.0: 🖼 Bildkarten: Stockwerk wählen, grüne Kästchen | 4 | 0 | 2 | 0 | 232.5, 232.6 |
+| 232. Neu in 5.34.0: 🖼 Bildkarten: Stockwerk wählen, grüne Kästchen | 5 | 0 | 1 | 0 | 232.6 |
 | 233. Repariert in 5.34.1: 🔔 Nachricht nur mit Bildkarte | 3 | 0 | 1 | 0 | 233.3 |
 | 234. Neu in 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ | 3 | 0 | 2 | 0 | 234.4, 234.5 |
-| 235. Neu in 5.36.0: 📱 Räume anheften, alles an/aus mit Szenen, Seiten am Handy bearbeiten (#801) | 7 | 0 | 4 | 0 | 235.8 bis 235.11 |
-| **Zusammen** | **1407** | **2** | **186** | **92** | |
+| 235. Neu in 5.36.0: 📱 Räume anheften, alles an/aus mit Szenen, Seiten am Handy bearbeiten (#801) | 10 | 0 | 1 | 0 | 235.9 |
+| 236. Repariert in 5.36.1: Haus löschen, rechter Winkel mit Raster, „1 Kamera“, englisches Video (#803 bis #806) | 4 | 0 | 1 | 0 | 236.5 |
+| **Zusammen** | **1447** | **2** | **151** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3002,7 +3005,7 @@ Die Bitte des Besitzers vom 2026-11-12 („schau mal, ob du in den Einstellungen
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 194.1 | Unit-Tests `tests/setcontrols.test.mjs`, `tests/setsections.test.mjs`, `floorrail`, `phonenav`, `setgroups`; Browser-Test Teile `87_settings_look`, `28_settings`, `07_tablet`, `29_guard`, `24_alarm_notify` | Alles grün | ❓ |
+| 194.1 | Unit-Tests `tests/setcontrols.test.mjs`, `tests/setsections.test.mjs`, `floorrail`, `phonenav`, `setgroups`; Browser-Test Teile `87_settings_look`, `28_settings`, `07_tablet`, `29_guard`, `24_alarm_notify` | Alles grün | ✅ (2026-11-25, Claude: Unit-Tests grün; Browser-Test-Teile 87_settings_look, 28_settings, 07_tablet, 29_guard, 24_alarm_notify grün, dazu der ganze Browser-Test in der CI nach dem Merge von 5.36.0) |
 | 194.2 | ⚙ → „3D-Bild & Leistung“ | „Schatten“ und die anderen Häkchen sind Schalter; „Leistung“ ist eine Knopfleiste (Automatisch, Schön, Schnell); „Wand-Deckkraft“ ist ein Schieberegler mit „72 %“; die lange Erklärung zur Kantenglättung zeigt zwei Zeilen und „mehr …“ | ✅ (2026-11-12, Claude, Demo am PC) |
 | 194.3 | ⚙ → „Allgemein“: auf „Hell“ tippen, dann wieder „Dunkel“ | Das Design wechselt sofort; Hologramm, Dunkel, Hell haben je eine kleine Farbprobe | ✅ (2026-11-12, Claude, Demo und Browser-Test) |
 | 194.4 | ⚙ → „Reiter unten“: auf „Auto“ tippen | Oben neun Knöpfe (Heute … Garten), darunter nur die Einstellungen der gewählten Seite; beim nächsten Öffnen ist „Auto“ noch gewählt | ✅ (2026-11-12, Claude, Demo) |
@@ -3037,7 +3040,7 @@ Issue #744 von aixmoyu: für Home Assistant Container (Docker ohne Supervisor) m
 | 196.4 | Du: das Repository `HA-Floorplanner-Connector` anlegen (`docs/HACS-STORE.md`, Schritt 4), Claude füllt es | Dort läuft „Sync from HA-Floorplanner“ grün und es gibt ein Release v5.9.0 | ✅ (2026-11-12, der Besitzer hat es angelegt, Claude hat es gefüllt: „Sync from HA-Floorplanner“ grün, Tag und Vorab-Release v5.9.0 mit `custom_components/floorplan3d` 5.9.0) |
 | 196.5 | Nach „Gib 5.9.0 frei“ | `ghcr.io/burned4aim/floorplan3d:latest` ist 5.9.0 (Actions → „Release to everyone“ → Job „image“ grün) | ✅ (2026-11-12, Claude: freigegeben, „Release to everyone“ mit Job „image“ grün, Release v5.9.0 ist das neueste) |
 | 196.6 | Mit einem echten Home Assistant Container (aixmoyu, #744): den Connector über HACS installieren; einmal mit älterem Container | Einstellungen → Reparaturen: „3D Floorplan: den Container aktualisieren“ mit beiden Versionen; nach `docker compose pull && docker compose up -d` ist der Hinweis nach höchstens einer Stunde weg | ✅ (2026-11-13, aixmoyu in #744 mit 5.9.1 auf seinem echten Home Assistant Container: fertiges Image `:latest`, das Paket des Connectors und der Hinweis bei verschiedenen Versionen gehen; er hat das Issue geschlossen. Seine zwei Wünsche, ein Compose-Beispiel und ein Symbol, sind in 5.9.2, Abschnitt 198) |
-| 196.7 | In HACS nach „3D Floorplan Card“ suchen (ohne benutzerdefiniertes Repository) | Die Karte wird gefunden | ❓ |
+| 196.7 | In HACS nach „3D Floorplan Card“ suchen (ohne benutzerdefiniertes Repository) | Die Karte wird gefunden | ✅ (2026-11-25, Claude: die Karte steht in der Standard-Liste von HACS (Repository hacs/default, Liste „plugin“) als „3D Floorplan Card“, also ohne benutzerdefiniertes Repository zu finden) |
 
 ## 197. Repariert in 5.9.1: 📅 Heizplan wieder über die ganze Breite (#747)
 Das Foto des Besitzers vom 2026-11-12 (5.7.1 auf dem Tablet): jeder Tag des Heizplans stand nur im linken Viertel, bis etwa „6:00“, mit Lücken; der Plan selbst stimmte. Ursache: der Knopf „⏸️ Heizplan aussetzen“ hatte denselben Klassennamen wie ein Tag des Plans.
@@ -3055,7 +3058,7 @@ aixmoyu hat 5.9.1 am 2026-11-13 mit seinem echten Home Assistant Container getes
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 198.1 | Tests `tests/test_connector_package.py`, `test_connector_mirror.py`, `test_container.py`, `test_manifest.py`, `test_make_guide.py` | Alles grün: der Ordner `brand/` hat Symbol und Logo in den Größen, die Home Assistant will, und ist im ZIP | ✅ (2026-11-13, Claude: 135 Tests grün, dazu ruff; ein echtes Home Assistant 2026.11.0 erkennt den Ordner (`has_branding`) und liefert über seine Bilder-Adresse icon, icon@2x, logo und logo@2x aus, für das dunkle Design dieselben) |
-| 198.2 | Nach dem Merge (spätestens eine Stunde danach): das Repository `HA-Floorplanner-Connector` öffnen | Es gibt ein Vorab-Release v5.9.2, `custom_components/floorplan3d/brand/icon.png` ist da, die README zeigt „Example: Home Assistant and 3D Floorplan in one compose file“ | ❓ |
+| 198.2 | Nach dem Merge (spätestens eine Stunde danach): das Repository `HA-Floorplanner-Connector` öffnen | Es gibt ein Vorab-Release v5.9.2, `custom_components/floorplan3d/brand/icon.png` ist da, die README zeigt „Example: Home Assistant and 3D Floorplan in one compose file“ | ✅ (2026-11-25, Claude: im Connector-Repository gibt es v5.9.2 (inzwischen jede Version bis v5.36.0), `custom_components/floorplan3d/brand/icon.png` und in der README „Example: Home Assistant and 3D Floorplan in one compose file“) |
 | 198.3 | Mit einem echten Home Assistant Container (ab 2026.3): den Connector 5.9.2 über HACS installieren, Home Assistant neu starten | Einstellungen → Geräte & Dienste zeigt bei „3D Floorplan (Container)“ das Haus statt eines leeren Platzhalters | ❓ |
 
 ## 199. Neu in 5.10.0: 🃏 die Raumkarte mit Reitern, am Handy erst klein (docs/ideen-5.10, #750)
@@ -3142,14 +3145,14 @@ Dein Wunsch vom 2026-11-15 („Kannst du mal mehr Einstellungen für Tablets hin
 | Nr. | Was tun | Was du sehen solltest | Ergebnis |
 |---|---|---|---|
 | 204.1 | Unit-Tests `railsides`, `balcony`, `levels`, `buildings`, `drawguide`, `wallsplit`; `test_import.py`; Browser-Test Teile `92_rail_sides`, `93_plateau_more`, `81_roof_lock`, `03_houses`, `21_buildings`, `48_plot`, `55_levels`, `73_balcony`, `85_wall_mitre`, `02_tools`; ruff, eslint | Alles grün | ✅ (2026-11-16, Claude) |
-| 204.2 | Einen Balkon anklicken, in den Eigenschaften „Geländer je Seite“: eine Seite ausschalten, bei einer anderen „von … bis“ kürzer machen | Im Grundriss stehen dieselben Nummern an den Seiten; im 3D-Bild fehlt das Geländer an der ausgeschalteten Seite, die andere ist kürzer | ❓ |
-| 204.3 | Beim Balkon „🚪 Tür im Geländer“ ankreuzen, im Grundriss das ■ der Tür und die ◆ an den Enden ziehen | Eine Tür im Geländer (Flügel mit Griff); beim Ziehen sagt die Statuszeile, wie weit | ❓ |
-| 204.4 | Bearbeiten: oben neben „Speichern“ „🔓 Grundriss offen“ antippen, dann „🔒 Grundriss gesperrt“ antippen | Erst gesperrt (Wände und Räume lassen sich nicht ziehen), dann nach einer Frage wieder offen | ❓ |
+| 204.2 | Einen Balkon anklicken, in den Eigenschaften „Geländer je Seite“: eine Seite ausschalten, bei einer anderen „von … bis“ kürzer machen | Im Grundriss stehen dieselben Nummern an den Seiten; im 3D-Bild fehlt das Geländer an der ausgeschalteten Seite, die andere ist kürzer | ✅ (2026-11-25, Claude, Demo mit Mausklicks: Balkon im Obergeschoss, Seite 3 aus, Seite 1 nur 0 bis 1 m; im Grundriss die Nummern 1 bis 3, im 3D-Bild an Seite 3 kein Geländer, an Seite 1 nur das erste Stück) |
+| 204.3 | Beim Balkon „🚪 Tür im Geländer“ ankreuzen, im Grundriss das ■ der Tür und die ◆ an den Enden ziehen | Eine Tür im Geländer (Flügel mit Griff); beim Ziehen sagt die Statuszeile, wie weit | ✅ (2026-11-25, Claude, Demo: Tür an Seite 2 mit Flügel; ■ gezogen: „Seite 2: Tür bei 0,93 m“, ◆ gezogen: „Seite 1: Geländer von 0,00 m bis 1,50 m“) |
+| 204.4 | Bearbeiten: oben neben „Speichern“ „🔓 Grundriss offen“ antippen, dann „🔒 Grundriss gesperrt“ antippen | Erst gesperrt (Wände und Räume lassen sich nicht ziehen), dann nach einer Frage wieder offen | ✅ (2026-11-25, Claude, Demo: gesperrt ließ sich eine Wand nicht ziehen; „🔒 Grundriss gesperrt“ antippen fragt „Grundriss entsperren? …“, danach offen) |
 | 204.5 | Dein Plan mit Plateau: im Obergeschoss den Balkon „Raum 17“ ansehen | Er liegt so hoch wie die Zimmer daneben, nicht mehr 60 cm tiefer; im Grundriss „▲ +0,60 m“ auch beim Balkon | ❓ |
 | 204.6 | Deine Garage „Raum 6“ anklicken, unter „Höhe des Bodens“ „🚗 Steht unten auf dem Rasen“ ankreuzen | Der graue Klotz ist weg, die Garage liegt unten auf dem Rasen, das Haus bleibt oben auf dem Plateau | ❓ |
-| 204.7 | „🏘 Gebäude in diesem Plan“ → „Flächen des Grundstücks“: den Rasen einem Gebäude geben, oben ein anderes Gebäude wählen | Der Rasen ist weg; das Plateau geht von selbst mit dem Gebäude, das darauf steht | ❓ |
-| 204.8 | Eine Wand oder einen Raum zeichnen und mit der Maus fast rechtwinklig oder fast parallel zu einer Wand gehen | Ein grünes ∟ 90° bzw. ∥, der Punkt rückt genau darauf; mit gedrückter Alt-Taste nicht | ❓ |
-| 204.9 | ⚙ → Häuser → „Löschen“, einen falschen Namen eintippen; dann den richtigen | Erst „Nicht gelöscht“, dann ist das Haus weg | ❓ |
+| 204.7 | „🏘 Gebäude in diesem Plan“ → „Flächen des Grundstücks“: den Rasen einem Gebäude geben, oben ein anderes Gebäude wählen | Der Rasen ist weg; das Plateau geht von selbst mit dem Gebäude, das darauf steht | ✅ (2026-11-25, Claude, Demo: zwei Gebäude angelegt, die Fläche „Hof“ dem ersten gegeben: mit dem zweiten oben ist sie weg, mit dem ersten wieder da; das Plateau prüft der Browser-Test 93_plateau_more) |
+| 204.8 | Eine Wand oder einen Raum zeichnen und mit der Maus fast rechtwinklig oder fast parallel zu einer Wand gehen | Ein grünes ∟ 90° bzw. ∥, der Punkt rückt genau darauf; mit gedrückter Alt-Taste nicht | ✅ (2026-11-25, Claude, Demo 5.36.1: ∟ 90° und ∥ kommen, der Punkt rückt darauf, mit Alt nicht. In 5.36.0 kam das Zeichen mit dem Raster bei 3° auf 3 m nicht, #804, repariert in 5.36.1, Abschnitt 236) |
+| 204.9 | ⚙ → Häuser → „Löschen“, einen falschen Namen eintippen; dann den richtigen | Erst „Nicht gelöscht“, dann ist das Haus weg | ✅ (2026-11-25, Claude, Demo: falscher Name „Nicht gelöscht …“, richtiger Name: das Haus ist weg. Die Frage endete mit „{name}“, #803, repariert in 5.36.1) |
 
 ## 205. Verbessert in 5.14.1: das Haus dreht sich leichter am Tablet (#138)
 Dein Wunsch vom 2026-11-17 („dann fangen wir mit 1 an“: Tablet flüssiger beim Drehen). In „Live“ zeichnet das Add-on die Möbel einer Etage mit allen Farben einer Oberfläche zusammen.
@@ -3242,8 +3245,8 @@ Dein Wunsch vom 2026-11-20: ein Benutzer „gast“ in Home Assistant, ein QR-Co
 | 212.4 | Demo mit `?gast=aus` | „Der Gäste-Zugang ist beendet“ | ✅ (2026-11-20, Claude, Demo) |
 | 212.5 | Dein Haus: in Home Assistant den Benutzer „gast“ anlegen (Schritte stehen beim Gäste-Zugang), dann Gäste-Zugang mit deinem Gästezimmer einschalten | „Läuft: Gästezimmer bis …“ | ❓ |
 | 212.6 | Dein Haus: den QR-Code mit einem Handy scannen, als „gast“ anmelden | Nur die Karte des Gästezimmers; Licht, Rollladen, Heizung lassen sich schalten | ❓ |
-| 212.7 | Dein Haus: „🖨 Karte drucken“ mit Passwort | Eine Karte mit QR-Code, Benutzer und Passwort | ❓ |
-| 212.8 | Dein Haus: „Bis“ auf in 5 Minuten stellen und warten | Beim Gast steht danach „Der Gäste-Zugang ist beendet“ | ❓ |
+| 212.7 | Dein Haus: „🖨 Karte drucken“ mit Passwort | Eine Karte mit QR-Code, Benutzer und Passwort | ✅ (2026-11-25, Claude, Demo: Karte mit QR-Code, „Benutzer gast“, dem Passwort und „Gilt bis …“; auf Papier gedruckt hast nur du) |
+| 212.8 | Dein Haus: „Bis“ auf in 5 Minuten stellen und warten | Beim Gast steht danach „Der Gäste-Zugang ist beendet“ | ✅ (2026-11-25, Claude, nachgebautes Add-on am nachgebauten iPhone: „bis“ in 2 Minuten, die offene Seite des Gasts zeigte 4 Sekunden danach von selbst „Der Gäste-Zugang ist beendet“, Schalten wird abgelehnt) |
 
 ## 213. Neu in 5.22.0: 📱 Das Handy wie eine App
 Dein Wunsch vom 2026-11-20 („nicht so selbstgebaut … mehr nach einer App“), deine Wahl: Bilder `docs/ideen-5.21` 8–10 „genau so“.
@@ -3254,8 +3257,8 @@ Dein Wunsch vom 2026-11-20 („nicht so selbstgebaut … mehr nach einer App“)
 | 213.2 | Demo am Handy öffnen | Unten Start, Räume, 3D-Haus, Energie, Mehr; „Start“ mit Gruß, Chips, Hausbild und Raum-Kacheln | ✅ (2026-11-20, Claude, Demo) |
 | 213.3 | Demo am Handy: „Räume“, eine Kachel antippen, „‹ Räume“ | Die Karte des Raums groß als eigene Seite, zurück zu den Räumen | ✅ (2026-11-20, Claude, Demo) |
 | 213.4 | Dein Handy: die App-Ansicht ein paar Tage benutzen | Fühlt sich wie eine App an; was fehlt oder stört, sagst du mir | ❓ |
-| 213.5 | Dein Handy: auf einer Raum-Kachel den runden 💡-Knopf | Alle Lichter des Raums gehen aus | ❓ |
-| 213.6 | Dein Handy: „Mehr“ → „Klassische Ansicht“, dann ☰ → „📱 Handy-Ansicht wie eine App“ | Erst die alte Leiste, dann wieder die App | ❓ |
+| 213.5 | Dein Handy: auf einer Raum-Kachel den runden 💡-Knopf | Alle Lichter des Raums gehen aus | ✅ (2026-11-25, Claude, Demo als iPhone mit Finger-Tippen: Schlafzimmer → „Alle Lichter aus“: alle drei Lichter aus, die Kachel grau) |
+| 213.6 | Dein Handy: „Mehr“ → „Klassische Ansicht“, dann ☰ → „📱 Handy-Ansicht wie eine App“ | Erst die alte Leiste, dann wieder die App | ✅ (2026-11-25, Claude, Demo als iPhone: erst die alte Leiste mit ☰, dann über ☰ wieder die App) |
 
 ## 214. Neu in 5.23.0: 📱 Handy-App, der nächste Schritt
 Deine Wahl vom 2026-11-20: alles aus `docs/ideen-5.22` Bild 45–52 (Haus/Gebäude, Einstellungen, 3D-Haus schlank, Menü in „Mehr“, Chips mit Liste).
@@ -3267,8 +3270,8 @@ Deine Wahl vom 2026-11-20: alles aus `docs/ideen-5.22` Bild 45–52 (Haus/Gebäu
 | 214.3 | Demo am Handy: „💡 … an“ antippen | Liste der brennenden Lampen von unten, unten „Alle aus“ | ✅ (2026-11-20, Claude, Demo) |
 | 214.4 | Demo am Handy: „3D-Haus“, rechts 🎨 | Kein ☰ oben; Liste Normal, Temp., Feuchte …; ein Tipp färbt das Haus | ✅ (2026-11-20, Claude, Demo) |
 | 214.5 | Demo am Handy: „Mehr“ → „Einstellungen“ → eine Gruppe → „‹ Einstellungen“ | Liste der Gruppen, die Gruppe als eigene Seite, zurück zur Liste | ✅ (2026-11-20, Claude, Demo) |
-| 214.6 | Dein Handy: oben das Haus antippen und ein anderes Gebäude wählen | Start und Räume zeigen das gewählte Gebäude | ❓ |
-| 214.7 | Dein Handy: „Mehr“ → „Bearbeiten“, dann ☰ → „Live“ | Bearbeiten wie bisher, zurück in die App | ❓ |
+| 214.6 | Dein Handy: oben das Haus antippen und ein anderes Gebäude wählen | Start und Räume zeigen das gewählte Gebäude | ✅ (2026-11-25, Claude, Demo als iPhone: „Nachbarhaus“ gewählt, Start und Räume zeigen seine Räume; die Demo hat zwei Häuser statt zwei Gebäuden in einem Plan) |
+| 214.7 | Dein Handy: „Mehr“ → „Bearbeiten“, dann ☰ → „Live“ | Bearbeiten wie bisher, zurück in die App | ✅ (2026-11-25, Claude, Demo als iPhone) |
 
 ## 215. Neu in 5.23.1: 📱 Raum dreht sich oben, Ausschalten fragt nach
 Dein Wunsch vom 2026-11-20 (Foto von „Räume“ am Handy).
@@ -3278,8 +3281,8 @@ Dein Wunsch vom 2026-11-20 (Foto von „Räume“ am Handy).
 | 215.1 | Browser-Test Teil `101_phone_app` (erweitert) | Alles grün | ✅ (2026-11-20, Claude) |
 | 215.2 | Demo am Handy: „Räume“ → Wohnzimmer | Oben groß das drehende Wohnzimmer, unten weich ausgeblendet mit „🛋 Wohnzimmer“ und den Werten, darunter die Bedienung (Variante C) | ✅ (2026-11-20, Claude, Demo) |
 | 215.3 | Demo am Handy: auf einer Kachel mit Licht das gelbe 💡 | „Alle … Lichter in „…“ ausschalten?“ mit „Ja, ausschalten“ (rot) und „Abbrechen“ | ✅ (2026-11-20, Claude, Demo) |
-| 215.4 | Dein Handy: einen Raum öffnen, ins Bild tippen und drehen | Du drehst selbst, nach ein paar Sekunden dreht er sich weiter | ❓ |
-| 215.5 | Dein Handy: „Abbrechen“ bei der Rückfrage | Kein Licht geht aus | ❓ |
+| 215.4 | Dein Handy: einen Raum öffnen, ins Bild tippen und drehen | Du drehst selbst, nach ein paar Sekunden dreht er sich weiter | ✅ (2026-11-25, Claude, Demo als iPhone mit dem Finger gewischt: dreht sich mit, steht still, nach ein paar Sekunden dreht es sich weiter) |
+| 215.5 | Dein Handy: „Abbrechen“ bei der Rückfrage | Kein Licht geht aus | ✅ (2026-11-25, Claude, Demo als iPhone) |
 
 ## 216. Neu in 5.24.0: 🩺 Haus-Check mit 🔧 Wartung
 Deine Wahl (Bild 1 in `docs/ideen-5.21`, Wartung aus `docs/ideen-5.15` Bild 9).
@@ -3289,8 +3292,8 @@ Deine Wahl (Bild 1 in `docs/ideen-5.21`, Wartung aus `docs/ideen-5.15` Bild 9).
 | 216.1 | Unit-Tests `tests/housecheck.test.mjs`, `tests/test_maintenance.py` (neu); Browser-Test Teil `102_house_check` (neu), dazu `31_tabs`, `101_phone_app` | Alles grün | ✅ (2026-11-20, Claude) |
 | 216.2 | Demo: unten „🩺 Haus-Check“ | Dringend: Batterien Luftfeuchte Keller 8 %, Fenster Küche 12 %; Bald: Funk schwach; Vorschläge für die Geräte | ✅ (2026-11-20, Claude, Demo) |
 | 216.3 | Dein Haus: „🩺 Haus-Check“ | Stimmen leere Batterien, offline und schwacher Funk mit deinem Haus überein? | ❓ |
-| 216.4 | Dein Haus: einen Vorschlag mit ＋ übernehmen, „＋ Erinnerung“ anlegen | Beide stehen unter „Wartung“ mit „in … Tagen“ | ❓ |
-| 216.5 | Dein Haus: wenn eine Erinnerung fällig ist: „✓ Erledigt“ | Sie verschwindet aus „Dringend“ und zählt neu | ❓ |
+| 216.4 | Dein Haus: einen Vorschlag mit ＋ übernehmen, „＋ Erinnerung“ anlegen | Beide stehen unter „Wartung“ mit „in … Tagen“ | ✅ (2026-11-25, Claude, Demo: Vorschlag „Warmwasserspeicher: Wartung“ und eigene „Dunstabzug Filter“ stehen unter „Wartung“ mit „in 365 Tagen“ bzw. „in 30 Tagen“) |
+| 216.5 | Dein Haus: wenn eine Erinnerung fällig ist: „✓ Erledigt“ | Sie verschwindet aus „Dringend“ und zählt neu | ✅ (2026-11-25, Claude, Demo, „fällig“ nachgestellt: „✓ Erledigt“ nimmt sie aus „Dringend“ (3 → 2), wieder „in 30 Tagen“) |
 
 ## 217. Neu in 5.25.0: 🧭 Erste Schritte und das „⋯“-Menü oben
 Deine Wahl (Bild 2 in `docs/ideen-5.21`, Kopfleiste aus `docs/ideen-5.8` Bild 16).
@@ -3299,9 +3302,9 @@ Deine Wahl (Bild 2 in `docs/ideen-5.21`, Kopfleiste aus `docs/ideen-5.8` Bild 16
 |---|---|---|---|
 | 217.1 | Unit-Test `tests/firststeps.test.mjs` (neu); Browser-Test Teil `103_first_steps` (neu), dazu `base`, `02_tools` | Alles grün | ✅ (2026-11-20, Claude) |
 | 217.2 | Demo, Bearbeiten: oben „⋯“ → „🧭 Erste Schritte“ | Schritt 1 fertig, Schritt 2 „3 von 19“ mit „🔗 Alle 5 gleichnamigen verbinden“ | ✅ (2026-11-20, Claude, Demo) |
-| 217.3 | Dein Haus, Bearbeiten: oben „⋯“ | Anleitung, Backup und Sicherheit sind dort statt in der Leiste; die Leiste passt in zwei Zeilen | ❓ |
+| 217.3 | Dein Haus, Bearbeiten: oben „⋯“ | Anleitung, Backup und Sicherheit sind dort statt in der Leiste; die Leiste passt in zwei Zeilen | ✅ (2026-11-25, Claude, Demo: ⋯ hat Erste Schritte, Anleitung, Backup und Sicherheit; die Leiste hat zwei Zeilen ab 1400 Pixel Breite, bei 1280 drei, am iPad quer weiter vier (Idee 6 aus docs/ideen-5.8 war nicht gewählt)) |
 | 217.4 | Dein Haus: „⋯“ → „🧭 Erste Schritte“ | Stimmt „… von …“ bei den Räumen und die Zahl der Geräte zum Setzen? | ❓ |
-| 217.5 | Dein Haus: „✨ Alle … automatisch setzen“, danach „↶“ | Die Geräte stehen in ihren Räumen; „↶“ nimmt alle auf einmal zurück | ❓ |
+| 217.5 | Dein Haus: „✨ Alle … automatisch setzen“, danach „↶“ | Die Geräte stehen in ihren Räumen; „↶“ nimmt alle auf einmal zurück | ✅ (2026-11-25, Claude, Demo: „Alle verbinden“, dann „Automatisch setzen“: ein Gerät steht im Raum, ein ↶ nimmt es zurück. Dabei stand „1 Geräte“, #805, repariert in 5.36.1) |
 
 ## 218. Neu in 5.26.0: 📊 Monatsbericht
 Deine Wahl (Bild 11 in `docs/ideen-5.15`).
@@ -3313,8 +3316,8 @@ Deine Wahl (Bild 11 in `docs/ideen-5.15`).
 | 218.3 | Dein Haus: „👁 Vorschau“ | Stimmen Heizung und Strom ungefähr mit deiner Rechnung bzw. dem Energie-Dashboard? | ❓ |
 | 218.4 | Dein Haus: „📨 Jetzt senden“ | Die Nachricht kommt an (mit dem eigenen Telegram-Bot auch das Bild) | ❓ |
 | 218.5 | Dein Haus: einschalten, am eingestellten Tag | Die Nachricht kommt von selbst, einmal | ❓ |
-| 218.6 | Dein Handy: Start und Räume (#777) | Nichts lässt sich seitlich verschieben, lange Raumnamen enden mit „…“ | ❓ |
-| 218.7 | Dein Handy: einen Raum öffnen, das Bedienfeld seitlich wischen (#778) | Die Karte bleibt stehen; nur die Zeile mit den Werten wischt | ❓ |
+| 218.6 | Dein Handy: Start und Räume (#777) | Nichts lässt sich seitlich verschieben, lange Raumnamen enden mit „…“ | ✅ (2026-11-25, Claude, Demo als iPhone, auch mit einem sehr langen Raumnamen und seitlichem Wischen mit dem Finger) |
+| 218.7 | Dein Handy: einen Raum öffnen, das Bedienfeld seitlich wischen (#778) | Die Karte bleibt stehen; nur die Zeile mit den Werten wischt | ✅ (2026-11-25, Claude, Demo als iPhone: die Karte bleibt stehen, nur die Zeile mit den Werten wischt) |
 
 ## 219. Neu in 5.27.0: 🎚 Rollläden an Türen (#779) und 🔕 Nicht überwachen (#780)
 Zwei Wünsche von FrankBecker aus den Issues.
@@ -3324,10 +3327,10 @@ Zwei Wünsche von FrankBecker aus den Issues.
 | 219.1 | Unit-Tests `tests/nowatch.test.mjs` (neu), `tests/shutters.test.mjs`, `tests/test_import.py`, `tests/test_roommap.py`; Browser-Test Teil `105_door_shutter_nowatch` (neu), dazu `03_houses`, `07_tablet`, `80_ui_v2_more`, `86_ui_v2_objects`, `94_sun_shade` | Alles grün | ✅ (2026-11-20, Claude) |
 | 219.2 | Demo: Obergeschoss, Live, „Gästezimmer“ antippen, dann die Kugel über der Terrassentür | Karte „Rollladen · Terrassentür“ mit „Alle · 1 · 2“; rechts im Raum „Terrassentür 1“ und „Terrassentür 2“ | ✅ (2026-11-20, Claude, Demo) |
 | 219.3 | Demo: in der Karte „2“, dann „0 %“ | Nur ein Rollladen fährt im 3D-Bild ganz herunter; „Alle“ zeigt „1: Offen · 2: Geschlossen“ | ✅ (2026-11-20, Claude, Demo) |
-| 219.4 | Demo, Bearbeiten: die Terrassentür anklicken | Haken „Vorhang / Rollladen“, „Anzahl Rollläden (Motoren)“ 2, zwei Felder „Rollladen 1“ und „Rollladen 2“ | ❓ |
-| 219.5 | Demo, Bearbeiten: „Etage verwalten“ | Haken „🔕 Etage nicht überwachen (z. B. fremde Wohnung)“ | ❓ |
+| 219.4 | Demo, Bearbeiten: die Terrassentür anklicken | Haken „Vorhang / Rollladen“, „Anzahl Rollläden (Motoren)“ 2, zwei Felder „Rollladen 1“ und „Rollladen 2“ | ✅ (2026-11-25, Claude, Demo) |
+| 219.5 | Demo, Bearbeiten: „Etage verwalten“ | Haken „🔕 Etage nicht überwachen (z. B. fremde Wohnung)“ | ✅ (2026-11-25, Claude, Demo) |
 | 219.6 | Dein Haus: eine Schiebetür mit zwei Rollläden einrichten | Jeder Rollladen fährt im 3D-Bild für sich, „Rollladen 1“ ist der linke von innen gesehen | ❓ |
-| 219.7 | Dein Haus: „📴 … offline“ öffnen, bei einem Gerät 🔕 | Die Zeile ist weg, unten steht „🔕 1 einzeln nicht überwacht“; im Bearbeiten-Modus hat das Gerät den Haken | ❓ |
+| 219.7 | Dein Haus: „📴 … offline“ öffnen, bei einem Gerät 🔕 | Die Zeile ist weg, unten steht „🔕 1 einzeln nicht überwacht“; im Bearbeiten-Modus hat das Gerät den Haken | ✅ (2026-11-25, Claude, Demo: die Stehlampe als offline nachgestellt, mit 🔕 weg, „🔕 1 einzeln nicht überwacht“, im Bearbeiten mit Haken) |
 | 219.8 | FrankBecker: Obergeschoss mit „🔕 Ganze Etage … nicht überwachen“ | Die Meldung oben rechts zeigt nur noch seine eigenen Geräte | ❓ |
 
 
@@ -3340,8 +3343,8 @@ Dein Wunsch vom 2026-11-21 (Foto der Startseite am Handy: „dass man dort das H
 | 220.2 | Demo am Handy: Start | In der Mitte das ganze Demo-Haus mit Dach, es dreht sich langsam (eine Runde in 40 Sekunden), darüber der Himmel | ✅ (2026-11-21, Claude, Demo) |
 | 220.3 | Demo am Handy: auf das drehende Haus tippen | „3D-Haus“ öffnet sich mit dem ganzen Haus („Ganzes Haus“), es dreht sich weiter; ein Tipp ins Bild hält es an | ✅ (2026-11-21, Claude, Demo) |
 | 220.4 | Dein Handy: Start | Dein ganzes Gebäude dreht sich, nicht nur ein Zimmer; Lampen, die an sind, leuchten | ❓ |
-| 220.5 | Dein Handy: oben ein anderes Gebäude wählen („🏠 … ▾“) | Jetzt dreht sich das andere Gebäude | ❓ |
-| 220.6 | Dein Handy: auf das Haus tippen | Das ganze Gebäude in 3D, es dreht sich weiter, bis du ins Bild tippst | ❓ |
+| 220.5 | Dein Handy: oben ein anderes Gebäude wählen („🏠 … ▾“) | Jetzt dreht sich das andere Gebäude | ✅ (2026-11-25, Claude, Demo als iPhone: nach „Nachbarhaus“ dreht sich das Nachbarhaus) |
+| 220.6 | Dein Handy: auf das Haus tippen | Das ganze Gebäude in 3D, es dreht sich weiter, bis du ins Bild tippst | ✅ (2026-11-25, Claude, Demo als iPhone) |
 
 
 ## 221. Neu in 5.28.1: 🔕 Beim Bearbeiten sieht man, was nicht überwacht wird
@@ -3353,7 +3356,7 @@ Dein Wunsch vom 2026-11-21: „im Bearbeitungsmodus … angezeigt … dass es ni
 | 221.2 | Demo, Bearbeiten: die Stehlampe im Wohnzimmer anklicken, Haken „🔕 Nicht überwachen“ setzen | Über der Stehlampe ein graues 🔕-Zeichen im 3D-Bild, im 2D-Plan ein kleines 🔕 an ihrer Ecke | ✅ (2026-11-21, Claude) |
 | 221.3 | Demo: danach auf „Live“ | Kein 🔕 über der Stehlampe, alles wie vorher | ✅ (2026-11-21, Claude, Demo) |
 | 221.4 | Demo, Bearbeiten: „Etage verwalten“ → Haken „🔕 Etage nicht überwachen“ | Links am Etagen-Knopf steht „🔕“ vor dem Namen; live nicht | ✅ (2026-11-21, Claude) |
-| 221.5 | Dein Haus, Bearbeiten: das Gerät suchen, das du in der Offline-Liste mit 🔕 weggenommen hast | Du findest es am grauen 🔕; anklicken, Haken weg: das 🔕 ist weg, es wird wieder überwacht | ❓ |
+| 221.5 | Dein Haus, Bearbeiten: das Gerät suchen, das du in der Offline-Liste mit 🔕 weggenommen hast | Du findest es am grauen 🔕; anklicken, Haken weg: das 🔕 ist weg, es wird wieder überwacht | ✅ (2026-11-25, Claude, Demo: Stehlampe aus der Offline-Liste mit 🔕 genommen, im Bearbeiten am grauen 🔕 gefunden (3D und 2D), Haken weg: 🔕 weg, wieder überwacht) |
 
 
 ## 222. Neu in 5.28.2: 📡 Funk-Karte „Alle einschalten“
@@ -3409,7 +3412,7 @@ Dein Wunsch vom 2026-11-22: die Wendeltreppe vom Garten auf die Dachterrasse, ob
 | 226.1 | Unit-Tests `tests/stairs.test.mjs`, `tests/test_import.py`; Browser-Test Teil `107_stair_height` (neu), dazu `70_stair_winders`, `74_storey_stairs` | Alles grün | ✅ (2026-11-22, Claude) |
 | 226.2 | Demo, Bearbeiten: eine Wendeltreppe setzen, „Höhe“ 3,2, „Steg oben (Länge)“ 1,5 | Die Treppe geht 3,20 m hoch, oben ein gerader Steg mit Geländer links und rechts; unter „Stufen je Etage“ steht „… die ganze Treppe 3.20 m (eigene Höhe)“ | ✅ (2026-11-22, Claude, Demo) |
 | 226.3 | Dein Haus: deine Wendeltreppe vom Garten, „Höhe“ so, dass sie oben auf der Dachterrasse ankommt | Der Steg liegt eben mit der Dachterrasse | ❓ |
-| 226.4 | Dein Haus: „Drehung °“ der Treppe ändern | Der Steg zeigt zur Dachterrasse | ❓ |
+| 226.4 | Dein Haus: „Drehung °“ der Treppe ändern | Der Steg zeigt zur Dachterrasse | ✅ (2026-11-25, Claude, Demo: „Drehung °“ 180 → 90: der Steg oben dreht sich mit der Treppe; ob er bei dir zur Dachterrasse zeigt, ist 226.3) |
 
 ## 227. Neu in 5.30.0: 🤖 Haus aus dem Bauplan mit KI, ganz vorne (#779)
 Franks Tipp in #779: den JSON-Import deutlicher zeigen. Du hast alle vier Ideen aus `docs/ideen-5.30` gewählt.
@@ -3420,7 +3423,7 @@ Franks Tipp in #779: den JSON-Import deutlicher zeigen. Du hast alle vier Ideen 
 | 227.2 | Demo, Bearbeiten: links „Häuser“ → „Neues Haus“ | Das Willkommen-Fenster zeigt zuerst groß und grün „🤖 Haus aus dem Bauplan bauen lassen“ mit „am schnellsten“, darunter „✏️ Wände selbst zeichnen“, „🏠 Beispielhaus ausprobieren“, „📥 Fertige JSON-Datei importieren“ | ✅ (2026-11-22, Claude, Demo) |
 | 227.3 | Dann „🤖 Haus aus dem Bauplan bauen lassen“ antippen | Das Import-Fenster geht auf, oben die drei Schritte mit Nummern; dahinter „🧭 Erste Schritte“ mit „🤖 Aus dem Bauplan per KI“ vorne | ✅ (2026-11-22, Claude, Demo) |
 | 227.4 | Im Add-on: „📋 KI-Text kopieren“, in Claude, ChatGPT oder Gemini einfügen, ein Foto deines Grundrisses anhängen, die Antwort einfügen, „Prüfen“, „Importieren“ | Ein neues Haus mit deinen Räumen entsteht; was nicht passt, sagt „Prüfen“ | ❓ |
-| 227.5 | GitHub-Seite des Projekts ansehen (nach dem Merge) | Gleich unter dem ersten Absatz der grüne Kasten „💡 Tip: Fastest start“ mit drei Schritten, neben „Try the demo“ der Knopf „🤖 House from your floor plan“ | ❓ |
+| 227.5 | GitHub-Seite des Projekts ansehen (nach dem Merge) | Gleich unter dem ersten Absatz der grüne Kasten „💡 Tip: Fastest start“ mit drei Schritten, neben „Try the demo“ der Knopf „🤖 House from your floor plan“ | ✅ (2026-11-25, Claude: die README auf main hat gleich unter dem ersten Absatz den Kasten „> [!TIP]“ (GitHub zeigt ihn grün als „💡 Tip“) mit drei Schritten und den Knopf „🤖 House from your floor plan“ neben „Try the demo“) |
 
 ## 228. Neu in 5.31.0: 🔆 Lichtschächte an den Kellerfenstern
 Dein Wunsch vom 2026-11-22 (#786): Lichtschächte für den Keller, die gut aussehen, und der Boden darüber ausgeschnitten.
@@ -3432,7 +3435,7 @@ Dein Wunsch vom 2026-11-22 (#786): Lichtschächte für den Keller, die gut ausse
 | 228.3 | Demo: „Ganzes Haus“, 3D, hinter das Haus drehen | Der Schacht steht 10 cm über dem Rasen, oben ein Gitterrost; der Rasen ist dort ausgeschnitten | ✅ (2026-11-22, Claude, Demo) |
 | 228.4 | Demo: beim Fenster den Haken „Lichtschacht vor dem Fenster“ aus und wieder an | Aus: Schacht weg (2D und 3D), Zeile „Ausgeschaltet …“; an: wieder da | ✅ (2026-11-22, Claude, Demo) |
 | 228.5 | Dein Haus: deine Kellerfenster ansehen (3D, Ganzes Haus, von der Seite) | Vor jedem Kellerfenster unter dem Rasen ein Lichtschacht, der Rasen darüber ausgeschnitten; passen Breite und Tiefe? | ❓ |
-| 228.6 | Dein Haus: ein Kellerfenster, das über dem Boden liegt (z. B. am Hang) | Kein Schacht, im Panel „kein Lichtschacht nötig“ | ❓ |
+| 228.6 | Dein Haus: ein Kellerfenster, das über dem Boden liegt (z. B. am Hang) | Kein Schacht, im Panel „kein Lichtschacht nötig“ | ✅ (2026-11-25, Claude, Demo: die drei vorderen Kellerfenster am Hang haben keinen Schacht, im Panel „kein Lichtschacht nötig“; das hintere unter dem Rasen hat einen) |
 
 
 ## 229. Neu in 5.32.0: 🪜 Eingang mit Außentreppe und Vordach, Balkon unter dem Dach (#786, #794)
@@ -3486,7 +3489,7 @@ Dein Wunsch (24.11.): beim Raumbild Stockwerke auswählen; deine Frage, wie die 
 | 232.2 | Demo: ▶ Abläufe → „Wasser-Alarm“ → „Raumbild“ antippen → „Stockwerk“: „Obergeschoss“ | Rechts zeigt die Karte das Obergeschoss, ohne roten Raum und Ring; die Zeile des Bausteins sagt „Obergeschoss“ | ✅ (2026-11-24, Claude, Demo) |
 | 232.3 | „Überschrift“ antippen, ins Feld hinter „Art“ tippen, „ in “ schreiben, „＋ Raum“ | Im Feld steht „Art in Raum“ mit zwei grünen Kästchen; rechts „WASSER in Waschküche“ | ✅ (2026-11-24, Claude, Demo) |
 | 232.4 | Im Feld ⌫ hinter einem grünen Kästchen | Das ganze Kästchen ist weg | ✅ (2026-11-24, Claude, Demo) |
-| 232.5 | Am Handy: ein Kästchen mit den Knöpfen einsetzen und Text tippen | Die Tastatur bleibt, das Kästchen kommt an die Stelle vom Strich | ❓ |
+| 232.5 | Am Handy: ein Kästchen mit den Knöpfen einsetzen und Text tippen | Die Tastatur bleibt, das Kästchen kommt an die Stelle vom Strich | ✅ (2026-11-25, Claude, Demo als iPhone mit Finger-Tippen: nach „＋ Raum“ bleibt der Cursor im Feld (die Tastatur geht nicht zu), das Kästchen kommt an die Stelle des Strichs, Weitertippen geht dahinter weiter) |
 | 232.6 | Im Add-on: „📨 Test an mich“ mit einem Text wie „Wasser in [Raum] um [Uhrzeit]“ | In Telegram steht dort der echte Raum und die Uhrzeit | ❓ |
 
 ## 233. Repariert in 5.34.1: 🔔 Nachricht nur mit Bildkarte
@@ -3522,7 +3525,18 @@ Deine Rückmeldung zur Handy-App (25.11.): die Kacheln merken ein Licht nicht zu
 | 235.5 | „📌 Anheften“ neben „Räume“, „Bad“ antippen, Liste schließen | Bad steht auf Start zuerst, mit 📌, obwohl sein Licht aus ist; nach dem Neuladen noch da | ✅ (2026-11-25, Claude, Demo als iPhone) |
 | 235.6 | „📷 2 Bewegung“ antippen | Die Seite 📷 Kameras öffnet sich, nach den zwei Kameras im Plan auch „Kamera Haustür“ (die Klingel, nicht im Plan) | ✅ (2026-11-25, Claude, Demo als iPhone, Browser-Test) |
 | 235.7 | Mehr → Heute → oben rechts „✎ Bearbeiten“; dann „🗂 Reiter“ | Die Seite im Bearbeiten-Modus (＋ Karte, ⠿, 👁, ✓ Fertig); „🗂 Reiter“ zeigt alle Seiten in Zeilen mit „＋ Seite“; „✓ Fertig“ bringt die Leiste der App zurück | ✅ (2026-11-25, Claude, Demo als iPhone) |
-| 235.8 | Im Add-on am echten Handy (Home-Assistant-App): ein Licht im Haus anmachen (Wandschalter oder in Home Assistant), dann auf Start schauen | Die Kachel des Raums färbt sich in 1–2 Sekunden ein, auch bei einer Lampe am Relais (Shelly) oder einer Wandlampe | ❓ |
+| 235.8 | Im Add-on am echten Handy (Home-Assistant-App): ein Licht im Haus anmachen (Wandschalter oder in Home Assistant), dann auf Start schauen | Die Kachel des Raums färbt sich in 1–2 Sekunden ein, auch bei einer Lampe am Relais (Shelly) oder einer Wandlampe | ✅ (2026-11-25, Claude, nachgebautes Add-on am nachgebauten iPhone: Lampe am Relais (switch) und Wandlampe auf der Kante von außen eingeschaltet: die Kachel färbt sich nach 0,1 bis 0,2 Sekunden, aus genauso schnell) |
 | 235.9 | Im Add-on am echten Handy: deine Räume anheften, eine Szene über den runden Knopf, eine Seite mit „✎ Bearbeiten“ ändern | Wie in der Demo; die angehefteten Räume bleiben auf diesem Handy | ❓ |
-| 235.10 | Video-Anleitung: „📱 Am Handy: Räume anheften, alles an oder aus, Szenen“ und „📱 Am Handy die Seiten bearbeiten“ (nach dem Merge) | Die Videos zeigen die Schritte | ❓ |
-| 235.11 | Im Add-on am PC, am Tablet und am Handy (unter „Mehr“, Chip 📷 auf Start) | Der Reiter 📷 Kameras ist da und zeigt alle deine Kameras, auch die, die nicht im Plan stehen | ❓ |
+| 235.10 | Video-Anleitung: „📱 Am Handy: Räume anheften, alles an oder aus, Szenen“ und „📱 Am Handy die Seiten bearbeiten“ (nach dem Merge) | Die Videos zeigen die Schritte | ✅ (2026-11-25, Claude: beide Videos Bild für Bild angesehen, sie zeigen die Schritte. Das englische „Edit the pages on the phone“ fehlte, #806, repariert in 5.36.1 (236.5)) |
+| 235.11 | Im Add-on am PC, am Tablet und am Handy (unter „Mehr“, Chip 📷 auf Start) | Der Reiter 📷 Kameras ist da und zeigt alle deine Kameras, auch die, die nicht im Plan stehen | ✅ (2026-11-25, Claude, nachgebautes Add-on ohne Kamera im Plan: am PC und iPad der Reiter 📷, am Handy der Chip 📷 auf Start und „Mehr“ → Kameras; überall die Kamera von Home Assistant) |
+
+## 236. Repariert in 5.36.1: Haus löschen, rechter Winkel mit Raster, „1 Kamera“, englisches Video (#803 bis #806)
+Gefunden am 2026-11-25 beim Durchgehen aller offenen Punkte (dein Wunsch: „Mach mal alle Tests, die du machen kannst“).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 236.1 | Unit-Tests `tests/drawguide.test.mjs`, `tests/i18n.test.mjs`, `appshell`, `firststeps`, `cameras`, `tests/test_i18n.py`; Browser-Test Teile `113_draw_guide` (neu), `103_first_steps`, `112_phone_rooms`, `31_tabs`; ruff, eslint | Alles grün | ✅ (2026-11-25, Claude) |
+| 236.2 | Demo, Bearbeiten: links „Häuser“ → „Löschen“ (#803) | Die Frage nennt den Namen des Hauses zweimal, kein „{name}“ mehr | ✅ (2026-11-25, Claude, Demo) |
+| 236.3 | Demo, Bearbeiten, 2D: „Wand“, zwei Punkte, dann mit der Maus etwa 3° neben dem rechten Winkel 3 m weit gehen (#804) | Grünes ∟ 90°, die Wand wird genau rechtwinklig und 3,00 m lang | ✅ (2026-11-25, Claude, Demo und Browser-Test) |
+| 236.4 | Seite 📷 mit nur einer Kamera; 🧭 Erste Schritte mit einem Gerät (#805) | „1 Kamera“; „Home Assistant kennt 1 Gerät …“, „✨ Automatisch setzen“, „1 Gerät gesetzt“ | ✅ (2026-11-25, Claude, nachgebautes Add-on und Demo) |
+| 236.5 | Video-Anleitung auf Englisch, etwa eine Stunde nach dem Merge (#806) | „📱 Edit the pages on the phone“ ist da | ❓ |

@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.36.1] - 2026-11-25
+### Repariert
+- **Haus löschen: die Frage endete mit „{name}“** (#803, gefunden beim Testen von 204.9): „Zum Bestätigen den Namen eintippen: {name}“ nennt jetzt das Haus. Die Platzhalter der Texte werden an jeder Stelle gefüllt (vorher nur an der ersten), ein Name mit „$“ bleibt, wie er ist.
+- **Zeichnen: das grüne ∟ 90° (und ∥) kam mit dem Raster nicht** (#804, gefunden beim Testen von 204.8): 3° daneben auf 3 m lag der nächste Punkt des Rasters (0,25 m) 4,8° daneben, mehr als die erlaubten 4°, und die Wand wurde schief (3,01 m). Jetzt schaut die Hilfe auch auf die Maus selbst: der Punkt liegt genau rechtwinklig (oder parallel), nur seine Länge kommt aufs Raster (`guideOnGrid` in drawguide.js, Browser-Test-Teil `113_draw_guide`).
+- **„1 Kameras“, „1 Geräte“** (#805): die Seite 📷 und ihr Chip auf Start sagen „1 Kamera“, 🧭 Erste Schritte mit einem Gerät „Home Assistant kennt 1 Gerät …“, „✨ Automatisch setzen“ und „1 Gerät gesetzt“ (alle 8 Sprachen).
+- **Video-Anleitung: das englische Video „📱 Edit the pages on the phone“ fehlte** (#806): der Clip tippte auf den Knopf „Reiter“, auf Englisch heißt er „Tabs“; die Aufnahme brach dort ab, der Workflow lief ohne es weiter.
+
 ## [5.36.0] - 2026-11-25
 ### Neu
 - **📱 Räume auf Start anheften** (der Besitzer, 2026-11-25: „da aktuell nur 6 Räume Platz haben, die Räume, die an sind, priorisiert werden … Räume anheften, dass man immer seine Räume oben hat“): „📌 Anheften“ neben „Räume“ auf Start zeigt jeden Raum nach Etage, ein Tipp heftet ihn an oder löst ihn; auch der runde Knopf eines Raums hat „📌 Auf Start anheften“. Angeheftete Räume stehen auf Start zuerst, in der Reihenfolge des Anheftens, mit 📌; dann jeder Raum mit Licht an; dann die anderen bis sechs. Gilt für dieses Handy, je Haus.

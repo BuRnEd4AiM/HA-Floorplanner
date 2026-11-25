@@ -65,3 +65,11 @@ test('unknown codes are German; auto follows the browser, also to a language tha
     if (nav) Object.defineProperty(globalThis, 'navigator', nav); else delete globalThis.navigator;
   }
 });
+
+test('5.36.1: a placeholder that stands twice is filled in both places (the question when deleting a house ended in „{name}“)', () => {
+  I.setLanguage('de');
+  const q = I.t('house.deleteType', { name: 'Nachbarhaus' });
+  assert.doesNotMatch(q, /\{name\}/);
+  assert.equal(q.split('Nachbarhaus').length - 1, 2);
+  assert.equal(I.t('house.deleteType', { name: 'A$&B' }).split('A$&B').length - 1, 2);   // taken as it is, no replace patterns
+});

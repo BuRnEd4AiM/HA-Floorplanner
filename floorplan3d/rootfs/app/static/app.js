@@ -1410,7 +1410,7 @@ firstSteps = initFirstSteps({
     snapshot();
     const n = list.reduce((sum, { fi, room, ids }) => sum + autoPlace(room, ids, layout.floors[fi], false).devices.length, 0);
     changed(); build();
-    setStatus(t('fs.placed', { n }));
+    setStatus(t(n === 1 ? 'fs.placed1' : 'fs.placed', { n }));
   },
   placeOne: () => { const x = stillToPlace()[0]; if (x) selectRoomAt(x.fi, x.room.id); },
   goLive: () => setMode('live'),

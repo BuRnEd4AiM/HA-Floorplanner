@@ -4142,4 +4142,6 @@ export default {
   'an.cardsHa': '图片会发送到 Home Assistant 应用（“mobile_app_…”服务）。其他服务只收到文字。',
   'app.onAll': '打开全部 {n} 盏灯', 'app.on1': '开灯', 'app.offAll': '关闭所有灯', 'app.off1': '关灯', 'app.pin': '固定到首页', 'app.unpin': '取消固定', 'app.roomActs': '灯光、场景、固定',
   'app.pinShort': '固定', 'app.pinTitle': '固定房间', 'app.pinHint': '固定的房间始终显示在首页顶部，其后是每个开着灯的房间。仅适用于此手机。', 'app.cams': '{n} 个摄像头', 'app.motion': '{n} 处有动静',
+  'tp.cam.count1': '1 个摄像头', 'app.cams1': '1 个摄像头', 'fs.place.text1': 'Home Assistant 在你的区域中有 1 个设备。加载项会把它放进它的房间——之后你再移到正确位置。', 'fs.placed1': '已放置 1 个设备',
+  'fs.place.all1': '自动放置',
 };
