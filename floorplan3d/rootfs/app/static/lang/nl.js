@@ -2672,4 +2672,8 @@ export default {
   'pc.viaHaNoApp': '⚠ Bij jou is de meldingsdienst van Home Assistant ingesteld, maar zonder de Home Assistant-app (mobile_app_…): alleen de tekst komt aan. Vink daar de app aan.',
   'pc.viaOff': '⚠ Berichten naar de telefoon staan nog niet aan: ⚙ → Waarschuwingen & alarm → Bericht naar de telefoon.',
   'an.cardsHa': 'De foto komt aan in de Home Assistant-app (diensten „mobile_app_…”). Andere diensten krijgen alleen de tekst.',
+  'app.onAll': 'Alle {n} lampen aan', 'app.on1': 'Licht aan', 'app.offAll': 'Alle lampen uit', 'app.off1': 'Licht uit', 'app.pin': 'Vastzetten op Start',
+  'app.unpin': 'Niet meer vastzetten', 'app.roomActs': 'Licht, scènes, vastzetten', 'app.pinShort': 'Vastzetten', 'app.pinTitle': 'Ruimtes vastzetten',
+  'app.pinHint': 'Vastgezette ruimtes staan op Start altijd bovenaan, daarna elke ruimte waar een lamp aan is. Voor deze telefoon.', 'app.cams': '{n} camera’s',
+  'app.motion': '{n} beweging',
 };

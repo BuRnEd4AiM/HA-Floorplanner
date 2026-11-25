@@ -156,3 +156,24 @@ test('a strip that scrolls sideways: arrows only where there is more to see (3.9
   assert.deepEqual(R.stripEnds(1200, 2000, 800), { left: true, right: false }, 'at the end');
   assert.deepEqual(R.stripEnds(1199, 2000, 800), { left: true, right: false }, 'a pixel from the end counts as the end');
 });
+
+test('the lights of a room as the 3D picture lights it (5.36.0): a lamp on a relay and a wall lamp on its edge count, another room\'s lamp not', () => {
+  const r2 = { id: 'r2', name: 'Flur', points: [[6, 0], [9, 0], [9, 4], [6, 4]] };
+  const f = { rooms: [room, r2] };
+  const pl = [
+    { entity: 'light.decke', type: 'light', x: 3, z: 2 },
+    { entity: 'switch.shelly_wz', type: 'pendant', x: 2, z: 3 },              // a lamp on a relay (#367): lit in 3D, so in the tile too
+    { entity: 'switch.steckdose', type: 'plug', x: 1, z: 3 },                  // a plug is no light
+    { entity: 'light.wandlampe', type: 'walllamp', x: 3, z: -0.1 },            // on the wall, just outside the outline
+    { entity: 'light.flur_wand', type: 'walllamp', x: 6.1, z: 2 },             // just outside, but inside the hall: the hall's
+    { entity: 'light.garten', type: 'light', x: 3, z: 9 },
+  ];
+  assert.deepEqual(R.roomLightIds(room, f, pl, ['light.area_led', 'sensor.x']).sort(), ['light.area_led', 'light.decke', 'light.wandlampe', 'switch.shelly_wz']);
+  assert.deepEqual(R.roomLightIds({ ...room, area: '' }, f, pl, ['light.area_led']).sort(), ['light.decke', 'light.wandlampe', 'switch.shelly_wz']);
+  assert.deepEqual(R.roomLightIds(r2, f, pl).sort(), ['light.flur_wand']);
+  const st = { 'light.decke': { state: 'off' }, 'switch.shelly_wz': { state: 'on' }, 'light.wandlampe': { state: 'on', rgb: [10, 20, 30] }, 'switch.steckdose': { state: 'on' } };
+  const s = R.roomSummary(room, { ...floor, rooms: [room, r2] }, ctx({ placed: pl, areaEntities: [], states: st, isOn: (e) => st[e]?.state === 'on' }));
+  assert.equal(s.lights, 2, 'the relay lamp and the wall lamp; not the plug'); assert.equal(s.all, 3); assert.deepEqual(s.rgb, [10, 20, 30]);
+  assert.ok(R.isRoomLight({ entity: 'light.x' })); assert.ok(R.isRoomLight({ entity: 'switch.x', type: 'spot' })); assert.ok(!R.isRoomLight({ entity: 'switch.x', type: 'switch' }));
+  assert.ok(!R.isRoomLight(null)); assert.ok(!R.isRoomLight({ type: 'light' }));
+});

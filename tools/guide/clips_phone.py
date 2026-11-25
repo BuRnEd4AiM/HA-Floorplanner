@@ -150,6 +150,71 @@ def _(r):
     r.wait(1800)
 
 
+@clip("phone-rooms", "phone",
+      {"de": "📱 Am Handy: Räume anheften, alles an oder aus, Szenen", "en": "📱 On the phone: pin rooms, all on or off, scenes"},
+      {"de": "Auf Start stehen zuerst die angehefteten Räume, dann jeder Raum, in dem Licht an ist, in der Farbe seines Lichts. Der runde Knopf einer Kachel öffnet ihre Liste: alle Lichter an, alle aus, die Szenen des Raums, anheften; ein Tipp auf eine Zeile ist die Bestätigung. „📌 Anheften“ wählt die Räume, die immer oben stehen (für dieses Handy). Die Chips oben stehen in Zeilen, nichts zum Wischen; 📷 öffnet die Kameras.",
+       "en": "Home shows the pinned rooms first, then every room with a light on, in the colour of its light. The round button of a tile opens its list: all lights on, all off, the room's scenes, pin; a tap on a line is the confirmation. “📌 Pin” chooses the rooms that always stand on top (for this phone). The chips on top are in lines, nothing to swipe; 📷 opens the cameras."},
+      "Handy Start Räume anheften festpinnen oben Kachel Knopf alles an alles aus Szene Licht an Bestätigung Kameras Chips "
+      "phone home pin rooms on top tile button all on all off scene light on confirm cameras chips",
+      device="phone", sky="19:40")
+def _(r):
+    r.say("Oben auf Start steht alles auf einen Blick, auch 📷 für die Kameras.", "Everything is at a glance on top of home, 📷 for the cameras too.")
+    r.wait(2200)
+    r.say("Darunter jeder Raum, in dem Licht an ist, in der Farbe seines Lichts.", "Below, every room with a light on, in the colour of its light.")
+    r.js("document.querySelector('[data-page=start] .apSec').scrollIntoView({ behavior: 'smooth', block: 'start' })")
+    r.wait(2200)
+    r.poster()
+    r.say("Der runde Knopf einer Kachel: alle Lichter an oder aus, oder eine Szene des Raums.", "The round button of a tile: all lights on or off, or one of the room's scenes.")
+    r.click("[data-page=start] .apRoom[data-room=r1] .apToggle")
+    r.wait(2400)
+    r.say("Ein Tipp auf eine Zeile ist die Bestätigung, zum Beispiel die Szene.", "A tap on a line is the confirmation, the scene for example.")
+    r.click(".apSheet [data-act=roomScene]")
+    r.wait(1800)
+    r.say("„📌 Anheften“ wählt Räume, die immer oben stehen.", "“📌 Pin” chooses rooms that always stand on top.")
+    r.click("[data-page=start] [data-act=appPins]")
+    r.wait(1600)
+    r.click(".apSheet [data-pin$='/r2']")
+    r.wait(1400)
+    r.pg.mouse.click(200, 40)
+    r.wait(800)
+    r.js("document.querySelector('[data-page=start] .apSec').scrollIntoView({ behavior: 'smooth', block: 'start' })")
+    r.say("Die Küche steht jetzt immer zuerst, mit 📌, auch wenn ihr Licht aus ist.", "The kitchen is now always first, with 📌, even with its light off.")
+    r.wait(2600)
+    r.js("localStorage.removeItem('fp.appPins')")
+
+
+@clip("phone-dash", "phone",
+      {"de": "📱 Am Handy die Seiten bearbeiten", "en": "📱 Edit the pages on the phone"},
+      {"de": "In der App-Ansicht hat jede Seite unter „Mehr“ oben „✎ Bearbeiten“: Karten verschieben, ausblenden, „＋ Karte“, Abschnitte, wie am Tablet. „🗂 Reiter“ zeigt alle Seiten in Zeilen zum Ordnen und „＋ Seite“; „✓ Fertig“ beendet es.",
+       "en": "In the app view every page under “More” has “✎ Edit” on top: move cards, hide them, “＋ Card”, sections, as on a tablet. “🗂 Tabs” shows every page in lines to order them and “＋ Page”; “✓ Done” ends it."},
+      "Handy Seite bearbeiten Dashboard Karten verschieben ausblenden hinzufügen Reiter ordnen neue Seite App-Ansicht "
+      "phone edit page dashboard move cards hide add tabs order new page app view",
+      device="phone")
+def _(r):
+    r.say("Unter „Mehr“ eine Seite öffnen, zum Beispiel „Heute“.", "Open a page under “More”, “Today” for example.")
+    r.click("#tabBar [data-tab=more]")
+    r.wait(1200)
+    r.click(".apSheet [data-tab=today]")
+    r.wait(1600)
+    r.say("Oben rechts „✎ Bearbeiten“.", "“✎ Edit” on the top right.")
+    r.click("#appEdit")
+    r.wait(2000)
+    r.poster()
+    r.say("Karten mit ⠿ verschieben, mit 👁 ausblenden, „＋ Karte“ fügt eine hinzu – wie am Tablet.", "Move cards with ⠿, hide them with 👁, “＋ Card” adds one – as on a tablet.")
+    r.js("document.getElementById('tabPages').scrollBy({ top: 520, behavior: 'smooth' })")
+    r.wait(2600)
+    r.js("document.getElementById('tabPages').scrollTo({ top: 0, behavior: 'smooth' })")
+    r.wait(1200)
+    r.say("„🗂 Reiter“ zeigt alle Seiten zum Ordnen und „＋ Seite“.", "“🗂 Tabs” shows every page to order them and “＋ Page”.")
+    r.click("[data-page=today] .bdStrip button", text="Reiter")
+    r.wait(2600)
+    r.say("„✓ Fertig“ – und unten ist wieder die Leiste der App.", "“✓ Done” – and the app's bar is back at the bottom.")
+    r.click("#tabEditBar button.primary")
+    r.wait(1200)
+    r.click("[data-page=today] .bdStrip button.primary")
+    r.wait(1500)
+
+
 @clip("phone-edit", "phone",
       {"de": "Am Handy bearbeiten", "en": "Edit on the phone"},
       {"de": "„Mehr“ → „Bearbeiten“: oben die Werkzeuge in einer Leiste zum Wischen, „2D“ zeigt den Plan. Mit dem Finger Wände zeichnen, ein Fenster antippen und unten einstellen, auch seinen Kontakt. ☰ → „Live“ geht zurück zum Haus.",

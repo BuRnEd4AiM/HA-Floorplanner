@@ -2705,4 +2705,9 @@ export default {
   'pc.viaHaNoApp': '⚠ Hai il servizio di notifica di Home Assistant, ma senza l\'app di Home Assistant (mobile_app_…): arriva solo il testo. Spunta l\'app.',
   'pc.viaOff': '⚠ I messaggi sul telefono non sono ancora attivi: ⚙ → Avvisi e allarme → Messaggio sul telefono.',
   'an.cardsHa': 'L\'immagine arriva nell\'app di Home Assistant (servizi «mobile_app_…»). Gli altri servizi ricevono solo il testo.',
+  'app.onAll': 'Accendi tutte le {n} luci', 'app.on1': 'Accendi la luce', 'app.offAll': 'Spegni tutte le luci', 'app.off1': 'Spegni la luce',
+  'app.pin': 'Fissa nella Home', 'app.unpin': 'Non fissare più', 'app.roomActs': 'Luci, scene, fissa', 'app.pinShort': 'Fissa',
+  'app.pinTitle': 'Fissa le stanze',
+  'app.pinHint': 'Le stanze fissate sono sempre in alto nella Home, poi ogni stanza con una luce accesa. Per questo telefono.', 'app.cams': '{n} telecamere',
+  'app.motion': '{n} movimento',
 };

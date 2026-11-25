@@ -544,7 +544,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 232. Neu in 5.34.0: 🖼 Bildkarten: Stockwerk wählen, grüne Kästchen | 4 | 0 | 2 | 0 | 232.5, 232.6 |
 | 233. Repariert in 5.34.1: 🔔 Nachricht nur mit Bildkarte | 3 | 0 | 1 | 0 | 233.3 |
 | 234. Neu in 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ | 3 | 0 | 2 | 0 | 234.4, 234.5 |
-| **Zusammen** | **1400** | **2** | **182** | **92** | |
+| 235. Neu in 5.36.0: 📱 Räume anheften, alles an/aus mit Szenen, Seiten am Handy bearbeiten (#801) | 7 | 0 | 3 | 0 | 235.8 bis 235.10 |
+| **Zusammen** | **1407** | **2** | **185** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3508,3 +3509,19 @@ Deine Wünsche (24.11.): Telegram reicht, aber auch über die Benachrichtigungen
 | 234.3 | „❓ So funktionieren Bildkarten“ (auch am Handy) | Ein Fenster: ① Lücken → etwas passiert → Karte auf dem Handy; ② A, B gefüllt, C mit roten Fragezeichen; ③ Merke | ✅ (2026-11-24, Claude, Demo und Demo schmal) |
 | 234.4 | Im Add-on: ⚙ → Warnungen & Alarm → Nachricht aufs Handy → „Benachrichtigungsdienst von Home Assistant (Bild in der App)“, deine Home-Assistant-App (mobile_app_…) anhaken, „🖼 Bildkarte je Alarm“: Wasser → eine Karte, Speichern; dann bei der Karte „📨 Test an mich“ | In der Home-Assistant-App am Handy kommt die Benachrichtigung mit der Karte als Bild (auch unterwegs, wenn die App dein Home Assistant von außen erreicht) | ❓ |
 | 234.5 | Im Medien-Browser von Home Assistant: Medien → Lokale Medien → „3d-floorplan“ | Dort liegen die Bilder der Karten, höchstens 12 | ❓ |
+
+## 235. Neu in 5.36.0: 📱 Räume anheften, alles an/aus mit Szenen, Seiten am Handy bearbeiten (#801)
+Deine Rückmeldung zur Handy-App (25.11.): die Kacheln merken ein Licht nicht zuverlässig; Räume mit Licht an zuerst, Räume anheften; über den Knopf der Kachel auch alles an (mit Bestätigung, Szenen); die Chips oben ohne Wischen; der Reiter Kameras fehlt; Dashboards am Handy bearbeiten; oben nicht so viel Platz verschenken.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 235.1 | Unit-Tests `tests/appshell.test.mjs`, `tests/roomtiles.test.mjs`, `tests/lightgroups.test.mjs`; Browser-Test Teile `112_phone_rooms` (neu), `101_phone_app`, `25_sky_tiles`, `30_quick`, `32_today_energy`, `83_room_source`, `26_look` | Alles grün | ✅ (2026-11-25, Claude) |
+| 235.2 | Demo am Handy (oder schmal): Start, nach unten zu „Räume“ | Jeder Raum mit Licht an steht da (in der Demo 6 oder mehr), jede Kachel in der Farbe ihres Lichts; schaltest du im 3D-Haus ein Licht in einem weiteren Raum an, kommt dessen Kachel dazu | ✅ (2026-11-25, Claude, Demo als iPhone) |
+| 235.3 | Oben auf Start | Die Chips (💡, 🛡, 🪟, 🔋, 🩺, 📷, 🌡) stehen in Zeilen, nichts zum seitlichen Wischen; Datum und Haus in einer Zeile, oben kein leerer Streifen | ✅ (2026-11-25, Claude, Demo als iPhone) |
+| 235.4 | Der runde Knopf auf „Wohnzimmer“, dann auf „Küche“ (unter „Räume“) | Wohnzimmer: „⏻ Alle Lichter aus“ (rot), die Szenen „Wohnzimmer Gemütlich“, „Wohnzimmer Aus“, „TV-Abend“, „📌 Auf Start anheften“, „🚪 Raum öffnen“, „Abbrechen“; Küche: „💡 Licht an“; ein Tipp schaltet, „Abbrechen“ schaltet nichts | ✅ (2026-11-25, Claude, Demo als iPhone) |
+| 235.5 | „📌 Anheften“ neben „Räume“, „Bad“ antippen, Liste schließen | Bad steht auf Start zuerst, mit 📌, obwohl sein Licht aus ist; nach dem Neuladen noch da | ✅ (2026-11-25, Claude, Demo als iPhone) |
+| 235.6 | „📷 2 Bewegung“ antippen | Die Seite 📷 Kameras öffnet sich | ✅ (2026-11-25, Claude, Demo als iPhone) |
+| 235.7 | Mehr → Heute → oben rechts „✎ Bearbeiten“; dann „🗂 Reiter“ | Die Seite im Bearbeiten-Modus (＋ Karte, ⠿, 👁, ✓ Fertig); „🗂 Reiter“ zeigt alle Seiten in Zeilen mit „＋ Seite“; „✓ Fertig“ bringt die Leiste der App zurück | ✅ (2026-11-25, Claude, Demo als iPhone) |
+| 235.8 | Im Add-on am echten Handy (Home-Assistant-App): ein Licht im Haus anmachen (Wandschalter oder in Home Assistant), dann auf Start schauen | Die Kachel des Raums färbt sich in 1–2 Sekunden ein, auch bei einer Lampe am Relais (Shelly) oder einer Wandlampe | ❓ |
+| 235.9 | Im Add-on am echten Handy: deine Räume anheften, eine Szene über den runden Knopf, eine Seite mit „✎ Bearbeiten“ ändern | Wie in der Demo; die angehefteten Räume bleiben auf diesem Handy | ❓ |
+| 235.10 | Video-Anleitung: „📱 Am Handy: Räume anheften, alles an oder aus, Szenen“ und „📱 Am Handy die Seiten bearbeiten“ (nach dem Merge) | Die Videos zeigen die Schritte | ❓ |

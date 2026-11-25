@@ -2715,4 +2715,9 @@ export default {
   'pc.viaHaNoApp': '⚠ Tienes el servicio de notificación de Home Assistant, pero sin la app de Home Assistant (mobile_app_…): solo llega el texto. Marca la app allí.',
   'pc.viaOff': '⚠ Los mensajes al móvil aún no están activados: ⚙ → Avisos y alarma → Mensaje al móvil.',
   'an.cardsHa': 'La imagen llega a la app de Home Assistant (servicios «mobile_app_…»). Los demás servicios reciben solo el texto.',
+  'app.onAll': 'Encender las {n} luces', 'app.on1': 'Encender la luz', 'app.offAll': 'Apagar todas las luces', 'app.off1': 'Apagar la luz',
+  'app.pin': 'Fijar en Inicio', 'app.unpin': 'Dejar de fijar', 'app.roomActs': 'Luces, escenas, fijar', 'app.pinShort': 'Fijar',
+  'app.pinTitle': 'Fijar habitaciones',
+  'app.pinHint': 'Las habitaciones fijadas siempre están arriba en Inicio; luego cada habitación con una luz encendida. Para este móvil.',
+  'app.cams': '{n} cámaras', 'app.motion': '{n} movimiento',
 };

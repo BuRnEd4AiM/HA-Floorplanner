@@ -4140,4 +4140,6 @@ export default {
   'pc.via': '图片卡通过“Telegram – 自己的机器人”或 Home Assistant 应用发送到手机。', 'pc.viaNow': '✅ 你的设置：{way}。', 'pc.viaText': '⚠ 你设置的是“{way}”：只会收到文字，没有图片。更改：⚙ → 警告与报警 → 手机消息。',
   'pc.viaHaNoApp': '⚠ 你设置了 Home Assistant 通知服务，但没有选择 Home Assistant 应用（mobile_app_…）：只会收到文字。请在那里勾选该应用。', 'pc.viaOff': '⚠ 手机消息尚未开启：⚙ → 警告与报警 → 手机消息。',
   'an.cardsHa': '图片会发送到 Home Assistant 应用（“mobile_app_…”服务）。其他服务只收到文字。',
+  'app.onAll': '打开全部 {n} 盏灯', 'app.on1': '开灯', 'app.offAll': '关闭所有灯', 'app.off1': '关灯', 'app.pin': '固定到首页', 'app.unpin': '取消固定', 'app.roomActs': '灯光、场景、固定',
+  'app.pinShort': '固定', 'app.pinTitle': '固定房间', 'app.pinHint': '固定的房间始终显示在首页顶部，其后是每个开着灯的房间。仅适用于此手机。', 'app.cams': '{n} 个摄像头', 'app.motion': '{n} 处有动静',
 };

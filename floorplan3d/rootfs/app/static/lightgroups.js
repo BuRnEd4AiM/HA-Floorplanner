@@ -3,7 +3,7 @@
  * ("Kinder", "Oben") instead of the whole house while somebody is still in a room, and nothing switches off by accident: the first tap
  * on "Off" only asks ("Sure?"), a second one within CONFIRM_MS switches. Pure (unit test: tests/lightgroups.test.mjs); lightgroupsui.js
  * draws the button, the list and the group editor of the settings. */
-import { roomEntityIds } from './roomtiles.js';
+import { roomLightIds, isRoomLight } from './roomtiles.js';
 
 export const MAX_GROUPS = 12;
 export const MAX_NAME = 40;
@@ -11,8 +11,6 @@ export const MAX_NAME = 40;
 export const CONFIRM_MS = 3000;
 /** the id of the row "whole house" */
 export const HOUSE = '*';
-
-const isLight = (id) => typeof id === 'string' && id.startsWith('light.');
 
 /** the stored groups made safe: [{ id, name, rooms: [room id] }], at most MAX_GROUPS, names cut to MAX_NAME, rooms without doubles;
  *  a group without a name is called by `fallback(i)` (i from 1), one without rooms stays (it was just added) */
@@ -29,9 +27,10 @@ export function cleanGroups(list, fallback = (i) => `#${i}`) {
   });
 }
 
-/** the lights of a room: the light entities placed in it (also LED ring sections and LED zones, entityDevices) and those of its area */
-export function roomLights(room, placed, areaEntities = []) {
-  return [...roomEntityIds(room, placed, areaEntities)].filter(isLight);
+/** the lights of a room: the light entities placed in it or on its edge, lamps on a relay (also LED ring sections and LED zones,
+ *  entityDevices) and the light entities of its area, the way the 3D picture lights it (roomtiles.js roomLightIds, 5.36.0); f: its floor */
+export function roomLights(room, placed, areaEntities = [], f = null) {
+  return roomLightIds(room, f, placed, areaEntities);
 }
 
 /**
@@ -47,9 +46,9 @@ export function lightRows(env) {
   const where = new Map(), house = new Set();                                  // room id -> { room, f }
   floors.forEach((f) => {
     const placed = env.placed(f);
-    placed.forEach((d) => { if (isLight(d.entity)) house.add(d.entity); });
+    placed.forEach((d) => { if (isRoomLight(d)) house.add(d.entity); });   // lamps on a relay too (5.36.0)
     (f.rooms || []).forEach((r) => {
-      where.set(r.id, { room: r, f, lights: roomLights(r, placed, env.areaEntities?.(r) || []) });
+      where.set(r.id, { room: r, f, lights: roomLights(r, placed, env.areaEntities?.(r) || [], f) });
       where.get(r.id).lights.forEach((e) => house.add(e));
     });
   });

@@ -22,6 +22,14 @@ export function initTabsUi(ctx) {
   const nameOf = (x) => x.name || t(`tab.${x.key}`);
 
   const appOn = () => !!ctx.app?.on();
+  /** 📱 the app's bar while the tabs are being ordered (🗂 Reiter, tabedit.js): the whole bar, to drag the tabs and make a page (5.36.0) */
+  const appBar = () => appOn() && !ctx.tabEdit?.on();
+  /* 📱 ✎ on a page of the app (5.36.0, the owner 2026-11-25: "am Handy … dass man dort auch die Dashboards richtig bearbeiten kann in der
+   * App-Ansicht"): the app's bar has no ✎, so the page has it at its top; the edit mode then shows its strip with ✓ Fertig */
+  const appEdit = document.createElement('button');
+  appEdit.type = 'button'; appEdit.id = 'appEdit'; appEdit.hidden = true;
+  appEdit.addEventListener('click', () => { ctx.edit.toggle(open); mark(); });
+  document.body.append(appEdit);
   /** 📱 the app's bar: Start, Räume, 3D-Haus, Energie, Mehr (appshell.js) */
   function drawApp() {
     const sig = JSON.stringify(['app', tabs, shown, t('app.tab.start')]);
@@ -40,7 +48,7 @@ export function initTabsUi(ctx) {
     mark();
   }
   function draw() {
-    if (appOn()) { drawApp(); return; }
+    if (appBar()) { drawApp(); return; }
     bar.classList.remove('appBar');
     const all = order().filter((x) => tabs.includes(x.key)), editor = !!ctx.edit?.can(), moving = !!ctx.tabEdit?.on();
     const full = ctx.full, fs = full?.can() ? [full.isFull(), full.state()] : null, ps = pages();
@@ -82,10 +90,13 @@ export function initTabsUi(ctx) {
     mark();
   }
   const mark = () => {
-    const lit = appOn() ? activeItem(open, tabs) : open;            // 📱 a page under "Mehr" lights up "Mehr"
+    const lit = appBar() ? activeItem(open, tabs) : open;           // 📱 a page under "Mehr" lights up "Mehr"
     bar.querySelectorAll('[data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === lit));
     const e = bar.querySelector('.tbEdit');
     if (e) { e.hidden = open === HOME; e.classList.toggle('active', ctx.edit.editing() === open); }
+    appEdit.hidden = !(appOn() && shown && ![HOME, START, ROOMS].includes(open) && ctx.edit?.can() && ctx.edit.editing() !== open && !ctx.tabEdit?.on());
+    if (!appEdit.hidden) { appEdit.textContent = `✎ ${t('bd.edit')}`; appEdit.title = t('bd.editTip'); }
+    document.body.classList.toggle('appEditTop', !appEdit.hidden);   // the page keeps room for it at its top (style.css)
   };
 
   /* the guide "Set up a tablet" in ⚙ (group Wall tablet): its card text to the clipboard (marked for copying by hand where that is not allowed) */

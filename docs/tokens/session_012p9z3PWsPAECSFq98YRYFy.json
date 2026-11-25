@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3PWsPAECSFq98YRYFy",
+ "start": "2026-11-25",
+ "updated": "2026-11-25T11:46:57Z",
+ "branch": "claude/focused-darwin-wjndmo",
+ "source": "counted",
+ "input": 323,
+ "cache_write": 357818,
+ "cache_read": 40379383,
+ "output": 113194,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 323,
+   "cache_write": 357818,
+   "cache_read": 40379383,
+   "output": 113194,
+   "requests": 157
+  }
+ }
+}

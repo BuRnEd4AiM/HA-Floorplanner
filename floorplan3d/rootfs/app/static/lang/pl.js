@@ -2656,4 +2656,9 @@ export default {
   'pc.viaHaNoApp': '⚠ Masz ustawioną usługę powiadomień Home Assistant, ale bez aplikacji Home Assistant (mobile_app_…): dochodzi tylko tekst. Zaznacz tam aplikację.',
   'pc.viaOff': '⚠ Wiadomości na telefon nie są jeszcze włączone: ⚙ → Ostrzeżenia i alarm → Wiadomość na telefon.',
   'an.cardsHa': 'Obraz dociera do aplikacji Home Assistant (usługi „mobile_app_…”). Inne usługi dostają tylko tekst.',
+  'app.onAll': 'Włącz wszystkie światła ({n})', 'app.on1': 'Włącz światło', 'app.offAll': 'Wyłącz wszystkie światła', 'app.off1': 'Wyłącz światło',
+  'app.pin': 'Przypnij do startu', 'app.unpin': 'Odepnij', 'app.roomActs': 'Światła, sceny, przypnij', 'app.pinShort': 'Przypnij',
+  'app.pinTitle': 'Przypnij pokoje',
+  'app.pinHint': 'Przypięte pokoje są zawsze na górze ekranu startowego, potem każdy pokój z włączonym światłem. Dla tego telefonu.', 'app.cams': 'Kamery: {n}',
+  'app.motion': 'Ruch: {n}',
 };

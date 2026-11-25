@@ -6,6 +6,8 @@ import { pointInPoly } from './rooms.js';
 import { roomOpenings } from './roompanel.js';
 import { occupied } from './nav.js';
 import { readingFrom, sourceOf } from './roomsource.js';
+import { deviceInIso } from './roomclip.js';
+import { isLamp } from './lamplight.js';
 
 /**
  * The average reading of a room: ids (entity ids in the room), states, mode temp | humid | co2; °F is turned into °C. null without a
@@ -28,21 +30,38 @@ export function roomEntityIds(room, placed, areaEntities = []) {
 
 const PRESENCE_DC = new Set(['occupancy', 'presence', 'motion']);
 
+/** is a placed entry a light of its room: a light entity, or a lamp on a relay (a switch entity on a lamp, #367, lamplight.js) */
+export const isRoomLight = (d) => !!d?.entity && (d.entity.startsWith('light.') || (d.entity.startsWith('switch.') && isLamp(d)));
+/**
+ * The lights of a room the way the 3D picture lights it (5.36.0, the owner 2026-11-25: "nicht zuverlässig, dass die Kacheln das erkennen und
+ * sich einfärben"): before, a tile counted only light entities inside the outline, so a lamp on a relay or a wall lamp on the room's edge
+ * lit the room in 3D while its tile said "aus". Placed: light entities and lamps on a relay in the room or on its edge (not inside another
+ * room of the floor, roomclip.js deviceInIso); and the light entities of its area. f: the floor (its rooms). -> entity ids, each once
+ */
+export function roomLightIds(room, f, placed, areaEntities = []) {
+  const rooms = f?.rooms || [];
+  const ids = new Set(placed.filter((d) => isRoomLight(d) && deviceInIso(room, d.x, d.z, rooms)).map((d) => d.entity));
+  if (room.area) (areaEntities || []).filter((id) => typeof id === 'string' && id.startsWith('light.')).forEach((id) => ids.add(id));
+  return [...ids];
+}
+
 /**
  * What the tile of a room shows: { temp (°C or null), lights (how many lights are on), rgb (the colour of the first one, or null), open
- * (how many of its windows are open), occupied }.
+ * (how many of its windows are open), occupied, all (how many lights it has) }. The lights: roomLightIds (as the 3D picture lights it).
  * ctx: placed (entityDevices of the floor), areaEntities (the entities of the room's area), states, isOn(entity), isOpen(entity),
  * openingEntities(opening), partOf (the sensors of thermostats, see roomReading)
  */
 export function roomSummary(room, f, ctx) {
   const ids = roomEntityIds(room, ctx.placed, ctx.areaEntities);
-  const lit = [...ids].filter((id) => id.startsWith('light.') && ctx.isOn(id));
+  const lights = roomLightIds(room, f, ctx.placed, ctx.areaEntities);              // as the 3D picture lights the room (5.36.0)
+  const lit = lights.filter((id) => ctx.isOn(id));
   const rgbOf = lit.map((id) => ctx.states[id]?.rgb).find((c) => Array.isArray(c) && c.length === 3) || null;
   const open = roomOpenings(room, f).filter((o) => o.type === 'window' && ctx.openingEntities(o).some((e) => ctx.isOpen(e))).length;
   const someone = occupied(room, f, ctx.isOn, pointInPoly)
     || [...ids].some((id) => id.startsWith('binary_sensor.') && PRESENCE_DC.has(ctx.states[id]?.dc) && ctx.states[id]?.state === 'on')
     || [...ids].some((id) => /^binary_sensor\..*(praesenz|presence|bewegung|motion|occupancy)/.test(id) && ctx.states[id]?.state === 'on');
-  return { temp: roomReading(ids, ctx.states, 'temp', ctx.partOf, sourceOf(room, 'temp')), lights: lit.length, rgb: rgbOf, open, occupied: someone };   // its own source (#705)
+  return { temp: roomReading(ids, ctx.states, 'temp', ctx.partOf, sourceOf(room, 'temp')), lights: lit.length, rgb: rgbOf, open, occupied: someone,   // its own source (#705)
+    all: lights.length };                                                         // how many lights it has (📱 "Alle an", 5.36.0)
 }
 
 /** the texts of a tile: { temp: '21,4°' ('–' without one), lights: '💡 2 an' / '💡 aus', open: '🪟 offen' or '' }; num(v): v with one

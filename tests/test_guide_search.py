@@ -97,6 +97,8 @@ QUERIES = [
     ("Kioskmodus", "de", "fullscreen kiosk"), ("Bildschirmschoner", "de", "kiosk"), ("Tablet putzen", "de", "kiosk"), ("Kindertablet nur an und aus", "de", "users"), ("Rechte je Geräteart", "de", "users"), ("Garagentor sperren Tablet", "de", "users"), ("Push Nachricht", "de", "notify"),
     ("WhatsApp", "de", "notify"), ("Update", "de", "version"), ("Cache leeren", "de", "version"),
     ("iPhone", "de", "phone-house phone-pages phone-edit"), ("am Handy zeichnen", "de", "phone-edit"),
+    ("Raum anheften", "de", "phone-rooms"), ("Lieblingsräume oben", "de", "phone-rooms"), ("Dashboard am Handy bearbeiten", "de", "phone-dash"),
+    ("pin rooms", "en", "phone-rooms"),
     ("Ansicht drehen", "de", "orbit"), ("rauszoomen", "de", "orbit"), ("Obergeschoss anzeigen", "de", "floors"),
     ("Draufsicht", "de", "views"), ("Wände durchsichtig", "de", "viewmenu"), ("Dach ausblenden", "de", "viewmenu"),
     ("Raum öffnen", "de", "room"), ("Stehlampe finden", "de", "search"), ("Stromfluss", "de", "power"),

@@ -48,7 +48,7 @@ import { YARD } from './yarddeco.js';
 import { memoField, standsOn } from './terrain.js';
 import { drapeLine } from './terrain3d.js';
 import { initStairTool } from './stairtool.js';
-import { initLiveControls } from './livecontrols.js';
+import { initLiveControls, roomEntityIds as domainIds, scenesWith } from './livecontrols.js';
 import { initLivePopup } from './livepopup.js';
 import { initRoomPanel, roomOpeningSpans } from './roompanel.js';
 import { initSheetView, roomViewDist } from './sheetview.js';
@@ -75,7 +75,7 @@ import { initEarth } from './earth.js';
 import { initLightWells } from './lightwell3d.js';
 import { wellsSvg } from './lightwell2d.js';
 import { initSky } from './skyui.js';
-import { roomReading, roomEntityIds, roomSummary, thermostatParts } from './roomtiles.js';
+import { roomReading, roomEntityIds, roomSummary, thermostatParts, roomLightIds } from './roomtiles.js';
 import { sourceOf, sourceChoices } from './roomsource.js';   // where a room's temperature / humidity come from (#705)
 import { initRoomTiles } from './roomtilesui.js';
 import { initLightGroups } from './lightgroupsui.js';
@@ -902,12 +902,23 @@ let appPref = 'app';
 try { appPref = localStorage.getItem(PREF_KEY) || 'app'; } catch { /* storage may be blocked */ }
 const appOn = () => appMode({ phone: phoneMenu.isPhone(), live: isLive(), card: !!card, guest: document.body.classList.contains('guestview'), roomTablet: !!tabletRoom, pref: appPref });
 let appBack = START;                                              // where "‹ Zurück" of a room page goes
+/** 📷 on Start (5.36.0, the owner: "der Reiter Kamera … sehe ihn nirgends mehr"; on the phone it is under "Mehr"): the cameras, what moves */
+function appCams() {
+  if (!tabsUi.has('cameras')) return { cams: 0, motion: 0 };
+  const l = cams.list();
+  return { cams: l.filter((x) => x.kind === 'cam').length, motion: l.filter((x) => x.motion).length };
+}
 function appRooms() {
   const l = shownLayout();
   return l.floors.flatMap((f, fi) => (floorShown(fi) ? (f.rooms || []) : []).filter((r) => r.name && !r.terrace).map((r) => {
     const s = roomSummary(r, f, { placed: entityDevices(f), areaEntities: areaEntitiesOf(r), states, isOn: isLit, isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), partOf: partOf() });
-    return { fi, floor: f.name, id: r.id, name: r.name, temp: s.temp, lights: s.lights, open: s.open, occupied: !!s.occupied };
+    return { fi, floor: f.name, id: r.id, key: `${f.id || fi}/${r.id}`, name: r.name, temp: s.temp, lights: s.lights, all: s.all, rgb: s.rgb, open: s.open, occupied: !!s.occupied };
   }));
+}
+/** a room of the building shown and the lights in it, as the 3D picture lights it (roomtiles.js roomLightIds, 5.36.0) */
+function appRoomLights(fi, id) {
+  const f = shownLayout().floors[fi], r = f?.rooms.find((x) => x.id === id);
+  return r ? { f, r, lights: roomLightIds(r, f, entityDevices(f), areaEntitiesOf(r)) } : null;
 }
 function appOpenRoom(fi, id) {
   appBack = tabsUi.open() === 'house' ? START : tabsUi.open();
@@ -983,14 +994,21 @@ const appUi = initAppUi({
   status: () => {
     const al = alarmPanel(states), w = weatherEntity(settings, states), tw = states[w]?.wx?.t;
     return { lightsOn: lightGroups.count(), alarm: al ? (al.state === 'disarmed' ? 'disarmed' : 'armed') : null, open: openings.items().length,
-      offline: offline.devices().filter((x) => x.reason !== 'unlinked').length, low: deviceList.low(), check: tabsUi.has('check') ? checkPage.badge() : 0, temp: Number.isFinite(tw) ? tw : null };
+      offline: offline.devices().filter((x) => x.reason !== 'unlinked').length, low: deviceList.low(), check: tabsUi.has('check') ? checkPage.badge() : 0, temp: Number.isFinite(tw) ? tw : null,
+      ...appCams() };
   },
-  act: (k) => (k === 'check' ? tabsUi.show('check') : k === 'alarm' || k === 'temp' ? tabsUi.show(k === 'temp' && tabsUi.has('today') ? 'today' : 'house') : todayAct(k)),
+  act: (k) => (k === 'check' || k === 'cams' ? tabsUi.show(k === 'cams' ? 'cameras' : 'check') : k === 'alarm' || k === 'temp' ? tabsUi.show(k === 'temp' && tabsUi.has('today') ? 'today' : 'house') : todayAct(k)),
   openRoom: appOpenRoom,
-  lightsOff: (fi, id) => {
-    const f = shownLayout().floors[fi], r = f?.rooms.find((x) => x.id === id);
-    if (r) [...roomEntityIds(r, entityDevices(f), areaEntitiesOf(r))].filter((e) => e.startsWith('light.') && isLit(e)).forEach((e) => live.callService(e, 'turn_off'));
+  lightsOff: (fi, id) => appRoomLights(fi, id)?.lights.filter((e) => isLit(e)).forEach((e) => live.callService(e, 'turn_off')),
+  lightsOn: (fi, id) => appRoomLights(fi, id)?.lights.filter((e) => !isLit(e) && states[e] && states[e].state !== 'unavailable').forEach((e) => live.callService(e, 'turn_on')),   // 5.36.0
+  scenes: (fi, id) => {                                           // the room's scenes and scripts: placed in it, of its area, setting one of its lights
+    const x = appRoomLights(fi, id);
+    if (!x) return [];
+    const env = { devices: entityDevices(x.f), areas, states, pointInPoly };
+    return [...new Set([...domainIds(env, x.r, 'scene'), ...scenesWith(states, x.lights), ...domainIds(env, x.r, 'script')])].filter((e) => states[e])
+      .map((e) => ({ id: e, name: entities.find((y) => y.entity_id === e)?.name || e }));
   },
+  scene: (e) => live.callService(e, 'turn_on'), house: () => hs.id() || 'main',
   spin: () => houseSpin.el,
   openHouse: () => { appCloseRoom(); tabsUi.show('house'); if (houseMode) spinIn = houseSpin.handOff(camera, controls); },
   show: (k) => { appCloseRoom(); tabsUi.show(k); }, tabs: () => tabsUi.tabs(), tabName: (x) => x.name || t(`tab.${x.key}`),
