@@ -547,8 +547,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 233. Repariert in 5.34.1: 🔔 Nachricht nur mit Bildkarte | 3 | 0 | 1 | 0 | 233.3 |
 | 234. Neu in 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ | 3 | 0 | 2 | 0 | 234.4, 234.5 |
 | 235. Neu in 5.36.0: 📱 Räume anheften, alles an/aus mit Szenen, Seiten am Handy bearbeiten (#801) | 10 | 0 | 1 | 0 | 235.9 |
-| 236. Repariert in 5.36.1: Haus löschen, rechter Winkel mit Raster, „1 Kamera“, englisches Video (#803 bis #806) | 4 | 0 | 1 | 0 | 236.5 |
-| **Zusammen** | **1447** | **2** | **151** | **92** | |
+| 236. Repariert in 5.36.1: Haus löschen, rechter Winkel mit Raster, „1 Kamera“, englisches Video (#803 bis #806) | 5 | 0 | 0 | 0 | – |
+| **Zusammen** | **1448** | **2** | **150** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3539,4 +3539,4 @@ Gefunden am 2026-11-25 beim Durchgehen aller offenen Punkte (dein Wunsch: „Mac
 | 236.2 | Demo, Bearbeiten: links „Häuser“ → „Löschen“ (#803) | Die Frage nennt den Namen des Hauses zweimal, kein „{name}“ mehr | ✅ (2026-11-25, Claude, Demo) |
 | 236.3 | Demo, Bearbeiten, 2D: „Wand“, zwei Punkte, dann mit der Maus etwa 3° neben dem rechten Winkel 3 m weit gehen (#804) | Grünes ∟ 90°, die Wand wird genau rechtwinklig und 3,00 m lang | ✅ (2026-11-25, Claude, Demo und Browser-Test) |
 | 236.4 | Seite 📷 mit nur einer Kamera; 🧭 Erste Schritte mit einem Gerät (#805) | „1 Kamera“; „Home Assistant kennt 1 Gerät …“, „✨ Automatisch setzen“, „1 Gerät gesetzt“ | ✅ (2026-11-25, Claude, nachgebautes Add-on und Demo) |
-| 236.5 | Video-Anleitung auf Englisch, etwa eine Stunde nach dem Merge (#806) | „📱 Edit the pages on the phone“ ist da | ❓ |
+| 236.5 | Video-Anleitung auf Englisch, etwa eine Stunde nach dem Merge (#806) | „📱 Edit the pages on the phone“ ist da | ✅ (2026-11-25, Claude: nach dem Merge aufgenommen, Bild für Bild angesehen; Deutsch und Englisch haben jetzt beide 129 Videos) |
