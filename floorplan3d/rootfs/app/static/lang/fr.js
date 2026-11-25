@@ -2742,4 +2742,9 @@ export default {
   'pc.viaHaNoApp': '⚠ Vous avez réglé le service de notification de Home Assistant, mais sans l\'app Home Assistant (mobile_app_…) : seul le texte arrive. Cochez l\'app.',
   'pc.viaOff': '⚠ Les messages sur le téléphone ne sont pas encore activés : ⚙ → Avertissements et alarme → Message sur le téléphone.',
   'an.cardsHa': 'L\'image arrive dans l\'app Home Assistant (services « mobile_app_… »). Les autres services ne reçoivent que le texte.',
+  'app.onAll': 'Allumer les {n} lumières', 'app.on1': 'Allumer la lumière', 'app.offAll': 'Éteindre toutes les lumières', 'app.off1': 'Éteindre la lumière',
+  'app.pin': 'Épingler à l’accueil', 'app.unpin': 'Ne plus épingler', 'app.roomActs': 'Lumières, scènes, épingler', 'app.pinShort': 'Épingler',
+  'app.pinTitle': 'Épingler des pièces',
+  'app.pinHint': 'Les pièces épinglées sont toujours en haut de l’accueil, puis chaque pièce avec une lumière allumée. Pour ce téléphone.',
+  'app.cams': '{n} caméras', 'app.motion': '{n} mouvement',
 };

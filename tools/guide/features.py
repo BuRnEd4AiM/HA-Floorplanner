@@ -186,6 +186,10 @@ f("roofwing", "edit", "L-förmiges Dach: ein weiteres Dach wie das Hauptdach, au
   ["roof-wing"], since="4.54.0")
 f("roofgable", "edit", "Giebelwand, Überstand am Giebel, Pultdach und Vordach", "Gable wall, overhang at the gables, shed roof and canopy",
   ["roof-gable"], since="4.55.0")
+f("phonerooms", "phone", "📱 Am Handy auf Start: Räume anheften, jeder Raum mit Licht an, Kachel in der Farbe des Lichts, runder Knopf mit alles an/aus und Szenen, Chips in Zeilen, 📷",
+  "📱 On the phone on home: pin rooms, every room with a light on, the tile in the colour of its light, round button with all on/off and scenes, chips in lines, 📷", ["phone-rooms"], since="5.36.0")
+f("phonedash", "phone", "📱 Am Handy die Seiten bearbeiten: „✎ Bearbeiten“ oben auf jeder Seite, „🗂 Reiter“ in Zeilen",
+  "📱 Edit the pages on the phone: “✎ Edit” on top of every page, “🗂 Tabs” in lines", ["phone-dash"], since="5.36.0")
 f("phoneedit", "phone", "Am Handy bearbeiten: Werkzeuge als Leiste, Plan mit dem Finger", "Edit on the phone: the tools as a strip, the plan with the finger",
   ["phone-edit"], since="4.56.0")
 f("cars", "pages", "🚗 Mehrere Autos im Haushalt", "🚗 Several cars on Household", ["cars"], since="4.57.0")

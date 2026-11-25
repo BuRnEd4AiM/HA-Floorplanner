@@ -248,8 +248,8 @@ def _(r):
 
 @clip("cameras", "pages",
       {"de": "📷 Kameras ansehen", "en": "📷 Watch the cameras"},
-      {"de": "Alle Kameras auf einer Seite, mit Bewegung. Ein Tipp zeigt eine Kamera groß.",
-       "en": "All cameras on one page, with motion. A tap shows a camera big."},
+      {"de": "Alle Kameras auf einer Seite, mit Bewegung, auch die, die nicht im Plan stehen (seit 5.36.0). Ein Tipp zeigt eine Kamera groß. Am Handy unter „Mehr“ oder mit dem Chip 📷 auf Start.",
+       "en": "All cameras on one page, with motion, also those not placed in the plan (since 5.36.0). A tap shows a camera big. On the phone under “More” or with the chip 📷 on home."},
       "Kamera Kameras Video Bewegung live Bild camera cameras video motion live picture")
 def _(r):
     r.say("Tippe unten auf „Kameras“.", "Tap “Cameras” at the bottom.")

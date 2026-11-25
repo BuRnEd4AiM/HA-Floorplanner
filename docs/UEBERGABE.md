@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-24, Version **5.35.0** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-25, Version **5.36.0** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,16 +10,16 @@ Stand: 2026-11-24, Version **5.35.0** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
+- **2026-11-25, 5.36.0: 📱 Rückmeldung zur Handy-App (#801, Branch `claude/focused-darwin-wjndmo`):** Kacheln sahen ein Licht nicht zuverlässig (nur 6 Kacheln, die Demo hat 8 Räume mit Licht; Relais-Lampen und Wandlampen auf der Kante zählten nicht): jeder Raum mit Licht steht da, Kachel in der Lichtfarbe, Räume anheften (je Handy), runder Knopf mit alles an/aus und Szenen, Chips in Zeilen, 📷-Chip, oben kein leerer Streifen, „✎ Bearbeiten“ auf den Seiten der App (`appshell.js`, `appui.js`, `roomLightIds` in `roomtiles.js`, `tabsui.js`). Er wollte vor dem Veröffentlichen Bilder sehen.
 - **2026-11-24, 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ (Branch `claude/wonderful-dijkstra-5vernn`):** seine Wünsche: Telegram reicht (kein WhatsApp mit Bild), aber auch über HA-Benachrichtigungen („nicht jeder hat Telegram“): Bild in den Medien-Ordner von HA, `notify.mobile_app_…` mit `data.image` (`hamedia.py`); die Erklär-Grafik als Fenster unter ▶ Abläufe (`piccardshelp.js`); deutlicher Hinweis, worüber Karten kommen. Nie mit echter Companion-App getestet.
 - **2026-11-24, 5.34.1: 🔔 Nachricht nur mit Bildkarte (Branch `claude/wonderful-dijkstra-5vernn`):** seine Frage „muss ich eine Nachricht reinschreiben?“: nein, mit Bildkarte darf der Text leer bleiben (Editor, `flows.py`, `haflows.py`, `rulesrun.py`, `server.py`); die Vorschau zeigt auch für Abläufe Raum und Etage; bei Alarm füllt der Warntext {text}. Seine Bitte um eine Erklärung als Grafik: `docs/hilfe/bildkarten.jpg` (`make_bildkarten.py`).
 - **2026-11-24, 5.34.0: 🖼 Bildkarten: Stockwerk wählen, Platzhalter als grüne Kästchen (Branch `claude/wonderful-dijkstra-5vernn`):** sein Wunsch „Stockwerke auswählen“: das Raumbild hat „Stockwerk“ (Automatisch oder ein festes). Seine Frage, wie die Texte gemacht werden: Platzhalter; seine Wahl aus `docs/ideen-5.34`: Idee 2, grüne Kästchen mit Knöpfen „＋ Raum“ … (`phfield.js`).
 - **2026-11-23, 5.33.0: 🖼 Bildkarten fürs Handy (Branch `claude/charming-carson-d1uepn`):** gebaut wie gewählt: unter ▶ Abläufe, Editor mit Bausteinen untereinander und Vorlagen, Karte je Alarm und im Ablauf, „Test an mich“; das Add-on malt sie mit Pillow (`piccard.py`), die Demo im Browser (`demo/piccard.js`, beide gleich halten). Nebenbei: der Bot-Schlüssel kam in jedes Backup (jetzt nur mit Haken).
 - **2026-11-23, 5.32.1: 📸 Telegram-Bot einrichten repariert (#796) und Beispielbilder „Bildkarten“ (Branch `claude/charming-carson-d1uepn`):** „Chat finden“ zeichnete aus dem Gespeicherten neu (sprang auf WhatsApp, Schlüssel weg); jetzt bleibt das Getippte, Schlüssel lesbar mit ✅, ganze BotFather-Nachricht geht, Chat-ID von Hand. Sein neuer Wunsch: eigene Bildkarten für Alarme und Abläufe, zehn Bilder in `docs/ideen-5.33`; seine Wahl: Idee 1 (Bausteine) mit Vorlagen, unter ▶ Abläufe, alles (Ablauf, je Alarm, 3 fertige Karten, „Test an mich“); die Karte mit der großen Kamera heißt „Test 1“, nicht „Florian 1“.
-- **2026-11-23, 5.32.0: 🪜 Eingang und Balkon für Marios Reihenhaus (#786, #794, Branch `claude/epic-faraday-rdiicg`):** seine Antwort mit Fotos: Außentreppe mit Zahl der Stufen, Geländer links/rechts/keins, Edelstahl; „＋ Außentreppe an die Haustür“ auch in „⛰ Gelände“; „＋ Vordach über die Tür“ (`porchroof.js`); Balkon „Hausdach reicht darüber“ (`roofOver`); Fehler #794: „Ganzes Haus“ schnitt bei einem schmalen Grundstück die Erde nicht auf (`cutPlane`). Danach Mario antworten (Bilder in `docs/antworten/786/`).
-- **2026-11-22, 5.31.0: 🔆 Lichtschächte (#786, Branch `claude/charming-galileo-c4fwuk`):** erst mariomichaelbauer mit Bildern geantwortet (Plateau 0,65 m, `docs/antworten/786/`), dann sein Wunsch: ein Kellerfenster unter dem Boden bekommt von selbst einen Schacht mit Gitterrost, Rasen, Erde, Wege und Plateau darüber ausgeschnitten (`lightwell.js`, `lightwell3d.js`); in „Ganzes Haus“ bleibt er auf der aufgeschnittenen Seite stehen.
 
 ## Offen
 
+- **5.36.0 Handy-App (#801):** sein Test am echten Handy (235.8 bis 235.10); ob der Reiter Kameras jetzt überall da ist (235.11; fehlte ihm überall: kam nur mit einer im Plan gesetzten Kamera, jetzt auch alle Kameras von Home Assistant).
 - **5.34.0 / 5.34.1 / 5.35.0 Bildkarten:** sein Test (Testprotokoll 232, 233, 234), vor allem 234.4: das Bild in der Home-Assistant-App am echten Handy (auch unterwegs).
 - **5.33.0 Bildkarten:** sein Test im Add-on mit seinem Bot (231.6 bis 231.9). Nicht gebaut: Verlauf (24 h) als Baustein, Idee 2 (freie Fläche).
 - **5.32.1 Telegram-Bot:** sein Test im Add-on am Handy (230.6 bis 230.8).

@@ -675,6 +675,16 @@ t("phone-pages",
   "phone switch pages swipe bottom bar phone menu energy climate today app smartphone home rooms tiles more like an app "
   "classic view home screen overview iPhone Android house building choose settings list round buttons "
   "house turns turning house spinning preview start picture whole building")
+t("phone-rooms",
+  "Räume anheften festpinnen pinnen Lieblingsräume meine Räume immer oben Startseite Kacheln Raumkachel Knopf alles an alles aus "
+  "Licht einschalten Licht ausschalten Szene Stimmung Bestätigung nachfragen Kamera Chips oben Zeilen nicht wischen eingefärbt Lichtfarbe",
+  "pin rooms favourite rooms my rooms always on top home screen tiles room tile button all on all off switch lights on switch lights off "
+  "scene mood confirm ask first camera chips on top lines no swiping coloured light colour")
+t("phone-dash",
+  "Dashboard bearbeiten Seite bearbeiten am Handy Karten verschieben Karte hinzufügen ausblenden Abschnitt Reiter ordnen neue Seite "
+  "eigene Seite App-Ansicht Stift Bleistift anpassen umstellen Lovelace",
+  "edit dashboard edit page on the phone move cards add card hide section order tabs new page own page app view pen pencil "
+  "customise rearrange Lovelace")
 t("phone-edit",
   "am Handy bearbeiten am Handy zeichnen Wand am Handy Smartphone Editor mobil bearbeiten Tablet bearbeiten Menü "
   "Werkzeuge wischen Finger Fenster Kontakt zuordnen",

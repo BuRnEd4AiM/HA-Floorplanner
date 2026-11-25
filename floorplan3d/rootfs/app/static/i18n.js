@@ -1622,6 +1622,10 @@ const DICT = {
     'pc.viaHaNoApp': '⚠ Bei dir ist der Benachrichtigungsdienst von Home Assistant eingestellt, aber ohne die Home-Assistant-App (mobile_app_…): da kommt nur der Text. Hake die App dort an.',
     'pc.viaOff': '⚠ Nachrichten aufs Handy sind noch nicht eingeschaltet: ⚙ → Warnungen & Alarm → Nachricht aufs Handy.',
     'an.cardsHa': 'Das Bild kommt in der Home-Assistant-App an (Dienste „mobile_app_…“). Andere Dienste bekommen nur den Text.',
+    'app.onAll': 'Alle {n} Lichter an', 'app.on1': 'Licht an', 'app.offAll': 'Alle Lichter aus', 'app.off1': 'Licht aus', 'app.pin': 'Auf Start anheften',
+    'app.unpin': 'Nicht mehr anheften', 'app.roomActs': 'Licht, Szenen, anheften', 'app.pinShort': 'Anheften', 'app.pinTitle': 'Räume anheften',
+    'app.pinHint': 'Angeheftete Räume stehen auf Start immer oben. Danach kommt jeder Raum, in dem Licht an ist. Gilt für dieses Handy.',
+    'app.cams': '{n} Kameras', 'app.motion': '{n} Bewegung',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -3185,6 +3189,10 @@ const DICT = {
     'pc.viaHaNoApp': '⚠ You have Home Assistant\'s notify service set, but without the Home Assistant app (mobile_app_…): only the text arrives. Tick the app there.',
     'pc.viaOff': '⚠ Messages to the phone are not switched on yet: ⚙ → Warnings & alarm → Message to the phone.',
     'an.cardsHa': 'The picture arrives in the Home Assistant app (services “mobile_app_…”). Other services get only the text.',
+    'app.onAll': 'All {n} lights on', 'app.on1': 'Light on', 'app.offAll': 'All lights off', 'app.off1': 'Light off', 'app.pin': 'Pin to Home',
+    'app.unpin': 'Unpin', 'app.roomActs': 'Lights, scenes, pin', 'app.pinShort': 'Pin', 'app.pinTitle': 'Pin rooms',
+    'app.pinHint': 'Pinned rooms are always at the top of Home. Then every room with a light on. For this phone.', 'app.cams': '{n} cameras',
+    'app.motion': '{n} motion',
   },
 };
 

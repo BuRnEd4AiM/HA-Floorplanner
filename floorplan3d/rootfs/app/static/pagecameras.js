@@ -5,11 +5,13 @@
 import { cameraPage } from './cameras.js';
 
 /** ctx: t, el (the page), cams (initCameras: list(), camImage, camLive, haButton), layout(), settings(), showDevice(fi, id) (back to the
- *  house with the camera marked), board (pageboard.js) */
+ *  house with the camera marked), board (pageboard.js), haCameras() ([{ entity, name }] every camera of Home Assistant: those not placed
+ *  in the plan show too, 5.36.0) */
 export function initCameraPage(ctx) {
   const { t, el } = ctx;
   let big = null, drawn = '';                     // the camera shown big (entity), what is drawn (so a state change that shows nothing new draws nothing)
-  const model = () => cameraPage(ctx.cams.list().filter((c) => ctx.shows?.(c.d?.entity || c.d?.motionEntity) !== false), ctx.layout().floors);   // not those of another building (#677)
+  const unplaced = () => (ctx.haCameras?.() || []).filter((c) => ctx.shows?.(c.entity) !== false);   // not those of another building's area (#677)
+  const model = () => cameraPage(ctx.cams.list().filter((c) => ctx.shows?.(c.d?.entity || c.d?.motionEntity) !== false), ctx.layout().floors, unplaced());   // not those of another building (#677)
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
   function head(title, sub, m) {
@@ -54,7 +56,7 @@ export function initCameraPage(ctx) {
     if (c.motion) h.append(make('span', 'tpChip alert', `🏃 ${t('cam.motionOn')}`));
     const show = make('button', '', t('cam.show')); show.type = 'button';
     show.addEventListener('click', () => ctx.showDevice(c.fi, c.id));
-    const tools = make('div', 'tpTools'); tools.append(show, ctx.cams.haButton(c.entity));
+    const tools = make('div', 'tpTools'); tools.append(...(c.id ? [show] : []), ctx.cams.haButton(c.entity));   // not placed: nothing to show in the plan
     h.append(tools);
     const box = make('div', 'tpBig');
     box.append(ctx.settings().cameraImages ? ctx.cams.camLive(c.entity, 'tp-live') : make('span', 'tpNoImg', t('tp.cam.noImages')));
@@ -74,7 +76,8 @@ export function initCameraPage(ctx) {
   }
   return {
     render: () => render(true), update: () => render(false),
-    has: () => ctx.cams.list().some((x) => x.kind === 'cam'),
+    has: () => ctx.cams.list().some((x) => x.kind === 'cam') || unplaced().length > 0,   // also a camera of Home Assistant not placed in the plan (5.36.0)
+    count: () => { const m = model(); return { cams: m.cams.length, motion: m.motion }; },   // 📱 the chip 📷 on Start (5.36.0)
     reset: () => { big = null; drawn = ''; el.replaceChildren(); },   // the page was left: no still images fetched for it any more, the next visit starts with all cameras
     big: (entity) => { big = entity; drawn = ''; },                  // the next render shows this camera big (an own card "Kamera", #484)
   };

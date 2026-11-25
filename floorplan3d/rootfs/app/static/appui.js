@@ -1,7 +1,7 @@
 /* 📱 Handy wie eine App (5.22.0, docs/ideen-5.21 pictures 8–10): the pages Start and Räume, the sheet "Mehr" and a room as a page of its
  * own on the phone. The rules (which tabs, the order of the rooms, the chips) are appshell.js (tested); tabsui.js puts the bar together;
  * app.js gives what this needs through ctx. */
-import { START, ROOMS, MORE, HOUSE, greeting, roomTiles, byFloor, statusChips, moreItems } from './appshell.js';
+import { START, ROOMS, MORE, HOUSE, PIN_KEY, START_MIN, greeting, startRooms, byFloor, statusChips, moreItems, togglePin, pinsOf, withPins, roomActions } from './appshell.js';
 
 /**
  * ctx: t, lang(), host (#tabPages), rooms() ([{ fi, floor, id, name, temp, lights, open, occupied }] of the house shown), ground(),
@@ -13,7 +13,10 @@ import { START, ROOMS, MORE, HOUSE, greeting, roomTiles, byFloor, statusChips, m
  * 5.23.0 (docs/ideen-5.22 pictures 45–52): places() ({ houses: [{ id, name, on }], buildings: [{ id, name, on }] }), pickHouse(id),
  * pickBuilding(id), chipList(key) ({ title, items: [{ icon, text, right, act() }], foot: { text, act() } } or null: the old way, act(key)),
  * menu() ([{ icon, text, act() }]: Bearbeiten, Anleitung, Backup, Sicherheit … for "Mehr"), houseButtons() ([{ key, icon, title,
- * source (the element whose buttons the sheet shows) }]: the round buttons over the 3D house)
+ * source (the element whose buttons the sheet shows) }]: the round buttons over the 3D house);
+ * 5.36.0 (the owner 2026-11-25): rooms() also gives key ('<floor id>/<room id>'), all (its lights) and rgb (the colour of a light on);
+ * house() (the id of the house shown: the pins are per house), lightsOn(fi, id), scenes(fi, id) ([{ id, name }] the room's scenes),
+ * scene(id) (turn a scene on)
  */
 export function initAppUi(ctx) {
   const { t } = ctx;
@@ -22,6 +25,17 @@ export function initAppUi(ctx) {
   const page = (key) => { const s = make('section', 'tabPage appPage'); s.dataset.page = key; s.hidden = true; ctx.host.append(s); return s; };
   const startEl = page(START), roomsEl = page(ROOMS);
   let drawnStart = '', drawnRooms = '';
+
+  /* ---- 📌 the rooms pinned on Start, kept on this phone per house (5.36.0) ---- */
+  let memPins = {};                                              // when the phone keeps nothing (private mode): for this visit
+  const stored = () => { try { return JSON.parse(localStorage.getItem(PIN_KEY) || 'null') || memPins; } catch { return memPins; } };
+  const pins = () => pinsOf(stored(), ctx.house?.());
+  function setPins(list) {
+    memPins = withPins(stored(), ctx.house?.(), list);
+    try { localStorage.setItem(PIN_KEY, JSON.stringify(memPins)); } catch { /* kept for this visit only */ }
+    renderStart(true); renderRooms(true);
+  }
+  const pinRoom = (key) => setPins(togglePin(pins(), key));
 
   /* ---- a list that comes from below (Mehr, Haus und Gebäude, a chip's list, the 3D house's buttons) ---- */
   let sheet = null;
@@ -80,17 +94,39 @@ export function initAppUi(ctx) {
     openSheet(`chip-${key}`, l.title, [{ items: l.items.map((x) => ({ ...x, keep: !!x.keep })) }], foot, l.items.length ? null : make('p', 'apEmpty', l.empty || t('app.nothing')));
   }
 
+  /** a room's round button (5.36.0, the owner: "auch alles an machen … mit Bestätigung, evtl. auch Szene"): its list from below, a tap on
+   *  a line is the confirmation: all lights on, all off, its scenes, 📌 pin on Start, open the room */
+  function roomSheet(r) {
+    const acts = roomActions(r, ctx.scenes?.(r.fi, r.id) || []);
+    const item = (a) => {
+      if (a.key === 'on') return { icon: '💡', text: t(a.n === 1 ? 'app.on1' : 'app.onAll', { n: a.n }), right: '', act: () => ctx.lightsOn(r.fi, r.id), data: { act: 'roomOn' } };
+      if (a.key === 'off') return { icon: '⏻', text: t(a.all === 1 ? 'app.off1' : 'app.offAll'), right: t('app.nOn', { n: a.n }), act: () => ctx.lightsOff(r.fi, r.id), data: { act: 'roomOff' } };
+      if (a.key === 'scene') return { icon: '🎬', text: a.name, right: '', act: () => ctx.scene(a.id), data: { act: 'roomScene', scene: a.id } };
+      if (a.key === 'pin') return { icon: '📌', text: t(a.on ? 'app.unpin' : 'app.pin'), right: '', act: () => pinRoom(r.key), data: { act: 'roomPin' } };
+      return { icon: '🚪', text: t('app.open1'), act: () => ctx.openRoom(r.fi, r.id), data: { act: 'roomOpen' } };
+    };
+    const items = acts.map(item), cut = items.findIndex((x) => x.data.act === 'roomPin');
+    openSheet('room', `${ctx.icon(r.name)} ${r.name}`, [{ items: items.slice(0, cut) }, { items: [...items.slice(cut),
+      { icon: '', text: t('app.cancel'), right: '', soft: true, act: () => {}, data: { act: 'confirmCancel' } }] }].filter((x) => x.items.length));
+  }
+  /** 📌 which rooms Start shows always: every room by floor, a tap pins or unpins it (the list stays open) */
+  function openPins() {
+    const on = new Set(pins());
+    const secs = byFloor(ctx.rooms(), ctx.ground()).map((g) => ({ head: g.floor, items: g.rooms.map((r) => ({ icon: ctx.icon(r.name), text: r.name,
+      right: on.has(r.key) ? '📌' : '', on: on.has(r.key), keep: true, data: { pin: r.key },
+      act: () => { pinRoom(r.key); const b = sheet?.querySelector(`[data-pin="${CSS.escape(r.key)}"]`), now = pins().includes(r.key); if (b) { b.classList.toggle('on', now); b.querySelector('i').textContent = now ? '📌' : ''; } } })) }));
+    const box = openSheet('pins', `📌 ${t('app.pinTitle')}`, secs);
+    box.querySelector('h2').after(make('p', 'apHint', t('app.pinHint')));
+  }
+
   function tile(r) {
-    const b = make('div', `apRoom${r.lights ? ' lit' : ''}`); b.dataset.room = r.id; b.dataset.floor = String(r.fi);
+    const b = make('div', `apRoom${r.lights ? ' lit' : ''}${r.pin ? ' pinned' : ''}`); b.dataset.room = r.id; b.dataset.floor = String(r.fi);
     b.tabIndex = 0; b.setAttribute('role', 'button');
-    const tg = button('apToggle', r.lights ? '💡' : '⏻', (e) => {
-      e.stopPropagation();
-      if (!r.lights) { ctx.openRoom(r.fi, r.id); return; }
-      confirmOff(t(r.lights === 1 ? 'app.offAsk1' : 'app.offAsk', { room: r.name, n: r.lights }), () => ctx.lightsOff(r.fi, r.id));   // the owner: not by mistake, ask first
-    });
-    tg.title = t(r.lights ? 'app.allOff' : 'app.open1');
+    if (r.lights && Array.isArray(r.rgb)) b.style.setProperty('--lc', r.rgb.map((v) => Math.round(Math.min(255, Math.max(0, v)))).join(', '));   // the colour of its light
+    const tg = button('apToggle', r.lights ? '💡' : r.all ? '⏻' : '⋯', (e) => { e.stopPropagation(); roomSheet(r); });
+    tg.title = t('app.roomActs'); tg.dataset.act = 'roomActs';
     const sub = [r.temp == null ? '' : `${ctx.num(r.temp)}°`, r.lights ? t('app.nOn', { n: r.lights }) : t('app.off'), r.open ? '🪟' : ''].filter(Boolean).join(' · ');
-    b.append(make('span', 'apRoomIcon', ctx.icon(r.name)), tg, make('b', '', r.name), make('small', '', sub));
+    b.append(make('span', 'apRoomIcon', ctx.icon(r.name)), tg, make('b', '', `${r.pin ? '📌 ' : ''}${r.name}`), make('small', '', sub));
     const go = () => ctx.openRoom(r.fi, r.id);
     b.addEventListener('click', go);
     b.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
@@ -98,28 +134,31 @@ export function initAppUi(ctx) {
   }
 
   function renderStart(force = false) {
-    const now = new Date(), rooms = roomTiles(ctx.rooms(), 6), chips = statusChips(ctx.status(), t, ctx.num);
+    const now = new Date(), rooms = startRooms(ctx.rooms(), pins(), START_MIN), chips = statusChips(ctx.status(), t, ctx.num);
     const sig = JSON.stringify([rooms, chips, greeting(now.getHours()), now.getDate(), t('app.rooms'), placeLabel()]);
     if (!force && sig === drawnStart && startEl.childElementCount) return;
     drawnStart = sig;
     let date;
     try { date = new Intl.DateTimeFormat(ctx.lang(), { weekday: 'long', day: 'numeric', month: 'long' }).format(now); } catch { date = now.toDateString(); }
-    const head = make('div', 'apHead');
-    head.append(make('div', 'apDate', date), make('h1', 'apHello', `${t(`app.hello.${greeting(now.getHours())}`)} 👋`));
+    const head = make('div', 'apHead'), top = make('div', 'apTop'), place = placeButton();
+    top.append(make('div', 'apDate', date), ...(place ? [place] : []));                 // the date and the house in one line (5.36.0: more room)
+    head.append(top, make('h1', 'apHello', `${t(`app.hello.${greeting(now.getHours())}`)} 👋`));
     const chipRow = make('div', 'apChips');
     chips.forEach((c) => { const b = button(`apChip ${c.tone}`, `${c.icon} ${c.text}`, () => chip(c.key)); b.dataset.chip = c.key; chipRow.append(b); });
     const house = button('apHouse', '', () => (ctx.openHouse ? ctx.openHouse() : ctx.show(HOUSE))); house.dataset.act = 'appHouse';
     const spin = ctx.spin?.();                                     // the whole building shown, turning (housespinui.js, 5.28.0)
     if (spin) house.append(spin);
     house.append(make('span', 'apHouseLab', `🧊 ${t('app.house3d')} ›`));
-    const sec = make('div', 'apSec'); sec.append(make('b', '', t('app.rooms')), button('apLink', t('app.all'), () => ctx.show(ROOMS)));
+    const sec = make('div', 'apSec'), links = make('span', 'apLinks');
+    const pinBtn = button('apLink', `📌 ${t('app.pinShort')}`, openPins); pinBtn.dataset.act = 'appPins'; pinBtn.title = t('app.pinTitle');
+    links.append(pinBtn, button('apLink', t('app.all'), () => ctx.show(ROOMS)));
+    sec.append(make('b', '', t('app.rooms')), links);
     const grid = make('div', 'apGrid'); rooms.forEach((r) => grid.append(tile(r)));
     if (!rooms.length) grid.append(make('p', 'apEmpty', t('app.noRooms')));
-    const place = placeButton();
-    startEl.replaceChildren(...(place ? [place] : []), head, chipRow, house, sec, grid);
+    startEl.replaceChildren(head, chipRow, house, sec, grid);
   }
   function renderRooms(force = false) {
-    const groups = byFloor(ctx.rooms(), ctx.ground());
+    const on = new Set(pins()), groups = byFloor(ctx.rooms().map((r) => ({ ...r, pin: on.has(r.key) })), ctx.ground());
     const sig = JSON.stringify([groups, t('app.rooms'), placeLabel()]);
     if (!force && sig === drawnRooms && roomsEl.childElementCount) return;
     drawnRooms = sig;
@@ -162,6 +201,6 @@ export function initAppUi(ctx) {
       [START]: { el: startEl, render: () => renderStart(true), update: () => renderStart(), has: () => true, reset: () => {} },
       [ROOMS]: { el: roomsEl, render: () => renderRooms(true), update: () => renderRooms(), has: () => true, reset: () => {} },
     }),
-    openMore, closeMore: closeSheet, houseFabs, openPlaces,
+    openMore, closeMore: closeSheet, houseFabs, openPlaces, openPins,
   };
 }

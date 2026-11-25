@@ -43,7 +43,7 @@ lit_pa = pgP.locator("[data-page=rooms] .apRoom.lit .apToggle")
 if lit_pa.count():
     calls_pa = len(ha_calls())
     lit_pa.first.tap(); pgP.wait_for_timeout(500)
-    check("📱 5.23.1: the room's 💡 asks first („… ausschalten?“), nothing switched yet", pgP.locator(".apSheetBack[data-sheet=confirm] [data-act=confirmOff]").count() == 1
+    check("📱 5.23.1 / 5.36.0: the room's 💡 asks first (its list with „Alle Lichter aus“), nothing switched yet", pgP.locator(".apSheetBack[data-sheet=room] [data-act=roomOff]").count() == 1
           and len(ha_calls()) == calls_pa)
     pgP.tap("[data-act=confirmCancel]"); pgP.wait_for_timeout(400)
     check("📱 5.23.1: „Abbrechen“ switches nothing", pgP.locator(".apSheetBack").count() == 0 and len(ha_calls()) == calls_pa)

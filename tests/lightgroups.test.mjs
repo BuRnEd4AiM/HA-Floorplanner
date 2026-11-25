@@ -71,3 +71,11 @@ test('the editor: rooms by floor and name, unnamed ones named; new ids never tak
   assert.equal(id, 'g0_');
   assert.match(L.newGroupId([], Math.random), /^g[0-9a-z]+$/);
 });
+
+test('a lamp on a relay counts as a light (5.36.0, as the 3D picture and the room tiles see it); a switch of a TV does not', () => {
+  const fl = [{ name: 'EG', rooms: [{ id: 'wz', name: 'Wohnzimmer', points: sq(0, 0) }],
+    devices: [{ entity: 'switch.shelly', type: 'pendant', x: 1, z: 1 }, { entity: 'switch.tv', type: 'switch', x: 2, z: 2 }, { entity: 'light.wand', type: 'walllamp', x: 2, z: -0.1 }] }];
+  const rows = L.lightRows({ floors: fl, groups: [{ id: 'g', name: 'G', rooms: ['wz'] }], placed: (f) => f.devices, isOn: () => true });
+  assert.deepEqual(rows[0].lights.sort(), ['light.wand', 'switch.shelly']);
+  assert.deepEqual(rows[1].lights.sort(), ['light.wand', 'switch.shelly'], 'the wall lamp on the room\'s edge is the room\'s');
+});
