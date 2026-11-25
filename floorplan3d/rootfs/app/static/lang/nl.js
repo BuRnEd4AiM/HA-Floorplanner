@@ -2676,4 +2676,7 @@ export default {
   'app.unpin': 'Niet meer vastzetten', 'app.roomActs': 'Licht, scènes, vastzetten', 'app.pinShort': 'Vastzetten', 'app.pinTitle': 'Ruimtes vastzetten',
   'app.pinHint': 'Vastgezette ruimtes staan op Start altijd bovenaan, daarna elke ruimte waar een lamp aan is. Voor deze telefoon.', 'app.cams': '{n} camera’s',
   'app.motion': '{n} beweging',
+  'tp.cam.count1': '1 camera', 'app.cams1': '1 camera',
+  'fs.place.text1': 'Home Assistant kent 1 apparaat in je ruimtes. De add-on zet het in zijn kamer – daarna schuif je het naar de juiste plek.',
+  'fs.placed1': '1 apparaat geplaatst', 'fs.place.all1': 'Automatisch plaatsen',
 };

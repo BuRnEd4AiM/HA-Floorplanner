@@ -206,7 +206,7 @@ def _(r):
     r.js("document.getElementById('tabPages').scrollTo({ top: 0, behavior: 'smooth' })")
     r.wait(1200)
     r.say("„🗂 Reiter“ zeigt alle Seiten zum Ordnen und „＋ Seite“.", "“🗂 Tabs” shows every page to order them and “＋ Page”.")
-    r.click("[data-page=today] .bdStrip button", text="Reiter")
+    r.click("[data-page=today] .bdStrip button", text="Reiter|Tabs")
     r.wait(2600)
     r.say("„✓ Fertig“ – und unten ist wieder die Leiste der App.", "“✓ Done” – and the app's bar is back at the bottom.")
     r.click("#tabEditBar button.primary")

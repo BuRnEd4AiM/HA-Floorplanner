@@ -2747,4 +2747,7 @@ export default {
   'app.pinTitle': 'Épingler des pièces',
   'app.pinHint': 'Les pièces épinglées sont toujours en haut de l’accueil, puis chaque pièce avec une lumière allumée. Pour ce téléphone.',
   'app.cams': '{n} caméras', 'app.motion': '{n} mouvement',
+  'tp.cam.count1': '1 caméra', 'app.cams1': '1 caméra',
+  'fs.place.text1': 'Home Assistant connaît 1 appareil dans tes zones. Le module le place dans sa pièce – tu le déplaces ensuite au bon endroit.',
+  'fs.placed1': '1 appareil placé', 'fs.place.all1': 'Le placer automatiquement',
 };

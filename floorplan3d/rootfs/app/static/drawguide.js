@@ -50,6 +50,19 @@ export function guideAt(prev, last, p, lines = [], { tol = GUIDE.tol } = {}) {
   return { p: [r4(last[0] + best.dir[0] * k), r4(last[1] + best.dir[1] * k)], kind: best.kind, ref: best.ref, at: last, off: best.off };
 }
 
+/** the guide with the grid on (5.36.1): first for the point as the grid put it (`snapped`); when that one is too far off (3° off at 3 m
+ *  can put the next grid point 4.8° off, past the tolerance, and no ∟ showed), for the pointer itself (`raw`): then the point lies
+ *  exactly on the guide and only its length goes onto the grid (`grid` m). Same answer as guideAt. */
+export function guideOnGrid(prev, last, raw, snapped, lines = [], grid = 0, opts = {}) {
+  const g = guideAt(prev, last, snapped, lines, opts);
+  if (g.kind || !raw) return g;
+  const h = guideAt(prev, last, raw, lines, opts);
+  if (!h.kind) return g;
+  const dx = h.p[0] - last[0], dz = h.p[1] - last[1], L = Math.hypot(dx, dz), Lg = grid > 0 ? Math.round(L / grid) * grid : L;
+  if (Lg < GUIDE.min || L < 1e-9) return h;
+  return { ...h, p: [r4(last[0] + (dx / L) * Lg), r4(last[1] + (dz / L) * Lg)] };
+}
+
 /** the lines of a floor a guide looks at: its walls and the edges of its rooms, blocks and floor openings; `extra`: more polygons (the
  *  areas of the plot); `drawn`: the points drawn so far (their lines except the last one, which is the line before) */
 export function guideLines(f, extra = [], drawn = []) {

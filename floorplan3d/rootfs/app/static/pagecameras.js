@@ -33,7 +33,7 @@ export function initCameraPage(ctx) {
   }
   /** all cameras: the tiles and the motion sensors as cards of the board (pageboard.js, #484: keys cam:<entity>, sensors) */
   function list(m) {
-    const out = [head(`📷 ${t('tab.cameras')}`, t('tp.cam.count', { n: m.cams.length }), m)];
+    const out = [head(`📷 ${t('tab.cameras')}`, t(m.cams.length === 1 ? 'tp.cam.count1' : 'tp.cam.count', { n: m.cams.length }), m)];
     const grid = make('div', 'tpCams'), items = m.cams.map((c) => ({ key: `cam:${c.entity}`, name: c.name, el: tile(c), width: 1 }));
     out.push(grid);
     if (m.sensors.length) {

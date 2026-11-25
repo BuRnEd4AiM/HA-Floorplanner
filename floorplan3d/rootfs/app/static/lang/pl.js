@@ -2661,4 +2661,7 @@ export default {
   'app.pinTitle': 'Przypnij pokoje',
   'app.pinHint': 'Przypięte pokoje są zawsze na górze ekranu startowego, potem każdy pokój z włączonym światłem. Dla tego telefonu.', 'app.cams': 'Kamery: {n}',
   'app.motion': 'Ruch: {n}',
+  'tp.cam.count1': 'Kamery: 1', 'app.cams1': 'Kamery: 1',
+  'fs.place.text1': 'Home Assistant zna 1 urządzenie w twoich obszarach. Dodatek ustawi je w jego pokoju – potem przesuniesz je na właściwe miejsce.',
+  'fs.placed1': 'Rozmieszczono urządzenia: 1', 'fs.place.all1': 'Rozmieść automatycznie',
 };

@@ -1626,6 +1626,9 @@ const DICT = {
     'app.unpin': 'Nicht mehr anheften', 'app.roomActs': 'Licht, Szenen, anheften', 'app.pinShort': 'Anheften', 'app.pinTitle': 'Räume anheften',
     'app.pinHint': 'Angeheftete Räume stehen auf Start immer oben. Danach kommt jeder Raum, in dem Licht an ist. Gilt für dieses Handy.',
     'app.cams': '{n} Kameras', 'app.motion': '{n} Bewegung',
+    'tp.cam.count1': '1 Kamera', 'app.cams1': '1 Kamera',
+    'fs.place.text1': 'Home Assistant kennt 1 Gerät in deinen Bereichen. Das Add-on stellt es in seinen Raum – du schiebst es danach an die richtige Stelle.',
+    'fs.placed1': '1 Gerät gesetzt', 'fs.place.all1': 'Automatisch setzen',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -3193,6 +3196,9 @@ const DICT = {
     'app.unpin': 'Unpin', 'app.roomActs': 'Lights, scenes, pin', 'app.pinShort': 'Pin', 'app.pinTitle': 'Pin rooms',
     'app.pinHint': 'Pinned rooms are always at the top of Home. Then every room with a light on. For this phone.', 'app.cams': '{n} cameras',
     'app.motion': '{n} motion',
+    'tp.cam.count1': '1 camera', 'app.cams1': '1 camera',
+    'fs.place.text1': 'Home Assistant knows 1 device in your areas. The add-on puts it into its room – you move it to the right spot afterwards.',
+    'fs.placed1': '1 device placed', 'fs.place.all1': 'Place it automatically',
   },
 };
 
@@ -3242,7 +3248,7 @@ export function fmtNum(v, max = 1, min = 0, l = lang) {
 export const fmtArea = (m2, imperial = false) => (imperial ? `${fmtNum(m2 * 10.7639, 0)} ft²` : `${fmtNum(m2, 1, 1)} m²`);
 export function t(key, vars) {
   let s = DICT[lang]?.[key] ?? DICT.en[key] ?? DICT.de[key] ?? key;
-  if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(v);   // every place (a name can stand twice, 5.36.1)
   return s;
 }
 

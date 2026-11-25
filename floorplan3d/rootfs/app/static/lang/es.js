@@ -2720,4 +2720,7 @@ export default {
   'app.pinTitle': 'Fijar habitaciones',
   'app.pinHint': 'Las habitaciones fijadas siempre están arriba en Inicio; luego cada habitación con una luz encendida. Para este móvil.',
   'app.cams': '{n} cámaras', 'app.motion': '{n} movimiento',
+  'tp.cam.count1': '1 cámara', 'app.cams1': '1 cámara',
+  'fs.place.text1': 'Home Assistant conoce 1 dispositivo en tus áreas. El complemento lo pone en su habitación; luego lo mueves al sitio correcto.',
+  'fs.placed1': '1 dispositivo colocado', 'fs.place.all1': 'Colocarlo automáticamente',
 };

@@ -2710,4 +2710,7 @@ export default {
   'app.pinTitle': 'Fissa le stanze',
   'app.pinHint': 'Le stanze fissate sono sempre in alto nella Home, poi ogni stanza con una luce accesa. Per questo telefono.', 'app.cams': '{n} telecamere',
   'app.motion': '{n} movimento',
+  'tp.cam.count1': '1 telecamera', 'app.cams1': '1 telecamera',
+  'fs.place.text1': 'Home Assistant conosce 1 dispositivo nelle tue aree. L’add-on lo mette nella sua stanza; poi lo sposti nel punto giusto.',
+  'fs.placed1': '1 dispositivo posizionato', 'fs.place.all1': 'Posizionalo automaticamente',
 };

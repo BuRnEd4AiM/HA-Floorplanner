@@ -53,3 +53,21 @@ test('the lines of a floor: walls, edges of rooms and areas, the lines drawn bef
   assert.equal(ls.length, 1 + 3 + 4 + 1);
   assert.deepEqual(ls[ls.length - 1], [[0, 0], [1, 0]]);
 });
+
+test('5.36.1 with the grid: the grid point 4.8° off (pointer 3° off at 3 m): the guide from the pointer, its length on the grid', () => {
+  const raw = [-4 + 3 * Math.sin(Math.PI / 60), 13 - 3 * Math.cos(Math.PI / 60)];      // 3° off square, 3 m on
+  const snapped = [-3.75, 10];                                                          // the 0.25 m grid put it 4.8° off
+  assert.equal(G.guideAt([-8, 13], [-4, 13], snapped, []).kind, null);                // before: no ∟
+  const g = G.guideOnGrid([-8, 13], [-4, 13], raw, snapped, [], 0.25);
+  assert.equal(g.kind, 'right');
+  near(g.p[0], -4); near(g.p[1], 10);                                                   // exactly square, 3.00 m (on the grid)
+});
+
+test('5.36.1 with the grid: a grid point that fits wins; too far off both ways: nothing', () => {
+  const g = G.guideOnGrid([0, 0], [4, 0], [4.1, 3.04], [4, 3], [], 0.25);
+  assert.equal(g.kind, 'right'); assert.deepEqual(g.p, [4, 3]);
+  const n = G.guideOnGrid([0, 0], [4, 0], [4.6, 3], [4.5, 3], [], 0.25);
+  assert.equal(n.kind, null); assert.deepEqual(n.p, [4.5, 3]);
+  const a = G.guideOnGrid(null, [5, 0], [5.1, 2.3], [5.25, 2.25], [[[0, 0], [5, 0]]], 0);  // no grid: the pointer's own length
+  assert.equal(a.kind, 'right'); near(a.p[0], 5); near(a.p[1], 2.3, 0.01);
+});

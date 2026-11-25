@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-25, Version **5.36.0** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-25, Version **5.36.1** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,43 +10,42 @@ Stand: 2026-11-25, Version **5.36.0** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
+- **2026-11-25, 5.36.1: 🧪 alle Tests, die Claude machen kann (Branch `claude/gallant-wozniak-goamz9`):** sein Wunsch „Mach mal alle Tests, die du machen kannst“: automatische Tests, die offenen Punkte 194 bis 235 in der Demo (PC, nachgebautes iPhone), im Test-Add-on und auf GitHub; 36 Punkte ✅ (offen 151 statt 186). Gefunden und repariert: „{name}“ beim Haus-Löschen (#803), rechter Winkel mit Raster (#804), „1 Kameras“ (#805), englisches Video `phone-dash` fehlte (#806).
 - **2026-11-25, 5.36.0: 📱 Rückmeldung zur Handy-App (#801, Branch `claude/focused-darwin-wjndmo`):** Kacheln sahen ein Licht nicht zuverlässig (nur 6 Kacheln, die Demo hat 8 Räume mit Licht; Relais-Lampen und Wandlampen auf der Kante zählten nicht): jeder Raum mit Licht steht da, Kachel in der Lichtfarbe, Räume anheften (je Handy), runder Knopf mit alles an/aus und Szenen, Chips in Zeilen, 📷-Chip, oben kein leerer Streifen, „✎ Bearbeiten“ auf den Seiten der App (`appshell.js`, `appui.js`, `roomLightIds` in `roomtiles.js`, `tabsui.js`). Er wollte vor dem Veröffentlichen Bilder sehen.
 - **2026-11-24, 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ (Branch `claude/wonderful-dijkstra-5vernn`):** seine Wünsche: Telegram reicht (kein WhatsApp mit Bild), aber auch über HA-Benachrichtigungen („nicht jeder hat Telegram“): Bild in den Medien-Ordner von HA, `notify.mobile_app_…` mit `data.image` (`hamedia.py`); die Erklär-Grafik als Fenster unter ▶ Abläufe (`piccardshelp.js`); deutlicher Hinweis, worüber Karten kommen. Nie mit echter Companion-App getestet.
 - **2026-11-24, 5.34.1: 🔔 Nachricht nur mit Bildkarte (Branch `claude/wonderful-dijkstra-5vernn`):** seine Frage „muss ich eine Nachricht reinschreiben?“: nein, mit Bildkarte darf der Text leer bleiben (Editor, `flows.py`, `haflows.py`, `rulesrun.py`, `server.py`); die Vorschau zeigt auch für Abläufe Raum und Etage; bei Alarm füllt der Warntext {text}. Seine Bitte um eine Erklärung als Grafik: `docs/hilfe/bildkarten.jpg` (`make_bildkarten.py`).
 - **2026-11-24, 5.34.0: 🖼 Bildkarten: Stockwerk wählen, Platzhalter als grüne Kästchen (Branch `claude/wonderful-dijkstra-5vernn`):** sein Wunsch „Stockwerke auswählen“: das Raumbild hat „Stockwerk“ (Automatisch oder ein festes). Seine Frage, wie die Texte gemacht werden: Platzhalter; seine Wahl aus `docs/ideen-5.34`: Idee 2, grüne Kästchen mit Knöpfen „＋ Raum“ … (`phfield.js`).
-- **2026-11-23, 5.33.0: 🖼 Bildkarten fürs Handy (Branch `claude/charming-carson-d1uepn`):** gebaut wie gewählt: unter ▶ Abläufe, Editor mit Bausteinen untereinander und Vorlagen, Karte je Alarm und im Ablauf, „Test an mich“; das Add-on malt sie mit Pillow (`piccard.py`), die Demo im Browser (`demo/piccard.js`, beide gleich halten). Nebenbei: der Bot-Schlüssel kam in jedes Backup (jetzt nur mit Haken).
-- **2026-11-23, 5.32.1: 📸 Telegram-Bot einrichten repariert (#796) und Beispielbilder „Bildkarten“ (Branch `claude/charming-carson-d1uepn`):** „Chat finden“ zeichnete aus dem Gespeicherten neu (sprang auf WhatsApp, Schlüssel weg); jetzt bleibt das Getippte, Schlüssel lesbar mit ✅, ganze BotFather-Nachricht geht, Chat-ID von Hand. Sein neuer Wunsch: eigene Bildkarten für Alarme und Abläufe, zehn Bilder in `docs/ideen-5.33`; seine Wahl: Idee 1 (Bausteine) mit Vorlagen, unter ▶ Abläufe, alles (Ablauf, je Alarm, 3 fertige Karten, „Test an mich“); die Karte mit der großen Kamera heißt „Test 1“, nicht „Florian 1“.
 
 ## Offen
 
-- **5.36.0 Handy-App (#801):** sein Test am echten Handy (235.8 bis 235.10); ob der Reiter Kameras jetzt überall da ist (235.11; fehlte ihm überall: kam nur mit einer im Plan gesetzten Kamera, jetzt auch alle Kameras von Home Assistant).
-- **5.34.0 / 5.34.1 / 5.35.0 Bildkarten:** sein Test (Testprotokoll 232, 233, 234), vor allem 234.4: das Bild in der Home-Assistant-App am echten Handy (auch unterwegs).
+- **5.36.1:** nach dem Merge das englische Video „Edit the pages on the phone“ (236.5).
+- **5.36.0 Handy-App (#801):** sein Test am echten Handy (235.9); Kameras-Reiter und Kachel-Farbe hat Claude im Test-Add-on geprüft.
+- **5.34.0 / 5.34.1 / 5.35.0 Bildkarten:** sein Test (232.6, 233.3, 234.4, 234.5), vor allem 234.4: das Bild in der Home-Assistant-App am echten Handy (auch unterwegs).
 - **5.33.0 Bildkarten:** sein Test im Add-on mit seinem Bot (231.6 bis 231.9). Nicht gebaut: Verlauf (24 h) als Baustein, Idee 2 (freie Fläche).
 - **5.32.1 Telegram-Bot:** sein Test im Add-on am Handy (230.6 bis 230.8).
 - **5.15.0 Sonnenschutz:** sein Test (Testprotokoll 206.5 bis 206.7), vor allem ob Norden bei seinem Haus stimmt.
 - **5.16.0 Bild bei Alarm:** sein Test mit seinem Bot (Testprotokoll 207.3 bis 207.5).
 - **5.17.0 Funk-Karte:** sein Test (208.4, 208.5), ob seine Zigbee-Werte ausgeschaltet sind.
 - **5.18.0 Urlaubs-Licht:** sein Test (209.3 bis 209.5).
-- **5.24.0 Haus-Check:** sein Test (216.3 bis 216.5); Nachricht aufs Handy bei fälliger Wartung ist noch nicht gebaut.
-- **5.25.0 Erste Schritte:** sein Test (217.3 bis 217.5).
+- **5.24.0 Haus-Check:** sein Test (216.3); Nachricht aufs Handy bei fälliger Wartung ist noch nicht gebaut.
+- **5.25.0 Erste Schritte:** sein Test (217.4).
 - **5.26.0 Monatsbericht:** sein Test (218.3 bis 218.5).
-- **5.28.0 Haus dreht sich auf Start:** sein Test am Handy (220.4 bis 220.6).
-- **5.28.1 🔕 beim Bearbeiten:** sein Test mit seinem Haus (221.5).
+- **5.28.0 Haus dreht sich auf Start:** sein Test am Handy (220.4).
 - **5.28.2 Funk „Alle einschalten“:** sein Test mit seinem Haus (222.4, 222.5).
 - **5.28.3 Funk mit Matter:** sein Test mit seinem Haus (223.3 bis 223.5); ob sein Matter-Server die Karte schon kann.
 - **5.28.4 alle einschalten:** sein Test (224.3, 224.4); vielleicht stehen in seinem Plan Gruppen statt der Zigbee-Geräte.
-- **5.29.0 Garage (#789) und Treppenhöhe:** sein Test (225.2, 225.3, 226.3, 226.4); #789 schließt sich mit dem Merge.
-- **5.27.0 Tür-Rollläden und 🔕 (#779, #780):** sein Test (219.4 bis 219.8). Frank (#779, 21.11.): Tür-Rollläden oben, im Plan zu; Rückfrage (Entität, Zustand) am 22.11. gestellt, seine Antwort fehlt; im Code kein Fehler gefunden.
-- **5.30.0 KI-Weg vorne:** sein Test (227.4, 227.5); Frank hat in #779 am 22.11. erfahren, dass sein Tipp drin ist.
-- **5.23.0 / 5.23.1 Handy-App 2:** sein Test (214.6, 214.7, 215.4, 215.5) und was ihm an den Bildern 1–44 noch auffällt.
-- **5.22.0 Handy-App:** sein Eindruck am Handy (213.4 bis 213.6).
-- **5.21.0 Gäste-Zugang:** sein Test (212.5 bis 212.8).
+- **5.29.0 Garage (#789) und Treppenhöhe:** sein Test (225.2, 225.3, 226.3); #789 schließt sich mit dem Merge.
+- **5.27.0 Tür-Rollläden und 🔕 (#779, #780):** sein Test (219.6, 219.8). Frank (#779, 21.11.): Tür-Rollläden oben, im Plan zu; Rückfrage (Entität, Zustand) am 22.11. gestellt, seine Antwort fehlt; im Code kein Fehler gefunden.
+- **5.30.0 KI-Weg vorne:** sein Test (227.4); Frank hat in #779 am 22.11. erfahren, dass sein Tipp drin ist.
+- **5.23.0 / 5.23.1 Handy-App 2:** was ihm an den Bildern 1–44 noch auffällt (214.6 bis 215.5 hat Claude geprüft).
+- **5.22.0 Handy-App:** sein Eindruck am Handy (213.4).
+- **5.21.0 Gäste-Zugang:** sein Test (212.5, 212.6).
 - **5.20.0 Helligkeit:** sein Test (211.4 bis 211.6).
 - **5.19.0 Stromfresser:** sein Test (210.4 bis 210.6), vor allem ob „läuft immer“ bei seinen Geräten stimmt.
-- **5.31.0 Lichtschächte (#786):** sein Test (Testprotokoll 228.5, 228.6).
+- **5.31.0 Lichtschächte (#786):** sein Test (228.5).
 - **5.32.0 Eingang, Vordach, Balkon unter dem Dach (#786):** nach dem Merge Mario in #786 mit Bildern antworten (Gelände statt Plateau, „Ansicht“ → Wände nicht absenken, ob sein Dachgeschoss ausgebaut ist), sein Test 229.7; #794 schließt sich mit dem Merge.
 - **Gewählte Liste abgearbeitet (2026-11-20):** fragen, was als Nächstes kommt. Aus `docs/ideen-5.15` sonst (👥 Gäste-Modus als Gäste-Zugang gebaut, 5.21.0; Gast-WLAN-QR, Gästezimmer heizt, Flurlicht nachts, Alarm nur außen daraus noch nicht) (🌙 Nachtlicht-Weg: von ihm weggelassen, `docs/ideen-5.17`); fragen, welche als Nächstes.
-- **5.14.0:** sein Test mit seinem Haus (Testprotokoll 204.2 bis 204.9), vor allem Balkon „Raum 17“ (204.5) und Garage „Raum 6“ (204.6).
+- **5.14.0:** sein Test mit seinem Haus, nur noch Balkon „Raum 17“ (204.5) und Garage „Raum 6“ (204.6).
 - **Tablet 5.13.1 (#759):** sein Test am echten Wandtablet (Testprotokoll 203.5 bis 203.7); kommt das leere Stockwerk noch, fragen, welcher Bildschirmschoner läuft und was davor getippt wurde.
 - **Wandtablet (5.12.0):** sein Eindruck am echten Tablet (Testprotokoll 201.8 bis 201.11); nicht gebaut: echte Helligkeit über Fully Kiosk oder eine Entität, je Tablet ein eigener Bewegungsmelder.
 - **Tablet 5.13.0:** sein Test am echten Tablet (Testprotokoll 202.8 bis 202.12: eigener Bewegungsmelder, Fully Kiosk, Putzen, Kindertablet).
@@ -55,7 +54,7 @@ Stand: 2026-11-25, Version **5.36.0** (5.31.0 ist für alle freigegeben). Erst d
 - **Testen durch den Besitzer:** oben in `docs/TESTPROTOKOLL.md` („Kurze Prüfliste“, Stand 5.9.0, 2026-11-12) und die Übersicht, die sich selbst ausrechnet. Übrig ist nur, was echte Geräte, sein Home Assistant, sein Eindruck oder Antworten aus den Issues braucht. Wenn er testet: per Auswahl im Chat abfragen (siehe „Der Besitzer“).
 - **Fragen an Leute aus den Issues** (ob es so passt): Miicki (#752 Dachfarbe, #753 Treppenbelag und ob gerade Treppen ein Geländer bekommen sollen, #754 Türfarben; #705 Temperatur von, #703 Terrasse, #623 gewendelte Treppe), ChrisSN86 (#694, und ob sein Import jetzt alle Fenster behält), markweiffenbach (#679), Oely99 (#671), christinloehner (#646 Balkon, #643 Dachfenster, #629 Hang, #628 Giebel), biggilottecassi (#624), Zelos001 (#631), Mario (Diskussion #621).
 - **Fragen an den Besitzer** (Einzelheiten im Archiv): „Automatisch“ als Kantenglättung für alle (4.34.0)? Eine Einstellung „Thermostat vor Raumsensoren“ für alle Räume (5.4.0)? Pause als eigene Zeile im 🩺 Protokoll, Szenen-Leiste je Gebäude (4.71.0)? Geräte im Garten in keinem Gebäude richtig (4.70.0)? Welche besonderen Tage (Feiertage BW, Schulferien) (4.51.0)? Welche Thermostate, „🎯 Ausgleich“ erkannt (4.38.0); TOI-Thermostat Batterie und Empfang (4.43.1); Räume 24–26° bei Soll 17° (4.42.0)? TikTok: Name des Kontos, welche Clips liefen; Trailer: Musik und Szenen. Das Ergebnis des 🩺 Mikrofon-Tests (Testprotokoll 97). „✨ Neu“ am Handy: entscheidet er später.
-- **Docker (#744):** aixmoyu hat 5.9.1 bestätigt und #744 geschlossen. Offen: nach dem Merge von 5.9.2 im Connector-Repository Release, Symbol und README ansehen (198.2), ob das Symbol bei aixmoyu erscheint (198.3). Der Zweig `claude/sync-workflow` dort ließ sich von der Sitzung aus nicht löschen (harmlos, gleich wie `main`).
+- **Docker (#744):** aixmoyu hat 5.9.1 bestätigt und #744 geschlossen. Offen: ob das Symbol bei aixmoyu erscheint (198.3). Der Zweig `claude/sync-workflow` dort ließ sich von der Sitzung aus nicht löschen (harmlos, gleich wie `main`).
 - **#138 Tablet schneller (beim Drehen und Bewegen):** seit 5.14.1 etwa 800 Zeichenaufrufe im Musterhaus; offen ist sein Eindruck am echten Tablet (205.4). Noch möglich: Türen und Fenster (167 Aufrufe) und die roten „offline“-Zeichen (104) zusammenfassen.
 - **Demo normal und Beta (5.3.1):** `/` = normales Add-on (`floorplan3d-stable/`), `/beta/` = Beta. Baut der Code des normalen Add-ons mit den heutigen Demo-Daten nicht mehr, zeigt die Seite die Beta-Demo und der Workflow warnt: dann die Demo-Daten so ändern, dass sie mit beiden gehen, oder bald freigeben. Nach einem Merge sagen: „ist jetzt in der Beta und in der Demo; für alle erst nach dem Freigeben“.
 - **Container-Integration (#601, #744):** nie mit einem echten Home Assistant getestet. Meldet jemand Fehler: zuerst Reparaturen (Versionen), `auth.create_auth_code` und `APP_URL` prüfen. Ihre Version schreibt `tools/make_manifest.py` (= Add-on). Eine neue Karten-Option kommt in beide Karten (`dist/floorplan3d-card.js` und `floorplan3d-container-card.js`, `tests/containercard.test.mjs` vergleicht sie).
@@ -91,6 +90,7 @@ Stand: 2026-11-25, Version **5.36.0** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Stolperfallen
 
+- **Der Workflow „Video guide“ bleibt grün, wenn ein Clip scheitert** (2026-11-25, #806): der Clip fehlt dann einfach. Nach neuen Clips `git fetch --depth 1 https://github.com/BuRnEd4AiM/HA-Floorplanner.git guide-videos` und `de/` mit `en/` vergleichen; Klick-Texte in Clips immer in beiden Sprachen (`text="Reiter|Tabs"`), ausprobieren mit `--lang de,en`.
 - **Version und Workflow-Änderung in einem Pull Request** (2026-11-10, 5.3.1): steht die neue Version in einem früheren Commit als eine Änderung an `.github/workflows/`, verweigert GitHub dem Workflow „Release“ den Tag an diesem Commit (403 „Resource not accessible by integration“, der Lauf bleibt trotzdem grün). Seitdem nimmt `release.yml` dann den Commit des Laufs (= `main`, gleiche Workflows; auch der Merge-Commit wurde abgelehnt, sobald `main` die Workflows danach noch einmal änderte). Neue Ordner für die Demo legt `demo/build.mjs` selbst an (der erste Lauf mit `_demo/` war rot).
 - **GitHub Pages hängt manchmal** (2026-11-10): der Schritt „pages“ des Workflows „Demo“ blieb bei „syncing_files“ stehen und brach nach 10 Minuten ab (die Seite blieb alt, `/beta/` fehlte); sonst dauert er 30 Sekunden. Seitdem wartet er 30 Minuten. Bleibt die Seite alt: Actions → Demo → den letzten Lauf „Re-run failed jobs“.
 - **Namen von Entitäten nur über `hanames.name(state, default)` lesen** (#675), nie `attributes.friendly_name` selbst: Home Assistant will es abschaffen; `tests/test_hanames.py` prüft das. „Gehört zum selben Gerät“ nur über `hadevices.Devices` (Teil-Geräte seit 2026.11, dafür auch `config/device_registry/list` fragen: `renames.device_list`).
