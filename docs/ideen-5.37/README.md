@@ -47,3 +47,19 @@ Schildern): das waren Schatten und Unschärfe der Kacheln, die der Browser in ei
 Dritte Runde (seine Rückmeldung zu Bild 7 und 15): Szenen-Kacheln und Raum-Kacheln weniger durchsichtig, Schrift darin voll lesbar; die Schilder über
 den Zimmern mit mehr Kontrast; Suche, Mikrofon und Kompass zusammen in einem Glas-Kästchen unten links; die Etagen-Namen ohne den schwarzen,
 verschwommenen Schatten (Glas hell).
+
+## Teil 3: die Leisten unten schweben (nach 5.37.0)
+
+Seine Rückmeldung (2026-11-26, Bild vom Haus in Glas): der Streifen unten (Szenen und Reiter) „verkleinert komplett das Bild … macht den
+Bildschirm noch kleiner“; besser „dass dieser Balken sich als Hintergrund an die Icons schmiegt, so dass ein kleiner Überstand ist und die nur
+so groß ist, wie es gebraucht wird, und leicht durchsichtig“. Nur fürs Foto in die Demo 5.37.0 gemalt (`make_dock.cjs`).
+
+| Bild | Was |
+| --- | --- |
+| 16 | Heute (5.37.0, Glas dunkel): unter dem 3D-Bild ein dunkler Streifen über die ganze Breite für Szenen und Reiter |
+| 17 | Neu: das 3D-Bild läuft bis ganz nach unten; Szenen und Reiter je eine leicht durchsichtige Kapsel, nur so breit wie die Knöpfe, mit kleinem Rand |
+| 18 | Dasselbe in Glas hell |
+| 19 | Am Tablet. Dabei gesehen (auch im normalen Design „Dunkel“): am Tablet liegen die Raumkacheln über „Normal / Temp. / Feuchte …“ |
+
+    node docs/ideen-5.37/make_dock.cjs <ordner>
+    python3 docs/ideen-5.37/to_jpg.py <ordner> docs/ideen-5.37
