@@ -4,13 +4,13 @@
 
 Stand: 2026-11-26 · 158 Sitzungen
 
-**Insgesamt: 10,86 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 10,89 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 28,9 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 98,4 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 10,74 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 29,0 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 99,4 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 10,77 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 72 | 4,74 Mrd. | 11,2 Mio. |
+| 2026-11 | 72 | 4,77 Mrd. | 11,2 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,7 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-11-26 | [012p9z3K…](https://claude.ai/code/session_012p9z3KJk1brXbxK7QmBTRL) | claude/quirky-rubin-x6173y | 65,6 Mio. | 160 Tsd. | gezählt |
+| 2026-11-26 | [012p9z3K…](https://claude.ai/code/session_012p9z3KJk1brXbxK7QmBTRL) | claude/quirky-rubin-x6173y | 95,7 Mio. | 201 Tsd. | gezählt |
 | 2026-11-26 | [012p9z3P…](https://claude.ai/code/session_012p9z3PZhYS4V6DXv7QLtVf) | claude/new-session-urykqp | 6,3 Mio. | 37 Tsd. | gezählt |
 | 2026-11-25 | [012p9z3N…](https://claude.ai/code/session_012p9z3NGRSQyK3hZZmRwxdm) | claude/gallant-wozniak-goamz9 | 72,9 Mio. | 150 Tsd. | gezählt |
 | 2026-11-25 | [012p9z3P…](https://claude.ai/code/session_012p9z3PWsPAECSFq98YRYFy) | claude/focused-darwin-wjndmo | 52,4 Mio. | 133 Tsd. | gezählt |
