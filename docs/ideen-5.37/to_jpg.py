@@ -7,11 +7,16 @@ FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
 # (Quelle, Ziel, Beschriftung, neu?, Breite)
 JOBS = [("1-heute", "01-heute", "Bild 1 · HEUTE", False, 1400), ("2-idee1", "02-idee1-haus-mit-stromfluss", "Idee 1 · Bild 2 · NEU", True, 1400),
         ("3-idee2", "03-idee2-glas", "Idee 2 · Bild 3 · NEU", True, 1400), ("4-handy-heute", "04-handy-heute", "Bild 4 · HEUTE", False, 780),
-        ("5-idee3", "05-idee3-handy", "Idee 3 · Bild 5 · NEU", True, 780)]
+        ("5-idee3", "05-idee3-handy", "Idee 3 · Bild 5 · NEU", True, 780),
+        # Teil 2: Design „Glas (Apple-Stil)“ für die ganze App (make_theme.cjs)
+        ("6-einstellung", "06-glas-einstellung", "Glas · Bild 6 · NEU", True, 1400), ("7-haus-glas", "07-glas-haus", "Glas · Bild 7 · NEU", True, 1400),
+        ("8-heute-glas", "08-glas-heute", "Glas · Bild 8 · NEU", True, 1400), ("9-energie-glas", "09-glas-energie", "Glas · Bild 9 · NEU", True, 1400),
+        ("10-heute-glas-hell", "10-glas-hell-heute", "Glas hell · Bild 10 · NEU", True, 1400),
+        ("11-handy-glas", "11-glas-handy", "Glas · Bild 11 · NEU", True, 780), ("12-handy-glas-hell", "12-glas-hell-handy", "Glas hell · Bild 12 · NEU", True, 780)]
 
 
 def label(im, text, new):
-    size = max(28, min(im.width // 26, 44))
+    size = max(28, min(im.width // 40, 44))
     f = ImageFont.truetype(FONT, size); d = ImageDraw.Draw(im)
     l, t, r, b = d.textbbox((0, 0), text, font=f); pad = size // 2
     w, h = r - l + 2 * pad, b - t + 2 * pad

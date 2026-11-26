@@ -48,8 +48,8 @@ window.__mk = (idea, house) => {
   .mkDev .bar div { height:100%; border-radius:99px; background:linear-gradient(90deg,#ff9f1c,#ff5e3a); }
   .mkDev b { width:78px; text-align:right; font-size:15px; }
   /* Idee 2: Glas */
-  .mkGlass { position:relative; }
-  .mkBg { position:fixed; inset:0; z-index:0; background-size:cover; background-position:center; filter: blur(28px) saturate(1.4) brightness(.55); transform:scale(1.15); }
+  .mkGlass { position:relative; overflow:hidden; }
+  .mkBg { position:absolute; inset:0; z-index:0; background-size:cover; background-position:center; filter: blur(28px) saturate(1.4) brightness(.55); transform:scale(1.15); }
   .mkGlass > .mkIn { position:relative; z-index:1; }
   .mkGlass .mkCard { background:#ffffff12; backdrop-filter: blur(22px) saturate(1.3); -webkit-backdrop-filter: blur(22px) saturate(1.3); border:1px solid #ffffff2a; box-shadow: 0 20px 50px #0005, inset 0 1px 0 #ffffff30; }
   .mkTiles { display:grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap:16px; }

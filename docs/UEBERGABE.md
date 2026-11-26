@@ -10,7 +10,7 @@ Stand: 2026-11-26, Version **5.36.1** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
-- **2026-11-26: ⚡ Beispielbilder Energie-Seite moderner (Branch `claude/quirky-rubin-x6173y`):** sein Wunsch „fotorealistischer und moderner, erst mal Beispielbilder“: `docs/ideen-5.37` (Idee 1 Haus mit Stromfluss, Idee 2 Glas-Look, Idee 3 Handy). Seine Wahl fehlt noch.
+- **2026-11-26: ⚡ Beispielbilder Energie-Seite moderner (Branch `claude/quirky-rubin-x6173y`):** sein Wunsch „fotorealistischer und moderner, erst mal Beispielbilder“: `docs/ideen-5.37` (Idee 1 Haus mit Stromfluss, Idee 2 Glas-Look, Idee 3 Handy). Seine Wahl: Idee 2 (Glas); dazu wünscht er ein Design „Glas (Apple-Stil)“ für die ganze App neben „Klassisch“: Bilder 6–12, seine Antwort fehlt.
 - **2026-11-26: 🔁 Connector-Sync wieder grün (#809, Branch `claude/new-session-urykqp`):** sein Bild vom roten „Sync from HA-Floorplanner“ #44: ein Lauf hatte 5.36.0 halb angelegt (Tag ja, Release nein), danach brach jeder Lauf bei `git tag` ab; `tools/connector_mirror.py` macht das jetzt fertig, versucht das Release mehrmals und schreibt die Fehlermeldung ins Log.
 - **2026-11-25, 5.36.1: 🧪 alle Tests, die Claude machen kann (Branch `claude/gallant-wozniak-goamz9`):** sein Wunsch „Mach mal alle Tests, die du machen kannst“: automatische Tests, die offenen Punkte 194 bis 235 in der Demo (PC, nachgebautes iPhone), im Test-Add-on und auf GitHub; 36 Punkte ✅ (offen 151 statt 186). Gefunden und repariert: „{name}“ beim Haus-Löschen (#803), rechter Winkel mit Raster (#804), „1 Kameras“ (#805), englisches Video `phone-dash` fehlte (#806).
 - **2026-11-25, 5.36.0: 📱 Rückmeldung zur Handy-App (#801, Branch `claude/focused-darwin-wjndmo`):** Kacheln sahen ein Licht nicht zuverlässig (nur 6 Kacheln, die Demo hat 8 Räume mit Licht; Relais-Lampen und Wandlampen auf der Kante zählten nicht): jeder Raum mit Licht steht da, Kachel in der Lichtfarbe, Räume anheften (je Handy), runder Knopf mit alles an/aus und Szenen, Chips in Zeilen, 📷-Chip, oben kein leerer Streifen, „✎ Bearbeiten“ auf den Seiten der App (`appshell.js`, `appui.js`, `roomLightIds` in `roomtiles.js`, `tabsui.js`). Er wollte vor dem Veröffentlichen Bilder sehen.
@@ -19,7 +19,7 @@ Stand: 2026-11-26, Version **5.36.1** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Offen
 
-- **Energie-Seite moderner (`docs/ideen-5.37`):** seine Wahl (Idee 1, 2, 3 oder gemischt), dann bauen.
+- **Energie-Seite Glas + Design „Glas (Apple-Stil)“ (`docs/ideen-5.37`, Bilder 6–12):** seine Rückmeldung zu den Bildern, dann bauen.
 - **5.36.0 Handy-App (#801):** sein Test am echten Handy (235.9); Kameras-Reiter und Kachel-Farbe hat Claude im Test-Add-on geprüft.
 - **5.34.0 / 5.34.1 / 5.35.0 Bildkarten:** sein Test (232.6, 233.3, 234.4, 234.5), vor allem 234.4: das Bild in der Home-Assistant-App am echten Handy (auch unterwegs).
 - **5.33.0 Bildkarten:** sein Test im Add-on mit seinem Bot (231.6 bis 231.9). Nicht gebaut: Verlauf (24 h) als Baustein, Idee 2 (freie Fläche).
