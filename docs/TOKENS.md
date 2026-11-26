@@ -2,14 +2,14 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-25 · 156 Sitzungen
+Stand: 2026-11-26 · 157 Sitzungen
 
-**Insgesamt: 10,79 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 10,80 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 28,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 97,8 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Geschrieben | 28,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 97,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
 | Wieder gelesen | 10,67 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 70 | 4,66 Mrd. | 11,0 Mio. |
+| 2026-11 | 71 | 4,67 Mrd. | 11,0 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-26 | [012p9z3P…](https://claude.ai/code/session_012p9z3PZhYS4V6DXv7QLtVf) | claude/new-session-urykqp | 6,3 Mio. | 37 Tsd. | gezählt |
 | 2026-11-25 | [012p9z3N…](https://claude.ai/code/session_012p9z3NGRSQyK3hZZmRwxdm) | claude/gallant-wozniak-goamz9 | 72,9 Mio. | 150 Tsd. | gezählt |
 | 2026-11-25 | [012p9z3P…](https://claude.ai/code/session_012p9z3PWsPAECSFq98YRYFy) | claude/focused-darwin-wjndmo | 52,4 Mio. | 133 Tsd. | gezählt |
 | 2026-11-24 | [012p9z3L…](https://claude.ai/code/session_012p9z3LPey6jHEoipmGH2ZG) | claude/wonderful-dijkstra-5vernn | 72,9 Mio. | 196 Tsd. | gezählt |
