@@ -13,9 +13,9 @@ pgS.goto(BASE + "?debug=1&mode=edit"); pgS.wait_for_function("window.__fp && win
 pgS.click("#settingsBtn"); pgS.wait_for_timeout(600)
 pgS.click("#sgNav [data-group=general]"); pgS.wait_for_timeout(300)
 seg = pgS.evaluate("[...document.querySelectorAll('.segBtns[data-for=setTheme] button')].map((b) => [b.dataset.value, b.classList.contains('on'), b.innerText.trim()])")
-check("① the design is three buttons (Hologramm, Dunkel, Hell, each with a colour sample), the drop-down is hidden", len(seg) == 3 and [v for v, on, _ in seg if on] == ["dark"]
+check("① the design is a row of buttons (Hologramm, Dunkel, Hell, since 5.37.0 Glas dunkel and Glas hell, each with a colour sample), the drop-down is hidden", len(seg) == 5 and [v for v, on, _ in seg if on] == ["dark"]
       and pgS.evaluate("(() => { const r = document.getElementById('setTheme').getBoundingClientRect(); return r.width <= 1 && r.height <= 1; })()")
-      and pgS.locator(".segBtns[data-for=setTheme] .segSwatch").count() == 3, seg)   # hidden but still there (1 px: tests may still pick from it)
+      and pgS.locator(".segBtns[data-for=setTheme] .segSwatch").count() == 5, seg)   # hidden but still there (1 px: tests may still pick from it)
 pgS.click(".segBtns[data-for=setTheme] button[data-value=light]"); pgS.wait_for_timeout(1200)
 check("① a tap on „Hell“ switches the design and saves it", pgS.evaluate("document.documentElement.dataset.theme") == "light" and api("api/settings")["theme"] == "light"
       and pgS.evaluate("document.querySelector('.segBtns[data-for=setTheme] button.on')?.dataset.value") == "light", api("api/settings")["theme"])

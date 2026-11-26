@@ -2,6 +2,11 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.37.0] - 2026-11-26
+### Neu
+- **🍏 Zwei weitere Designs: „Glas dunkel“ und „Glas hell“** (der Besitzer, 2026-11-26: „ein Theme, dass es so aussieht, als wäre es von Apple … die Hintergründe“, „auch unten die Leiste und alles drum und dran“; „nur ein Design … eine Option und kein Muss“; seine Bilder in docs/ideen-5.37): ⚙ → Allgemein → Design hat jetzt fünf Knöpfe. Normal bleibt „Dunkel“; nichts ändert sich, solange niemand Glas wählt. Ein Glas-Design baut auf dem dunklen oder hellen Design auf und bringt dazu: das eigene Haus verschwommen hinter den Seiten (einmal je Besuch und Haus aus der 3D-Ansicht genommen, in diesem Browser gemerkt), Karten, Leisten, die Einstellungen und die Raumkarte aus Milchglas, rundere Knöpfe, die Leiste unten schwebt; über dem 3D-Bild festes Glas ohne die abgeschnittenen Schatten, die einen Kasten hinter den Raumkacheln und den Etagen machten; Suche, Mikrofon und Kompass in einem Kästchen; auch die Handy-App in Glas. Die Dashboard-Karte kann es wählen (`theme: glass` / `glasslight`). In `glasstheme.js` (reine Regeln getestet) und im Abschnitt „Glas“ von style.css.
+- **⚡ Energie im Glas-Design** (Idee 2 / Bild 3, seine Wahl „Nur Idee 2 (Bild 3)“): ein kleines buntes Bildchen auf jeder Kachel, ein Ring für „Selbst gemacht“, eine weiche Fläche statt der Balken (bis jetzt, ein Punkt am letzten Wert), die Hausbatterie als Batterie in Grün, Gelb oder Rot (`energyglass.js`). Die anderen Designs behalten die Seite, wie sie war.
+
 ## [5.36.1] - 2026-11-25
 ### Repariert
 - **Haus löschen: die Frage endete mit „{name}“** (#803, gefunden beim Testen von 204.9): „Zum Bestätigen den Namen eintippen: {name}“ nennt jetzt das Haus. Die Platzhalter der Texte werden an jeder Stelle gefüllt (vorher nur an der ersten), ein Name mit „$“ bleibt, wie er ist.

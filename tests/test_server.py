@@ -74,6 +74,8 @@ async def test_settings_defaults_and_validation(client):
     assert s["shadows"] is True       # wrong type ignored
     assert "evil" not in s
     assert (await (await client.get("/api/settings")).json()) == s
+    for glass in ("glass", "glasslight"):          # 🍏 the glass designs (5.37.0): a choice that is kept, never the default
+        assert (await (await client.put("/api/settings", json={"theme": glass})).json())["theme"] == glass
 
 
 async def test_model_upload_list_get_delete(client):

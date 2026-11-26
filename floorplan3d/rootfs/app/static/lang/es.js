@@ -844,7 +844,7 @@ export default {
   'set.theme': 'Tema',
   'set.theme.holo': 'Holograma',
   'set.theme.dark': 'Oscuro',
-  'set.theme.light': 'Claro',
+  'set.theme.light': 'Claro', 'set.theme.glass': 'Cristal oscuro', 'set.theme.glasslight': 'Cristal claro',
   'set.units': 'Unidades',
   'set.units.metric': 'Métrico (m)',
   'set.units.imperial': 'Imperial (ft)',

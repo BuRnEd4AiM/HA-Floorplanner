@@ -844,7 +844,7 @@ export default {
   'set.theme': 'Tema',
   'set.theme.holo': 'Ologramma',
   'set.theme.dark': 'Scuro',
-  'set.theme.light': 'Chiaro',
+  'set.theme.light': 'Chiaro', 'set.theme.glass': 'Vetro scuro', 'set.theme.glasslight': 'Vetro chiaro',
   'set.units': 'Unità',
   'set.units.metric': 'Metriche (m)',
   'set.units.imperial': 'Imperiali (ft)',

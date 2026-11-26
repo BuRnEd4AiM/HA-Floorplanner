@@ -33,7 +33,7 @@
   const DEFAULT_HEIGHT = '400px';
   const OPTIONS = {                                 // the choices of the editor's drop-downs; "default" = as set in the add-on (left out)
     view: ['3d', 'room', 'panel'],
-    theme: ['default', 'auto', 'dark', 'light', 'holo'],
+    theme: ['default', 'auto', 'dark', 'light', 'holo', 'glass', 'glasslight'],
     quality: ['auto', 'low', 'high'],
     walls: ['default', 'auto', 'see_through', 'low', 'full'],
     labels: ['default', 'important', 'all', 'none'],
@@ -64,7 +64,7 @@
       kiosk: 'Wall tablet: hide Home Assistant\'s sidebar and top bar (not for administrators; to try out)',
       addon: 'Add-on slug (only when it is not found by itself)',
       wholeHouse: 'Whole house', firstHouse: 'As in the add-on', anyRoom: 'None',
-      'theme.default': 'As in the add-on', 'theme.auto': 'Like Home Assistant (dark / light)', 'theme.dark': 'Dark', 'theme.light': 'Light', 'theme.holo': 'Hologram',
+      'theme.default': 'As in the add-on', 'theme.auto': 'Like Home Assistant (dark / light)', 'theme.dark': 'Dark', 'theme.light': 'Light', 'theme.holo': 'Hologram', 'theme.glass': 'Glass dark', 'theme.glasslight': 'Glass light',
       'quality.auto': 'Automatic', 'quality.low': 'Fast', 'quality.high': 'Beautiful',
       'walls.default': 'As in the add-on', 'walls.auto': 'Sink towards the camera', 'walls.see_through': 'See-through towards the camera', 'walls.low': 'All low', 'walls.full': 'All full height',
       'labels.default': 'As in the add-on', 'labels.important': 'Important', 'labels.all': 'All', 'labels.none': 'None',
@@ -91,7 +91,7 @@
       kiosk: 'Wandtablet: Seitenleiste und Kopfzeile von Home Assistant ausblenden (nicht für Admins; zum Ausprobieren)',
       addon: 'Slug des Add-ons (nur wenn es nicht von selbst gefunden wird)',
       wholeHouse: 'Ganzes Haus', firstHouse: 'Wie im Add-on', anyRoom: 'Keiner',
-      'theme.default': 'Wie im Add-on', 'theme.auto': 'Wie Home Assistant (dunkel / hell)', 'theme.dark': 'Dunkel', 'theme.light': 'Hell', 'theme.holo': 'Hologramm',
+      'theme.default': 'Wie im Add-on', 'theme.auto': 'Wie Home Assistant (dunkel / hell)', 'theme.dark': 'Dunkel', 'theme.light': 'Hell', 'theme.holo': 'Hologramm', 'theme.glass': 'Glas dunkel', 'theme.glasslight': 'Glas hell',
       'quality.auto': 'Automatisch', 'quality.low': 'Schnell', 'quality.high': 'Schön',
       'walls.default': 'Wie im Add-on', 'walls.auto': 'Zur Kamera hin absenken', 'walls.see_through': 'Zur Kamera hin durchsichtig', 'walls.low': 'Alle niedrig', 'walls.full': 'Alle in voller Höhe',
       'labels.default': 'Wie im Add-on', 'labels.important': 'Wichtige', 'labels.all': 'Alle', 'labels.none': 'Keine',

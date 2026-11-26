@@ -61,13 +61,13 @@ asked = stats_asked()[before:]
 energy = pgE.inner_text("[data-page=energy]")
 check("energy: today by hours from Home Assistant's statistics (the meters of the energy dashboard and the devices)",
       asked and asked[-1][1] == "hour" and set(asked[-1][0]) >= {"sensor.netz_bezug", "sensor.netz_einspeisung", "sensor.pv_ertrag", "sensor.waschmaschine_kwh"}, asked)
-bars = pgE.evaluate("document.querySelectorAll('.peChart g').length")
+bars = pgE.evaluate("document.querySelectorAll('.peChart g[data-tip]').length")
 check("energy: tiles (Verbraucht, Vom Dach, Aus dem Netz, Kosten), 24 bars, the biggest users and water",
       all(x in energy for x in ["Verbraucht", "Vom Dach", "Aus dem Netz", "Kosten", "Waschmaschine", "Wasser", "Heute"]) and bars == 24, (bars, energy[:300]))
 pgE.click("[data-page=energy] [data-kind=year]"); pgE.wait_for_timeout(2000)
-check("energy: 'Jahr' asks by months and draws 12 bars", stats_asked()[-1][1] == "month" and pgE.evaluate("document.querySelectorAll('.peChart g').length") == 12)
+check("energy: 'Jahr' asks by months and draws 12 bars", stats_asked()[-1][1] == "month" and pgE.evaluate("document.querySelectorAll('.peChart g[data-tip]').length") == 12)
 # the values of a bar by mouse or finger (bartip.js): before they were an SVG <title>, which a finger never shows
-col_te = pgE.locator("[data-page=energy] .peChart g").nth(5).locator(".btHit"); col_te.scroll_into_view_if_needed(); cb_te = col_te.bounding_box()
+col_te = pgE.locator("[data-page=energy] .peChart g[data-tip]").nth(5).locator(".btHit"); col_te.scroll_into_view_if_needed(); cb_te = col_te.bounding_box()
 pgE.mouse.move(cb_te["x"] + cb_te["width"] / 2, cb_te["y"] + 5); pgE.wait_for_timeout(300)
 tip_te = pgE.inner_text("[data-page=energy] .barTip") if pgE.is_visible("[data-page=energy] .barTip") else ""
 check("energy: the mouse anywhere over a column shows its month and kWh in a box (the finger the same, bartip.js), no <title> any more",

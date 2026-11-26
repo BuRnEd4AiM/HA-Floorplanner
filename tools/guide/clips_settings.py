@@ -4,8 +4,8 @@ from recorder import clip
 
 @clip("language", "settings",
       {"de": "Sprache und Design", "en": "Language and design"},
-      {"de": "⚙ → Allgemein: acht Sprachen, ein dunkles oder helles Design und die Einheiten, je mit einem Tipp.",
-       "en": "⚙ → General: eight languages, a dark or light design and the units, each with one tap."},
+      {"de": "⚙ → Allgemein: acht Sprachen, ein dunkles oder helles Design (seit 5.37.0 auch Glas, eigenes Video) und die Einheiten, je mit einem Tipp.",
+       "en": "⚙ → General: eight languages, a dark or light design (since 5.37.0 also glass, its own video) and the units, each with one tap."},
       "Sprache Deutsch Englisch Design hell dunkel Einheiten Einstellungen language german english design light dark units settings")
 def _(r):
     r.say("Oben rechts: ⚙ Einstellungen.", "Top right: ⚙ settings.")
@@ -28,6 +28,46 @@ def _(r):
     r.wait(1500)
     r.click(theme("dark"))
     r.wait(1200)
+
+
+@clip("glass-design", "settings",
+      {"de": "🍏 Design „Glas“", "en": "🍏 The “glass” design"},
+      {"de": "⚙ → Allgemein → Design: „Glas dunkel“ oder „Glas hell“. Hinter den Seiten dein eigenes Haus, verschwommen; Karten, Leisten "
+             "und Fenster aus Milchglas; ⚡ Energie mit Ring, weicher Fläche und Batterie. Nur eine Auswahl: Dunkel bleibt das Normale.",
+       "en": "⚙ → General → Design: “Glass dark” or “Glass light”. Behind the pages your own house, blurred; cards, bars and windows of "
+             "frosted glass; ⚡ Energy with a ring, a soft area and a battery. Only a choice: dark stays the normal one."},
+      "Glas Design Apple Milchglas verschwommen Hintergrund Energie Ring glass design apple frosted blurred background energy ring")
+def _(r):
+    theme = lambda v: f".segBtns[data-for=setTheme] button[data-value={v}]"
+    r.say("⚙ Einstellungen → Allgemein → Design: neu sind „Glas dunkel“ und „Glas hell“.",
+          "⚙ Settings → General → Design: new are “Glass dark” and “Glass light”.")
+    r.click("#settingsBtn")
+    r.wait(1000)
+    r.click(theme("glass"))
+    r.wait(2500)
+    r.say("Auch die Einstellungen sind jetzt aus Glas.", "The settings are of glass now too.")
+    r.wait(1200)
+    r.key("Escape")
+    r.wait(1500)
+    r.say("Hinter den Seiten liegt dein eigenes Haus, ganz verschwommen. Die Leiste unten schwebt.",
+          "Behind the pages lies your own house, blurred. The bar at the bottom floats.")
+    r.click("#tabBar [data-tab=today]")
+    r.wait(2200)
+    r.poster()
+    r.say("⚡ Energie: ein Ring für „Selbst gemacht“, eine weiche Fläche statt der Balken, die Batterie als Batterie.",
+          "⚡ Energy: a ring for “self-made”, a soft area instead of the bars, the battery as a battery.")
+    r.click("#tabBar [data-tab=energy]")
+    r.wait(3000)
+    r.click("#tabBar [data-tab=house]")
+    r.wait(1500)
+    r.say("„Glas hell“ ist die helle Fassung.", "“Glass light” is the light version.")
+    r.click("#settingsBtn")
+    r.wait(1000)
+    r.click(theme("glasslight"))
+    r.wait(2200)
+    r.say("Und zurück zu „Dunkel“: Glas ist nur eine Auswahl, kein Muss.", "And back to “Dark”: glass is only a choice, never a must.")
+    r.click(theme("dark"))
+    r.wait(1500)
 
 
 @clip("settings-search", "settings",

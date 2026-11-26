@@ -592,6 +592,11 @@ t("language",
   "Dunkelmodus dunkles Design helles Design Hologramm Aussehen Theme Einheiten Meter Fuß Celsius Fahrenheit",
   "change the language German English French Spanish Italian Dutch Polish Chinese dark mode dark design light design "
   "hologram look theme units metres feet Celsius Fahrenheit")
+t("glass-design",
+  "Glas Glasdesign Glaseffekt Milchglas Apple iPhone iOS Look modern schöner fotorealistisch Hintergrund Hintergrundbild "
+  "verschwommen unscharf durchsichtig Theme Thema Aussehen dunkel hell Energie Ring Batterie wie sieht es moderner aus",
+  "glass glass design frosted glass blur Apple iPhone iOS look modern nicer photorealistic background wallpaper blurred "
+  "see-through translucent theme appearance dark light energy ring battery how do I make it look modern")
 t("settings-search",
   "Einstellung suchen Einstellungen durchsuchen Option finden wo finde ich Zahnrad Optionen Konfiguration Leistung "
   "Schatten Qualität",
