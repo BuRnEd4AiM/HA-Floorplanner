@@ -1,0 +1,31 @@
+"""The PNGs of make_pictures.cjs as small JPGs for docs/ideen-5.37, with a big label in each picture (red = today, green = new).
+    python3 docs/ideen-5.37/to_jpg.py <ordner der PNGs> docs/ideen-5.37"""
+import sys
+from pathlib import Path
+from PIL import Image, ImageDraw, ImageFont
+FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+# (Quelle, Ziel, Beschriftung, neu?, Breite)
+JOBS = [("1-heute", "01-heute", "Bild 1 · HEUTE", False, 1400), ("2-idee1", "02-idee1-haus-mit-stromfluss", "Idee 1 · Bild 2 · NEU", True, 1400),
+        ("3-idee2", "03-idee2-glas", "Idee 2 · Bild 3 · NEU", True, 1400), ("4-handy-heute", "04-handy-heute", "Bild 4 · HEUTE", False, 780),
+        ("5-idee3", "05-idee3-handy", "Idee 3 · Bild 5 · NEU", True, 780)]
+
+
+def label(im, text, new):
+    size = max(28, min(im.width // 26, 44))
+    f = ImageFont.truetype(FONT, size); d = ImageDraw.Draw(im)
+    l, t, r, b = d.textbbox((0, 0), text, font=f); pad = size // 2
+    w, h = r - l + 2 * pad, b - t + 2 * pad
+    x = im.width - w - size if im.width > 1000 else (im.width - w) // 2
+    y = size if im.width > 1000 else im.height - h - im.height // 7
+    d.rounded_rectangle((x, y, x + w, y + h), radius=size // 2, fill=(46, 160, 87) if new else (205, 50, 50), outline=(255, 255, 255), width=3)
+    d.text((x + pad - l, y + pad - t), text, font=f, fill=(255, 255, 255))
+
+
+S = Path(sys.argv[1]); D = Path(sys.argv[2])
+for src, dst, text, new, w in JOBS:
+    im = Image.open(S / f"{src}.png").convert("RGB")
+    if im.width > w:
+        im = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
+    label(im, text, new)
+    im.save(D / f"{dst}.jpg", quality=82, optimize=True)
+    print(dst, im.size, (D / f"{dst}.jpg").stat().st_size // 1024, "KB")

@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3KJk1brXbxK7QmBTRL",
+ "start": "2026-11-26",
+ "updated": "2026-11-26T08:35:38Z",
+ "branch": "claude/quirky-rubin-x6173y",
+ "source": "counted",
+ "input": 53,
+ "cache_write": 98818,
+ "cache_read": 3063609,
+ "output": 24870,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 53,
+   "cache_write": 98818,
+   "cache_read": 3063609,
+   "output": 24870,
+   "requests": 26
+  }
+ }
+}
