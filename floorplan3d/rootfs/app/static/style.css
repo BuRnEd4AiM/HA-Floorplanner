@@ -3910,3 +3910,20 @@ html[data-glass] .pbGauge { display: flex; align-items: center; gap: 24px; margi
 .pbCell::after { content: ''; position: absolute; right: -10px; top: 15px; width: 6px; height: 18px; border-radius: 0 4px 4px 0; background: color-mix(in srgb, var(--text) 75%, transparent); }
 .pbCell i { display: block; height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--lv), color-mix(in srgb, var(--lv) 55%, #fff)); box-shadow: 0 0 20px color-mix(in srgb, var(--lv) 50%, transparent); }
 .pbGaugeText b { display: block; font-size: 34px; font-weight: 800; line-height: 1.1; }
+/* 🍏 Glas-Kapsel (5.37.2, glassdock.js, docs/ideen-5.37 pictures 20–23): on a tablet or PC in a glass design the scenes and the tab bar
+ * float over the 3D picture as one capsule. The bars keep their place below the stage without a background; the 3D picture and the pages
+ * run on under them by --dock-h; #glassDock is the capsule behind both. html.glassDock is set by glassdock.js only then. */
+#glassDock { display: none; }
+html.glassDock #glassDock:not([hidden]) { display: block; position: fixed; z-index: 7; pointer-events: none; border-radius: 30px; background: var(--dock-bg);
+  border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, .28), inset 0 1px 0 var(--glass-hi); }
+html[data-glass="dark"] { --dock-bg: rgba(24, 26, 36, .5); }
+html[data-glass="light"] { --dock-bg: rgba(255, 255, 255, .55); }
+html.glassDock #view { height: calc(100% + var(--dock-h, 0px)); }
+html.glassDock #tabPages { bottom: calc(-1 * var(--dock-h, 0px)); padding-bottom: calc(16px + var(--dock-h, 0px)); }
+html.glassDock #sceneBar { background: transparent; padding: 0 0 2px; display: flex; justify-content: center; pointer-events: none; }
+html.glassDock #sceneBar[hidden] { display: none; }
+html.glassDock #sceneBar .sbStrip { pointer-events: auto; width: fit-content; max-width: calc(100% - 36px); padding: 2px 6px 0; }
+html.glassDock #sceneBar .sbTile { height: 48px; background: rgba(255, 255, 255, .08); border-color: transparent; box-shadow: none; }
+html[data-glass="light"].glassDock #sceneBar .sbTile { background: rgba(255, 255, 255, .55); }
+html.glassDock #tabBar { background: transparent; border-color: transparent; box-shadow: none; margin-bottom: 14px; padding-top: 4px; }

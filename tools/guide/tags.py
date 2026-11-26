@@ -594,9 +594,11 @@ t("language",
   "hologram look theme units metres feet Celsius Fahrenheit")
 t("glass-design",
   "Glas Glasdesign Glaseffekt Milchglas Apple iPhone iOS Look modern schöner fotorealistisch Hintergrund Hintergrundbild "
-  "verschwommen unscharf durchsichtig Theme Thema Aussehen dunkel hell Energie Ring Batterie wie sieht es moderner aus",
+  "verschwommen unscharf durchsichtig Theme Thema Aussehen dunkel hell Energie Ring Batterie wie sieht es moderner aus "
+  "Kapsel schwebende Leiste Dock Leiste unten kleiner Bild größer",
   "glass glass design frosted glass blur Apple iPhone iOS look modern nicer photorealistic background wallpaper blurred "
-  "see-through translucent theme appearance dark light energy ring battery how do I make it look modern")
+  "see-through translucent theme appearance dark light energy ring battery how do I make it look modern "
+  "capsule floating bar dock bottom bar smaller picture bigger")
 t("settings-search",
   "Einstellung suchen Einstellungen durchsuchen Option finden wo finde ich Zahnrad Optionen Konfiguration Leistung "
   "Schatten Qualität",

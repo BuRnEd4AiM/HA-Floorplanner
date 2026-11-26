@@ -550,7 +550,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 236. Repariert in 5.36.1: Haus löschen, rechter Winkel mit Raster, „1 Kamera“, englisches Video (#803 bis #806) | 5 | 0 | 0 | 0 | – |
 | 237. Neu in 5.37.0: 🍏 Design „Glas dunkel“ und „Glas hell“, ⚡ Energie im Glas-Stil | 5 | 0 | 3 | 0 | 237.6 bis 237.8 |
 | 238. Repariert in 5.37.1: Raumkacheln über den Knöpfen „Normal / Temp.“ am Tablet (#812) | 2 | 0 | 1 | 0 | 238.3 |
-| **Zusammen** | **1455** | **2** | **154** | **92** | |
+| 239. Verbessert in 5.37.2: 🍏 Glas: Szenen und Reiter als eine schwebende Kapsel | 2 | 0 | 1 | 0 | 239.3 |
+| **Zusammen** | **1457** | **2** | **155** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3565,3 +3566,12 @@ Gefunden von dir an den Beispielbildern 19 und 22 (26.11.): „da überlappt ja 
 | 238.1 | Browser-Test Teile `115_mode_bar` (neu), `25_sky_tiles`, `07_tablet`, `91_tablet_more`, `101_phone_app`, `13_card`, `114_glass` | Alles grün | ✅ (2026-11-26, Claude) |
 | 238.2 | Demo als iPad quer und hoch: Live, Haus | „Normal · Temp. · … Ansicht“ in einer Reihe (quer), die Raumkacheln darüber, nichts liegt übereinander | ✅ (2026-11-26, Claude, Demo als iPad) |
 | 238.3 | Im Add-on an deinem Wandtablet | Raumkacheln und Knöpfe liegen nicht übereinander | ❓ |
+
+## 239. Verbessert in 5.37.2: 🍏 Glas: Szenen und Reiter als eine schwebende Kapsel
+Deine Wahl (26.11.): „Szenen und Reiter in eine Kapsel“, Bilder 20–23 in `docs/ideen-5.37`.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 239.1 | Unit-Test `tests/glassdock.test.mjs` (neu); Browser-Test Teile `114_glass`, `115_mode_bar`, `52_scenes`, `61_scenebar_lights`, `31_tabs`, `34_dashboards`, `07_tablet`, `25_sky_tiles` | Alles grün | ✅ (2026-11-26, Claude) |
+| 239.2 | Demo am PC und als iPad: Glas dunkel, dann Glas hell, Haus und Heute | Das Haus (und die Seite) läuft bis ganz unten, Szenen und Reiter liegen darauf in einer Kapsel; mit „Dunkel“ wieder wie vorher | ✅ (2026-11-26, Claude, Demo) |
+| 239.3 | Im Add-on an deinem iPad (Home-Assistant-App) und am Wandtablet, Glas dunkel | Wie in der Demo; das Bild ist größer, nichts liegt übereinander | ❓ |

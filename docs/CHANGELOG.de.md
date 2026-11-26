@@ -2,6 +2,10 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.37.2] - 2026-11-26
+### Verbessert
+- **🍏 Glas: Szenen und Reiter schweben als eine Kapsel über dem 3D-Bild** (der Besitzer nach 5.37.0: der Streifen unten „verkleinert komplett das Bild … macht den Bildschirm noch kleiner … dass dieser Balken sich als Hintergrund an die Icons schmiegt … leicht durchsichtig“; seine Wahl in docs/ideen-5.37, Bilder 20–23: „Szenen und Reiter in eine Kapsel“): am Tablet oder PC in „Glas dunkel“ / „Glas hell“ laufen das 3D-Bild und die Seiten bis ganz nach unten; Szenen und Reiter liegen darauf in einer Kapsel aus Milchglas, nur so breit wie die längere der beiden Reihen, leicht durchsichtig. Die anderen Designs und die Handy-App (mit ihrer eigenen schwebenden Leiste) bleiben, wie sie waren; beim Bearbeiten der Reiter sind die Leisten wie bisher (`glassdock.js`).
+
 ## [5.37.1] - 2026-11-26
 ### Repariert
 - **Tablet: die Raumkacheln lagen über den Knöpfen „Normal · Temp. · Feuchte …“** (#812, der Besitzer zu den Beispielbildern 19 und 22 in docs/ideen-5.37: „da überlappt ja alles“; in jedem Design): die Reihe durfte nur halb so breit sein wie das 3D-Bild (sie steht in der Mitte) und brach am Tablet in zwei Zeilen um, die Raumkacheln standen auf fester Höhe und deckten die erste Zeile zu. Jetzt ist die Reihe so breit, wie sie braucht (am iPad quer wieder eine Zeile), hält Abstand zu 🔍 und 🎤, und die Raumkacheln, ihr Pfeil „›“ und das Menü „Ansicht“ stehen darüber, auch wenn sie umbricht (`modebarfit.js`, Browser-Test-Teil `115_mode_bar`).

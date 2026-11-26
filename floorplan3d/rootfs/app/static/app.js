@@ -30,6 +30,7 @@ import { cardOptions, initCardMode } from './cardmode.js';
 import { initPhoneMenu, phoneView } from './phonemenu.js';
 import { baseTheme, glassMode, initGlassWall, skyColors } from './glasstheme.js';
 import { initModeBarFit } from './modebarfit.js';
+import { initGlassDock } from './glassdock.js';
 import { initPhoneNav } from './phonenav.js';
 import { initPhoneStatus, PHONE_QUERY } from './phonestatus.js';
 import { initSafeArea } from './safearea.js';
@@ -2034,6 +2035,7 @@ const guardUi = initGuardUi({ $, t, entities: () => entities, layout: () => layo
 initSetSections({ $, t, guard: () => guardUi.info?.(), notify: () => notifyUi.cfg?.() });   // "Reiter unten" by page, "Warnungen & Alarm" as cards (5.8.0)
 const commitSettings = () => settingsStore.commit();
 initModeBarFit({ bar: $('#modeBar'), stage: $('#stage') });   // the room tiles above the view buttons, also when these wrap (modebarfit.js)
+initGlassDock({ app: $('#app'), stage: $('#stage'), scene: $('#sceneBar'), tabs: $('#tabBar') });   // 🍏 scenes and tabs as one floating capsule in glass (glassdock.js)
 const glassWall = initGlassWall({ canvas, render: () => renderer.render(scene, camera), houseId: () => hs.id(), theme: () => settings.theme,   // 🍏 the house, blurred, behind the pages of the glass designs
   sky: () => skyColors(getComputedStyle(canvas).backgroundImage, [settings.bgTop || '#3b4a7a', settings.bgBottom || '#c9a98a']), ready: () => booted });
 onLanguageLoaded(() => { if (booted) applySettings(); });   // a language that came later (i18n.js): every text again
