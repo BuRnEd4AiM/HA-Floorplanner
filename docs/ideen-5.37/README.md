@@ -43,3 +43,7 @@ Schildern): das waren Schatten und Unschärfe der Kacheln, die der Browser in ei
     python3 docs/ideen-5.37/make_wall.py <ordner>
     node docs/ideen-5.37/make_theme.cjs <ordner>
     python3 docs/ideen-5.37/to_jpg.py <ordner> docs/ideen-5.37
+
+Dritte Runde (seine Rückmeldung zu Bild 7 und 15): Szenen-Kacheln und Raum-Kacheln weniger durchsichtig, Schrift darin voll lesbar; die Schilder über
+den Zimmern mit mehr Kontrast; Suche, Mikrofon und Kompass zusammen in einem Glas-Kästchen unten links; die Etagen-Namen ohne den schwarzen,
+verschwommenen Schatten (Glas hell).
