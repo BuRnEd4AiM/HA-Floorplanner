@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-25, Version **5.36.1** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-26, Version **5.36.1** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,11 +10,11 @@ Stand: 2026-11-25, Version **5.36.1** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
+- **2026-11-26: 🔁 Connector-Sync wieder grün (#809, Branch `claude/new-session-urykqp`):** sein Bild vom roten „Sync from HA-Floorplanner“ #44: ein Lauf hatte 5.36.0 halb angelegt (Tag ja, Release nein), danach brach jeder Lauf bei `git tag` ab; `tools/connector_mirror.py` macht das jetzt fertig, versucht das Release mehrmals und schreibt die Fehlermeldung ins Log.
 - **2026-11-25, 5.36.1: 🧪 alle Tests, die Claude machen kann (Branch `claude/gallant-wozniak-goamz9`):** sein Wunsch „Mach mal alle Tests, die du machen kannst“: automatische Tests, die offenen Punkte 194 bis 235 in der Demo (PC, nachgebautes iPhone), im Test-Add-on und auf GitHub; 36 Punkte ✅ (offen 151 statt 186). Gefunden und repariert: „{name}“ beim Haus-Löschen (#803), rechter Winkel mit Raster (#804), „1 Kameras“ (#805), englisches Video `phone-dash` fehlte (#806).
 - **2026-11-25, 5.36.0: 📱 Rückmeldung zur Handy-App (#801, Branch `claude/focused-darwin-wjndmo`):** Kacheln sahen ein Licht nicht zuverlässig (nur 6 Kacheln, die Demo hat 8 Räume mit Licht; Relais-Lampen und Wandlampen auf der Kante zählten nicht): jeder Raum mit Licht steht da, Kachel in der Lichtfarbe, Räume anheften (je Handy), runder Knopf mit alles an/aus und Szenen, Chips in Zeilen, 📷-Chip, oben kein leerer Streifen, „✎ Bearbeiten“ auf den Seiten der App (`appshell.js`, `appui.js`, `roomLightIds` in `roomtiles.js`, `tabsui.js`). Er wollte vor dem Veröffentlichen Bilder sehen.
 - **2026-11-24, 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ (Branch `claude/wonderful-dijkstra-5vernn`):** seine Wünsche: Telegram reicht (kein WhatsApp mit Bild), aber auch über HA-Benachrichtigungen („nicht jeder hat Telegram“): Bild in den Medien-Ordner von HA, `notify.mobile_app_…` mit `data.image` (`hamedia.py`); die Erklär-Grafik als Fenster unter ▶ Abläufe (`piccardshelp.js`); deutlicher Hinweis, worüber Karten kommen. Nie mit echter Companion-App getestet.
 - **2026-11-24, 5.34.1: 🔔 Nachricht nur mit Bildkarte (Branch `claude/wonderful-dijkstra-5vernn`):** seine Frage „muss ich eine Nachricht reinschreiben?“: nein, mit Bildkarte darf der Text leer bleiben (Editor, `flows.py`, `haflows.py`, `rulesrun.py`, `server.py`); die Vorschau zeigt auch für Abläufe Raum und Etage; bei Alarm füllt der Warntext {text}. Seine Bitte um eine Erklärung als Grafik: `docs/hilfe/bildkarten.jpg` (`make_bildkarten.py`).
-- **2026-11-24, 5.34.0: 🖼 Bildkarten: Stockwerk wählen, Platzhalter als grüne Kästchen (Branch `claude/wonderful-dijkstra-5vernn`):** sein Wunsch „Stockwerke auswählen“: das Raumbild hat „Stockwerk“ (Automatisch oder ein festes). Seine Frage, wie die Texte gemacht werden: Platzhalter; seine Wahl aus `docs/ideen-5.34`: Idee 2, grüne Kästchen mit Knöpfen „＋ Raum“ … (`phfield.js`).
 
 ## Offen
 
@@ -89,6 +89,7 @@ Stand: 2026-11-25, Version **5.36.1** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Stolperfallen
 
+- **Connector-Sync rot** (2026-11-26, #809): das Log steht im Repository `HA-Floorplanner-Connector`; Claude kommt nur mit `add_repo` (access „push“) hin, und das erlaubt die Prüfung erst, wenn der Besitzer es im Chat sagt. Nach einer Reparatur dort „Sync from HA-Floorplanner“ von Hand starten (`actions_run_trigger`, `sync.yml`, `main`).
 - **Der Workflow „Video guide“ bleibt grün, wenn ein Clip scheitert** (2026-11-25, #806): der Clip fehlt dann einfach. Nach neuen Clips `git fetch --depth 1 https://github.com/BuRnEd4AiM/HA-Floorplanner.git guide-videos` und `de/` mit `en/` vergleichen; Klick-Texte in Clips immer in beiden Sprachen (`text="Reiter|Tabs"`), ausprobieren mit `--lang de,en`.
 - **Version und Workflow-Änderung in einem Pull Request** (2026-11-10, 5.3.1): steht die neue Version in einem früheren Commit als eine Änderung an `.github/workflows/`, verweigert GitHub dem Workflow „Release“ den Tag an diesem Commit (403 „Resource not accessible by integration“, der Lauf bleibt trotzdem grün). Seitdem nimmt `release.yml` dann den Commit des Laufs (= `main`, gleiche Workflows; auch der Merge-Commit wurde abgelehnt, sobald `main` die Workflows danach noch einmal änderte). Neue Ordner für die Demo legt `demo/build.mjs` selbst an (der erste Lauf mit `_demo/` war rot).
 - **GitHub Pages hängt manchmal** (2026-11-10): der Schritt „pages“ des Workflows „Demo“ blieb bei „syncing_files“ stehen und brach nach 10 Minuten ab (die Seite blieb alt, `/beta/` fehlte); sonst dauert er 30 Sekunden. Seitdem wartet er 30 Minuten. Bleibt die Seite alt: Actions → Demo → den letzten Lauf „Re-run failed jobs“.
