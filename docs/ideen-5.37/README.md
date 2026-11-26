@@ -63,3 +63,11 @@ so groß ist, wie es gebraucht wird, und leicht durchsichtig“. Nur fürs Foto 
 
     node docs/ideen-5.37/make_dock.cjs <ordner>
     python3 docs/ideen-5.37/to_jpg.py <ordner> docs/ideen-5.37
+
+Seine Antwort zu Bild 17–19: „Szenen und Reiter in eine Kapsel“.
+
+| Bild | Was |
+| --- | --- |
+| 20 | Eine einzige schwebende Kapsel um Szenen und Reiter, nur so breit wie die längere der beiden Reihen, leicht durchsichtig; das 3D-Bild läuft darunter bis ganz unten |
+| 21 | Dasselbe in Glas hell |
+| 22 | Am Tablet (Kacheln über „Normal / Temp.“: der Fehler von Bild 19, wird beim Bauen repariert) |
