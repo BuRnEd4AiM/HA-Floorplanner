@@ -21,7 +21,7 @@ Neu machen (Demo vorher bauen: `cd demo && npm ci && node build.mjs`, danach `gi
 
 Seine Antwort (2026-11-26): „Nur Idee 2 (Bild 3)“, dazu eine Einstellung für die ganze App: „klassisch so wie jetzt“ und ein Design, „als wäre es
 von Apple … die Hintergründe und so“, „auch unten die Leiste und alles drum und dran“. Nur fürs Foto in die echte Demo gemalt (`theme.js`):
-ein ruhiges Farbbild unter den Seiten, Karten, Leisten, Knöpfe und die Reiter unten aus Milchglas, runde Knöpfe, schwebende Leiste unten.
+das eigene Haus ganz verschwommen unter den Seiten (wie Bild 3, das ihm gefiel; `make_wall.py`), Karten, Leisten, Knöpfe und die Reiter unten aus Milchglas, runde Knöpfe, schwebende Leiste unten.
 
 | Bild | Was |
 | --- | --- |
@@ -32,6 +32,14 @@ ein ruhiges Farbbild unter den Seiten, Karten, Leisten, Knöpfe und die Reiter u
 | 10 | ☀ Heute in Glas hell |
 | 11 | Handy-App (Start) in Glas dunkel |
 | 12 | Handy-App (Start) in Glas hell |
+| 13 | ⚙ Einstellungen selbst als Glas-Fenster |
+| 14 | Raumkarte (Wohnzimmer) als Glas-Fenster, dunkel |
+| 15 | Raumkarte in Glas hell |
 
+Zweite Runde (seine Rückmeldung): „Bild 7 … bei den Kacheln wo man scrollen kann“ sah man noch einen Kasten (auch links bei den Etagen und oben bei den
+Schildern): das waren Schatten und Unschärfe der Kacheln, die der Browser in einer Leiste zum Schieben abschneidet; dort jetzt ohne Schatten und Unschärfe.
+„Bild 3 gefällt mir, den Hintergrund“: das verschwommene Haus ist jetzt der Hintergrund der ganzen App.
+
+    python3 docs/ideen-5.37/make_wall.py <ordner>
     node docs/ideen-5.37/make_theme.cjs <ordner>
     python3 docs/ideen-5.37/to_jpg.py <ordner> docs/ideen-5.37

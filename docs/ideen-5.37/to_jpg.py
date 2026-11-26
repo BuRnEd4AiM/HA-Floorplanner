@@ -12,7 +12,9 @@ JOBS = [("1-heute", "01-heute", "Bild 1 · HEUTE", False, 1400), ("2-idee1", "02
         ("6-einstellung", "06-glas-einstellung", "Glas · Bild 6 · NEU", True, 1400), ("7-haus-glas", "07-glas-haus", "Glas · Bild 7 · NEU", True, 1400),
         ("8-heute-glas", "08-glas-heute", "Glas · Bild 8 · NEU", True, 1400), ("9-energie-glas", "09-glas-energie", "Glas · Bild 9 · NEU", True, 1400),
         ("10-heute-glas-hell", "10-glas-hell-heute", "Glas hell · Bild 10 · NEU", True, 1400),
-        ("11-handy-glas", "11-glas-handy", "Glas · Bild 11 · NEU", True, 780), ("12-handy-glas-hell", "12-glas-hell-handy", "Glas hell · Bild 12 · NEU", True, 780)]
+        ("11-handy-glas", "11-glas-handy", "Glas · Bild 11 · NEU", True, 780), ("12-handy-glas-hell", "12-glas-hell-handy", "Glas hell · Bild 12 · NEU", True, 780),
+        ("13-einstellung-glas", "13-glas-einstellungen", "Glas · Bild 13 · NEU", True, 1400), ("14-raum-glas", "14-glas-raumkarte", "Glas · Bild 14 · NEU", True, 1400),
+        ("15-raum-glas-hell", "15-glas-hell-raumkarte", "Glas hell · Bild 15 · NEU", True, 1400)]
 
 
 def label(im, text, new):

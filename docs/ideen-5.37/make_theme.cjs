@@ -6,10 +6,11 @@ const fs = require('fs'), path = require('path');
 const OUT = process.argv[2];
 const demo = 'file://' + path.resolve('demo/floorplan3d-demo.html');
 const house = 'data:image/jpeg;base64,' + fs.readFileSync(path.join(OUT, 'house.jpg')).toString('base64');
+const wall = (d) => 'data:image/jpeg;base64,' + fs.readFileSync(path.join(OUT, d ? 'wall-dark.jpg' : 'wall-light.jpg')).toString('base64');
 const theme = fs.readFileSync(path.join(__dirname, 'theme.js'), 'utf8');
 const mock = fs.readFileSync(path.join(__dirname, 'mockup.js'), 'utf8');
 
-async function shot(b, opts, file, { tab = null, dark = true, glass = true, energy = false, settings = false, scroll = 0 } = {}) {
+async function shot(b, opts, file, { tab = null, dark = true, glass = true, energy = false, settings = false, room = false, scroll = 0 } = {}) {
   const c = await b.newContext({ locale: 'de-DE', ...opts }); const pg = await c.newPage();
   await pg.addInitScript("try { localStorage.setItem('fp3d.welcome','1'); } catch (e) {}");
   await pg.goto(demo + '?debug=1&mode=live', { timeout: 180000 });
@@ -35,14 +36,18 @@ async function shot(b, opts, file, { tab = null, dark = true, glass = true, ener
         if (e !== box && !box.contains(e) && !e.contains(box) && e.querySelectorAll('button').length >= 3 && /Hologramm/.test(e.textContent)) e.style.display = 'none';
       }
       const hint = document.createElement('div'); hint.style.cssText = 'font-size:12px;opacity:.75;margin-bottom:8px';
-      hint.textContent = 'Glas: Karten und Leisten wie Milchglas, darunter ein ruhiges Farbbild (wie bei Apple). Gilt für die ganze App, Klassisch bleibt wählbar.';
+      hint.textContent = 'Glas: Karten und Leisten wie Milchglas, darunter dein eigenes Haus ganz verschwommen (wie bei Apple). Gilt für die ganze App, Klassisch bleibt wählbar.';
       box.after(hint);
       sel.closest('.row')?.scrollIntoView({ block: 'center' });
     });
   }
+  if (room) {
+    await pg.evaluate(() => { for (const f of window.__fp.layout.floors || []) for (const r of f.rooms || []) if (/Wohnzimmer/.test(r.name)) { window.__fp.openRoomPanel(r.id); return; } });
+    await pg.waitForTimeout(1500);
+  }
   if (glass) {
     await pg.addScriptTag({ content: theme });
-    await pg.evaluate((d) => window.__glass(d), dark);
+    await pg.evaluate(([d, w]) => window.__glass(d, w), [dark, wall(dark)]);
     if (scroll) await pg.evaluate((s) => { const p = document.querySelector('[data-page].on, [data-page]:not([hidden])'); let x = p; while (x && x.scrollHeight <= x.clientHeight + 5) x = x.parentElement; if (x) x.scrollTop = s; }, scroll);
   }
   await pg.waitForTimeout(1500);
@@ -63,6 +68,9 @@ async function shot(b, opts, file, { tab = null, dark = true, glass = true, ener
     ['10-heute-glas-hell', pc, { tab: 'today', dark: false }],
     ['11-handy-glas', { ...devices['iPhone 13'] }, {}],
     ['12-handy-glas-hell', { ...devices['iPhone 13'] }, { dark: false }],
+    ['13-einstellung-glas', pc, { settings: true }],
+    ['14-raum-glas', pc, { room: true }],
+    ['15-raum-glas-hell', pc, { room: true, dark: false }],
   ];
   for (const [f, o, x] of jobs) if (!only || f.startsWith(only)) await shot(b, o, f + '.png', x);
   await b.close();
