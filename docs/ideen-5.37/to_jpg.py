@@ -19,7 +19,8 @@ JOBS = [("1-heute", "01-heute", "Bild 1 · HEUTE", False, 1400), ("2-idee1", "02
         ("16-leiste-heute", "16-leiste-heute", "Bild 16 · HEUTE (5.37.0)", False, 1400), ("17-leiste-neu-dunkel", "17-leiste-neu-dunkel", "Bild 17 · NEU", True, 1400),
         ("18-leiste-neu-hell", "18-leiste-neu-hell", "Glas hell · Bild 18 · NEU", True, 1400), ("19-leiste-neu-tablet", "19-leiste-neu-tablet", "Tablet · Bild 19 · NEU", True, 1400),
         ("20-eine-kapsel-dunkel", "20-eine-kapsel-dunkel", "Eine Kapsel · Bild 20 · NEU", True, 1400), ("21-eine-kapsel-hell", "21-eine-kapsel-hell", "Eine Kapsel hell · Bild 21 · NEU", True, 1400),
-        ("22-eine-kapsel-tablet", "22-eine-kapsel-tablet", "Eine Kapsel Tablet · Bild 22 · NEU", True, 1400)]
+        ("22-eine-kapsel-tablet", "22-eine-kapsel-tablet", "Eine Kapsel Tablet · Bild 22 · NEU", True, 1400),
+        ("23-eine-kapsel-tablet-hoch", "23-eine-kapsel-tablet-hoch", "Tablet hoch · Bild 23 · NEU", True, 1080)]
 
 
 def label(im, text, new):

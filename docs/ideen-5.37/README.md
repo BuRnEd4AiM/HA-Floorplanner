@@ -70,4 +70,8 @@ Seine Antwort zu Bild 17–19: „Szenen und Reiter in eine Kapsel“.
 | --- | --- |
 | 20 | Eine einzige schwebende Kapsel um Szenen und Reiter, nur so breit wie die längere der beiden Reihen, leicht durchsichtig; das 3D-Bild läuft darunter bis ganz unten |
 | 21 | Dasselbe in Glas hell |
-| 22 | Am Tablet (Kacheln über „Normal / Temp.“: der Fehler von Bild 19, wird beim Bauen repariert) |
+| 22 | Am Tablet quer |
+| 23 | Am Tablet hochkant |
+
+Seine Antwort: „da überlappt ja alles in deinem Screenshot, prüf das mal“. Stimmte: am Tablet lagen die Raumkacheln über „Normal / Temp. …“
+(in jedem Design, #812). Repariert in 5.37.1 (`modebarfit.js`); die Bilder 16–23 sind danach neu gemacht, nichts liegt mehr übereinander.

@@ -2,6 +2,10 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.37.1] - 2026-11-26
+### Repariert
+- **Tablet: die Raumkacheln lagen über den Knöpfen „Normal · Temp. · Feuchte …“** (#812, der Besitzer zu den Beispielbildern 19 und 22 in docs/ideen-5.37: „da überlappt ja alles“; in jedem Design): die Reihe durfte nur halb so breit sein wie das 3D-Bild (sie steht in der Mitte) und brach am Tablet in zwei Zeilen um, die Raumkacheln standen auf fester Höhe und deckten die erste Zeile zu. Jetzt ist die Reihe so breit, wie sie braucht (am iPad quer wieder eine Zeile), hält Abstand zu 🔍 und 🎤, und die Raumkacheln, ihr Pfeil „›“ und das Menü „Ansicht“ stehen darüber, auch wenn sie umbricht (`modebarfit.js`, Browser-Test-Teil `115_mode_bar`).
+
 ## [5.37.0] - 2026-11-26
 ### Neu
 - **🍏 Zwei weitere Designs: „Glas dunkel“ und „Glas hell“** (der Besitzer, 2026-11-26: „ein Theme, dass es so aussieht, als wäre es von Apple … die Hintergründe“, „auch unten die Leiste und alles drum und dran“; „nur ein Design … eine Option und kein Muss“; seine Bilder in docs/ideen-5.37): ⚙ → Allgemein → Design hat jetzt fünf Knöpfe. Normal bleibt „Dunkel“; nichts ändert sich, solange niemand Glas wählt. Ein Glas-Design baut auf dem dunklen oder hellen Design auf und bringt dazu: das eigene Haus verschwommen hinter den Seiten (einmal je Besuch und Haus aus der 3D-Ansicht genommen, in diesem Browser gemerkt), Karten, Leisten, die Einstellungen und die Raumkarte aus Milchglas, rundere Knöpfe, die Leiste unten schwebt; über dem 3D-Bild festes Glas ohne die abgeschnittenen Schatten, die einen Kasten hinter den Raumkacheln und den Etagen machten; Suche, Mikrofon und Kompass in einem Kästchen; auch die Handy-App in Glas. Die Dashboard-Karte kann es wählen (`theme: glass` / `glasslight`). In `glasstheme.js` (reine Regeln getestet) und im Abschnitt „Glas“ von style.css.

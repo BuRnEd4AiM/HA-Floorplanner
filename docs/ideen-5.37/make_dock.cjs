@@ -59,7 +59,8 @@ async function shot(b, opts, file, { theme = 'glass', dock = true, one = false }
       });
       await pg.waitForTimeout(600);
       await pg.evaluate(() => {
-        const rs = [document.querySelector('#sceneBar .sbStrip'), document.querySelector('#tabBar')].filter(Boolean).map((e) => e.getBoundingClientRect());
+        const rs = [document.querySelector('#sceneBar .sbStrip'), document.querySelector('#tabBar')].filter(Boolean).map((e) => e.getBoundingClientRect()).filter((r) => r.width > 0);
+        if (!rs.length) return;
         const pad = 6, l = Math.min(...rs.map((r) => r.left)) - pad, t = Math.min(...rs.map((r) => r.top)) - pad;
         const r = Math.max(...rs.map((x) => x.right)) + pad, bt = Math.max(...rs.map((x) => x.bottom)) + pad;
         const d = document.createElement('div'); d.id = 'mkDock';
@@ -83,5 +84,6 @@ async function shot(b, opts, file, { theme = 'glass', dock = true, one = false }
   await shot(b, pc, '20-eine-kapsel-dunkel.png', { one: true });
   await shot(b, pc, '21-eine-kapsel-hell.png', { theme: 'glasslight', one: true });
   await shot(b, { ...devices['iPad (gen 7) landscape'] }, '22-eine-kapsel-tablet.png', { one: true });
+  await shot(b, { ...devices['iPad (gen 7)'] }, '23-eine-kapsel-tablet-hoch.png', { one: true });
   await b.close();
 })();
