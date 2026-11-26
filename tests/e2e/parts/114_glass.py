@@ -38,10 +38,17 @@ wall_gl = pgG.evaluate("(() => { const k = Object.keys(localStorage).filter((x) 
 check("🍏 behind the pages: the own house, blurred, taken from the 3D view and kept in this browser",
       wall_gl[0].startswith('url("data:image/jpeg') and any(k.endswith(".dark") for k in wall_gl[1]), wall_gl)
 bar_gl = pgG.evaluate("(() => { const s = getComputedStyle(document.getElementById('tabBar')); return [s.borderTopLeftRadius, s.marginBottom]; })()")
-check("🍏 the tab bar floats (round, a gap below)", bar_gl == ["26px", "10px"], bar_gl)
+check("🍏 the tab bar floats (round, a gap below)", bar_gl[0] == "26px" and bar_gl[1] in ("10px", "14px"), bar_gl)
 tile_gl = pgG.evaluate("(() => { const t = document.querySelector('#roomTiles .rtTile:not(.active)'); if (!t) return null; const s = getComputedStyle(t); return [s.backdropFilter, s.boxShadow.includes('inset'), s.borderTopLeftRadius]; })()")
 check("🍏 the room tiles over the 3D view: firm glass, no blur and no outer shadow (they made a box in the strip, picture 7)",
       tile_gl is None or (tile_gl[0] == "none" and tile_gl[1] and tile_gl[2] == "20px"), tile_gl)
+dock_gl = pgG.evaluate("""(() => { const d = document.getElementById('glassDock'), v = document.getElementById('view').getBoundingClientRect(),
+  st = document.getElementById('stage').getBoundingClientRect(), tb = document.getElementById('tabBar').getBoundingClientRect(), r = d && !d.hidden ? d.getBoundingClientRect() : null;
+  return { on: document.documentElement.classList.contains('glassDock'), dock: r && [r.left, r.top, r.right, r.bottom], tb: [tb.left, tb.top, tb.right, tb.bottom],
+    viewBottom: v.bottom, stageBottom: st.bottom, screen: innerHeight, tbBg: getComputedStyle(document.getElementById('tabBar')).backgroundColor }; })()""")
+check("🍏 5.37.2: scenes and tabs float as one capsule over the 3D picture, which runs on to the bottom (his pictures 20–23)",
+      dock_gl["on"] and dock_gl["dock"] and dock_gl["dock"][0] <= dock_gl["tb"][0] and dock_gl["dock"][2] >= dock_gl["tb"][2] and dock_gl["dock"][3] >= dock_gl["tb"][3]
+      and dock_gl["viewBottom"] >= dock_gl["screen"] - 1 and dock_gl["stageBottom"] < dock_gl["screen"] - 40 and dock_gl["tbBg"] == "rgba(0, 0, 0, 0)", dock_gl)
 box_gl = pgG.evaluate("(() => { const s = getComputedStyle(document.getElementById('compass'), '::before'); return [s.content, s.borderTopLeftRadius]; })()")
 check("🍏 search, microphone and compass in one box", box_gl[0] == '""' and box_gl[1] == "22px", box_gl)
 pgG.click("#tabBar [data-tab=energy]"); pgG.wait_for_timeout(2500)
@@ -57,6 +64,8 @@ en_dk = pgG.evaluate("""(() => { const p = document.querySelector('#tabPages [da
   return [shown('.peArea'), shown('.peBar'), shown('.peIcon'), document.documentElement.style.getPropertyValue('--glass-wall')]; })()""")
 check("🍏 back to „Dunkel“: no glass, the bars again, no picture behind", html_gl() == ["dark", None] and en_dk[0] in (False, None) and en_dk[1] in (True, None)
       and en_dk[2] in (False, None) and en_dk[3] == "", en_dk)
+check("🍏 back to „Dunkel“: no capsule, the picture ends above the bars as before",
+      pgG.evaluate("!document.documentElement.classList.contains('glassDock') && document.getElementById('glassDock').hidden && !document.documentElement.style.getPropertyValue('--dock-h')"))
 pgG.goto(BASE + "?debug=1&mode=edit&ui=2"); pgG.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgG.wait_for_timeout(800)
 pgG.click("#settingsBtn"); pgG.wait_for_timeout(600)
 v2_gl = pgG.evaluate("[...document.querySelectorAll('#setTheme option')].map((o) => o.value)")

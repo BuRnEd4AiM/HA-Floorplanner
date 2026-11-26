@@ -2,6 +2,10 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.37.2] - 2026-11-26
+### Changed
+- **🍏 Glas: scenes and tabs float as one capsule over the 3D picture** (the owner after 5.37.0: the strip at the bottom „verkleinert komplett das Bild … macht den Bildschirm noch kleiner … dass dieser Balken sich als Hintergrund an die Icons schmiegt … leicht durchsichtig“; his choice in docs/ideen-5.37, pictures 20–23: „Szenen und Reiter in eine Kapsel“): on a tablet or PC in „Glas dunkel“ / „Glas hell“ the 3D picture and the pages run on to the bottom of the screen; the scenes and the tab bar lie on it in one capsule of frosted glass, only as wide as the wider of the two rows, a little see-through. The other designs and the phone app (its own floating bar) stay as they were; while the tabs are being edited the bars are as before (`glassdock.js`).
+
 ## [5.37.1] - 2026-11-26
 ### Fixed
 - **Tablet: the room tiles lay over the view buttons „Normal · Temp. · Feuchte …“** (#812, the owner on the example pictures 19 and 22 of docs/ideen-5.37: „da überlappt ja alles“; in every design): the row could only be half as wide as the 3D picture (it stands at the middle) and broke into two lines on a tablet, the room tiles stood at a fixed height and covered the first line. Now the row is as wide as it needs (one line again on an iPad held sideways), keeps clear of 🔍 and 🎤, and the room tiles, their arrow „›“ and the menu „Ansicht“ stand above it also when it wraps (`modebarfit.js`, browser test part `115_mode_bar`).
