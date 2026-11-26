@@ -12,6 +12,10 @@ runs it every hour, inside its own checkout:
   commit, the tag v<version> and a release (a pre-release when it is one there: HACS offers those only with its beta versions on);
 - a release that is a pre-release there or not any more ("Release to everyone") changes here too, and HA-Floorplanner's latest release
   is the latest here (that is the one HACS offers).
+- a run that stopped after pushing the tag but before its release is finished by the next one (#809: `gh release create` failed once,
+  and every later run then stopped at `git tag` because the tag was there already): a tag that is here already only gets its release.
+  `gh release create` is tried a few times (a tag that was just pushed is not always visible to it at once), commit and tag go up in
+  one atomic push, and a failing git or gh command prints what it said.
 
     python3 connector_mirror.py [--source BuRnEd4AiM/HA-Floorplanner] [--dry-run]
 
@@ -27,6 +31,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 SOURCE = "BuRnEd4AiM/HA-Floorplanner"
@@ -35,6 +40,7 @@ TEMPLATE = "container/connector-repo"
 TEMPLATE_FILES = ("README.md", "hacs.json")         # not the workflow: a workflow's own token may not change workflows
 TARGET = "custom_components/floorplan3d"
 FIRST = (5, 9, 0)                                   # before 5.9.0 the integration had its own version numbers
+WAITS = (5, 15, 30)                                 # seconds before the 2nd, 3rd and 4th try of `gh release create`
 
 
 def version(tag) -> tuple[int, ...] | None:
@@ -64,21 +70,35 @@ def notes(tag: str, source: str) -> str:
             f"(`docker compose pull && docker compose up -d` for the container, then restart Home Assistant). What is new: the link above.")
 
 
+def _run(cmd: list[str], cwd: Path, quiet: bool = False) -> bytes:
+    """the command's output; when it fails, what it said goes to the log first (the traceback alone does not show it, #809)"""
+    try:
+        return subprocess.run(cmd, cwd=cwd, check=True, capture_output=True).stdout
+    except subprocess.CalledProcessError as e:
+        if not quiet:
+            said = b"\n".join(x.strip() for x in (e.stderr or b"", e.stdout or b"") if x.strip()).decode("utf-8", "replace")
+            print(f"{cmd[0]} {cmd[1]} failed (exit {e.returncode}): {said or '(it said nothing)'}", file=sys.stderr, flush=True)
+        raise
+
+
 class Runner:
     """git and gh; the tests replace gh"""
 
     def __init__(self, repo: Path, dry_run: bool = False) -> None:
         self.repo, self.dry_run = repo, dry_run
 
-    def git(self, *args: str, cwd: Path | None = None, binary: bool = False):
-        out = subprocess.run(["git", *args], cwd=cwd or self.repo, check=True, capture_output=True).stdout
+    def git(self, *args: str, cwd: Path | None = None, binary: bool = False, quiet: bool = False):
+        out = _run(["git", *args], cwd or self.repo, quiet)
         return out if binary else out.decode("utf-8")
 
-    def gh(self, *args: str, write: bool = False) -> str:
+    def gh(self, *args: str, write: bool = False, quiet: bool = False) -> str:
         if write and self.dry_run:
             print("would run: gh", " ".join(args))
             return ""
-        return subprocess.run(["gh", *args], cwd=self.repo, check=True, capture_output=True, text=True).stdout
+        return _run(["gh", *args], self.repo, quiet).decode("utf-8")
+
+    def wait(self, seconds: float) -> None:
+        time.sleep(seconds)
 
     def releases(self, repo: str) -> list[dict]:
         out = self.gh("api", f"repos/{repo}/releases?per_page=100", "--paginate", "--jq", ".[] | {tag_name, prerelease, draft}")
@@ -86,9 +106,40 @@ class Runner:
 
     def latest(self, repo: str) -> str | None:
         try:
-            return self.gh("api", f"repos/{repo}/releases/latest", "--jq", ".tag_name").strip() or None
+            return self.gh("api", f"repos/{repo}/releases/latest", "--jq", ".tag_name", quiet=True).strip() or None
         except subprocess.CalledProcessError:
             return None
+
+    def has_tag(self, tag: str) -> bool:
+        """the tag is here already (actions/checkout with fetch-depth 0 brings all of them)"""
+        try:
+            self.git("rev-parse", "--quiet", "--verify", f"refs/tags/{tag}", quiet=True)
+            return True
+        except subprocess.CalledProcessError:
+            return False
+
+    def has_release(self, tag: str) -> bool:
+        try:
+            self.gh("release", "view", tag, "--json", "tagName", quiet=True)
+            return True
+        except subprocess.CalledProcessError:
+            return False
+
+
+def create_release(run: Runner, tag: str, *args: str) -> None:
+    """gh release create, tried len(WAITS) + 1 times: just after the push GitHub does not always know the tag yet (--verify-tag), or
+    it answers with an error. A release that is there after a failed try counts as made (#809)."""
+    for wait in (*WAITS, None):
+        try:
+            run.gh("release", "create", tag, *args, write=True)
+            return
+        except subprocess.CalledProcessError:
+            if run.has_release(tag):
+                return
+            if wait is None:
+                raise
+            print(f"{tag}: the release failed, trying again in {wait} s", flush=True)
+            run.wait(wait)
 
 
 def package_at(run: Runner, src: Path, tag: str) -> dict[str, bytes] | None:
@@ -133,20 +184,26 @@ def sync(run: Runner, source: str, source_url: str, dest: str) -> int:
             run.git("clone", "--quiet", "--no-checkout", "--filter=blob:none", source_url, str(src), cwd=Path(tmp))
             branch = run.git("rev-parse", "--abbrev-ref", "HEAD").strip()
             for tag in create:
-                files = package_at(run, src, tag)
-                if files is None:
-                    print(f"{tag}: no integration with this version there, skipped")
-                    continue
-                write_files(run.repo, files)
-                run.git("add", "-A", "--", TARGET, *[n for n in (*TEMPLATE_FILES, "LICENSE") if n in files])
-                if run.git("status", "--porcelain").strip():
-                    run.git("commit", "--quiet", "-m", f"3D Floorplan Connector {tag.lstrip('v')}")
-                if not run.dry_run:
-                    run.git("tag", tag)
-                    run.git("push", "--quiet", "origin", f"HEAD:{branch}", tag)
+                if run.has_tag(tag):
+                    # an earlier run pushed it and stopped before the release (#809): only the release is missing
+                    print(f"{tag}: the tag is here already, only its release is made")
+                    if not run.dry_run:
+                        run.git("push", "--quiet", "origin", tag)       # nothing to do when GitHub has it; a local one goes up
+                else:
+                    files = package_at(run, src, tag)
+                    if files is None:
+                        print(f"{tag}: no integration with this version there, skipped")
+                        continue
+                    write_files(run.repo, files)
+                    run.git("add", "-A", "--", TARGET, *[n for n in (*TEMPLATE_FILES, "LICENSE") if n in files])
+                    if run.git("status", "--porcelain").strip():
+                        run.git("commit", "--quiet", "-m", f"3D Floorplan Connector {tag.lstrip('v')}")
+                    if not run.dry_run:
+                        run.git("tag", tag)
+                        run.git("push", "--quiet", "--atomic", "origin", f"HEAD:{branch}", tag)
                 pre = ["--prerelease"] if source_releases.get(tag) else []
-                run.gh("release", "create", tag, "--verify-tag", "--title", f"3D Floorplan Connector {tag.lstrip('v')}",
-                       "--notes", notes(tag, source), "--latest=false", *pre, write=True)
+                create_release(run, tag, "--verify-tag", "--title", f"3D Floorplan Connector {tag.lstrip('v')}",
+                               "--notes", notes(tag, source), "--latest=false", *pre)
                 done.add(tag)
                 print(f"{tag}: released{' (pre-release)' if pre else ''}")
     for tag, pre in flags.items():

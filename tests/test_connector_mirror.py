@@ -75,8 +75,14 @@ class FakeGitHub(cm.Runner):
         self.rel = releases                   # {"o/src": [...], "o/dest": [...]}
         self.latest_of = {}
         self.calls = []
+        self.fail_create = 0                  # so many `gh release create` fail (-1: all of them)
+        self.made_anyway = False              # ... and the failing ones made the release all the same
+        self.waited = []
 
-    def gh(self, *args, write=False):
+    def wait(self, seconds):
+        self.waited.append(seconds)
+
+    def gh(self, *args, write=False, quiet=False):
         if args[0] == "api":
             repo = args[1].split("/")[1] + "/" + args[1].split("/")[2]
             if args[1].endswith("/releases/latest"):
@@ -84,8 +90,17 @@ class FakeGitHub(cm.Runner):
                     raise subprocess.CalledProcessError(1, "gh")
                 return self.latest_of[repo] + "\n"
             return "".join(json.dumps(r) + "\n" for r in self.rel[repo])
+        if args[:2] == ("release", "view"):
+            if not any(r["tag_name"] == args[2] for r in self.rel["o/dest"]):
+                raise subprocess.CalledProcessError(1, "gh")
+            return "{}\n"
         self.calls.append(args)
         if args[:2] == ("release", "create"):
+            if self.fail_create:
+                self.fail_create -= 1
+                if self.made_anyway:
+                    self.rel["o/dest"].append(rel(args[2], pre="--prerelease" in args))
+                raise subprocess.CalledProcessError(1, "gh", stderr=b"HTTP 502")
             self.rel["o/dest"].append(rel(args[2], pre="--prerelease" in args))
         if args[:2] == ("release", "edit"):
             for r in self.rel["o/dest"]:
@@ -159,7 +174,7 @@ def test_a_dry_run_publishes_nothing(repos, capsys):
     gh.latest_of["o/src"] = "v5.9.0"
     real_gh = cm.Runner.gh
 
-    def dry(self, *args, write=False):
+    def dry(self, *args, write=False, quiet=False):
         if write:
             return real_gh(self, *args, write=True)          # prints "would run" in a dry run, runs nothing
         return FakeGitHub.gh(self, *args)
@@ -176,3 +191,58 @@ def test_a_tag_whose_integration_has_another_version_gives_nothing(repos):
     assert cm.package_at(run, src, "v9.9.9") is None
     files = cm.package_at(run, src, "v5.9.0")
     assert files["custom_components/floorplan3d/__init__.py"] == b"first = 1\n" and set(cm.TEMPLATE_FILES) <= set(files)
+
+
+def test_a_tag_without_its_release_is_finished_by_the_next_run(repos, tmp_path):
+    """#809: a run pushed commit and tag of 5.36.0, then `gh release create` failed; every later run stopped at `git tag v5.36.0`
+    (the tag was there already), so 5.36.1 never came. Now the next run only makes the missing release and goes on."""
+    src, bare, dest = repos
+    gh = FakeGitHub(dest, {"o/src": [rel("v5.9.0", pre=True)], "o/dest": []})     # only pre-releases: no latest one
+    gh.fail_create = -1
+    with pytest.raises(subprocess.CalledProcessError):
+        cm.sync(gh, "o/src", src.as_uri(), "o/dest")
+    assert git(bare, "tag").split() == ["v5.9.0"] and gh.rel["o/dest"] == []
+    assert len([c for c in gh.calls if c[:2] == ("release", "create")]) == len(cm.WAITS) + 1 and gh.waited == list(cm.WAITS)
+    tagged = git(bare, "rev-parse", "v5.9.0")
+
+    # the next run starts in a fresh checkout with all tags (actions/checkout, fetch-depth 0); 5.9.1 is out in the meantime
+    fresh = tmp_path / "fresh"
+    git(tmp_path, "clone", "-q", str(bare), str(fresh))
+    gh2 = FakeGitHub(fresh, {"o/src": [rel("v5.9.1", pre=True), rel("v5.9.0", pre=True)], "o/dest": gh.rel["o/dest"]})
+    assert cm.sync(gh2, "o/src", src.as_uri(), "o/dest") == 0
+    assert git(bare, "tag").split() == ["v5.9.0", "v5.9.1"]
+    assert git(bare, "rev-parse", "v5.9.0") == tagged                                 # the old tag stays as it was
+    assert git(bare, "show", "v5.9.0:custom_components/floorplan3d/__init__.py") == "first = 1\n"
+    assert git(bare, "show", "main:custom_components/floorplan3d/__init__.py") == "second = 1\n"
+    assert [r["tag_name"] for r in gh2.rel["o/dest"]] == ["v5.9.0", "v5.9.1"]
+    assert all(r["prerelease"] for r in gh2.rel["o/dest"])
+    assert git(bare, "log", "--format=%s", "main").splitlines()[:2] == ["3D Floorplan Connector 5.9.1", "3D Floorplan Connector 5.9.0"]
+
+
+def test_gh_release_create_is_tried_again(repos):
+    src, bare, dest = repos
+    gh = FakeGitHub(dest, {"o/src": [rel("v5.9.0")], "o/dest": []})
+    gh.latest_of["o/src"] = "v5.9.0"
+    gh.fail_create = 2                                                   # GitHub does not know the tag yet, then it does
+    assert cm.sync(gh, "o/src", src.as_uri(), "o/dest") == 0
+    assert [r["tag_name"] for r in gh.rel["o/dest"]] == ["v5.9.0"] and gh.waited == list(cm.WAITS[:2])
+    assert gh.latest_of["o/dest"] == "v5.9.0"
+
+
+def test_a_release_made_by_a_failed_try_counts(repos):
+    """gh says it failed (say the answer got lost), but the release is there: no second one, no error"""
+    src, bare, dest = repos
+    gh = FakeGitHub(dest, {"o/src": [rel("v5.9.0")], "o/dest": []})
+    gh.latest_of["o/src"] = "v5.9.0"
+    gh.fail_create, gh.made_anyway = 1, True
+    assert cm.sync(gh, "o/src", src.as_uri(), "o/dest") == 0
+    assert [r["tag_name"] for r in gh.rel["o/dest"]] == ["v5.9.0"] and gh.waited == []
+
+
+def test_what_a_failing_command_said_is_in_the_log(tmp_path, capsys):
+    run = cm.Runner(tmp_path)
+    with pytest.raises(subprocess.CalledProcessError):
+        run.git("tag", "v1.0.0")                                         # not a git repository
+    err = capsys.readouterr().err
+    assert "git tag failed (exit 128)" in err and "not a git repository" in err
+    assert run.has_tag("v1.0.0") is False and capsys.readouterr().err == ""   # a question that may say no stays quiet
