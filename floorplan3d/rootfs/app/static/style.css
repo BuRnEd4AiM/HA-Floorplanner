@@ -232,7 +232,9 @@ html[data-theme="holo"] #stage {
     radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--bg-glow, #28ebd2) calc(var(--bg-glow-s, 0) * 55%), transparent) 0, color-mix(in srgb, var(--bg-glow, #28ebd2) calc(var(--bg-glow-s, 0) * 12%), transparent) 9%, transparent 22%),
     linear-gradient(180deg, var(--bg-top, #0a3ba8) 0%, color-mix(in srgb, var(--bg-top, #0a3ba8) 55%, var(--bg-bottom, #031547)) 45%, var(--bg-bottom, #031547) 100%);
 }
-#modeBar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: calc(100% - 24px); z-index: 4; }
+#modeBar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: calc(100% - 24px); z-index: 4;
+  width: max-content; }   /* max-content: with left 50% the row could only be half as wide as the picture, wrapped on a tablet and lay under the room tiles (5.37.1) */
+@media (min-width: 761px) { #modeBar { max-width: calc(100% - 216px); } }   /* clear of 🔍 and 🎤 at the bottom left; when it wraps, the room tiles move up (modebarfit.js) */
 #modeBar #viewMenuBtn { margin-left: 10px; }
 body.kiosk #modeBar { bottom: 10px; }
 /* phones (live view): the tool bar folds into a ☰ button at the top left and opens as a drop-down list (phonemenu.js), and the view
@@ -250,7 +252,7 @@ body.kiosk #modeBar { bottom: 10px; }
   body.live.tbopen #toolbar .group, body.phoneview.tbopen #toolbar .group { flex-wrap: wrap; }
   body.live.tbopen #toolbar .group.right, body.phoneview.tbopen #toolbar .group.right { margin-left: 0; }
   input, select, textarea { font-size: 16px; }   /* smaller text makes the iPhone zoom the whole page in when a field is tapped (search) */
-  #modeBar { left: 80px; right: 8px; transform: none; max-width: none; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto;
+  #modeBar { left: 80px; right: 8px; width: auto; transform: none; max-width: none; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto;
     scrollbar-width: none; gap: 6px; padding: 2px; bottom: calc(14px + var(--stage-b)); }
   #modeBar::-webkit-scrollbar { display: none; }
   #modeBar > * { flex: 0 0 auto; }
@@ -1040,7 +1042,7 @@ dialog .stopTools[hidden] { display: none; }
   background: #ff3b30; vertical-align: 1px; }
 
 /* view menu (top bar) and cameras overview */
-#viewMenu { position: absolute; bottom: 62px; left: 50%; transform: translateX(-50%); z-index: 6; display: flex; flex-direction: column; gap: 6px; padding: 8px; min-width: 170px;
+#viewMenu { position: absolute; bottom: calc(26px + var(--mode-h, 36px)); left: 50%; transform: translateX(-50%); z-index: 6; display: flex; flex-direction: column; gap: 6px; padding: 8px; min-width: 170px;
   background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
 #viewMenu[hidden], #camMenu[hidden] { display: none; }
 #camMenu { position: absolute; top: 54px; right: 12px; z-index: 6; width: min(480px, calc(100% - 24px)); max-height: calc(100% - 140px); overflow-y: auto; padding: 12px;
@@ -1513,8 +1515,8 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
   body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) #status:not(:empty) + #skyLine { visibility: hidden; }
 }
 @media (max-height: 520px) and (min-width: 761px) {   /* held sideways the tiles sit right over the view buttons: they move up with them */
-  body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) #roomTiles { bottom: calc(62px + max(var(--stage-b), 22px)); }
-  body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) .tileArrow { bottom: calc(68px + max(var(--stage-b), 22px)); }
+  body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) #roomTiles { bottom: calc(26px + var(--mode-h, 36px) + max(var(--stage-b), 22px)); }
+  body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) .tileArrow { bottom: calc(32px + var(--mode-h, 36px) + max(var(--stage-b), 22px)); }
 }
 #wxFall { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 #wxFall[hidden], body:not(.live) #wxFall { display: none; }
@@ -1589,7 +1591,7 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 @media (min-width: 761px) { body.flowcard #meterPill { display: none !important; } }   /* the meters are in the card then (3.99.1) */
 
 /* ---- Room tiles (#421, roomtilesui.js): live mode, a strip over the view buttons; centred while it fits, swiped sideways when not ---- */
-#roomTiles { position: absolute; left: 156px; right: 16px; bottom: 62px; z-index: 4; display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px;
+#roomTiles { position: absolute; left: 156px; right: 16px; bottom: calc(26px + var(--mode-h, 36px)); z-index: 4; display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px;
   scrollbar-width: none; pointer-events: none; touch-action: pan-x; overscroll-behavior-x: contain; }   /* the browser scrolls it, only sideways (#441) */
 #roomTiles.moreL, #roomTiles.moreR { pointer-events: auto; }   /* more than fits: the strip takes touches, else the iPhone does not scroll it (#438) */
 #roomTiles::-webkit-scrollbar { display: none; }
@@ -1602,7 +1604,7 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 #roomTiles.moreR { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent); }
 #roomTiles.moreL { -webkit-mask-image: linear-gradient(90deg, transparent, #000 64px); mask-image: linear-gradient(90deg, transparent, #000 64px); }
 #roomTiles.moreL.moreR { -webkit-mask-image: linear-gradient(90deg, transparent, #000 64px, #000 calc(100% - 64px), transparent); mask-image: linear-gradient(90deg, transparent, #000 64px, #000 calc(100% - 64px), transparent); }
-.tileArrow { position: absolute; bottom: 68px; z-index: 5; width: 34px; padding: 0; border-radius: 12px; font-size: 24px; line-height: 1; color: #eef3f8;
+.tileArrow { position: absolute; bottom: calc(32px + var(--mode-h, 36px)); z-index: 5; width: 34px; padding: 0; border-radius: 12px; font-size: 24px; line-height: 1; color: #eef3f8;
   background: rgba(16, 22, 30, .78); border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
 .tileArrow[hidden] { display: none; }
 #tilesLeft { left: 156px; }

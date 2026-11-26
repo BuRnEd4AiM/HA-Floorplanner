@@ -1,20 +1,20 @@
 {
  "session": "session_012p9z3KJk1brXbxK7QmBTRL",
  "start": "2026-11-26",
- "updated": "2026-11-26T10:08:13Z",
+ "updated": "2026-11-26T15:12:09Z",
  "branch": "claude/quirky-rubin-x6173y",
  "source": "counted",
- "input": 413,
- "cache_write": 477527,
- "cache_read": 64996526,
- "output": 159809,
+ "input": 543,
+ "cache_write": 1518599,
+ "cache_read": 93941398,
+ "output": 200620,
  "models": {
   "claude-opus-5-5": {
-   "input": 413,
-   "cache_write": 477527,
-   "cache_read": 64996526,
-   "output": 159809,
-   "requests": 195
+   "input": 543,
+   "cache_write": 1518599,
+   "cache_read": 93941398,
+   "output": 200620,
+   "requests": 252
   }
  }
 }

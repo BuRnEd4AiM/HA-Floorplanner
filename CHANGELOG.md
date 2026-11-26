@@ -2,6 +2,10 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.37.1] - 2026-11-26
+### Fixed
+- **Tablet: the room tiles lay over the view buttons „Normal · Temp. · Feuchte …“** (#812, the owner on the example pictures 19 and 22 of docs/ideen-5.37: „da überlappt ja alles“; in every design): the row could only be half as wide as the 3D picture (it stands at the middle) and broke into two lines on a tablet, the room tiles stood at a fixed height and covered the first line. Now the row is as wide as it needs (one line again on an iPad held sideways), keeps clear of 🔍 and 🎤, and the room tiles, their arrow „›“ and the menu „Ansicht“ stand above it also when it wraps (`modebarfit.js`, browser test part `115_mode_bar`).
+
 ## [5.37.0] - 2026-11-26
 ### Added
 - **🍏 Two more designs: „Glas dunkel“ and „Glas hell“** (the owner, 2026-11-26: "ein Theme, dass es so aussieht, als wäre es von Apple … die Hintergründe", "auch unten die Leiste und alles drum und dran"; "nur ein Design … eine Option und kein Muss"; his pictures in docs/ideen-5.37): ⚙ → Allgemein → Design has five buttons now. The default stays „Dunkel“; nothing changes until somebody picks glass. A glass design builds on the dark or the light theme and adds: the own house, blurred, behind the pages (taken from the 3D view once per visit and house, kept in this browser), cards, bars, the settings and the room card of frosted glass, rounder buttons, the tab bar floating; over the 3D view firm glass without the cut-off shadows that made a box behind the room tiles and the floors; search, microphone and compass in one box; the phone app in glass too. The dashboard card can choose it (`theme: glass` / `glasslight`). In `glasstheme.js` (pure rules tested) and the section „Glas“ of style.css.

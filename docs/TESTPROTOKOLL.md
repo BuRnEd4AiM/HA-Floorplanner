@@ -549,7 +549,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 235. Neu in 5.36.0: 📱 Räume anheften, alles an/aus mit Szenen, Seiten am Handy bearbeiten (#801) | 10 | 0 | 1 | 0 | 235.9 |
 | 236. Repariert in 5.36.1: Haus löschen, rechter Winkel mit Raster, „1 Kamera“, englisches Video (#803 bis #806) | 5 | 0 | 0 | 0 | – |
 | 237. Neu in 5.37.0: 🍏 Design „Glas dunkel“ und „Glas hell“, ⚡ Energie im Glas-Stil | 5 | 0 | 3 | 0 | 237.6 bis 237.8 |
-| **Zusammen** | **1453** | **2** | **153** | **92** | |
+| 238. Repariert in 5.37.1: Raumkacheln über den Knöpfen „Normal / Temp.“ am Tablet (#812) | 2 | 0 | 1 | 0 | 238.3 |
+| **Zusammen** | **1455** | **2** | **154** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3555,3 +3556,12 @@ Deine Wünsche (26.11.): die Strom-Seite „fotorealistischer und moderner“ (d
 | 237.6 | Im Add-on am Tablet und am Handy: „Glas dunkel“ | Dein eigenes Haus verschwommen hinter den Seiten; alles flüssig, nicht langsamer als vorher | ❓ |
 | 237.7 | Dein Eindruck: gefällt dir Glas dunkel oder hell? Fehlt etwas im Glas-Stil? | Deine Rückmeldung | ❓ |
 | 237.8 | Video-Anleitung: „🍏 Design „Glas““ (nach dem Merge) | Das Video zeigt Auswahl, Heute, Energie, Glas hell und zurück zu Dunkel | ❓ |
+
+## 238. Repariert in 5.37.1: Raumkacheln über den Knöpfen „Normal / Temp.“ am Tablet (#812)
+Gefunden von dir an den Beispielbildern 19 und 22 (26.11.): „da überlappt ja alles“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 238.1 | Browser-Test Teile `115_mode_bar` (neu), `25_sky_tiles`, `07_tablet`, `91_tablet_more`, `101_phone_app`, `13_card`, `114_glass` | Alles grün | ✅ (2026-11-26, Claude) |
+| 238.2 | Demo als iPad quer und hoch: Live, Haus | „Normal · Temp. · … Ansicht“ in einer Reihe (quer), die Raumkacheln darüber, nichts liegt übereinander | ✅ (2026-11-26, Claude, Demo als iPad) |
+| 238.3 | Im Add-on an deinem Wandtablet | Raumkacheln und Knöpfe liegen nicht übereinander | ❓ |

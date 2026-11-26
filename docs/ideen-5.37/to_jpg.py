@@ -14,7 +14,13 @@ JOBS = [("1-heute", "01-heute", "Bild 1 · HEUTE", False, 1400), ("2-idee1", "02
         ("10-heute-glas-hell", "10-glas-hell-heute", "Glas hell · Bild 10 · NEU", True, 1400),
         ("11-handy-glas", "11-glas-handy", "Glas · Bild 11 · NEU", True, 780), ("12-handy-glas-hell", "12-glas-hell-handy", "Glas hell · Bild 12 · NEU", True, 780),
         ("13-einstellung-glas", "13-glas-einstellungen", "Glas · Bild 13 · NEU", True, 1400), ("14-raum-glas", "14-glas-raumkarte", "Glas · Bild 14 · NEU", True, 1400),
-        ("15-raum-glas-hell", "15-glas-hell-raumkarte", "Glas hell · Bild 15 · NEU", True, 1400)]
+        ("15-raum-glas-hell", "15-glas-hell-raumkarte", "Glas hell · Bild 15 · NEU", True, 1400),
+        # Teil 3: die Leisten unten schweben über dem 3D-Bild (make_dock.cjs)
+        ("16-leiste-heute", "16-leiste-heute", "Bild 16 · HEUTE (5.37.0)", False, 1400), ("17-leiste-neu-dunkel", "17-leiste-neu-dunkel", "Bild 17 · NEU", True, 1400),
+        ("18-leiste-neu-hell", "18-leiste-neu-hell", "Glas hell · Bild 18 · NEU", True, 1400), ("19-leiste-neu-tablet", "19-leiste-neu-tablet", "Tablet · Bild 19 · NEU", True, 1400),
+        ("20-eine-kapsel-dunkel", "20-eine-kapsel-dunkel", "Eine Kapsel · Bild 20 · NEU", True, 1400), ("21-eine-kapsel-hell", "21-eine-kapsel-hell", "Eine Kapsel hell · Bild 21 · NEU", True, 1400),
+        ("22-eine-kapsel-tablet", "22-eine-kapsel-tablet", "Eine Kapsel Tablet · Bild 22 · NEU", True, 1400),
+        ("23-eine-kapsel-tablet-hoch", "23-eine-kapsel-tablet-hoch", "Tablet hoch · Bild 23 · NEU", True, 1080)]
 
 
 def label(im, text, new):
@@ -30,6 +36,8 @@ def label(im, text, new):
 
 S = Path(sys.argv[1]); D = Path(sys.argv[2])
 for src, dst, text, new, w in JOBS:
+    if not (S / f"{src}.png").exists():                    # a folder with only some of the pictures (make_dock.cjs): the others stay
+        continue
     im = Image.open(S / f"{src}.png").convert("RGB")
     if im.width > w:
         im = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
