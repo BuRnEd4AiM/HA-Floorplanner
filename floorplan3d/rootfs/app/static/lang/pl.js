@@ -844,7 +844,7 @@ export default {
   'set.theme': 'Motyw',
   'set.theme.holo': 'Hologram',
   'set.theme.dark': 'Ciemny',
-  'set.theme.light': 'Jasny',
+  'set.theme.light': 'Jasny', 'set.theme.glass': 'Szkło ciemne', 'set.theme.glasslight': 'Szkło jasne',
   'set.units': 'Jednostki',
   'set.units.metric': 'Metryczne (m)',
   'set.units.imperial': 'Imperialne (ft)',

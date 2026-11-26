@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-11-26, Version **5.36.1** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-11-26, Version **5.37.0** (5.31.0 ist für alle freigegeben). Erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Kurz halten** (Wunsch des Besitzers, 2026-10-26, noch einmal gekürzt am 2026-11-11, weil jeder Chat diese Datei zuerst liest): unter „Zuletzt“ nur die letzten drei, vier Sitzungen mit ein, zwei Sätzen; unter „Offen“ eine Zeile je Punkt, ohne Technik. Was gebaut ist, steht in `CHANGELOG.md`; Technik steht im Code und im CHANGELOG. Ältere Einträge kommen ins Archiv:
 
@@ -10,16 +10,14 @@ Stand: 2026-11-26, Version **5.36.1** (5.31.0 ist für alle freigegeben). Erst d
 
 ## Zuletzt
 
-- **2026-11-26: ⚡ Beispielbilder Energie-Seite moderner (Branch `claude/quirky-rubin-x6173y`):** sein Wunsch „fotorealistischer und moderner, erst mal Beispielbilder“: `docs/ideen-5.37` (Idee 1 Haus mit Stromfluss, Idee 2 Glas-Look, Idee 3 Handy). Seine Wahl: Idee 2 (Glas); dazu wünscht er ein Design „Glas (Apple-Stil)“ für die ganze App neben „Klassisch“: Bilder 6–15 (Hintergrund = sein Haus verschwommen wie Bild 3, den Kasten hinter den Kacheln in Bild 7 entfernt; dann mehr Kontrast, Suche/Mikro/Kompass in einem Kästchen), seine Antwort fehlt.
+- **2026-11-26, 5.37.0: 🍏 Design „Glas dunkel“ / „Glas hell“, ⚡ Energie im Glas-Stil (Branch `claude/quirky-rubin-x6173y`):** seine Wünsche: Strom-Seite „fotorealistischer und moderner“ (Wahl: Idee 2, Bild 3), ein Apple-Design für die ganze App „auch unten die Leiste und alles drum und dran“, „nur eine Option, kein Muss“ (Normal bleibt Dunkel). Drei Runden Beispielbilder (`docs/ideen-5.37`, Bilder 1–15: Kasten hinter den Kacheln weg, Hintergrund = eigenes Haus verschwommen, mehr Kontrast, Suche/Mikro/Kompass in einem Kästchen), dann gebaut (`glasstheme.js`, `energyglass.js`, style.css „Glas“).
 - **2026-11-26: 🔁 Connector-Sync wieder grün (#809, Branch `claude/new-session-urykqp`):** sein Bild vom roten „Sync from HA-Floorplanner“ #44: ein Lauf hatte 5.36.0 halb angelegt (Tag ja, Release nein), danach brach jeder Lauf bei `git tag` ab; `tools/connector_mirror.py` macht das jetzt fertig, versucht das Release mehrmals und schreibt die Fehlermeldung ins Log.
 - **2026-11-25, 5.36.1: 🧪 alle Tests, die Claude machen kann (Branch `claude/gallant-wozniak-goamz9`):** sein Wunsch „Mach mal alle Tests, die du machen kannst“: automatische Tests, die offenen Punkte 194 bis 235 in der Demo (PC, nachgebautes iPhone), im Test-Add-on und auf GitHub; 36 Punkte ✅ (offen 151 statt 186). Gefunden und repariert: „{name}“ beim Haus-Löschen (#803), rechter Winkel mit Raster (#804), „1 Kameras“ (#805), englisches Video `phone-dash` fehlte (#806).
 - **2026-11-25, 5.36.0: 📱 Rückmeldung zur Handy-App (#801, Branch `claude/focused-darwin-wjndmo`):** Kacheln sahen ein Licht nicht zuverlässig (nur 6 Kacheln, die Demo hat 8 Räume mit Licht; Relais-Lampen und Wandlampen auf der Kante zählten nicht): jeder Raum mit Licht steht da, Kachel in der Lichtfarbe, Räume anheften (je Handy), runder Knopf mit alles an/aus und Szenen, Chips in Zeilen, 📷-Chip, oben kein leerer Streifen, „✎ Bearbeiten“ auf den Seiten der App (`appshell.js`, `appui.js`, `roomLightIds` in `roomtiles.js`, `tabsui.js`). Er wollte vor dem Veröffentlichen Bilder sehen.
-- **2026-11-24, 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ (Branch `claude/wonderful-dijkstra-5vernn`):** seine Wünsche: Telegram reicht (kein WhatsApp mit Bild), aber auch über HA-Benachrichtigungen („nicht jeder hat Telegram“): Bild in den Medien-Ordner von HA, `notify.mobile_app_…` mit `data.image` (`hamedia.py`); die Erklär-Grafik als Fenster unter ▶ Abläufe (`piccardshelp.js`); deutlicher Hinweis, worüber Karten kommen. Nie mit echter Companion-App getestet.
-- **2026-11-24, 5.34.1: 🔔 Nachricht nur mit Bildkarte (Branch `claude/wonderful-dijkstra-5vernn`):** seine Frage „muss ich eine Nachricht reinschreiben?“: nein, mit Bildkarte darf der Text leer bleiben (Editor, `flows.py`, `haflows.py`, `rulesrun.py`, `server.py`); die Vorschau zeigt auch für Abläufe Raum und Etage; bei Alarm füllt der Warntext {text}. Seine Bitte um eine Erklärung als Grafik: `docs/hilfe/bildkarten.jpg` (`make_bildkarten.py`).
 
 ## Offen
 
-- **Energie-Seite Glas + Design „Glas (Apple-Stil)“ (`docs/ideen-5.37`, Bilder 6–15):** seine Rückmeldung zu den Bildern, dann bauen.
+- **5.37.0 Glas-Design:** sein Test am Tablet und Handy (237.6), sein Eindruck (237.7), das Video (237.8).
 - **5.36.0 Handy-App (#801):** sein Test am echten Handy (235.9); Kameras-Reiter und Kachel-Farbe hat Claude im Test-Add-on geprüft.
 - **5.34.0 / 5.34.1 / 5.35.0 Bildkarten:** sein Test (232.6, 233.3, 234.4, 234.5), vor allem 234.4: das Bild in der Home-Assistant-App am echten Handy (auch unterwegs).
 - **5.33.0 Bildkarten:** sein Test im Add-on mit seinem Bot (231.6 bis 231.9). Nicht gebaut: Verlauf (24 h) als Baustein, Idee 2 (freie Fläche).

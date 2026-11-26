@@ -28,6 +28,7 @@ import { rightAllows, rightsCss } from './userrights.js';
 import { HOME } from './tabs.js';
 import { cardOptions, initCardMode } from './cardmode.js';
 import { initPhoneMenu, phoneView } from './phonemenu.js';
+import { baseTheme, glassMode, initGlassWall, skyColors } from './glasstheme.js';
 import { initPhoneNav } from './phonenav.js';
 import { initPhoneStatus, PHONE_QUERY } from './phonestatus.js';
 import { initSafeArea } from './safearea.js';
@@ -329,7 +330,7 @@ new ResizeObserver(resize).observe(canvas);
 
 function themeColors() {
   if (settings.theme === 'holo') return { scene: 0x050d1c, gridA: 0x2a9fd6, gridB: 0x14508a };
-  const dark = settings.theme === 'dark';
+  const dark = baseTheme(settings.theme) === 'dark';               // 🍏 Glas dunkel / hell build on dark / light (glasstheme.js)
   return { scene: dark ? 0x0f1419 : 0xe9edf1, gridA: dark ? 0x3a4756 : 0xb7c0c9, gridB: dark ? 0x232d38 : 0xd5dbe1 };
 }
 function rebuildGrid() {
@@ -1347,6 +1348,7 @@ const houseLoad = initHouseLoad({
     floorIdx = groundIdx(); selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');   // open on the ground floor, not in the basement
     clearFocusOutline(); hs.renderUi(); neighbors.renderUi();
     build(); fitCamera(); buildNav(true); bgUi.render(); renderFloorPanel(); renderObjList(); refreshSelection();
+    if (booted) setTimeout(() => glassWall.update(), 1500);      // 🍏 another house: its own picture behind the pages
   },
 });
 function switchHouse(id) { return houseLoad.switchHouse(id); }
@@ -2030,10 +2032,14 @@ const guardUi = initGuardUi({ $, t, entities: () => entities, layout: () => layo
   vacation: initVacationUi({ t, rules: () => rulesUi.rules, entities: () => entities }) });   // 🏠 Urlaubs-Licht in its settings (vacationui.js)
 initSetSections({ $, t, guard: () => guardUi.info?.(), notify: () => notifyUi.cfg?.() });   // "Reiter unten" by page, "Warnungen & Alarm" as cards (5.8.0)
 const commitSettings = () => settingsStore.commit();
+const glassWall = initGlassWall({ canvas, render: () => renderer.render(scene, camera), houseId: () => hs.id(), theme: () => settings.theme,   // 🍏 the house, blurred, behind the pages of the glass designs
+  sky: () => skyColors(getComputedStyle(canvas).backgroundImage, [settings.bgTop || '#3b4a7a', settings.bgBottom || '#c9a98a']), ready: () => booted });
 onLanguageLoaded(() => { if (booted) applySettings(); });   // a language that came later (i18n.js): every text again
 function applySettings(prev = {}) {
   setLanguage(settings.language);
-  document.documentElement.dataset.theme = settings.theme;
+  document.documentElement.dataset.theme = baseTheme(settings.theme);   // 🍏 the glass designs: dark / light plus data-glass (glasstheme.js)
+  if (glassMode(settings.theme)) document.documentElement.dataset.glass = glassMode(settings.theme); else delete document.documentElement.dataset.glass;
+  glassWall.update();
   const rs = document.documentElement.style;
   rs.setProperty('--bg-top', settings.bgTop); rs.setProperty('--bg-bottom', settings.bgBottom); rs.setProperty('--bg-glow', settings.bgGlow); rs.setProperty('--bg-glow-s', String(settings.bgGlowStrength ?? 0));
   applyI18n();
@@ -2175,6 +2181,7 @@ async function init() {
   tabsUi.update(); tabsUi.home();                         // the tab bar (#479): this user's / tablet's start tab
   liveChan.start();                                         // first full list, the live channel, polling while it is down
   booted = true;
+  setTimeout(() => glassWall.update(), 1500);             // 🍏 the picture behind the pages, once the house is drawn (glass designs only)
   window.fp3dReady = true;      // the plan is built and on screen: the integration's boot splash
                                 // (container/custom_components/floorplan3d/splash.py) ends on this, not on the modules alone
 }

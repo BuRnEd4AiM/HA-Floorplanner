@@ -3786,3 +3786,125 @@ body.guestview #firstSteps, body.kiosk #firstSteps, body.kiosk #topMoreWrap { di
 .pcCard .pcWay { margin: 4px 0 10px; padding: 8px 12px; border-radius: 12px; background: rgba(58, 123, 213, .12); font-size: 14px; line-height: 1.45; display: flex; flex-direction: column; gap: 3px; }
 .pcCard .pcWay.warn { background: rgba(214, 60, 49, .12); }
 .pcCard .pcWayRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: space-between; }
+
+/* ---- 🍏 Glas (5.37.0, glasstheme.js; the owner's pictures in docs/ideen-5.37): two more designs, only a choice. <html> keeps
+ * data-theme="dark" / "light" (every rule of those holds) and gets data-glass="dark" / "light": the own house, blurred, behind the pages
+ * (--glass-wall, made in glasstheme.js; colours to fall back on), cards and bars of milk glass, rounder buttons, the tab bar floating.
+ * The picture is already soft, so the pages need no backdrop blur (cheap on a tablet); blur only where something lies over moving
+ * content (dialogs, the room card). In strips that scroll or fade out (room tiles, floor rail, the chips at the top) no blur and no
+ * shadow: the browser cuts them off there into a box (his remark on picture 7). ---- */
+html[data-glass="dark"] {
+  --bg: #12141f; --panel: rgba(36, 36, 48, .42); --line: rgba(255, 255, 255, .14); --text: #fff; --muted: rgba(235, 235, 245, .66);
+  --field: rgba(118, 118, 128, .26); --accent: #0a84ff; --accent-text: #fff; --ok: #30d158;
+  --glass: rgba(26, 28, 38, .74); --glass-solid: rgba(26, 28, 38, .9); --glass-line: rgba(255, 255, 255, .18); --glass-dlg: rgba(30, 32, 44, .78);
+  --glass-hi: rgba(255, 255, 255, .13); --glass-shadow: rgba(0, 0, 0, .35);
+  --glass-fallback: radial-gradient(60% 70% at 15% 20%, #4b2a8a 0%, transparent 60%), radial-gradient(55% 60% at 85% 15%, #0b5c8f 0%, transparent 60%),
+    radial-gradient(70% 70% at 70% 90%, #b2456e 0%, transparent 60%), radial-gradient(60% 60% at 10% 95%, #11705f 0%, transparent 60%), #0b0d1a;
+  background: #0b0d1a;
+}
+html[data-glass="light"] {
+  --bg: #f2f2f7; --panel: rgba(255, 255, 255, .55); --line: rgba(0, 0, 0, .08); --text: #1c1c1e; --muted: rgba(60, 60, 67, .68);
+  --field: rgba(118, 118, 128, .14); --accent: #007aff; --accent-text: #fff; --ok: #34c759;
+  --glass: rgba(255, 255, 255, .84); --glass-solid: rgba(255, 255, 255, .94); --glass-line: rgba(255, 255, 255, .7); --glass-dlg: rgba(255, 255, 255, .8);
+  --glass-hi: rgba(255, 255, 255, .8); --glass-shadow: rgba(60, 60, 100, .16);
+  --glass-fallback: radial-gradient(60% 70% at 15% 20%, #c9b8ff 0%, transparent 60%), radial-gradient(55% 60% at 85% 15%, #9fd8ff 0%, transparent 60%),
+    radial-gradient(70% 70% at 70% 90%, #ffc2d4 0%, transparent 60%), radial-gradient(60% 60% at 10% 95%, #b5f0dc 0%, transparent 60%), #eef0f7;
+  background: #eef0f7;
+}
+html[data-glass] body { font-family: -apple-system, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif; }
+/* the picture behind everything that is not the 3D view */
+html[data-glass] body, html[data-glass] #tabPages { background: var(--glass-wall, none) center / cover no-repeat, var(--glass-fallback); }
+html[data-glass] #sceneBar, html[data-glass] #toolbar { background: transparent; border-color: transparent; }
+html[data-glass] body.live.tbopen #toolbar, html[data-glass] body.phoneview.tbopen #toolbar { background: var(--glass-solid);
+  -webkit-backdrop-filter: blur(24px) saturate(170%); backdrop-filter: blur(24px) saturate(170%); }   /* the tools opened over the picture */
+/* over the 3D view the glass is firmer: the picture moves behind it */
+html[data-glass="dark"] #stage { --panel: rgba(26, 28, 38, .74); }
+html[data-glass="light"] #stage { --panel: rgba(255, 255, 255, .84); }
+/* cards, buttons */
+html[data-glass] .tpCard { border-radius: 22px; border-color: var(--glass-line); box-shadow: 0 12px 36px var(--glass-shadow), inset 0 1px 0 var(--glass-hi); }
+html[data-glass] .sbTile { border-radius: 18px; border-color: var(--glass-line); box-shadow: inset 0 1px 0 var(--glass-hi); }
+html[data-glass] .pill { border-radius: 999px; }
+html[data-glass] #toolbar :is(button, select) { border-radius: 999px; border-color: var(--glass-line); }
+html[data-glass] dialog { background: var(--glass-dlg); border: 1px solid var(--glass-line); border-radius: 24px; box-shadow: 0 30px 80px rgba(0, 0, 0, .4);
+  -webkit-backdrop-filter: blur(40px) saturate(180%); backdrop-filter: blur(40px) saturate(180%); }
+html[data-glass] dialog::backdrop { background: rgba(0, 0, 0, .28); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+html[data-glass] dialog .dlgHead { background: var(--glass-dlg); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); }
+html[data-glass] #roomPanel { background: var(--glass); border-color: var(--glass-line); border-radius: 24px; box-shadow: 0 20px 50px var(--glass-shadow), inset 0 1px 0 var(--glass-hi);
+  -webkit-backdrop-filter: blur(30px) saturate(170%); backdrop-filter: blur(30px) saturate(170%); }
+/* the tab bar: a floating bar of glass */
+html[data-glass] #tabBar { margin: 0 12px 10px; padding: 6px 8px calc(6px + var(--safe-b)); border: 1px solid var(--glass-line); border-radius: 26px;
+  background: var(--panel); box-shadow: 0 12px 40px var(--glass-shadow), inset 0 1px 0 var(--glass-hi); }
+html[data-glass] #tabBar button { border-radius: 18px; }
+html[data-glass] #tabBar button.active { background: rgba(255, 255, 255, .16); box-shadow: 0 2px 10px rgba(0, 0, 0, .15); }
+html[data-glass="light"] #tabBar button.active { background: rgba(255, 255, 255, .92); }
+@media (min-width: 761px) {
+  html[data-glass] #tabBar { align-self: center; width: fit-content; max-width: calc(100% - 24px); box-sizing: border-box; }
+  html[data-glass] #tabBar button { min-width: 74px; }
+}
+/* over the 3D view: firm, readable glass (his remarks on picture 7), no cut-off shadows in the strips */
+html[data-glass] #roomTiles .rtTile:not(.active), html[data-glass] #floorRail button, html[data-glass] :where(#navBar, #modeBar) .pill:not(.active), html[data-glass] .pill:where(#findBtn, #voiceBtn) {
+  background: var(--glass); border-color: var(--glass-line); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: inset 0 1px 0 var(--glass-hi); }
+html[data-glass] #roomTiles .rtTile { border-radius: 20px; }
+html[data-glass] #roomTiles .rtTile.lit { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lc) 45%, transparent); }
+html[data-glass] #floorRail button { border-radius: 20px; }
+html[data-glass] #floorRail button.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+html[data-glass] .rtTags > span { color: rgba(235, 240, 248, .85); background: rgba(255, 255, 255, .12); }
+html[data-glass] .rtFloor { color: rgba(235, 240, 248, .7); }
+html[data-glass] .rlPill.glass { background: var(--glass); border-color: var(--glass-line); color: var(--text); }
+html[data-glass="dark"] .rlPill i { color: rgba(235, 240, 248, .85); }
+/* search, microphone and compass together in one box (his wish: "in ein Kästchen … das man in diesem Kästchen das besser hervorheben kann") */
+@media (min-width: 761px) {
+  html[data-glass] #compass { z-index: 4; color: var(--text); font-weight: 600; }
+  html[data-glass] #compass::before { content: ''; position: absolute; left: -6px; right: -34px; top: -8px; bottom: -56px; z-index: -1; border-radius: 22px;
+    background: var(--glass); border: 1px solid var(--glass-line); box-shadow: 0 10px 30px var(--glass-shadow), inset 0 1px 0 var(--glass-hi); }
+  html[data-glass] #compass .cRing { fill-opacity: 0; stroke: var(--glass-line); }
+  html[data-glass] .pill:where(#findBtn, #voiceBtn) { background: color-mix(in srgb, var(--text) 10%, transparent); border-color: transparent; }
+}
+/* the light glass: light tiles and labels with dark writing over the 3D view (picture 15) */
+html[data-glass="light"] #roomTiles .rtTile:not(.active) { color: #1c1c1e; }
+html[data-glass="light"] #roomTiles .rtTile.active { color: #fff; }
+html[data-glass="light"] .rtFloor { color: rgba(60, 60, 67, .7); }
+html[data-glass="light"] .rtTags > span { color: #3a3a40; background: rgba(0, 0, 0, .06); }
+html[data-glass="light"] .rtTags > .rtOpen { color: #b3261e; background: rgba(229, 72, 77, .14); }
+html[data-glass="light"] .rtTile.lit .rtLight { color: #1c1c1e; }
+html[data-glass="light"] .rlPill i { color: #3a3a40; }
+html[data-glass="light"] .rlPill::after { background: rgba(0, 0, 0, .3); }
+html[data-glass="light"] #floorRail .floorThumb span { text-shadow: 0 1px 2px rgba(255, 255, 255, .9); }
+html[data-glass="light"] .rtSep { background: rgba(0, 0, 0, .15); }
+/* the phone app (appui.js) in glass: its cards and chips of glass too, readable in the light glass */
+html[data-glass="dark"] { --panel2: rgba(255, 255, 255, .1); }
+html[data-glass="light"] { --panel2: rgba(255, 255, 255, .62); }
+html[data-glass] .appPage .apRoom, html[data-glass] .appPage .apChip, html[data-glass] .appPage .apPlace:not(.fixed) { box-shadow: inset 0 1px 0 var(--glass-hi); }
+html[data-glass] .appPage .apRoom { border-radius: 24px; }
+html[data-glass] .appPage .apHouseLab { background: var(--glass); color: var(--text); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+html[data-glass] .apSheet { background: var(--glass-dlg); -webkit-backdrop-filter: blur(30px) saturate(170%); backdrop-filter: blur(30px) saturate(170%); }
+html[data-glass] .apFab { background: var(--glass); color: var(--text); border: 1px solid var(--glass-line); }
+html[data-glass] .apItem.on { background: color-mix(in srgb, var(--accent) 18%, transparent); outline-color: var(--accent); }
+html[data-glass="light"] .apGrab { background: rgba(0, 0, 0, .2); }
+html[data-glass="light"] .appPage .apChip.on { background: rgba(255, 190, 40, .24); color: #7a5300; }
+html[data-glass="light"] .appPage .apChip.warn { background: rgba(229, 72, 77, .16); color: #a8272b; }
+html[data-glass="light"] .appPage .apChip.ok { background: rgba(52, 199, 89, .18); color: #1d6b2e; }
+/* ⚡ Energie in the glass designs (energyglass.js, idea 2 / picture 3): icons on the tiles, a ring for "Selbst gemacht", a soft area
+ * instead of the bars, the battery as a battery. Drawn always, shown only in glass: the other designs keep the page as it was. */
+.peIcon, .peRing, .peArea, .pbGauge { display: none; }
+html[data-glass] .peIcon { display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 10px; border-radius: 12px; font-style: normal; font-size: 20px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--ic) 70%, #fff), var(--ic)); box-shadow: 0 4px 12px color-mix(in srgb, var(--ic) 35%, transparent); }
+html[data-glass] .peTile.hasRing { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; align-items: center; }
+html[data-glass] .peTile.hasRing .peRing { display: block; width: 76px; height: 76px; grid-row: 1 / span 3; }
+html[data-glass] .peTile.hasRing .peTileVal { display: none; }
+.peRingTrack { fill: none; stroke: color-mix(in srgb, var(--text) 14%, transparent); stroke-width: 9; }
+.peRingArc { fill: none; stroke: #ffb02e; stroke-width: 9; stroke-linecap: round; }
+.peRingText { fill: var(--text); font-size: 17px; font-weight: 800; }
+html[data-glass] .peTileVal { letter-spacing: -.02em; }
+html[data-glass] .peArea { display: inline; }
+html[data-glass] .peChart .peBar { display: none; }
+.peAreaLine { stroke-width: 2.5; stroke-linejoin: round; }
+.peAreaDot { fill: #fff; stroke: rgba(255, 255, 255, .3); stroke-width: 8; }
+html[data-glass="light"] .peAreaDot { fill: #0a84ff; stroke: rgba(10, 132, 255, .22); }
+html[data-glass] .peTopBar { border-radius: 99px; background: color-mix(in srgb, var(--text) 10%, transparent); }
+html[data-glass] .peTopBar i { border-radius: 99px; background: linear-gradient(90deg, #ff9f1c, #ff5e3a); }
+html[data-glass] .pbGauge { display: flex; align-items: center; gap: 24px; margin: 8px 0 12px; }
+.pbCell { position: relative; flex: none; width: 132px; height: 56px; padding: 5px; box-sizing: border-box; border: 3px solid color-mix(in srgb, var(--text) 75%, transparent); border-radius: 14px; }
+.pbCell::after { content: ''; position: absolute; right: -10px; top: 15px; width: 6px; height: 18px; border-radius: 0 4px 4px 0; background: color-mix(in srgb, var(--text) 75%, transparent); }
+.pbCell i { display: block; height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--lv), color-mix(in srgb, var(--lv) 55%, #fff)); box-shadow: 0 0 20px color-mix(in srgb, var(--lv) 50%, transparent); }
+.pbGaugeText b { display: block; font-size: 34px; font-weight: 800; line-height: 1.1; }

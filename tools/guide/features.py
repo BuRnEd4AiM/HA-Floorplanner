@@ -190,6 +190,8 @@ f("phonerooms", "phone", "📱 Am Handy auf Start: Räume anheften, jeder Raum m
   "📱 On the phone on home: pin rooms, every room with a light on, the tile in the colour of its light, round button with all on/off and scenes, chips in lines, 📷", ["phone-rooms"], since="5.36.0")
 f("phonedash", "phone", "📱 Am Handy die Seiten bearbeiten: „✎ Bearbeiten“ oben auf jeder Seite, „🗂 Reiter“ in Zeilen",
   "📱 Edit the pages on the phone: “✎ Edit” on top of every page, “🗂 Tabs” in lines", ["phone-dash"], since="5.36.0")
+f("glass", "settings", "🍏 Design „Glas dunkel“ und „Glas hell“: das eigene Haus verschwommen hinter den Seiten, Milchglas, ⚡ Energie mit Ring und weicher Fläche",
+  "🍏 “Glass dark” and “Glass light” designs: your own house blurred behind the pages, frosted glass, ⚡ Energy with a ring and a soft area", ["glass-design"], since="5.37.0")
 f("phoneedit", "phone", "Am Handy bearbeiten: Werkzeuge als Leiste, Plan mit dem Finger", "Edit on the phone: the tools as a strip, the plan with the finger",
   ["phone-edit"], since="4.56.0")
 f("cars", "pages", "🚗 Mehrere Autos im Haushalt", "🚗 Several cars on Household", ["cars"], since="4.57.0")

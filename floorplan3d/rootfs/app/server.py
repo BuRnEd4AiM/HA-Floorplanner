@@ -89,7 +89,7 @@ LANGUAGES = ("auto", "de", "en", "fr", "es", "it", "nl", "pl", "zh")
 DEFAULT_SETTINGS = {
     "language": "auto",        # auto (language of the browser) | de | en | fr | es | it | nl | pl | zh
     "langChosen": False,       # true once somebody picked a language; until then every start follows the browser (older installs had "de" stored by default)
-    "theme": "dark",           # holo | dark | light
+    "theme": "dark",           # holo | dark | light | glass | glasslight (🍏 5.37.0, only a choice)
     "units": "metric",         # metric | imperial
     "grid": 0.25,              # meters
     "wallHeight": 2.6,
@@ -1008,7 +1008,7 @@ def validate_settings(data: dict) -> dict:
         out[key] = min(hi, max(lo, out[key]))
     if out["language"] not in LANGUAGES:
         out["language"] = DEFAULT_SETTINGS["language"]
-    if out["theme"] not in ("holo", "dark", "light"):
+    if out["theme"] not in ("holo", "dark", "light", "glass", "glasslight"):
         out["theme"] = DEFAULT_SETTINGS["theme"]
     if out["units"] not in ("metric", "imperial"):
         out["units"] = DEFAULT_SETTINGS["units"]

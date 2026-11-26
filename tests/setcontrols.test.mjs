@@ -39,5 +39,5 @@ test('the value of a slider in percent, the unit of a length', () => {
 });
 test('the drop-downs that become buttons are known, the design has colour samples', () => {
   assert.ok(C.SEG_IDS.includes('setTheme') && C.SEG_IDS.includes('setNightDim'));
-  assert.deepEqual(Object.keys(C.SWATCH.setTheme), ['holo', 'dark', 'light']);
+  assert.deepEqual(Object.keys(C.SWATCH.setTheme), ['holo', 'dark', 'light', 'glass', 'glasslight']);
 });

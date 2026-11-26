@@ -1128,7 +1128,7 @@ export default {
   'set.theme': '主题',
   'set.theme.holo': '全息',
   'set.theme.dark': '深色',
-  'set.theme.light': '浅色',
+  'set.theme.light': '浅色', 'set.theme.glass': '深色玻璃', 'set.theme.glasslight': '浅色玻璃',
   'set.units': '单位',
   'set.units.metric': '公制（m）',
   'set.units.imperial': '英制（ft）',

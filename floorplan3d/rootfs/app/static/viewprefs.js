@@ -21,7 +21,7 @@ export const PRESET_FIELDS = {
 /** what the dashboard card (#13, cardmode.js) can set for its screen: the preset fields and a few more; a function checks a number */
 export const CARD_FIELDS = {
   ...PRESET_FIELDS,
-  theme: ['holo', 'dark', 'light'],
+  theme: ['holo', 'dark', 'light', 'glass', 'glasslight'],
   alerts: [true, false],                      // warnings (smoke, water, open windows in the rain ...)
   idleReturn: (v) => Number.isInteger(v) && v >= 0 && v <= 1440,   // minutes without a touch, then back to the start view (0 = never)
 };

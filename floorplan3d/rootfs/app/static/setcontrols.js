@@ -7,9 +7,10 @@
 /** the drop-downs that become buttons (when their choices are short enough, segItems) */
 export const SEG_IDS = ['setTheme', 'setUnits', 'setGrid', 'setPerf', 'setLabels', 'setBelowMode', 'setHouseFloors', 'setWindowFrames', 'setEarth', 'setSky',
   'setNightDim', 'setUi', 'setPresenceRule', 'setSaver', 'setSaverSpeed'];
-/** colour samples of some choices: [background] or [background, accent] */
+/** colour samples of some choices: [background] or [background, accent] (a background may be a gradient: the glass designs) */
 export const SWATCH = {
-  setTheme: { holo: ['#050d1c', '#23e0ff'], dark: ['#0f1419', '#3fa9f5'], light: ['#eef1f4', '#1f8de0'] },
+  setTheme: { holo: ['#050d1c', '#23e0ff'], dark: ['#0f1419', '#3fa9f5'], light: ['#eef1f4', '#1f8de0'],
+    glass: ['linear-gradient(135deg, #4b2a8a, #0b5c8f 55%, #b2456e)'], glasslight: ['linear-gradient(135deg, #c9b8ff, #9fd8ff 55%, #ffc2d4)'] },   // 🍏 (5.37.0)
   setWindowFrames: { white: ['#f4f4f2'], anthracite: ['#383e42'] },
 };
 const MAX_OPTS = 5, MAX_MAIN = 36, LONG = 22;

@@ -22,7 +22,7 @@ export const WALLS = {
 export function cardOptions(params) {
   if (!flag(params.get('card'))) return null;
   const look = { ...WALLS[params.get('walls')] };
-  const theme = one(params.get('theme'), ['holo', 'dark', 'light']);
+  const theme = one(params.get('theme'), ['holo', 'dark', 'light', 'glass', 'glasslight']);
   if (theme) look.theme = theme;
   const labels = one(params.get('labels'), ['important', 'all', 'none']);
   if (labels) look.labelMode = labels;

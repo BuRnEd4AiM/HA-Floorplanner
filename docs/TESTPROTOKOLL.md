@@ -548,7 +548,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 234. Neu in 5.35.0: 🖼 Bildkarten über die Home-Assistant-App, „❓ So funktionieren Bildkarten“ | 3 | 0 | 2 | 0 | 234.4, 234.5 |
 | 235. Neu in 5.36.0: 📱 Räume anheften, alles an/aus mit Szenen, Seiten am Handy bearbeiten (#801) | 10 | 0 | 1 | 0 | 235.9 |
 | 236. Repariert in 5.36.1: Haus löschen, rechter Winkel mit Raster, „1 Kamera“, englisches Video (#803 bis #806) | 5 | 0 | 0 | 0 | – |
-| **Zusammen** | **1448** | **2** | **150** | **92** | |
+| 237. Neu in 5.37.0: 🍏 Design „Glas dunkel“ und „Glas hell“, ⚡ Energie im Glas-Stil | 5 | 0 | 3 | 0 | 237.6 bis 237.8 |
+| **Zusammen** | **1453** | **2** | **153** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3540,3 +3541,17 @@ Gefunden am 2026-11-25 beim Durchgehen aller offenen Punkte (dein Wunsch: „Mac
 | 236.3 | Demo, Bearbeiten, 2D: „Wand“, zwei Punkte, dann mit der Maus etwa 3° neben dem rechten Winkel 3 m weit gehen (#804) | Grünes ∟ 90°, die Wand wird genau rechtwinklig und 3,00 m lang | ✅ (2026-11-25, Claude, Demo und Browser-Test) |
 | 236.4 | Seite 📷 mit nur einer Kamera; 🧭 Erste Schritte mit einem Gerät (#805) | „1 Kamera“; „Home Assistant kennt 1 Gerät …“, „✨ Automatisch setzen“, „1 Gerät gesetzt“ | ✅ (2026-11-25, Claude, nachgebautes Add-on und Demo) |
 | 236.5 | Video-Anleitung auf Englisch, etwa eine Stunde nach dem Merge (#806) | „📱 Edit the pages on the phone“ ist da | ✅ (2026-11-25, Claude: nach dem Merge aufgenommen, Bild für Bild angesehen; Deutsch und Englisch haben jetzt beide 129 Videos) |
+
+## 237. Neu in 5.37.0: 🍏 Design „Glas dunkel“ und „Glas hell“, ⚡ Energie im Glas-Stil
+Deine Wünsche (26.11.): die Strom-Seite „fotorealistischer und moderner“ (deine Wahl: Idee 2, Bild 3), dazu ein Design für die ganze App „als wäre es von Apple … die Hintergründe“, „auch unten die Leiste und alles drum und dran“; nur eine Auswahl, kein Muss. Beispielbilder in `docs/ideen-5.37`.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 237.1 | Unit-Tests `tests/glasstheme.test.mjs`, `tests/energyglass.test.mjs` (neu), `setcontrols`, `viewprefs`, `cardmode`, `card`, `containercard`, `tests/test_server.py`; Browser-Test Teile `114_glass` (neu), `87_settings_look`, `32_today_energy`, `28_settings`, `112_phone_rooms`; ruff, eslint | Alles grün | ✅ (2026-11-26, Claude) |
+| 237.2 | Demo: ⚙ → Allgemein → Design | Fünf Knöpfe: Hologramm, Dunkel, Hell, Glas dunkel, Glas hell; „Dunkel“ ist gewählt, solange du nichts änderst | ✅ (2026-11-26, Claude, Demo) |
+| 237.3 | „Glas dunkel“ antippen, Fenster schließen, die Reiter Haus, Heute und Energie ansehen | Hinter den Seiten dein Haus ganz verschwommen; Karten, Leisten und Fenster aus Milchglas; die Leiste unten schwebt; über dem 3D-Bild feste Kacheln ohne Kasten dahinter; Suche, Mikrofon und Kompass in einem Kästchen | ✅ (2026-11-26, Claude, Demo) |
+| 237.4 | Im Glas-Design: ⚡ Energie | Kleine bunte Bildchen auf den Kacheln, ein Ring bei „Selbst gemacht“, eine weiche Fläche statt der Balken, die Hausbatterie als Batterie; mit „Dunkel“ wieder die Balken | ✅ (2026-11-26, Claude, Demo) |
+| 237.5 | „Glas hell“, auch am Handy (oder Demo schmal) | Helles Glas, alle Schriften gut lesbar (Kacheln, Schilder über den Zimmern, Etagen links, Chips auf Start) | ✅ (2026-11-26, Claude, Demo und Demo als iPhone) |
+| 237.6 | Im Add-on am Tablet und am Handy: „Glas dunkel“ | Dein eigenes Haus verschwommen hinter den Seiten; alles flüssig, nicht langsamer als vorher | ❓ |
+| 237.7 | Dein Eindruck: gefällt dir Glas dunkel oder hell? Fehlt etwas im Glas-Stil? | Deine Rückmeldung | ❓ |
+| 237.8 | Video-Anleitung: „🍏 Design „Glas““ (nach dem Merge) | Das Video zeigt Auswahl, Heute, Energie, Glas hell und zurück zu Dunkel | ❓ |

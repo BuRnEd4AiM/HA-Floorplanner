@@ -2,6 +2,11 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.37.0] - 2026-11-26
+### Added
+- **🍏 Two more designs: „Glas dunkel“ and „Glas hell“** (the owner, 2026-11-26: "ein Theme, dass es so aussieht, als wäre es von Apple … die Hintergründe", "auch unten die Leiste und alles drum und dran"; "nur ein Design … eine Option und kein Muss"; his pictures in docs/ideen-5.37): ⚙ → Allgemein → Design has five buttons now. The default stays „Dunkel“; nothing changes until somebody picks glass. A glass design builds on the dark or the light theme and adds: the own house, blurred, behind the pages (taken from the 3D view once per visit and house, kept in this browser), cards, bars, the settings and the room card of frosted glass, rounder buttons, the tab bar floating; over the 3D view firm glass without the cut-off shadows that made a box behind the room tiles and the floors; search, microphone and compass in one box; the phone app in glass too. The dashboard card can choose it (`theme: glass` / `glasslight`). In `glasstheme.js` (pure rules tested) and the section „Glas“ of style.css.
+- **⚡ Energie in the glass designs** (idea 2 / picture 3, his choice "Nur Idee 2 (Bild 3)"): a small coloured icon on each tile, a ring for „Selbst gemacht“, a soft area instead of the bars (up to now, a dot at the last value), the house battery as a battery in green, amber or red (`energyglass.js`). The other designs keep the page as it was.
+
 ## [5.36.1] - 2026-11-25
 ### Fixed
 - **Deleting a house: the question ended in "{name}"** (#803, found while testing 204.9): "Zum Bestätigen den Namen eintippen: {name}" now names the house. The texts' placeholders are filled in every place they stand (before only the first one), and a name with "$" in it is taken as it is.

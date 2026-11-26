@@ -4,6 +4,7 @@
  * stays on this device (localStorage, the owner's wish: "jedes Gerät für sich"). The rules are in batterylevels.js (tested); pageenergy.js
  * asks api/energy/levels and hands the answer here. */
 import { cleanPrefs, toggleBattery, shownBatteries, levelPoints, withLive, splitGaps, levelSummary, periodMs, PREFS_KEY } from './batterylevels.js';
+import { levelColor } from './energyglass.js';
 
 /** ctx: t, lang(), states(), label(period, date, i) (the axis text of a bar of the page) */
 export function initBatteryCard(ctx) {
@@ -111,6 +112,13 @@ export function initBatteryCard(ctx) {
         chips.append(ch);
       });
       const out = [head, chips];
+      const first = list.find((b) => !prefs.hidden.includes(b.id) && liveOf(b.id) != null);
+      if (first) {                                   // the glass designs: the charge as a battery (energyglass.js; style.css shows it only there)
+        const lv = Math.max(0, Math.min(100, liveOf(first.id))), g = make('div', 'pbGauge'), cell = make('div', 'pbCell'), fill = make('i');
+        fill.style.width = `${lv}%`; fill.style.setProperty('--lv', levelColor(lv)); cell.append(fill);
+        const txt = make('div', 'pbGaugeText'); txt.append(make('b', '', pct(lv)), make('span', 'tpSub', first.name));
+        g.setAttribute('aria-hidden', 'true'); g.append(cell, txt); out.splice(1, 0, g);
+      }
       const shown = shownBatteries(list, prefs);
       const series = shown.map((b) => ({ b, pts: withLive(levelPoints(data, b.id, p.start, p.end, period, now), liveOf(b.id), now, p.start, p.end) }));
       if (!data) out.push(make('p', 'tpSub pbNote', t('pe.bat.err')));

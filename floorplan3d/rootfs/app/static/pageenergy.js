@@ -11,6 +11,7 @@ import { cardBatteries, houseBatteries, levelPeriod } from './batterylevels.js';
 import { initBatteryCard } from './batterycard.js';
 import { withBarTips } from './bartip.js';
 import { initStandbyCard } from './standbycard.js';
+import { TILE_ICONS, ringDash, areaPaths } from './energyglass.js';
 
 const OWN = '#cc7a00', GRID = '#488fc2';           // made itself (sun, battery) / from the grid: the colours of "Strom jetzt", checked for colour blindness
 const ALL = '*', CMP = 'cmp';                     // all houses added up / side by side (⚖ Vergleichen, #495)
@@ -25,6 +26,7 @@ export function initEnergyPage(ctx) {
   let kind = 'day', offset = 0, house = null, drawn = '', run = 0, forced = false;   // forced: a forced drawing overtaken by a newer one stays forced
   let lastShown;                                   // the building shown at the top when the page last looked: another one, the page follows it
   const layouts = new Map();                       // other houses: id -> layout (for their meters)
+  let gradSeq = 0;                                 // ids of the colour runs of the soft area (glass designs), one per chart
   let cmp = null, cmpGrid = null;                  // ⚖ Vergleichen: { p, stats } of the last statistics asked for, and its grid
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on) => { const b = make('button', cls, text); b.type = 'button'; b.addEventListener('click', on); return b; };
@@ -113,8 +115,20 @@ export function initEnergyPage(ctx) {
     if (p.kind === 'month') return [1, 8, 15, 22, 29].includes(d.getDate()) ? String(d.getDate()) : '';
     return new Intl.DateTimeFormat(lang(), { month: 'narrow' }).format(d);
   }
-  function tile(name, value, unit, sub, color) {
+  /** opts (the glass designs, energyglass.js; shown only there by style.css): icon (a key of TILE_ICONS), ring (a percent: a ring) */
+  function tile(name, value, unit, sub, color, opts = {}) {
     const b = make('div', 'tpCard peTile');
+    const ic = TILE_ICONS[opts.icon];
+    if (ic) { const i = make('i', 'peIcon', ic[0]); i.style.setProperty('--ic', ic[1]); i.setAttribute('aria-hidden', 'true'); b.append(i); }
+    if (opts.ring != null) {
+      const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg'), r = 30;
+      svg.setAttribute('viewBox', '0 0 76 76'); svg.setAttribute('class', 'peRing'); svg.setAttribute('aria-hidden', 'true');
+      const c = (cls, extra = {}) => { const n = document.createElementNS(ns, 'circle'); Object.entries({ cx: 38, cy: 38, r, class: cls, ...extra }).forEach(([k, v]) => n.setAttribute(k, v)); svg.append(n); };
+      c('peRingTrack'); c('peRingArc', { 'stroke-dasharray': ringDash(opts.ring, r), transform: 'rotate(-90 38 38)' });
+      const tx = document.createElementNS(ns, 'text'); tx.setAttribute('x', 38); tx.setAttribute('y', 44); tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('class', 'peRingText');
+      tx.textContent = `${Math.round(opts.ring)}%`; svg.append(tx);
+      b.append(svg); b.classList.add('hasRing');
+    }
     const h = make('div', 'peTileName');
     if (color) { const i = make('i', 'peSwatch'); i.style.background = color; h.append(i); }
     h.append(document.createTextNode(name));
@@ -136,6 +150,21 @@ export function initEnergyPage(ctx) {
       add('line', { x1: pad, x2: W, y1: y(v), y2: y(v), class: 'peGrid' });
       add('text', { x: pad - 6, y: y(v) + 4, class: 'peAxis', 'text-anchor': 'end' }, num(v));
     });
+    // the glass designs: a soft area up to now instead of the bars (energyglass.js; style.css shows one or the other)
+    const shownN = offset === 0 && now >= p.start && now < p.end ? elapsed(p.buckets, now) : rows.length;
+    const area = areaPaths(rows, shownN, (i) => pad + (i + 0.5) * bw, y, H - bottom);
+    if (area) {
+      const id = `peG${++gradSeq}`, defs = document.createElementNS(ns, 'defs');
+      defs.innerHTML = `<linearGradient id="${id}t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fb6ff" stop-opacity=".9"/><stop offset="1" stop-color="#2f6fd6" stop-opacity=".12"/></linearGradient>`
+        + `<linearGradient id="${id}o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc24d" stop-opacity=".95"/><stop offset="1" stop-color="#ff8a00" stop-opacity=".15"/></linearGradient>`;
+      const g = document.createElementNS(ns, 'g'); g.setAttribute('class', 'peArea'); g.setAttribute('aria-hidden', 'true'); g.append(defs);
+      const path = (d, attrs) => { const n = document.createElementNS(ns, 'path'); n.setAttribute('d', d); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v)); g.append(n); };
+      path(area.total, { fill: `url(#${id}t)` }); path(area.own, { fill: `url(#${id}o)` });
+      path(area.totalLine, { fill: 'none', class: 'peAreaLine', stroke: '#7cc0ff' }); path(area.ownLine, { fill: 'none', class: 'peAreaLine', stroke: '#ffc24d' });
+      const dot = document.createElementNS(ns, 'circle');
+      Object.entries({ cx: area.end[0], cy: area.end[1], r: 5, class: 'peAreaDot' }).forEach(([k, v]) => dot.setAttribute(k, v)); g.append(dot);
+      svg.append(g);
+    }
     rows.forEach((r, i) => {
       const x = pad + i * bw + Math.min(3, bw * 0.15), w = Math.max(1, bw - 2 * Math.min(3, bw * 0.15)), g = document.createElementNS(ns, 'g');
       const grid = Math.max(0, r.use - r.own), base = H - bottom;
@@ -148,7 +177,7 @@ export function initEnergyPage(ctx) {
         if (h <= 0.4) return;
         const n = document.createElementNS(ns, 'path'), rr = round ? Math.min(4, w / 2, h) : 0;
         n.setAttribute('d', `M${x} ${y0} V${y1 + rr} q0 -${rr} ${rr} -${rr} h${w - 2 * rr} q${rr} 0 ${rr} ${rr} V${y0} Z`);
-        n.setAttribute('fill', fill); g.append(n);
+        n.setAttribute('fill', fill); n.setAttribute('class', 'peBar'); g.append(n);
       };
       const yOwn = y(r.own);
       rect(base, yOwn, OWN, grid <= 0.0005);
@@ -241,13 +270,13 @@ export function initEnergyPage(ctx) {
     const out = [head(), nav(p, c.own ? t(c.building ? 'pe.ownMetersB' : 'pe.ownMeters') : t('pe.haMeters'))], items = [];
     const tiles = make('div', 'peTiles');
     const prevText = (v) => t(`${offset === 0 ? 'pe.prev' : 'pe.prevFull'}.${p.kind}`, { v: num(v) });   // the period before: so far, or whole
-    tiles.append(tile(t('pe.used'), num(cur.use), 'kWh', prevText(before.use)));
+    tiles.append(tile(t('pe.used'), num(cur.use), 'kWh', prevText(before.use), null, { icon: 'used' }));
     const m = c.meters;
-    if (m.solar.length) tiles.append(tile(t('pe.solar'), num(cur.solar), 'kWh', m.to.length ? t('pe.solarOut', { v: num(cur.to) }) : '', OWN));
-    if (m.from.length) tiles.append(tile(t('pe.fromGrid'), num(cur.from), 'kWh', m.to.length ? t('pe.fedIn', { v: num(cur.to) }) : '', GRID));
-    if (cur.autarky != null && (m.solar.length || m.batOut.length)) tiles.append(tile(t('pe.autarky'), String(cur.autarky), '%', t('pe.autarkySub')));
+    if (m.solar.length) tiles.append(tile(t('pe.solar'), num(cur.solar), 'kWh', m.to.length ? t('pe.solarOut', { v: num(cur.to) }) : '', OWN, { icon: 'solar' }));
+    if (m.from.length) tiles.append(tile(t('pe.fromGrid'), num(cur.from), 'kWh', m.to.length ? t('pe.fedIn', { v: num(cur.to) }) : '', GRID, { icon: 'fromGrid' }));
+    if (cur.autarky != null && (m.solar.length || m.batOut.length)) tiles.append(tile(t('pe.autarky'), String(cur.autarky), '%', t('pe.autarkySub'), null, { ring: cur.autarky }));
     if (money) tiles.append(tile(t('pe.cost'), money.net.toLocaleString(lang(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }), '€',
-      money.sell ? t('pe.costSub', { v: money.sell.toLocaleString(lang(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }) : ''));
+      money.sell ? t('pe.costSub', { v: money.sell.toLocaleString(lang(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }) : '', null, { icon: 'cost' }));
     items.push({ key: 'tiles', el: tiles, width: 4 });
     const card = make('div', 'tpCard peChartCard');
     card.append(make('h3', 'peH', t(`pe.chart.${p.kind}`)), withBarTips(chart(p, rows, now)));
