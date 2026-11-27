@@ -14,6 +14,8 @@ export const isGlass = (theme) => Object.prototype.hasOwnProperty.call(GLASS, th
 export const baseTheme = (theme) => GLASS[theme] || theme;
 /** what <html data-glass> gets: 'dark', 'light' or null (no glass) */
 export const glassMode = (theme) => GLASS[theme] || null;
+/** the glass only in the live view: editing keeps plain dark / light (the owner 2026-11-27: „im Bearbeitungsmodus sollte nicht das Design angewandt werden“) */
+export const glassShown = (theme, live) => (live ? glassMode(theme) : null);
 
 const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
 /** one pixel of the wall picture: dark glass a little more colourful and darker (55 %), light glass lighter and mixed with white (55 %),

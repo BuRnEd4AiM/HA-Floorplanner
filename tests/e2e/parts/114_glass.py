@@ -59,6 +59,13 @@ check("🍏 ⚡ Energie in glass: a soft area instead of the bars, icons on the 
 check("🍏 the page itself lets the picture through", pgG.evaluate("getComputedStyle(document.getElementById('tabPages')).backgroundImage.startsWith('url(')"))
 pick_gl("glasslight")
 check("🍏 „Glas hell“: light plus glass", html_gl() == ["light", "light"] and api("api/settings")["theme"] == "glasslight", html_gl())
+tm_gl = pgG.evaluate("(() => { const s = getComputedStyle(document.getElementById('topMore')); const a = s.backgroundColor.match(/[\\d.]+/g); return [s.backgroundColor, a.length > 3 ? +a[3] : 1, s.backdropFilter]; })()")
+check("🍏 5.37.3: the „⋯“ menu is firm, not see-through (alpha ≥ .85, blur behind)", tm_gl[1] >= 0.85 and "blur" in tm_gl[2], tm_gl)
+pgG.click("#modeSwitch button[data-mode=edit]"); pgG.wait_for_timeout(500)
+ed_gl = [html_gl(), pgG.evaluate("document.documentElement.style.getPropertyValue('--glass-wall')")]
+pgG.click("#modeSwitch button[data-mode=live]"); pgG.wait_for_timeout(500)
+check("🍏 5.37.3: „Bearbeiten“ stays plain light without glass, the live view has the glass again (the owner 2026-11-27)",
+      ed_gl == [["light", None], ""] and html_gl() == ["light", "light"], [ed_gl, html_gl()])
 pick_gl("dark")
 en_dk = pgG.evaluate("""(() => { const p = document.querySelector('#tabPages [data-page=energy]'), shown = (q) => { const e = p.querySelector(q); return e ? getComputedStyle(e).display !== 'none' : null; };
   return [shown('.peArea'), shown('.peBar'), shown('.peIcon'), document.documentElement.style.getPropertyValue('--glass-wall')]; })()""")

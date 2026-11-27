@@ -3691,7 +3691,8 @@ body.live #topMoreWrap { display: none; }
 .tmNew { position: absolute; top: -8px; right: -6px; padding: 0 6px; border-radius: 8px; background: #8b5cf6; color: #fff; font-size: 10px; font-weight: 700; line-height: 16px; pointer-events: none; }
 .tmNew[hidden] { display: none; }
 #topMore { position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; display: flex; flex-direction: column; gap: 2px; width: 300px; padding: 6px;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.45); }
+  background: var(--glass-solid, var(--panel)); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.45);
+  -webkit-backdrop-filter: blur(24px) saturate(170%); backdrop-filter: blur(24px) saturate(170%); }   /* firm: the glass theme's --panel is see-through (owner 2026-11-27) */
 #topMore[hidden] { display: none; }
 #topMore .tmRow { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 9px 12px; text-align: left; background: transparent; border: 0; border-radius: 8px; }
 #topMore .tmRow:hover, #topMore .tmRow:focus-visible { background: rgba(127,127,127,.15); }

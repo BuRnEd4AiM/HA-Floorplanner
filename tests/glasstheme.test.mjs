@@ -12,6 +12,7 @@ test('the glass designs build on dark and light; the others stay as they are', (
   assert.equal(G.baseTheme('glass'), 'dark');
   assert.equal(G.baseTheme('glasslight'), 'light');
   for (const t of ['holo', 'dark', 'light']) { assert.equal(G.baseTheme(t), t); assert.equal(G.isGlass(t), false); assert.equal(G.glassMode(t), null); }
+  assert.equal(G.glassShown('glass', true), 'dark'); assert.equal(G.glassShown('glasslight', false), null); assert.equal(G.glassShown('dark', true), null);   // editing: no glass (5.37.3)
   assert.equal(G.isGlass('glass'), true);
   assert.equal(G.glassMode('glass'), 'dark');
   assert.equal(G.glassMode('glasslight'), 'light');

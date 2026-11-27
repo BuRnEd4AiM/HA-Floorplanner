@@ -2,6 +2,13 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [5.37.3] - 2026-11-27
+### Repariert
+- **Das Menü „⋯“ oben war zu durchsichtig** (der Besitzer: „evtl bisl zu durchsichtig“): Im Design „Glas dunkel“ / „Glas hell“ nahm das Menü die durchsichtige Farbe der Glas-Flächen, das 3D-Bild und die Knöpfe dahinter schienen durch die Schrift. Jetzt hat es die feste Glasfarbe und zeichnet das Dahinterliegende weich, in jedem Design.
+
+### Verbessert
+- **🍏 Glas nur in der Live-Ansicht** (der Besitzer: „im Bearbeitungsmodus sollte nicht das Design angewandt werden“): Mit „Glas dunkel“ / „Glas hell“ sieht der Editor („Bearbeiten“) jetzt aus wie „Dunkel“ / „Hell“, ohne das weiche Bild, die Kapseln und die durchsichtigen Flächen; das Glas kommt wieder, sobald du auf „Live“ wechselst (`glassShown` in `glasstheme.js`).
+
 ## [5.37.2] - 2026-11-26
 ### Verbessert
 - **🍏 Glas: Szenen und Reiter schweben als eine Kapsel über dem 3D-Bild** (der Besitzer nach 5.37.0: der Streifen unten „verkleinert komplett das Bild … macht den Bildschirm noch kleiner … dass dieser Balken sich als Hintergrund an die Icons schmiegt … leicht durchsichtig“; seine Wahl in docs/ideen-5.37, Bilder 20–23: „Szenen und Reiter in eine Kapsel“): am Tablet oder PC in „Glas dunkel“ / „Glas hell“ laufen das 3D-Bild und die Seiten bis ganz nach unten; Szenen und Reiter liegen darauf in einer Kapsel aus Milchglas, nur so breit wie die längere der beiden Reihen, leicht durchsichtig. Die anderen Designs und die Handy-App (mit ihrer eigenen schwebenden Leiste) bleiben, wie sie waren; beim Bearbeiten der Reiter sind die Leisten wie bisher (`glassdock.js`).

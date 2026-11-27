@@ -28,7 +28,7 @@ import { rightAllows, rightsCss } from './userrights.js';
 import { HOME } from './tabs.js';
 import { cardOptions, initCardMode } from './cardmode.js';
 import { initPhoneMenu, phoneView } from './phonemenu.js';
-import { baseTheme, glassMode, initGlassWall, skyColors } from './glasstheme.js';
+import { baseTheme, glassShown, initGlassWall, skyColors } from './glasstheme.js';
 import { initModeBarFit } from './modebarfit.js';
 import { initGlassDock } from './glassdock.js';
 import { initPhoneNav } from './phonenav.js';
@@ -1647,6 +1647,7 @@ function setMode(next) {
   mode = next;
   if (power.isMode() && next === 'live') power.setMode(false);
   document.body.classList.toggle('live', isLive());
+  syncGlass();                                                     // 🍏 the glass design only in the live view
   document.body.classList.toggle('appMode', appOn());              // 📱 the app view only while live (editing has ☰ again)
   document.querySelectorAll('#modeSwitch button').forEach((b) => b.classList.toggle('active', b.dataset.mode === next));
   popup.close(); roomPanel.close(); selection = null; lockedSel = false; plan?.reset();
@@ -2036,14 +2037,18 @@ initSetSections({ $, t, guard: () => guardUi.info?.(), notify: () => notifyUi.cf
 const commitSettings = () => settingsStore.commit();
 initModeBarFit({ bar: $('#modeBar'), stage: $('#stage') });   // the room tiles above the view buttons, also when these wrap (modebarfit.js)
 initGlassDock({ app: $('#app'), stage: $('#stage'), scene: $('#sceneBar'), tabs: $('#tabBar') });   // 🍏 scenes and tabs as one floating capsule in glass (glassdock.js)
-const glassWall = initGlassWall({ canvas, render: () => renderer.render(scene, camera), houseId: () => hs.id(), theme: () => settings.theme,   // 🍏 the house, blurred, behind the pages of the glass designs
+const glassWall = initGlassWall({ canvas, render: () => renderer.render(scene, camera), houseId: () => hs.id(), theme: () => (isLive() ? settings.theme : baseTheme(settings.theme)),   // 🍏 the house, blurred, behind the pages of the glass designs
   sky: () => skyColors(getComputedStyle(canvas).backgroundImage, [settings.bgTop || '#3b4a7a', settings.bgBottom || '#c9a98a']), ready: () => booted });
 onLanguageLoaded(() => { if (booted) applySettings(); });   // a language that came later (i18n.js): every text again
+function syncGlass() {                                // 🍏 glass only while live, editing stays plain dark / light (glassShown)
+  const g = glassShown(settings.theme, isLive());
+  if (g) document.documentElement.dataset.glass = g; else delete document.documentElement.dataset.glass;
+  glassWall.update();
+}
 function applySettings(prev = {}) {
   setLanguage(settings.language);
   document.documentElement.dataset.theme = baseTheme(settings.theme);   // 🍏 the glass designs: dark / light plus data-glass (glasstheme.js)
-  if (glassMode(settings.theme)) document.documentElement.dataset.glass = glassMode(settings.theme); else delete document.documentElement.dataset.glass;
-  glassWall.update();
+  syncGlass();
   const rs = document.documentElement.style;
   rs.setProperty('--bg-top', settings.bgTop); rs.setProperty('--bg-bottom', settings.bgBottom); rs.setProperty('--bg-glow', settings.bgGlow); rs.setProperty('--bg-glow-s', String(settings.bgGlowStrength ?? 0));
   applyI18n();

@@ -34,10 +34,10 @@ def _(r):
       {"de": "🍏 Design „Glas“", "en": "🍏 The “glass” design"},
       {"de": "⚙ → Allgemein → Design: „Glas dunkel“ oder „Glas hell“. Hinter den Seiten dein eigenes Haus, verschwommen; Karten, Leisten "
              "und Fenster aus Milchglas; Szenen und Reiter schweben als eine Kapsel über dem Bild; ⚡ Energie mit Ring, weicher Fläche und "
-             "Batterie. Nur eine Auswahl: Dunkel bleibt das Normale.",
+             "Batterie. Nur in der Live-Ansicht: „Bearbeiten“ bleibt dunkel oder hell. Nur eine Auswahl: Dunkel bleibt das Normale.",
        "en": "⚙ → General → Design: “Glass dark” or “Glass light”. Behind the pages your own house, blurred; cards, bars and windows of "
              "frosted glass; scenes and tabs float as one capsule over the picture; ⚡ Energy with a ring, a soft area and a battery. "
-             "Only a choice: dark stays the normal one."},
+             "Only in the live view: “Edit” stays dark or light. Only a choice: dark stays the normal one."},
       "Glas Design Apple Milchglas verschwommen Hintergrund Energie Ring glass design apple frosted blurred background energy ring")
 def _(r):
     theme = lambda v: f".segBtns[data-for=setTheme] button[data-value={v}]"
