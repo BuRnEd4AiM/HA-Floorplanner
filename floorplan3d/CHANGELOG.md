@@ -2,6 +2,13 @@
 
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [5.37.3] - 2026-11-27
+### Fixed
+- **The „⋯“ menu of the top bar was too see-through** (the owner: „evtl bisl zu durchsichtig“): in „Glas dunkel“ / „Glas hell“ the menu used the glass theme's see-through panel colour, the 3D picture and the buttons behind it shone through the text. Now it has the firm glass colour and frosts what lies behind it, in every design.
+
+### Changed
+- **🍏 Glas only in the live view** (the owner: „im Bearbeitungsmodus sollte nicht das Design angewandt werden“): with „Glas dunkel“ / „Glas hell“ the editor („Bearbeiten“) now looks like „Dunkel“ / „Hell“, without the blurred picture, the capsules and the see-through panels; the glass comes back as soon as you switch to „Live“ (`glassShown` in `glasstheme.js`).
+
 ## [5.37.2] - 2026-11-26
 ### Changed
 - **🍏 Glas: scenes and tabs float as one capsule over the 3D picture** (the owner after 5.37.0: the strip at the bottom „verkleinert komplett das Bild … macht den Bildschirm noch kleiner … dass dieser Balken sich als Hintergrund an die Icons schmiegt … leicht durchsichtig“; his choice in docs/ideen-5.37, pictures 20–23: „Szenen und Reiter in eine Kapsel“): on a tablet or PC in „Glas dunkel“ / „Glas hell“ the 3D picture and the pages run on to the bottom of the screen; the scenes and the tab bar lie on it in one capsule of frosted glass, only as wide as the wider of the two rows, a little see-through. The other designs and the phone app (its own floating bar) stay as they were; while the tabs are being edited the bars are as before (`glassdock.js`).
