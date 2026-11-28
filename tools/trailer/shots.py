@@ -3,15 +3,20 @@
 A shot is filmed in the demo by the engine of the video guide (tools/guide/recorder.py: the same slowed clocks, the same pointer and
 clicks), but it is made for the look, not to teach:
   kind "cine"   the 3D house alone, every bar and button hidden, the camera flies on its own (orbit) - full screen
-  kind "ui"     the app as it is, with the pointer, in a floating window under the caption
+  kind "ui"     the app as it is, with the pointer, in a floating window under the caption (upright: the whole app, never a magnifier
+                or a zoom, the owner 2026-11-28: "dieses Zoomen am Handy, das mach mal bitte nicht")
   kind "phone"  a phone beside the caption
   kind "card"   nothing filmed: the title at the start (drawn by tools/trailer/edit.py)
 Every shot has its length in beats of the music (BPM, a beat is half a second), the caption that comes up with it (German and
 English: a small word above, the title, maybe a line under it) and the part of the film it belongs to (PART, the music follows it).
+Every shot shows the design "Glas dunkel" (THEME; the owner's choice for the short clips, 2026-11-28; the editor stays plain dark).
+The short clips (tools/make_clips.py) film each shot once more in a browser about as high as wide (upright(): "<id>@up"), so the
+app fills the upright picture without a zoom.
 
 To change the film: change a shot here, then python3 tools/make_trailer.py --shots <id> (records only that one again, keeps the
 others) and look at it. The order is ORDER at the bottom.
 """
+import copy
 import json
 import math
 import re
@@ -34,6 +39,11 @@ CLEAN = ("#toolbar,#tabBar,#navBar,#modeBar,#compass,#findBtn,#voiceBtn,#floorRa
 NO_LABELS = "#roomLabels{display:none!important}"
 UI_CSS = "#roomTiles,#tilesLeft,#tilesRight{display:none!important}"   # the app shots: the strip of favourites would cover the house
 MID = (5.6, 3.3)                         # the middle of the demo house (x, z in metres), the camera looks there
+THEME = {"theme": "glass"}               # every shot in "Glas dunkel" (a shot's own settings may say otherwise)
+# the browser of a shot filmed for the upright short clips (upright()): a little wider than high, still the layout of a PC, shown
+# 1056 px wide in the clip; dsf 1: the picture as big as the browser (a little more than the clip needs)
+UP_VIEW = {"width": 1120, "height": 1000}
+UP_DSF = 1.0
 
 # the camera flies around the house: the angle a (radians), the distance and the height change evenly from the start to the end
 ORBIT_JS = """(o) => {
@@ -52,8 +62,10 @@ ORBIT_JS = """(o) => {
 
 class Shot(Clip):
     """one shot of the trailer: a clip of the guide's engine plus its kind, length, caption and part"""
-    def __init__(self, sid, kind, fn, beats, caption=None, part="live", speed=1.0, slow=None, keep=False, focus=None, up=None, beat=None, **kw):
+    def __init__(self, sid, kind, fn, beats, caption=None, part="live", speed=1.0, slow=None, keep=False, focus=None, beat=None, up_far=1.0, **kw):
+        kw["settings"] = {**THEME, **(kw.get("settings") or {})}
         super().__init__(sid, "trailer", {"de": sid, "en": sid}, {"de": "", "en": ""}, "", fn, **kw)
+        self.view = self.dsf = None      # the browser's size: None the guide's (1440 × 810, a phone 390 × 844); upright() sets UP_VIEW
         self.kind, self.beats, self.caption, self.part = kind, beats, caption, part
         self.speed = speed               # how fast the recording is played in the film (1.5: half again as fast)
         self.slow = slow                 # how much slower the page runs while it is filmed (more pictures a second: smoother)
@@ -61,8 +73,8 @@ class Shot(Clip):
         # what the film shows of the screen: (x, y) 0…1 of the screen, or keyframes [(u, x, y, zoom), …] (u 0…1 of the shot);
         # zoom 1.33 shows the app pixel for pixel in the window, the upright film crops around (x, y)
         self.focus = focus
-        self.up = up                     # (x, y): where the upright film looks (its card; in an app shot its magnifier, else that follows the pointer);
-        #                                  False: an app shot upright without a magnifier, only the whole app (pages full of small cards)
+        self.up_far = up_far             # upright(): the camera this much farther away (a narrower picture shows less beside the house)
+        self.far = 1.0                   # how much farther the camera is in this film of the shot (cam(), orbit(); upright(): up_far)
         self.beat = beat                 # the moment the shot marks with r.say("@beat", …) comes this many seconds into the shot (on a beat)
 
     @property
@@ -79,6 +91,23 @@ def shot(sid, kind, beats, caption=None, **kw):
         SHOTS[sid] = Shot(sid, kind, fn, beats, caption, **kw)
         return fn
     return put
+
+
+def upright(sid):
+    """the shot filmed for the upright short clips (tools/make_clips.py): the same, in a browser about as high as wide (UP_VIEW), its id
+    "<id>@up" (its own pictures in --work); a phone shot and a card are the same in both"""
+    sh = SHOTS[sid]
+    if sh.kind in ("phone", "card"):
+        return sh
+    u = copy.copy(sh)
+    u.id = sid + "@up"
+    u.view, u.dsf, u.far = UP_VIEW, UP_DSF, sh.up_far
+    return u
+
+
+def get(sid):
+    """a shot by its id: "light" or "light@up" (upright())"""
+    return upright(sid[:-3]) if sid.endswith("@up") else SHOTS[sid]
 
 
 def cap(de, en):
@@ -102,6 +131,8 @@ def whole_house(r):
 
 def cam(r, a, d, h, mid=MID):
     """put the camera at angle a, distance d, height h around the middle"""
+    k = getattr(r.clip, "far", 1.0)
+    d, h = d * k, h * k
     x, z = mid[0] + d * math.cos(a), mid[1] + d * math.sin(a)
     r.pg.evaluate(f"window.__fp.camAt({x}, {h}, {z}, {mid[0]}, {mid[1]})")
 
@@ -109,7 +140,8 @@ def cam(r, a, d, h, mid=MID):
 def orbit(r, a0, a1, d0, d1, h0, h1, seconds, mid=MID, wait=True):
     """the camera flies from one place to another around the house in this many seconds of the film (and the clip waits for it,
     unless wait=False)"""
-    o = {"a0": a0, "a1": a1, "d0": d0, "d1": d1, "h0": h0, "h1": h1, "cx": mid[0], "cz": mid[1], "ms": seconds * 1000}
+    k = getattr(r.clip, "far", 1.0)
+    o = {"a0": a0, "a1": a1, "d0": d0 * k, "d1": d1 * k, "h0": h0 * k, "h1": h1 * k, "cx": mid[0], "cz": mid[1], "ms": seconds * 1000}
     r.pg.evaluate(f"({ORBIT_JS})({json.dumps(o)})")
     if wait:
         r.wait(seconds * 1000)
@@ -124,7 +156,8 @@ def at(r, sel, nth=0, text=None):
         x, y = r.js("""([s, n, t]) => {
           const e = [...document.querySelectorAll(s)].filter((x) => x.getClientRects().length && (!t || new RegExp(t).test(x.textContent)))[n];
           if (!e) return [null, null];
-          e.scrollIntoView({ block: 'nearest' });
+          e.scrollIntoView({ block: 'center', behavior: 'instant' });   // the middle (in "Glas" the scenes and tabs float over the
+          //                                                            page's foot), at once: a smooth scroll would move it after the tap
           const b = e.getBoundingClientRect();
           return [b.x + b.width / 2, b.y + b.height / 2];
         }""", [sel, nth, text])
@@ -236,14 +269,16 @@ def _(r):
     tap(r, "#roomLabels [data-room=r1]")
     r.wait(1500)
     dolly(r, (3, 0, 2.25), 0.45, 1300)                       # closer to the living room while the hand goes to its card
-    sw = "#roomPanel .roomctl .swatches .sw"
+    tap(r, "#roomPanel .rpLight[data-e='light.sofa_led'] .rp-more", ms=500)   # 🎨 of the LED behind the sofa: its colours (5.10.0)
+    r.wait(500)
+    sw = "#roomPanel .rp-ctl .swatches .sw"
     for k in (0, 5, 6):
         tap(r, sw, nth=k, ms=420)
         r.wait(350)
-    tap(r, "#roomPanel .roomctl .actions button", nth=1, ms=420)    # all off
-    r.wait(500)
-    tap(r, "#roomPanel .roomctl .actions button", nth=0, ms=420)    # all on
+    tap(r, "#roomPanel .rp-alloff", ms=420)                 # all off
     r.wait(600)
+    tap(r, "#roomPanel .rpScene", nth=0, ms=420)            # the room's scene "Gemütlich": on again
+    r.wait(700)
 
 
 def _scene_prep(r):
@@ -285,7 +320,7 @@ def _colors_prep(r):
     ui_cam(r, a=1.2, d=14, h=12)
 
 
-@shot("colors", "ui", 8, up=(0.38, 0.5), sky="13:00", settings=tiles_off(), prep=_colors_prep,
+@shot("colors", "ui", 8, sky="13:00", settings=tiles_off(), prep=_colors_prep,
       caption=cap(("Klima", "Temperatur, Feuchte und CO₂ als Farbe", ""),
                   ("Climate", "Temperature, humidity and CO₂ as colour", "")))
 def _(r):
@@ -297,7 +332,7 @@ def _(r):
     r.wait(1500)
 
 
-@shot("power", "ui", 8, up=(0.68, 0.45), sky="12:30", settings=tiles_off(), prep=_colors_prep,
+@shot("power", "ui", 8, sky="12:30", settings=tiles_off(), prep=_colors_prep,
       caption=cap(("Energie", "Sieh, wo dein Strom gerade fließt", "Solar, Netz, Batterie und jedes Gerät"),
                   ("Energy", "See where your power flows right now", "Solar, grid, battery and every device")))
 def _(r):
@@ -307,7 +342,7 @@ def _(r):
     r.wait(3200)
 
 
-@shot("warnings", "ui", 8, up=(0.36, 0.4), sky="15:30", query="mode=live&weather=rainy", settings=tiles_off(), prep=_room_prep,
+@shot("warnings", "ui", 8, sky="15:30", query="mode=live&weather=rainy", settings=tiles_off(), prep=_room_prep,
       caption=cap(("Warnungen", "Regen – und das Fenster ist offen?", "Du siehst es sofort, und wo."),
                   ("Warnings", "Rain – and the window is open?", "You see it at once, and where.")))
 def _(r):
@@ -344,7 +379,7 @@ def _(r):
     r.wait(700)
 
 
-@shot("voice", "ui", 8, up=(0.26, 0.55), sky="17:30", settings=tiles_off(), prep=_room_prep,
+@shot("voice", "ui", 8, sky="17:30", settings=tiles_off(), prep=_room_prep,
       caption=cap(("Sprache", "Frag dein Haus", "„Welche Fenster sind offen?“"),
                   ("Voice", "Ask your house", "“Which windows are open?”")))
 def _(r):
@@ -447,7 +482,7 @@ def _import_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("import", "ui", 12, up=False, part="plan", query="mode=edit", answers=_import_answers, prep=_import_prep,
+@shot("import", "ui", 12, part="plan", query="mode=edit", answers=_import_answers, prep=_import_prep,
       caption=cap(("Import · KI", "Ein Haus aus Text – per KI oder API", "Grundriss-Foto an ChatGPT & Co., die Antwort einfügen: fertig."),
                   ("Import · AI", "A house from text – by AI or API", "A floor plan photo to ChatGPT & co., paste the answer: done.")))
 def _(r):
@@ -466,7 +501,7 @@ def _(r):
     r.wait(900)
 
 
-@shot("roof", "ui", 8, up=(0.6, 0.5), part="plan", query="mode=edit", prep=_empty_split(walls=True),
+@shot("roof", "ui", 8, part="plan", query="mode=edit", prep=_empty_split(walls=True),
       caption=cap(("Planen", "Dach, Gauben, Treppen, Balkon und Garten", ""),
                   ("Plan", "Roof, dormers, stairs, balcony and garden", "")))
 def _(r):
@@ -485,7 +520,7 @@ def _(r):
         r.wait(1500)
 
 
-@shot("power-edit", "ui", 8, up=(0.49, 0.38), part="plan", query="mode=edit", sky="12:30", prep=_room_prep,
+@shot("power-edit", "ui", 8, part="plan", query="mode=edit", sky="12:30", prep=_room_prep,
       caption=cap(("Strom-Editor", "Strom einrichten: Netz, Solar, Batterie", "Aus dem Energie-Dashboard übernehmen, mit einem Klick."),
                   ("Power editor", "Set up power: grid, solar, battery", "Take it over from the energy dashboard in one click.")))
 def _(r):
@@ -510,7 +545,7 @@ def _pages_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("pages", "ui", 12, part="pages", sky="15:49", prep=_pages_prep, up=False,
+@shot("pages", "ui", 12, part="pages", sky="15:49", prep=_pages_prep,
       caption=cap(("Seiten", "Fertige Seiten für alles", "Heute · Energie · Klima · Kameras · Familie …"),
                   ("Pages", "Ready-made pages for everything", "Today · Energy · Climate · Cameras · Family …")))
 def _(r):
@@ -527,7 +562,7 @@ def _climate_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("heat", "ui", 8, part="pages", sky="15:49", prep=_climate_prep, up=False,
+@shot("heat", "ui", 8, part="pages", sky="15:49", prep=_climate_prep,
       caption=cap(("Heizung", "Heizplan und Heiz-Regeln", "Fenster auf, Heizung aus: fertig zum Einschalten."),
                   ("Heating", "Heating schedule and rules", "Window open, heating off: ready to switch on.")))
 def _(r):
@@ -546,7 +581,7 @@ def _routines_prep(r):
     r.pg.wait_for_timeout(1500)
 
 
-@shot("flow", "ui", 8, part="pages", sky="15:49", prep=_routines_prep, up=(0.27, 0.3),
+@shot("flow", "ui", 8, part="pages", sky="15:49", prep=_routines_prep,
       caption=cap(("Abläufe", "Eigene Abläufe aus Bausteinen", "Wenn – dann, wie in Node-RED. Ohne YAML."),
                   ("Routines", "Build your own routines from blocks", "When – then, like in Node-RED. No YAML.")))
 def _(r):
@@ -575,8 +610,11 @@ def _dash_prep(r):
       caption=cap(("Dashboards", "Seiten selbst gestalten", "Karten hinzufügen, ausblenden, frei anordnen."),
                   ("Dashboards", "Design your own pages", "Add cards, hide them, arrange them freely.")))
 def _(r):
-    tap(r, "[data-page=today] .bdAdd")
-    r.wait(600)
+    for _try in range(3):                # the page may still be laying out its cards: tap again until the list of cards is open
+        tap(r, "[data-page=today] .bdAdd")
+        r.wait(600)
+        if r.js("(() => { const b = document.querySelector('.ceDlg [data-type=thermostat]'); return !!b && b.getClientRects().length > 0; })()"):
+            break
     tap(r, ".ceDlg [data-type=thermostat]")
     r.wait(600)
     tap(r, ".ceDlg .ceItem[data-entity='climate.wohnzimmer']")
@@ -587,18 +625,112 @@ def _(r):
     r.wait(1300)
 
 
-@shot("phone", "phone", 12, part="pages", device="phone", sky="18:40",
+def _phone_prep(r):
+    r.pg.wait_for_selector("[data-page=start] .apRoom", state="visible", timeout=20000)   # since 5.22.0 a phone starts on Start (the app view)
+    ui_clean(r)                                          # the strip of favourites would cover the house
+    r.pg.wait_for_timeout(1200)
+
+
+# the phone as an app (5.22.0, 5.36.0): Start with the chips and the turning house, the house in 3D, a room and its card
+@shot("phone", "phone", 12, part="pages", device="phone", sky="18:40", settings=tiles_off(), prep=_phone_prep,
       caption=cap(("Überall", "Am Handy, am Tablet, an der Wand", ""),
                   ("Everywhere", "On the phone, the tablet, the wall", "")))
 def _(r):
-    r.wait(600)
-    tap(r, "#roomLabels [data-room=r1]")
+    r.wait(1100)
+    tap(r, "[data-page=start] [data-act=appHouse]")      # "Haus in 3D ansehen": the whole house in 3D, from the same side
+    r.wait(1400)
+    tap(r, "#phoneNavBtn")                               # the floor and the room at the top
+    r.wait(800)
+    tap(r, "#phoneNav .pnRoom", text="Wohnzimmer|Living")   # the room in 3D and its card with the big buttons
+    r.wait(2600)
+
+
+def _phone_rooms_prep(r):
+    _phone_prep(r)
+    r.js("document.querySelector('[data-page=start] .apSec').scrollIntoView({ block: 'start' })")
+    r.pg.wait_for_timeout(800)
+
+
+# the rooms on Start in the colour of their light; the round button of a tile: all on, all off, the room's scenes (5.36.0)
+@shot("phone-rooms", "phone", 12, part="pages", device="phone", sky="19:40", prep=_phone_rooms_prep,
+      caption=cap(("Handy-App", "Jeder Raum eine Kachel", "In der Farbe seines Lichts. Ein Tipp: alles an, aus oder eine Szene."),
+                  ("Phone app", "Every room a tile", "In the colour of its light. One tap: all on, off or a scene.")))
+def _(r):
+    r.wait(900)
+    tap(r, "[data-page=start] .apRoom[data-room=r1] .apToggle")
+    r.wait(1600)
+    tap(r, ".apSheet [data-act=roomScene]")
     r.wait(1500)
-    r.click(*r.ball("d5"))
+    tap(r, "#tabBar [data-tab=rooms]")
+    r.wait(1500)
+
+
+# 🍏 the design "Glas" (5.37.0): from plain dark to glass with one tap, then the pages with the own house blurred behind them
+@shot("glass", "ui", 12, part="pages", sky="18:10", settings={"theme": "dark", "roomTiles": False}, prep=_room_prep,
+      caption=cap(("Design", "Ein Tipp – alles aus Glas", "Milchglas, dahinter dein eigenes Haus."),
+                  ("Design", "One tap – everything glass", "Frosted glass, your own house behind it.")))
+def _(r):
+    tap(r, "#settingsBtn")
+    r.wait(800)
+    tap(r, ".segBtns[data-for=setTheme] button[data-value=glass]")
+    r.wait(1800)
+    r.key("Escape")
+    r.wait(1500)
+    tab(r, "today", 1800)
+
+
+def _glass_pages_prep(r):
+    ui_cam(r)
+    r.pg.click("#tabBar [data-tab=energy]")
+    r.pg.wait_for_timeout(1500)
+
+
+@shot("glass-pages", "ui", 8, part="pages", sky="18:10", prep=_glass_pages_prep,
+      caption=cap(("Glas-Design", "Jede Seite aus Milchglas", "⚡ Energie mit Ring, Fläche und Batterie."),
+                  ("Glass design", "Every page of frosted glass", "⚡ Energy with a ring, an area and a battery.")))
+def _(r):
+    r.wait(1600)
+    tab(r, "climate", 1400)
+    tab(r, "house", 1400)
+
+
+def _cam_prep(r):
+    ui_cam(r, a=1.25, d=11, h=9, mid=(7.2, 6.4))           # close to the garden camera: its cone on the lawn pulses red (movement)
+    r.pg.wait_for_timeout(600)
+
+
+# 📷 movement at a camera: its cone in 3D pulses red, the red chip opens the page of the cameras (the demo's pictures are drawn)
+@shot("cams", "ui", 12, part="live", sky="16:20", settings=tiles_off(), prep=_cam_prep,
+      caption=cap(("Kameras", "Bewegung im Garten?", "Rot im 3D-Haus – ein Tipp zeigt die Kameras."),
+                  ("Cameras", "Movement in the garden?", "Red in the 3D house – one tap shows the cameras.")))
+def _(r):
+    r.wait(1800)
+    tap(r, "#camPill")
+    r.wait(2400)
+
+
+def _piccards_prep(r):
+    ui_cam(r)
+    r.pg.click("#tabBar [data-tab=routines]")
+    r.pg.wait_for_selector("[data-page=routines] .pcCard", state="visible", timeout=20000)
+    r.js("document.querySelector('[data-page=routines] .pcCard').scrollIntoView({ block: 'center' })")
+    r.pg.wait_for_timeout(1200)
+
+
+# 🖼 Bildkarten fürs Handy (5.33.0): the cards, one opened, its colour and dark; on the right the card as it comes to the phone
+@shot("piccards", "ui", 12, part="pages", sky="16:20", prep=_piccards_prep,
+      caption=cap(("Bildkarten", "Bei Alarm ein Bild aufs Handy", "Selbst gestaltet: Raum, Kamera, Uhrzeit – per Telegram oder die HA-App."),
+                  ("Picture cards", "An alarm sends a picture to your phone", "Your own design: room, camera, time – by Telegram or the HA app.")))
+def _(r):
+    r.wait(700)
+    tap(r, "[data-page=routines] .pcTile[data-card=wasser]")
+    r.wait(1800)
+    tap(r, "#picCardDlg .pcSwatch[data-color='#3a7bd5']")
+    r.wait(1100)
+    tap(r, "#picCardDlg .pcSide .tpChip[data-v=dark]")
+    r.wait(1300)
+    tap(r, "#picCardDlg .pcSwatch[data-color='#7b4bc4']")
     r.wait(1200)
-    if r.pg.locator("#livePopup .swatches .sw").count() > 6:
-        tap(r, "#livePopup .swatches .sw", nth=6)
-        r.wait(1000)
 
 
 def guide_site():
@@ -641,7 +773,7 @@ def _guide_prep(r):
     r.pg.wait_for_timeout(1200)
 
 
-@shot("guide", "ui", 12, part="pages", up=False, prep=_guide_prep,   # time to see what it is (the owner: "2-3 Sekunden mehr Zeit … kein Zoom")
+@shot("guide", "ui", 12, part="pages", prep=_guide_prep,   # time to see what it is (the owner: "2-3 Sekunden mehr Zeit … kein Zoom")
       caption=cap(("Hilfe", "Zu jeder Funktion ein kurzes Video", "Einfach eintippen, was du tun möchtest – auch im Add-on unter „Anleitung“."),
                   ("Help", "A short video for every feature", "Just type what you want to do – also in the add-on under “Guide”.")))
 def _(r):

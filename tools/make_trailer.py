@@ -84,7 +84,7 @@ def film_all(ids, langs, work, slow):
         b = launch()
         for lang in langs:
             for sid in ids:
-                sh = S.SHOTS[sid]
+                sh = S.get(sid)                # "light", or "light@up" for the short clips (shots.upright())
                 if sh.kind == "card":
                     continue
                 for attempt in (1, 2):         # a shot that goes wrong (the page was still busy) gets a second go in a fresh browser

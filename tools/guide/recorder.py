@@ -130,8 +130,9 @@ class Rec:
     def __init__(self, browser, clip_, lang, slow, frames_dir):
         self.b, self.clip, self.lang, self.slow, self.dir = browser, clip_, lang, slow, Path(frames_dir)
         self.phone = clip_.device == "phone"
-        self.view = PHONE if self.phone else VIEW
-        self.dsf = PHONE_DSF if self.phone else DSF
+        # a clip may bring its own browser size (the trailer's upright shots: tools/trailer/shots.py upright())
+        self.view = getattr(clip_, "view", None) or (PHONE if self.phone else VIEW)
+        self.dsf = getattr(clip_, "dsf", None) or (PHONE_DSF if self.phone else DSF)
         self.frames, self.moves, self.clicks, self.zooms, self.steps, self.hidden, self.ff = [], [], [], [], [], [], []
         self.pos = (self.view["width"] * 0.62, self.view["height"] * 0.58)   # where the pointer waits before the first move
         self.t0 = None
