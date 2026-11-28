@@ -2,14 +2,14 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-26 · 158 Sitzungen
+Stand: 2026-11-28 · 159 Sitzungen
 
 **Insgesamt: 10,91 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 29,0 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 99,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Neu gelesen | 99,6 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
 | Wieder gelesen | 10,78 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 72 | 4,78 Mrd. | 11,3 Mio. |
+| 2026-11 | 73 | 4,79 Mrd. | 11,3 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-27 | [012p9z3M…](https://claude.ai/code/session_012p9z3MU87e34oYHjiEuvHU) | claude/laughing-faraday-m54f12 | 5,6 Mio. | 15 Tsd. | gezählt |
 | 2026-11-26 | [012p9z3K…](https://claude.ai/code/session_012p9z3KJk1brXbxK7QmBTRL) | claude/quirky-rubin-x6173y | 108,8 Mio. | 223 Tsd. | gezählt |
 | 2026-11-26 | [012p9z3P…](https://claude.ai/code/session_012p9z3PZhYS4V6DXv7QLtVf) | claude/new-session-urykqp | 6,3 Mio. | 37 Tsd. | gezählt |
 | 2026-11-25 | [012p9z3N…](https://claude.ai/code/session_012p9z3NGRSQyK3hZZmRwxdm) | claude/gallant-wozniak-goamz9 | 72,9 Mio. | 150 Tsd. | gezählt |
