@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3MU87e34oYHjiEuvHU",
+ "start": "2026-11-27",
+ "updated": "2026-11-27T15:05:45Z",
+ "branch": "claude/laughing-faraday-m54f12",
+ "source": "counted",
+ "input": 101,
+ "cache_write": 88175,
+ "cache_read": 5469329,
+ "output": 14600,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 101,
+   "cache_write": 88175,
+   "cache_read": 5469329,
+   "output": 14600,
+   "requests": 50
+  }
+ }
+}
