@@ -156,7 +156,8 @@ def at(r, sel, nth=0, text=None):
         x, y = r.js("""([s, n, t]) => {
           const e = [...document.querySelectorAll(s)].filter((x) => x.getClientRects().length && (!t || new RegExp(t).test(x.textContent)))[n];
           if (!e) return [null, null];
-          e.scrollIntoView({ block: 'center' });          // the middle: in "Glas" the scenes and tabs float over the page's foot
+          e.scrollIntoView({ block: 'center', behavior: 'instant' });   // the middle (in "Glas" the scenes and tabs float over the
+          //                                                            page's foot), at once: a smooth scroll would move it after the tap
           const b = e.getBoundingClientRect();
           return [b.x + b.width / 2, b.y + b.height / 2];
         }""", [sel, nth, text])
@@ -609,8 +610,11 @@ def _dash_prep(r):
       caption=cap(("Dashboards", "Seiten selbst gestalten", "Karten hinzufügen, ausblenden, frei anordnen."),
                   ("Dashboards", "Design your own pages", "Add cards, hide them, arrange them freely.")))
 def _(r):
-    tap(r, "[data-page=today] .bdAdd")
-    r.wait(600)
+    for _try in range(3):                # the page may still be laying out its cards: tap again until the list of cards is open
+        tap(r, "[data-page=today] .bdAdd")
+        r.wait(600)
+        if r.js("(() => { const b = document.querySelector('.ceDlg [data-type=thermostat]'); return !!b && b.getClientRects().length > 0; })()"):
+            break
     tap(r, ".ceDlg [data-type=thermostat]")
     r.wait(600)
     tap(r, ".ceDlg .ceItem[data-entity='climate.wohnzimmer']")
