@@ -1,0 +1,40 @@
+{
+ "id": "import",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unter „Häuser“: „Import“.",
+   "en": "Under “Houses”: “Import”."
+  },
+  {
+   "t": 9.07,
+   "de": "Am schnellsten mit einer KI: diesen Text kopieren …",
+   "en": "Fastest with an AI: copy this text …"
+  },
+  {
+   "t": 13.5,
+   "de": "… in Claude, ChatGPT oder Gemini einfügen, ein Foto oder PDF deines Bauplans dazu, und die Antwort hier einfügen.",
+   "en": "… paste it into Claude, ChatGPT or Gemini with a photo or PDF of your floor plan, and paste the answer here."
+  },
+  {
+   "t": 17.84,
+   "de": "Zum Ausprobieren: ein Beispiel laden.",
+   "en": "To try it: load an example."
+  },
+  {
+   "t": 22.14,
+   "de": "„Prüfen“ sagt, ob alles stimmt und was gebaut wird.",
+   "en": "“Check” says whether everything is right and what will be built."
+  },
+  {
+   "t": 27.63,
+   "de": "„Importieren“ legt daraus ein neues Haus an; die anderen bleiben, wie sie sind.",
+   "en": "“Import” creates a new house from it; the others stay as they are."
+  }
+ ],
+ "duration": 33.29,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

@@ -1,0 +1,40 @@
+{
+ "id": "phone-rooms",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben auf Start steht alles auf einen Blick, auch 📷 für die Kameras.",
+   "en": "Everything is at a glance on top of home, 📷 for the cameras too."
+  },
+  {
+   "t": 2.6,
+   "de": "Darunter jeder Raum, in dem Licht an ist, in der Farbe seines Lichts.",
+   "en": "Below, every room with a light on, in the colour of its light."
+  },
+  {
+   "t": 4.94,
+   "de": "Der runde Knopf einer Kachel: alle Lichter an oder aus, oder eine Szene des Raums.",
+   "en": "The round button of a tile: all lights on or off, or one of the room's scenes."
+  },
+  {
+   "t": 8.36,
+   "de": "Ein Tipp auf eine Zeile ist die Bestätigung, zum Beispiel die Szene.",
+   "en": "A tap on a line is the confirmation, the scene for example."
+  },
+  {
+   "t": 11.13,
+   "de": "„📌 Anheften“ wählt Räume, die immer oben stehen.",
+   "en": "“📌 Pin” chooses rooms that always stand on top."
+  },
+  {
+   "t": 17.15,
+   "de": "Die Küche steht jetzt immer zuerst, mit 📌, auch wenn ihr Licht aus ist.",
+   "en": "The kitchen is now always first, with 📌, even with its light off."
+  }
+ ],
+ "duration": 20.82,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

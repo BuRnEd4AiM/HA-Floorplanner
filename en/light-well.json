@@ -1,0 +1,35 @@
+{
+ "id": "light-well",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Im Keller liegt das Fenster hinten unter dem Rasen. Davor zeichnet der Plan den Lichtschacht mit seinem Gitter.",
+   "en": "In the basement the window at the back lies under the lawn. In front of it the plan draws the light well with its grating."
+  },
+  {
+   "t": 3.43,
+   "de": "Tippe das Fenster an: rechts steht „🔆 Lichtschacht“.",
+   "en": "Tap the window: on the right there is “🔆 Light well”."
+  },
+  {
+   "t": 8.48,
+   "de": "Breite und Tiefe stellst du hier ein, z. B. 80 cm von der Wand weg.",
+   "en": "Width and depth are set here, e.g. 80 cm out from the wall."
+  },
+  {
+   "t": 11.74,
+   "de": "Im 3D-Bild: der Schacht mit Gitterrost, 10 cm über dem Rasen; der Rasen ist darüber ausgeschnitten.",
+   "en": "In 3D: the well with its grating, 10 cm over the lawn; the lawn is cut open over it."
+  },
+  {
+   "t": 18.55,
+   "de": "Liegt ein Fenster über dem Boden, etwa am Hang, braucht es keinen. Der Haken schaltet ihn aus.",
+   "en": "A window over the ground, e.g. on a slope, needs none. The tick switches it off."
+  }
+ ],
+ "duration": 22.05,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

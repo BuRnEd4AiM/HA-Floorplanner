@@ -1,0 +1,30 @@
+{
+ "id": "specialdays",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 5.05,
+   "de": "Unter „Abläufe“: „📅 Besondere Tage“.",
+   "en": "Under “Routines”: “📅 Special days”."
+  },
+  {
+   "t": 7.77,
+   "de": "Hier stehen deine Tage, mit dem nächsten Termin.",
+   "en": "Your days are listed here, with the next date."
+  },
+  {
+   "t": 9.37,
+   "de": "Unten kommen neue dazu, zum Beispiel die Feiertage.",
+   "en": "New ones are added at the bottom, for example the public holidays."
+  },
+  {
+   "t": 14.25,
+   "de": "In einem Ablauf sagt dann der Baustein „🎉 Besonderer Tag“, was an diesen Tagen anders ist.",
+   "en": "In a routine the block “🎉 Special day” then says what is different on those days."
+  }
+ ],
+ "duration": 19.22,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

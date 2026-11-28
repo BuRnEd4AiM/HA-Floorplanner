@@ -1,0 +1,30 @@
+{
+ "id": "balcony-roof",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Hinten im Obergeschoss ein Balkon über die ganze Breite: das Dach endet an der Wand.",
+   "en": "At the back of the upper floor a balcony across the whole width: the roof ends at the wall."
+  },
+  {
+   "t": 2.6,
+   "de": "Den Balkon antippen …",
+   "en": "Tap the balcony …"
+  },
+  {
+   "t": 4.71,
+   "de": "… und „Hausdach reicht darüber“ ankreuzen.",
+   "en": "… and tick “House roof reaches over it”."
+  },
+  {
+   "t": 9.09,
+   "de": "Jetzt reicht das Dach über den Balkon, wie eine Traufe.",
+   "en": "Now the roof reaches over the balcony, like eaves."
+  }
+ ],
+ "duration": 14.4,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

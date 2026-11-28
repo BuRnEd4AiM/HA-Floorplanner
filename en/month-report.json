@@ -1,0 +1,30 @@
+{
+ "id": "month-report",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 5.13,
+   "de": "In den Einstellungen: „Warnungen & Alarm“.",
+   "en": "In the settings: “Warnings & alarm”."
+  },
+  {
+   "t": 10.0,
+   "de": "Die Karte „Monatsbericht“.",
+   "en": "The card “Monthly report”."
+  },
+  {
+   "t": 14.79,
+   "de": "Einschalten, dazu Tag und Uhrzeit: dann kommt er jeden Monat.",
+   "en": "Switch it on, with the day and the hour: then it comes every month."
+  },
+  {
+   "t": 19.56,
+   "de": "„Vorschau“ zeigt den letzten Monat: Heizung rot, Strom gelb, je Raum.",
+   "en": "“Preview” shows last month: heating red, power yellow, per room."
+  }
+ ],
+ "duration": 28.09,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

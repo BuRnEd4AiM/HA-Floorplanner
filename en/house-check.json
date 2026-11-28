@@ -1,0 +1,35 @@
+{
+ "id": "house-check",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten „Haus-Check“.",
+   "en": "“House check” at the bottom."
+  },
+  {
+   "t": 5.28,
+   "de": "Oben, was dringend ist: leere Batterien, Geräte offline, fällige Wartung.",
+   "en": "At the top what is urgent: empty batteries, devices offline, maintenance due."
+  },
+  {
+   "t": 7.48,
+   "de": "Ein Tipp auf ein Gerät zeigt es im Haus. Darunter, was bald kommt: schwacher Funk, Updates.",
+   "en": "A tap on a device shows it in the house. Below what comes soon: weak radio, updates."
+  },
+  {
+   "t": 10.7,
+   "de": "Vorschläge für deine Geräte: ＋ macht eine Erinnerung daraus.",
+   "en": "Suggestions for your devices: ＋ makes a reminder of it."
+  },
+  {
+   "t": 13.53,
+   "de": "„✓ Erledigt“ startet die Zeit neu.",
+   "en": "“✓ Done” starts the time anew."
+  }
+ ],
+ "duration": 16.98,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

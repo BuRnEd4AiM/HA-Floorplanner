@@ -1,0 +1,50 @@
+{
+ "id": "piccards",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 5.0,
+   "de": "Unter „Abläufe“: 🖼 Bildkarten fürs Handy – eigene Bilder für Telegram oder die Home-Assistant-App.",
+   "en": "Under “Routines”: 🖼 picture cards for the phone – your own pictures for Telegram or the Home Assistant app."
+  },
+  {
+   "t": 6.53,
+   "de": "„❓ So funktionieren Bildkarten“: die grünen Kästchen sind Lücken, die sich beim Senden füllen.",
+   "en": "“❓ How picture cards work”: the green boxes are gaps that fill themselves when it is sent."
+  },
+  {
+   "t": 19.23,
+   "de": "In der Mitte die Bausteine von oben nach unten, rechts die Karte, wie sie ankommt.",
+   "en": "In the middle the blocks from top to bottom, on the right the card as it arrives."
+  },
+  {
+   "t": 21.03,
+   "de": "Ein Tipp öffnet einen Baustein: das Raumbild zeigt nur den Raum.",
+   "en": "A tap opens a block: the room picture shows only the room."
+  },
+  {
+   "t": 26.42,
+   "de": "„Stockwerk“: automatisch das vom Melder – oder ein festes, z. B. das Obergeschoss.",
+   "en": "“Floor”: automatically the sensor's – or a fixed one, e.g. the upper floor."
+  },
+  {
+   "t": 30.11,
+   "de": "Texte mit grünen Kästchen: „＋ Raum“ setzt den Raum ein, beim Senden steht dort der echte, z. B. „Waschküche“.",
+   "en": "Texts with green boxes: “＋ Room” puts the room in; when sent, the real one stands there, e.g. “Laundry”."
+  },
+  {
+   "t": 36.92,
+   "de": "„＋ Baustein dazu“: zum Beispiel die Uhrzeit. ▲▼ ändert die Reihenfolge.",
+   "en": "“＋ Add a block”: for example the time. ▲▼ changes the order."
+  },
+  {
+   "t": 42.73,
+   "de": "Speichern. Benutzen: je Alarm unter ⚙ Warnungen & Alarm, oder im Ablauf beim Baustein „Nachricht“.",
+   "en": "Save. Use it: per alarm under ⚙ Warnings & alarm, or in a routine's block “Message”."
+  }
+ ],
+ "duration": 48.06,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

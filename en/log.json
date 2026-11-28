@@ -1,0 +1,30 @@
+{
+ "id": "log",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Tippe unten auf „Protokoll“.",
+   "en": "Tap “Log” at the bottom."
+  },
+  {
+   "t": 5.09,
+   "de": "Jede Zeile: wann, welches Gerät, was und wer es war.",
+   "en": "Every row: when, which device, what and who it was."
+  },
+  {
+   "t": 6.89,
+   "de": "Ein Filter zeigt zum Beispiel nur das Licht.",
+   "en": "A filter shows for example only the light."
+  },
+  {
+   "t": 10.01,
+   "de": "„Gestern“ zeigt den Tag davor.",
+   "en": "“Yesterday” shows the day before."
+  }
+ ],
+ "duration": 13.85,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

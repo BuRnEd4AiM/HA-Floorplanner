@@ -1,0 +1,25 @@
+{
+ "id": "finishes",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 6.47,
+   "de": "Einen Raum anklicken, hier das Wohnzimmer.",
+   "en": "Click a room, here the living room."
+  },
+  {
+   "t": 9.07,
+   "de": "Rechts der Boden: zum Beispiel dunkles Parkett …",
+   "en": "On the right the floor: for example dark parquet …"
+  },
+  {
+   "t": 15.2,
+   "de": "… und die Wände: Putz, Tapete oder Fliesen, in jeder Farbe.",
+   "en": "… and the walls: plaster, wallpaper or tiles, in any colour."
+  }
+ ],
+ "duration": 26.51,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

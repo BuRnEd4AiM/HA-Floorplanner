@@ -1,0 +1,25 @@
+{
+ "id": "version",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Oben rechts: das Schild mit der Version.",
+   "en": "Top right: the badge with the version."
+  },
+  {
+   "t": 5.66,
+   "de": "Grün heißt: Add-on, Browser und GitHub sind gleich.",
+   "en": "Green means: the add-on, the browser and GitHub are the same."
+  },
+  {
+   "t": 7.86,
+   "de": "Sonst lädt „Neu laden“ die neuesten Dateien.",
+   "en": "Otherwise “Reload” loads the newest files."
+  }
+ ],
+ "duration": 11.7,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

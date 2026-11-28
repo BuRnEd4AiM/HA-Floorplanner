@@ -1,0 +1,35 @@
+{
+ "id": "phone-dash",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unter „Mehr“ eine Seite öffnen, zum Beispiel „Heute“.",
+   "en": "Open a page under “More”, “Today” for example."
+  },
+  {
+   "t": 5.69,
+   "de": "Oben rechts „✎ Bearbeiten“.",
+   "en": "“✎ Edit” on the top right."
+  },
+  {
+   "t": 8.73,
+   "de": "Karten mit ⠿ verschieben, mit 👁 ausblenden, „＋ Karte“ fügt eine hinzu – wie am Tablet.",
+   "en": "Move cards with ⠿, hide them with 👁, “＋ Card” adds one – as on a tablet."
+  },
+  {
+   "t": 12.94,
+   "de": "„🗂 Reiter“ zeigt alle Seiten zum Ordnen und „＋ Seite“.",
+   "en": "“🗂 Tabs” shows every page to order them and “＋ Page”."
+  },
+  {
+   "t": 16.41,
+   "de": "„✓ Fertig“ – und unten ist wieder die Leiste der App.",
+   "en": "“✓ Done” – and the app's bar is back at the bottom."
+  }
+ ],
+ "duration": 22.45,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

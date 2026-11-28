@@ -1,0 +1,30 @@
+{
+ "id": "ledring",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Im Schlafzimmer läuft ein LED-Ring unter der Decke.",
+   "en": "An LED ring runs under the ceiling in the bedroom."
+  },
+  {
+   "t": 6.01,
+   "de": "Tippe auf seine Kugel.",
+   "en": "Tap its ball."
+  },
+  {
+   "t": 8.15,
+   "de": "Jeder Abschnitt lässt sich einzeln schalten …",
+   "en": "Every section can be switched on its own …"
+  },
+  {
+   "t": 13.54,
+   "de": "… oder der ganze Ring bekommt eine Farbe.",
+   "en": "… or the whole ring gets a colour."
+  }
+ ],
+ "duration": 18.25,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

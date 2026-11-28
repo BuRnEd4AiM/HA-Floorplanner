@@ -1,0 +1,30 @@
+{
+ "id": "stairs-height",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.42,
+   "de": "„Treppe“, rechts „Wendeltreppe“, dann in den Raum klicken.",
+   "en": "“Stairs”, on the right “Spiral”, then click into the room."
+  },
+  {
+   "t": 6.88,
+   "de": "„Höhe“: genau so hoch, wie sie gehen soll, zum Beispiel 3,20 m auf die Dachterrasse.",
+   "en": "“Height”: exactly as high as it should go, for example 3.20 m up to the roof terrace."
+  },
+  {
+   "t": 10.34,
+   "de": "„Steg oben“: 1,5 m gerade weiter, mit Geländer links und rechts.",
+   "en": "“Walkway at the top”: 1.5 m straight on, with a hand rail left and right."
+  },
+  {
+   "t": 13.13,
+   "de": "Im 3D-Bild: oben der Steg hinüber zur Terrasse. Die Richtung kommt von der Drehung der Treppe.",
+   "en": "In 3D: at the top the walkway over to the terrace. Its direction comes from the rotation of the stair."
+  }
+ ],
+ "duration": 19.61,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

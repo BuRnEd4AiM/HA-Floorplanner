@@ -1,0 +1,25 @@
+{
+ "id": "guest-view",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "So sieht es der Gast auf seinem Handy: nur sein Zimmer.",
+   "en": "This is what the guest sees on their phone: only their room."
+  },
+  {
+   "t": 2.6,
+   "de": "Licht an und aus, heller oder dunkler …",
+   "en": "Light on and off, brighter or darker …"
+  },
+  {
+   "t": 5.07,
+   "de": "… und Rollladen, Heizung und Musik in den Reitern.",
+   "en": "… and shutters, heating and music in the tabs."
+  }
+ ],
+ "duration": 9.34,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

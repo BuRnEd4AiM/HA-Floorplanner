@@ -1,0 +1,45 @@
+{
+ "id": "glass-design",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "⚙ Einstellungen → Allgemein → Design: neu sind „Glas dunkel“ und „Glas hell“.",
+   "en": "⚙ Settings → General → Design: new are “Glass dark” and “Glass light”."
+  },
+  {
+   "t": 10.6,
+   "de": "Auch die Einstellungen sind jetzt aus Glas.",
+   "en": "The settings are of glass now too."
+  },
+  {
+   "t": 13.68,
+   "de": "Szenen und Reiter schweben als eine Kapsel über dem Haus, das Bild läuft bis ganz unten.",
+   "en": "Scenes and tabs float as one capsule over the house, the picture runs on to the bottom."
+  },
+  {
+   "t": 15.48,
+   "de": "Hinter den Seiten liegt dein eigenes Haus, ganz verschwommen.",
+   "en": "Behind the pages lies your own house, blurred."
+  },
+  {
+   "t": 21.39,
+   "de": "⚡ Energie: ein Ring für „Selbst gemacht“, eine weiche Fläche statt der Balken, die Batterie als Batterie.",
+   "en": "⚡ Energy: a ring for “self-made”, a soft area instead of the bars, the battery as a battery."
+  },
+  {
+   "t": 27.89,
+   "de": "„Glas hell“ ist die helle Fassung.",
+   "en": "“Glass light” is the light version."
+  },
+  {
+   "t": 38.85,
+   "de": "Und zurück zu „Dunkel“: Glas ist nur eine Auswahl, kein Muss.",
+   "en": "And back to “Dark”: glass is only a choice, never a must."
+  }
+ ],
+ "duration": 44.86,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

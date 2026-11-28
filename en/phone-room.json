@@ -1,0 +1,45 @@
+{
+ "id": "phone-room",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten „3D-Haus“ zeigt dein Haus; oben wählst du die Etage.",
+   "en": "“3D house” at the bottom shows your house; choose the floor at the top."
+  },
+  {
+   "t": 7.14,
+   "de": "Tippe auf einen Raum: seine Karte kommt erst klein, das Haus bleibt zu sehen.",
+   "en": "Tap a room: its card first comes small and the house stays in sight."
+  },
+  {
+   "t": 10.19,
+   "de": "Oben die Werte, darunter große Knöpfe: Licht, Szenen, Rollo, Heizung.",
+   "en": "The values on top, big buttons below: light, scenes, blinds, heating."
+  },
+  {
+   "t": 12.33,
+   "de": "Darunter steht, was der Heizplan gerade macht.",
+   "en": "Below it says what the heating plan does right now."
+  },
+  {
+   "t": 14.21,
+   "de": "„Licht“ öffnet die ganze Karte mit den Lampen.",
+   "en": "“Light” opens the whole card with the lamps."
+  },
+  {
+   "t": 16.73,
+   "de": "Oben die Reiter: Licht, Rollo, Klima, Geräte, Fenster.",
+   "en": "The tabs on top: light, blinds, climate, devices, windows."
+  },
+  {
+   "t": 18.74,
+   "de": "Am Griff herunterziehen macht die Karte wieder klein.",
+   "en": "Pulling the grip down makes the card small again."
+  }
+ ],
+ "duration": 23.63,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

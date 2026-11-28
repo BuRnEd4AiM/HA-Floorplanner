@@ -1,0 +1,65 @@
+{
+ "id": "phone-pages",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Am Handy beginnt alles mit „Start“: oben das Wichtigste, darunter deine Räume.",
+   "en": "On the phone everything starts with “Home”: what matters on top, your rooms below."
+  },
+  {
+   "t": 2.6,
+   "de": "In der Mitte dreht sich dein ganzes Haus, live mit den Lampen, die an sind.",
+   "en": "In the middle your whole house turns, live with the lamps that are on."
+  },
+  {
+   "t": 5.2,
+   "de": "Ein Tipp darauf öffnet es in 3D, von derselben Seite.",
+   "en": "A tap on it opens it in 3D, from the same side."
+  },
+  {
+   "t": 10.95,
+   "de": "Ein Raum antippen: er öffnet sich als eigene Seite.",
+   "en": "Tap a room: it opens as a page of its own."
+  },
+  {
+   "t": 14.35,
+   "de": "„‹ Start“ geht zurück.",
+   "en": "“‹ Home” goes back."
+  },
+  {
+   "t": 16.71,
+   "de": "Oben das Haus: ein Tipp wählt ein anderes Haus oder Gebäude.",
+   "en": "The house at the top: a tap chooses another house or building."
+  },
+  {
+   "t": 22.16,
+   "de": "Ein Tipp auf „💡 an“ zeigt die Lampen, die brennen; „Alle aus“ macht sie aus.",
+   "en": "A tap on “💡 on” shows the lamps that are on; “All off” switches them off."
+  },
+  {
+   "t": 26.38,
+   "de": "„Räume“ zeigt alle Räume nach Etagen.",
+   "en": "“Rooms” shows every room by floor."
+  },
+  {
+   "t": 29.67,
+   "de": "Unter „Mehr“ alle anderen Seiten und die Einstellungen.",
+   "en": "Under “More” every other page and the settings."
+  },
+  {
+   "t": 35.71,
+   "de": "„3D-Haus“ zeigt dein Haus wie gewohnt; rechts die runden Knöpfe für Farben, Ansicht und Szenen.",
+   "en": "“3D house” shows your house as always; the round buttons on the right for colours, view and scenes."
+  },
+  {
+   "t": 44.22,
+   "de": "Die Einstellungen sind eine Liste, jede Gruppe eine eigene Seite.",
+   "en": "The settings are a list, every group a page of its own."
+  }
+ ],
+ "duration": 52.74,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

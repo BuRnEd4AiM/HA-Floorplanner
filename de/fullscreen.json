@@ -1,0 +1,20 @@
+{
+ "id": "fullscreen",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten rechts: „Vollbild“.",
+   "en": "Bottom right: “Full screen”."
+  },
+  {
+   "t": 5.93,
+   "de": "Ideal für ein Tablet an der Wand.",
+   "en": "Perfect for a tablet on the wall."
+  }
+ ],
+ "duration": 10.01,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

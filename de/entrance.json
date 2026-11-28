@@ -1,0 +1,45 @@
+{
+ "id": "entrance",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Ein Reihenhaus: vorne liegt der Boden 65 cm tiefer als das Erdgeschoss (⛰ Gelände).",
+   "en": "A terraced house: in front the ground lies 65 cm lower than the ground floor (⛰ Terrain)."
+  },
+  {
+   "t": 5.49,
+   "de": "„＋ Außentreppe an die Haustür“: die Treppe kommt vor die Haustür, genau 65 cm hoch.",
+   "en": "“＋ Outdoor steps at the front door”: the steps go in front of the front door, exactly 65 cm high."
+  },
+  {
+   "t": 8.35,
+   "de": "„Stufen“: 3 statt 4, jede etwa 22 cm hoch.",
+   "en": "“Steps”: 3 instead of 4, each about 22 cm high."
+  },
+  {
+   "t": 10.74,
+   "de": "„Geländer“: nur links (von unten zur Tür gesehen), aus Edelstahl mit Stäben.",
+   "en": "“Hand rail”: left only (seen from below, looking at the door), stainless steel with bars."
+  },
+  {
+   "t": 15.07,
+   "de": "Jetzt die Haustür antippen: „＋ Vordach über die Tür“.",
+   "en": "Now tap the front door: “＋ Canopy over the door”."
+  },
+  {
+   "t": 21.53,
+   "de": "Breite, Tiefe, Höhe, Neigung, die Pfosten und das Dach (Ziegel, Blech, Glas) stehen beim Vordach.",
+   "en": "Width, depth, height, pitch, the posts and the cover (tiles, metal, glass) are at the canopy."
+  },
+  {
+   "t": 24.11,
+   "de": "Im 3D-Bild: drei Stufen, das Geländer links, das Vordach auf zwei Pfosten.",
+   "en": "In 3D: three steps, the rail on the left, the canopy on two posts."
+  }
+ ],
+ "duration": 31.39,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

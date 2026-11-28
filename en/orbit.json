@@ -1,0 +1,30 @@
+{
+ "id": "orbit",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Linke Maustaste gedrückt halten und ziehen: das Haus dreht sich.",
+   "en": "Hold the left mouse button and drag: the house turns."
+  },
+  {
+   "t": 4.48,
+   "de": "Mit dem Mausrad gehst du näher heran.",
+   "en": "The mouse wheel brings you closer."
+  },
+  {
+   "t": 10.74,
+   "de": "Rechte Maustaste ziehen: das Bild verschiebt sich.",
+   "en": "Drag with the right mouse button: the picture moves."
+  },
+  {
+   "t": 14.24,
+   "de": "„Einpassen“ zeigt wieder das ganze Haus.",
+   "en": "“Fit” shows the whole house again."
+  }
+ ],
+ "duration": 21.39,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

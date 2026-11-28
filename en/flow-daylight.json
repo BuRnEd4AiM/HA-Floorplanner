@@ -1,0 +1,45 @@
+{
+ "id": "flow-daylight",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 4.67,
+   "de": "Ein neuer Ablauf.",
+   "en": "A new routine."
+  },
+  {
+   "t": 7.58,
+   "de": "„Es wird dunkel / hell“: der Ablauf startet, wenn die Sonne so tief steht wie gewählt.",
+   "en": "“It gets dark / light”: the routine starts when the sun is as low as chosen."
+  },
+  {
+   "t": 9.85,
+   "de": "Rechts: wie dunkel. Im Sommer kommt die Dämmerung später, im Winter früher – du musst nichts umstellen.",
+   "en": "On the right: how dark. In summer dusk comes later, in winter earlier – you change nothing."
+  },
+  {
+   "t": 13.67,
+   "de": "Oder eine feste Uhrzeit, die trotzdem mitwandert:",
+   "en": "Or a time that still moves along:"
+  },
+  {
+   "t": 16.38,
+   "de": "„An der Helligkeit orientieren“ anhaken.",
+   "en": "Tick “Follow the daylight”."
+  },
+  {
+   "t": 19.3,
+   "de": "Jetzt bleibt sie immer gleich weit vom Sonnenuntergang entfernt.",
+   "en": "Now it always stays the same distance from sunset."
+  },
+  {
+   "t": 22.23,
+   "de": "Und bei „Nur wenn → Dunkel / hell“ wählst du, wie dunkel es sein muss.",
+   "en": "And with “Only if → Dark / light” you choose how dark it must be."
+  }
+ ],
+ "duration": 29.35,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

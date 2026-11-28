@@ -1,0 +1,35 @@
+{
+ "id": "power-hogs",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.4,
+   "de": "Unten „Energie“.",
+   "en": "“Energy” at the bottom."
+  },
+  {
+   "t": 6.84,
+   "de": "Die Karte „🔌 Stromfresser“: was das Haus nachts zieht, im Mittel der letzten 14 Nächte, und was das im Jahr kostet.",
+   "en": "The card “🔌 Power hogs”: what the house draws at night, the mean of the last 14 nights, and what that costs in a year."
+  },
+  {
+   "t": 10.56,
+   "de": "Rot: Geräte im Standby. Orange: was immer laufen muss, wie Kühlschrank und Wärmepumpe.",
+   "en": "Red: devices on standby. Orange: what has to run all the time, like the fridge and the heat pump."
+  },
+  {
+   "t": 13.52,
+   "de": "Der Tipp sagt, was das Ausschalten nachts spart. „⏰ Nachts abschalten …“ legt dafür einen Ablauf an.",
+   "en": "The tip says what switching off at night saves. “⏰ Switch off at night …” makes a routine for it."
+  },
+  {
+   "t": 16.35,
+   "de": "Um 1 Uhr aus, um 6 Uhr wieder an. Ansehen, ändern, „Speichern“.",
+   "en": "Off at 1 o'clock, on again at 6. Look at it, change it, “Save”."
+  }
+ ],
+ "duration": 19.86,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

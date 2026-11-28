@@ -1,0 +1,35 @@
+{
+ "id": "users",
+ "lang": "de",
+ "steps": [
+  {
+   "t": 5.46,
+   "de": "In den Einstellungen: „Benutzer & Tablets“.",
+   "en": "In the settings: “Users & tablets”."
+  },
+  {
+   "t": 10.23,
+   "de": "„＋ Benutzer“ legt eine Zeile für eine Person oder ein Tablet an.",
+   "en": "“＋ User” adds a row for a person or a tablet."
+  },
+  {
+   "t": 14.97,
+   "de": "Dort wählst du den Raum, die Seiten und was gesperrt ist.",
+   "en": "There you choose the room, the pages and what is locked."
+  },
+  {
+   "t": 21.35,
+   "de": "Je Geräteart: ✋ nur ansehen, 💡 nur an und aus, 🎚 alles. Unter „📱 Wandtablet“ eigene Werte für dieses Tablet, auch die Helligkeit mit Fully Kiosk.",
+   "en": "Per kind of device: ✋ only look, 💡 only on and off, 🎚 everything. Under “📱 Wall tablet” own values for this tablet, also the brightness with Fully Kiosk."
+  },
+  {
+   "t": 27.19,
+   "de": "„Wer sieht was“ zeigt alles in einer Tabelle.",
+   "en": "“Who sees what” shows everything in a table."
+  }
+ ],
+ "duration": 33.6,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

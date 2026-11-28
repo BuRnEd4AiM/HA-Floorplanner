@@ -1,0 +1,35 @@
+{
+ "id": "guest",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 5.0,
+   "de": "In den Einstellungen: „Benutzer & Tablets“, ganz unten „Gäste-Zugang“.",
+   "en": "In the settings: “Users & tablets”, at the very bottom “Guest access”."
+  },
+  {
+   "t": 16.9,
+   "de": "Das Zimmer der Gäste …",
+   "en": "The guests' room …"
+  },
+  {
+   "t": 21.44,
+   "de": "… und bis wann sie bleiben. Danach ist der Zugang von selbst zu.",
+   "en": "… and until when they stay. Afterwards the access closes by itself."
+  },
+  {
+   "t": 26.58,
+   "de": "Den QR-Code ausdrucken und ins Gästezimmer legen. Mit dem Handy scannen, als „gast“ anmelden – fertig.",
+   "en": "Print the QR code and put it in the guest room. Scan it with the phone, log in as “gast” – done."
+  },
+  {
+   "t": 31.49,
+   "de": "Wie man den Benutzer „gast“ in Home Assistant anlegt, steht hier.",
+   "en": "How to make the user “gast” in Home Assistant is explained here."
+  }
+ ],
+ "duration": 38.05,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}

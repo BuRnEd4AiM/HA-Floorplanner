@@ -1,0 +1,30 @@
+{
+ "id": "plot-buildings",
+ "lang": "en",
+ "steps": [
+  {
+   "t": 0.5,
+   "de": "Dieser Plan hat zwei Gebäude und daneben einen Rasen. Öffne „🏘 Gebäude in diesem Plan“.",
+   "en": "This plan has two buildings and a lawn beside them. Open “🏘 Buildings in this plan”."
+  },
+  {
+   "t": 5.87,
+   "de": "Unter „Flächen des Grundstücks“ steht jede Fläche: „Alle Gebäude“ heißt, sie zeigt sich immer.",
+   "en": "Under “Areas of the plot” every area is listed: “All buildings” means it always shows."
+  },
+  {
+   "t": 7.89,
+   "de": "Den Rasen dem Anbau geben …",
+   "en": "Give the lawn to the wing …"
+  },
+  {
+   "t": 12.68,
+   "de": "… dann ist er weg, wenn oben das Haupthaus gewählt ist. Ein Plateau geht von selbst mit dem Gebäude, das darauf steht.",
+   "en": "… then it is gone when the main house is chosen at the top. A plateau goes by itself with the building standing on it."
+  }
+ ],
+ "duration": 21.9,
+ "version": "5.37.3",
+ "date": "2026-11-28",
+ "slow": 2.0
+}
