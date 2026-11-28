@@ -3,10 +3,15 @@ from recorder import clip
 
 
 def house(r, say=True):
-    """since 5.22.0 a phone starts on Start (the app view): the house is the tab 3D-Haus"""
+    """since 5.22.0 a phone starts on Start (the app view): the house is the tab 3D-Haus. It shows the whole house first (no room names
+    to tap), so the clip chooses the ground floor at the top (the clips stopped there before, 2026-11-28)"""
     if say:
-        r.say("Unten „3D-Haus“ zeigt dein Haus.", "“3D house” at the bottom shows your house.")
+        r.say("Unten „3D-Haus“ zeigt dein Haus; oben wählst du die Etage.", "“3D house” at the bottom shows your house; choose the floor at the top.")
     r.click("#tabBar [data-tab=house]")
+    r.wait(1200)
+    r.click("#phoneNavBtn")
+    r.wait(700)
+    r.click("#phoneNav .pnFloors .pill", text="Erdgeschoss")      # the demo's floors have German names in every language
     r.wait(1200)
 
 

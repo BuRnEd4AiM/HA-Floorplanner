@@ -3,7 +3,9 @@ music, only
 
   - upright (9:16) and out of the places TikTok, Reels and Shorts cover with their own things: the top (the tabs, about 150 px), the
     bottom (the name, the text and the music, about the last 420 px) and the buttons on the right; so the caption sits a little lower,
-    the card and the magnifier end at about 1500 px and there is no small name at the foot
+    the card ends at about 1500 px and there is no small name at the foot
+  - no zoom at all (the owner, 2026-11-28: "dieses Zoomen am Handy, das mach mal bitte nicht, weil das sieht nicht so geil aus"): every
+    shot is filmed for the clip in a browser about as high as wide (shots.upright()) and shown whole; from shot to shot a soft blend
   - the hook (clips.CLIPS[...]["hook"]) at once and big over the first shot, no fade from black (the first picture already counts)
   - at the end the name, "Kostenlos · Open Source", a button "Demo: Link im Profil" and the address of the demo, and only a short
     fade, because the apps play a clip again and again
@@ -23,9 +25,9 @@ HOOK_LEAD = 0.35                             # seconds the hook's words are alre
 
 
 class ClipCutter(edit.Cutter):
-    UP = {"card": (90, 520, 900, 980), "title": 300, "app": (24, 500, 1032, 580), "lens": (84, 1104, 912, 396),
-          "alone": (12, 1000, 1056), "foot": None, "phone": 920}
+    UP = {"card": (90, 520, 900, 980), "title": 300, "alone": (12, 1000, 1056), "foot": None, "phone": 920}
     FADE_IN, FADE_OUT, TAIL = 0.0, 0.4, 0.5
+    TR_ZOOM = 0.0
 
     def __init__(self, takes, clip, lang):
         self.clip = clip

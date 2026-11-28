@@ -3,8 +3,9 @@
 at the start, the trailer's captions and music, and "Demo: Link im Profil" at the end. The owner's wish (2026-11-05): "in TikTok noch
 bewerben … gerne mehr Menschen erreichen".
 
-The clips are cut from the shots of the trailer (tools/trailer/shots.py), which are filmed once for both (--work, the same folder as
-tools/make_trailer.py): a shot that is not filmed yet is filmed first. What is in a clip, its first words, the text for under the video
+The clips use the shots of the trailer (tools/trailer/shots.py), each filmed for the clips once more in a browser about as high as wide
+(shots.upright(), "<id>@up" in --work), so the app fills the upright picture and nothing is zoomed: a shot that is not filmed yet is
+filmed first. What is in a clip, its first words, the text for under the video
 and its hashtags: tools/trailer/clips.py.
 
   python3 tools/make_clips.py                   every clip, German: /tmp/clips/<id>-de.mp4 (+ .jpg) and clips.json
@@ -54,7 +55,7 @@ def main():
     if a.texts:
         print(C.texts_markdown(langs[0]))
         return
-    need = list(dict.fromkeys(s for c in chosen for s in C.shot_ids(c)))
+    need = list(dict.fromkeys(s for c in chosen for s in C.take_ids(c)))      # "light@up": filmed for upright, no zoom
     failed = []
     if not a.edit_only:
         ids = [s for s in need if any(T.load(a.work, lang, s) is None for lang in langs)]
@@ -67,7 +68,7 @@ def main():
     for lang in langs:
         takes = {sid: T.load(a.work, lang, sid) for sid in need}
         for c in chosen:
-            missing = [s for s in C.shot_ids(c) if takes[s] is None]
+            missing = [s for s in C.take_ids(c) if takes[s] is None]
             if missing:
                 print(f"[{lang}] {c['id']}: not filmed: {' '.join(missing)} (the clip is left out)")
                 failed.append(f"{lang}/{c['id']}")

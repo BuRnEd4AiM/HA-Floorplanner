@@ -1,6 +1,7 @@
 """📱 The short clips for TikTok, Reels and Shorts (tools/make_clips.py, tools/trailer/clips.py, clipcut.py): every clip is complete in
-both languages, uses shots of the trailer, is 14 to 22 seconds long with its parts on full bars, its words fit on the screen and stay
-out of what TikTok covers, the end is drawn, and the workflow "Trailer" makes them and its page shows them."""
+both languages, uses shots of the trailer filmed for upright (no zoom, no magnifier), is 14 to 22 seconds long with its parts on full
+bars, its words fit on the screen and stay out of what TikTok covers, the end is drawn, and the workflow "Trailer" makes them and its
+page shows them."""
 import json
 import re
 import sys
@@ -44,15 +45,39 @@ def test_every_clip_is_complete():
             assert C.post_text(c, lang).endswith(C.hashtags(c, lang)) and len(C.post_text(c, lang)) <= 2200
             assert "  " not in C.hook_line(c, lang) and "… …" not in C.hook_line(c, lang)
         week, day = c["when"]
-        assert 1 <= week <= 4 and day in (0, 1, 2) and (week, day) not in seen, cid
+        assert 1 <= week <= 6 and day in (0, 1, 2) and (week, day) not in seen, cid
         seen.add((week, day))
+        assert isinstance(c.get("posted", False), bool), cid
     assert C.order(C.CLIPS[0])[-1] is C.END and C.END.id == "outro" and C.END.kind == "card"
+    # what the owner has on TikTok already (2026-11-28: "bis zu dem 3D-Grundriss … mit KI"): those come first in the plan
+    posted = [c["when"] for c in C.CLIPS if c.get("posted")]
+    assert posted and max(posted) < min(c["when"] for c in C.CLIPS if not c.get("posted"))
+    assert {"glas", "kameras", "handy"} <= {c["id"] for c in C.CLIPS if not c.get("posted")}
 
 
 def test_a_shot_with_another_length_is_a_copy():
     c = C.BY_ID["haus"]
     hero = C.order(c)[0]
-    assert hero.id == "hero" and hero.beats == 12 and S.SHOTS["hero"].beats == 14     # the trailer keeps its own length
+    assert hero.id == "hero@up" and hero.beats == 12 and S.SHOTS["hero"].beats == 14  # the trailer keeps its own length
+    assert hero.view == S.UP_VIEW and S.SHOTS["hero"].view is None
+
+
+def test_every_clip_is_filmed_for_upright():
+    """the owner (2026-11-28): "dieses Zoomen am Handy, das mach mal bitte nicht": every shot of a clip is filmed in a browser about as
+    high as wide (shots.upright()) and shown whole; a phone shot is the phone itself; between the shots no zoom"""
+    pytest.importorskip("PIL")
+    import clipcut
+    for c in C.CLIPS:
+        for sid, tid, sh in zip(C.shot_ids(c), C.take_ids(c), C.order(c)):
+            assert sh.id == tid and S.get(tid).id == tid, (c["id"], sid)
+            if S.SHOTS[sid].kind == "phone":
+                assert tid == sid and sh.device == "phone", (c["id"], sid)
+            else:
+                assert tid == f"{sid}@up" and sh.view == S.UP_VIEW and sh.dsf == S.UP_DSF, (c["id"], sid)
+    w, h = S.UP_VIEW["width"], S.UP_VIEW["height"]
+    assert 1.0 <= w / h < 1.5 and w > 900                                                # a PC's layout, about square (not the tablet's)
+    assert clipcut.ClipCutter.TR_ZOOM == 0 and "lens" not in clipcut.ClipCutter.UP
+    assert all(s.settings.get("theme") == "glass" for k, s in S.SHOTS.items() if k != "glass")   # "Glas dunkel" (his choice)
 
 
 def test_the_parts_begin_on_a_full_bar():
@@ -73,7 +98,7 @@ def test_the_texts_for_the_plan():
         assert C.post_text(c, "de") in md and C.when(c) in md
     assert "Woche 1, Dienstag" in md and "Week 1, Tuesday" in C.texts_markdown("en")
     m = C.meta(C.CLIPS[0])
-    assert set(m) == {"id", "week", "day", "seconds", "hook", "text"} and set(m["text"]) == set(LANGS)
+    assert set(m) == {"id", "week", "day", "seconds", "posted", "hook", "text"} and set(m["text"]) == set(LANGS)
     json.dumps([C.meta(c) for c in C.CLIPS])
 
 
@@ -83,12 +108,11 @@ def test_the_pictures_stay_out_of_what_tiktok_covers():
     import edit
     U = clipcut.ClipCutter.UP
     W, H = edit.SIZES["9x16"]
-    for name in ("card", "app", "lens"):
-        x, y, w, h = U[name]
-        assert 0 <= x and x + w <= W and clipcut.SAFE_TOP <= y and y + h <= clipcut.SAFE_BOTTOM, name
+    x, y, w, h = U["card"]
+    assert 0 <= x and x + w <= W and clipcut.SAFE_TOP <= y and y + h <= clipcut.SAFE_BOTTOM
     x, my, w = U["alone"]
-    h = w * 9 / 16
-    assert my - h / 2 >= clipcut.SAFE_TOP and my + h / 2 <= clipcut.SAFE_BOTTOM
+    h = w * S.UP_VIEW["height"] / S.UP_VIEW["width"]                                  # a shot filmed for upright, shown whole
+    assert 0 <= x and x + w <= W and my - h / 2 >= clipcut.SAFE_TOP + 300 and my + h / 2 <= clipcut.SAFE_BOTTOM
     cy = U["card"][1] + U["card"][3] / 2
     assert cy - U["phone"] / 2 - 22 >= clipcut.SAFE_TOP and cy + U["phone"] / 2 + 22 <= clipcut.SAFE_BOTTOM   # the body of the phone around it
     assert U["foot"] is None and clipcut.ClipCutter.FADE_IN == 0                       # the first picture already counts
@@ -104,7 +128,7 @@ def test_the_words_fit_and_stay_out_of_what_tiktok_covers():
         pytest.skip("the font Inter is not installed (fonts-inter): the clips are made with it")
     U = clipcut.ClipCutter.UP
     W, H = edit.SIZES["9x16"]
-    top_of_card = min(U["card"][1], U["app"][1])
+    top_of_card = min(U["card"][1], U["alone"][1] - U["alone"][2] * S.UP_VIEW["height"] / S.UP_VIEW["width"] / 2)
     for c in C.CLIPS:
         for lang in LANGS:
             caps = [("hook", c["hook"][lang])] + [("upright", S.SHOTS[s].caption[lang]) for s in C.shot_ids(c)[1:] if S.SHOTS[s].caption]

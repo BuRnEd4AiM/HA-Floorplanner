@@ -15,7 +15,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 Übrig bleibt nur, was **nur du** kannst. Die Nummern führen zu den Tabellen unten.
 
 1. **Auf GitHub und im Store (nur mit deinem Konto):** das Vorschaubild hochladen (160.4 = 162.5: Settings → General → Social preview → `docs/img/social-preview.png`), Beschreibung und Stichwörter eintragen (162.6, `docs/HACS-STORE.md`), im Add-on-Store von Home Assistant nachsehen (162.7).
-2. **Gefällt es dir?** Die Videos aus dem Chat (156.3, 161.3, 162.3/162.9), eigene Suchwörter in der Anleitung (151.7), Trailer und ein Clip als Vorschau in Instagram oder TikTok (156.5, 161.5).
+2. **Gefällt es dir?** Die Videos aus dem Chat (156.3, 161.3, 162.3/162.9), eigene Suchwörter in der Anleitung (151.7), Trailer und ein Clip als Vorschau in Instagram oder TikTok (156.5, 161.5); die neuen TikTok-Clips ohne Zoom (240.3 bis 240.5).
 3. **Mit echter Sprache:** 🎤 „Welche Fenster sind offen?“ und „Mach das Licht im Bad an“ (96.1, 97.3, 98.2, 105.6). Getippt geht alles.
 4. **Mit deinen Geräten, wie flüssig es läuft:** iPad und Wandtablet (56.1, 56.2, 85.1 bis 85.3, 102.1, 108.3), das iPhone in Safari (100.3), Wischen mit dem echten Finger (134.10), Bearbeiten in der Home-Assistant-App am Handy (145.8).
 5. **Mit deiner Heizung im echten Betrieb:** ob dein Thermostat bei offenem Fenster wirklich aus geht (123.1, damit auch das alte ❌ 122.3), ob es mit dem Raumfühler die richtige Temperatur zeigt und hält (124.6, 124.7), ob das Bad ruhig bleibt (128.6), ein paar Tage und ein Morgen ohne Überraschung im 🩺 Protokoll (130.5, 132.4). Was das Add-on dabei tut, ist geprüft.
@@ -551,7 +551,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 237. Neu in 5.37.0: 🍏 Design „Glas dunkel“ und „Glas hell“, ⚡ Energie im Glas-Stil | 5 | 0 | 3 | 0 | 237.6 bis 237.8 |
 | 238. Repariert in 5.37.1: Raumkacheln über den Knöpfen „Normal / Temp.“ am Tablet (#812) | 2 | 0 | 1 | 0 | 238.3 |
 | 239. Verbessert in 5.37.2: 🍏 Glas: Szenen und Reiter als eine schwebende Kapsel | 2 | 0 | 1 | 0 | 239.3 |
-| **Zusammen** | **1457** | **2** | **155** | **92** | |
+| 240. 📱 TikTok-Clips neu: ohne Zoom, im Glas-Design, drei neue (nur Werkzeuge) | 2 | 0 | 3 | 0 | 240.3 bis 240.5 |
+| **Zusammen** | **1459** | **2** | **158** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -3575,3 +3576,14 @@ Deine Wahl (26.11.): „Szenen und Reiter in eine Kapsel“, Bilder 20–23 in `
 | 239.1 | Unit-Test `tests/glassdock.test.mjs` (neu); Browser-Test Teile `114_glass`, `115_mode_bar`, `52_scenes`, `61_scenebar_lights`, `31_tabs`, `34_dashboards`, `07_tablet`, `25_sky_tiles` | Alles grün | ✅ (2026-11-26, Claude) |
 | 239.2 | Demo am PC und als iPad: Glas dunkel, dann Glas hell, Haus und Heute | Das Haus (und die Seite) läuft bis ganz unten, Szenen und Reiter liegen darauf in einer Kapsel; mit „Dunkel“ wieder wie vorher | ✅ (2026-11-26, Claude, Demo) |
 | 239.3 | Im Add-on an deinem iPad (Home-Assistant-App) und am Wandtablet, Glas dunkel | Wie in der Demo; das Bild ist größer, nichts liegt übereinander | ❓ |
+
+## 240. 📱 TikTok-Clips neu: ohne Zoom, im Glas-Design, drei neue (nur Werkzeuge)
+Dein Wunsch (28.11.): „vom Aussehen hat sich alles verändert“, „dieses Zoomen am Handy, das mach mal bitte nicht“. Hochgeladen hattest du bis zum KI-Clip („Foto vom Grundriss“); die sind jetzt als „schon gepostet“ markiert. Neu: Glas, Kameras, Handy (die neue Handy-App). Dazu gefunden: #816, #817.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 240.1 | `python3 -m pytest tests/test_make_clips.py tests/test_make_trailer.py tests/test_guide.py` | Alles grün: jede Szene eines Clips ist hochkant gefilmt, keine Lupe, kein Zoom, alles „Glas dunkel“ | ✅ (2026-11-28, Claude) |
+| 240.2 | Alle deutschen Clips neu machen und Bild für Bild ansehen (Claude) | Die App ganz und groß, ohne Lupe und ohne Hineinzoomen; jede Szene klappt mit der heutigen App | ✅ (2026-11-28, Claude) |
+| 240.3 | Die Clips aus dem Chat (Strom, Glas, Kameras, Handy) am Handy ansehen, mit Ton | Kein Zoomen mehr, man erkennt die App; gefällt es dir? | ❓ |
+| 240.4 | Nach dem Merge: Actions → „Trailer“ läuft durch (knapp eine Stunde), dann https://burned4aim.github.io/HA-Floorplanner/trailer/ ganz unten | 12 Clips; oben die noch nicht geposteten (Strom, Glas, Wetter, Kameras, Handy, Ohne YAML) mit Woche und Tag, darunter die sechs mit „✓ schon gepostet“ | ❓ |
+| 240.5 | Den nächsten Clip („Strom“) in TikTok laden (erst die Vorschau) | Erster Satz, Szenen und Ende nicht von den Knöpfen oder dem Text von TikTok verdeckt | ❓ |

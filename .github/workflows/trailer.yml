@@ -4,8 +4,9 @@ name: Trailer
 # Zusammenschnitt … schick und modern … dass wenn man jetzt irgendwo einen Post macht … das hinschicken kann"): every shot of
 # tools/trailer/shots.py is filmed in the demo, cut to its own music, as a landscape (16:9) and an upright (9:16) film, German and English.
 # Runs when the trailer's tools change on main and by hand (Actions → Trailer → Run workflow; after a big new version, so it shows it).
-# After it the short clips for TikTok, Reels and Shorts (tools/make_clips.py, the owner's wish 2026-11-05: "in TikTok noch bewerben"):
-# cut from the same filmed shots, so they film nothing of their own; they go to clips/ next to the trailer.
+# Beside it the short clips for TikTok, Reels and Shorts (tools/make_clips.py, the owner's wish 2026-11-05: "in TikTok noch bewerben"):
+# the same shots, each filmed once more in a browser about as high as wide (no zoom, the owner 2026-11-28: "dieses Zoomen am Handy, das
+# mach mal bitte nicht"), so they run as jobs of their own at the same time; they go to clips/ next to the trailer.
 # The films go to the branch "trailer-video" (one commit, replaced every time), then the workflow "Demo" puts them on GitHub Pages:
 # https://burned4aim.github.io/HA-Floorplanner/trailer/
 on:
@@ -28,13 +29,14 @@ concurrency:
 
 jobs:
   make:
-    name: make ${{ matrix.lang }}
+    name: make ${{ matrix.part }} ${{ matrix.lang }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
         lang: [de, en]
+        part: [trailer, clips]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v7
@@ -59,13 +61,15 @@ jobs:
           python -c "from playwright.sync_api import sync_playwright as s; p = s().start(); p.chromium.launch().close(); p.stop()" || timeout 600 playwright install-deps chromium
           ffmpeg -hide_banner -encoders 2>/dev/null | grep -q libx264
       - name: Film and cut (${{ matrix.lang }})
+        if: matrix.part == 'trailer'
         run: python -u tools/make_trailer.py --lang ${{ matrix.lang }} --out trailer-out --work /tmp/trailer-work
-      - name: Cut the short clips (${{ matrix.lang }})
-        continue-on-error: true               # a clip that goes wrong never holds back the trailer
+      - name: Film and cut the short clips (${{ matrix.lang }})
+        if: matrix.part == 'clips'
+        continue-on-error: true               # a clip that goes wrong never holds back the others (it is left out)
         run: python -u tools/make_clips.py --lang ${{ matrix.lang }} --out trailer-out/clips --work /tmp/trailer-work
       - uses: actions/upload-artifact@v7
         with:
-          name: trailer-${{ matrix.lang }}
+          name: trailer-${{ matrix.lang }}-${{ matrix.part }}
           path: trailer-out
           retention-days: 3
 

@@ -3,7 +3,8 @@
   - the shots follow each other on the beat of the music (their length in beats: tools/trailer/shots.py), a recording that is longer
     than its place runs faster (at most 2.4 times)
   - "cine": the 3D house full screen, a soft dark edge; "ui": the app in a floating window with round corners and a shadow, on a dark
-    background with slowly moving colours; "phone": a phone beside the caption; the upright film (9x16) shows every shot as a card
+    background with slowly moving colours; "phone": a phone beside the caption; the upright film (9x16) shows every shot as a card,
+    an app shot always whole (never a magnifier or a zoom into it)
   - the captions come up word by word, from below, and go before the next shot
   - from shot to shot a short zoom through (the old one grows and fades, the new one settles); short shots under one caption
     (keep=True, the sky of a day) are hard cuts with a little flash, on the beat
@@ -31,10 +32,8 @@ FPS = 30
 SIZES = {"16x9": (1920, 1080), "9x16": (1080, 1920)}
 UP_CARD = (60, 470, 960, 1080)    # the upright film: where the card with the shot is (x, y, w, h), 8:9 (half the app's width)
 UP_TITLE = 255                    # … and the middle of the caption above it
-UP_APP = (24, 520, 1032, 580)     # an app shot upright: the whole app (16:9) …
-UP_LENS = (84, 1150, 912, 560)    # … and under it a magnifier of the part where things happen
-UP_LENS_PART = 0.44               # how much of the app's width the magnifier shows
-UP_ALONE = (12, 1050, 1056)       # an app shot without a magnifier (up=False): the whole app, as wide as it goes, around this middle (x, y, w)
+UP_ALONE = (12, 1050, 1056)       # an app shot upright: the whole app, as wide as it goes, around this middle (x, y, w); no magnifier, no
+#                                   zoom (the owner, 2026-11-28: "dieses Zoomen am Handy, das mach mal bitte nicht")
 UP_FOOT = 1774                    # the top of the small name under everything
 TR = 0.4                          # seconds of the zoom from one shot to the next (half before the cut, half after it)
 MAX_SPEED = 2.4
@@ -479,17 +478,6 @@ class Item:
         return keys[-1][1:]
 
 
-def lens_spot(film, s):
-    """where the magnifier of an upright app shot looks at second s of the recording (0…1 of the screen): where the pointer is, a little
-    ahead and behind averaged so it glides; the middle while there is no pointer"""
-    if any(a <= s < b for a, b in film.r["hidden"]) or not film.r["moves"]:
-        return 0.5, 0.5
-    pts = [film.pointer(min(film.end, max(0.0, s + d))) for d in (-0.6, -0.3, 0, 0.3, 0.6)]
-    x = sum(p[0] for p in pts) / len(pts) / film.vw
-    y = sum(p[1] for p in pts) / len(pts) / film.vh
-    return clamp(x, 0, 1), clamp(y, 0, 1)
-
-
 def crop(src, fx, fy, z, aspect=None):
     """the part of src around (fx, fy) (0…1) that a zoom z shows (aspect: width / height of the part, else the picture's)"""
     w, h = src.size
@@ -518,8 +506,9 @@ def plan(takes, order=None):
 
 class Cutter:
     # the upright film: where everything is (a short clip, tools/make_clips.py, keeps out of the places TikTok covers)
-    UP = {"card": UP_CARD, "title": UP_TITLE, "app": UP_APP, "lens": UP_LENS, "alone": UP_ALONE, "foot": UP_FOOT, "phone": 1240}
+    UP = {"card": UP_CARD, "title": UP_TITLE, "alone": UP_ALONE, "foot": UP_FOOT, "phone": 1240}
     FADE_IN, FADE_OUT, TAIL = 0.35, 1.2, 1.6                 # seconds: from black, to black, the last picture held while the music ends
+    TR_ZOOM = 0.07                                           # from shot to shot: how much the old one grows (0: only a soft blend)
 
     def __init__(self, takes, lang, fmt, order=None):
         self.lang, self.fmt = lang, fmt
@@ -585,18 +574,10 @@ class Cutter:
         if sh.kind == "phone":
             return self.footer(put_phone(out, it.film, s, W / 2, card_box[1] + card_box[3] / 2, self.UP["phone"]))
         src = it.film.frame(s, cursor=sh.kind != "cine")
-        fx, fy, z = it.view(t)
-        if sh.up:
-            fx, fy = sh.up
-        if sh.kind == "ui" and sh.up is False:              # only the whole app, big (the owner: a magnifier of these pages shows nothing you can read)
-            x, my, w = self.UP["alone"]
-            h = round(w * src.height / src.width)
-            out = put_window(out, src.resize((w, h), Image.LANCZOS), (x, my - h // 2, w, h), r=22)
-        elif sh.kind == "ui":                                # the whole app, and under it a magnifier where things happen (the owner: not cut off)
-            if not sh.up:
-                fx, fy = lens_spot(it.film, s)
-            out = self.upright_ui(out, src, fx, fy)
-        else:
+        if sh.kind == "ui" or src.width < src.height * 1.5:  # the app, or a shot filmed for upright (shots.upright()): all of it, no zoom
+            out = self.whole(out, src)
+        else:                                                # the 3D house filmed wide: its middle as a card
+            fx, fy, z = it.view(t)
             cw, chh = card_box[2], card_box[3]
             card = src.resize((cw, chh), Image.LANCZOS, box=crop(src, fx, fy, max(1.0, z * 0.8), aspect=cw / chh))
             out = put_window(out, card, card_box, r=30)
@@ -613,8 +594,9 @@ class Cutter:
                 b = items[k].t0
                 if abs(t - b) < TR / 2:
                     p = ease((t - (b - TR / 2)) / TR)
-                    a = zoomed(self.shot_frame(items[k - 1], t), 1 + 0.07 * p)
-                    bb = zoomed(self.shot_frame(items[k], t), 1.07 - 0.07 * p)
+                    a, bb = self.shot_frame(items[k - 1], t), self.shot_frame(items[k], t)
+                    if self.TR_ZOOM:
+                        a, bb = zoomed(a, 1 + self.TR_ZOOM * p), zoomed(bb, 1 + self.TR_ZOOM * (1 - p))
                     img = Image.blend(a, bb, p)
                     break
         if img is None:
@@ -630,22 +612,11 @@ class Cutter:
             img = Image.blend(img, Image.new("RGB", img.size), ease((t - (self.end - self.FADE_OUT)) / self.FADE_OUT))
         return img
 
-    def upright_ui(self, out, src, fx, fy):
-        """the upright film, an app shot: the whole app on top, a magnifier (twice as big) of the part around (fx, fy) under it, and a thin
-        frame in the app around that part"""
-        x, y, w, h = self.UP["app"]
-        app = src.resize((w, h), Image.LANCZOS)
-        mx, my, mw, mh = self.UP["lens"]
-        bw = src.width * UP_LENS_PART
-        box = crop(src, fx, fy, src.height / (bw * mh / mw), aspect=mw / mh)
-        lens = src.resize((mw, mh), Image.LANCZOS, box=box)
-        k = w / src.width                                     # the frame of the magnified part, drawn on the app
-        a = app.convert("RGBA")
-        ov = Image.new("RGBA", (w * 2, h * 2), (0, 0, 0, 0))
-        ImageDraw.Draw(ov).rounded_rectangle((box[0] * k * 2, box[1] * k * 2, box[2] * k * 2, box[3] * k * 2), 12, outline=ACCENT + (255,), width=6)
-        a.alpha_composite(ov.resize((w, h), Image.LANCZOS))
-        out = put_window(out, a.convert("RGB"), self.UP["app"], r=22)
-        return put_window(out, lens, self.UP["lens"], r=26)
+    def whole(self, out, src):
+        """the upright film: the whole recording, as wide as it goes (UP["alone"]), in a floating window"""
+        x, my, w = self.UP["alone"]
+        h = round(w * src.height / src.width)
+        return put_window(out, src.resize((w, h), Image.LANCZOS), (x, my - h // 2, w, h), r=22)
 
     def footer(self, img):
         """the upright film: the house and the name small under the card (UP["foot"] None: not there)"""

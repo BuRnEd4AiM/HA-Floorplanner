@@ -12,7 +12,9 @@ button to copy them (clips.json), and `python3 tools/make_clips.py --texts` prin
 In the hook's big words "|" says where the second line begins ("Mein ganzes Zuhause | in der Hosentasche"; at most two lines).
 To add a clip: a dict in CLIPS. Its shots are ids of shots.SHOTS, or (id, beats) to give one another length (a beat is half a second;
 a recording that is longer than its place runs faster, at most 2.4 times). Then python3 tools/make_clips.py <id> and look at it.
-WHEN says in which week and on which day the plan posts it.
+"when" says in which week and on which day the plan posts it; posted=True: the owner has put it on TikTok already (the page shows it
+as posted, at the end of the list). His state on 2026-11-28: everything up to "ki" ("Foto vom Grundriss …") was online; the rest
+was made new in the look of 5.37 ("Glas dunkel", no zoom) and three clips were added (glas, kameras, the phone app in handy).
 
 Pure data and a little logic (no picture, no browser): tests/test_make_clips.py checks it.
 """
@@ -34,7 +36,7 @@ DAYS = {"de": ["Dienstag", "Donnerstag", "Sonntag"], "en": ["Tuesday", "Thursday
 
 # hook: (small word above, the big words, a line under them) per language; text: under the video; tags: the hashtags
 CLIPS = [
-    dict(id="haus", when=(1, 0), shots=[("hero", 12), "close", "inside"],
+    dict(id="haus", when=(1, 0), posted=True, shots=[("hero", 12), "close", "inside"],
          hook={"de": ("Home Assistant", "Mein Haus in 3D – | und alles darin ist echt", ""),
                "en": ("Home Assistant", "My house in 3D – | and it's all real", "")},
          text={"de": "Mein Zuhause als 3D-Modell in Home Assistant: Lampen, Fenster und Sensoren live, genau da, wo sie sind. "
@@ -43,7 +45,7 @@ CLIPS = [
                      "Free, the demo runs in your browser without installing anything: link in bio."},
          tags={"de": ["homeassistant", "smarthome", "hausautomation", "3d", "opensource"],
                "en": ["homeassistant", "smarthome", "homeautomation", "3d", "opensource"]}),
-    dict(id="licht", when=(1, 1), shots=["light", "scenes", "close"],
+    dict(id="licht", when=(1, 1), posted=True, shots=["light", "scenes", "close"],
          hook={"de": ("Home Assistant", "Diese Lampen sind echt", "Antippen im 3D-Haus – zu Hause geht das Licht an."),
                "en": ("Home Assistant", "These lamps are real", "Tap one in the 3D house – the light at home goes on.")},
          text={"de": "Ich tippe auf die Lampe im 3D-Haus, und zu Hause geht das Licht an. Dimmen, Farbe, Szenen für das ganze Haus. "
@@ -52,7 +54,7 @@ CLIPS = [
                      "Home Assistant with 3D Floorplan, free. Demo: link in bio."},
          tags={"de": ["homeassistant", "smarthome", "licht", "hausautomation", "diy"],
                "en": ["homeassistant", "smarthome", "smartlights", "homeautomation", "diy"]}),
-    dict(id="fenster", when=(1, 2), shots=["warnings", "voice", "security"],
+    dict(id="fenster", when=(1, 2), posted=True, shots=["warnings", "voice", "security"],
          hook={"de": ("", "Regen – und welches Fenster ist noch offen?", "Ein Blick aufs 3D-Haus reicht."),
                "en": ("", "Rain – which window is still open?", "One look at the 3D house.")},
          text={"de": "Es regnet und ein Fenster ist offen? Mein 3D-Haus zeigt sofort, welches, und ich kann es auch fragen. "
@@ -61,7 +63,7 @@ CLIPS = [
                      "Home Assistant with 3D Floorplan, free. Demo: link in bio."},
          tags={"de": ["homeassistant", "smarthome", "fenster", "sicherheit", "hausautomation"],
                "en": ["homeassistant", "smarthome", "homesecurity", "windows", "homeautomation"]}),
-    dict(id="zeichnen", when=(2, 0), shots=["build", "roof", ("hero", 12)],
+    dict(id="zeichnen", when=(2, 0), posted=True, shots=["build", "roof", ("hero", 12)],
          hook={"de": ("", "Ich zeichne meinen Grundriss …", "… und das 3D-Haus entsteht dabei."),
                "en": ("", "I draw my floor plan …", "… and the 3D house builds itself.")},
          text={"de": "Grundriss zeichnen, und das 3D-Haus entsteht live: Wände, Fenster, Dach, Gauben, Treppen, Balkon. "
@@ -70,7 +72,7 @@ CLIPS = [
                      "For Home Assistant, free. The demo runs without installing: link in bio."},
          tags={"de": ["grundriss", "homeassistant", "hausbau", "3d", "smarthome"],
                "en": ["floorplan", "homeassistant", "3d", "smarthome", "diy"]}),
-    dict(id="klima", when=(2, 1), shots=["colors", "heat", "flow"],
+    dict(id="klima", when=(2, 1), posted=True, shots=["colors", "heat", "flow"],
          hook={"de": ("", "Wo ist es zu warm – | und wo zu kalt?", "Temperatur als Farbe, in jedem Raum."),
                "en": ("", "Which room is too warm – and which too cold?", "Temperature as colour, in every room.")},
          text={"de": "Temperatur, Feuchte und CO₂ als Farbe in jedem Raum, dazu Heizplan und Regeln wie „Fenster auf, Heizung aus“. "
@@ -79,7 +81,7 @@ CLIPS = [
                      "heating off\". Home Assistant with 3D Floorplan, free. Demo: link in bio."},
          tags={"de": ["heizung", "homeassistant", "smarthome", "energiesparen", "hausautomation"],
                "en": ["heating", "homeassistant", "smarthome", "energysaving", "homeautomation"]}),
-    dict(id="ki", when=(3, 0), shots=["import", ("hero", 12)],
+    dict(id="ki", when=(3, 0), posted=True, shots=["import", ("hero", 12)],
          hook={"de": ("KI", "Foto vom Grundriss → 3D-Haus", "ChatGPT & Co. bauen es, ganz ohne Zeichnen."),
                "en": ("AI", "Floor plan photo → 3D house", "ChatGPT & co. build it, no drawing at all.")},
          text={"de": "Grundriss fotografieren, an ChatGPT geben, die Antwort einfügen: fertig ist das 3D-Haus in Home Assistant. "
@@ -106,16 +108,34 @@ CLIPS = [
                      "Home Assistant with 3D Floorplan, free. Demo: link in bio."},
          tags={"de": ["homeassistant", "smarthome", "wetter", "3d", "hausautomation"],
                "en": ["homeassistant", "smarthome", "weather", "3d", "homeautomation"]}),
-    dict(id="handy", when=(4, 1), shots=["phone", "dash", "voice"],
-         hook={"de": ("", "Mein ganzes Zuhause | in der Hosentasche", "Am Handy, am Tablet, an der Wand."),
-               "en": ("", "My whole home | in my pocket", "On the phone, the tablet, the wall.")},
-         text={"de": "Mein ganzes Zuhause in 3D am Handy, am Tablet oder an der Wand, und fragen kann ich es auch. "
-                     "Home Assistant mit 3D Floorplan, kostenlos. Demo: Link im Profil.",
-               "en": "My whole home in 3D on the phone, the tablet or the wall, and I can ask it too. "
-                     "Home Assistant with 3D Floorplan, free. Demo: link in bio."},
-         tags={"de": ["homeassistant", "smarthome", "dashboard", "tablet", "hausautomation"],
-               "en": ["homeassistant", "smarthome", "dashboard", "tablet", "homeautomation"]}),
-    dict(id="ohne-yaml", when=(4, 2), shots=["flow", "dash", "pages"],
+    dict(id="glas", when=(3, 2), shots=["glass", "glass-pages", "close"],
+         hook={"de": ("Neu", "Mein Smart Home | im Glas-Look", "Ein Tipp – Milchglas, dahinter mein Haus."),
+               "en": ("New", "My smart home | in a glass look", "One tap – frosted glass, my house behind it.")},
+         text={"de": "Neues Design für mein 3D-Zuhause: Milchglas wie am iPhone, dahinter mein eigenes Haus verschwommen, Szenen und Reiter "
+                     "schweben über dem Bild. Nur eine Auswahl, kein Muss. Home Assistant mit 3D Floorplan, kostenlos. Demo: Link im Profil.",
+               "en": "A new design for my 3D home: frosted glass like on an iPhone, my own house blurred behind it, scenes and tabs floating "
+                     "over the picture. Only a choice, never a must. Home Assistant with 3D Floorplan, free. Demo: link in bio."},
+         tags={"de": ["homeassistant", "smarthome", "design", "glassmorphism", "dashboard"],
+               "en": ["homeassistant", "smarthome", "design", "glassmorphism", "dashboard"]}),
+    dict(id="kameras", when=(4, 1), shots=["cams", "piccards", "close"],
+         hook={"de": ("Sicherheit", "Bewegung im Garten?", "Das Bild kommt sofort aufs Handy."),
+               "en": ("Security", "Motion in the garden?", "The picture comes straight to my phone.")},
+         text={"de": "Bewegt sich etwas vor der Kamera, wird sie im 3D-Haus rot, ein Tipp zeigt das Bild. Bei Alarm kommt eine selbst gestaltete "
+                     "Bildkarte aufs Handy: Raum, Kamera, Uhrzeit, per Telegram oder die Home-Assistant-App. Kostenlos. Demo: Link im Profil.",
+               "en": "When something moves in front of a camera, it turns red in the 3D house, one tap shows the picture. An alarm sends a "
+                     "picture card you designed to the phone: room, camera, time, by Telegram or the Home Assistant app. Free. Demo: link in bio."},
+         tags={"de": ["homeassistant", "kamera", "sicherheit", "telegram", "smarthome"],
+               "en": ["homeassistant", "securitycamera", "homesecurity", "telegram", "smarthome"]}),
+    dict(id="handy", when=(4, 2), shots=["phone", "phone-rooms"],
+         hook={"de": ("Handy-App", "Mein ganzes Zuhause | in der Hosentasche", "Start, Räume, 3D-Haus – wie eine echte App."),
+               "en": ("Phone app", "My whole home | in my pocket", "Home, rooms, 3D house – like a real app.")},
+         text={"de": "Mein ganzes Zuhause in 3D am Handy, wie eine echte App: Start mit dem Wichtigsten, jeder Raum eine Kachel in der Farbe "
+                     "seines Lichts, ein Tipp macht alles an oder aus. Home Assistant mit 3D Floorplan, kostenlos. Demo: Link im Profil.",
+               "en": "My whole home in 3D on the phone, like a real app: home with what matters, every room a tile in the colour of its "
+                     "light, one tap switches everything on or off. Home Assistant with 3D Floorplan, free. Demo: link in bio."},
+         tags={"de": ["homeassistant", "smarthome", "app", "handy", "hausautomation"],
+               "en": ["homeassistant", "smarthome", "app", "iphone", "homeautomation"]}),
+    dict(id="ohne-yaml", when=(5, 0), shots=["flow", "dash", "pages"],
          hook={"de": ("Home Assistant", "Smart Home | ganz ohne YAML", "Fertige Seiten und Abläufe zum Klicken."),
                "en": ("Home Assistant", "Smart home | without any YAML", "Ready-made pages, routines by clicking.")},
          text={"de": "Fertige Seiten, eigene Dashboards und Abläufe aus Bausteinen, ganz ohne YAML. "
@@ -136,12 +156,17 @@ def shot_ids(clip):
     return [s if isinstance(s, str) else s[0] for s in clip["shots"]]
 
 
+def take_ids(clip):
+    """the ids of the recordings a clip needs: every shot filmed for upright (shots.upright(): "light@up"; a phone shot is the same)"""
+    return [S.upright(s).id for s in shot_ids(clip)]
+
+
 def order(clip):
-    """the clip's shots as Shot objects (a copy where it has another length) and the end: for edit.plan"""
+    """the clip's shots as Shot objects, filmed for upright (shots.upright(); a copy where it has another length) and the end: for edit.plan"""
     out = []
     for s in clip["shots"]:
         sid, beats = (s, None) if isinstance(s, str) else s
-        sh = S.SHOTS[sid]
+        sh = S.upright(sid)
         if beats is not None and beats != sh.beats:
             sh = copy.copy(sh)
             sh.beats = beats
@@ -180,7 +205,7 @@ def when(clip, lang="de"):
 
 def meta(clip):
     """one clip for clips.json (the page of the trailer)"""
-    return {"id": clip["id"], "week": clip["when"][0], "day": clip["when"][1], "seconds": round(seconds(clip), 1),
+    return {"id": clip["id"], "week": clip["when"][0], "day": clip["when"][1], "seconds": round(seconds(clip), 1), "posted": bool(clip.get("posted")),
             "hook": {lang: hook_line(clip, lang) for lang in ("de", "en")},
             "text": {lang: post_text(clip, lang) for lang in ("de", "en")}}
 

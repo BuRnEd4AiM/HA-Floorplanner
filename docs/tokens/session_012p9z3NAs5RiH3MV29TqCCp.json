@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3NAs5RiH3MV29TqCCp",
+ "start": "2026-11-28",
+ "updated": "2026-11-28T13:30:53Z",
+ "branch": "claude/practical-fermat-ro9s4e",
+ "source": "counted",
+ "input": 364,
+ "cache_write": 356683,
+ "cache_read": 48836338,
+ "output": 122435,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 364,
+   "cache_write": 356683,
+   "cache_read": 48836338,
+   "output": 122435,
+   "requests": 177
+  }
+ }
+}

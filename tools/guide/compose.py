@@ -138,6 +138,9 @@ class Film:
         self.dsf = res["dsf"]
         self.phone = res["phone"]
         self.vw, self.vh = res["view"]["width"], res["view"]["height"]
+        # the picture frame() gives: the video's 1920 × 1080; a recording of another shape (the trailer's upright shots, about square)
+        # keeps its shape at its own size
+        self.ow, self.oh = (W, H) if self.vw * H == self.vh * W else (round(self.vw * self.dsf), round(self.vh * self.dsf))
         self._img_i, self._img = -1, None
         self.end = max(res["end"], (self.times[-1] if self.times else 0) + 0.2)
 
@@ -196,19 +199,20 @@ class Film:
             to_out = lambda x, y: (sx + (x * self.dsf - left) * sw / cw, sy + (y * self.dsf - top) * sh / ch)
             k = sw / self.vw
         else:
-            if s == 1.0 and (fw, fh) == (W, H):
+            ow, oh = self.ow, self.oh
+            if s == 1.0 and (fw, fh) == (ow, oh):
                 out = src.copy()
             else:
-                out = src.resize((W, H), Image.BICUBIC, box=(left, top, left + cw, top + ch))
-            to_out = lambda x, y: ((x * self.dsf - left) * W / cw, (y * self.dsf - top) * H / ch)
-            k = W / self.vw
+                out = src.resize((ow, oh), Image.BICUBIC, box=(left, top, left + cw, top + ch))
+            to_out = lambda x, y: ((x * self.dsf - left) * ow / cw, (y * self.dsf - top) * oh / ch)
+            k = ow / self.vw
         if not cursor:
             return out
         out = out.convert("RGBA")
         for a, b, times in self.r.get("ff", []):
             if a <= t < b:
                 im = ff_badge(times)
-                out.alpha_composite(im, ((W - im.width) // 2, 96))
+                out.alpha_composite(im, ((out.width - im.width) // 2, 96))
         for c in self.r["clicks"]:
             if c["t"] <= t < c["t"] + RING_S:
                 step = min(15, int((t - c["t"]) / RING_S * 16))
@@ -224,7 +228,7 @@ class Film:
             else:
                 pressed = any(c["t"] <= t < max(c["t1"], c["t"] + 0.12) for c in self.r["clicks"])
                 im, (ax, ay) = arrow(round(k * 1.25, 2), pressed)
-                if -40 < px < W + 40 and -40 < py < H + 40:
+                if -40 < px < out.width + 40 and -40 < py < out.height + 40:
                     out.alpha_composite(im, (int(px - ax), int(py - ay)))
         return out.convert("RGB")
 
